@@ -1,0 +1,11 @@
+obj-y += pstree.o
+obj-y += pswalk.o
+obj-y += psxface.o
+obj-y += psargs.o
+obj-y += psutils.o
+obj-y += psloop.o
+obj-y += psopcode.o
+obj-y += psobject.o
+obj-y += psparse.o
+obj-y += psopinfo.o
+obj-y += psscope.o

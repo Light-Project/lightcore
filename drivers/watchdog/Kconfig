@@ -1,0 +1,9 @@
+menuconfig WATCHDOG
+    bool "Watchdog support"
+if WATCHDOG
+
+config WATCHDOG_ESP8266
+    bool "Espressif UART support"
+
+endif
+ 

@@ -1,0 +1,112 @@
+menu "Memory Management options"
+comment "Architecture has no MMU"
+    depends on !ARCH_HAS_MMU
+
+config MMU
+    bool "MMU-based Paged Memory Management Support"
+    depends on ARCH_HAS_MMU
+    default y
+    help
+        Select if you want MMU-based virtualised addressing space
+        support by paged memory management. If unsure, say 'Y'.
+        
+choice
+    prompt "Memory model"
+    default FLATMEM
+    
+    config FLATMEM
+        bool "Flat Memory model"
+
+    config SPARCEMEM
+        bool "Sparce Memory model"
+
+endchoice
+
+menu "Memory region"
+
+    config REGION_DMA
+        bool "DMA region"
+        depends on ARCH_HAS_DMA
+
+    config DMA_SIZE
+        hex "DMA region size"
+        depends on REGION_DMA
+        
+    config REGION_DMA32
+        bool "DMA32 region"
+        depends on ARCH_HAS_DMA32
+        
+    config DM32_SIZE
+        hex "DMA32 region size"
+        depends on REGION_DMA32
+        
+    config REGION_HIMEM
+        bool "HIMEM region"
+        depends on ARCH_HAS_HIMEM && MMU
+        
+    config HIGHMEM_OFFSET
+        hex "Hige memory offset"
+        depends on REGION_HIMEM
+    
+endmenu
+    
+config XIP
+    bool "Execute-In-Place from ROM"
+    depends on ARCH_HAS_XIP
+
+config XIP_BASE
+    hex "Xip PHYSADDR(ROM)"
+    depends on XIP
+
+config RAM_BASE
+    hex "RAM BASEADDR"
+    
+config PAGE_OFFSET
+    hex "kernel offset"
+    
+# Kernel heap memory allocator
+choice
+    prompt "Kmem allocator select"
+    default MM_SLOB
+    
+    config MM_SLAB
+        bool "SLAB"
+
+    config MM_SLOB
+        bool "SLOB (Simple SLAB)"
+
+    config MM_SIMPLE
+        bool "Simple Allocator"
+    
+endchoice
+    
+menu "slob config"
+    depends on MM_SLOB
+
+    config SLOB_HUGE_LINE
+        int "Large page boundary (byte)"
+        default 1024
+
+    config SLOB_MEDIUM_LINE
+        int "Medium page boundary (byte)"
+        default 256
+
+endmenu
+
+choice 
+    prompt "simple allocator config"
+    depends on MM_SIMPLE
+    default MM_SIMPLE_FIRST
+
+    config MM_SIMPLE_FIRST
+        bool "first fit"
+
+    config MM_SIMPLE_BEST
+        bool "best fit"
+
+    config MM_SIMPLE_WORST
+        bool "worst fit"
+
+endchoice
+        
+endmenu

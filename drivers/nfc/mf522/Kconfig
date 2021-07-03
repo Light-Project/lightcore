@@ -1,0 +1,4 @@
+config Drivers_mf522
+	bool "Support spi mf522"
+	default n
+

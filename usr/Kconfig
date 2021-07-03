@@ -1,0 +1,8 @@
+menu "User tools"
+    
+    config GENROOTFS
+    bool "Construct a simple rootfs"
+    depends on !USR_XIP
+    default y
+
+endmenu

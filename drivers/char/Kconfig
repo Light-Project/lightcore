@@ -1,0 +1,7 @@
+menuconfig DRIVER_BUZZER
+    bool "buzzer support"
+if DRIVER_BUZZER
+
+
+
+endif

@@ -1,0 +1,7 @@
+menuconfig DRIVER_CLK
+    bool "clock support"
+if DRIVER_CLK
+
+
+
+endif

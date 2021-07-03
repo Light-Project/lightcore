@@ -1,0 +1,7 @@
+menuconfig DT
+    bool "Device Tree support"
+if DT
+
+
+
+endif

@@ -1,0 +1,8 @@
+menu "Kernel hacking" 
+
+    config PRE_PRINTK
+    bool "Kernel generate debug file"
+    depends on ARCH_HAS_PRE_PRINTK
+    default y
+    
+endmenu

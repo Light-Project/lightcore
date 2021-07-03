@@ -1,0 +1,2 @@
+
+clean-y += include/generated/ 

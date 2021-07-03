@@ -1,0 +1,7 @@
+menuconfig BLOCK
+    bool "block support"
+if BLOCK
+
+
+
+endif

@@ -1,0 +1,11 @@
+menu "irq support"
+
+config CSKY_APB_INTC
+    bool "C-SKY APB Interrupt Controller"
+    depends on CSKY
+    help
+    Say yes here to enable C-SKY APB interrupt controller driver used
+    by C-SKY single core SOC system. It uses mmio map apb-bus to visit
+    the controller's register.
+
+endmenu

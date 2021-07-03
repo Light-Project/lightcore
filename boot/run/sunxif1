@@ -1,0 +1,11 @@
+tar remote :2331
+
+# reset CPU
+monitor reset
+
+# load bootloader
+restore boot/preload.bin binary 0
+set $pc = 0
+
+continue
+ 

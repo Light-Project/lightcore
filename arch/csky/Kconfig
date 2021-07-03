@@ -1,0 +1,153 @@
+menu "Processor type and features"
+    depends on ARCH_CSKY
+
+config CSKY_ABIV1
+bool 
+
+config CSKY_ABIV2
+bool 
+    
+choice
+    prompt "CPU MODEL"
+    default CPU_CK610
+
+    config CPU_CK610
+        bool "CSKY CPU ck610"
+        select CSKY_ABIV1
+        select CPU_NEED_TLBSYNC
+        select CPU_NEED_SOFTALIGN
+        select CPU_NO_USER_BKPT
+
+    config CPU_CK810
+        bool "CSKY CPU ck810"
+        select CSKY_ABIV2
+        select CPU_HAS_HILO
+        select CPU_NEED_TLBSYNC
+
+    config CPU_CK807
+        bool "CSKY CPU ck807"
+        select CSKY_ABIV2
+        select CPU_HAS_HILO
+
+    config CPU_CK860
+        bool "CSKY CPU ck860"
+        select CSKY_ABIV2
+        select CPU_HAS_TLBI
+        select CPU_HAS_CACHEV2
+        select CPU_HAS_LDSTEX
+        select CPU_HAS_FPUV2
+        
+endchoice
+
+choice
+    prompt "C-SKY PMU type"
+    depends on PERF_EVENTS
+    depends on CPU_CK807 || CPU_CK810 || CPU_CK860
+
+    config CPU_PMU_NONE
+        bool "None"
+
+    config CSKY_PMU_V1
+        bool "Performance Monitoring Unit Ver.1"
+
+endchoice
+
+choice
+    prompt "Power Manager Instruction (wait/doze/stop)"
+    default CPU_PM_NONE
+
+    config CPU_PM_NONE
+        bool "None"
+
+    config CPU_PM_WAIT
+        bool "wait"
+
+    config CPU_PM_DOZE
+        bool "doze"
+
+    config CPU_PM_STOP
+        bool "stop"
+endchoice
+
+menuconfig HAVE_TCM
+    bool "Tightly-Coupled/Sram Memory"
+    select GENERIC_ALLOCATOR
+    help
+    The implementation are not only used by TCM (Tightly-Coupled Meory)
+    but also used by sram on SOC bus. It follow existed linux tcm
+    software interface, so that old tcm application codes could be
+    re-used directly.
+
+if HAVE_TCM
+config ITCM_RAM_BASE
+    hex "ITCM ram base"
+    default 0xffffffff
+
+config ITCM_NR_PAGES
+    int "Page count of ITCM size: NR*4KB"
+    range 1 256
+    default 32
+
+config HAVE_DTCM
+    bool "DTCM Support"
+
+config DTCM_RAM_BASE
+    hex "DTCM ram base"
+    depends on HAVE_DTCM
+    default 0xffffffff
+
+config DTCM_NR_PAGES
+    int "Page count of DTCM size: NR*4KB"
+    depends on HAVE_DTCM
+    range 1 256
+    default 32
+endif
+
+config CPU_HAS_VDSP
+    bool "CPU has VDSP coprocessor"
+    depends on CPU_HAS_FPU && CPU_HAS_FPUV2
+
+config CPU_HAS_FPU
+    bool "CPU has FPU coprocessor"
+    depends on CPU_CK807 || CPU_CK810 || CPU_CK860
+
+config CPU_HAS_ICACHE_INS
+    bool "CPU has Icache invalidate instructions"
+    depends on CPU_HAS_CACHEV2
+
+config CPU_HAS_TEE
+    bool "CPU has Trusted Execution Environment"
+    depends on CPU_CK810
+
+config SMP
+    bool "Symmetric Multi-Processing (SMP) support for C-SKY"
+    depends on CPU_CK860
+    default n
+
+config NR_CPUS
+    int "Maximum number of CPUs (2-32)"
+    range 2 32
+    depends on SMP
+    default "4"
+
+config HIGHMEM
+    bool "High Memory Support"
+    depends on !CPU_CK610
+    select KMAP_LOCAL
+    default y
+
+config FORCE_MAX_ZONEORDER
+    int "Maximum zone order"
+    default "11"
+
+config HOTPLUG_CPU
+    bool "Support for hot-pluggable CPUs"
+    select GENERIC_IRQ_MIGRATION
+    depends on SMP
+    help
+    Say Y here to allow turning CPUs off and on. CPUs can be
+    controlled through /sys/devices/system/cpu/cpu1/hotplug/target.
+
+    Say N if you want to disable CPU hotplug.
+    
+endmenu

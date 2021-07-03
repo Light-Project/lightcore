@@ -1,0 +1,12 @@
+#
+# Cryptographic API Configuration
+#
+menuconfig CRYPTO
+	tristate "Cryptographic API"
+	help
+	  This option provides the core Cryptographic API.
+
+if CRYPTO
+
+    
+endif

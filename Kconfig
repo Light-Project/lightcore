@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: GPL-2.0
+#
+# For a description of the syntax of this configuration file,
+# see Documentation/kbuild/kconfig-language.rst.
+#
+
+mainmenu "Lightcore $(KERNELVERSION) Configuration"
+
+source "system/Kconfig.general"
+
+source "arch/Kconfig"
+
+source "mm/Kconfig"
+
+source "system/Kconfig"
+
+source "drivers/Kconfig"
+
+source "fs/Kconfig"
+
+source "net/Kconfig"
+
+source "crypto/Kconfig"
+
+source "security/Kconfig"
+
+source "lib/Kconfig"
+
+source "system/Kconfig.debug"
+
+source "system/Kconfig.comp"
+
+source "usr/Kconfig"
+
+source "boot/Kconfig"

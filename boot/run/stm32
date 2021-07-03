@@ -1,0 +1,18 @@
+tar jtag jtag://127.0.0.1:1025
+file kernel
+
+# reset CPU
+reset
+
+# setup CCR (Cache Config Reg)
+# 0-1:MP,2:IE,3:DE,4:WB,5:RS,6:Z,7:BE
+set $cr18 = 0x7d
+
+# flush cache
+set $cr17 = 0x33
+
+load
+
+# Run to kernel_start 
+break kernel_start
+continue 

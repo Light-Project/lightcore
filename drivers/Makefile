@@ -1,0 +1,27 @@
+obj-$(CONFIG_ACPI)       += acpi/
+obj-$(CONFIG_ATA)       += ata/
+obj-$(CONFIG_BLOCK)      += block/
+obj-$(CONFIG_DRIVER_CHAR)       += char/
+obj-$(CONFIG_DRIVER_CLK)        += clk/
+obj-$(CONFIG_DRIVER_CPUFREQ)    += cpufreq/
+obj-$(CONFIG_DT)         += dt/
+obj-$(CONFIG_FLOPPY)       += floppy/
+obj-$(CONFIG_DRIVER_GPIO)       += gpio/
+obj-$(CONFIG_DRIVER_GPU)        += gpu/
+obj-$(CONFIG_DRIVER_HID)        += hid/
+obj-$(CONFIG_I2C)        += i2c/
+obj-$(CONFIG_DRIVER_LED)        += led/
+obj-$(CONFIG_DRIVER_MOTION)     += motion/
+obj-$(CONFIG_MTD)        += mtd/
+obj-$(CONFIG_PCI)        += pci/
+obj-$(CONFIG_NETD)        += net/
+obj-$(CONFIG_DRIVER_RF)         += rf/
+obj-$(CONFIG_RTC)         += rtc/
+obj-$(CONFIG_DRIVER_MMC)        += mmc/
+obj-$(CONFIG_DRIVER_SOUND)      += sound/
+obj-$(CONFIG_DRIVER_THERMAL)    += thermal/
+obj-$(CONFIG_UART)       += uart/
+obj-$(CONFIG_DRIVER_USB)        += usb/
+obj-$(CONFIG_VIDEO)      += video/
+obj-$(CONFIG_WATCHDOG)          += watchdog/
+ 

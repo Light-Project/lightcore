@@ -1,0 +1,9 @@
+#ifndef _INIT_INIT_H_
+#define _INIT_INIT_H_
+
+#define boot_args_size 1024
+extern char boot_args[boot_args_size];
+
+void arch_setup(const char *para);
+
+#endif

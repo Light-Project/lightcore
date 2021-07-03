@@ -1,0 +1,16 @@
+menu "Log output device"
+depends on ARCH_X86
+
+    config PRELOAD_SPLASH
+    bool "splash"
+    default y
+
+    config BOOTLOADER_LOG_UART
+    bool "uart"
+    default y
+
+    config BOOTLOADER_LOG_FB
+    bool "framebuffer"
+    default y
+
+endmenu

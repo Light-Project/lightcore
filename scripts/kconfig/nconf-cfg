@@ -1,0 +1,2 @@
+cflags="-D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 "
+libs="-lncursesw -lmenuw -Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now -lpanelw "

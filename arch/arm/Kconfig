@@ -1,0 +1,13 @@
+menu "Processor type and features"
+depends on ARCH_ARM
+    
+    choice
+    prompt "Processor type and features"
+        config ARCH_ARM_926EJS
+        bool "ARM926ejs"
+
+        config ARCH_ARM_V7A
+        bool "ARMv7a"
+    endchoice
+    
+endmenu 

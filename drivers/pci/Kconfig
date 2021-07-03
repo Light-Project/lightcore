@@ -1,0 +1,6 @@
+menuconfig PCI
+    bool "PCI support"
+if PCI
+
+
+endif

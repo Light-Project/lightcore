@@ -1,0 +1,15 @@
+obj-y += evevent.o
+obj-y += evmisc.o
+obj-y += evglock.o
+obj-y += evgpeutil.o
+obj-y += evgpeblk.o
+obj-y += evgpeinit.o
+obj-y += evsci.o
+obj-y += evxfregn.o
+obj-y += evhandler.o
+obj-y += evregion.o
+obj-y += evxfevnt.o
+obj-y += evrgnini.o
+obj-y += evxface.o
+obj-y += evgpe.o
+obj-y += evxfgpe.o 

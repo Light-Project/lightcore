@@ -1,0 +1,14 @@
+menuconfig VIDEO
+    bool "Video device support"
+if VIDEO
+
+config FBCON
+    bool "frame buffer console driver"
+    select FONT
+    select FONT_6X8
+
+config VIDEO_BOCHS
+    bool "Support for bochs dispi vga interface (qemu stdvga)"
+
+endif
+ 

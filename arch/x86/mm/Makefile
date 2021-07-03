@@ -1,0 +1,1 @@
+obj-y += himem.o page.o segment.o

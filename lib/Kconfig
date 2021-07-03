@@ -1,0 +1,11 @@
+menu "Library routines" 
+    
+    config LIB_FILTER
+    bool "filter lib"
+    default y
+
+    source "lib/crc/Kconfig"
+    
+    source "lib/font/Kconfig"
+    
+endmenu

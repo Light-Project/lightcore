@@ -1,0 +1,13 @@
+# Prohibit git submission
+
+/.vscode/
+
+/.config
+/.config.old
+/include/config/
+/include/generated/
+
+*.o
+*.o.d
+*.cmd
+*.map

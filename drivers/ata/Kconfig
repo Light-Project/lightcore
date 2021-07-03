@@ -1,0 +1,7 @@
+menuconfig ATA
+    bool "ATA support"
+if ATA
+
+
+
+endif

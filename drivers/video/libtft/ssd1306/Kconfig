@@ -1,0 +1,3 @@
+config Drivers_ssd1306_i2c
+	bool "Support I2c ssd1306"
+	default n

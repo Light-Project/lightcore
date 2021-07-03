@@ -1,0 +1,16 @@
+obj-y += dsmethod.o
+obj-y += dswload2.o
+obj-y += dsdebug.o
+obj-y += dswload.o
+obj-y += dsutils.o
+obj-y += dswexec.o
+obj-y += dsinit.o
+obj-y += dsopcode.o
+obj-y += dsargs.o
+obj-y += dsmthdat.o
+obj-y += dspkginit.o
+obj-y += dscontrol.o
+obj-y += dsobject.o
+obj-y += dsfield.o
+obj-y += dswstate.o
+obj-y += dswscope.o 

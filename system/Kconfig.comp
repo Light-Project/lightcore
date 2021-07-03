@@ -1,0 +1,39 @@
+menu "Compile config"
+    
+choice
+    prompt "Compiler optimization level"
+    default CC_OPTIMIZE_FOR_DEBUG
+        
+config CC_OPTIMIZE_FOR_DEBUG
+    bool "Optimize for debug (-O0)"
+        
+config CC_OPTIMIZE_FOR_PERFORMANCE
+    bool "Optimize for performance (-O2)"
+        
+config CC_OPTIMIZE_FOR_SIZE
+    bool "Optimize for size (-Os)"
+    
+endchoice
+    
+config STRICT
+    bool "Compiling kernel with strict mode"
+    default y    
+    help 
+    Use -Wall and -Werror, To ensure kernel 
+    security, please keep it open in the mainline
+    
+config KERNEL_DEBUG
+    bool "Kernel generate debug file"
+    default y    
+
+config KERNEL_MAP
+    bool "generate map file"
+    default n
+    
+config LD_DEAD_CODE_DATA_ELIMINATION
+    bool "Dead code and data elimination (EXPERIMENTAL)"
+    default n
+
+endmenu
+
+ 

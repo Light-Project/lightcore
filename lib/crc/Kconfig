@@ -1,0 +1,19 @@
+config LIB_CRC4
+bool "Enable CRC4 functions"
+default y
+
+config LIB_CRC8 
+bool "Enable CRC8 functions"
+default y
+
+config LIB_CRC16 
+bool "Enable CRC16 functions"
+default y
+
+config LIB_CRC32
+bool "Enable CRC32 functions"
+default y
+
+config LIB_CRC64
+bool "Enable CRC64 functions"
+default y

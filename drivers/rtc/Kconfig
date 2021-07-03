@@ -1,0 +1,8 @@
+menuconfig RTC
+    bool "Rtc support"
+if RTC 
+
+config RTC_MC146818
+    bool "Mc146818"
+
+endif

@@ -1,0 +1,5 @@
+mandatory-y += atomic.h
+mandatory-y += barrier.h
+mandatory-y += bug.h
+mandatory-y += io.h
+mandatory-y += mmiowb.h

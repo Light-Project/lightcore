@@ -1,0 +1,81 @@
+menu "Device Drivers"
+
+source "drivers/acpi/Kconfig"
+
+source "drivers/ata/Kconfig"
+
+source "drivers/block/Kconfig"
+
+# source "drivers/buzzer/Kconfig"
+
+# source "drivers/cdrom/Kconfig"
+
+source "drivers/char/Kconfig"
+
+# source "drivers/clk/Kconfig"
+
+# source "drivers/clocksource/Kconfig"
+
+# source "drivers/cpufreq/Kconfig"
+
+# source "drivers/dma/Kconfig"
+
+source "drivers/dt/Kconfig"
+
+# source "drivers/firmware/Kconfig"
+
+source "drivers/floppy/Kconfig"
+
+source "drivers/gpio/Kconfig"
+
+# source "drivers/gpu/Kconfig"
+
+# source "drivers/hid/Kconfig"
+
+source "drivers/i2c/Kconfig"
+
+# source "drivers/i2s/Kconfig"
+
+# source "drivers/i3c/Kconfig"
+
+source "drivers/irq/Kconfig"
+
+# source "drivers/Kconfig/Kconfig"
+
+source "drivers/led/Kconfig"
+
+# source "drivers/mmc/Kconfig"
+
+# source "drivers/motion/Kconfig"
+
+source "drivers/mtd/Kconfig"
+
+source "drivers/net/Kconfig"
+
+# source "drivers/nfc/Kconfig"
+
+source "drivers/pci/Kconfig"
+
+# source "drivers/rf/Kconfig"
+
+# source "drivers/rng/Kconfig"
+
+source "drivers/rtc/Kconfig"
+
+# source "drivers/scsi/Kconfig"
+
+# source "drivers/sound/Kconfig"
+
+# source "drivers/spi/Kconfig"
+
+# source "drivers/thermal/Kconfig"
+
+source "drivers/uart/Kconfig"
+
+# source "drivers/usb/Kconfig"
+
+source "drivers/video/Kconfig"
+
+source "drivers/watchdog/Kconfig"
+
+endmenu

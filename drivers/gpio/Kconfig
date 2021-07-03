@@ -1,0 +1,7 @@
+menuconfig GPIO
+    bool "Gpio support"
+if GPIO
+
+
+
+endif

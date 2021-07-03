@@ -1,0 +1,13 @@
+menu "Clock Source drivers"
+
+config CLKSRC_GX6605S
+    bool "Gx6605s SOC system timer driver"
+    depends on ARCH_CSKY
+    default y
+    help
+        This option enables support for gx6605s SOC's timer.
+
+config CLKSRC_8253
+    bool "8253 timer driver"
+    
+endmenu

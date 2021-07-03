@@ -1,0 +1,12 @@
+menuconfig UART
+    bool "UART support"
+if UART
+
+config CONFIG_UART_8250_DT
+    bool "Devicetree based probing for 8250 ports"
+    depends on DT
+
+config UART_ESP
+    bool "Espressif UART support"
+
+endif

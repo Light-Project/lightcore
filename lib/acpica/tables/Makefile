@@ -1,0 +1,9 @@
+obj-y += tbinstal.o
+obj-y += tbxfroot.o
+obj-y += tbutils.o
+obj-y += tbfadt.o
+obj-y += tbfind.o
+obj-y += tbprint.o
+obj-y += tbdata.o
+obj-y += tbxfload.o
+obj-y += tbxface.o

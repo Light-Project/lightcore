@@ -1,0 +1,9 @@
+menuconfig I2C
+    bool "I2C support"
+if I2C
+
+config I2C_PIIX4
+    bool "Intel PIIX4 support"
+
+
+endif

@@ -1,0 +1,16 @@
+menuconfig PRELOAD
+    bool "Builtin preload(Replace bootloader)"
+    default y
+    
+if PRELOAD
+
+source "boot/preload/sunxif1/Kconfig"
+    
+source "boot/preload/sunxih3/Kconfig"
+    
+source "boot/preload/bios/Kconfig"
+    
+config PERLOAD_CMD
+    string "Param to kernel"
+
+endif

@@ -1,0 +1,123 @@
+
+
+# ARM7TDMI
+config CPU_ARM7TDMI
+
+
+# ARM720T
+config CPU_ARM720T
+
+
+# ARM740T
+config CPU_ARM740T
+
+
+
+# ARM9TDMI
+config CPU_ARM9TDMI
+
+
+# ARM920T
+config CPU_ARM920T
+
+
+# ARM922T
+config CPU_ARM922T
+
+
+# ARM925T
+config CPU_ARM925T
+
+
+# ARM926T
+config CPU_ARM926T
+
+
+# ARM940T
+config CPU_ARM940T
+
+
+# ARM946E-S
+config CPU_ARM946
+
+
+
+# ARMv7
+config CPU_V7E
+
+
+
+# ARMv7M
+config CPU_V7M
+
+config CPU_32v3
+    bool
+    select CPU_USE_DOMAINS if MMU
+    select NEED_KUSER_HELPERS
+    select TLS_REG_EMUL if SMP || !MMU
+    select CPU_NO_EFFICIENT_FFS
+
+config CPU_32v4
+    bool
+    select CPU_USE_DOMAINS if MMU
+    select NEED_KUSER_HELPERS
+    select TLS_REG_EMUL if SMP || !MMU
+    select CPU_NO_EFFICIENT_FFS
+
+config CPU_32v4T
+    bool
+    select CPU_USE_DOMAINS if MMU
+    select NEED_KUSER_HELPERS
+    select TLS_REG_EMUL if SMP || !MMU
+    select CPU_NO_EFFICIENT_FFS
+
+config CPU_32v5
+    bool
+    select CPU_USE_DOMAINS if MMU
+    select NEED_KUSER_HELPERS
+    select TLS_REG_EMUL if SMP || !MMU
+
+config CPU_32v6
+    bool
+    select TLS_REG_EMUL if !CPU_32v6K && !MMU
+
+config CPU_32v6K
+    bool
+
+config CPU_32v7
+    bool
+
+config CPU_32v7M
+    bool
+    
+    
+# The cache model
+config CPU_CACHE_V4
+    bool
+
+config CPU_CACHE_V4WT
+    bool
+
+config CPU_CACHE_V4WB
+    bool
+
+config CPU_CACHE_V6
+    bool
+
+config CPU_CACHE_V7
+    bool
+
+config CPU_CACHE_NOP
+    bool
+
+config CPU_CACHE_VIVT
+    bool
+
+config CPU_CACHE_VIPT
+    bool
+
+config CPU_CACHE_FA
+    bool
+
+config CPU_CACHE_V7M
+    bool

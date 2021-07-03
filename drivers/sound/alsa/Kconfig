@@ -1,0 +1,7 @@
+menuconfig DRIVER_ALSA
+    bool "acpi support"
+if DRIVER_ACPI
+
+
+
+endif

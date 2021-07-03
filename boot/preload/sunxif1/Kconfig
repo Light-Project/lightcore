@@ -1,0 +1,41 @@
+menu "Sunxif1 bootloader config"
+depends on BOOTLOADER_ENABLE
+depends on CHIP_SUNXIF1
+    
+    choice BOOTLOADER_BOOT_MODE
+    prompt "Choice Sunxif1 boot media"
+    default BOOTLOADER_BOOT_MODE_NOR
+    
+        config BOOTLOADER_BOOT_MODE_NOR
+        bool "boot from Norflash"
+        
+        config BOOTLOADER_BOOT_MODE_SD
+        bool "boot from sdcard"
+    
+    endchoice
+    
+    menu "chip clock system"
+        config BOOTLOADER_CPU_CLK
+        int "CPU frequency"
+        default 800000000
+        
+        config BOOTLOADER_SYS_CLK
+        int "System-Bus frequency"
+        default 480000000
+        
+        config BOOTLOADER_DDR_CLK
+        int "DDR frequency"
+        default 240000000
+        
+        config BOOTLOADER_SPI_CLK
+        int "norflash frequency"
+        default 300000
+        
+        config BOOTLOADER_UART_CLK
+        int "Sys-Uart frequency"
+        default 115200
+    endmenu
+
+    
+endmenu
+ 
