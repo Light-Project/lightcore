@@ -38,6 +38,7 @@ static void __init mem_init(void)
     // arch_mem_init();
 
     page_init();
+    
     /* Initialize kernel heap */
     kmem_init();
     

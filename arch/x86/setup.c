@@ -18,5 +18,5 @@ void arch_setup(const char *kernel_cmd)
     arch_gdt_setup();
     arch_idt_setup();
 
-    arch_page_setup();
+//     arch_page_setup();
 }

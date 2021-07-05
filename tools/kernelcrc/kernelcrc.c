@@ -84,7 +84,7 @@ static void error(const char * str, ...)
     exit(1);
 }
 
-int main(int argc, char ** argv)
+int main(int argc, char *argv[])
 {
     void *buffer = NULL;
     FILE *kernel = NULL;

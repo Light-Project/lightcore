@@ -11,7 +11,7 @@ struct pde page_dir[PTRS_PER_PGD] __aligned(0x1000);
 struct pte pt_himem[64][PTRS_PER_PTE] __aligned(0x1000);
 
 #define kernel_index    (CONFIG_PAGE_OFFSET >> PGDIR_SHIFT)
-#define himem_index     (CONFIG_HIGHMEM_OFFSET >> PGDIR_SHIFT)
+#define himem_index     ((size_t)pa_to_va(CONFIG_HIGHMEM_OFFSET) >> PGDIR_SHIFT)
 
 /*
  *  
