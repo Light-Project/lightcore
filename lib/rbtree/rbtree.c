@@ -75,7 +75,8 @@ void rb_fixup(struct rb_root *root, struct rb_node *node)
             return;
 
         tmp = gparent->right;
-        if(tmp != parent) { /* parent == gparent->left */
+        if(tmp != parent) { 
+            /* parent == gparent->left */
             if(tmp->color == RB_RED) {
                 /*
                  * Case 1 - node's uncle is red (color flips).
@@ -141,7 +142,8 @@ void rb_fixup(struct rb_root *root, struct rb_node *node)
                 tmp->color = RB_BLACK;
             }
             return;
-        } else {    /* parent == gparent->right */
+        } else {    
+            /* parent == gparent->right */
             tmp = gparent->left;
             if(tmp->color == RB_RED) {
                 /* Case 1 - color flips */

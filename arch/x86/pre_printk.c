@@ -1,7 +1,8 @@
-﻿
+﻿/* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <mm.h>
-#include <printk.h>
 #include <string.h>
+#include <driver/video/vesa.h>
+#include <printk.h>
 
 #include <asm/io.h>
 
@@ -18,25 +19,20 @@ typedef struct{
 #define Vram_text_Base  (pa_to_va(0xb8000))
 #define vram_text       ((Vram_text_TypeDef *)Vram_text_Base)
 
-#define CRTC_ADDR_REG   0x3D4
-#define CRTC_DATA_REG   0x3D5
-#define CURSOR_H        0xE
-#define CURSOR_L        0xF
-
 static inline void video_cursor(const char pos_x, const char pos_y)
 {
-    uint16_t cursor = pos_x+(pos_y*80);
-    outb(CRTC_ADDR_REG, CURSOR_H);
-    outb(CRTC_DATA_REG, (cursor >> 8) & 0xFF);
-    outb(CRTC_ADDR_REG, CURSOR_L);
-    outb(CRTC_DATA_REG, cursor & 0xFF);
+    uint16_t cursor = pos_x + (pos_y * 80);
+
+    outb(VESA_CRT_IC, VESA_CRTC_CURSOR_HI);
+    outb(VESA_CRT_DC, (cursor >> 8) & 0xFF);
+    outb(VESA_CRT_IC, VESA_CRTC_CURSOR_LO);
+    outb(VESA_CRT_DC, cursor & 0xFF);
 }
 
 static inline void video_roll()
 {
     for(uint8_t pos_y = 1; pos_y <= 24; pos_y++)
-    for(int8_t pos_x = 0; pos_x <= 79; pos_x++)
-    {
+    for(int8_t pos_x = 0; pos_x <= 79; pos_x++) {
         vram_text->block[pos_y-1][pos_x].ch = vram_text->block[pos_y][pos_x].ch;
         vram_text->block[pos_y-1][pos_x].att = vram_text->block[pos_y][pos_x].att;
     }   
@@ -44,8 +40,7 @@ static inline void video_roll()
 
 static inline void video_print(char ch)
 {
-    if(ch == '\n')
-    {
+    if(ch == '\n') {
         /* If the screen is full, scroll */
         if(ch == '\n' && pos_y == 23)
             video_roll();
@@ -57,7 +52,7 @@ static inline void video_print(char ch)
     else if(ch == '\r')
         pos_x = 0;
     
-    else{
+    else {
         vram_text->block[pos_y][pos_x].ch = ch;
         vram_text->block[pos_y][pos_x].att = 0x07;
         pos_x++;

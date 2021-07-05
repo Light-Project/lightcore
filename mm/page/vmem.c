@@ -14,6 +14,27 @@
 static RB_ROOT(vm_free_area_root);
 static LIST_HEAD(vm_area_list);
 
+struct vm_area *vmem_find_area(void *addr)
+{
+	struct rb_node *rb_node = vm_free_area_root.rb_node;
+    struct vm_area *va;
+    void *end;
+
+    while(rb_node) {
+		va = rb_entry(rb_node, struct vm_area, rb_node);
+        end = (void *)(size_t)va->addr + va->size;
+
+        if(addr < va->addr)
+            rb_node = rb_node->left;
+        else if(end <= addr)
+            rb_node = rb_node->right;
+        else
+            return va;
+    }
+
+    return NULL;
+}
+
 struct vm_area *vmem_find_free(size_t size, unsigned int align)
 {
     struct rb_node *rb_node = vm_free_area_root.rb_node;
@@ -23,8 +44,10 @@ struct vm_area *vmem_find_free(size_t size, unsigned int align)
     while(rb_node) {
         va = rb_entry(rb_node, struct vm_area, rb_node);
 
-        
-
+        if(va->size < size)
+            rb_node = rb_node->right;
+        else if(va->size > size)
+            rb_node = rb_node->left;
 
     }
     return va;

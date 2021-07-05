@@ -9,7 +9,11 @@ config MMU
     help
         Select if you want MMU-based virtualised addressing space
         support by paged memory management. If unsure, say 'Y'.
-        
+    
+config RAM_BASE
+    hex "RAM BASEADDR"
+    default 0
+    
 choice
     prompt "Memory model"
     default FLATMEM
@@ -50,6 +54,9 @@ menu "Memory region"
     
 endmenu
     
+config PAGE_OFFSET
+    hex "kernel offset"
+    
 config XIP
     bool "Execute-In-Place from ROM"
     depends on ARCH_HAS_XIP
@@ -57,12 +64,6 @@ config XIP
 config XIP_BASE
     hex "Xip PHYSADDR(ROM)"
     depends on XIP
-
-config RAM_BASE
-    hex "RAM BASEADDR"
-    
-config PAGE_OFFSET
-    hex "kernel offset"
     
 # Kernel heap memory allocator
 choice

@@ -1,6 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
  * Slob memory allocator
+ *
+ * Copyright(c) 2021
  */
 
 #define pr_fmt(fmt) "slob-core: " fmt
@@ -20,13 +22,14 @@ static LIST_HEAD(slob_free_large);
 
 static struct spinlock lock;
 
-static struct slob_node *slob_node_next(struct slob_node *node)
+static __always_inline 
+struct slob_node *slob_node_next(struct slob_node *node)
 {
-    void *base = (void *)((size_t)node & PAGE_MASK);
-    return (struct slob_node *)((size_t)base + node->size);
+    return (struct slob_node *)((size_t)(node + 1) + node->size);
 }
 
-static bool slob_node_last(struct slob_node *node)
+static __always_inline
+bool slob_node_last(struct slob_node *node)
 {
 	return !((size_t)slob_node_next(node) & ~PAGE_MASK);
 }
@@ -41,6 +44,7 @@ static void *slob_page_alloc(struct slob_page *slob_page,
                               size_t size, int align, bool *full)
 {
     struct slob_node *node;
+    slobidx_t avail;
 
     /* This is the limit of slob allocation, use whole page :) */
     if((PAGE_SIZE == size)||((PAGE_SHIFT == align)&&(size <= PAGE_SIZE))) {
@@ -49,9 +53,9 @@ static void *slob_page_alloc(struct slob_page *slob_page,
     }
 
     for(node = slob_page->node;; node = slob_node_next(node)) {
-        slobidx_t avail = node->size;
+        avail = node->size;
 
-        if((avail > size)&&(!node->use))
+        if((avail >= size)&&(!node->use))
             break;
         
         /* It's the last node. There's no memory available */
@@ -59,10 +63,19 @@ static void *slob_page_alloc(struct slob_page *slob_page,
             return NULL;
     }
 
-    /* Now we have found an available node */
+    node->use = 1;
 
+    /* If there is enough rest space, set the next node */
+    avail -= size;
+    if(avail > sizeof(*node)) {
+        node->size = size;
+        node = slob_node_next(node);
+        node->size = avail;
+        node->use = false;
+    }
 
     slob_page->avail -= SLOB_SIZE(size);
+
     /* If the page is full, remove it from the free list */
     if(!slob_page->avail) {
         list_del(&slob_page->slob_list);
@@ -91,7 +104,7 @@ static bool slob_page_free(struct slob_page *slob_page, void *block)
         if(((void *)node < block)&&(block < (void *)next))
             break;
 
-        /* Not this node */
+        /* Not this node, save prev node */
         prev = node;
 
         /* It's the last node. There's no block found */
