@@ -34,13 +34,28 @@ struct rb_root{
 #define	rb_entry(ptr, type, member) \
         container_of(ptr, type, member)
 
+#define rb_first_entry(ptr, type, member) \
+        rb_entry(rb_first(ptr), type, member)
+
+#define rb_next_entry(pos, member) \
+        rb_entry(rb_next(&(pos)->member), typeof(*(pos)), member)
+
+#define rb_for_each_entry(pos, head, member)                    \
+    for (pos = rb_first_entry(head, typeof(*pos), member);    \
+        &pos->member != NULL;                                   \
+        pos = rb_next_entry(pos, member))
+
 void rb_fixup(struct rb_root *root, struct rb_node *node);
 void rb_delete(const struct rb_root *root, struct rb_node *node);
+
 struct rb_node *rb_first(const struct rb_root *root);
 struct rb_node *rb_last(const struct rb_root *root);
 struct rb_node *rb_prev(const struct rb_node *node);
 struct rb_node *rb_next(const struct rb_node *node);
+
 struct rb_node *rb_postorder_next(const struct rb_node *node);
+
+
 
 /**
  * rb_find() - find @key in tree @root

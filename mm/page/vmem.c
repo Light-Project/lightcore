@@ -5,12 +5,14 @@
 
 #include <mm/kmem.h>
 #include <mm/vmem.h>
+#include <system/cpu.h>
 
 #include <export.h>
 #include <printk.h>
 
 #include <asm/page.h>
 
+// static RB_ROOT(vm_busy_area_root);
 static RB_ROOT(vm_free_area_root);
 static LIST_HEAD(vm_area_list);
 
@@ -48,9 +50,11 @@ struct vm_area *vmem_find_free(size_t size, unsigned int align)
             rb_node = rb_node->right;
         else if(va->size > size)
             rb_node = rb_node->left;
-
+        else
+            return va;
     }
-    return va;
+
+    return NULL;
 }
 
 /**
@@ -67,11 +71,11 @@ struct vm_area *vmem_alloc(size_t size, gfp_t gfp)
     if(unlikely(!vm))
         return NULL;
 
-    goto fail;
+    vmem_find_free(size, 4);
+
 
     return vm;
 
-fail:
     kfree(vm);
     return NULL;
 }
@@ -87,3 +91,13 @@ void vmem_free(struct vm_area *va)
 }
 EXPORT_SYMBOL(vmem_free);
 
+void __init vmem_init(void)
+{
+    int cpu;
+    
+    for_each_possible_cpu(cpu) {
+
+
+    }
+    
+}

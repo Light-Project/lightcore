@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _MM_GFP_H_
 #define _MM_GFP_H_
 
@@ -8,10 +9,13 @@
 typedef unsigned int gfp_t;
 
 /* Physical address region bitmasks */
-#define GFP_DMA                 BIT(1)
-#define GFP_DMA32               BIT(2)
-#define GFP_HIGHMEM             BIT(4)
-#define GFP_MOVABLE             BIT(5)
+#define GFP_DMA                 BIT(0)
+#define GFP_DMA32               BIT(1)
+#define GFP_HIGHMEM             BIT(6)
+#define GFP_MOVABLE             BIT(7)
+
+#define GFP_NORMAL              0x00
+#define GFP_REGION_MASK         0xff
 
 /* Reclaim modifier bitmasks */
 #define GFP_IO                  BIT(7)
@@ -39,8 +43,8 @@ typedef unsigned int gfp_t;
 #define GFP_THISNODE            BIT(22)
 #define GFP_ACCOUNT             BIT(23)
 
-#define GFP_ATOMIC          0
-#define GFP_KERNEL          1
+#define GFP_ATOMIC              0
+#define GFP_KERNEL              GFP_NORMAL
 #define GFP_KERNEL_ACCOUNT  (GFP_KERNEL | __GFP_ACCOUNT)
 #define GFP_NOWAIT	        (__GFP_KSWAPD_RECLAIM)
 #define GFP_NOIO	        (__GFP_RECLAIM)

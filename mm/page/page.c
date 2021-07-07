@@ -43,10 +43,11 @@ struct page *page_alloc(unsigned int order, gfp_t gfp)
     /* Get page through buddy system */
     page = buddy_alloc(order, gfp);
 
-    if(gfp & GFP_HIGHMEM) {
-        va = vmem_alloc(2 ^ order, gfp);
-        va->page = &page;
-    }
+    if(!(gfp & GFP_HIGHMEM))
+        return page;
+
+    va = vmem_alloc(2 ^ order, gfp);
+    va->page = &page;
 
     arch_page_map(va, gfp);
 
@@ -71,6 +72,7 @@ static void __init page_free_lists_init()
 
 #include <size.h>
 #define msize (1024 * size_1MiB)
+#define order_nr(size, order)   (((size) >> PAGE_SHIFT) >> (order))
 
 void __init page_init()
 {
@@ -79,21 +81,25 @@ void __init page_init()
     page_free_lists_init();
 
 #ifdef CONFIG_REGION_DMA
-    buddy_add(&region_map[REGION_DMA], CONFIG_DMA_SIZE >> PAGE_ORDER_MAX, 
-              PAGE_ORDER_MAX - 1, &pa_to_page(addr));
+    buddy_add(&region_map[REGION_DMA], 
+                order_nr(CONFIG_DMA_SIZE, PAGE_ORDER_MAX), 
+                PAGE_ORDER_MAX, &pa_to_page(addr));
     addr += CONFIG_DMA_SIZE;
 #endif
 #ifdef CONFIG_REGION_DMA32
-    buddy_add(&region_map[REGION_DMA], CONFIG_DMA32_SIZE >> PAGE_ORDER_MAX, 
+    buddy_add(&region_map[REGION_DMA], order_nr(CONFIG_DMA32_SIZE, PAGE_ORDER_MAX), 
               PAGE_ORDER_MAX - 1, &pa_to_page(addr));
     addr += CONFIG_DMA32_SIZE;
-    size -= CONFIG_DMA32_SIZE;
 #endif
-    buddy_add(&region_map[REGION_NORMAL], CONFIG_HIGHMEM_OFFSET >> PAGE_ORDER_MAX, 
-              PAGE_ORDER_MAX - 1, &pa_to_page(addr));
+    buddy_add(&region_map[REGION_NORMAL], 
+                order_nr(CONFIG_HIGHMEM_OFFSET - addr, PAGE_ORDER_MAX), 
+                PAGE_ORDER_MAX, &pa_to_page(addr));
     addr += CONFIG_HIGHMEM_OFFSET >> PAGE_ORDER_MAX;
 #ifdef CONFIG_REGION_HIMEM
-    buddy_add(&region_map[REGION_HIMEM], (msize - CONFIG_HIGHMEM_OFFSET) >> PAGE_ORDER_MAX, 
-              PAGE_ORDER_MAX - 1, &pa_to_page(addr));
+    buddy_add(&region_map[REGION_HIMEM], 
+                order_nr(msize - CONFIG_HIGHMEM_OFFSET, PAGE_ORDER_MAX), 
+                PAGE_ORDER_MAX, &pa_to_page(addr));
 #endif
+
+    page_alloc(0, GFP_KERNEL);
 }

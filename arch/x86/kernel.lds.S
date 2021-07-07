@@ -7,9 +7,12 @@ ENTRY(startup_head)
 
 SECTIONS
 {
+#ifdef CONFIG_MMU
     . = CONFIG_PAGE_OFFSET;
-    
-    . += 0x1000000;
+#endif
+#ifdef CONFIG_REGION_DMA
+    . += CONFIG_DMA_SIZE;
+#endif
     
     STARTUP_SECTION
     
@@ -27,6 +30,8 @@ SECTIONS
 
     BSS_SECTION(PAGE_SIZE, PAGE_SIZE, PAGE_SIZE)
     
+    _ld_image_end = .;
+
     DWARF_DEBUG
     
     /* Sections to be discarded */

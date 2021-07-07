@@ -121,7 +121,7 @@
     AT(ADDR(.rodata) - LOAD_OFFSET) {           \
         _ld_rodata_rodata_start = .;            \
         *(RODATA_MAIN)                          \
-        _ld_rodata_rodata_start = .;            \
+        _ld_rodata_rodata_end = .;              \
     }
     
 #define NOTES                                   \

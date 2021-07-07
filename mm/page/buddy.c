@@ -5,21 +5,22 @@
 
 #include <mm/page.h>
 
-static inline void free_list_add(struct page_free *free, int order, 
-                          struct page *page)
+static __always_inline 
+void free_list_add(struct page_free *free, struct page *page)
 {
-    list_add(&free[order].list, &page->list);
+    list_add_prev(&free->list, &page->list);
     free->free_nr++;
 }
 
-static inline void free_list_del(struct page_free *free, int order, 
-                          struct page *page)
+static __always_inline 
+void free_list_del(struct page_free *free, struct page *page)
 {
     list_del(&page->list);
-    free[order].free_nr--;
+    free->free_nr--;
 }
 
-static inline struct page *free_list_get_page(struct page_free *free)
+static __always_inline
+struct page *free_list_get_page(struct page_free *free)
 {
     return list_first_entry_or_null(&free->list, struct page, list);
 }
@@ -27,13 +28,13 @@ static inline struct page *free_list_get_page(struct page_free *free)
 static inline void queue_division(struct page_free *free, struct page *page, 
                                   int need_order, int alloc_order)
 {
-	size_t size = 1 << alloc_order;
+    size_t size = 1 << alloc_order;
 
     while(need_order < alloc_order--) {
 		size >>= 1;
 
         /* Put buddy into free list */
-        free_list_add(free, alloc_order, &page[size]);
+        free_list_add(&free[alloc_order], &page[size]);
         page[size].order = alloc_order;
     }
 }
@@ -51,7 +52,7 @@ static inline void queue_merge(struct page_free *free, struct page *page,
  */
 static struct page *queue_smallest(struct region *region, int order)
 {
-    unsigned int nd; 
+    unsigned int nd;
     struct page_free *free;
     struct page *page;
 
@@ -61,8 +62,9 @@ static struct page *queue_smallest(struct region *region, int order)
         page = free_list_get_page(free);
         if(!page)
             continue;
-        free_list_del(free, nd, page);
-        queue_division(free, page, order, nd);
+
+        free_list_del(free, page);
+        queue_division(&region->page_free[0], page, order, nd);
         return page;
     }
 
@@ -72,12 +74,13 @@ static struct page *queue_smallest(struct region *region, int order)
 struct page *buddy_alloc(int order, gfp_t gfp)
 {
     struct page *page;
+    struct region *region;
 
-    page = queue_smallest(&region_map[REGION_NORMAL], order);
-    if(page)
-        return page;
+    region = gfp_to_region(gfp);
 
-    return NULL;
+    page = queue_smallest(region, order);
+
+    return page;
 }
 
 void buddy_free(struct page *page)
@@ -91,8 +94,11 @@ void buddy_free(struct page *page)
  */
 void buddy_add(struct region *region, int nr, int order, struct page *page)
 {
+    unsigned int size = 1 << order;
+
     while(nr--) {
-        free_list_add(&region->page_free[0], order, page);
+        free_list_add(&region->page_free[order], page);
+        page += size;
     }
 }
 

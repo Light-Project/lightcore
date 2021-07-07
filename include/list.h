@@ -85,9 +85,9 @@ typedef struct list_head{
  * @head:	the head for your list.
  * @member:	the name of the list_head within the struct.
  */
-#define list_for_each_entry(pos, head, member) \
-    for (pos = list_first_entry(head, typeof(*pos), member); \
-        &pos->member != (head); \
+#define list_for_each_entry(pos, head, member)                  \
+    for (pos = list_first_entry(head, typeof(*pos), member);    \
+        &pos->member != (head);                                 \
         pos = list_next_entry(pos, member))
 
 void list_head_init(struct list_head *list);

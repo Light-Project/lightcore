@@ -35,13 +35,14 @@ static void __init command_setup(const char *str)
 
 static void __init mem_init(void)
 {
-    // arch_mem_init();
-
+    mem_reserve(va_to_pa(&_ld_text_start),
+            (size_t)&_ld_image_end - (size_t)&_ld_text_start);
     page_init();
-    
+
+    vmem_init();
+
     /* Initialize kernel heap */
     kmem_init();
-    
 }
 
 void __init kernel_start(const char *direct_args)

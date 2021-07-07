@@ -1,4 +1,4 @@
-
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <system/spinlock.h>
 
 typedef void *(mempool_alloc_t)();

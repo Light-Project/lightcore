@@ -11,8 +11,6 @@
 #include <export.h>
 #include <printk.h>
 
-extern char _ld_bss_end;
-
 /**
  * setup the heap memory at boot
  * 

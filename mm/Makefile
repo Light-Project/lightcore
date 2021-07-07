@@ -2,7 +2,7 @@
 #
 # Makefile for Memory manager
 
-obj-y += region.o ioremap.o
+obj-y += region.o ioremap.o memblock.o
 
 obj-$(CONFIG_MMU) += page/
 

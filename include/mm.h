@@ -12,6 +12,7 @@
 #include <mm/region.h>
 #include <mm/page.h>
 #include <mm/kmem.h>
+#include <mm/memblock.h>
 
 #ifndef __ASSEMBLY__
 

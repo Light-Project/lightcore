@@ -10,6 +10,20 @@
 
 #ifndef __ASSEMBLY__
 
+extern char _ld_text_start;
+extern char _ld_text_end;
+
+extern char _ld_rodata_rodata_start;
+extern char _ld_rodata_rodata_end;
+
+extern char _ld_data_section_start;
+extern char _ld_data_section_end;
+
+extern char _ld_bss_start;
+extern char _ld_bss_end;
+
+extern char _ld_image_end;
+
 struct mmu {
 
 };
@@ -28,6 +42,8 @@ struct vm_area {
 
 struct vm_area *vmem_alloc(size_t size, gfp_t gfp);
 void vmem_free(struct vm_area *va);
+
+void vmem_init(void);
 
 #endif  /* __ASSEMBLY__ */
 #endif

@@ -3,6 +3,7 @@
 #define _MM_REGION_H_
 
 #include <list.h>
+#include <mm/gfp.h>
 #include <system/spinlock.h>
 
 #define PAGE_ORDER_MAX  11
@@ -32,7 +33,7 @@ struct region {
     const char *name;
 
     spinlock_t lock;    /* page_free lock */
-    struct page_free page_free[PAGE_ORDER_MAX]; /* Free page list in this region */
+    struct page_free page_free[PAGE_ORDER_MAX + 1]; /* Free page list in this region */
     
 };
 
@@ -48,6 +49,8 @@ static inline bool region_is_himem(enum region_type type)
 #endif
     return false;
 }
+
+struct region *gfp_to_region(gfp_t gfp);
 
 #endif	/* __ASSEMBLY__ */
 #endif /* _MM_REGION_H_ */
