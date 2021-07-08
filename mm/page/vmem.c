@@ -71,8 +71,10 @@ struct vm_area *vmem_alloc(size_t size, gfp_t gfp)
     if(unlikely(!vm))
         return NULL;
 
-    vmem_find_free(size, 4);
+    // vmem_find_free(size, 4);
 
+    vm->addr = (void *)0xf0000000;
+    vm->size = size;
 
     return vm;
 
@@ -96,8 +98,7 @@ void __init vmem_init(void)
     int cpu;
     
     for_each_possible_cpu(cpu) {
-
-
+        
     }
     
 }

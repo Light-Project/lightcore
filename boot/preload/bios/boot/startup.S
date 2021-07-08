@@ -123,7 +123,7 @@ INT13_2_ERR:
 
 GLOBAL(halt)
     cli
-    hlt
+    rep;    hlt
     jmp     halt
 END(halt)
 
@@ -144,9 +144,7 @@ dptsign: .asciz "dpt:"
 /****************************/
 
     .section .text,"ax"
-GLOBAL(init)
-    cli
-    
+init:
     /* TEST A20 first */
     call    Service_A20TEST
     je      1f
@@ -173,17 +171,54 @@ GLOBAL(init)
     printf(TXT_A20ERROR)
     jmp     halt
 1:
+    /**
+     * FIXME: setfs doesn't work
+     */
+    jmp     Bss_segment_Init
+
+/*
+ * We need access 4GiB in real mode
+ */
+setfs:
+    /* Load gdt table */
+    lgdtl   gdt_struct
+    
+    /* Enable PE mode */
+    movl    %cr0, %eax
+    orl     $(1<<0), %eax
+    movl    %eax, %cr0
+
+    .byte   0x66, 0xea  # ljmpl opcode
+    .long   1f          # offset
+    .word   0x08        # segment
+
+    .code32
+1:
+    movw    $0x10, %ax
+    movw    %ax, %fs
+
+    /* Disable PE mode */
+    movl    %cr0, %eax
+    xorl    $(1<<0), %eax
+    movl    %eax, %cr0
+
+1:
+    .byte   0xea
+    .word   1f - 1b
+    .word   0x00
+
+    .code16
+1:
 
 Bss_segment_Init:
     xorl    %eax, %eax
     movl    $_ld_bss_start, %edi
-    movl    $_ld_bss_end, %ecx 
+    movl    $_ld_bss_end, %ecx
     subl    %edi, %ecx
     rep;    stosl
     
     call    main
     call    halt
-END(init)    
 
 GLOBAL(kboot_start)
     movl    4(%esp), %eax
@@ -359,3 +394,15 @@ END(io_delay)
 TXT_A20BIOS:    .asciz "Open A20 through BIOS\n\r"
 TXT_A20PCH:     .asciz "Open A20 through PCH\n\r"
 TXT_A20ERROR:   .asciz "A20 can't open\n\r"
+
+    .align 16
+gdt_table:              // GDT Table
+    .long   0x00000000  // 0x00: NULL ENTR
+    .long   0x00000000  // 0x04: NULL
+    .long   0x0000ffff  // 0x08: CS ENTRY
+    .long   0x00cf9b00  // 0x0c: code, read/exe, 4GB, base=0
+    .long   0x0000ffff  // 0x10: FS ENTRY
+    .long   0x00cf9300  // 0x14: data, read/write, 4GB, base=0
+gdt_struct:
+    .word   0x0018      // GDT limit
+    .long   gdt_table   // GDT addr

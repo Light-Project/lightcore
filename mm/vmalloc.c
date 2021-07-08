@@ -22,47 +22,6 @@
 #include <export.h>
 #include <debug.h>
 
-
-void *kmem_virt_alloc()
-{
-
-    
-}
-
-void *kmem_vmalloc(size_t size)
-{
-
-
-
-}
-
-/**
- * External function
- */
-
-void vmem_init()
-{
-
-
-}
-
-state vmem_read(uint8_t *buff, uint8_t *addr, size_t size)
-{
-    if((buff == NULL)||(addr == NULL)||(size == 0))
-        return ERROR;
-
-    return OK;
-}
-
-state vmem_write(uint8_t *buff, uint8_t *addr, size_t size)
-{
-    if((buff == NULL)||(addr == NULL)||(size == 0))
-        return ERROR;
-
-    
-    return OK;
-}
-
 void *vmalloc(size_t size)
 {
     if(size == 0)
@@ -71,7 +30,7 @@ void *vmalloc(size_t size)
 
 }
 
-state vfree(void *mem)
+void vfree(void *mem)
 {
     if(mem == NULL)
         return ERROR;

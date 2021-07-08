@@ -1,8 +1,16 @@
 #!/bin/bash
 
 image='boot/disk.img'
+bochsconf='boot/run/bochs-x86'
 
-if [ ! $path ];then
+if [ $path ];then
+    dd if=$image of=$path bs=444 count=1 conv=notrunc
+    dd if=$image of=$path bs=512 skip=1 seek=1 conv=notrunc 
+    
+elif [ $bochs ];then
+    bochs -q -f $bochsconf
+    
+else 
     qemu-system-x86_64                      \
         -name "Lightcore for x86"           \
         -cpu core2duo-v1                    \
@@ -16,8 +24,4 @@ if [ ! $path ];then
         -device ES1370                      \
         -soundhw pcspk                      \
         -serial stdio
-        
-else
-    dd if=$image of=$path bs=444 count=1 conv=notrunc
-    dd if=$image of=$path bs=512 skip=1 seek=1 conv=notrunc 
 fi

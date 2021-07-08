@@ -6,7 +6,10 @@
 void power_halt()
 {
     arch_irq_disable();
-    asm volatile("hlt");
+    asm volatile(
+        "1: rep; hlt\n\r"
+        "jmp 1b"
+    );
 }
 
 void power_reboot()

@@ -24,6 +24,8 @@ SECTIONS
 
     BSS_SECTION(L1_CACHE_BYTES, PAGE_SIZE, L1_CACHE_BYTES)
     
+    _ld_image_end = .;
+    
     DWARF_DEBUG
     
     DISCARDS

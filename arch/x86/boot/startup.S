@@ -19,32 +19,31 @@ END(startup_head)
 
     .section    .text.init,"ax"
 ENTRY(init)
-
-    /* Set data selector */
-    movw    $GDT_ENTRY_KERNEL_DS_BASE, %ax    
-    movw    %ax, %ds
-    movw    %ax, %es
-    movw    %ax, %ss
-
+    movw    $GDT_ENTRY_KERNEL_DS_BASE, %di
     xorl    %eax, %eax
-    movw    %ax, %fs
-    movw    %ax, %gs
 
-Bss_segment_Init:
+    /* Set segment selector */
+    movw    %di, %ss    /* Stack segment */
+    movw    %di, %ds    /* Data segment */
+    movw    %di, %es    /* Extra segment */
+    movw    %ax, %fs    /* File segment */
+    movw    %ax, %gs    /* Global segment */
+
+    /* Clear bss */
     movl    $_ld_bss_start, %edi
     movl    $_ld_bss_end, %ecx 
     subl    %edi, %ecx
-    rep;    stosl
+    rep;    stosl %eax, %es:(%edi)
 
-env:
     movl    $init_thread_union, %esp
     addl    $THREAD_SIZE, %esp
+    
     pushl   startup_head + 0x10
     call    kernel_start
+END(init)
 
-halt:
+ENTRY(halt)
     cli
     rep;    hlt
     jmp     halt
-
-END(init)
+END(halt)

@@ -40,10 +40,14 @@ static inline void queue_division(struct page_free *free, struct page *page,
 }
 
 static inline void queue_merge(struct page_free *free, struct page *page, 
-                                  int need_order, int alloc_order)
+                               int free_order)
 {
+    size_t size = 1 << free_order;
+    
+    while(free_order++ < PAGE_ORDER_MAX) {
+		size <<= 1;
 
-
+    }
 }
 
 /**
@@ -76,8 +80,10 @@ struct page *buddy_alloc(int order, gfp_t gfp)
     struct page *page;
     struct region *region;
 
-    region = gfp_to_region(gfp);
+    if(order > PAGE_ORDER_MAX)
+        return NULL;
 
+    region = gfp_to_region(gfp);
     page = queue_smallest(region, order);
 
     return page;
@@ -85,7 +91,9 @@ struct page *buddy_alloc(int order, gfp_t gfp)
 
 void buddy_free(struct page *page)
 {
+    // struct region *region;
 
+    // region = &region_map[page->region_type];
 
 }
 

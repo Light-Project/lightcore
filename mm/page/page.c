@@ -76,30 +76,29 @@ static void __init page_free_lists_init()
 
 void __init page_init()
 {
-    phys_addr_t addr = 0;
+    phys_addr_t addr = CONFIG_RAM_BASE;
 
     page_free_lists_init();
 
 #ifdef CONFIG_REGION_DMA
     buddy_add(&region_map[REGION_DMA], 
                 order_nr(CONFIG_DMA_SIZE, PAGE_ORDER_MAX), 
-                PAGE_ORDER_MAX, &pa_to_page(addr));
+                PAGE_ORDER_MAX - 1, &pa_to_page(addr));
     addr += CONFIG_DMA_SIZE;
 #endif
 #ifdef CONFIG_REGION_DMA32
     buddy_add(&region_map[REGION_DMA], order_nr(CONFIG_DMA32_SIZE, PAGE_ORDER_MAX), 
-              PAGE_ORDER_MAX - 1, &pa_to_page(addr));
+                PAGE_ORDER_MAX - 1, &pa_to_page(addr));
     addr += CONFIG_DMA32_SIZE;
 #endif
     buddy_add(&region_map[REGION_NORMAL], 
                 order_nr(CONFIG_HIGHMEM_OFFSET - addr, PAGE_ORDER_MAX), 
-                PAGE_ORDER_MAX, &pa_to_page(addr));
+                PAGE_ORDER_MAX - 1, &pa_to_page(addr));
     addr += CONFIG_HIGHMEM_OFFSET >> PAGE_ORDER_MAX;
 #ifdef CONFIG_REGION_HIMEM
     buddy_add(&region_map[REGION_HIMEM], 
                 order_nr(msize - CONFIG_HIGHMEM_OFFSET, PAGE_ORDER_MAX), 
-                PAGE_ORDER_MAX, &pa_to_page(addr));
+                PAGE_ORDER_MAX - 1, &pa_to_page(addr));
 #endif
 
-    page_alloc(0, GFP_KERNEL);
 }

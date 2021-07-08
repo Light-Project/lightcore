@@ -18,7 +18,7 @@
 
 char boot_args[boot_args_size];
 
-static void device_framework_init()
+static void __init device_framework_init()
 {
 #ifdef CONFIG_DT
     if(dtb_start != NULL)
@@ -37,9 +37,9 @@ static void __init mem_init(void)
 {
     mem_reserve(va_to_pa(&_ld_text_start),
             (size_t)&_ld_image_end - (size_t)&_ld_text_start);
-    page_init();
-
     vmem_init();
+
+    page_init();
 
     /* Initialize kernel heap */
     kmem_init();
@@ -50,24 +50,23 @@ void __init kernel_start(const char *direct_args)
     /* entry criticality */
     arch_irq_disable();
 
-    /* From this point, pre-printk is ready */
     arch_setup(boot_args);
 
-    arch_irq_enable();
-
     device_framework_init();
+
     command_setup(direct_args);
-    
     src_terminal_logo();
 
     mem_init();
 
+
     // sched_init();
+
+    arch_irq_enable();
 
     /* Start system timer */
 //     timer_init();
 
-    /* From this point, printk is ready */
     console_init();
 
     /* From here on, all kernel drivers are ready */

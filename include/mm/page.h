@@ -11,9 +11,6 @@
 
 #include <asm/page.h>
 
-#define va_to_pa(va)    ((phys_addr_t)va - CONFIG_PAGE_OFFSET)
-#define pa_to_va(pa)    ((void *)(pa + CONFIG_PAGE_OFFSET))
-
 #define PAGE_NR             ((PAGE_MASK >> PAGE_SHIFT) + 1)
 
 #ifndef __ASSEMBLY__

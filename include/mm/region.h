@@ -32,8 +32,9 @@ struct page_free {
 struct region {
     const char *name;
 
+    /* Free page list in this region */
+    struct page_free page_free[PAGE_ORDER_MAX];
     spinlock_t lock;    /* page_free lock */
-    struct page_free page_free[PAGE_ORDER_MAX + 1]; /* Free page list in this region */
     
 };
 

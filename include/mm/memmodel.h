@@ -5,10 +5,13 @@
 
 #ifndef __ASSEMBLY__
 
+#define va_to_pa(va)    ((phys_addr_t)(va) - CONFIG_PAGE_OFFSET)
+#define pa_to_va(pa)    ((void *)((pa) + CONFIG_PAGE_OFFSET))
+
 /* Flat Memory model */
 #if defined(CONFIG_FLATMEM)
 
-#define page_to_nr(_page)   ((unsigned int)((_page - page_map) / sizeof(struct page)))
+#define page_to_nr(_page)   ((unsigned int)(((size_t)(_page) - (size_t)page_map) / sizeof(struct page)))
 #define nr_to_page(pnr)     (page_map[pnr])
 
 /* Sparce Memory model */

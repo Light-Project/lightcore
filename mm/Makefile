@@ -9,5 +9,5 @@ obj-$(CONFIG_MMU) += page/
 # 
 obj-y += kmem/
 
-obj-y += io.o
+obj-y += resource.o
 obj-y += memtest.o

@@ -3,12 +3,13 @@
 #include <system/syscall.h>
 #include <system/sched.h>
 
-pid_t sys_getpid(void)
-{
-    
-}
-
 static void* syscall_table[SYSCALL_NR_MAX] = {
-    [syscall_write] = sys_getpid,
     
 };
+
+long syscall_entry(long syscall, )
+{
+
+
+}
+

@@ -16,7 +16,11 @@
     movl    %edx, 0x2c(%esp)
 .endm
 
-.macro switch_kernel_stack
+.macro SWITCH_TO_KERNEL_STACK
+
+.endm
+
+.macro SWITCH_TO_PROCESS_STACK
 
 .endm
 
@@ -34,8 +38,10 @@ END(entry_nmi)
 
 ENTRY(entry_general_protection)
     SAVE_REGS
+
     pushl   %esp
     call    trap_general_protection
+
 END(entry_general_protection)
 
 /**
@@ -51,7 +57,9 @@ END(entry_general_protection)
  */
 ENTRY(entry_syscall)
     clac
+    SAVE_REGS
 
+    iret
 END(entry_syscall)
 
 ENTRY(entry_undefine)
