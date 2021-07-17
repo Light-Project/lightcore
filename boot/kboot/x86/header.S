@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #include "efi-header.S"
 
 BOOTSEG     = 0x07C0        /* original address of boot-sector */

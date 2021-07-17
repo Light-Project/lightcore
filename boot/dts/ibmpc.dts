@@ -1,0 +1,35 @@
+/dts-v1/;
+
+/ {
+    model = "X86 IBM compatible computer";
+    #address-cells = <1>;
+    #size-cells = <1>;
+
+    isa {
+        compatible = "isa-bus";
+    
+        intc@20 {
+            compatible = "i8259";
+            reg = <0x20 2>, <0xa0 2>;
+        };
+        
+        timer@42 {
+            compatible = "i8253";
+            reg = <0x42 4>;
+        };
+        
+        floppy0@3f0 {
+            compatible = "floppy";
+            reg = <0x3F0 6>, <0x3F7 1>;
+        };
+
+        floppy1@370 {
+            compatible = "floppy";
+            reg = <0x370 6>, <0x377 1>;
+        };
+    };
+    
+    chosen {
+        bootargs = "console=tty0,115200 init=/sbin/init root=/dev/sda2 rw rootwait";
+    };
+}; 

@@ -122,7 +122,7 @@ clean-y += uImage
 quiet_cmd_copy_preload = OBJCOPY $@
       cmd_copy_preload = $(OBJCOPY) -O binary $(obj)/preload/preload $(obj)/preload.bin
       
-$(obj)/preload.bin: dts FORCE
+$(obj)/preload.bin: FORCE
 	$(Q)$(MAKE) $(build)=$(src)/preload
 	$(call if_changed,copy_preload)
 

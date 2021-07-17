@@ -5,23 +5,23 @@
 uint32_t dt_crc32;
 void *dt_start_addr = NULL;
 
-bool __init dt_scan_node(bool (*fn)(unsigned long node,
+state __init dt_scan_node(state (*fn)(unsigned long node,
         const char *uname, int depth, void *data), void *data)
 {
     const void *node = dt_start_addr;
     const char *uname;
-    int offset, rc = 0, depth = -1;
+    int offset, rc = -1, depth = -1;
 
     if (!node)
-        return 0;
+        return -EINVAL;
 
     for (offset = fdt_next_node(node, -1, &depth);
-         offset >= 0 && depth >= 0 && !rc;
-         offset = fdt_next_node(node, offset, &depth)) 
-    {
+         offset >= 0 && depth >= 0 && rc;
+         offset = fdt_next_node(node, offset, &depth)) {
         uname = fdt_get_name(node, offset, NULL);
         rc = fn(offset, uname, depth, data);
     }
+
     return rc;
 }
 

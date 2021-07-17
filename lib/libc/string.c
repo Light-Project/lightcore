@@ -1,6 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#include <mm.h>
 #include <export.h>
 #include <ctype.h>
-#include <mm.h>
 #include <string.h>
 
 __weak void *memchr(const void *s, int c, size_t n)

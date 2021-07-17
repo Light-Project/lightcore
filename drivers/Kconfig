@@ -14,7 +14,7 @@ source "drivers/char/Kconfig"
 
 # source "drivers/clk/Kconfig"
 
-# source "drivers/clocksource/Kconfig"
+source "drivers/clocksource/Kconfig"
 
 # source "drivers/cpufreq/Kconfig"
 

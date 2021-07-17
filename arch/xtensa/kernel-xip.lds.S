@@ -7,7 +7,7 @@ OUTPUT_ARCH(xtensa)
 #include <asm/vectors.h>
 
 /* Entry Point */
-ENTRY(startup_head)
+ENTRY(boot_head)
 
 #define xip_align   4
 #define ram_align   4

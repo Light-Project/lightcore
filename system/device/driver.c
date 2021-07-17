@@ -66,7 +66,7 @@ state driver_register(struct driver *drv)
 			"aborting...\n", drv->name);
     }
     
-    return bus_driver_add(drv);
+    return bus_add_driver(drv);
 }
 
 /**
@@ -76,5 +76,5 @@ state driver_register(struct driver *drv)
 void driver_unregister(struct driver *drv)
 {
 
-    bus_driver_remove(drv);
+    bus_remove_driver(drv);
 }

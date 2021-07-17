@@ -193,6 +193,8 @@ static state bochs_probe(struct pci_device *pdev, int pdata)
     struct bochs_device *bochs;
     state ret;
 
+    return -ENOERR;
+
     bochs = kmalloc(sizeof(*bochs), GFP_KERNEL);
     if(!bochs)
         return -ENOMEM;
@@ -237,5 +239,4 @@ static state bochs_init(void)
 {
     return pci_driver_register(&bochs_driver);
 }
-
 driver_initcall(bochs_init);

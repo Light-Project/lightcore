@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
     fclose(kernel);
     
     
-    boot_head_t *boot_head = buffer;
+    struct boot_head *boot_head = buffer;
     
     if(strcmp(boot_head->magic, "lightcore!"))
         error("Magic error");
@@ -114,12 +114,12 @@ int main(int argc, char *argv[])
     uint32_t new_crc = 0;
     
     printf("Image size: 0x%x\n\r", kernel_size);
-    printf("      Head: 0x%x\n\r", sizeof(boot_head_t));
-    printf("    kernel: 0x%x\n\r", kernel_size - sizeof(boot_head_t));
+    printf("      Head: 0x%x\n\r", sizeof(struct boot_head));
+    printf("    kernel: 0x%x\n\r", kernel_size - sizeof(struct boot_head));
     
     old_crc = boot_head->hcrc;
     boot_head->hcrc = 0;
-    new_crc = crc32(boot_head, sizeof(boot_head_t), 0xffffffff);
+    new_crc = crc32(boot_head, sizeof(struct boot_head), 0xffffffff);
     if(old_crc != new_crc)
     {
         boot_head->hcrc = new_crc;
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
     else
         printf("The header CRC already exists");
     
-    boot_head->size = kernel_size - sizeof(boot_head_t);
+    boot_head->size = kernel_size - sizeof(struct boot_head);
     
     old_crc = boot_head->crc;
     boot_head->crc = 0;

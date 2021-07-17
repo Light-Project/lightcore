@@ -1,3 +1,4 @@
+
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
  * bus driver management
@@ -6,47 +7,66 @@
 #include <device/bus.h>
 #include <printk.h>
 
-/**
- * bus_device_add - add a device to bus
- * @dev: device
- *  
- */
-state bus_device_add(struct device *dev)
+state bus_probe_device(struct device *dev)
 {
+    struct bus_type *bus = dev->bus;
+    // state ret;
 
+    if(!bus)
+        return -EINVAL;
+
+    mutex_lock(&bus->mutex);
+
+    mutex_unlock(&bus->mutex);
     return -ENOERR;
 }
 
 /**
- * bus_device_remove - remove a device to bus
- * @dev: device
- *  
+ * bus_add_device - add a device into bus
+ * @dev: driver
  */
-void bus_device_remove(struct device *dev)
+state bus_add_device(struct device *dev)
 {
+    struct bus_type *bus = dev->bus;
 
+    if(!bus)
+        return -EINVAL;
+
+    return -ENOERR;
+}
+
+state bus_remove_device(struct device *dev)
+{
+    struct bus_type *bus = dev->bus;
+
+    if(!bus)
+        return -EINVAL;
+    
+    return -ENOERR;
 }
 
 /**
- * bus_driver_add - add a driver to bus
+ * bus_add_driver - add a driver into bus
  * @drv: driver
- *  
  */
-state bus_driver_add(struct driver *drv)
+state bus_add_driver(struct driver *drv)
 {
     struct bus_type *bus = drv->bus;
 
-    list_add_prev(&bus->drivers_list, &drv->bus_list_driver);
-
+    if(!bus)
+        return -EINVAL;
+    
     return -ENOERR;
 }
 
-void bus_driver_remove(struct driver *drv)
+state bus_remove_driver(struct driver *drv)
 {
-    if(!drv->bus)
-        return;
+    struct bus_type *bus = drv->bus;
 
-    // klist_remove(&drv->p->kobj);
+    if(!bus)
+        return -EINVAL;
+
+    return -ENOERR;
 }
 
 state bus_register(struct bus_type *bus)
@@ -56,4 +76,10 @@ state bus_register(struct bus_type *bus)
     list_head_init(&bus->drivers_list);
 
     return -ENOERR;
+}
+
+void bus_init(void)
+{
+    //fuck you !!!!!!shit 
+     
 }

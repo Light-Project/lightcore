@@ -22,6 +22,9 @@ extern char _ld_data_section_end;
 extern char _ld_bss_start;
 extern char _ld_bss_end;
 
+extern char _ld_init_dtb_start;
+extern char _ld_init_dtb_end;
+
 extern char _ld_image_end;
 
 struct mmu {

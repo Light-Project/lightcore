@@ -11,11 +11,11 @@
 #include <arch/x86/seg.h>
 
     .section    .startup,"ax"
-GLOBAL(startup_head)
+GLOBAL(boot_head)
     ljmpl   $GDT_ENTRY_KERNEL_CS_BASE, $init    /* 0x00: x86 jump */
     .align  16                                  /* ----: Reserved */
     KERNEL_HEADER
-END(startup_head)
+END(boot_head)
 
     .section    .text.init,"ax"
 ENTRY(init)
@@ -33,12 +33,12 @@ ENTRY(init)
     movl    $_ld_bss_start, %edi
     movl    $_ld_bss_end, %ecx 
     subl    %edi, %ecx
+    shrl    $2, %ecx
     rep;    stosl %eax, %es:(%edi)
 
     movl    $init_thread_union, %esp
     addl    $THREAD_SIZE, %esp
-    
-    pushl   startup_head + 0x10
+
     call    kernel_start
 END(init)
 

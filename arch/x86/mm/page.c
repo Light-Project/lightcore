@@ -14,13 +14,14 @@ struct pte pt_himem[64][PTRS_PER_PTE] __aligned(0x1000);
 #define himem_index     ((size_t)pa_to_va(CONFIG_HIGHMEM_OFFSET) >> PGDIR_SHIFT)
 
 /*
- *  
+ *  Kernel page table
+ *
  *   Addr | 0                   3G         3.7G
  *        | ####################|+++++++++++|#######
  *  Space |        User         ^  Kernel   ^ Himem
  *  Index |               kernel_index  himem_index
  * 
- *  User:   Each process has its own PTE
+ *  User:   This part is blank
  *  Kernel: Use fixed huge page mapping
  *  Himem:  Use statically assigned pt_himem
  * 

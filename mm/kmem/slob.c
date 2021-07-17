@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Slob memory allocator
+ *  mm/kmem/slob.c
  *
- * Copyright(c) 2021
+ *  Copyright (C) 2021 CopyrightName
  */
 
 #define pr_fmt(fmt) "slob-core: " fmt
@@ -36,14 +36,19 @@ bool slob_node_last(struct slob_node *node)
 
 /**
  * slob_page_alloc - Allocates memory within a given page
+ * @slob_page: page to allocate memory
+ * @size: allocate size
+ * @bsize: minimum limit of allocate
+ * @align: 
+ * @full: page full flag
  * 
  * Because we are in a page allocation, so the size 
  * can not exceed one page
  */
-static void *slob_page_alloc(struct slob_page *slob_page, 
-                              size_t size, int align, bool *full)
+static void *slob_page_alloc(struct slob_page *slob_page, size_t size,
+                             int bsize, int align, bool *full)
 {
-    struct slob_node *node;
+    struct slob_node *node, *free;
     slobidx_t avail;
 
     /* This is the limit of slob allocation, use whole page :) */
@@ -55,7 +60,7 @@ static void *slob_page_alloc(struct slob_page *slob_page,
     for(node = slob_page->node;; node = slob_node_next(node)) {
         avail = node->size;
 
-        if((avail >= size)&&(!node->use))
+        if((avail >= size) && (!node->use))
             break;
         
         /* It's the last node. There's no memory available */
@@ -65,20 +70,21 @@ static void *slob_page_alloc(struct slob_page *slob_page,
 
     node->use = 1;
 
-    /* If there is enough rest space, set the next node */
+    /* avoid generating unusable fragments */
     avail -= size;
-    if(avail > sizeof(*node)) {
+    if(avail > bsize) {
         node->size = size;
-        node = slob_node_next(node);
-        node->size = avail;
-        node->use = false;
+        free = slob_node_next(node);
+        free->size = avail;
+        free->use = false;
     }
 
-    slob_page->avail -= SLOB_SIZE(size);
+    slob_page->avail -= SLOB_SIZE(node->size);
 
     /* If the page is full, remove it from the free list */
     if(!slob_page->avail) {
         list_del(&slob_page->slob_list);
+        *full = true;
     }
 
     return node + 1;
@@ -86,6 +92,7 @@ static void *slob_page_alloc(struct slob_page *slob_page,
 
 /**
  * slob_page_free - free memory within a given page
+ * @slob_page: 
  * 
  * Yeah, I didn't write very well
  */
@@ -140,6 +147,7 @@ void *slob_alloc(size_t size, gfp_t gfp, int align)
     list_t *slob_list;
     struct slob_page *slob_page;
     irqflags_t irq_save;
+    int break_size;
     bool full;
     void *block = NULL;
 
@@ -150,20 +158,27 @@ void *slob_alloc(size_t size, gfp_t gfp, int align)
     if(size > PAGE_SIZE)
         return NULL;
 
-    if(size < SLOB_BREAK1)
+    if(size < SLOB_BREAK1) {
         slob_list = &slob_free_small;
-    else if(size < SLOB_BREAK2)
+        break_size = MSIZE;
+    } else if(size < SLOB_BREAK2) {
         slob_list = &slob_free_medium;
-    else
+        break_size = SLOB_BREAK1;
+    } else {
         slob_list = &slob_free_large;
+        break_size = SLOB_BREAK2;
+    }
 
     spin_lock_irqsave(&lock, &irq_save);
     
     list_for_each_entry(slob_page, slob_list, slob_list) {
         
-        block = slob_page_alloc(slob_page, size, align, &full);
+        block = slob_page_alloc(slob_page, size, break_size, align, &full);
         if(!block)
             continue;
+
+        if(gfp & GFP_ZERO)
+            memset(block, 0, size);
 
         /*
          * Move to the tail and give priority 
@@ -174,9 +189,6 @@ void *slob_alloc(size_t size, gfp_t gfp, int align)
             if(!list_check_first(slob_list, &slob_page->slob_list))
                 list_move_tail(slob_list, &slob_page->slob_list);
     }
-
-    if(block && (gfp & GFP_ZERO))
-        memset(block, 0, size);
 
     /* No enough space in slob list */
     if(!block) {
@@ -198,11 +210,11 @@ void *slob_alloc(size_t size, gfp_t gfp, int align)
         slob_page->node->size = PAGE_SIZE - sizeof(struct slob_node);
         slob_page->node->use = false;
 
-        block = slob_page_alloc(slob_page, size, align, &full);
+        block = slob_page_alloc(slob_page, size, break_size, align, &full);
     }
 
     spin_unlock_irqrestore(&lock, &irq_save);
-    
+
     return block;
 }
 

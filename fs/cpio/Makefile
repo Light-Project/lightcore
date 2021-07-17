@@ -1,1 +1,1 @@
-obj-$(FS_CPIO) += cpio.o
+obj-y += cpio.o

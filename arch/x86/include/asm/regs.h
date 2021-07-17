@@ -3,7 +3,6 @@
 #define _ASM_X86_REGS_H_
 
 #include <types.h>
-#include <bits.h>
 
 #ifndef __ASSEMBLY__
 
@@ -20,10 +19,8 @@ struct regs {
             uint32_t eax;       /* 0x1c: */
             uint32_t _gsfs;     /* 0x20: */
             uint32_t _esds;     /* 0x24: */
-            uint32_t _csss;     /* 0x28: */
-            uint32_t eip;       /* 0x2c: */
-            uint32_t eflags;    /* 0x30: */
-            uint32_t esp;       /* 0x34: */
+            uint32_t _ss;       /* 0x28: */
+            uint32_t esp;       /* 0x30: */
         };
         struct {
             uint16_t di, hdi;
@@ -36,9 +33,7 @@ struct regs {
             uint16_t ax, hax;
             uint16_t gs, fs;
             uint16_t es, ds;
-            uint16_t cs, ss;
-            uint16_t ip, hip;
-            uint16_t flags, hflags;
+            uint16_t ss, res0;
             uint16_t sp, hsp;
         };
         struct {
@@ -52,12 +47,14 @@ struct regs {
             uint8_t al, ah, eax2, eax3;
             uint8_t gsl, gsh, fsl, fsh;
             uint8_t esl, esh, dsl, dsh;
-            uint8_t csl, csh, ssl, ssh;
-            uint8_t ipl, iph, eip2, eip3;
-            uint8_t lflags, hflags2, eflags2, eflags3;
+            uint8_t ssl, ssh, res1, res2;
             uint8_t spl, sph, esp2, esp3;
         };
     };
+    uint32_t error;
+    uint32_t eip;
+    uint32_t cs;
+    uint32_t eflags;
 } __packed;
 
 struct cr3{

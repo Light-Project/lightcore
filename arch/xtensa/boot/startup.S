@@ -11,12 +11,12 @@
  
     .section    .startup,"ax"
 
-GLOBAL(startup_head)
+GLOBAL(boot_head)
     j       init                                /* 0x00: xtensa jmp  */
     .byte   0                                   /* 0x03: Reserved */
     .long   0, 0, 0                             /* 0x04: Reserved */
     KERNEL_HEADER
-END(startup_head)
+END(boot_head)
     
     .section    .init.text,"ax"
     .type       init, %function

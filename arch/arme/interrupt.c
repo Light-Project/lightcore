@@ -16,7 +16,7 @@ void arch_interrupt_init()
 {
     uint16_t count = 0;
     interrupt_entry[count++] = _ld_estack;
-    interrupt_entry[count++] = (size_t)startup_head;
+    interrupt_entry[count++] = (size_t)boot_head;
     for (; count <= ARRAY_SIZE(interrupt_entry); count++)
             interrupt_entry[count] = (size_t)default_handle;
     SCB->VTOR = (uint32_t)&interrupt_entry;

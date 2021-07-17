@@ -13,14 +13,12 @@
 #ifndef _DRIVER_GPU_BOCHS_H_
 #define _DRIVER_GPU_BOCHS_H_
 
-enum BOCHS_Registers
-{
+enum bochs_registers {
     VBE_DISPI_IOPORT_INDEX              = 0x01CE,
     VBE_DISPI_IOPORT_DATA               = 0x01CF,
 };
 
-enum BOCHS_Index
-{
+enum bochs_index {
     VBE_DISPI_INDEX_ID                   = 0x0,
     VBE_DISPI_INDEX_XRES                 = 0x1,
     VBE_DISPI_INDEX_YRES                 = 0x2,

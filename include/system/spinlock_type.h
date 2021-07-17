@@ -11,5 +11,8 @@ typedef struct spinlock{
     raw_spinlock_t rlock;
 } spinlock_t;
 
+#define SPIN_LOCK(name) \
+    struct spinlock name
+
 #endif /* __ASSEMBLY__ */
 #endif

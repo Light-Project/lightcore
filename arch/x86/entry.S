@@ -1,19 +1,27 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <linkage.h>
- 
+#include <arch/x86/interrupt.h>
+
 .macro SAVE_REGS 
+    subl    $4, %esp
     pushl   %esp
-    pushfl
-    pushw   %ss
-    pushw   %cs
+    pushl   %ss
     pushw   %ds
     pushw   %es
     pushw   %fs
     pushw   %gs
     pushal
+.endm
 
-    movl    0x38(%esp), %edx
-    movl    %edx, 0x2c(%esp)
+.macro REC_REGS 
+    popal
+    popw    %gs
+    popw    %fs
+    popw    %es
+    popw    %ds
+    popl    %ss
+    popl    %esp
+    addl    $4, %esp
 .endm
 
 .macro SWITCH_TO_KERNEL_STACK
@@ -41,7 +49,10 @@ ENTRY(entry_general_protection)
 
     pushl   %esp
     call    trap_general_protection
+    subl    $4, %esp
 
+    REC_REGS
+    iret
 END(entry_general_protection)
 
 /**
@@ -59,9 +70,31 @@ ENTRY(entry_syscall)
     clac
     SAVE_REGS
 
+    pushl   %esp
+    call    trap_general_protection
+    subl    $4, %esp
+
+    REC_REGS
     iret
 END(entry_syscall)
 
-ENTRY(entry_undefine)
+ENTRY(entry_generic_interrupt)
+    vector=IRQ_EXTERNAL
+
+.rept(IRQ_NR_MAX - IRQ_EXTERNAL)
+0:
+    movl    $vector, %eax
+    jmp	    1f
+
+	. = 0b + 0x10
+	vector = vector + 1
+.endr
+
+1:
+    pushl   %eax
+
+    call    generic_interrupt
+    addl    $4, %esp
+
     iret
-END(entry_undefine)
+END(entry_generic_interrupt)

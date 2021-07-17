@@ -3,9 +3,9 @@
 
 #ifndef __ASSEMBLY__
 
-typedef struct boot_head{
+struct boot_head{
     uint64_t    jump[2];        // 0x00: jump code
-    uint32_t    para[4];        // 0x10: boot para
+    uint64_t    para[2];        // 0x10: boot para
     uint8_t     magic[11];      // 0x20: kernel magic
     uint8_t     opts;           // 0x2b: options
     uint32_t    Res0;           // 0x2c: Res
@@ -13,11 +13,11 @@ typedef struct boot_head{
     uint32_t    hcrc;           // 0x34: Head crc
     uint32_t    size;           // 0x38: kernel size
     uint32_t    crc;            // 0x3c: kernel crc
-} __packed boot_head_t;
+} __packed;
 
-#endif /* __ASSEMBLY__ */
+extern struct boot_head boot_head;
 
-#ifdef __ASSEMBLY__
+#else
 
 .macro  KERNEL_HEADER
     .long   0, 0, 0, 0          /* 0x10: boot parameter */

@@ -1,5 +1,5 @@
-#ifndef _DRIVER_GX6605S_TIMER_H_ 
-#define _DRIVER_GX6605S_TIMER_H_
+#ifndef _DRIVER_CLOCKSOURCT_GX6605S_H_ 
+#define _DRIVER_CLOCKSOURCT_GX6605S_H_
 
 #include <bits.h>
 
@@ -21,4 +21,4 @@ enum TIMER_Registers
 #define TIMER_CONFIG_EN         BIT(0)
 #define TIMER_CONFIG_IRQ_EN     BIT(1)
 
-#endif 
+#endif  /* _DRIVER_CLOCKSOURCT_GX6605S_H_ */

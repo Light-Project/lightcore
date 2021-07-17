@@ -1,5 +1,6 @@
-#ifndef _STDIO_H_
-#define _STDIO_H_
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#ifndef _PRINTK_H_
+#define _PRINTK_H_
 
 #include <types.h>
 #include <stdarg.h>
@@ -15,12 +16,6 @@ void pre_printk(const char *str,...);
 
 int printk(char *str,...);
 int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap);
-
-#ifdef CONFIG_DEBUG
-#define debug(fmt, ...) printk(fmt, ...)
-#else
-#define debug(fmt, ...) 
-#endif
 
 /**
  * pr_fmt - used by the pr_*() macros to generate the printk format string
@@ -48,7 +43,8 @@ int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap);
  * generate the format string.
  */
 #define pr_emerg(fmt, ...) \
-	printk(KERN_EMERG pr_fmt(fmt), ##__VA_ARGS__)
+    printk(KERN_EMERG pr_fmt(fmt), ##__VA_ARGS__)
+
 /**
  * pr_alert - Print an alert-level message
  * @fmt: format string
@@ -58,7 +54,8 @@ int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap);
  * generate the format string.
  */
 #define pr_alert(fmt, ...) \
-	printk(KERN_ALERT pr_fmt(fmt), ##__VA_ARGS__)
+    printk(KERN_ALERT pr_fmt(fmt), ##__VA_ARGS__)
+
 /**
  * pr_crit - Print a critical-level message
  * @fmt: format string
@@ -68,7 +65,8 @@ int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap);
  * generate the format string.
  */
 #define pr_crit(fmt, ...) \
-	printk(KERN_CRIT pr_fmt(fmt), ##__VA_ARGS__)
+    printk(KERN_CRIT pr_fmt(fmt), ##__VA_ARGS__)
+
 /**
  * pr_err - Print an error-level message
  * @fmt: format string
@@ -78,7 +76,8 @@ int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap);
  * generate the format string.
  */
 #define pr_err(fmt, ...) \
-	printk(KERN_ERR pr_fmt(fmt), ##__VA_ARGS__)
+    printk(KERN_ERR pr_fmt(fmt), ##__VA_ARGS__)
+
 /**
  * pr_warn - Print a warning-level message
  * @fmt: format string
@@ -88,7 +87,8 @@ int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap);
  * to generate the format string.
  */
 #define pr_warn(fmt, ...) \
-	printk(KERN_WARNING pr_fmt(fmt), ##__VA_ARGS__)
+    printk(KERN_WARNING pr_fmt(fmt), ##__VA_ARGS__)
+
 /**
  * pr_notice - Print a notice-level message
  * @fmt: format string
@@ -98,7 +98,8 @@ int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap);
  * generate the format string.
  */
 #define pr_notice(fmt, ...) \
-	printk(KERN_NOTICE pr_fmt(fmt), ##__VA_ARGS__)
+    printk(KERN_NOTICE pr_fmt(fmt), ##__VA_ARGS__)
+
 /**
  * pr_info - Print an info-level message
  * @fmt: format string
@@ -108,7 +109,22 @@ int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap);
  * generate the format string.
  */
 #define pr_info(fmt, ...) \
-	printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
+    printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
+
+/**
+ * pr_debug - Print an debug-level message
+ * @fmt: format string
+ * @...: arguments for the format string
+ *
+ * This macro expands to a printk with KERN_DEBUG loglevel. It uses pr_fmt() to
+ * generate the format string.
+ */
+#ifdef CONFIG_DYNAMIC_DEBUG
+#define pr_debug(fmt, ...) \
+    printk(KERN_DEBUG pr_fmt(fmt), ##__VA_ARGS__)
+#else
+#define pr_debug(fmt, ...)
+#endif
 
 /**
  * pr_cont - Continues a previous log message in the same line.
@@ -120,9 +136,7 @@ int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap);
  * it defaults back to KERN_DEFAULT loglevel.
  */
 #define pr_cont(fmt, ...) \
-	printk(KERN_CONT fmt, ##__VA_ARGS__)
+    printk(KERN_ONT fmt, ##__VA_ARGS__)
 
 
-
-
-#endif
+#endif	/* _PRINTK_H_ */

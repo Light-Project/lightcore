@@ -1,1 +1,1 @@
-obj-y += i82077.o
+obj-y += floppy.o

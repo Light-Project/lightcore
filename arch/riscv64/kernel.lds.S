@@ -1,7 +1,7 @@
 #include <generated/autoconf.h>
 
 OUTPUT_ARCH(arm)
-ENTRY(startup_head)
+ENTRY(boot_head)
 
 SECTIONS
 {

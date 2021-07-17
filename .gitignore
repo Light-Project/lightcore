@@ -4,6 +4,8 @@
 
 /.config
 /.config.old
+/bochsout.txt
+
 /include/config/
 /include/generated/
 

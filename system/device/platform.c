@@ -1,12 +1,28 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/**
+ * Platform is the root device bus of the kernel 
+ */
+
 #include <driver/platform.h> 
 #include <init/initcall.h>
 #include <string.h>
+
+state platform_device_register(struct platform_device *pdev)
+{
+    pdev->device.bus = &platform_bus;
+    return device_bind(&pdev->device);
+}
+
+void platform_device_unregister(struct platform_device *pdev)
+{
+
+}
 
 state platform_driver_register(struct platform_driver *pdrv)
 {
     pdrv->driver.bus = &platform_bus;
     return driver_register(&pdrv->driver);
-};
+}
 
 void platform_driver_unregister(struct platform_driver *pdrv)
 {
@@ -16,7 +32,6 @@ void platform_driver_unregister(struct platform_driver *pdrv)
 static state platform_match(struct device *dev, struct driver *drv)
 {
     struct platform_device *pdev = device_to_platform_device(dev);
-    // struct platform_driver *pdrv = driver_to_platform_driver(dev->driver);
     bool ret;
 
     ret = strcmp(drv->name, pdev->name);
@@ -55,8 +70,7 @@ struct bus_type platform_bus = {
     .remove = platform_remove,
 };
 
-state platform_bus_init(void)
+void __init platform_bus_init(void)
 {
-    return bus_register(&platform_bus);
+    bus_register(&platform_bus);
 }
-core_initcall(platform_bus_init);

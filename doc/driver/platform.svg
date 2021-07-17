@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="1280"
+   height="720"
+   viewBox="0 0 338.66667 190.5"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1 (c4e8f9ed74, 2021-05-24)"
+   sodipodi:docname="platform.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     units="px"
+     inkscape:zoom="1.6630104"
+     inkscape:cx="528.86021"
+     inkscape:cy="316.59454"
+     inkscape:window-width="1920"
+     inkscape:window-height="1033"
+     inkscape:window-x="0"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2">
+    <marker
+       style="overflow:visible"
+       id="Arrow2Lstart"
+       refX="0.0"
+       refY="0.0"
+       orient="auto"
+       inkscape:stockid="Arrow2Lstart"
+       inkscape:isstock="true">
+      <path
+         transform="scale(1.1) translate(1,0)"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         style="fill-rule:evenodd;fill:context-stroke;stroke-width:0.62500000;stroke-linejoin:round"
+         id="path29596" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="Arrow2Lstart-0"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow2Lstart"
+       inkscape:isstock="true">
+      <path
+         transform="matrix(1.1,0,0,1.1,1.1,0)"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         id="path29596-6" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="Arrow2Lstart-0-6"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow2Lstart"
+       inkscape:isstock="true">
+      <path
+         transform="matrix(1.1,0,0,1.1,1.1,0)"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         id="path29596-6-1" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="Arrow2Lstart-0-6-7"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow2Lstart"
+       inkscape:isstock="true">
+      <path
+         transform="matrix(1.1,0,0,1.1,1.1,0)"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         id="path29596-6-1-9" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="Arrow2Lstart-0-6-0"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow2Lstart"
+       inkscape:isstock="true">
+      <path
+         transform="matrix(1.1,0,0,1.1,1.1,0)"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         id="path29596-6-1-2" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="Arrow2Lstart-0-6-7-9"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow2Lstart"
+       inkscape:isstock="true">
+      <path
+         transform="matrix(1.1,0,0,1.1,1.1,0)"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         id="path29596-6-1-9-1" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="Arrow2Lstart-0-6-7-9-7"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow2Lstart"
+       inkscape:isstock="true">
+      <path
+         transform="matrix(1.1,0,0,1.1,1.1,0)"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         id="path29596-6-1-9-1-0" />
+    </marker>
+  </defs>
+  <g
+     inkscape:label="图层 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#fada95;fill-opacity:1;stroke-width:0.605979"
+       id="rect20083"
+       width="35"
+       height="15"
+       x="130"
+       y="85" />
+    <rect
+       style="fill:#000000;fill-opacity:0;stroke-width:100.858"
+       id="rect45049"
+       width="338.66699"
+       height="190.5"
+       x="0"
+       y="0" />
+    <rect
+       style="fill:#fada95;fill-opacity:1;stroke-width:0.687116"
+       id="rect13163"
+       width="45"
+       height="15"
+       x="180"
+       y="50" />
+    <rect
+       style="fill:#2a90ab;fill-opacity:1;stroke-width:0.836331"
+       id="rect103"
+       width="50"
+       height="20"
+       x="30"
+       y="20" />
+    <rect
+       style="fill:#fada95;fill-opacity:1;stroke-width:0.687116"
+       id="rect103-3"
+       width="45"
+       height="15"
+       x="100"
+       y="50" />
+    <rect
+       style="fill:#fada95;fill-opacity:1;stroke-width:0.605979"
+       id="rect103-3-6"
+       width="35"
+       height="15"
+       x="55"
+       y="85" />
+    <rect
+       style="fill:#fada95;fill-opacity:1;stroke-width:0.605979"
+       id="rect103-3-6-7"
+       width="35"
+       height="15"
+       x="55"
+       y="115" />
+    <rect
+       style="fill:#fada95;fill-opacity:1;stroke-width:0.605979"
+       id="rect103-3-6-7-5"
+       width="35"
+       height="15"
+       x="55"
+       y="145" />
+    <rect
+       style="fill:#fada95;fill-opacity:1;stroke-width:0.687116"
+       id="rect103-3-7"
+       width="45"
+       height="15"
+       x="260"
+       y="50" />
+    <text
+       xml:space="preserve"
+       style="font-size:6.35px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="47.902672"
+       y="32.149998"
+       id="text3058"><tspan
+         sodipodi:role="line"
+         id="tspan3056"
+         style="font-size:6.35px;stroke-width:0.264583"
+         x="47.902672"
+         y="32.149998">CPU</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.93889px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="109.51768"
+       y="59.998215"
+       id="text3058-5"><tspan
+         sodipodi:role="line"
+         id="tspan3056-3"
+         style="font-size:4.93889px;stroke-width:0.264583"
+         x="109.51768"
+         y="59.998215">PCI Host</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.93889px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="66.097733"
+       y="94.747757"
+       id="text3058-5-3"><tspan
+         sodipodi:role="line"
+         id="tspan3056-3-5"
+         style="font-size:4.93889px;stroke-width:0.264583"
+         x="66.097733"
+         y="94.747757">I8042</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.93889px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="65.475143"
+       y="125.32526"
+       id="text3058-5-3-6"><tspan
+         sodipodi:role="line"
+         id="tspan3056-3-5-2"
+         style="font-size:4.93889px;stroke-width:0.264583"
+         x="65.475143"
+         y="125.32526">I8042</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.93889px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="136.49942"
+       y="95.035515"
+       id="text3058-5-5"><tspan
+         sodipodi:role="line"
+         id="tspan3056-3-6"
+         style="font-size:4.93889px;stroke-width:0.264583"
+         x="136.49942"
+         y="95.035515">USB Host</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.93889px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="266.84482"
+       y="59.998215"
+       id="text3058-5-5-2"><tspan
+         sodipodi:role="line"
+         id="tspan3056-3-6-9"
+         style="font-size:4.93889px;stroke-width:0.264583"
+         x="266.84482"
+         y="59.998215">SMBUS Host</tspan></text>
+    <rect
+       style="fill:#9fdded;fill-opacity:1;stroke-width:3.59142"
+       id="rect22969"
+       width="242.59499"
+       height="10"
+       x="80"
+       y="24.994999" />
+    <rect
+       style="fill:#9fdded;fill-opacity:1;stroke-width:2.40681"
+       id="rect22969-7"
+       width="108.95181"
+       height="10"
+       x="65"
+       y="-115"
+       transform="rotate(90)" />
+    <rect
+       style="fill:#9fdded;fill-opacity:1;stroke-width:2.66499"
+       id="rect22969-7-7"
+       width="133.58034"
+       height="10"
+       x="40"
+       y="-45"
+       transform="rotate(90)" />
+    <rect
+       style="fill:#9fdded;fill-opacity:1;stroke-width:2.40681"
+       id="rect22969-7-5"
+       width="108.95181"
+       height="10"
+       x="65.000008"
+       y="-195"
+       transform="rotate(90)" />
+    <rect
+       style="fill:#9fdded;fill-opacity:1;stroke-width:2.40681"
+       id="rect22969-7-5-9"
+       width="108.95181"
+       height="10"
+       x="65.000008"
+       y="-275"
+       transform="rotate(90)" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="165.59999"
+       y="31.364998"
+       id="text24994"><tspan
+         sodipodi:role="line"
+         id="tspan24992"
+         style="stroke-width:0.264583"
+         x="165.59999"
+         y="31.364998">Platform Bus</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="-124.96135"
+       y="111.43338"
+       id="text24994-2"
+       transform="rotate(-90)"><tspan
+         sodipodi:role="line"
+         id="tspan24992-2"
+         style="stroke-width:0.264583"
+         x="-124.96135"
+         y="111.43338">PCI Bus</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.252492px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#Arrow2Lstart)"
+       d="M 126.4275,35.735608 V 49.44375"
+       id="path29439" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.252492px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#Arrow2Lstart-0)"
+       d="M 209.11945,36.063586 V 49.771728"
+       id="path29439-2" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.252492px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#Arrow2Lstart-0-6)"
+       d="M 289.84945,36.063586 V 49.771728"
+       id="path29439-2-8" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.252492px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#Arrow2Lstart-0-6)"
+       d="M 276.88054,49.436414 V 35.728272"
+       id="path29964" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.252492px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#Arrow2Lstart-0-6-7)"
+       d="M 196.15944,49.771728 V 36.063586"
+       id="path29964-2" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.242931px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#Arrow2Lstart-0-6-7-9)"
+       d="M 128.6896,89.077911 H 116"
+       id="path29964-2-2" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.242931px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#Arrow2Lstart-0-6-7-9-7)"
+       d="m 116,94.069353 h 12.6896"
+       id="path29964-2-2-9" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.252492px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#Arrow2Lstart-0-6-0)"
+       d="M 113.46749,49.44375 V 35.735608"
+       id="path29964-3" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="-124.96135"
+       y="271.42337"
+       id="text34004"
+       transform="rotate(-90)"><tspan
+         sodipodi:role="line"
+         id="tspan34002"
+         style="stroke-width:0.264583"
+         x="-124.96135"
+         y="271.42337">PCI Bus</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="-124.96135"
+       y="191.61929"
+       id="text34008"
+       transform="rotate(-90)"><tspan
+         sodipodi:role="line"
+         id="tspan34006"
+         style="stroke-width:0.264583"
+         x="-124.96135"
+         y="191.61929">USB Bus</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="130.56812"
+       y="44.945007"
+       id="text47179"><tspan
+         sodipodi:role="line"
+         id="tspan47177"
+         style="stroke-width:0.264583"
+         x="130.56812"
+         y="44.945007">PMIO</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="292.14062"
+       y="44.945007"
+       id="text50187"><tspan
+         sodipodi:role="line"
+         id="tspan50185"
+         style="stroke-width:0.264583"
+         x="292.14062"
+         y="44.945007">MMIO</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="115.924"
+       y="86.162361"
+       id="text50191"><tspan
+         sodipodi:role="line"
+         id="tspan50189"
+         style="stroke-width:0.264583"
+         x="115.924"
+         y="86.162361">MMIO</tspan></text>
+  </g>
+</svg>

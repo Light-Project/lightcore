@@ -1,36 +1,29 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#include <mm.h>
+#include "private.h"
+#include <linkage.h>
 #include <string.h>
 #include <src.h>
-#include <asm-generic/header.h>
-#include <system.h> 
-#include <printk.h>
-#include <console.h>
-
-#include <driver/dt.h>
-#include <driver/acpi.h>    
-
 #include <init/init.h>
-#include <init/initcall.h>  /* For initcalls */
-#include <asm/irq.h>        /* For irq */
-#include <driver/clocksource.h>
-#include "private.h"        /* Private fun */
+#include <init/initcall.h>
+#include <mm.h>
+#include <memtest.h>
+#include <device/driver.h>
+#include <driver/clocksource.h>  
+#include <system.h> 
+#include <console.h>
+#include <printk.h>
+
+#include <asm-generic/header.h>
+#include <asm/irq.h>
 
 char boot_args[boot_args_size];
 
-static void __init device_framework_init()
+static void __init command_setup(void)
 {
-#ifdef CONFIG_DT
-    if(dtb_start != NULL)
-        early_dt_scan(dtb_start);
-#endif
-#ifdef CONFIG_ACPI
-    acpi_table_init();
-#endif
-}
-
-static void __init command_setup(const char *str)
-{
+    const char *args = (void *)(size_t)boot_head.para[0];
+    if(!args)
+        return;
+    strlcpy(boot_args, args, boot_args_size);
 }
 
 static void __init mem_init(void)
@@ -45,31 +38,26 @@ static void __init mem_init(void)
     kmem_init();
 }
 
-void __init kernel_start(const char *direct_args)
+asmlinkage __visible void __init kernel_start(void)
 {
-    /* entry criticality */
     arch_irq_disable();
 
     arch_setup(boot_args);
-
-    device_framework_init();
-
-    command_setup(direct_args);
     src_terminal_logo();
 
+    command_setup();
     mem_init();
-
-
     // sched_init();
+
+    early_device_init();
+    pre_printk("kernel command: %s\n\r", boot_args);
+
+    timer_init();
 
     arch_irq_enable();
 
-    /* Start system timer */
-//     timer_init();
-
     console_init();
 
-    /* From here on, all kernel drivers are ready */
     initcalls();
 
     init_task();

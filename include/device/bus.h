@@ -1,9 +1,12 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-
 #ifndef _DEVICE_BUS_H_
 #define _DEVICE_BUS_H_
 
-#include <device/base.h>
+#include <device.h>
+#include <device/driver.h>
+
+struct device;
+struct driver;
 
 typedef struct bus_type {
     const char      *name;      // The name of the bus
@@ -19,8 +22,9 @@ typedef struct bus_type {
     state (*online)(struct device *dev);
     state (*offline)(struct device *dev);
 
-    list_t devices_list;        /*  */
-    list_t drivers_list;
+    struct mutex mutex;
+    list_t devices_list;  /* devices on this bus */
+    list_t drivers_list;  /* drivers on this bus */
 } bus_type_t;
 
 #define bus_for_each(bus, head)	\
@@ -32,10 +36,16 @@ typedef struct bus_type {
 #define bus_for_each_driver(driver, bus) \
         list_for_each_entry(driver, &bus->drivers_list, bus_list_driver)
 
+state bus_probe_device(struct device *dev);
+state bus_add_device(struct device *drv);
+state bus_remove_device(struct device *drv);
+
+state bus_add_driver(struct driver *drv);
+state bus_remove_driver(struct driver *dev);
+
 state bus_register(struct bus_type *);
 void bus_unregister(struct bus_type *);
 
-state bus_driver_add(struct driver *drv);
-void bus_driver_remove(struct driver *drv);
+void bus_init(void);
 
-#endif
+#endif  /* _DEVICE_BUS_H_ */

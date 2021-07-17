@@ -15,7 +15,7 @@ static uint32_t crc32(const char *s, int len, uint32_t crc)
 
 void kernel_check(void *addr)
 {
-    boot_head_t *boot_head = (boot_head_t *)addr;
+    struct boot_head *boot_head = (struct boot_head *)addr;
     uint32_t crc32new, crc32old;
     uint32_t size = boot_head->size;
     

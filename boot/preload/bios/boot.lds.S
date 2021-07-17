@@ -66,6 +66,14 @@ SECTIONS
         PROVIDE(_ld_data_end = .);
     } > RAM
     
+    .dts :
+    {
+        . = ALIGN(4);
+        PROVIDE(_ld_dts_start = .);
+        KEEP(*(.dts))
+        . = ALIGN(4);
+    } > RAM
+    
     .align :
     {
         PROVIDE(_ld_align_start = .);

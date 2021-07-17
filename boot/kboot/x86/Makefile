@@ -1,6 +1,2 @@
-obj-y += header.o
-obj-y += startup.o
-obj-y += main.o
-obj-y += page.o
-obj-y += segment.o
-obj-y += video.o
+obj-y += header.o startup.o main.o page.o segment.o video.o
+obj-$(CONFIG_KASLR) += kaslr.o

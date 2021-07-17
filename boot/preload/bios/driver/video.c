@@ -1,77 +1,67 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <boot.h> 
+#include <driver/video/vesa.h>
+
 #include <asm/io.h>
 
-typedef struct{
+struct _vram_text{
     struct{
     uint8_t ch;
     uint8_t att;
-    } block[26][80];
-} __packed Vram_text_TypeDef;
+    } block[25][80];
+} __packed;
 
-#define Vram_text_Base  ((uint32_t)0xb8000)
-#define vram_text       ((Vram_text_TypeDef *)Vram_text_Base)
+#define vram_text_base  0xb8000
+#define vram_text       ((struct _vram_text *)vram_text_base)
 
-#define CRTC_ADDR_REG   0x3D4
-#define CRTC_DATA_REG   0x3D5
-#define CURSOR_H        0xE
-#define CURSOR_L        0xF
+static unsigned char pos_x, pos_y;
 
-static void video_cursor(const char pos_x, const char pos_y)
+static inline void video_cursor(const char pos_x, const char pos_y)
 {
     uint16_t cursor = pos_x + (pos_y * 80);
-    outb(CRTC_ADDR_REG, CURSOR_H);
-    outb(CRTC_DATA_REG, (cursor >> 8) & 0xFF);
-    outb(CRTC_ADDR_REG, CURSOR_L);
-    outb(CRTC_DATA_REG, cursor & 0xFF);
+
+    outb(VESA_CRT_IC, VESA_CRTC_CURSOR_HI);
+    outb(VESA_CRT_DC, cursor >> 8);
+    outb(VESA_CRT_IC, VESA_CRTC_CURSOR_LO);
+    outb(VESA_CRT_DC, cursor);
 }
 
 static void video_roll()
 {
-    for(uint8_t pos_y = 1; pos_y <= 24; pos_y++)
-    for(int8_t pos_x = 0; pos_x <= 79; pos_x++)
-    {
-        ext_writeb(&vram_text->block[pos_y-1][pos_x].ch, vram_text->block[pos_y][pos_x].ch);
-        ext_writeb(&vram_text->block[pos_y-1][pos_x].att, vram_text->block[pos_y][pos_x].att);
+    for(uint8_t pos_y = 0; pos_y < 25; pos_y++)
+    for(int8_t pos_x = 0; pos_x < 80; pos_x++) {
+        ext_writeb(&vram_text->block[pos_y][pos_x].ch, 
+        ext_readb(&vram_text->block[pos_y + 1][pos_x].ch));
     }   
 }
 
 void video_print(const char *str)
 {
-    static uint8_t pos_x = 0;
-    static uint8_t pos_y = 0;
+    char ch;
     
-    if(str == NULL || *str == '\0')
-        return;
-
-    do{
-        if(*str == '\n')
-        {
-            /* If the screen is full, scroll */
-            if(*str == '\n' && pos_y == 23)
+    while((ch = *str++)) {
+        if(ch == '\n') {
+            if(pos_y >= 23)
                 video_roll();
-            /* If the screen is not full, wrap */
             else
                 pos_y++;
-        }
-        else if(*str == '\r')
+        } else if(ch == '\r') {
             pos_x = 0;
-        else{
-            ext_writeb(&vram_text->block[pos_y][pos_x].ch, *str);
-            ext_writeb(&vram_text->block[pos_y][pos_x].att, 0x07);
-            pos_x++;
-            video_cursor(pos_x, pos_y);
+        } else {
+            ext_writeb(&vram_text->block[pos_y][pos_x++].ch, ch);
         }  
-    }while(*(++str) != '\0');
+        video_cursor(pos_x, pos_y);
+    }
 }
 
 void video_clear()
 {
-    for(uint8_t pos_y = 0; pos_y <= 24; pos_y++)
-    for(int8_t pos_x = 0; pos_x <= 79; pos_x++)
-    {
+    for(pos_y = 0; pos_y < 25; pos_y++)
+    for(pos_x = 0; pos_x < 80; pos_x++) {
         ext_writeb(&vram_text->block[pos_y][pos_x].ch, '\0');
         ext_writeb(&vram_text->block[pos_y][pos_x].att, 0x07);
     }
+
     video_cursor(0, 0);
+    pos_y = pos_x = 0;
 }

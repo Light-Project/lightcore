@@ -8,6 +8,7 @@
 #include <stddef.h>
 #include <mm/page.h>
 #include <printk.h>
+#include <memtest.h>
 
 static size_t patterns[] = {
     (size_t)0x0000000000000000ULL,
@@ -43,10 +44,11 @@ static void __init memtest_once(size_t pattern, size_t *start, size_t *end)
     }
 }
 
-void __init memtest(phys_addr_t pa, size_t size)
+void __init memtest(void)
 {
     unsigned int c;
-    void *va = pa_to_va(pa);
+    void *va = &_ld_image_end;
+    size_t size = 0x10000000;
 
     for(c = 0; c < ARRAY_SIZE(patterns); ++c)
         memtest_once(patterns[c], va, (void *)((size_t)va + size));

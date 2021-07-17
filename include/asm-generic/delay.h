@@ -8,4 +8,10 @@ static inline void udelay(unsigned long nsecs)
 
 }
 
+static inline void mdelay(unsigned long msecs)
+{
+
+
+}
+
 #endif /* _DELAY_H_ */

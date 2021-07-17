@@ -26,7 +26,7 @@ static uint32_t crc32(const uint32_t *s, int len, uint32_t crc)
 // Check kernel integrity
 static void kernel_check(void *addr)
 {
-    boot_head_t *boot_head = addr;
+    struct boot_head *boot_head = addr;
     uint32_t crc32new = 0, crc32old = 0;
     uint8_t cmp[17];
     uint32_t size;

@@ -39,6 +39,7 @@ void panic(const char *str,...);
 int strcmp(const char *, const char *);
 void *memset(void * s, int c, size_t n);
 void *memcpy(void *dest, const void* src, size_t len);
+void *memmove(void * dest, const void * src, size_t n);
 
 int vsprintf(char *, const char *, va_list);
 

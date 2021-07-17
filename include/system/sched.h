@@ -3,6 +3,7 @@
 #define _SYSTEM_SCHED_H_
 
 #include <list.h>
+#include <asm/percpu.h>
 
 struct task {
 
@@ -23,6 +24,11 @@ struct task {
     uint64_t    kernel_task:1;  /*  */
 
 };
+
+struct sched_class {
+    void (*task_enqueue)();
+};
+
 
 void sched_relax(void);
 

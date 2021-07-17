@@ -172,7 +172,7 @@ init:
     jmp     halt
 1:
     /**
-     * FIXME: setfs doesn't work
+     * TODO: setfs doesn't work
      */
     jmp     Bss_segment_Init
 
@@ -211,11 +211,12 @@ setfs:
 1:
 
 Bss_segment_Init:
-    xorl    %eax, %eax
     movl    $_ld_bss_start, %edi
     movl    $_ld_bss_end, %ecx
     subl    %edi, %ecx
-    rep;    stosl
+	shrl    $2, %ecx
+    xorl    %eax, %eax
+    rep;    stosl %eax, %es:(%edi)
     
     call    main
     call    halt

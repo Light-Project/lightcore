@@ -11,12 +11,12 @@
  
     .section    .startup,"ax"
 
-GLOBAL(startup_head)
+GLOBAL(boot_head)
     lrw     r1, init                            /* 0x00: csky jmp  */
     jmp     r1
     .long   0, 0, 0                             /* 0x04: Reserved */
     KERNEL_HEADER
-END(startup_head)
+END(boot_head)
     
     .section    .init.text,"ax"
     .type       init, %function
@@ -39,7 +39,7 @@ env:
     lrw     r1, init_thread_union + THREAD_SIZE
     mov     sp, r1
 
-    lrw     r1, startup_head
+    lrw     r1, boot_head
     ld.w    r1, (r1, 0x10)
     
     jsri    kernel_start

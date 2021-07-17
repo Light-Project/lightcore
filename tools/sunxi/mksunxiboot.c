@@ -20,7 +20,7 @@ static inline uint32_t __swab32(uint32_t x)
 #define le32_to_cpu(x)		(x)
 #endif
 
-struct boot_head_t {
+struct struct boot_head {
 	uint32_t instruction;
 	uint8_t magic[8];
 	uint32_t checksum;
@@ -36,7 +36,7 @@ struct boot_head_t {
 
 int main (int argc, char *argv[])
 {
-	struct boot_head_t * h;
+	struct struct boot_head * h;
 	FILE * fp;
 	char * buffer;
 	int buflen, filelen;
@@ -60,7 +60,7 @@ int main (int argc, char *argv[])
 	filelen = ftell(fp);
 	fseek(fp, 0L, SEEK_SET);
 	
-	if(filelen <= sizeof(struct boot_head_t))
+	if(filelen <= sizeof(struct struct boot_head))
 	{
 		fclose(fp);
 		printf("The size of bootloader too small\n");
@@ -78,7 +78,7 @@ int main (int argc, char *argv[])
 		return -1;
 	}
 
-	h = (struct boot_head_t *)buffer;
+	h = (struct struct boot_head *)buffer;
 	p = (uint32_t *)h;
 	l = le32_to_cpu(h->length);
 	l = ALIGN(l, 512);

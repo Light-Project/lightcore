@@ -1,6 +1,7 @@
 #ifndef _DRIVER_DT_H_
 #define _DRIVER_DT_H_
 
+#include <state.h>
 #include <slist.h>
 #include <system/kobject.h>
 #include <mod_devicetable.h>
@@ -51,10 +52,10 @@ typedef int (* dt_init_fn_2)(struct dt_node *, struct dt_node *);
 #define DT_DECLARE_2(table, name, compat, fn)       \
         DT_DECLARE(table, name, compat, fn, dt_init_fn_2)
 
-bool dt_scan_node(bool (*fn)(unsigned long node, const char *uname, int depth, void *data), void *data);
+state dt_scan_node(state (*fn)(unsigned long node, const char *uname, int depth, void *data), void *data);
 const void *dt_get_prop(unsigned long node, const char *name, int *size);
 
 
-bool early_dt_scan(void *dt_start);
+state early_dt_scan(void *dt_start);
 
 #endif

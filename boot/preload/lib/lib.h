@@ -13,10 +13,10 @@ extern int printf(const char *str, ...);
 extern int pr_boot(const char *str, ...);
 extern void panic(const char *str, ...);
 
+extern int strcmp(const char *, const char *);
 extern void *memcpy(void *, const void*, size_t);
 extern void *memset(void *, int, size_t);
-
-extern int strcmp(const char *, const char *);
+extern void *memmove(void * dest, const void * src, size_t n);
 
 extern int vsprintf(char *, const char *, va_list);
 

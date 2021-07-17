@@ -1,16 +1,20 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#include <driver/pci.h>
+
+#define pr_fmt(fmt) "pci: " fmt
+
 #include <mm.h>
+#include <init/initcall.h>
+#include <driver/pci.h>
+#include "private.h"
 #include <printk.h>
 
 #include <asm/io.h>
 
-#include "private.h"
-
 /* PCI host bridge listhead */
 LIST_HEAD(host_list);
 
-static void pci_device_add(struct pci_bus *bus, struct pci_device *dev)
+static __always_inline
+void pci_device_add(struct pci_bus *bus, struct pci_device *dev)
 {
     /* Add pci device to pci bus list */
     list_add(&bus->pci_device_list, &dev->pci_bus_list_pci_device);
@@ -21,7 +25,8 @@ static void pci_device_add(struct pci_bus *bus, struct pci_device *dev)
  * @defgroup: pci_resource_set
  * 
  */
-static enum res_type pci_res_type(uint32_t bar)
+static __always_inline
+enum res_type pci_res_type(uint32_t bar)
 {
     if((bar & PCI_BASE_ADDRESS_SPACE) == PCI_BASE_ADDRESS_SPACE_IO)
         return RESOURCE_PMIO;
@@ -156,7 +161,6 @@ static state pci_device_setup(struct pci_device *pdev)
 {
     uint32_t val;
 
-    // pdev->dev.parent = pdev->bus->;
     pdev->dev.bus = &pci_bus_type;
 
     /* Setup revision and class code */
@@ -278,6 +282,10 @@ static state pci_scan_add_device(struct pci_bus *bus, uint32_t devfn)
 
     pci_device_add(bus, dev);
 
+    pr_info("New device: %02d:%02d:%d %04x %04x:%04x\n\r",
+        dev->bus->bus_nr, PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn),
+        dev->class, dev->vendor, dev->device);
+
     return -ENOERR;
 }
 
@@ -353,11 +361,22 @@ state pci_host_register(struct pci_host *host)
 
     list_add_prev(&host_list, &bus->node);
 
-    /* Scan all devices on pci root bus */
-    pci_scan_bus(bus);
-
-    /* Start all devices on pci root bus */
-    pci_bus_devices_probe(bus);
-
     return -ENOERR;
 }
+
+state pci_host_probe(void)
+{
+    struct pci_bus *bus;
+
+    list_for_each_entry(bus, &host_list, node) {
+        /* Scan all devices on pci root bus */
+        pci_scan_bus(bus);
+
+        /* Start all devices on pci root bus */
+        pci_bus_devices_probe(bus);
+    }
+    return -ENOERR;
+}
+
+/* Synchronize all PCI drivers */
+driver_initcall_sync(pci_host_probe);

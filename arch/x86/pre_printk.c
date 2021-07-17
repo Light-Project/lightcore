@@ -6,15 +6,18 @@
 
 #include <asm/io.h>
 
-struct vram_text{
+#define xres    80
+#define yres    25
+
+struct _vram_text{
     struct{
     uint8_t ch;
     uint8_t att;
-    } block[26][80];
+    } block[yres][xres];
 } __packed;
 
 #define vram_text_base  (pa_to_va(0xb8000))
-#define vram_text       ((struct vram_text *)vram_text_base)
+#define vram_text       ((struct _vram_text *)vram_text_base)
 
 static unsigned char pos_x, pos_y;
 
@@ -28,59 +31,57 @@ static inline void video_cursor(const char pos_x, const char pos_y)
     outb(VESA_CRT_DC, cursor);
 }
 
-static inline void video_roll()
+static inline void video_clear(int pos_y, int len)
 {
-    for(uint8_t pos_y = 1; pos_y <= 24; pos_y++)
-    for(int8_t pos_x = 0; pos_x <= 79; pos_x++) {
-        vram_text->block[pos_y-1][pos_x].ch = vram_text->block[pos_y][pos_x].ch;
-        vram_text->block[pos_y-1][pos_x].att = vram_text->block[pos_y][pos_x].att;
-    }   
+    int pos_x;
+    for(; len--; pos_y++)
+    for(pos_x = 0; pos_x < 80; pos_x++) {
+        vram_text->block[pos_y][pos_x].ch = '\0';
+        vram_text->block[pos_y][pos_x].att = 0x07;
+    }
 }
 
-static inline void video_print(char ch)
+static inline void video_roll()
 {
-    if(ch == '\n') {
-        /* If the screen is full, scroll */
-        if(ch == '\n' && pos_y == 23)
-            video_roll();
-        /* If the screen is not full, wrap */
-        else
-            pos_y++;
-    }
+    memmove(&vram_text->block[0][0], &vram_text->block[1][0], 2 * xres * (yres - 1));
+    video_clear(yres - 1, 1);
+}
+
+static void console_write(struct console *con, const char *str, unsigned len)
+{
+    char ch;
     
-    else if(ch == '\r')
-        pos_x = 0;
-    
-    else {
-        vram_text->block[pos_y][pos_x].ch = ch;
-        vram_text->block[pos_y][pos_x].att = 0x07;
-        pos_x++;
+    while(len--, ch = *str++) {
+        if(ch == '\n') {
+            if(pos_y < (yres - 1))
+                pos_y++;
+            else 
+                video_roll();
+        } else if(ch == '\r') {
+            pos_x = 0;
+        } else if(pos_x < (xres - 1)) {
+            vram_text->block[pos_y][pos_x++].ch = ch;
+        } else
+            continue;
         video_cursor(pos_x, pos_y);
     }
 }
 
-static inline void video_clear()
+static inline void console_clear()
 {
-    memset(&vram_text->block, 0x00, sizeof(*vram_text));
+    video_clear(0, yres);
     video_cursor(0, 0);
-    pos_y = pos_x = 0;
-}
-
-static void pre_console_write(struct console *con, const char *str, unsigned len)
-{
-    while(len--)
-        video_print(*str++);
 }
 
 static struct console pre_console_dev = {
     .name   = "precon",
-    .write  = pre_console_write,
+    .write  = console_write,
     .boot   = true,
     .index  = -1,
 };
 
 void pre_console_init(void)
 {
-    video_clear();
+    console_clear();
     pre_console = &pre_console_dev;
 }

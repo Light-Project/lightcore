@@ -233,8 +233,6 @@ END(startup32)
 GLOBAL(kernel_start)
     movl    4(%esp), %eax
     movl    %eax, 1f
-    
-    cli
 
     .byte   0xea                        # ljmpl opcode
 1:  .long   0xc1000000                  # address

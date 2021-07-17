@@ -68,7 +68,6 @@ struct pci_device {
     list_t pci_bus_list_pci_device; /* Node of pci_bus->pci_device_list */
     struct pci_bus *bridge;         /* Bus this device bridges to */
     struct device dev;              /* Generic device */
-    struct pci_driver *pci_driver;  /* Bound pci driver */
 
     /* Device characteristic */
     struct pci_bus *bus;
@@ -115,11 +114,13 @@ struct pci_driver {
     list_t  list;
     struct driver driver;
     const struct pci_device_id *id_table;
-    state (*probe)(struct pci_device *, int);
-    state (*remove)(struct pci_device *);
-    void (*shutdown)(struct pci_device *);
-    state (*suspend)(struct pci_device *, pm_message_t state);
-    state (*resume)(struct pci_device *);
+
+    /* Operation function */
+    state (*probe)(struct pci_device *pdev, int id);
+    state (*remove)(struct pci_device *pdev);
+    void (*shutdown)(struct pci_device *pdev);
+    state (*suspend)(struct pci_device *pdev, pm_message_t state);
+    state (*resume)(struct pci_device *pdev);
 };
 
 #define driver_to_pci_driver(dpt) \
@@ -135,7 +136,6 @@ struct pci_bus {
     list_t  node;               /* Node of children list */
     list_t  children;           /* List head of child buses */
     struct pci_bus *parent;     /* Parent bus on this bridge */
-    
     
     struct list_head pci_device_list;   /* List head of pci_devices on this bus */
     struct pci_ops *ops;   
@@ -161,7 +161,6 @@ struct pci_host {
 };
 
 state pci_host_register(struct pci_host *host);
-
 
 /* pci/base.c - PCI basic operation */
 uint8_t pci_bus_config_readb(struct pci_bus *bus, uint devfn, uint reg);

@@ -1,11 +1,6 @@
 #include <device.h>
 #include <printk.h>
 
-state bus_probe_device(struct device *dev)
-{
-    return dev->bus->probe(dev);
-}
-
 /**
  * device_bind_driver - Bind single device and driver through bus
  *
@@ -28,13 +23,14 @@ state device_bind(struct device *device)
     struct driver *drv;
     bool ret;
 
-    if(device->driver) {
+    /* already */
+    if(device->driver)
         return -ENOERR;
-    }
 
     bus_for_each_driver(drv, device->bus)
         if((ret = device_bind_driver(device, drv)))
-            break;    
+            break;
+    
     if(!ret)
         return -ENODEV;
 

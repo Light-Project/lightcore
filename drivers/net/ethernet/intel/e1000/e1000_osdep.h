@@ -10,7 +10,7 @@
 
 #include <types.h>
 #include <mm.h>
-#include <timer.h>
+#include <delay.h>
 #include <system/spinlock.h>
 #include <system/mutex.h>
 #include <system/sched.h>
@@ -28,7 +28,7 @@
 #define __le64  le64
 
 #define e_dbg(format, arg...) \
-	debug(format, ## arg)
+	pr_debug(format, ## arg)
 
 #define GBE_CONFIG_RAM_BASE \
 	((unsigned int)(GBE_RAM_BASE + GBE_CONFIG_OFFSET))

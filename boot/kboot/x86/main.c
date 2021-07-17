@@ -3,6 +3,7 @@
 
 void main(void)
 {
+    
     /* clean bss */
     memset(bss_start, 0, bss_size);
     
@@ -19,7 +20,7 @@ void main(void)
 
     /* Initialization MMU */
     kernel_map();
-    
+
     extract_kernel(kernel_entry, piggy_start, piggy_size);
     
     pr_boot("Boot to kernel...");

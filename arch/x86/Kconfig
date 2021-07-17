@@ -34,5 +34,9 @@ config SMP
         This enables support for systems with more than one CPU. If you have
         a system with only one CPU, say N. If you have a system with more
         than one CPU, say Y.
+        
+config RANDOMIZE_BASE
+	bool "Randomize the address of the kernel image (KASLR)"
+	depends on RELOCATABLE
 
 endmenu

@@ -29,6 +29,9 @@ void head(void);
 void kernel_start(void *addr);
 void halt(void);
 
+/* kaslr.c */
+uint64_t kasir_random(void);
+
 /* page.c */
 void kernel_map(void);
 

@@ -218,7 +218,7 @@ kernel-flags-y += -Wl,--gc-sections
 endif
 
 kernel-flags-$(CONFIG_KERNEL_MAP) += -Wl,--cref,-Map=$@.map
-kernel-flags-y += -e startup_head
+kernel-flags-y += -e boot_head
 kernel-flags-y += -Wl,--build-id=sha1
 export kernel-flags-y
 
@@ -258,7 +258,7 @@ asm-generic: FORCE
 
 # Build kernel built-in.a
 kernel_y := $(patsubst %/,%,$(kernel-y))
-$(kernel_y): asm-generic FORCE
+$(kernel_y): asm-generic dts FORCE
 	$(Q)$(MAKE) $(build)=$@
 	$(Q)$(RANLIB) $(patsubst %, %/built-in.a, $@)
 
@@ -287,8 +287,6 @@ preload dts run install: FORCE
 
 analyse:
 	$(Q)$(MAKE) $(build)=$(srctree)/tools/Kanalyse
-
-
 
 endif
 

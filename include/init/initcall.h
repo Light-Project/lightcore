@@ -6,16 +6,26 @@
 
 typedef state (*initcall_t)(void);
 
+#ifdef CONFIG_DYNAMIC_DEBUG
+struct initcall_entry {
+    const char *name;
+    initcall_t fn;
+};
+#else
+struct initcall_entry {
+    initcall_t fn;
+};
+#endif
+
 #ifdef CONFIG_ARCH_HAS_PREL32_RELOCATIONS
 typedef int initcall_entry_t;
-
 static inline initcall_t initcall_from_entry(initcall_entry_t *entry)
 {
     return offset_to_ptr(entry);
 }
 #else
-typedef initcall_t initcall_entry_t;
-#define initcall_from_entry(entry)  (*entry)
+typedef struct initcall_entry initcall_entry_t;
+#define initcall_from_entry(entry)  (entry->fn)
 #endif
 
 extern initcall_entry_t _ld_initcall_start[];
@@ -56,19 +66,20 @@ extern initcall_entry_t _ld_console_initcall_end[];
 #define __initcall_section(__sec, __iid)                \
         #__sec ".init"
 
-#if 0
+#ifdef CONFIG_DYNAMIC_DEBUG
 #define ____define_section(fn, __stub, __name, __sec)   \
         __define_initcall_stub(__stub, fn)              \
-        asm(".section   \"" __sec "\", \"a\"        \n" \
-            __stringify(__name) ":                  \n" \
-            ".long  " __stringify(__stub) " - .     \n" \
-            ".previous                              \n");
+        static const struct initcall_entry __name       \
+        __used __attribute__((__section__(__sec)))      \
+        = { #fn , __stub}
 #else
 #define ____define_section(fn, __stub, __name, __sec)   \
         __define_initcall_stub(__stub, fn)              \
-        static const initcall_t __name __used           \
-        __attribute__((__section__(__sec))) = __stub;
+        static const struct initcall_entry __name       \
+        __used __attribute__((__section__(__sec)))      \
+        = {__stub}
 #endif
+
 
 #define __unique_initcall(fn, id, __sec, __iid)         \
         ____define_section(fn,                          \
@@ -87,15 +98,11 @@ extern initcall_entry_t _ld_console_initcall_end[];
  * Only for built-in code, not modules.
  */
 #define early_initcall(fn)              __define_initcall(fn, early)
-/* Only used to initialize dynamic variables */
 #define pure_initcall(fn)               __define_initcall(fn, 0)
-/* Initialization of important core components */
 #define core_initcall(fn)               __define_initcall(fn, 1)
 #define core_initcall_sync(fn)          __define_initcall(fn, 1s)
-/* initialize arch specific content */
 #define arch_initcall(fn)               __define_initcall(fn, 2)
 #define arch_initcall_sync(fn)          __define_initcall(fn, 2s)
-/* initialize arch specific content */
 #define framework_initcall(fn)          __define_initcall(fn, 3)
 #define framework_initcall_sync(fn)     __define_initcall(fn, 3s)
 #define fs_initcall(fn)                 __define_initcall(fn, 4)

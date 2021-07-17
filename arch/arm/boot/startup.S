@@ -11,7 +11,7 @@
     .arm
     .section	.startup,"ax"
     
-GLOBAL(startup_head)
+GLOBAL(boot_head)
     ldr    pc, =init        /* 0x00: arm jump */
     .long  0, 0, 0          /* 0x04: Reserved */
     .long  0, 0, 0, 0       /* 0x10: boot parameter */
@@ -21,7 +21,7 @@ GLOBAL(startup_head)
     .long  _ld_kernel_size  /* 0x30: Kernel size */
     .long  0, 0, 0          /* 0x34: Reserved */
     
-END(startup_head)
+END(boot_head)
 
 .word       _ld_bss_start
 .word       _ld_bss_end
@@ -48,7 +48,7 @@ Bss_loop:
 env:
     ldr     sp, =(init_thread_union + THREAD_SIZE)
     
-    ldr     ip, =startup_head
+    ldr     ip, =boot_head
     ldr     r0, [ip, #0x10]
     
     bl      kernel_start

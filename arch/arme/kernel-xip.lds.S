@@ -5,7 +5,7 @@
 OUTPUT_ARCH(arm)
 
 /* Entry Point */
-ENTRY(startup_head)
+ENTRY(boot_head)
 
 /* Define output sections */
 SECTIONS

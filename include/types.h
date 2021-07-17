@@ -62,14 +62,16 @@ typedef ssize_t         ptrdiff_t;
 typedef ssize_t         intptr_t;
 typedef size_t          uintptr_t;
 
+typedef short           mode_t;
+typedef unsigned short  umode_t;
 typedef long long       loff_t;
+typedef int             pid_t;
 
 typedef size_t      phys_addr_t;
 typedef phys_addr_t resource_size_t;
 
-typedef short           mode_t;
-typedef unsigned short  umode_t;
-typedef int             pid_t;
+/* machine size */
+#define MSIZE (sizeof(void *))
 
 #endif /* __ASSEMBLY__ */
 #endif /* _TYPES_H_ */

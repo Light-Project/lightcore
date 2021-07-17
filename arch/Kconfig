@@ -1,64 +1,68 @@
-choice ARCH
-    prompt "Architecture Select"
-    default ARCH_X86
+# SPDX-License-Identifier: GPL-2.0-or-later
 
-config ARCH_ALPHA
+choice ARCH
+prompt "Architecture Select"
+
+    config ARCH_ALPHA
     bool "Alpha"
     select ARCH_32BIT
     select ARCH_HAS_MMU
-    
-config ARCH_ARM
+        
+    config ARCH_ARM
     bool "ARM"
     select ARCH_32BIT
     select ARCH_HAS_MMU
 
-config ARCH_ARM64
+    config ARCH_ARM64
     bool "ARM64"
     select ARCH_64BIT
     select ARCH_HAS_MMU
 
-config ARCH_ARME
+    config ARCH_ARME
     bool "ARM-Embedded"
     select ARCH_32BIT
     select ARCH_HAS_NOMMU
     select ARCH_HAS_XIP
 
-config ARCH_CSKY
+    config ARCH_CSKY
     bool "C-SKY"
     select BOOT_HAS_MAP
     select ARCH_32BIT       
     select ARCH_HAS_MMU
 
-config ARCH_M68K
+    config ARCH_M68K
     bool "M68k"
     select ARCH_32BIT
     select ARCH_HAS_MMU
-    
-config ARCH_MIPS
+        
+    config ARCH_MIPS
     bool "MIPS"
 
-config ARCH_RISCV
+    config ARCH_RISCV
     bool "RISC-V"
     select ARCH_32BIT
     select ARCH_HAS_MMU
 
-config ARCH_RISCV64
+    config ARCH_RISCV64
     bool "RISC-V64"
     select ARCH_64BIT
     select ARCH_HAS_MMU
-        
-config ARCH_X86
+            
+    config ARCH_X86
     bool "X86"
     select ARCH_32BIT
+    select ARCH_HAS_RELOCATABLE
     select ARCH_HAS_MMU
     select ARCH_HAS_PRE_PRINTK
     select ARCH_HAS_DMA
     select ARCH_HAS_HIMEM
+    select ARCH_HAS_KASLR
     select CPU_LITTLE_ENDIAN
 
-config ARCH_X86_64
+    config ARCH_X86_64
     bool "X86_64"
     select ARCH_64BIT
+    select ARCH_HAS_RELOCATABLE
     select ARCH_HAS_MMU
     select ARCH_HAS_PRE_PRINTK
     select ARCH_HAS_DMA
@@ -66,7 +70,7 @@ config ARCH_X86_64
     select ARCH_HAS_HIMEM
     select CPU_LITTLE_ENDIAN
 
-config ARCH_XTENSA
+    config ARCH_XTENSA
     bool "Xtensa"
     select ARCH_32BIT
         
@@ -77,6 +81,14 @@ source "arch/arme/Kconfig"
 source "arch/csky/Kconfig"
 source "arch/x86/Kconfig"
 source "arch/xtensa/Kconfig"
+
+
+#
+# Architecture supported
+#
+
+config ARCH_HAS_RELOCATABLE
+    bool
 
 # CPU wide
 config ARCH_32BIT
@@ -93,8 +105,6 @@ config CPU_BIG_ENDIAN
 # Mem manage
 config ARCH_HAS_MMU
     bool
-config ARCH_HAS_NOMMU
-    bool
 config ARCH_HAS_XIP
     bool
     
@@ -105,6 +115,12 @@ config ARCH_HAS_DMA32
 config ARCH_HAS_HIMEM
     bool
 
-# Arch pre printk
+# pre-printk
 config ARCH_HAS_PRE_PRINTK
+    bool
+    help
+        The architecture implements pre-printk func
+
+# Security configuration
+config ARCH_HAS_KASLR
     bool

@@ -13,7 +13,6 @@
 /**
  * pci_bus_device_start - Probe a single device on this PCI bus 
  * 
- * 
  */
 void pci_bus_device_probe(struct pci_device *pdev)
 {

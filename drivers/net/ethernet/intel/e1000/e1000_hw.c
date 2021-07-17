@@ -81,8 +81,8 @@ u16 e1000_igp_cable_length_table[IGP01E1000_AGC_LENGTH_TABLE_SIZE] = {
 	    120, 120
 };
 
-static mutex_t e1000_eeprom_lock;
-static spinlock_t e1000_phy_lock;
+static MUTEX_LOCK(e1000_eeprom_lock);
+static SPIN_LOCK(e1000_phy_lock);
 
 /**
  * e1000_set_phy_type - Set the phy type member in the hw struct.

@@ -5,6 +5,9 @@
 #define load_seek   63
 #define load_addr   (void *)0x10000
 
+extern void *_ld_dts_start;
+char kernel_cmd[80];
+
 void main(void)
 {
     uint32_t val;
@@ -26,6 +29,7 @@ void main(void)
     pr_boot("Image size: %d blocks\n\r", val);
     
     biosdisk_read(BOOT_DEV, load_addr, load_seek, val);
+    
     pr_boot("start kboot...\n\r");
 
     kboot_start(((uint32_t)load_addr) >> 4);

@@ -11,7 +11,7 @@ struct block_device;
 struct block_ops {
     state (*open)(struct block_device *, fmode_t);
     state (*release)(struct block_device *, fmode_t);
-    state (*read)(struct block_device *, fmode_t);
+	state (*ioctl) (struct block_device *, fmode_t, unsigned, unsigned long);
 
 };
 

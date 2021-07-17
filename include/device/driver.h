@@ -1,19 +1,13 @@
-/*
- *  SPDX-License-Identifier: GPL-2.0-or-later
- *  devices/driver.h
- *  driver framework
- *  (C) 2020 Refer to Linux
- * 
- *  Change Logs:
- *  Date            Notes
- *  2021-01-20      first version 
- * 
- */
-
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _DEVICES_DRIVER_H_
 #define _DEVICES_DRIVER_H_
 
-#include <device/base.h>
+#include <types.h>
+#include <state.h>
+#include <device.h>
+#include <system/pm.h>
+
+struct device;
 
 struct driver_private {
     struct kobject kobj;
@@ -45,5 +39,7 @@ struct driver {
 
 state driver_register(struct driver *drv);
 void driver_unregister(struct driver *drv);
+
+void early_device_init(void);
 
 #endif

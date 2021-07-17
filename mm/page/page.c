@@ -91,6 +91,7 @@ void __init page_init()
                 PAGE_ORDER_MAX - 1, &pa_to_page(addr));
     addr += CONFIG_DMA32_SIZE;
 #endif
+    addr += CONFIG_DMA_SIZE;
     buddy_add(&region_map[REGION_NORMAL], 
                 order_nr(CONFIG_HIGHMEM_OFFSET - addr, PAGE_ORDER_MAX), 
                 PAGE_ORDER_MAX - 1, &pa_to_page(addr));

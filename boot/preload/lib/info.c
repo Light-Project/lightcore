@@ -61,7 +61,6 @@ void panic(const char *str, ...)
 void pr_init(void (*fun)(const char *))
 {
     stdout = fun;
-    stdout("\n\r\n\r");
     stdout("-------------------\n\r");
     stdout("Lightcore preload!\n\r");
     stdout("-------------------\n\r");

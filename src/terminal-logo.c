@@ -11,5 +11,4 @@ void src_terminal_logo()
     pre_printk("|_____|_|\\__, |_| |_|\\__|\\____\\___/|_|  \\___|  \n\r");
     pre_printk("         |___/                                      \n\r");
     pre_printk("version: "CONFIG_VERSION"\n\r");
-    pre_printk("kernel command: %s\n\r", boot_args);
 }

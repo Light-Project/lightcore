@@ -9,8 +9,8 @@
 
     .arm
     .section	.startup,"a"
-    .type	startup_head, %object
-    .size	startup_head, .-startup_head
+    .type	boot_head, %object
+    .size	boot_head, .-boot_head
 
 .section .text
 .global _entry

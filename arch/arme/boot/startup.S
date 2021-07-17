@@ -13,11 +13,11 @@
     .syntax unified
     .thumb
     .section    .startup,"ax"
-    .type       startup_head, %object
-    .size       startup_head, .-startup_head
+    .type       boot_head, %object
+    .size       boot_head, .-boot_head
     
-.global startup_head
-startup_head:
+.global boot_head
+boot_head:
     .long  _ld_estack       /* 0x00: arm sp   */
     .long  init             /* 0x04: arm jump */
     .long  0, 0             /* 0x08: Reserved */

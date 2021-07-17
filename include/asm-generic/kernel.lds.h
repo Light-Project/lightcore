@@ -1,44 +1,44 @@
 /*
-* Helper macros to support writing architecture specific
-* linker scripts.
-*
-* A minimal linker scripts has following content:
-* [This is a sample, architectures may have special requiriements]
-*
-* OUTPUT_FORMAT(...)
-* OUTPUT_ARCH(...)
-* ENTRY(...)
-* SECTIONS
-* {
-*  . = START;
-*  __init_begin = .;
-*  HEAD_TEXT_SECTION
-*  INIT_TEXT_SECTION(PAGE_SIZE)
-*  INIT_DATA_SECTION(...)
-*  PERCPU_SECTION(CACHELINE_SIZE)
-*  __init_end = .;
-*
-*  _stext = .;
-*  TEXT_SECTION = 0
-*  _etext = .;
-*
-*      _sdata = .;
-*  RO_DATA(PAGE_SIZE)
-*  RW_DATA(...)
-*  _edata = .;
-*
-*  EXCEPTION_TABLE(...)
-*
-*  BSS_SECTION(0, 0, 0)
-*  _end = .;
-*
-*  STABS_DEBUG
-*  DWARF_DEBUG
-*  ELF_DETAILS
-*
-*  DISCARDS         // must be the last
-* }
-*/
+ * Helper macros to support writing architecture specific
+ * linker scripts.
+ *
+ * A minimal linker scripts has following content:
+ * [This is a sample, architectures may have special requiriements]
+ *
+ * OUTPUT_FORMAT(...)
+ * OUTPUT_ARCH(...)
+ * ENTRY(...)
+ * SECTIONS
+ * {
+ *  . = START;
+ *  __init_begin = .;
+ *  HEAD_TEXT_SECTION
+ *  INIT_TEXT_SECTION(PAGE_SIZE)
+ *  INIT_DATA_SECTION(...)
+ *  PERCPU_SECTION(CACHELINE_SIZE)
+ *  __init_end = .;
+ *
+ *  _stext = .;
+ *  TEXT_SECTION = 0
+ *  _etext = .;
+ *
+ *      _sdata = .;
+ *  RO_DATA(PAGE_SIZE)
+ *  RW_DATA(...)
+ *  _edata = .;
+ *
+ *  EXCEPTION_TABLE(...)
+ *
+ *  BSS_SECTION(0, 0, 0)
+ *  _end = .;
+ *
+ *  STABS_DEBUG
+ *  DWARF_DEBUG
+ *  ELF_DETAILS
+ *
+ *  DISCARDS         // must be the last
+ * }
+ */
 
 #ifndef _KERNEL_LDS_H_
 #define _KERNEL_LDS_H_
@@ -64,17 +64,17 @@
 #endif
 
 /*
-* LD_DEAD_CODE_DATA_ELIMINATION option enables -fdata-sections, which
-* generates .data.identifier sections, which need to be pulled in with
-* .data. We don't want to pull in .data..other sections, which Linux
-* has defined. Same for text and bss.
-*
-* With LTO_CLANG, the linker also splits sections by default, so we need
-* these macros to combine the sections during the final link.
-*
-* RODATA_MAIN is not used because existing code already defines .rodata.x
-* sections to be brought in with rodata.
-*/
+ * LD_DEAD_CODE_DATA_ELIMINATION option enables -fdata-sections, which
+ * generates .data.identifier sections, which need to be pulled in with
+ * .data. We don't want to pull in .data..other sections, which Linux
+ * has defined. Same for text and bss.
+ *
+ * With LTO_CLANG, the linker also splits sections by default, so we need
+ * these macros to combine the sections during the final link.
+ *
+ * RODATA_MAIN is not used because existing code already defines .rodata.x
+ * sections to be brought in with rodata.
+ */
 #if defined(CONFIG_LD_DEAD_CODE_DATA_ELIMINATION)
 #define TEXT_MAIN   .text .text.[0-9a-zA-Z_]*
 #define DATA_MAIN   .data .data.[0-9a-zA-Z_]* .data..L* .data..compoundliteral* .data.$__unnamed_* .data.$L*
@@ -92,9 +92,9 @@
 #endif
 
 /* The actual configuration determine if the init/exit sections
-* are handled as text/data or they can be discarded (which
-* often happens at runtime)
-*/
+ * are handled as text/data or they can be discarded (which
+ * often happens at runtime)
+ */
 #ifdef CONFIG_HOTPLUG_CPU
 #define CPU_KEEP(sec)    *(.cpu##sec)
 #define CPU_DISCARD(sec)
@@ -110,7 +110,6 @@
 #define MEM_KEEP(sec)
 #define MEM_DISCARD(sec) *(.mem##sec)
 #endif
-
 
 /*
  * RO Data:  
@@ -196,10 +195,10 @@
 #define DT_CPUIDLE_METHOD_TABLES()  DT_TABLE(CONFIG_CPU_IDLE, cpuidle_metho
         
 #define INIT_DT_TABLES                          \
-        DT_TIMER_TABLES()                       \
-        DT_IRQCHIP_TABLE()                      \
-        DT_CLK_TABLES()
-        
+        _ld_init_dtb_start = .;                 \
+        KEEP(*(.init.dtb));                     \
+        _ld_init_dtb_end = .;
+
 /*
  * Init data: Boot param table
  */
@@ -214,8 +213,8 @@
  */
 #define INIT_CALLS_LEVEL(level)                 \
         _ld_initcall##level##_start = .;        \
-        KEEP(*(.initcall_##level##.init))        \
-        KEEP(*(.initcall_##level##s.init))       \
+        KEEP(*(.initcall_##level##.init))       \
+        KEEP(*(.initcall_##level##s.init))      \
 
 #define INIT_CALLS                              \
         _ld_initcall_start = .;                 \
@@ -238,9 +237,9 @@
         _ld_console_initcall_end = .;
         
 /*
-* bss (Block Started by Symbol) - uninitialized data
-* zeroed during startup
-*/
+ * bss (Block Started by Symbol) - uninitialized data
+ * zeroed during startup
+ */
 #define SBSS(sbss_align)                        \
     . = ALIGN(sbss_align);                      \
     .sbss :                                     \
@@ -275,9 +274,9 @@
     } 
 
 /*
-* Definition of the high level *_SECTION macros
-* They will fit only a subset of the architectures
-*/
+ * Definition of the high level *_SECTION macros
+ * They will fit only a subset of the architectures
+ */
 
 #define STARTUP_SECTION                         \
     .startup :                                  \

@@ -1,10 +1,10 @@
 #ifndef _STATE_H_
 #define _STATE_H_
 
-typedef char state;
+typedef int state;
 
-#define ERROR -1
-#define OK     0
+#define OK           0  /* No error */ 
+#define ERROR       -1  /* error */
 
 #define ENOERR       0  /* No error */ 
 #define EPERM        1  /* Operation not permitted */
