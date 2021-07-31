@@ -1,6 +1,10 @@
-#include <export.h>
-#include <driver/pci.h>
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
 
+#include <driver/pci.h>
+#include <export.h>
 
 uint8_t pci_bus_config_readb(struct pci_bus *bus, 
                             uint devfn, uint reg)

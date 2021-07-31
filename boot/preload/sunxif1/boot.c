@@ -112,11 +112,11 @@ int main()
 //     
 //     if (check_device())
 //     {
-//         uart_printf("[preload]: booting from device \n\r");
+//         uart_printf("[preload]: booting from device \n");
 //         
-//         uart_printf("[preload] cannot find system\n\r");
+//         uart_printf("[preload] cannot find system\n");
 //         while(1);
 //     }
 //     
-    pr_boot("return FEL\n\r");
+    pr_boot("return FEL\n");
 }

@@ -7,10 +7,10 @@ void main(void)
     /* clean bss */
     memset(bss_start, 0, bss_size);
     
-    video_clear();
+    console_clear();
     
     /* Init console */
-    pr_init(video_print);
+    pr_init(console_print);
     
     /* Setup segment */
     segment_init();

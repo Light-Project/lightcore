@@ -5,7 +5,7 @@ static char tst[4] = {0x55, 0xaa, 0x00, 0xff};
 void memtest(void *mem_start, size_t size)
 {
     char *mem = mem_start;
-    pr_boot("memtest: %x - %x\n\r", 
+    pr_boot("memtest: %x - %x\n", 
             (size_t)mem_start, (size_t)mem_start + size);
     
     while(size--)
@@ -20,5 +20,5 @@ void memtest(void *mem_start, size_t size)
     pr_boot("    no errot");
     return;
 fail:
-    panic("    badblock find: %x\n\r", mem);
+    panic("    badblock find: %x\n", mem);
 }

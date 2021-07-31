@@ -405,7 +405,7 @@ help: help_start T_HELPTEXT
 	}
 
 	/* Is the help text empty or all whitespace? */
-	if ($2[strspn($2, " \f\n\r\t\v")] == '\0')
+	if ($2[strspn($2, " \f\n\t\v")] == '\0')
 		zconfprint("warning: '%s' defined with blank help text",
 			   current_entry->sym->name ?: "<choice>");
 

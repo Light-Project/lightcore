@@ -113,9 +113,9 @@ int main(int argc, char *argv[])
     uint32_t old_crc = 0;
     uint32_t new_crc = 0;
     
-    printf("Image size: 0x%x\n\r", kernel_size);
-    printf("      Head: 0x%x\n\r", sizeof(struct boot_head));
-    printf("    kernel: 0x%x\n\r", kernel_size - sizeof(struct boot_head));
+    printf("Image size: 0x%x\n", kernel_size);
+    printf("      Head: 0x%x\n", sizeof(struct boot_head));
+    printf("    kernel: 0x%x\n", kernel_size - sizeof(struct boot_head));
     
     old_crc = boot_head->hcrc;
     boot_head->hcrc = 0;
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
     if(old_crc != new_crc)
     {
         boot_head->hcrc = new_crc;
-        printf("header crc has been fixed: 0x%x\n\r", boot_head->hcrc);
+        printf("header crc has been fixed: 0x%x\n", boot_head->hcrc);
     }
     else
         printf("The header CRC already exists");
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
     if(old_crc != new_crc)
     {
         boot_head->crc = new_crc;
-        printf("kernel crc has been fixed: 0x%x\n\r", boot_head->crc);
+        printf("kernel crc has been fixed: 0x%x\n", boot_head->crc);
     }
     else
         printf("The kernel CRC already exists");

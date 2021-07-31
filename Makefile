@@ -145,15 +145,15 @@ usr-%: FORCE
 
 kernel-y += arch/
 kernel-y += crypto/
+kernel-y += doc/
 kernel-y += drivers/
 kernel-y += fs/
 kernel-y += init/
 kernel-y += ipc/
+kernel-y += kernel/
 kernel-y += lib/
 kernel-y += mm/
 kernel-y += net/
-kernel-y += src/
-kernel-y += system/
 kernel-y += virt/
 
 #####################
@@ -257,36 +257,29 @@ asm-generic: FORCE
 	generic=include/lightcore/asm-generic
 
 # Build kernel built-in.a
-kernel_y := $(patsubst %/,%,$(kernel-y))
-$(kernel_y): asm-generic dts FORCE
-	$(Q)$(MAKE) $(build)=$@
-	$(Q)$(RANLIB) $(patsubst %, %/built-in.a, $@)
+$(kernel-y): asm-generic dts FORCE
+	$(Q)$(MAKE) $(build)=$(patsubst %/,%,$@)
+	$(Q)$(RANLIB) $(patsubst %,%built-in.a,$@)
 
 # Link a setof built-in.a to kernel.o
-kernel-subfile := $(patsubst %/, %/built-in.a, $(kernel-y))
-
+kernel-subfile := $(patsubst %/,%/built-in.a,$(kernel-y))
 quiet_cmd_link_kernel = $(ECHO_LD)  $@
       cmd_link_kernel = $(LD) $(ldflags-y) -r -o kernel.o \
                         --whole-archive $(kernel-subfile)
-kernel.o: $(kernel_y) scripts_basic
+kernel.o: $(kernel-y) scripts_basic
 	$(call if_changed,link_kernel)
 
-ldscripts := arch/$(arch)/kernel.lds
-	
 # Link kernel.o to kernel
+ldscripts := arch/$(arch)/kernel.lds
 quiet_cmd_make_kernel = $(ECHO_ELF)  $@
       cmd_make_kernel = $(MKELF) $(kernel-flags-y) -T $(ldscripts) -o $@ $< -lgcc
-kernel: kernel.o
+lightcore: kernel.o
 	$(call if_changed,make_kernel)
-targets += kernel.o $(kernel_y)
 
-uboot boot : kernel FORCE
+uboot boot : lightcore FORCE
 	$(Q)$(MAKE) $(build)=boot $@
 preload dts run install: FORCE
 	$(Q)$(MAKE) $(build)=boot $@
-
-analyse:
-	$(Q)$(MAKE) $(build)=$(srctree)/tools/Kanalyse
 
 endif
 

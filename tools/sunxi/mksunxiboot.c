@@ -99,6 +99,6 @@ int main (int argc, char *argv[])
 	}
 
 	fclose(fp);
-	printf("The bootloader head has been fixed, spl size is %d bytes.\n\r", l);
+	printf("The bootloader head has been fixed, spl size is %d bytes.\n", l);
 	return 0;
 }

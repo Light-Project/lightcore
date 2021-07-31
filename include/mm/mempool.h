@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#include <system/spinlock.h>
+#include <kernel/spinlock.h>
 
 typedef void *(mempool_alloc_t)();
 typedef void *(mempool_free_t)();
 
-typedef struct mempool{
+struct mempool{
     spinlock_t lock;
     int curr_nr;            /* Current number of elements */
     int min_nr;             /* Number of elements */
@@ -13,4 +13,4 @@ typedef struct mempool{
     void *pool_data;        /* private data */
     mempool_alloc_t *alloc; /* relevant alloc function */
     mempool_alloc_t *free;  /* relevant free function */
-} mempool_t;
+};

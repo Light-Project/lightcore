@@ -10,10 +10,7 @@ typedef unsigned char   uchar_t;
 typedef unsigned short  ushort_t;
 typedef unsigned int    uint_t;
 typedef unsigned long   ulong_t;
-
-typedef unsigned char  bool;
-#define false   0
-#define true    1
+typedef unsigned char   bool;
 
 #ifdef __CHECKER__
 #define __bitwise__ __attribute__((bitwise))
@@ -28,9 +25,6 @@ typedef uint64_t __bitwise le64;
 typedef uint16_t __bitwise be16;
 typedef uint32_t __bitwise be32;
 typedef uint64_t __bitwise be64;
-
-typedef uint16_t __bitwise um16;
-typedef uint32_t __bitwise wsum;
 
 /* linux */
 typedef int8_t          s8;
@@ -67,8 +61,9 @@ typedef unsigned short  umode_t;
 typedef long long       loff_t;
 typedef int             pid_t;
 
+typedef size_t      dma_addr_t;
 typedef size_t      phys_addr_t;
-typedef phys_addr_t resource_size_t;
+typedef size_t      resource_size_t;
 
 /* machine size */
 #define MSIZE (sizeof(void *))

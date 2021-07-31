@@ -1,25 +1,28 @@
-#include <stddef.h>         /* For NULL */
-#include <printk.h>         /* For printk */
-#include <system.h>  /* For panic */
-#include <fs.h>             /*  */
-#include "private.h" 
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
+#include <stddef.h>
+#include <fs.h>
+#include <kernel.h>
+#include <printk.h>
 
 #define init_max_args   2
 #define init_max_envs   3
 
 static const char *init_argv[init_max_args] = {
-    "init", NULL,
+    "init", NULL
 };
 static const char *init_envp[init_max_envs] = {
-    "HOME=/", NULL,
+    "HOME=/", NULL
 };
 
 static bool init_run(const char *file)
 {
-    pr_info("Run %s as init process\n\r", file);
+    pr_info("Run %s as init process\n", file);
     return kernel_execve(file, init_argv, init_envp);
 }
-
 
 void init_task(void)
 {

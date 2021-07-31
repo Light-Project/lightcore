@@ -1,22 +1,33 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#include "private.h"
-#include <linkage.h>
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
 #include <string.h>
-#include <src.h>
+#include <linkage.h>
+#include <kernel.h> 
+#include <kernel/sched.h>
+
 #include <init/init.h>
 #include <init/initcall.h>
+
 #include <mm.h>
 #include <memtest.h>
-#include <device/driver.h>
-#include <driver/clocksource.h>  
-#include <system.h> 
+
+#include <logo.h>
 #include <console.h>
 #include <printk.h>
+
+#include <device/driver.h>
+#include <driver/irqchip.h>
+#include <driver/clocksource.h>  
 
 #include <asm-generic/header.h>
 #include <asm/irq.h>
 
 char boot_args[boot_args_size];
+
+void init_task(void);
 
 static void __init command_setup(void)
 {
@@ -26,38 +37,32 @@ static void __init command_setup(void)
     strlcpy(boot_args, args, boot_args_size);
 }
 
-static void __init mem_init(void)
-{
-    mem_reserve(va_to_pa(&_ld_text_start),
-            (size_t)&_ld_image_end - (size_t)&_ld_text_start);
-    vmem_init();
-
-    page_init();
-
-    /* Initialize kernel heap */
-    kmem_init();
-}
-
 asmlinkage __visible void __init kernel_start(void)
 {
+    
     arch_irq_disable();
+    arch_setup();
 
-    arch_setup(boot_args);
-    src_terminal_logo();
-
+    /* Initialize kernel parameters */
     command_setup();
+    early_device_init();
+    terminal_logo();
+    pr_notice("Kernel version: "CONFIG_VERSION"\n");
+    pr_notice("Kernel command: %s\n", boot_args);
+    
     mem_init();
+
+    device_init();
+
     // sched_init();
 
-    early_device_init();
-    pre_printk("kernel command: %s\n\r", boot_args);
-
+    irqchip_init();
     timer_init();
 
     arch_irq_enable();
 
     console_init();
-
+    
     initcalls();
 
     init_task();

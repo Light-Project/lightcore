@@ -1,7 +1,7 @@
 #ifndef _ASM_CSKY_SPINLOCK_H_
 #define _ASM_CSKY_SPINLOCK_H_
 
-#include <system/spinlock_types.h>
+#include <kernel/spinlock_types.h>
 #include <asm/barrier.h>
 
 /*

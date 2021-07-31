@@ -12,7 +12,7 @@
 
 #include <lib.h>
 #include <list.h>
-#include <../../../lib/list/list.c>
+#include <../../../lib/list.c>
 
 #define heap_autograph 0x55aa00ff
 

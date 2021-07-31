@@ -1,4 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
 
 #ifndef _LIGHTCORE_TYPES_H_
 #define _LIGHTCORE_TYPES_H_
@@ -21,6 +24,8 @@ typedef _uint64_t   uint64_t;
 
 typedef _size_t     size_t;
 typedef _ssize_t    ssize_t;
+
+typedef _size_t     state;
 
 #endif /* __ASSEMBLY__ */
 #endif /* _TYPES_H_ */

@@ -2,7 +2,7 @@
 #include <asm/io.h>
 #include <bits.h>
 #include <asm-generic/header.h>
-#include <crc/crc32_table.h>
+#include <crc_table.h>
 
 static uint32_t crc32(const uint32_t *s, int len, uint32_t crc)
 {
@@ -26,25 +26,25 @@ static void kernel_check(void *addr)
     uint8_t cmp[17];
     uint32_t size;
     
-    pr_boot("Check addr: 0x%x\n\r", addr);
+    pr_boot("Check addr: 0x%x\n", addr);
     
     size = readl_sync(&boot_head->size);
-    pr_boot("Kernel size: 0x%d\n\r", size);
+    pr_boot("Kernel size: 0x%d\n", size);
     
     for(uint8_t c = 0; c <= 4; c++)
         cmp[c*4] = readl_sync(&boot_head->magic[c*4]);
     cmp[17] = '\0';
     if(!strcmp((char *)&cmp, "lightcore!"))
-        pr_boot("kernel magic correct\n\r");
+        pr_boot("kernel magic correct\n");
     else
-        panic("can't find kernel!\n\r");
+        panic("can't find kernel!\n");
     
     crc32old = readl_sync(&boot_head->crc);
     crc32new = crc32((uint32_t *)(boot_head + 1), size, 0xffffffff);
     if(crc32old == crc32new)
-        pr_boot("kernel crc32 correct 0x%x \n\r", crc32new);
+        pr_boot("kernel crc32 correct 0x%x \n", crc32new);
     else
-        panic("crc error 0x%x->0x%x!\n\r", crc32old, crc32new);
+        panic("crc error 0x%x->0x%x!\n", crc32old, crc32new);
 
 }
 
@@ -92,11 +92,11 @@ void main()
 //     timer_init();
     
     xip_init();
-    pr_boot("Mmap kernel to memory\n\r");
+    pr_boot("Mmap kernel to memory\n");
     
     kernel_check((void *)CONFIG_XIP_BASE);
     
-    pr_boot("Start kernel...\n\r");
-//     pr_boot("total boot time: %dms\n\r", time_read());
+    pr_boot("Start kernel...\n");
+//     pr_boot("total boot time: %dms\n", time_read());
     
 }

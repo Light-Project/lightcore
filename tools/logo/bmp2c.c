@@ -2,8 +2,8 @@
 /*
  * Convert a logo in bmp format to C source for suitable for 
  * inclusion in the lightcore
- * 
- * (C) Copyright 2021 by Sanpe
+ *
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  * 
  */
 

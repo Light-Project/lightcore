@@ -3,6 +3,8 @@
 #define _RESOURCE_H_
 
 #include <types.h>
+#include <state.h>
+#include <list.h>
 
 enum res_type{
     RESOURCE_NONE   = 0x00,     /* None I/O */
@@ -13,10 +15,10 @@ enum res_type{
 
 struct resource {
     const char *name;   /* Resource name */
-    size_t start;
-    size_t end;
-    uint32_t type:4;    /*  */
+    struct list_head list;
+    uint32_t type:4;
+    resource_size_t start;
+    resource_size_t end;
 };
-
 
 #endif  /* _RESOURCE_H_ */

@@ -3,7 +3,7 @@
 
 #include <types.h>
 #include <state.h>
-#include <system/spinlock.h>
+#include <kernel/spinlock.h>
 #include <device.h>
 #include <lightcore/rtc.h>
 

@@ -3,7 +3,6 @@
 #include <arch/x86/interrupt.h>
 
 .macro SAVE_REGS 
-    subl    $4, %esp
     pushl   %esp
     pushl   %ss
     pushw   %ds
@@ -21,7 +20,6 @@
     popw    %ds
     popl    %ss
     popl    %esp
-    addl    $4, %esp
 .endm
 
 .macro SWITCH_TO_KERNEL_STACK

@@ -201,11 +201,11 @@
 #include <string.h>
 #include <printk.h>
 #include <ctype.h>
-#include <system/sched.h>
+#include <kernel/sched.h>
 #include <atomic.h>
 // #include <math64.h>
 #include <mm.h>
-#include <system/spinlock_type.h>
+#include <kernel/spinlock_type.h>
 #include <export.h>
 
 #ifdef CONFIG_ACPI

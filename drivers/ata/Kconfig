@@ -1,5 +1,5 @@
 menuconfig ATA
-    bool "ATA support"
+bool "ATA support"
 if ATA
 
 

@@ -1,4 +1,4 @@
-#include <system/power.h>
+#include <kernel/power.h>
 
 
 void power_shutdown(void)

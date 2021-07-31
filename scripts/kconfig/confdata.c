@@ -480,7 +480,7 @@ load:
 		} else {
 			if (line[0] != '\r' && line[0] != '\n')
 				conf_warning("unexpected data: %.*s",
-					     (int)strcspn(line, "\n\r"), line);
+					     (int)strcspn(line, "\n"), line);
 
 			continue;
 		}

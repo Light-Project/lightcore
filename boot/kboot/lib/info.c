@@ -62,7 +62,7 @@ out:
 void pr_init(void (*fun)(const char *))
 {
     stdout = fun;
-    stdout("-----------------\n\r");
-    stdout("Lightcore kboot!\n\r");
-    stdout("-----------------\n\r");
+    stdout("-----------------\n");
+    stdout("Lightcore kboot!\n");
+    stdout("-----------------\n");
 }

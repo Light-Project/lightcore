@@ -1,14 +1,14 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Memory checking tool 
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
 #define pr_fmt(fmt) "memtest: " fmt
 
 #include <stddef.h>
-#include <mm/page.h>
-#include <printk.h>
+#include <mm.h>
 #include <memtest.h>
+#include <printk.h>
 
 static size_t patterns[] = {
     (size_t)0x0000000000000000ULL,
@@ -19,7 +19,7 @@ static size_t patterns[] = {
 
 static void bad_block(void *start, size_t size)
 {
-    pr_warn("bad memory size %ld @ 0xlx\n\r", size, start);
+    pr_warn("bad memory size %ld @ 0xlx\n", size, start);
 }
 
 static void __init memtest_once(size_t pattern, size_t *start, size_t *end)

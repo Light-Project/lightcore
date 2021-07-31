@@ -1,6 +1,9 @@
-#include <system/kobject.h> 
-#include <system/spinlock.h>
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
 
-
-
-
+#include <string.h>
+#include <export.h>
+#include <mm.h>
+#include <kernel/kobject.h>

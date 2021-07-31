@@ -1,15 +1,33 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Simple memory allocator
- * (C) 2020 wzl realization
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
 #include <mm.h>
 #include <stddef.h>
 #include <string.h>
-#include <system/spinlock.h>
+#include <kernel/spinlock.h>
 #include <export.h>
 #include <printk.h>
+
+typedef struct {
+    spinlock_t lock;
+    void *addr;
+    void *end;
+    list_t phy_head;
+    list_t free_head;
+    uint32_t available;
+    uint32_t total;
+} kmem_heap_t;
+
+typedef struct {
+    uint32_t autograph;
+    spinlock_t lock;
+    bool used;
+    size_t size;
+    list_t phy_list;
+    list_t free_list;
+} kmem_heap_node_t;
 
 /**
  * setup the heap memory at boot
@@ -363,25 +381,25 @@ void kmalloc_info(void)
     kmem_heap_t *heap = (kmem_heap_t *)mem_heap_addr;
     kmem_heap_node_t *node = NULL;
     uint32_t count = 0;
-    printk("heap info:\n\r");
-    printk("          heap_addr: 0x%x\n\r",heap->addr);
-    printk("          heap_end:  0x%x\n\r",heap->end);
-    printk("          total:     0x%x\n\r",heap->total);
-    printk("          available: 0x%x\n\r",heap->available);
+    printk("heap info:\n");
+    printk("          heap_addr: 0x%x\n",heap->addr);
+    printk("          heap_end:  0x%x\n",heap->end);
+    printk("          total:     0x%x\n",heap->total);
+    printk("          available: 0x%x\n",heap->available);
     list_for_each_entry(node, &heap->phy_head, phy_list)
     {
-        printk("phy node %d info:\n\r",count++);
-        printk("          node_addr: 0x%x\n\r",node);
-        printk("          node_size: 0x%x\n\r",node->size);
-        printk("          node_used: 0x%d\n\r",node->used);
+        printk("phy node %d info:\n",count++);
+        printk("          node_addr: 0x%x\n",node);
+        printk("          node_size: 0x%x\n",node->size);
+        printk("          node_used: 0x%d\n",node->used);
     }
     count = 0;
     list_for_each_entry(node, &heap->free_head, free_list)
     {
-        printk("free node %d info:\n\r",count++);
-        printk("          node_addr: 0x%x\n\r",node);
-        printk("          node_size: 0x%x\n\r",node->size);
-        printk("          node_used: 0x%x\n\r",node->used);
+        printk("free node %d info:\n",count++);
+        printk("          node_addr: 0x%x\n",node);
+        printk("          node_size: 0x%x\n",node->size);
+        printk("          node_used: 0x%x\n",node->used);
     }
 }
 EXPORT_SYMBOL(kmalloc_info);

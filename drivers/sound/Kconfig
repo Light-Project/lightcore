@@ -1,0 +1,8 @@
+menuconfig SND
+    bool "Sound card support"
+if SND 
+
+config SND_ES1370
+    bool "es1370"
+
+endif

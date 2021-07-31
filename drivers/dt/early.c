@@ -3,11 +3,9 @@
 #include <stddef.h>
 #include <init/init.h>
 #include <printk.h>
-#include <crc/crc.h>
+#include <crc.h>
 #include <driver/dt.h>
 #include <driver/dt/libfdt.h>
-
-#include "dt_private.h"
 
 state __init early_init_dt_scan_chosen(unsigned long node, const char *uname, int depth, void *data)
 {
@@ -46,7 +44,7 @@ state __init early_dt_scan_node()
     /* Retrieve various information from the /chosen node */
     ret = dt_scan_node(early_init_dt_scan_chosen, boot_args);
     if (ret < 0)
-        pr_warn("No chosen node found, continuing without\n\r");
+        pr_warn("No chosen node found, continuing without\n");
 
     return ret;   
 }

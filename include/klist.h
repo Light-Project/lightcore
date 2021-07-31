@@ -2,21 +2,21 @@
 #define _KLIST_H_
 
 #include <list.h> 
-#include <system/kref.h>
-#include <system/spinlock.h>
+#include <kernel/kref.h>
+#include <kernel/spinlock.h>
 
-typedef struct klist_node {
-    void        *n_klist;   // never access directly
+struct klist_node {
+    void        *n_klist;
     list_t      n_node;
     kref_t      n_ref;
 } klist_node_t;
 
-typedef struct klist {
+struct klist {
     spinlock_t  k_lock;
     list_t      k_list;
     void        (*get)(struct klist_node *);
     void        (*put)(struct klist_node *);
-} __attribute__ ((aligned (sizeof(size_t)))) klist_t;
+};
 
 #define KLIST_INIT(_name, _get, _put)   \
     {                                   \

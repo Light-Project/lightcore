@@ -10,5 +10,4 @@
 #define __exitdata  __section(".exit.data")
 #define __exit_call __used __section(".exitcall.exit")
 
-
 #endif

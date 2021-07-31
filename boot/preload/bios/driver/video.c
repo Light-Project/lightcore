@@ -1,14 +1,20 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
 #include <boot.h> 
 #include <driver/video/vesa.h>
 
 #include <asm/io.h>
 
+#define xres    80
+#define yres    25
+
 struct _vram_text{
     struct{
     uint8_t ch;
     uint8_t att;
-    } block[25][80];
+    } block[yres][xres];
 } __packed;
 
 #define vram_text_base  0xb8000
@@ -39,17 +45,22 @@ void video_print(const char *str)
 {
     char ch;
     
-    while((ch = *str++)) {
-        if(ch == '\n') {
-            if(pos_y >= 23)
-                video_roll();
-            else
-                pos_y++;
-        } else if(ch == '\r') {
+    while((ch = *str++) != '\0') {
+        if (pos_y >= yres)
+            video_roll(pos_y--);
+
+        if (ch == '\n') {
+            pos_y++;
             pos_x = 0;
-        } else {
-            ext_writeb(&vram_text->block[pos_y][pos_x++].ch, ch);
-        }  
+            continue;
+        }
+        
+        ext_writeb(&vram_text->block[pos_y][pos_x++].ch, ch);
+        if (pos_x >= xres) {
+            pos_y++;
+            pos_x = 0;
+        }
+        
         video_cursor(pos_x, pos_y);
     }
 }

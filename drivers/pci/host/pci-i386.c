@@ -1,4 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
 
 #define DRIVER_NAME "i386pci"
 
@@ -17,11 +20,12 @@ static state pci_config_read(struct pci_bus *bus, uint devfn, uint reg, int size
     /* Use North Bridge Port */
     outl(0x0cf8, addr);
     
-    switch(size) {
-        case 1: *val = inb(0x0cfc);
-        case 2: *val = inw(0x0cfc);
-        case 4: *val = inl(0x0cfc);
-    }
+    if (size == 1)
+        *val = inb(0x0cfc);
+    else if (size == 2)
+        *val = inw(0x0cfc);
+    else
+        *val = inl(0x0cfc);
 
     return -ENOERR;
 }
@@ -34,11 +38,12 @@ static state pci_config_write(struct pci_bus *bus, uint devfn, uint reg, int siz
     /* Use North Bridge Port */
     outl(0x0cf8, addr);
 
-    switch(size) {
-        case 1: outb(0x0cfc, val);
-        case 2: outw(0x0cfc, val);
-        default: outl(0x0cfc, val);
-    }
+    if (size == 1)
+        outb(0x0cfc, val);
+    else if (size == 2)
+        outw(0x0cfc, val);
+    else
+        outl(0x0cfc, val);
 
     return -ENOERR;
 }
@@ -61,31 +66,21 @@ static state i386pci_probe(struct platform_device *pdev)
     return pci_host_register(host);
 }
 
+static struct dt_device_id i386pci_id[] = {
+    {.compatible = "i386-pci"},
+    { }, /* NULL */
+};
+
 static struct platform_driver i386pci_driver = {
     .driver = {
         .name = DRIVER_NAME,
     },
+    .dt_table = i386pci_id,
     .probe = i386pci_probe,
 };
 
 static state i386pci_init(void)
 {
-    struct platform_device *pdev;
-
-    platform_driver_register(&i386pci_driver);
-
-    pdev = kzalloc(sizeof(*pdev), GFP_KERNEL);
-    if(!pdev)
-        return -ENOMEM;
-
-    pdev->name = DRIVER_NAME;
-
-    if(platform_device_register(pdev)) {
-        kfree(pdev);
-        return -ENOMEM;
-    }
-
-    return -ENOERR;
+    return platform_driver_register(&i386pci_driver);
 }
-
 driver_initcall(i386pci_init);

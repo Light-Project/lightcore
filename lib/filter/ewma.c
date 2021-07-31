@@ -20,9 +20,9 @@ ewma_t *ewma_alloc(float weight)
 state ewma_free(ewma_t *ewma)
 {
     if(ewma == NULL)
-        return ERROR;
+        return -EINVAL;
     kfree(ewma);
-    return OK;
+    return -ENOERR;
 }   
 
 float ewma_filter(ewma_t *ewma, float val)
@@ -36,8 +36,8 @@ float ewma_filter(ewma_t *ewma, float val)
 
 state ewma_clear(ewma_t *ewma)
 {
-    if(ewma == NULL)
-        return ERROR;
+    if(!ewma)
+        return -EINVAL;
     ewma->last = NAN;
-    return OK;
+    return -ENOERR;
 }

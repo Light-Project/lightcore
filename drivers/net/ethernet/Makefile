@@ -1,1 +1,2 @@
-obj-y += intel/ 
+obj-$(CONFIG_ETH_E1000) += e1000/
+obj-$(CONFIG_ETH_8139) += 8139.o

@@ -2,11 +2,12 @@
 #ifndef _MM_GFP_H_
 #define _MM_GFP_H_
 
+#include <types.h>
 #include <bits.h>
 
 #ifndef __ASSEMBLY__
 
-typedef unsigned int gfp_t;
+typedef uint32_t gfp_t;
 
 /* Physical address region bitmasks */
 #define GFP_DMA                 BIT(0)

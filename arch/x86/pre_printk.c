@@ -1,4 +1,7 @@
 ﻿/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
 #include <mm.h>
 #include <string.h>
 #include <driver/video/vesa.h>
@@ -47,22 +50,26 @@ static inline void video_roll()
     video_clear(yres - 1, 1);
 }
 
-static void console_write(struct console *con, const char *str, unsigned len)
+static void video_write(struct console *con, const char *str, unsigned len)
 {
     char ch;
     
-    while(len--, ch = *str++) {
-        if(ch == '\n') {
-            if(pos_y < (yres - 1))
-                pos_y++;
-            else 
-                video_roll();
-        } else if(ch == '\r') {
+    while((ch = *str++) != '\0' && 0 < len--) {
+        if (pos_y >= yres)
+            video_roll(pos_y--);
+
+        if (ch == '\n') {
+            pos_y++;
             pos_x = 0;
-        } else if(pos_x < (xres - 1)) {
-            vram_text->block[pos_y][pos_x++].ch = ch;
-        } else
             continue;
+        }
+        
+        vram_text->block[pos_y][pos_x++].ch = ch;
+        if (pos_x >= xres) {
+            pos_y++;
+            pos_x = 0;
+        }
+        
         video_cursor(pos_x, pos_y);
     }
 }
@@ -75,7 +82,7 @@ static inline void console_clear()
 
 static struct console pre_console_dev = {
     .name   = "precon",
-    .write  = console_write,
+    .write  = video_write,
     .boot   = true,
     .index  = -1,
 };

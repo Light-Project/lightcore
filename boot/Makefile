@@ -2,8 +2,6 @@ include $(src)/dts/config.mk
 include $(src)/run/config.mk
 
 # DTS
-# ---------------------------------------------------------------------------
-
 DTC ?= scripts/dtc/dtc
 dtb := $(addprefix $(obj)/, $(dtb-y))
 
@@ -30,11 +28,9 @@ targets += $(dtb)
 clean-y += $(dtb-y) .$(dtb-y)*.dtc.tmp .$(dtb-y)*.dts.tmp
 
 # KBOOT
-# ---------------------------------------------------------------------------
-
 quiet_cmd_copy_kernel = OBJCOPY $@
       cmd_copy_kernel = $(OBJCOPY) -O binary $< $@
-$(obj)/kernel.bin.tmp: kernel FORCE
+$(obj)/kernel.bin.tmp: lightcore FORCE
 	$(call if_changed,copy_kernel)
 
 fixtool: FORCE
@@ -87,8 +83,6 @@ clean-y += $(addprefix kernel.bin,$(clean-suffix))
 clean-y += kernel.bin piggy_data boot boot.bin
 
 # UBOOT
-# ---------------------------------------------------------------------------
-
 MKIMAGE := $(srctree)/scripts/mkuboot.sh
 
 UIMAGE_ARCH         = $(ARCH)
@@ -117,8 +111,6 @@ targets += $(obj)/uImage
 clean-y += uImage
 
 # PRELOAD
-# ---------------------------------------------------------------------------
-
 quiet_cmd_copy_preload = OBJCOPY $@
       cmd_copy_preload = $(OBJCOPY) -O binary $(obj)/preload/preload $(obj)/preload.bin
       
@@ -157,8 +149,6 @@ endif
 clean-y += preload.bin preload-0x00000.bin disk.img
 
 # run & install
-# ---------------------------------------------------------------------------
-
 ckfile := $(obj)/kernel.bin $(obj)/preload.bin
 ifneq ($(ckfile), $(wildcard $(ckfile)))
 run install: FORCE

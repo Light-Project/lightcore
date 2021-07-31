@@ -39,9 +39,6 @@ extern initcall_entry_t _ld_initcall6_start[];
 extern initcall_entry_t _ld_initcall7_start[];
 extern initcall_entry_t _ld_initcall_end[];
 
-extern initcall_entry_t _ld_console_initcall_start[];
-extern initcall_entry_t _ld_console_initcall_end[];
-
 /* Format: <modname>__<counter>_<line>_<fn> */
 #define __initcall_id(fn)                               \
         __PASTE(__KBUILD_MODNAME,                       \
@@ -62,36 +59,31 @@ extern initcall_entry_t _ld_console_initcall_end[];
         __ADDRESSABLE(fn)
     
 #define __initcall_stub(fn, __iid, id)  fn
-
-#define __initcall_section(__sec, __iid)                \
-        #__sec ".init"
+#define __initcall_section(__sec, __iid) #__sec ".init"
 
 #ifdef CONFIG_DYNAMIC_DEBUG
 #define ____define_section(fn, __stub, __name, __sec)   \
         __define_initcall_stub(__stub, fn)              \
         static const struct initcall_entry __name       \
-        __used __attribute__((__section__(__sec)))      \
-        = { #fn , __stub}
+        __used __section(__sec) = { #fn , __stub}
 #else
 #define ____define_section(fn, __stub, __name, __sec)   \
         __define_initcall_stub(__stub, fn)              \
         static const struct initcall_entry __name       \
-        __used __attribute__((__section__(__sec)))      \
-        = {__stub}
+        __used __section(__sec) = {__stub}
 #endif
 
+#define __unique_initcall(fn, id, __sec, __iid)     \
+    ____define_section(fn,                          \
+        __initcall_stub(fn, __iid, id),             \
+        __initcall_name(initcall, __iid, id),       \
+        __initcall_section(__sec, __iid))
 
-#define __unique_initcall(fn, id, __sec, __iid)         \
-        ____define_section(fn,                          \
-            __initcall_stub(fn, __iid, id),             \
-            __initcall_name(initcall, __iid, id),       \
-            __initcall_section(__sec, __iid))
+#define ___define_initcall(fn, id, __sec) \
+    __unique_initcall(fn, id, __sec, __initcall_id(fn))
 
-#define ___define_initcall(fn, id, __sec)               \
-        __unique_initcall(fn, id, __sec, __initcall_id(fn))
-        
 #define __define_initcall(fn, id) ___define_initcall(fn, id, .initcall_##id)
-    
+
 /*
  * Early initcalls run before initializing SMP.
  *
@@ -113,8 +105,21 @@ extern initcall_entry_t _ld_console_initcall_end[];
 #define late_initcall(fn)               __define_initcall(fn, 7)
 #define late_initcall_sync(fn)          __define_initcall(fn, 7s)
     
-#define pre_console_initcall(fn)        ___define_initcall(fn, con, .console_initcall)
+extern initcall_entry_t _ld_console_initcall_start[];
+extern initcall_entry_t _ld_console_initcall_end[];
 #define console_initcall(fn)            ___define_initcall(fn, con, .console_initcall)
+
+extern initcall_entry_t _ld_irqchip_initcall_start[];
+extern initcall_entry_t _ld_irqchip_initcall_end[];
+#define irqchip_initcall(fn)            ___define_initcall(fn, clk, .irqchip_initcall)
+
+extern initcall_entry_t _ld_clocksource_initcall_start[];
+extern initcall_entry_t _ld_clocksource_initcall_end[];
+#define clocksource_initcall(fn)        ___define_initcall(fn, clk, .clocksource_initcall)
+
+#define initcall_for_each_fn(fn, sec)                   \
+    for(fn = (initcall_entry_t *)&_ld_##sec##_start;    \
+        fn < (initcall_entry_t *)&_ld_##sec##_end; ++fn)
 
 extern void initcalls(void);
 

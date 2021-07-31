@@ -1626,7 +1626,7 @@ yyreduce:
 	}
 
 	/* Is the help text empty or all whitespace? */
-	if ((yyvsp[0].string)[strspn((yyvsp[0].string), " \f\n\r\t\v")] == '\0')
+	if ((yyvsp[0].string)[strspn((yyvsp[0].string), " \f\n\t\v")] == '\0')
 		zconfprint("warning: '%s' defined with blank help text",
 			   current_entry->sym->name ?: "<choice>");
 

@@ -1,17 +1,22 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
 
 #include <string.h>
 #include <mm.h>
 
-#include <asm/page.h>
 #include <asm/tlb.h>
 #include <asm/regs.h>
+#include <asm/page.h>
+#include <asm/pgalloc.h>
+#include <asm/pgtable.h>
 
 struct pde page_dir[PTRS_PER_PGD] __aligned(0x1000);
 struct pte pt_himem[64][PTRS_PER_PTE] __aligned(0x1000);
 
 #define kernel_index    (CONFIG_PAGE_OFFSET >> PGDIR_SHIFT)
-#define himem_index     ((size_t)pa_to_va(CONFIG_HIGHMEM_OFFSET) >> PGDIR_SHIFT)
+#define himem_index     (CONFIG_HIGHMAP_OFFSET >> PGDIR_SHIFT)
 
 /*
  *  Kernel page table
@@ -31,16 +36,18 @@ static void pde_set(int index, bool huge, phys_addr_t pa_pte, bool user)
 {
     page_dir[index].p       = true;
     page_dir[index].rw      = PAGE_RW_RW;
-    page_dir[index].us      = user;
     page_dir[index].pwt     = PAGE_PWT_BACK;
     page_dir[index].pcd     = PAGE_PCD_CACHEON;
-    page_dir[index].ps      = PAGE_PS_4M;
     page_dir[index].g       = true;
+    page_dir[index].us      = user;
 
-    if(!huge)
+    if (!huge) {
+        page_dir[index].ps      = PAGE_PS_4K;
+        page_dir[index].addr    = pa_pte >> PAGE_SHIFT;
+    } else {
+        page_dir[index].ps      = PAGE_PS_4M;
         page_dir[index].addrl   = pa_pte >> PGDIR_SHIFT;
-    else
-        page_dir[index].addrl   = pa_pte >> PGDIR_SHIFT;
+    }
 }
 
 /**
@@ -53,47 +60,41 @@ static void pte_set(size_t va, struct pte *pte_val)
 {
     struct pde *pde;
     struct pte *pte;
+    size_t index;
 
-    pde = &page_dir[pde_index(va)];
+    index = pde_index(va);
+    pde = &page_dir[index];
 
     /* Without PTE. */
-    if((!pde->p)||pde->ps)
+    if ((!pde->p) || pde->ps)
         return;
 
-    pte = (struct pte *)(pde->addr << PAGE_SHIFT);
+    pte = pa_to_va((pde->addr << PAGE_SHIFT));
 
-    pte[pte_index(va)] = *pte_val;
+    index = pte_index(va);
+    pte[index] = *pte_val;
 }
 
 /**
  * arch_page_map - map 
  */
-void arch_page_map(struct vm_area *va, gfp_t gfp)
+state arch_page_map(size_t pa, size_t va, size_t size)
 {
     struct pte pte;
-    size_t start_addr, last_addr;
-    uint8_t flags;
 
-    start_addr = (size_t)va->addr;
-    last_addr = start_addr + va->size;
+    if(!(page_aligned(va) && page_aligned(va)))
+        return -EINVAL;
 
-    if(gfp & GFP_HIGHMEM) { /* Disable mapping direct memory */
-        if((size_t)va->addr < CONFIG_HIGHMEM_OFFSET)
-            return;
-        flags = 0;
-    } else { /* Map user space */
-        flags = 1;
-    }
-
-    while(start_addr >= last_addr) {
+    for(size >>= PAGE_SHIFT; size; --size) {
         pte.val = 0x1;
-        pte.us = flags;
-        pte.addr = va->phys_addr >> PAGE_SHIFT;
-        pte_set((size_t)va, &pte);
-        start_addr += PAGE_SHIFT;
+        pte.us = 0;
+        pte.addr = pa >> PAGE_SHIFT;
+        pte_set(va, &pte);
     }
 
     tlb_flush_all();
+
+    return -ENOERR;
 }
 
 void *arch_page_alloc_user(void)
@@ -112,7 +113,6 @@ void arch_page_switch(void *ptd_p, void *ptd_n)
     if(ptd_p)
         memcpy(page_dir, ptd_p, sizeof(struct pde) * kernel_index);
     memcpy(ptd_n, page_dir, sizeof(struct pde) * kernel_index);
-    tlb_flush_all();
 }
 
 /**

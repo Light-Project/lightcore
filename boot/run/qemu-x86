@@ -1,9 +1,0 @@
-file kernel
-set architecture i386
-
-# connect to qemu
-target remote :1234
-
-# Run to kernel_start 
-break kernel_start
-continue 

@@ -1,13 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- *  SPDX-License-Identifier: GPL-2.0-or-later
- *  include/driver/uart/8250.h
- *  8250 uart register map
- *  (C) 2020 wzl finishing
- * 
- *  Change Logs:
- *  Date            Notes
- *  2021-03-18      first version 
- * 
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
 #ifndef _DRIVER_UART_8250_H_
@@ -135,4 +128,4 @@ enum UART8250_Registers
 #define UART8250_MSR_DDSR           0x02        // Delta Data Set Ready indicator
 #define UART8250_MSR_DCTS           0x01        // Delta Clear to Send indicator
 
-#endif
+#endif  /* _DRIVER_UART_8250_H_ */

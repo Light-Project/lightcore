@@ -1,0 +1,1 @@
+obj-y += ehci-hcd.o uhci-hcd.o

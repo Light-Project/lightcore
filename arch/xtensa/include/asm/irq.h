@@ -38,8 +38,8 @@ static inline void arch_irq_restore(irqflags_t flags)
     flags &= 0x0f;
 
     asm volatile(
-        "wsr    %0, ps\n\r"
-        "rsync \n\r"
+        "wsr    %0, ps\n"
+        "rsync \n"
         ::"a"(flags):"memory"
     );
 }

@@ -1,35 +1,49 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
 /dts-v1/;
 
 / {
     model = "X86 IBM compatible computer";
     #address-cells = <1>;
     #size-cells = <1>;
+    interrupt-parent = <&pic>;
 
     isa {
         compatible = "isa-bus";
+        #address-cells = <1>;
+        #size-cells = <1>;
+        ranges;
     
-        intc@20 {
+        pic: interrupt-controller@20 {
             compatible = "i8259";
-            reg = <0x20 2>, <0xa0 2>;
+            #interrupt-cells = <1>;
+            #address-cells = <0>;
+            interrupt-controller;
+            reg = <0x0020 2>, <0x00a0 2>;
         };
         
-        timer@42 {
+        pit: timer@42 {
             compatible = "i8253";
-            reg = <0x42 4>;
+            reg = <0x0042 4>;
+            interrupts = <0>;
         };
         
-        floppy0@3f0 {
-            compatible = "floppy";
-            reg = <0x3F0 6>, <0x3F7 1>;
+        uart0: serial@3f8 {
+            compatible = "i8250";
+            reg = <0x03f8 8>;
+            interrupts = <4>;
         };
-
-        floppy1@370 {
-            compatible = "floppy";
-            reg = <0x370 6>, <0x377 1>;
+        
+        pci@c00 {
+            compatible = "i386-pci";
+            reg = <0x0c00 16>;
         };
     };
     
     chosen {
-        bootargs = "console=tty0,115200 init=/sbin/init root=/dev/sda2 rw rootwait";
+        bootargs = "console=tty0";
     };
 }; 

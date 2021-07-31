@@ -4,6 +4,6 @@
 #define boot_args_size 1024
 extern char boot_args[boot_args_size];
 
-void arch_setup(const char *para);
+void arch_setup(void);
 
 #endif

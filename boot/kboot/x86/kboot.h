@@ -39,8 +39,8 @@ void kernel_map(void);
 void segment_init(void);
 
 /* video.c */
-void video_print(const char *str);
-void video_clear(void);
+void console_print(const char *str);
+void console_clear(void);
 
 #endif  /* __ASSEMBLY__ */
 #endif  /* _KBOOT_H_ */

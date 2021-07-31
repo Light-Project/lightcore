@@ -1,16 +1,18 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
 
 #include <types.h>
-
 #include <asm/gdt.h>
 #include <asm/idt.h>
-#include <asm/page.h>
-
-void pre_console_init();
+#include <asm/pgtable.h>
 
 #include <printk.h>
 
-void arch_setup(const char *kernel_cmd)
+void pre_console_init(void);
+
+void arch_setup(void)
 {
     /* init pre_printk */
     pre_console_init();
@@ -18,5 +20,5 @@ void arch_setup(const char *kernel_cmd)
     arch_gdt_setup();
     arch_idt_setup();
 
-//     arch_page_setup();
+    arch_page_setup();
 }

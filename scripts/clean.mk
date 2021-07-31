@@ -36,6 +36,7 @@ clean-file       := $(addprefix $(obj)/,$(clean-file))
 clean-files      := $(wildcard $(clean-files))
 # Match delete CMD
 clean-cmd        := $(wildcard $(foreach f,$(clean-file) $(clean-files),$(dir $(f)).$(notdir $(f)).cmd))
+clean-cmd        += $(wildcard $(foreach f,$(clean-file) $(clean-files),$(dir $(f)).$(notdir $(f)).d))
 
 ########################################
 # Finishing parameters                 #

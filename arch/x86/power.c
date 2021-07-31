@@ -1,5 +1,5 @@
 #include <asm/irq.h>
-#include <system/power.h>
+#include <kernel/power.h>
 
 
 
@@ -7,7 +7,7 @@ void power_halt()
 {
     arch_irq_disable();
     asm volatile(
-        "1: rep; hlt\n\r"
+        "1: rep; hlt\n"
         "jmp 1b"
     );
 }

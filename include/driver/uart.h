@@ -2,7 +2,7 @@
 #ifndef _DRIVER_UART_H_ 
 #define _DRIVER_UART_H_
 
-#include <system/spinlock.h>
+#include <kernel/spinlock.h>
 
 #include <lightcore/uart.h>
 

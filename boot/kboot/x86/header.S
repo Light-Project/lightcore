@@ -62,9 +62,9 @@ bs_die:
 #endif
 
 bugger_off_msg:
-    .ascii      "Use a boot loader.\n\r"
+    .ascii      "Use a boot loader.\n"
     .ascii      "\n"
-    .ascii      "Remove disk and press any key to reboot...\n\r"
+    .ascii      "Remove disk and press any key to reboot...\n"
     .byte       0
 
 #ifdef CONFIG_EFI_STUB

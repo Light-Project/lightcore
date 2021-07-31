@@ -18,8 +18,8 @@ static inline void gdt_set(void *addr)
 static inline void tss_set(unsigned int seg)
 {
     asm volatile(
-        "movl   %0, %%ecx\n\r"
-        "ltr    %%cx\n\r"
+        "movl   %0, %%ecx\n"
+        "ltr    %%cx\n"
         ::"Na"(seg):);
 }
 

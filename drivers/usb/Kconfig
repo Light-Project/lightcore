@@ -1,0 +1,6 @@
+menuconfig USB
+bool "USB device support"
+if USB
+    
+endif
+ 

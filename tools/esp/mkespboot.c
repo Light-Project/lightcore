@@ -25,7 +25,7 @@ static void error(const char * str, ...)
 
 void help()
 {
-    printf("Usage: mkespimage [option] file\n\r");
+    printf("Usage: mkespimage [option] file\n");
 }
 
 static uint8_t check_sum(const uint8_t *s, int len, uint8_t crc)
@@ -101,14 +101,14 @@ void esp8266_info(char *path)
     
     ESP_check_t *check = &buffer->seg + buffer->size;
     
-    printf("--------------------------\n\r");
-    printf("Magic: 0x%x\n\r", buffer->magic);
-    printf("Segments Num: 0x%x\n\r", buffer->segment_count);
-    printf("User flag0: 0x%x\n\r", buffer->flags0);
-    printf("User flag1: 0x%x\n\r", buffer->flags1);
-    printf("Entry point: 0x%x\n\r", buffer->entry);
-    printf("Checksum: 0x%x\n\r", check->checksum); 
-    printf("--------------------------\n\r");
+    printf("--------------------------\n");
+    printf("Magic: 0x%x\n", buffer->magic);
+    printf("Segments Num: 0x%x\n", buffer->segment_count);
+    printf("User flag0: 0x%x\n", buffer->flags0);
+    printf("User flag1: 0x%x\n", buffer->flags1);
+    printf("Entry point: 0x%x\n", buffer->entry);
+    printf("Checksum: 0x%x\n", check->checksum); 
+    printf("--------------------------\n");
     
     free(buffer);
 }
@@ -131,7 +131,7 @@ int main(int argc, char ** argv)
                     chipv = esp32;
                 else
                     error("Unknown chip");
-                printf("Chip version: %s\n\r", argv[1]);
+                printf("Chip version: %s\n", argv[1]);
             break;
             
             case 'f':

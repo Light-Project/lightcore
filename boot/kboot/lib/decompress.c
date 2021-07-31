@@ -24,10 +24,10 @@
 
 void extract_kernel(void *output_start, void *input_start, unsigned long len)
 {
-    pr_boot("Decompression info:\n\r");
-    pr_boot("    input: 0x%x\n\r", input_start);
-    pr_boot("    output: 0x%x\n\r", output_start);
-    pr_boot("    length: %d\n\r", len);
+    pr_boot("Decompression info:\n");
+    pr_boot("    input: 0x%x\n", input_start);
+    pr_boot("    output: 0x%x\n", output_start);
+    pr_boot("    length: %d\n", len);
     
 #ifdef CONFIG_PACK_KERNEL   
     int ret;     

@@ -1,5 +1,5 @@
 
-#include <system/kobject.h>
+#include <kernel/kobject.h>
 
 #ifdef CONFIG_SYSFS
 

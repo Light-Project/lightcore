@@ -1,17 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- *  SPDX-License-Identifier: GPL-2.0-or-later
- *  bootloader/x86/lib/interrupt.c
- *  Operation of IDT
- *  (C) 2020 wzl
- * 
- *  Change Logs:
- *  Date            Notes
- *  2021-02-26      first version 
- * 
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
 #include <types.h>
-#include <stddef.h>
+#include <kernel.h>
 #include <state.h>
 #include <mm/vmem.h>
 

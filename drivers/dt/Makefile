@@ -1,6 +1,5 @@
-obj-y += base.o
-obj-y += early.o 
-obj-y += fdt.o
+obj-y += address.o base.o fdt.o
+obj-y += early.o
 
 dtb := $(addprefix _dtb_,$(wildcard $(obj)/dtb.o))
 $(dtb):

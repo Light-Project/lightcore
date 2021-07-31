@@ -7,6 +7,6 @@ void init_module()
 
 void main()
 {
-    printf("This is ksh!\n\r");
+    printf("This is ksh!\n");
     
 }

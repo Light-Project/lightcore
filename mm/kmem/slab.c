@@ -1,6 +1,6 @@
 
-#include <system/heap.h>
-#include <system/slab.h>
+#include <kernel/heap.h>
+#include <kernel/slab.h>
 #include <types.h>
 #include <mm.h>
 

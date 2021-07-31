@@ -11,8 +11,13 @@
 
 #include <asm/io.h>
 
+#define PIC1_BASE   0x20 
+#define PIC2_BASE   0xa0
+#define PIC_NR      2
+#define PIC(nr)     ((nr) / 8)
+#define IRQ(nr)     ((nr) % 8)
+
 static const uint16_t pic_base[] = {PIC1_BASE, PIC2_BASE};
-static struct platform_device i8259_device;
 
 static inline uint8_t pic_inb(int pic, int reg)
 {
@@ -26,18 +31,18 @@ static inline void pic_outb(int pic, int reg, uint8_t value)
 
 static void pic_irq_pass(struct irqchip_device *idev, irqnr_t irq)
 {
-    uint8_t val;
-    val = pic_inb((int)idev->data, I8259_DATA);
-    val |= 1 << irq;
-    pic_outb((int)idev->data, I8259_DATA, val);
+    uint8_t val;   
+    val = pic_inb(PIC(irq), I8259_DATA);
+    val &= 1 << IRQ(irq);
+    pic_outb(PIC(irq), I8259_DATA, val);
 }
 
 static void pic_irq_mask(struct irqchip_device *idev, irqnr_t irq)
 {
     uint8_t val;
-    val = pic_inb((int)idev->data, I8259_DATA);
-    val &= 1 << irq;
-    pic_outb((int)idev->data, I8259_DATA, val);
+    val = pic_inb(PIC(irq), I8259_DATA);
+    val |= 1 << IRQ(irq);
+    pic_outb(PIC(irq), I8259_DATA, val);
 }
 
 static struct irqchip_ops pic_ops = {
@@ -47,15 +52,15 @@ static struct irqchip_ops pic_ops = {
 
 static state i8259_probe(struct platform_device *pdev)
 {
-    struct irqchip_device *idev;
+    struct irqchip_device *irqchip;
 
-    idev = kzalloc(sizeof(*idev), GFP_KERNEL);
-    if(!idev)
+    irqchip = kzalloc(sizeof(*irqchip), GFP_KERNEL);
+    if(!irqchip)
         return -ENOMEM;
 
-    idev->ops = &pic_ops;
+    irqchip->ops = &pic_ops;
+    irqchip->device = &pdev->device;
 
-    /* mask all of 8259A-1 */
     pic_outb(0, I8259_DATA, 0xff);
 
     /* starts the initialization sequence */
@@ -72,44 +77,27 @@ static state i8259_probe(struct platform_device *pdev)
     pic_outb(1, I8259_DATA, 2);
     pic_outb(1, I8259_DATA, ICW4_8086 | ICW4_AUTO);
 
-    /* restore IRQ mask */
-    // pic_outb(0, I8259_DATA, ~PIC1_IRQ2);
-    // pic_outb(1, I8259_DATA, 0xff);
-    pic_outb(0, I8259_DATA, ~PIC1_IRQ6);
+    pic_outb(0, I8259_DATA, 0);
     pic_outb(1, I8259_DATA, 0xff);
 
-    return irqchip_register(idev);
+    return irqchip_register(irqchip);
 }
 
-struct resource pic_resource[] = {
-    {
-        .name = "i8259A-1",
-        .start = 0x20,
-        .end = 0x21,
-    },
-    {
-        .name = "i8259A-2",
-        .start = 0xa0,
-        .end = 0xa1,
-    }, 
+static struct dt_device_id i8259_id[] = {
+    { .compatible = "i8259" },
+    { }, /* NULL */
 };
 
 static struct platform_driver i8259_driver = {
     .driver = {
         .name = DRIVER_NAME,
-    },
+    }, 
+    .dt_table = i8259_id,
     .probe = i8259_probe,
 };
 
 static state i8259_init(void)
 {
-    state ret;
-    
-    ret = platform_driver_register(&i8259_driver);
-    if(ret)
-        return ret;
-
-    i8259_device.name = DRIVER_NAME;
-    return platform_device_register(&i8259_device);
+    return platform_driver_register(&i8259_driver);
 }
-arch_initcall(i8259_init);
+irqchip_initcall(i8259_init);

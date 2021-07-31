@@ -6,13 +6,13 @@
 
 mainmenu "Lightcore $(KERNELVERSION) Configuration"
 
-source "system/Kconfig.general"
+source "kernel/Kconfig.general"
 
 source "arch/Kconfig"
 
 source "mm/Kconfig"
 
-source "system/Kconfig"
+source "kernel/Kconfig"
 
 source "drivers/Kconfig"
 
@@ -26,9 +26,9 @@ source "security/Kconfig"
 
 source "lib/Kconfig"
 
-source "system/Kconfig.debug"
+source "kernel/Kconfig.debug"
 
-source "system/Kconfig.comp"
+source "kernel/Kconfig.comp"
 
 source "usr/Kconfig"
 

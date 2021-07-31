@@ -8,16 +8,16 @@
 #ifndef __ASSEMBLY__
 
 enum isa_vector {
-    I8253_IRQ       = 0x30, // System Timer
-    I8042_IRQ       = 0x31, // Keyboard
-    COM24_IRQ       = 0x33, // COM 2 and 4
-    COM13_IRQ       = 0x34, // COM 1 and 3
-    SND_IRQ         = 0x35, // Sound, Parallel port 2
-    FLOPPY_IRQ      = 0x36, // Floppy
-    PPC_IRQ         = 0x37, // Parallel Port 1
-
-    RTC_IRQ         = 0x38, // Real-time clock  
-    NETWORK_IRQ     = 0x39, // Redirected IRQ 2, Open, Network Available
+    I8253_IRQ       = IRQ_EXTERNAL + 0x00,  // System Timer
+    PIC2_IRQ        = IRQ_EXTERNAL + 0x01,  // Keyboard
+    I8042_IRQ       = IRQ_EXTERNAL + 0x02,  // PIC 2
+    COM24_IRQ       = IRQ_EXTERNAL + 0x03,  // COM 2 and 4
+    COM13_IRQ       = IRQ_EXTERNAL + 0x04,  // COM 1 and 3
+    SND_IRQ         = IRQ_EXTERNAL + 0x05,  // Sound, Parallel port 2
+    FLOPPY_IRQ      = IRQ_EXTERNAL + 0x06,  // Floppy
+    PPC_IRQ         = IRQ_EXTERNAL + 0x07,  // Parallel Port 1
+    RTC_IRQ         = IRQ_EXTERNAL + 0x08,  // Real-time clock  
+    NETWORK_IRQ     = IRQ_EXTERNAL + 0x09,  // Redirected IRQ 2, Open, Network Available
 };
 
 static inline void arch_irq_disable()

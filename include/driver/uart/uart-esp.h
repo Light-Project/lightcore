@@ -51,13 +51,13 @@ enum UART_ESP_Registers
 
 /* CONF0 bitflag definitions */
 #define UART_ESP_CONF0_DEFAULT       0x0100001c
-#define UART_ESP_CONF0_TICK_AHB      (1<<27)         //  inverse uart dtr level
-#define UART_ESP_CONF0_INVAL_DTR     (1<<24)         //  inverse uart dtr level
-#define UART_ESP_CONF0_INVAL_RTS     (1<<23)         //  inverse uart rts level
-#define UART_ESP_CONF0_INVAL_TXD     (1<<22)         //  inverse uart txd level
-#define UART_ESP_CONF0_INVAL_DSR     (1<<21)         //  inverse uart dsr level
-#define UART_ESP_CONF0_INVAL_CTS     (1<<20)         //  inverse uart cts level
-#define UART_ESP_CONF0_INVAL_RXD     (1<<19)         //  inverse uart rxd level
+#define UART_ESP_CONF0_TICK_AHB      (1<<27)         // inverse uart dtr level
+#define UART_ESP_CONF0_INVAL_DTR     (1<<24)         // inverse uart dtr level
+#define UART_ESP_CONF0_INVAL_RTS     (1<<23)         // inverse uart rts level
+#define UART_ESP_CONF0_INVAL_TXD     (1<<22)         // inverse uart txd level
+#define UART_ESP_CONF0_INVAL_DSR     (1<<21)         // inverse uart dsr level
+#define UART_ESP_CONF0_INVAL_CTS     (1<<20)         // inverse uart cts level
+#define UART_ESP_CONF0_INVAL_RXD     (1<<19)         // inverse uart rxd level
 #define UART_ESP_CONF0_TXFIFO_RST    (1<<18)         // reset uart tx fifo
 #define UART_ESP_CONF0_RXFIFO_RST    (1<<17)         // reset uart rx fifo
 #define UART_ESP_CONF0_TXFLOW_EN     (1<<15)         // enable uart tx hardware flow control

@@ -3,29 +3,14 @@
 #define _MM_PAGE_H_
 
 #include <mm/gfp.h>
+#include <mm/mm_types.h> 
 #include <mm/region.h>
-#include <mm/vmem.h>
 
-#include <mm/page_type.h>   /*  */
-#include <mm/memmodel.h>    /* Memory model definition */
+#define order_nr(size, order)   (((size) >> PAGE_SHIFT) >> (order))
 
-#include <asm/page.h>
+void *page_address(const struct page *page);
+void page_add(struct region *region, struct page *page, uint order, uint order_nr);
+struct page *page_alloc(uint order, gfp_t gfp);
+void page_free(struct page *page, uint order);
 
-#define PAGE_NR             ((PAGE_MASK >> PAGE_SHIFT) + 1)
-
-#ifndef __ASSEMBLY__
-
-extern struct page page_map[];
-
-struct page *buddy_alloc(int order, gfp_t gfp);
-void buddy_free(struct page *page);
-void buddy_add(struct region *region, int nr, int order, struct page *page);
-
-void *page_to_address(const struct page *page);
-struct page *page_alloc(unsigned int order, gfp_t gfp);
-void page_free(struct page *page, unsigned int order);
-
-void page_init(void);
-
-#endif	/* __ASSEMBLY__ */
-#endif
+#endif  /* _MM_PAGE_H_ */

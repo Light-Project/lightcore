@@ -1,35 +1,33 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Mapping fixed addresses to highmem
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com> 
  */
 
 #define pr_fmt(fmt) "ioremap: " fmt
 
-#include <math.h>
 #include <stddef.h>
-#include <system.h>
-#include <system/spinlock.h>
+#include <kernel.h>
+#include <kernel/spinlock.h>
 #include <rbtree.h>
 #include <list.h>
 #include <export.h>
 #include <printk.h>
 
+#include <mm.h>
 #include <mm/ioremap.h>
-#include <mm/vmem.h>
-#include <mm/kmem.h>
 
-#include <asm/page.h>
+#include <asm/pgalloc.h>
 
+// static SPIN_LOCK(ioremap_lock);
 static LIST_HEAD(ioremap_list);
-// static spinlock_t lock;
 
 struct ioremap {
     phys_addr_t start;
     phys_addr_t end;
-    struct vm_area *vm_area;
-
+    
     struct list_head list;
-    unsigned int c; /* citations nr */
+    struct vm_area *vm_area;
+    int count;
 };
 
 static struct ioremap *ioremap_find(phys_addr_t start, phys_addr_t end)
@@ -50,15 +48,16 @@ static struct ioremap *ioremap_get(phys_addr_t pa, size_t size)
     struct vm_area *vm;
     struct ioremap *io;
 
-    vm = vmem_alloc(size, GFP_HIGHMEM);
+    vm = vmem_alloc(size);
     if(!vm)
         return NULL;
 
-    vm->phys_addr = pa;
-    arch_page_map(vm, GFP_HIGHMEM);
+    pa = align_low(pa, PAGE_SIZE);
+    arch_page_map(pa, vm->addr, vm->size);
 
+    /* set the io node assigned to */
     io = kzalloc(sizeof(*io), GFP_KERNEL);
-    if(!io)
+    if(unlikely(!io))
         vmem_free(vm);
 
     io->start = pa;
@@ -95,8 +94,8 @@ void *ioremap(phys_addr_t pa, size_t size)
         return NULL;
 
 got_io:
-    io->c++;
-    return io->vm_area->addr + offset;
+    io->count++;
+    return (void *)(io->vm_area->addr + offset);
 }
 EXPORT_SYMBOL(ioremap);
 
@@ -105,21 +104,18 @@ void iounmap(void *addr)
     struct ioremap *tmp, *io;
     struct vm_area *va;
 
-    if((size_t)addr <= CONFIG_HIGHMEM_OFFSET)
+    if((size_t)addr < CONFIG_HIGHMAP_OFFSET)
         return;
 
     list_for_each_entry(tmp, &ioremap_list, list) {
         va = tmp->vm_area;
-        if((va->addr <= addr)&&(addr <= va->addr + va->size)) {
+        if((va->addr <= (size_t)addr)&&((size_t)addr <= va->addr + va->size)) {
             io = tmp;
             break;
         }
     }
 
-    kassert(io);
-
-    if(!(--io->c))
+    if (!--io->count)
         list_del(&io->list);
-
 }
 EXPORT_SYMBOL(iounmap);

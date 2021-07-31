@@ -16,9 +16,9 @@
 #include <printk.h>
 #include <list.h>
 #include <mm/vmap.h>
-#include <system/spinlock.h>
+#include <kernel/spinlock.h>
 #include <state.h>
-#include <system.h>
+#include <kernel.h>
 #include <export.h>
 #include <debug.h>
 

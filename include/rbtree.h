@@ -17,6 +17,9 @@
 
 #ifndef __ASSEMBLY__
 
+#define RB_RED    0
+#define RB_BLACK  1
+
 typedef struct rb_node{
     struct rb_node *parent;
     struct rb_node *left;
@@ -46,16 +49,25 @@ struct rb_root{
         pos = rb_next_entry(pos, member))
 
 void rb_fixup(struct rb_root *root, struct rb_node *node);
-void rb_delete(const struct rb_root *root, struct rb_node *node);
-
+void rb_del(const struct rb_root *root, struct rb_node *node);
+struct rb_node *rb_pre_first(const struct rb_root *root);
+struct rb_node *rb_pre_next(const struct rb_node *node);
 struct rb_node *rb_first(const struct rb_root *root);
 struct rb_node *rb_last(const struct rb_root *root);
 struct rb_node *rb_prev(const struct rb_node *node);
 struct rb_node *rb_next(const struct rb_node *node);
+struct rb_node *rb_post_first(const struct rb_root *root);
+struct rb_node *rb_post_next(const struct rb_node *node);
 
-struct rb_node *rb_postorder_next(const struct rb_node *node);
+static inline void rb_link(struct rb_node *parent, struct rb_node **link, 
+                           struct rb_node *node)
+{
+    /* link = &parent->left/right */
+    *link = node;
 
-
+    node->parent = parent;
+    node->left = node->right = NULL;
+}
 
 /**
  * rb_find() - find @key in tree @root

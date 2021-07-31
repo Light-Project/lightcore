@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _DRIVER_CLOCKSOURCE_H_
 #define _DRIVER_CLOCKSOURCE_H_
 

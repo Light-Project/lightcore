@@ -4,7 +4,7 @@
 #include <types.h>
 
 typedef struct atomic {
-    size_t  counter;
+    size_t counter;
 } atomic_t;
 
 // #include <asm/atomic.h>

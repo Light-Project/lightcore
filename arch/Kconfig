@@ -40,12 +40,6 @@ prompt "Architecture Select"
 
     config ARCH_RISCV
     bool "RISC-V"
-    select ARCH_32BIT
-    select ARCH_HAS_MMU
-
-    config ARCH_RISCV64
-    bool "RISC-V64"
-    select ARCH_64BIT
     select ARCH_HAS_MMU
             
     config ARCH_X86

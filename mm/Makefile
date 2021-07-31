@@ -2,12 +2,11 @@
 #
 # Makefile for Memory manager
 
-obj-y += region.o ioremap.o memblock.o
-
 obj-$(CONFIG_MMU) += page/
-
-# 
 obj-y += kmem/
 
 obj-y += resource.o
+obj-y += ioremap.o 
+obj-y += memblock.o
 obj-y += memtest.o
+obj-y += init.o

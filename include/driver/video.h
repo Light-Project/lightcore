@@ -10,13 +10,10 @@
 struct video_device;
 
 struct video_mode {
-    uint32_t xres;      /* visible resolution */
+    const char *name;
+    uint32_t xres;
     uint32_t yres;
-    uint32_t vxres;     /* virtual resolution */
-    uint32_t vyres;
-    uint32_t xoffset;   /* virtual visible offset */
-    uint32_t yoffset;
-
+    uint32_t refresh;
 };
 
 struct video_ops {
@@ -32,9 +29,10 @@ struct video_ops {
 };
 
 struct video_device {
+    struct device *device;  /* the parent device */
 
-    struct list_head mode_list; /* Mode list */
-    struct video_mode mode;     /* Current video mode */
+    const struct video_mode *cur_mode;
+    const struct video_mode *mode_table;
 
     struct video_ops *ops;
 };

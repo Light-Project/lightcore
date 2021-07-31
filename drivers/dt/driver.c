@@ -1,7 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
 #include <driver/dt.h>
 #include <driver/dt/libfdt.h>
-
-
 
 static int dt_node_match_one(struct dt_device_id *did, struct dt_node *dnod)
 {

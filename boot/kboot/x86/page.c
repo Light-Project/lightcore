@@ -3,6 +3,7 @@
 #include <size.h>
 
 #include <asm/page.h>
+#include <arch/x86/page.h>
 #include <asm/regs.h>
 
 struct pde page_dir[1024] __aligned(0x1000);

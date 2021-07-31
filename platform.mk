@@ -34,14 +34,7 @@ arch                := csky
 kernel-flags-y      += -nostdlib
 endif
 
-ifdef CONFIG_ARCH_M68K
-CROSS_COMPILE       := m68k-elf-
-arch                := m68k
-
-kernel-flags-y      += -nostdlib
-endif
-
-ifdef CONFIG_ARCH_RISCV64
+ifdef CONFIG_ARCH_RISCV
 CROSS_COMPILE       := riscv64-linux-gnu-
 arch                := riscv64
 

@@ -63,7 +63,6 @@ enum pci_speed {
 };
 
 struct pci_device {
-
     /* Bus structure description */
     list_t pci_bus_list_pci_device; /* Node of pci_bus->pci_device_list */
     struct pci_bus *bridge;         /* Bus this device bridges to */
@@ -75,7 +74,7 @@ struct pci_device {
     uint16_t vendor;        /* 0x00: Vendor identification */
     uint16_t device;        /* 0x02: Device identification */
     uint8_t  revision;      /* 0x08: Revision identification */
-    uint16_t class;         /* 0x09: Class code */
+    uint32_t class;         /* 0x09: Class code */
     uint8_t  head;          /* 0x0e: Header type */
     uint16_t subvendor;     /* 0x2c: Subsystem vendor identification */
     uint16_t subdevice;     /* 0x2e: Subsystem identification */
@@ -83,12 +82,11 @@ struct pci_device {
     uint8_t  pin;           /* 0x3d: Interrupt pin */
 
     /* Pci device flags */
-    uint32_t multifunction:1;   /* multi-function device */
+    uint32_t multifunction:1;   /* Multi-function device */
     uint32_t flags_added:1;     /*  */
 
     /* I/O resource */
     struct resource resource[PCI_RESOURCE_MAX];
-
 };
 
 #define device_to_pci_device(dpt) \
@@ -106,13 +104,12 @@ static inline void pci_set_devdata(struct pci_device *pdev, void *data)
 #define pci_resource_start(pdev, bar)   ((pdev)->resource[(bar)].start)
 #define pci_resource_end(pdev, bar)     ((pdev)->resource[(bar)].end)
 #define pci_resource_type(pdev, bar)    ((pdev)->resource[(bar)].type)
-#define pci_resource_size(pdev, bar)            \
-        (pci_resource_end((pdev), (bar)) -      \
-        pci_resource_start((pdev), (bar)) + 1)
+#define pci_resource_size(pdev, bar) \
+    (pci_resource_end((pdev), (bar)) - pci_resource_start((pdev), (bar)) + 1)
 
 struct pci_driver {
-    list_t  list;
     struct driver driver;
+    struct list_head list;
     const struct pci_device_id *id_table;
 
     /* Operation function */
@@ -126,19 +123,15 @@ struct pci_driver {
 #define driver_to_pci_driver(dpt) \
         (container_of((dpt), struct pci_driver, driver))
 
-state pci_driver_register(struct pci_driver *);
-void pci_driver_unregiste(struct pci_driver *drv);
-
 /* pci_bus structure declare the PCI bus */
 struct pci_bus {
-
     /* Bus structure description */
     list_t  node;               /* Node of children list */
     list_t  children;           /* List head of child buses */
     struct pci_bus *parent;     /* Parent bus on this bridge */
     
     struct list_head pci_device_list;   /* List head of pci_devices on this bus */
-    struct pci_ops *ops;   
+    struct pci_ops *ops;
 
     uint    bus_nr;
 };
@@ -160,9 +153,7 @@ struct pci_host {
     void *priv;             /* Private data */
 };
 
-state pci_host_register(struct pci_host *host);
-
-/* pci/base.c - PCI basic operation */
+/* base.c - PCI basic operation */
 uint8_t pci_bus_config_readb(struct pci_bus *bus, uint devfn, uint reg);
 uint16_t pci_bus_config_readw(struct pci_bus *bus, uint devfn, uint reg);
 uint32_t pci_bus_config_readl(struct pci_bus *bus, uint devfn, uint reg);
@@ -184,5 +175,15 @@ state pci_mwi_set(struct pci_device *pdev);
 
 uint32_t pcix_mmrbc_get(struct pci_device *pdev);
 state pcix_mmrbc_set(struct pci_device *pdev, uint32_t mmrbc);
+
+/* core.c -  */
+state pci_host_register(struct pci_host *host);
+
+/* bus.c -  */
+void pci_bus_devices_probe(const struct pci_bus *bus);
+
+/* driver.c -  */
+state pci_driver_register(struct pci_driver *);
+void pci_driver_unregiste(struct pci_driver *drv);
 
 #endif /* _DRIVER_PCI_H_ */

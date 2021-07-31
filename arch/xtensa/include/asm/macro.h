@@ -10,7 +10,7 @@ static inline size_t arch_min(size_t a, size_t b)
 {
     size_t ret;
     asm volatile(
-        "min    %2, %0, %1\n\r"
+        "min    %2, %0, %1\n"
         :"=a"(ret):"a"(a),"a"(b):"memory"
     );
     return ret;
@@ -21,7 +21,7 @@ static inline size_t arch_max(size_t a, size_t b)
 {
     size_t ret;
     asm volatile(
-        "max    %2, %0, %1\n\r"
+        "max    %2, %0, %1\n"
         :"=a"(ret):"a"(a),"a"(b):"memory"
     );
     return ret;

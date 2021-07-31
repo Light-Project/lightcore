@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include <types.h>
 #include <state.h>
-#include <stddef.h>
+#include <kernel.h>
 #include <asm/io.h>
 #include <console.h>
 #include <mm.h>
@@ -9,7 +9,7 @@
 #include <driver/platform.h>
 #include <driver/dt.h>
 #include <driver/uart.h>
-#include <system/spinlock.h>
+#include <kernel/spinlock.h>
 
 #include <driver/uart/uart-esp.h>
 

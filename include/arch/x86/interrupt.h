@@ -84,7 +84,7 @@ enum fault_vector {
 
 #endif  /* __ASSEMBLY__ */
 
-#define IRQ_EXTERNAL    0x30
+#define IRQ_EXTERNAL    0x40
 #define IRQ_NR_MAX      256
 
 #endif

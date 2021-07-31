@@ -1,8 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- *  drivers/floppy/floppy.c
- *
- *  Copyright (C) 2021 CopyrightName
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
 /**
@@ -17,7 +15,7 @@
 #include <mm.h>
 #include <delay.h>
 #include <init/initcall.h>
-#include <system/irq.h>
+#include <kernel/irq.h>
 #include <driver/platform.h>
 #include <driver/block.h>
 #include <driver/floppy/floppy.h>
@@ -291,12 +289,12 @@ static enum floppy_version floppy_version(int fdc)
         return FDC_NONE;
 
     if((cmd.replen == 1) && (cmd.rxcmd[0] == 0x80)) {
-        pr_info("FDC%d version 8272A\n\r", fdc);
+        pr_info("FDC%d version 8272A\n", fdc);
         return FDC_8272A;
     }
 
     if(cmd.replen != 10) {
-        pr_info("FDC%d DUMPREGS: return of %d bytes.\n\r", fdc, cmd.replen);
+        pr_info("FDC%d DUMPREGS: return of %d bytes.\n", fdc, cmd.replen);
         return FDC_UNKNOWN;
     }
         
@@ -307,7 +305,7 @@ static enum floppy_version floppy_version(int fdc)
     ret = floppy_transmit(fdc, &cmd);
 
     if(!ret) {
-        pr_info("FDC%d version 82072A\n\r", fdc);
+        pr_info("FDC%d version 82072A\n", fdc);
         return FDC_82072A;
     }
 
@@ -318,12 +316,12 @@ static enum floppy_version floppy_version(int fdc)
     ret = floppy_transmit(fdc, &cmd);
 
     if((cmd.replen == 1) && (cmd.rxcmd[0] == 0x80)) {
-        pr_info("FDC%d version pre 82077\n\r", fdc);
+        pr_info("FDC%d version pre 82077\n", fdc);
         return FDC_82077_ORIG;
     }
         
     if((cmd.replen != 1) && (cmd.rxcmd[0] != 0x00)) {
-        pr_info("FDC%d UNLOCK: return of %d bytes.\n\r", fdc, cmd.replen);
+        pr_info("FDC%d UNLOCK: return of %d bytes.\n", fdc, cmd.replen);
         return FDC_UNKNOWN;
     }
 
@@ -334,31 +332,31 @@ static enum floppy_version floppy_version(int fdc)
     ret = floppy_transmit(fdc, &cmd);
 
     if(cmd.replen != 1) {
-        pr_info("FDC%d PARTID: return of %d bytes.\n\r", fdc, cmd.replen);
+        pr_info("FDC%d PARTID: return of %d bytes.\n", fdc, cmd.replen);
         return FDC_UNKNOWN;
     }
 
     if(cmd.rxcmd[0] == 0x80) {
-        pr_info("FDC%d version post 82077\n\r", fdc);
+        pr_info("FDC%d version post 82077\n", fdc);
         return FDC_82077;
     }
 
     switch(cmd.rxcmd[0] >> 5) {
         case 0x00:
-            pr_info("FDC%d version 82078\n\r", fdc);
+            pr_info("FDC%d version 82078\n", fdc);
             return FDC_82078;
         case 0x01:
-            pr_info("FDC%d version 44pin 82078\n\r", fdc);
+            pr_info("FDC%d version 44pin 82078\n", fdc);
             return FDC_82078;
         case 0x02:
-            pr_info("FDC%d version S82078B\n\r", fdc);
+            pr_info("FDC%d version S82078B\n", fdc);
             return FDC_S82078B;
         case 0x03:
-            pr_info("FDC%d version PC87306\n\r", fdc);
+            pr_info("FDC%d version PC87306\n", fdc);
             return FDC_82078;
     }
     
-    pr_info("FDC%d version 82078 variant %d\n\r", fdc, cmd.rxcmd[0] >> 5);
+    pr_info("FDC%d version 82078 variant %d\n", fdc, cmd.rxcmd[0] >> 5);
 	return FDC_82078_UNKN;
 }
 
@@ -393,17 +391,22 @@ static state floppy_remove(struct platform_device *pdev)
     return -ENOERR;
 }
 
+static struct platform_device_id floppy_id[] = {
+    {.name = DRIVER_NAME},
+    { }, /* NULL */
+};
+
 static struct platform_driver floppy_driver = {
     .driver = {
         .name = DRIVER_NAME,
     },
+    .platform_table = floppy_id,
     .probe = floppy_probe,
     .remove = floppy_remove,
 };
 
 static int floppy_scan_driver(int fdc)
 {
-    return -ENOERR;
     int driver = 0;
     
     /* Register device */
@@ -439,38 +442,16 @@ static state floppy_init(void)
 {
     int count, fdc;
 
-    platform_driver_register(&floppy_driver);
-
     for(count = 0; count < FDC_NR; ++count)
         if(floppy_scan_fdc(count))
             fdc++;
 
     if(!fdc) {
-        pr_info("no floppy controllers found\n\r");
+        pr_info("no floppy controllers found\n");
         return -ENODEV;
     }
 
-    struct floppy_cmd cmd;
-    char buffer[512];
-    memset(&cmd, 0, sizeof(cmd));
-    cmd.type = CMD_PIO | CMD_WAIT_IRQ | CMD_DIRVER;
-    cmd.txlen = 9;
-    cmd.rxlen = 16;
-    cmd.txcmd[0] = FLOPPY_COMMAND_READ_DATA;    /* 1 head number << 2 | drive number */
-    cmd.txcmd[1] = 0;                           /* 2 head number << 2 | drive number */
-    cmd.txcmd[2] = 0;                           /* 3 cylinder number */
-    cmd.txcmd[3] = 0;                           /* 4 head number */
-    cmd.txcmd[4] = 1;                           /* 5 starting sector number */
-    cmd.txcmd[5] = FLOPPY_SIZE_CODE;            /* 6 all floppy drives use 512bytes per sector */
-    cmd.txcmd[6] = 1;                           /* 7 */
-    cmd.txcmd[7] = 0x1B;
-    cmd.txcmd[8] = 0xff;
-
-    cmd.buffer = buffer;
-    cmd.buffersize = sizeof(buffer);
-    floppy_transmit(0, &cmd);
-
-    printk("data 0x%02x\n\r", buffer[0]);
+    platform_driver_register(&floppy_driver);
 
     return -ENOERR;
 }

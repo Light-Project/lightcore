@@ -1,8 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _LIST_H_
 #define _LIST_H_
 
-#include <stddef.h>
 #include <types.h>
+#include <stddef.h>
+#include <kernel.h>
 
 #ifndef __ASSEMBLY__
 
@@ -50,6 +52,15 @@ typedef struct list_head{
     list_entry((pos)->member.next, typeof(*(pos)), member)
 
 /**
+ * list_entry_is_head - test if the entry points to the head of the list
+ * @pos:	the type * to cursor
+ * @head:	the head for your list.
+ * @member:	the name of the list_head within the struct.
+ */
+#define list_entry_is_head(pos, head, member) \
+    (&pos->member == (head))
+
+/**
  * list_first_entry_or_null - get the first element from a list
  * @ptr:	the list head to take the element from.
  * @type:	the type of the struct this is embedded in.
@@ -90,22 +101,32 @@ typedef struct list_head{
         &pos->member != (head);                                 \
         pos = list_next_entry(pos, member))
 
-void list_head_init(struct list_head *list);
+/**
+ * list_for_each_entry_safe - iterate over list of given type safe against removal of list entry
+ * @pos:	the type * to use as a loop cursor.
+ * @n:		another type * to use as temporary storage
+ * @head:	the head for your list.
+ * @member:	the name of the list_head within the struct.
+ */
+#define list_for_each_entry_safe(pos, n, head, member)          \
+    for (pos = list_first_entry(head, typeof(*pos), member),    \
+        n = list_next_entry(pos, member);                       \
+        !list_entry_is_head(pos, head, member);                 \
+        pos = n, n = list_next_entry(n, member))
 
+void list_head_init(struct list_head *list);
 void list_insert(struct list_head *prev, struct list_head *next, struct list_head *new);
 void list_add(struct list_head *head, struct list_head *new);
 void list_add_prev(struct list_head *node, struct list_head *new);
 void list_add_next(struct list_head *node,struct list_head *new);
-
 void list_del(struct list_head *node);
-
 void list_replace(struct list_head *old, struct list_head *new);
 void list_move_tail(struct list_head *head, struct list_head *node);
 
-int list_check_first(struct list_head *head, struct list_head *node);
-int list_check_end(struct list_head *head, struct list_head *node);
-int list_check_around(struct list_head *prev, struct list_head *next);
-int list_check_empty(struct list_head *head);
+bool list_check_first(struct list_head *head, struct list_head *node);
+bool list_check_end(struct list_head *head, struct list_head *node);
+bool list_check_around(struct list_head *prev, struct list_head *next);
+bool list_check_empty(struct list_head *head);
 
 #endif	/* __ASSEMBLY__ */
 #endif  /* _LIST_H_ */

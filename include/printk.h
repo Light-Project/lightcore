@@ -14,7 +14,7 @@ void pre_printk(const char *str,...);
 #define pre_printk(str,...)
 #endif
 
-int printk(char *str,...);
+int printk(const char *fmt,...);
 int vsnprintf(char * buf, size_t n, const char * fmt, va_list ap);
 
 /**

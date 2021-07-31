@@ -153,7 +153,7 @@
 #define __ACLINUXEX_H__
 
 #include <mm.h>
-#include <system/spinlock.h>
+#include <kernel/spinlock.h>
 #include <div64.h>
 
 #ifndef ACPI_USE_NATIVE_DIVIDE

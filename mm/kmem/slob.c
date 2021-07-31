@@ -1,8 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- *  mm/kmem/slob.c
- *
- *  Copyright (C) 2021 CopyrightName
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
 #define pr_fmt(fmt) "slob-core: " fmt
@@ -52,12 +50,12 @@ static void *slob_page_alloc(struct slob_page *slob_page, size_t size,
     slobidx_t avail;
 
     /* This is the limit of slob allocation, use whole page :) */
-    if((PAGE_SIZE == size)||((PAGE_SHIFT == align)&&(size <= PAGE_SIZE))) {
+    if ((PAGE_SIZE == size) || ((PAGE_SHIFT == align) && (size <= PAGE_SIZE))) {
         slob_page->page_use = true;
         return slob_page->node;
     }
 
-    for(node = slob_page->node;; node = slob_node_next(node)) {
+    for (node = slob_page->node;; node = slob_node_next(node)) {
         avail = node->size;
 
         if((avail >= size) && (!node->use))
@@ -72,7 +70,7 @@ static void *slob_page_alloc(struct slob_page *slob_page, size_t size,
 
     /* avoid generating unusable fragments */
     avail -= size;
-    if(avail > bsize) {
+    if (avail > SLOB_SIZE(bsize)) {
         node->size = size;
         free = slob_node_next(node);
         free->size = avail;
@@ -82,7 +80,7 @@ static void *slob_page_alloc(struct slob_page *slob_page, size_t size,
     slob_page->avail -= SLOB_SIZE(node->size);
 
     /* If the page is full, remove it from the free list */
-    if(!slob_page->avail) {
+    if (!slob_page->avail) {
         list_del(&slob_page->slob_list);
         *full = true;
     }
@@ -101,14 +99,14 @@ static bool slob_page_free(struct slob_page *slob_page, void *block)
     struct slob_node *node, *next, *prev = NULL;
 
     /* if use whole page, release this page directly */
-    if(slob_page->page_use)
+    if (slob_page->page_use)
         return true;
     
-    for(node = slob_page->node;; node = slob_node_next(node)) {
+    for (node = slob_page->node;; node = slob_node_next(node)) {
         next = slob_node_next(node);
 
         /* find node */
-        if(((void *)node < block)&&(block < (void *)next))
+        if (((void *)node < block)&&(block < (void *)next))
             break;
 
         /* Not this node, save prev node */
@@ -116,7 +114,7 @@ static bool slob_page_free(struct slob_page *slob_page, void *block)
 
         /* It's the last node. There's no block found */
         if(unlikely(slob_node_last(node))) {
-            pr_err("release %llx error\n\r", block);
+            pr_err("release %llx error\n", block);
             return false;
         }
     }
@@ -125,21 +123,21 @@ static bool slob_page_free(struct slob_page *slob_page, void *block)
     node->use = false;
 
     /* Merge the next free node */
-    if(!next->use)
+    if (!next->use)
         node->size += SLOB_SIZE(next->size);
 
     /*
      * If it's not the first node, then we merge the 
      * previous free node 
      */
-    if(prev && (!prev->use))
+    if (prev && (!prev->use))
         prev->size += SLOB_SIZE(next->size);
 
     return false;
 }
 
 /**
- * slob_alloc - slob alloc core
+ * slob_alloc - slob alloc
  * 
  */
 void *slob_alloc(size_t size, gfp_t gfp, int align)
@@ -155,13 +153,13 @@ void *slob_alloc(size_t size, gfp_t gfp, int align)
      * Slob can only handle memory 
      * no more than one page 
      */
-    if(size > PAGE_SIZE)
+    if (size > PAGE_SIZE)
         return NULL;
 
-    if(size < SLOB_BREAK1) {
+    if (size < SLOB_BREAK1) {
         slob_list = &slob_free_small;
         break_size = MSIZE;
-    } else if(size < SLOB_BREAK2) {
+    } else if (size < SLOB_BREAK2) {
         slob_list = &slob_free_medium;
         break_size = SLOB_BREAK1;
     } else {
@@ -174,10 +172,10 @@ void *slob_alloc(size_t size, gfp_t gfp, int align)
     list_for_each_entry(slob_page, slob_list, slob_list) {
         
         block = slob_page_alloc(slob_page, size, break_size, align, &full);
-        if(!block)
+        if (!block)
             continue;
 
-        if(gfp & GFP_ZERO)
+        if (gfp & GFP_ZERO)
             memset(block, 0, size);
 
         /*
@@ -185,25 +183,25 @@ void *slob_alloc(size_t size, gfp_t gfp, int align)
          * to the last used node (LRU) to improve 
          * the fragment distribution
          */
-        if(!full)
-            if(!list_check_first(slob_list, &slob_page->slob_list))
+        if (!full)
+            if (!list_check_first(slob_list, &slob_page->slob_list))
                 list_move_tail(slob_list, &slob_page->slob_list);
     }
 
     /* No enough space in slob list */
-    if(!block) {
+    if (!block) {
         struct page *page;
         
         /* Alloc a new page */
         page = page_alloc(0, gfp);
-        if(!page)
+        if (!page)
             return NULL;
 
         slob_page = &page->slob;
 
         /* The new assigned page will be given priority next time */
         list_add(slob_list, &slob_page->slob_list);
-        slob_page->node = page_to_address(page);
+        slob_page->node = page_address(page);
         slob_page->avail = PAGE_SIZE;
 
         /* Setup the first node */
@@ -219,7 +217,7 @@ void *slob_alloc(size_t size, gfp_t gfp, int align)
 }
 
 /**
- * slob_free - slob release core
+ * slob_free - slob release
  * 
  */
 void slob_free(void *block)
@@ -229,7 +227,7 @@ void slob_free(void *block)
     
     spin_lock_irqsave(&lock, &irq_save);
 
-    if(slob_page_free(&page->slob, block))
+    if (slob_page_free(&page->slob, block))
         page_free(page, 0);
 
     spin_unlock_irqrestore(&lock, &irq_save);

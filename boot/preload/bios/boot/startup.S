@@ -132,9 +132,9 @@ BOOT_DEV:
     .byte 0x00  // Startup device number
     
     .align 4
-TXT_MBR_BOOT:       .asciz "\n\rMBR booting\n\r"
-TXT_INT13_1_ERR:    .asciz "INT13/1 ERR!\n\r"
-TXT_INT13_2_ERR:    .asciz "INT13/2 ERR!\n\r"
+TXT_MBR_BOOT:       .asciz "\n\rMBR booting\n"
+TXT_INT13_1_ERR:    .asciz "INT13/1 ERR!\n"
+TXT_INT13_2_ERR:    .asciz "INT13/2 ERR!\n"
 
     .section ".dptsign","ax"
 dptsign: .asciz "dpt:"
@@ -188,7 +188,7 @@ setfs:
     orl     $(1<<0), %eax
     movl    %eax, %cr0
 
-    .byte   0x66, 0xea  # ljmpl opcode
+    .byte   0x66, 0xea  # ljmpl opcodeq
     .long   1f          # offset
     .word   0x08        # segment
 
@@ -244,6 +244,10 @@ GLOBAL(bios_int)
     pushw   %es
     pushal
     
+    movl    $1, %eax
+    movl    $2, %ebx
+    addl    %eax, %ebx
+
     /* arg0: call number */
     movl    8(%ebp), %eax
     movb    %al, intnr
@@ -392,9 +396,9 @@ ENTRY(io_delay)
     ret
 END(io_delay)
 
-TXT_A20BIOS:    .asciz "Open A20 through BIOS\n\r"
-TXT_A20PCH:     .asciz "Open A20 through PCH\n\r"
-TXT_A20ERROR:   .asciz "A20 can't open\n\r"
+TXT_A20BIOS:    .asciz "Open A20 through BIOS\n"
+TXT_A20PCH:     .asciz "Open A20 through PCH\n"
+TXT_A20ERROR:   .asciz "A20 can't open\n"
 
     .align 16
 gdt_table:              // GDT Table

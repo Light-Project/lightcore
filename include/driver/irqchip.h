@@ -22,11 +22,12 @@ struct irqchip_device {
     uint32_t mask;
     void *data;
 
-    struct device *dev;
+    struct device *device;
 };
 
 state irqchip_pass(irqnr_t vector);
 
 state irqchip_register(struct irqchip_device *);
+void irqchip_init(void);
 
 #endif  /* _DRIVER_IRQCHIP_H_ */

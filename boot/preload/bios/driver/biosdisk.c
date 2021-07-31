@@ -64,7 +64,7 @@ static state legacy_read(char dev, uint8_t *buf, uint32_t lba, int count)
         
         bios_int(0x13, &ir, &or);
         if(or.ah) {
-            pr_boot("CHS read error: 0x%x\n\r", or.ah);
+            pr_boot("CHS read error: 0x%x\n", or.ah);
             return -EIO;
         }
         
@@ -87,7 +87,7 @@ static state lba_read(char dev, uint8_t *buf, uint32_t lba, int count)
     regs.ax = 0x41 << 8 ;
     bios_int(0x13, &regs, &regs);
     if(regs.ah != 0x01) {
-        pr_boot("LBA not supported: %d\n\r", regs.ah);
+        pr_boot("LBA not supported: %d\n", regs.ah);
         return -EIO;
     }
     
@@ -111,7 +111,7 @@ static state lba_read(char dev, uint8_t *buf, uint32_t lba, int count)
         /* Finally, LBA read transmission is initiated through int 13/42 */
         bios_int(0x13, &regs, &regs);
         if(regs.ah) {
-            pr_boot("LBA read error: 0x%x\n\r", regs.ah);
+            pr_boot("LBA read error: 0x%x\n", regs.ah);
             return -EIO;
         }
         

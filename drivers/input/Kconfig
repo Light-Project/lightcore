@@ -1,0 +1,6 @@
+menuconfig INPUT
+bool "Input device support"
+if INPUT
+
+
+endif

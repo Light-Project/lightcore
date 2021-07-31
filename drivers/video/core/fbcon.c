@@ -1,19 +1,23 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * frame buffer based console driver 
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
 #include <mm.h>
-#include <driver/fbcon.h>
-#include <console.h>
 #include <font.h> 
+#include <logo.h> 
+#include <console.h>
+#include <driver/fbcon.h>
+
+// static void fbcon_putc( , int xpos, int ypos)
+// {
+
+// }
 
 static void fbcon_write(struct console *con, 
                          const char *str, unsigned len)
 {
     // struct video_device *vdev = con->data;
-
-
 }
 
 struct console fb_con = {
@@ -23,8 +27,6 @@ struct console fb_con = {
 
 state fbcon_setup()
 {
-
-
     return -ENOERR;
 }
 
@@ -42,8 +44,5 @@ state fbcon_register(struct video_device *vdev)
 
 void __init fb_console_init()
 {
-    console_lock();
-
-    console_unlock();
 }
 

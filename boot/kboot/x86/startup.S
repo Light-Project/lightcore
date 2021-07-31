@@ -1,13 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- *  SPDX-License-Identifier: GPL-2.0-or-later
- *  boot/kboot/x86/startup.S
- *  x86 kboot entry
- *  (C) 2020 wzl
- * 
- *  Change Logs:
- *  Date            Notes
- *  2021-01-18      first version 
- * 
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
 #include <arch/x86/seg.h>
@@ -145,7 +138,6 @@ mem_detect:
     /* e820 over */
     cmpl    $0, %eax
     jne     1f
-    
     addw    $0x18, e820_pt
     
     jmp     mem_detect
@@ -154,7 +146,7 @@ mem_detect:
 e820_pt: .word e820_table
     
 Service_printf:
-    movb    $0x0e, %ah      // Service number
+    movb    $0x0e, %ah
     movb    $0x03, %bl
     jmp     printf_loop
 1:
@@ -195,9 +187,9 @@ idt_table:
     .word   0x0000      // IDT limit
     .long   0x00000000  // IDT addr
 
-TXT_A20BIOS:    .asciz "Open A20 through BIOS\n\r"
-TXT_A20PCH:     .asciz "Open A20 through PCH\n\r"
-TXT_A20ERROR:   .asciz "A20 can't open\n\r"
+TXT_A20BIOS:    .asciz "Open A20 through BIOS\n"
+TXT_A20PCH:     .asciz "Open A20 through PCH\n"
+TXT_A20ERROR:   .asciz "A20 can't open\n"
 
 END(startup16)
 

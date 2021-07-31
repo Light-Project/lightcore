@@ -169,9 +169,9 @@
  * Init text: 
  */
 
-#define INIT_TEXT                               \
-    *(.init.text .init.text.*)                  \
-    *(.text.startup)                            \
+#define INIT_TEXT                           \
+    *(.init.text .init.text.*)              \
+    *(.text.startup)                        \
     MEM_DISCARD(init.text*)
  
 /*
@@ -194,48 +194,58 @@
 #define DT_CPU_METHOD_TABLES()      DT_TABLE(CONFIG_SMP, cpu_method)
 #define DT_CPUIDLE_METHOD_TABLES()  DT_TABLE(CONFIG_CPU_IDLE, cpuidle_metho
         
-#define INIT_DT_TABLES                          \
-        _ld_init_dtb_start = .;                 \
-        KEEP(*(.init.dtb));                     \
-        _ld_init_dtb_end = .;
+#define INIT_DT_TABLES                      \
+    _ld_init_dtb_start = .;                 \
+    KEEP(*(.init.dtb));                     \
+    _ld_init_dtb_end = .;
 
 /*
  * Init data: Boot param table
  */
-#define INIT_PARAM(initsetup_align)             \
-        . = ALIGN(initsetup_align);             \
-        _ld_boot_param_start = .;               \
-        KEEP(*(.init.param))                    \
-        _ld_boot_param_end = .;
+#define INIT_PARAM(initsetup_align)         \
+    . = ALIGN(initsetup_align);             \
+    _ld_boot_param_start = .;               \
+    KEEP(*(.init.param))                    \
+    _ld_boot_param_end = .;
 
 /*
  * Init data: Initcall
  */
-#define INIT_CALLS_LEVEL(level)                 \
-        _ld_initcall##level##_start = .;        \
-        KEEP(*(.initcall_##level##.init))       \
-        KEEP(*(.initcall_##level##s.init))      \
+#define INIT_CALLS_LEVEL(level)             \
+    _ld_initcall##level##_start = .;        \
+    KEEP(*(.initcall_##level##.init))       \
+    KEEP(*(.initcall_##level##s.init))      \
 
-#define INIT_CALLS                              \
-        _ld_initcall_start = .;                 \
-        KEEP(*(.initcallearly.init))            \
-        INIT_CALLS_LEVEL(0)                     \
-        INIT_CALLS_LEVEL(1)                     \
-        INIT_CALLS_LEVEL(2)                     \
-        INIT_CALLS_LEVEL(3)                     \
-        INIT_CALLS_LEVEL(4)                     \
-        INIT_CALLS_LEVEL(5)                     \
-        INIT_CALLS_LEVEL(6)                     \
-        INIT_CALLS_LEVEL(7)                     \
-        _ld_initcall_end = .;
+#define INIT_CALLS                          \
+    _ld_initcall_start = .;                 \
+    KEEP(*(.initcallearly.init))            \
+    INIT_CALLS_LEVEL(0)                     \
+    INIT_CALLS_LEVEL(1)                     \
+    INIT_CALLS_LEVEL(2)                     \
+    INIT_CALLS_LEVEL(3)                     \
+    INIT_CALLS_LEVEL(4)                     \
+    INIT_CALLS_LEVEL(5)                     \
+    INIT_CALLS_LEVEL(6)                     \
+    INIT_CALLS_LEVEL(7)                     \
+    _ld_initcall_end = .;
         
-#define CONSOLE_INITCALL                        \
-        _ld_pre_console_initcall_start = .;     \
-        KEEP(*(.pre_console_initcall.init))     \
-        _ld_console_initcall_start = .;         \
-        KEEP(*(.console_initcall.init))         \
-        _ld_console_initcall_end = .;
-        
+#define CONSOLE_INITCALL                    \
+    _ld_pre_console_initcall_start = .;     \
+    KEEP(*(.pre_console_initcall.init))     \
+    _ld_console_initcall_start = .;         \
+    KEEP(*(.console_initcall.init))         \
+    _ld_console_initcall_end = .;
+
+#define IRQCHIP_INITCALL                    \
+    _ld_irqchip_initcall_start = .;         \
+    KEEP(*(.irqchip_initcall.init))         \
+    _ld_irqchip_initcall_end = .;
+
+#define CLKSRC_INITCALL                     \
+    _ld_clocksource_initcall_start = .;     \
+    KEEP(*(.clocksource_initcall.init))     \
+    _ld_clocksource_initcall_end = .;
+
 /*
  * bss (Block Started by Symbol) - uninitialized data
  * zeroed during startup
@@ -330,6 +340,8 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
         INIT_PARAM(align)                       \
         INIT_CALLS                              \
         CONSOLE_INITCALL                        \
+        IRQCHIP_INITCALL                        \
+        CLKSRC_INITCALL                         \
         _ld_data_section_end = .;               \
     }
     

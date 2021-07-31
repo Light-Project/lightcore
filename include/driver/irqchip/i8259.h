@@ -2,7 +2,7 @@
 #ifndef _CHIP_X86_PIC_H_
 #define _CHIP_X86_PIC_H_
 
-enum i8259_register {
+enum i8259_registers {
     I8259_CMD   = 0x00,
     I8259_DATA  = 0x01,
 };
@@ -45,8 +45,5 @@ enum i8259_register {
 #define PIC_EOI             0x20    /* End-of-interrupt command code */
 #define PIC_READ_IRR        0x0a    /* OCW3 irq ready next CMD read */
 #define PIC_READ_ISR        0x0b    /* OCW3 irq service next CMD read */
-
-#define PIC1_BASE           0x20 
-#define PIC2_BASE           0xa0
 
 #endif

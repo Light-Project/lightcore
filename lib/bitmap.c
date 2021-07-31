@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
+V// SPDX-License-Identifier: GPL-2.0-or-later
 /*
  * lib/bitmap.c
  * Helper functions for bitmap.h.

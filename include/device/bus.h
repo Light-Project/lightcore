@@ -2,22 +2,22 @@
 #ifndef _DEVICE_BUS_H_
 #define _DEVICE_BUS_H_
 
+#include <state.h>
 #include <device.h>
 #include <device/driver.h>
 
 struct device;
 struct driver;
 
-typedef struct bus_type {
-    const char      *name;      // The name of the bus
-    const char      *dev_name;
-    struct device  	*dev_root;
+struct bus_type {
+    const char *name;
+    struct device  *dev_root;
 
     state (*match)(struct device *dev, struct driver *drv);
     state (*probe)(struct device *dev);
-    void (*sync_state)(struct device *dev);
     state (*remove)(struct device *dev);
-    void (*shutdown)(struct device *dev);
+    state (*sync_state)(struct device *dev);
+    state (*shutdown)(struct device *dev);
     state (*resume)(struct device *dev);
     state (*online)(struct device *dev);
     state (*offline)(struct device *dev);
@@ -25,27 +25,10 @@ typedef struct bus_type {
     struct mutex mutex;
     list_t devices_list;  /* devices on this bus */
     list_t drivers_list;  /* drivers on this bus */
-} bus_type_t;
+};
 
-#define bus_for_each(bus, head)	\
-        list_for_each_entry(bus, head, )
-
-#define bus_for_each_device(device, bus) \
-        list_for_each_entry(device, &bus->devices_list, bus_list_device)
-
-#define bus_for_each_driver(driver, bus) \
-        list_for_each_entry(driver, &bus->drivers_list, bus_list_driver)
-
-state bus_probe_device(struct device *dev);
-state bus_add_device(struct device *drv);
-state bus_remove_device(struct device *drv);
-
-state bus_add_driver(struct driver *drv);
-state bus_remove_driver(struct driver *dev);
-
+state bus_bind_device(struct bus_type *bus, struct device *dev);
 state bus_register(struct bus_type *);
 void bus_unregister(struct bus_type *);
-
-void bus_init(void);
 
 #endif  /* _DEVICE_BUS_H_ */

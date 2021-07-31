@@ -1,5 +1,5 @@
 #include <fs.h>
-#include <system/syscall.h>
+#include <kernel/syscall.h>
 
 state kernel_execve(const char *file, const char *const *argv, const char *const *envp)
 {

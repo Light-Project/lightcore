@@ -1,4 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
 #define pr_fmt(fmt) "init: " fmt
 
 #include <types.h>
@@ -35,16 +39,10 @@ static void __init do_one_initcall(int level, initcall_entry_t *fn)
     initcall_t call;
     state ret;
 
-    pr_debug("[%s] starting %s...\n\r", initcall_level_names[level], fn->name);
-
     call = initcall_from_entry(fn);
     ret = call();
-
-    char *stat = "OK";
-    if(ret)
-        stat = "FAIL";
-
-    pr_debug("started %s %s. \n\r", fn->name, stat);
+    pr_debug("started %s %s %s. \n", initcall_level_names[level], 
+             fn->name, ret ?  "Fail" : "OK");
 }
 
 static void __init do_initcall_level(int level)

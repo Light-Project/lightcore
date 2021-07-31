@@ -229,7 +229,7 @@ enum floppy_version {
 #define FLOPPY_SECTOR_SIZE_16K  7
 
 #define FDC_NR      2
-#define DRIVE_NR    4
+#define DRIVE_NR    2
 
 #define FDC1_BASE   0x3f0
 #define FDC2_BASE   0x370

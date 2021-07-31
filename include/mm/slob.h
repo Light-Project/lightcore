@@ -4,8 +4,7 @@
 
 #include <list.h> 
 #include <asm/page.h>
-
-#ifndef __ASSEMBLY__
+#include <mm/gfp.h>
 
 #if PAGE_SHIFT < 15
 #define slobidx_t   uint16_t
@@ -22,5 +21,4 @@ struct slob_node {
 void *slob_alloc(size_t size, gfp_t gfp, int align);
 void slob_free(void *block);
 
-#endif	/* __ASSEMBLY__ */
 #endif /* _MM_SLOB_H_ */

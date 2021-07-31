@@ -1,1 +1,1 @@
-obj-y += core/ fb/
+obj-y += core/ vesa/

@@ -36,17 +36,13 @@ source "drivers/i2c/Kconfig"
 
 # source "drivers/i2s/Kconfig"
 
-# source "drivers/i3c/Kconfig"
+source "drivers/input/Kconfig"
 
-source "drivers/irq/Kconfig"
-
-# source "drivers/Kconfig/Kconfig"
+source "drivers/irqchip/Kconfig"
 
 source "drivers/led/Kconfig"
 
 # source "drivers/mmc/Kconfig"
-
-# source "drivers/motion/Kconfig"
 
 source "drivers/mtd/Kconfig"
 
@@ -64,7 +60,7 @@ source "drivers/rtc/Kconfig"
 
 # source "drivers/scsi/Kconfig"
 
-# source "drivers/sound/Kconfig"
+source "drivers/sound/Kconfig"
 
 # source "drivers/spi/Kconfig"
 
@@ -72,7 +68,7 @@ source "drivers/rtc/Kconfig"
 
 source "drivers/uart/Kconfig"
 
-# source "drivers/usb/Kconfig"
+source "drivers/usb/Kconfig"
 
 source "drivers/video/Kconfig"
 

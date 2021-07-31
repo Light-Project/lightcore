@@ -1,8 +1,7 @@
 #ifndef _ARCH_X86_TSS_H_
 #define _ARCH_X86_TSS_H_
 
-struct tss_entry 
-{
+struct tss_entry {
     uint16_t link;      // LINK
     uint16_t RES0;      // Reserved
     uint32_t esp0;      // ESP0

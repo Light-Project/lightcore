@@ -1,32 +1,28 @@
-/*
- *  SPDX-License-Identifier: GPL-2.0-or-later
- *  lightcore/include/kfifo.h
- *  light core kfifo lib
- *  (C) 2020 wzl
- * 
- *  Change Logs:
- *  Date            Notes
- *  2021-01-18      first version 
- * 
- */
-
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _KFIFO_H_
 #define _KFIFO_H_
-    
-#include <system/spinlock.h>
+
+#include <types.h>
 
 struct kfifo{
-    spinlock_t lock;
     char *buffer;
-    size_t size;
     size_t in, out;
+    size_t size;
 };
 
-extern struct kfifo *kfifo_alloc(size_t size);
-extern void kfifo_free(struct kfifo *fifo);
-extern state kfifo_reset(struct kfifo *fifo);
-extern size_t kfifo_len(struct kfifo *fifo);
-extern state kfifo_read(struct kfifo *fifo, uint8_t *buff, size_t size);
-extern state kfifo_write(struct kfifo *fifo, uint8_t *buff, size_t size);
+static inline size_t fifo_len(struct kfifo *fifo)
+{
+    return fifo->in - fifo->out;
+}
+
+static inline void fifo_reset(struct kfifo *fifo)
+{
+    fifo->in = fifo->out = 0;
+}
+
+void kfifo_read(struct kfifo *fifo, uint8_t *buff, size_t size);
+void kfifo_write(struct kfifo *fifo, uint8_t *buff, size_t size);
+struct kfifo *kfifo_alloc(size_t size);
+void kfifo_free(struct kfifo *fifo);
 
 #endif

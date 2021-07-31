@@ -20,6 +20,11 @@ typedef double	double_t;
 	}														\
 } while(0)
 
+#define DIV_ROUND_CLOSEST(x, divisor) ({        \
+    typeof(divisor)__divisor = divisor;         \
+    (((x)+ ((__divisor) / 2)) / (__divisor));   \
+})
+
 /* Get two 32 bit ints from a double */
 #define EXTRACT_WORDS(hi, lo, d)							\
 do {														\

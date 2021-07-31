@@ -1,5 +1,5 @@
 #include <asm/irq.h>
-#include <system/power.h>
+#include <kernel/power.h>
 
 
 

@@ -101,5 +101,3 @@ void uart8250_early_setup(void)
 
 }
 
-DT_EARLYCON_DECLARE(ns16550, "ns16550", uart8250_early_init);
-DT_EARLYCON_DECLARE(ns16550, "ns16550a", early_serial8250_setup);

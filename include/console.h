@@ -3,6 +3,8 @@
 
 #include <slist.h>
 
+
+
 #define CON_PRINTBUFFER	(1)
 #define CON_CONSDEV 	(2) /* Preferred console, /dev/console */
 #define CON_ENABLED	    (4)
@@ -29,6 +31,8 @@ typedef struct console {
 
 void console_lock(void);
 void console_unlock(void);
+
+void console_write(const char *str, unsigned int len);
 
 extern void console_register(console_t *);
 extern void console_unregister(console_t *);

@@ -5,10 +5,7 @@
 
 #include <types.h>
 
-#include <mm/vmem.h>
+void *ioremap(phys_addr_t pa, size_t size);
+void iounmap(void *addr);
 
-#ifndef __ASSEMBLY__
-
-
-#endif  /* __ASSEMBLY__ */
 #endif  /* _MM_IOREMAP_H_ */
