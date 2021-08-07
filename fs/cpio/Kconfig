@@ -1,7 +1,3 @@
 menuconfig FS_CPIO
-    bool "Cpio file system support"
-if FS_CPIO
-
-
-
-endif
+bool "Cpio file system support"
+depends on BLOCK

@@ -1,6 +1,9 @@
 menu "irq support"
 
-config CSKY_APB_INTC
+    config IRQCHIP_8259
+    bool "I8259 Interrupt Controller"
+    
+    config IRQCHIP_CSKY
     bool "C-SKY APB Interrupt Controller"
     depends on CSKY
     help

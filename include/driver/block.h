@@ -1,32 +1,43 @@
-
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _DRIVER_BLOCK_H_
 #define _DRIVER_BLOCK_H_
 
+#include <types.h>
 #include <state.h>
-#include <fs.h>
-// #include <driver/block/badblock.h>
+#include <list.h>
 
 struct block_device;
 
-struct block_ops {
-    state (*open)(struct block_device *, fmode_t);
-    state (*release)(struct block_device *, fmode_t);
-	state (*ioctl) (struct block_device *, fmode_t, unsigned, unsigned long);
-
+enum block_request_type {
+    BLOCK_REQ_READ,
+    BLOCK_REQ_WRITE,
+    BLOCK_REQ_FLUSH,
 };
 
-#define BLOCK_NAME_LEN  32
+struct block_request {
+    struct list_head list;          /* request list */
+    enum block_request_type type;   /* request type */
+
+    sector_t sector;
+    size_t sector_nr;
+    void *buffer;
+};
+
+struct block_ops {
+    state (*start)(struct block_device *);
+    state (*stop)(struct block_device *);
+    state (*enqueue)(struct block_device *, struct block_request *);
+    state (*dequeue)(struct block_device *, struct block_request *);
+};
 
 struct block_device {
-    char name[BLOCK_NAME_LEN];
-
     struct block_ops *ops;
-
 };
 
-state block_read(struct block_device *bdev);
-state block_write(struct block_device *bdev);
+/* block_part.c */
 
-state block_register(struct block_device *blk);
+/* core.c */
+state block_device_register(struct block_device *);
+state block_device_read(struct block_device *blk, void *buff, sector_t sector, size_t len);
 
-#endif
+#endif  /* _DRIVER_BLOCK_H_ */

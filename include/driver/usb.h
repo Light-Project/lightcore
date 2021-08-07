@@ -109,29 +109,6 @@ struct usb_ops {
     void (*ep_disable)(struct usb_host *, struct usb_endpoint *);
 };
 
-/* transfer.c */
-int usb_control_transfer(struct usb_device *udev, unsigned int pipe, uint8_t bRequestType, 
-                         uint8_t bRequest, uint16_t wValue, uint16_t wIndex, 
-                         void *data, uint16_t wLength, int timeout);
-int usb_bulk_transfer(struct usb_device *udev, unsigned int pipe, 
-                      void *data, int len, int *transferred, int timeout);
-int usb_interrupt_transfer(struct usb_device *udev, unsigned int pipe, 
-                           void *data, int len, int *transferred, int timeout);
-state usb_descriptor_read(struct usb_device *udev, uint8_t type,
-                          uint8_t index, void *buff, unsigned int size);
-state usb_descriptor_get(struct usb_device *udev, unsigned int size);
-
-/* driver.c */
-state usb_driver_register(struct usb_driver *);
-
-/* request.c */
-int usb_request_submit(struct usb_request *request);
-
-/* core.c */
-state usb_host_request_submit(struct usb_request *request);
-state usb_host_register(struct usb_host *);
-
-
 #define USB_CTRL_TIMEOUT	5000
 
 #define USB_PIPE_DEVICE(dev)    ((dev->devnr) & 0xff)
@@ -179,5 +156,27 @@ usb_pipe_endpoint(struct usb_device *udev, unsigned int pipe)
     endpoint = usb_pipein(pipe) ? udev->endpoint_in : udev->endpoint_out;
     return endpoint[usb_pipeendpoint(pipe)];
 }
+
+/* transfer.c */
+int usb_control_transfer(struct usb_device *udev, unsigned int pipe, uint8_t bRequestType, 
+                         uint8_t bRequest, uint16_t wValue, uint16_t wIndex, 
+                         void *data, uint16_t wLength, int timeout);
+int usb_bulk_transfer(struct usb_device *udev, unsigned int pipe, 
+                      void *data, int len, int *transferred, int timeout);
+int usb_interrupt_transfer(struct usb_device *udev, unsigned int pipe, 
+                           void *data, int len, int *transferred, int timeout);
+state usb_descriptor_read(struct usb_device *udev, uint8_t type,
+                          uint8_t index, void *buff, unsigned int size);
+state usb_descriptor_get(struct usb_device *udev, unsigned int size);
+
+/* driver.c */
+state usb_driver_register(struct usb_driver *);
+
+/* request.c */
+int usb_request_submit(struct usb_request *request);
+
+/* core.c */
+state usb_host_request_submit(struct usb_request *request);
+state usb_host_register(struct usb_host *);
 
 #endif  /* _DRIVER_USB_H_ */

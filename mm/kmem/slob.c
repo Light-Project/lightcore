@@ -3,7 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "slob-core: " fmt
+#define pr_fmt(fmt) "slob: " fmt
 
 #include <mm.h>
 #include <string.h>
@@ -222,7 +222,7 @@ void *slob_alloc(size_t size, gfp_t gfp, int align)
  */
 void slob_free(void *block)
 {
-    struct page *page = &va_to_page((size_t)block & PAGE_MASK);
+    struct page *page = va_to_page((size_t)block & PAGE_MASK);
     irqflags_t irq_save;
     
     spin_lock_irqsave(&lock, &irq_save);

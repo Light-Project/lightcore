@@ -10,14 +10,17 @@
 #define PAGE_MASK       (~(PAGE_SIZE-1))
 
 #define THREAD_SHIFT    (PAGE_SHIFT + 1)
-#define THREAD_SIZE     (PAGE_SIZE * 2)
+#define THREAD_SIZE     (_AC(1,UL) << THREAD_SHIFT)
 #define THREAD_MASK     (~(THREAD_SIZE - 1))
 
 #define PGDIR_SHIFT     22
 #define PTRS_PER_PGD    1024
-#define PTRS_PER_PTE	1024
+#define PTRS_PER_PTE    1024
+
+#define SECTION_SHIFT   24
+#define PHYS_BITS_MAX   32
 
 #ifndef __ASSEMBLY__
 
-#endif	/* __ASSEMBLY__ */
-#endif /* _ASM_X86_PAGE_H_ */
+#endif  /* __ASSEMBLY__ */
+#endif  /* _ASM_X86_PAGE_H_ */

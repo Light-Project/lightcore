@@ -1,7 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0 */
-
 #ifndef _ASM_CSKY_CACHE_H_
 #define _ASM_CSKY_CACHE_H_
+
+#include <arch/csky/regs.h>
 
 
 /* bytes per L1 cache line */

@@ -7,16 +7,19 @@
 
 #include <mm.h>
 #include <driver/dt.h>
+#include <driver/dt/fdt.h>
 #include <driver/dt/libfdt.h>
 #include <printk.h>
 
 #define DT_DEPTH_MAX    16
 
 uint32_t dt_crc32;
-void *dt_start_addr = NULL;
+void *dt_start_addr;
+unsigned int dt_root_addr_cells = DT_ROOT_ADDR_CELLS_DEFAULT;
+unsigned int dt_root_size_cells = DT_ROOT_SIZE_CELLS_DEFAULT;
 
-state __init dt_scan_node(state (*fn)(unsigned long node,
-        const char *uname, int depth, void *data), void *data)
+state __init dt_scan_node(state (*fn)(unsigned long node, const char *uname, 
+                                      int depth, void *data), void *data)
 {
     const void *node = dt_start_addr;
     const char *uname;
@@ -42,11 +45,8 @@ state __init dt_scan_node(state (*fn)(unsigned long node,
  *
  * This function is used to scan sub-nodes of a node.
  */
-int __init dt_scan_subnode(unsigned long parent,
-                    int (*it)(unsigned long node,
-                          const char *uname,
-                          void *data),
-                    void *data)
+int __init dt_scan_subnode(unsigned long parent, int (*it)(unsigned long node, 
+                           const char *uname,void *data), void *data)
 {
     const void *blob = dt_start_addr;
     int node;
@@ -90,8 +90,7 @@ unsigned long __init dt_get_root(void)
  * This function can be used within scan_flattened_dt callback to get
  * access to properties
  */
-const void *__init dt_get_prop(unsigned long node, const char *name,
-                       int *size)
+const void *__init dt_get_prop(unsigned long node, const char *name, int *size)
 {
     return fdt_getprop(dt_start_addr, node, name, size);
 }
@@ -125,9 +124,8 @@ populate_attribute(const void *blob, int offset, struct dt_node *node)
     return true;
 }
 
-static inline bool __init
-populate_node(const void *blob, int offset, struct dt_node *parent, 
-              struct dt_node **nodep)
+static inline bool __init populate_node(const void *blob, int offset, struct dt_node *parent, 
+                                        struct dt_node **nodep)
 {
     struct dt_node *node;
 	const char *path;
@@ -135,7 +133,7 @@ populate_node(const void *blob, int offset, struct dt_node *parent,
     int len;
 
     path = fdt_get_name(blob, offset, &len);
-    if(!path)
+    if (!path)
         return false;
 
     *nodep = node = kzalloc(sizeof(*node) + (++len), GFP_KERNEL);
@@ -151,8 +149,7 @@ populate_node(const void *blob, int offset, struct dt_node *parent,
     return populate_attribute(blob, offset, node);
 }
 
-static inline struct dt_node * __init
-populate_bus(const void *blob, struct dt_node *parent)
+static inline struct dt_node * __init populate_bus(const void *blob, struct dt_node *parent)
 {
     int offset, depth = 0, sdepth = 0;
     struct dt_node *nodes[DT_DEPTH_MAX], *bus = NULL;
@@ -170,7 +167,7 @@ populate_bus(const void *blob, struct dt_node *parent)
             continue;
 
         if (!populate_node(blob, offset, 
-                          nodes[depth], &nodes[depth + 1]))
+            nodes[depth], &nodes[depth + 1]))
             return NULL;
 
         if (!bus)
@@ -180,8 +177,7 @@ populate_bus(const void *blob, struct dt_node *parent)
     return bus;
 }
 
-struct dt_node * __init dt_populate_table(const void *table, 
-                                          struct dt_node *parent)
+struct dt_node * __init dt_populate_table(const void *table, struct dt_node *parent)
 {
 
     if (!table) {

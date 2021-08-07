@@ -4,4 +4,4 @@
 #
 
 obj-y += cpu/ device/ irq/ lock/ printk/ sched/ task/
-obj-y += crash.o sleep.o 
+obj-y += crash.o sleep.o syscall.o

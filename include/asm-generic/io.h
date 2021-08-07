@@ -378,11 +378,7 @@ static inline void writesq(volatile void *addr, const void *buffer,
 #endif /* CONFIG_ARCH_64BIT */
 
 #ifndef PCI_IOBASE
-#define PCI_IOBASE ((void __iomem *)0)
-#endif
-
-#ifndef IO_SPACE_LIMIT
-#define IO_SPACE_LIMIT 0xffff
+#define PCI_IOBASE ((void *)0)
 #endif
 
 /*

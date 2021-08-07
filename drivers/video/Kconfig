@@ -6,17 +6,20 @@ if VIDEO
     bool "frame buffer console driver"
     select FONT
     select FONT_6X8
-
+    
+    config VIDEO_GX6605S
+    bool "Support Nationalchip gx6605s framebuffer"
+    
+    config VIDEO_VESA
+    bool "Support vesa device"
+    
     config VIDEO_BOCHS
-    
-    menuconfig VIDEO_BOCHS
     bool "Support for bochs dispi vga interface (qemu stdvga)"
-    if VIDEO_BOCHS
+    depends on VIDEO_VESA
     
-    endif
-    
-    menuconfig VIDEO_VBOX
+    config VIDEO_VBOX
     bool "Support for vbox dispi vga interface"
+    depends on VIDEO_VESA
     
 endif
  

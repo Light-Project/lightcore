@@ -1,5 +1,6 @@
 #include <asm-generic/kernel.lds.h>
 #include <asm/page.h>
+#include <asm/cache.h>
 
 OUTPUT_ARCH(csky)
 ENTRY(boot_head)

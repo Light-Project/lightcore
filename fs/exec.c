@@ -14,4 +14,3 @@ void execve()
     
     
 }
-SYSCALL_ENTRY(syscall_execve, execve, 5);

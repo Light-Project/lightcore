@@ -1,3 +1,3 @@
 obj-y += core/
 
-obj-y += i8259.o
+obj-$(CONFIG_IRQCHIP_8259) += i8259.o

@@ -7,6 +7,7 @@
 
 #include <asm-generic/header.h>
 #include <asm/page.h>
+#include <asm/regs.h>
 #include <linkage.h>
  
     .section    .startup,"ax"
@@ -21,10 +22,12 @@ END(boot_head)
     .section    .init.text,"ax"
     .type       init, %function
     
-ENTRY(init)    
+ENTRY(init)
+    mfcr    r1, cr0
+    bseti   r1, 9
+    mtcr    r1, cr0
 
-Bss_segment_Init:
-    lrw     r1, 0
+    xor     r1, r1
     lrw     r13, _ld_bss_start
     lrw     r14, _ld_bss_end
     jmpi    Bss_loop
@@ -35,15 +38,10 @@ Bss_loop:
     cmphs   r13, r14
     bf      1b
 
-env:
     lrw     r1, init_thread_union + THREAD_SIZE
     mov     sp, r1
 
-    lrw     r1, boot_head
-    ld.w    r1, (r1, 0x10)
-    
     jsri    kernel_start
-    
 END(init)
     
 /* Stop the CPU and most peripherals */    

@@ -1,6 +1,5 @@
 menuconfig PRELOAD
     bool "Builtin preload(Replace bootloader)"
-    default y
     
 if PRELOAD
 

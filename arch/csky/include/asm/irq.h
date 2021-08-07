@@ -1,10 +1,11 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _ASM_CSKY_IRQ_H
 #define _ASM_CSKY_IRQ_H
 
 #include <types.h>
-#include <asm/reg_ops.h>
-
-#define irqflags_t  size_t
+#include <asm/regs.h>
+#include <arch/csky/interrupt.h>
+#include <asm-generic/irq.h>
 
 static inline void arch_irq_disable()
 {
@@ -35,5 +36,6 @@ static inline void arch_irq_restore(irqflags_t flags)
     mtcr("psr", flags);
 }
 
+void arch_irq_init(void);
 
 #endif

@@ -9,18 +9,24 @@
     model = "X86 IBM compatible computer";
     #address-cells = <1>;
     #size-cells = <1>;
-    interrupt-parent = <&pic>;
 
+    memory@0 {
+        device_type = "memory";
+        reg = <0x00000000 0x000a0000>,
+              <0x00100000 0x03f00000>;
+    };
+    
     isa {
-        compatible = "isa-bus";
         #address-cells = <1>;
         #size-cells = <1>;
+        compatible = "isa-bus";
+        interrupt-parent = <&pic>;
         ranges;
     
         pic: interrupt-controller@20 {
-            compatible = "i8259";
             #interrupt-cells = <1>;
             #address-cells = <0>;
+            compatible = "i8259";
             interrupt-controller;
             reg = <0x0020 2>, <0x00a0 2>;
         };

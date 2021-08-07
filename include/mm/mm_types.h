@@ -15,6 +15,7 @@ struct slob_page {
 struct page {
     uint32_t order:4;
     uint32_t region_type:3;
+    uint32_t sparce_nr:8;
 
     struct list_head free_list;
 

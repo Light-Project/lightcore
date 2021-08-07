@@ -6,7 +6,7 @@
 
 asmlinkage void entry_divide_error(void);
 asmlinkage void entry_nmi(void);
-asmlinkage void entry_syscall(void);
+asmlinkage void entry_syscall_80(void);
 asmlinkage void entry_general_protection(void);
 asmlinkage void entry_generic_interrupt(void);
 

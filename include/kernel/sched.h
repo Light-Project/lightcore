@@ -3,7 +3,6 @@
 #define _KERNEL_SCHED_H_
 
 #include <list.h>
-#include <asm/percpu.h>
 
 struct task {
 

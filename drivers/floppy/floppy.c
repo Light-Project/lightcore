@@ -360,28 +360,12 @@ static enum floppy_version floppy_version(int fdc)
 	return FDC_82078_UNKN;
 }
 
-static state floppy_open(struct block_device *bdev, fmode_t mode)
-{
-    return -ENOERR;   
-}
-
-static state floppy_release(struct block_device *bdev, fmode_t mode)
-{
-    
-    return -ENOERR;   
-}
-static struct block_ops floppy_ops = {
-    .open = floppy_open,
-    .release = floppy_release,
-};
-
 static state floppy_probe(struct platform_device *pdev)
 {
-    struct block_device *bdev;
+    // struct block_device *bdev;
 
-    bdev = kmalloc(sizeof(*bdev), GFP_KERNEL);
-    bdev->ops = &floppy_ops;
-    // block_register(bdev);
+    // bdev = kmalloc(sizeof(*bdev), GFP_KERNEL);
+    // // block_device_register(bdev);
 
     return -ENOERR; 
 }

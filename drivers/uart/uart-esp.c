@@ -136,6 +136,8 @@ static state espressif_uart_probe(struct platform_device *device)
     struct uart_port *port;
 
     esp_port = kmalloc(sizeof(*esp_port), GFP_KERNEL);
+    if (!esp_port)
+        return -ENOMEM;
 
     port = &esp_port->port;
     port->ops = &esp_uart_ops;

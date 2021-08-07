@@ -1,8 +1,4 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-/*
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
- */
-
 #ifndef _DRIVER_UART_CH340_H_
 #define _DRIVER_UART_CH340_H_
 
@@ -44,7 +40,7 @@ enum ch340_register {
 /* BREAK bitflag definitions */
 #define CH340_BREAK_BITS            0x01
 
-/* BREAK bitflag definitions */
+/* LCR bitflag definitions */
 #define CH340_LCR_ENABLE_RX         0x80        // Enable receive
 #define CH340_LCR_ENABLE_TX         0x40        // Enable transport
 #define CH340_LCR_MARK_SPACE        0x20        // Mark or space parity

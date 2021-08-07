@@ -7,9 +7,6 @@
 #include <kernel/kobject.h>
 #include <mod_devicetable.h>
 
-extern void *dt_start_addr;
-extern uint32_t dt_crc32;
-
 extern struct dt_node *dt_root;
 extern struct dt_node *dt_chosen;
 extern struct dt_node *dt_stdout;
@@ -37,31 +34,6 @@ extern struct dt_node *dt_root;
 extern struct dt_node *dt_chosen;
 extern struct dt_node *dt_stdout;
 
-#define _DT_DECLARE(table, name, compat, fn, fn_type)   \
-    static const struct dt_device_id __dt_table_##name  \
-        __used __section("__" #table "_dt_table")       \
-        __aligned(__alignof__(struct dt_device_id))     \
-        = { .compatible = compat,                       \
-            .data = (fn == (fn_type)NULL) ? fn : fn  }
-        
-#ifdef CONFIG_FRAMEWORK_DT
-#define DT_DECLARE(table, name, compat, fn, fn_type)    \
-        _DT_DECLARE (table, name, compat, fn, fn_type)
-#else
-#define DT_DECLARE(table, name, compat, fn, fn_type)
-#endif
-        
-typedef void (* dt_init_fn_1)(struct dt_node *);
-typedef int (* dt_init_fn_1_ret)(struct dt_node *);
-typedef int (* dt_init_fn_2)(struct dt_node *, struct dt_node *);
-    
-#define DT_DECLARE_1(table, name, compat, fn)       \
-        DT_DECLARE(table, name, compat, fn, dt_init_fn_1)
-#define DT_DECLARE_1_RET(table, name, compat, fn)   \
-        DT_DECLARE(table, name, compat, fn, dt_init_fn_1_ret)
-#define DT_DECLARE_2(table, name, compat, fn)       \
-        DT_DECLARE(table, name, compat, fn, dt_init_fn_2)
-
 #define dt_have_child(node) \
     slist_first_entry_or_null(&prev->child, struct dt_node, sibling)
 #define dt_for_each_child(_child, bus) \
@@ -81,14 +53,5 @@ static inline bool dt_attribute_read_bool(const struct dt_node *node,
     attribute = dt_attribute_find(node, name);
     return !!attribute;
 }
-
-/* early.c */
-state early_dt_scan(void *dt_start);
-
-/* fdt.c */
-struct dt_attribute *dt_find_attribute(const struct dt_node *node, const char *name);
-state dt_scan_node(state (*fn)(unsigned long node, const char *uname, int depth, void *data), void *data);
-const void *dt_get_prop(unsigned long node, const char *name, int *size);
-void dt_init(void);
 
 #endif

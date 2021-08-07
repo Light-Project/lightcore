@@ -73,9 +73,9 @@ static state bochs_hw_init(struct pci_device *pdev)
         size = min(mem, size);
     }
 
-    vesa->vram_start = ioremap(addr, size);
-    vesa->vram_size  = size;
-    if(!vesa->vram_start)
+    vesa->video.frame_buffer = ioremap(addr, size);
+    vesa->video.frame_size = size;
+    if(!vesa->video.frame_buffer)
         return -ENOMEM;
     
     pr_info("Framebuffer size %ldKiB @ 0x%lx\n", size / 1024, addr);
@@ -115,7 +115,6 @@ static state bochs_probe(struct pci_device *pdev, int pdata)
     video_register(&vesa->video);
 
     vesa_ready = true;
-
     return -ENOERR;
 }
 
@@ -124,8 +123,7 @@ static state bochs_remove(struct pci_device *pdev)
     struct vesa_device *vesa = pci_get_devdata(pdev);
 
     /* Deinit framebuffer */
-    memset(vesa->vram_start, 0x00, vesa->vram_size);
-    iounmap(vesa->vram_start);
+    iounmap(vesa->video.frame_buffer);
     
     /* Deinit configuration space */
     if(vesa->mmio)

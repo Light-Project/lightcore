@@ -26,7 +26,9 @@ void console_write(const char *str, unsigned int len)
         return;
     }
 
+#ifdef CONFIG_PRE_PRINTK
     pre_console->write(pre_console, str, len);
+#endif
 } 
 
 

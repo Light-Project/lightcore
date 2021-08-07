@@ -252,8 +252,9 @@ void __weak __init vmem_init(void)
     struct vm_area *vm;
 
     vm = kzalloc(sizeof(*vm), GFP_KERNEL);    
-    if (unlikely(!vm))
-        return;
+    if (unlikely(!vm)) {
+        panic("vmem initialization failed");
+    }
 
     vm->addr = CONFIG_HIGHMAP_OFFSET;
     vm->size = 0x10000000 - 1;

@@ -3,7 +3,6 @@
 #define _MM_MEMMODEL_H_
 
 #include <mm/mm_types.h>
-
 #include <asm/page.h>
 
 #define PAGE_ORDER_MAX  11
@@ -16,34 +15,67 @@ struct mem_section {
 
 #define PAGE_NR ((PAGE_MASK >> PAGE_SHIFT) + 1)
 #define PAGE_BITMAP_NR (PAGE_NR / MSIZE)
-extern struct page page_map[PAGE_NR];
+extern struct page page_map[];
 
-#define page_to_nr(_page)   ((unsigned int)(((size_t)(_page) - (size_t)page_map) / sizeof(struct page)))
-#define nr_to_page(pnr)     (page_map[pnr])
+#define page_to_nr(pg)  ((unsigned long)((pg) - page_map))
+#define nr_to_page(pnr) (&page_map[pnr])
+
+static inline void memmodel_init(void) {}
 
 /* Sparce Memory model */
 #elif CONFIG_SPARCEMEM
 
-struct mem_section {
-    struct list_head list;
+#define SECTIONS_WIDE (PHYS_BITS_MAX - SECTION_SHIFT)
+#define SECTIONS_PFN_SHIFT (SECTION_SHIFT - PAGE_SHIFT)
+
+#define SECTIONS_NR (1UL << SECTIONS_WIDE)
+#define PAGES_PER_SECTION (1UL << SECTIONS_PFN_SHIFT)
+
+struct sparce_block {
+    struct page *page_map;
+    size_t present:1;
 };
 
-#define page_to_nr(_page)   ((unsigned int)(((size_t)(_page) - (size_t)page_map) / sizeof(struct page)))
-#define nr_to_page(pnr)
+extern struct sparce_block sparce_map[];
 
-#define for_each_section()
+#define sparce_base(sp) \
+    ((unsigned long)((sp) - sparce_map) << SECTIONS_PFN_SHIFT)
+
+static inline unsigned long 
+sparce_page_nr(const struct sparce_block *sparce, const struct page *page)
+{
+    return sparce_base(sparce) + (page - sparce->page_map);
+}
+
+static inline struct page *
+sparce_nr_page(const struct sparce_block *sparce, unsigned long pnr)
+{
+    if(!sparce->present)
+        return NULL;
+    return &sparce->page_map[pnr - sparce_base(sparce)];
+}
+
+#define page_to_nr(pg) ({                                   \
+    const struct page *__page = (pg);                       \
+    sparce_page_nr(&sparce_map[__page->sparce_nr], __page); \
+})
+
+#define nr_to_page(pnr) ({                                                      \
+    unsigned int __page_nr = pnr;                                               \
+    sparce_nr_page(&sparce_map[(__page_nr) >> SECTIONS_PFN_SHIFT], __page_nr);  \
+})
 
 #endif
 
-#define va_to_pa(va)    ((phys_addr_t)(va) - CONFIG_PAGE_OFFSET)
-#define pa_to_va(pa)    ((void *)((pa) + CONFIG_PAGE_OFFSET))
+#define va_to_pa(va)        ((phys_addr_t)(va) - CONFIG_PAGE_OFFSET)
+#define pa_to_va(pa)        ((void *)((pa) + CONFIG_PAGE_OFFSET))
 
-#define page_to_pa(page)    ((phys_addr_t)page_to_nr(page) << PAGE_SHIFT)
+#define page_to_pa(page)    (page_to_nr(page) << PAGE_SHIFT)
 #define pa_to_page(pa)      (nr_to_page(pa >> PAGE_SHIFT))
 
 #define page_to_va(page)    (pa_to_va(page_to_pa(page)))
 #define va_to_page(address) (pa_to_page(va_to_pa(address)))
 
-struct mem_section *mem_section_add(int region, phys_addr_t addr, size_t size);
+void memmodel_init(void);
 
 #endif  /* _MM_MEMMODEL_H_ */

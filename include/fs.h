@@ -6,6 +6,7 @@
 #include <bits.h>
 #include <state.h>
 #include <list.h>
+#include <time.h>
 
 typedef enum fmode {
     FMODE_RDONLY    = BIT(0),
@@ -21,41 +22,46 @@ struct file;
 struct inode;
 struct super_block;
 
-struct file_ops {
-    loff_t (*llseek)(struct file *file, loff_t, int);
-    state (*read)(struct file *file, char *, size_t, loff_t *);
-    state (*write)(struct file *file, const char *, size_t, loff_t *);
+// struct file_ops {
+//     state (*read)(struct file *fp, void *dest, size_t len, loff_t *);
+//     state (*write)(struct file *fp, const void *src, size_t len, loff_t *);
+//     state (*mmap)(struct file *fp);
 
-};
+//     state (*open) (struct inode *, struct file *);
+//     state (*release) (struct inode *, struct file *);
+//     state (*flush) (struct file *, fl_owner_t id);
+// };
 
-struct inode_ops {
-    // struct dentry *(*lookup)(struct inode *,struct dentry *, unsigned int);
-	// int (*readlink) (struct dentry *, char *, int);
+// struct inode_ops {
+//     struct dentry *(*lookup)(struct inode *,struct dentry *, unsigned int);
+//     state (*create)(struct user_namespace *, struct inode *,struct dentry *, umode_t, bool);
 
-	// int (*create) (struct user_namespace *, struct inode *,struct dentry *,
-	// 	       umode_t, bool);
-	// int (*link) (struct dentry *,struct inode *,struct dentry *);
-	// int (*unlink) (struct inode *,struct dentry *);
-	// int (*symlink) (struct user_namespace *, struct inode *,struct dentry *,
-	// 		const char *);
-	// int (*mkdir) (struct user_namespace *, struct inode *,struct dentry *,
-	// 	      umode_t);
-	// int (*rmdir) (struct inode *,struct dentry *);
+//     state (*readlink) (struct dentry *, char *, int);
+//     state (*link)(struct dentry *,struct inode *,struct dentry *);
+//     state (*unlink)(struct inode *,struct dentry *);
+//     state (*symlink)(struct user_namespace *, struct inode *,struct dentry *, const char *);
 
-};
+//     state (*mkdir) (struct user_namespace *, struct inode *,struct dentry *, umode_t);
+//     state (*rmdir) (struct inode *,struct dentry *);
+// };
 
 struct sb_ops {
     void (*sync)(struct super_block *);
 };
 
 struct file {
-
-
+    enum fmode fmode;
+    struct file_ops *ops;
 };
 
 struct inode {
+    umode_t mode;
+    uid_t   uid;
+    gid_t   gid;
 
-
+    struct timespec atime;  /* access time */
+    struct timespec mtime;  /* modify time */
+    struct timespec ctime;  /* change time */
 };
 
 struct super_block {
@@ -68,7 +74,6 @@ struct fs_type {
 };
 
 state kernel_execve(const char *file, const char *const *argv, const char *const *envp);
-
 state filesystem_register(struct fs_type *fs);
 
 #endif  /* _FS_H_ */

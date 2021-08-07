@@ -50,8 +50,6 @@ pdt_alloc_node(struct dt_node *node)
 {
     struct platform_device *pdev;
 
-    pr_debug("New device: %s\n", node->path);
-
     pdev = platform_device_alloc(NULL, 0);
     if(!pdev)
         return NULL;
@@ -68,6 +66,8 @@ pdt_populate_resource(struct platform_device *pdev)
 
     res_nr = dt_address_nr(pdev->dt_node);
     res = kzalloc(sizeof(*res) * res_nr, GFP_KERNEL);
+    if (!res)
+        return -ENOMEM;
 
     for (count = 0; count < res_nr; ++count) {
     }
@@ -86,7 +86,8 @@ static state platform_dt_setup_node(struct dt_node *node)
     if(!pdev)
         return -ENOMEM;
 
-    pdt_populate_resource(pdev);
+    pr_debug("New device: %s\n", node->path);
+    // pdt_populate_resource(pdev);
 
     return device_register(&pdev->device);
 }
@@ -115,10 +116,11 @@ state platform_dt_setup_bus(struct dt_node *bus,
 
 void __init platform_dt_init(void)
 {
-    struct dt_node *root = dt_root;
     struct dt_node *bus;
 
-    dt_for_each_child(bus, root) {
+    if (!dt_root)
+        return;
+
+    dt_for_each_child(bus, dt_root)
         platform_dt_setup_bus(bus, dt_bus_table);
-    }
 }

@@ -10,15 +10,13 @@
 #include <kernel/spinlock.h>
 #include <rbtree.h>
 #include <list.h>
+#include <mm.h>
+#include <mm/ioremap.h>
 #include <export.h>
 #include <printk.h>
 
-#include <mm.h>
-#include <mm/ioremap.h>
-
 #include <asm/pgalloc.h>
 
-// static SPIN_LOCK(ioremap_lock);
 static LIST_HEAD(ioremap_list);
 
 struct ioremap {
@@ -33,13 +31,11 @@ struct ioremap {
 static struct ioremap *ioremap_find(phys_addr_t start, phys_addr_t end)
 {
     struct ioremap *tmp, *io = NULL;
-
     list_for_each_entry(tmp, &ioremap_list, list)
         if((tmp->start <= start) && (tmp->end >= end)) {
             io = tmp;
             break;
         }
-    
     return io;
 }
 

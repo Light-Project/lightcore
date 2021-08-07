@@ -15,9 +15,8 @@
 struct vesa_device {
     struct  video_device video;
     void    *mmio;
-    void    *vram_start;
-    size_t  vram_size;
 };
+
 #define video_to_vesa(video_device) \
     container_of(video_device, struct vesa_device, video)
 
@@ -48,7 +47,7 @@ static inline void vesa_write(struct vesa_device *vesa,
     }
 }
 
-static state vesa_setmode(struct video_device *vdev)
+static inline state vesa_setmode(struct video_device *vdev)
 {
     struct vesa_device *vesa = video_to_vesa(vdev);
     const struct video_mode *mode = vdev->cur_mode;

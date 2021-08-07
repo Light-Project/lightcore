@@ -14,16 +14,16 @@ struct acpi_device_id {
 #define PLATFORM_NAME_LEN 32
 
 struct platform_device_id {
-    char        name[PLATFORM_NAME_LEN];
+    char name[PLATFORM_NAME_LEN];
     const void *data;
 };
 
 #define DT_NAME_LEN 32
 
 struct dt_device_id {
-    char        name[32];
-    char        type[32];
-    char        compatible[128];
+    char name[32];
+    char type[32];
+    char compatible[128];
 };
 
 #define PCI_ANY_ID  (~0)

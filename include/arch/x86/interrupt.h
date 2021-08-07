@@ -70,14 +70,14 @@ enum fault_vector {
     NM_FAULT        = 7,    /* Device Not Available             Floating-point or WAIT/FWAIT instruction.                                   */
     DF_ABORT        = 8,    /* Double Fault                     Any instruction that can generate an exception, an NMI, or an INTR.         */
     TS_FAULT        = 10,   /* Coprocessor Segment Overrun      Task switch or TSS access.                                                  */
-    NP_FAULT        = 11,   /* Segment Not Present              Loading segment registers or accessing system segments.                     */                            
-    SS_FAULT        = 12,   /* Stack-Segment Fault              Stack operations and SS register loads.                                     */           
+    NP_FAULT        = 11,   /* Segment Not Present              Loading segment registers or accessing system segments.                     */
+    SS_FAULT        = 12,   /* Stack-Segment Fault              Stack operations and SS register loads.                                     */
     GP_FAULT        = 13,   /* General Protection               Any memory reference and other protection checks.                           */
     PF_FAULT        = 14,   /* Page Fault                       Any memory reference.                                                       */
-    MF_FAULT        = 16,   /* x87 FPU Floating-Point Error     x87 FPU floating-point or WAIT/FWAIT                                        */                  
+    MF_FAULT        = 16,   /* x87 FPU Floating-Point Error     x87 FPU floating-point or WAIT/FWAIT                                        */
     AC_FAULT        = 17,   /* Alignment Check                  Any data reference in memory                                                */
     MC_ABORT        = 18,   /* Machine Check                    Error codes (if any) and source are model dependent                         */
-    XM_FAULT        = 19,   /* SIMD Floating-Point Exception    SSE/SSE2/SSE3 floating-point instructions                                   */                       
+    XM_FAULT        = 19,   /* SIMD Floating-Point Exception    SSE/SSE2/SSE3 floating-point instructions                                   */
     VE_FAULT        = 20,   /* Virtualization Exception         EPT violations                                                              */
     CP_FAULT        = 21,   /* Control Protection Exception     RET, IRET, RSTORSSP, and SETSSBSY                                           */
 };

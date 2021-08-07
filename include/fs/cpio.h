@@ -18,6 +18,8 @@ struct cpio_inode_old {
     uint16_t filesizes[2];
 } __packed;
 
+#define CPIO_OLD_MAGIC  0xc701
+
 struct cpio_inode_odc {
     uint8_t magic[6];       /* 0x00: "070707" for odc */
     uint8_t dev[6];
@@ -31,6 +33,8 @@ struct cpio_inode_odc {
     uint8_t namesize[6];
     uint8_t filesize[11];
 } __packed;
+
+#define CPIO_ODC_MAGIC  "070707"
 
 struct cpio_inode_newc {
     uint8_t magic[6];       /* 0x00: "070701" for newc */
@@ -49,7 +53,7 @@ struct cpio_inode_newc {
     uint8_t check[8];       /* 0x66: 0 for "new" portable format; for CRC format the sum of all the bytes in the file */
 } __packed;
 
-#define CP_IFMT 0170000		/* Mask for all file type bits.  */
+#define CPIO_NEWC_MAGIC  "070701"
 
 enum cpio_mode {
     CP_IFBLK    = 0060000,  /* blockdev */

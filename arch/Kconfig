@@ -27,16 +27,9 @@ prompt "Architecture Select"
     config ARCH_CSKY
     bool "C-SKY"
     select BOOT_HAS_MAP
+    select ARCH_HAS_HIMEM
     select ARCH_32BIT       
     select ARCH_HAS_MMU
-
-    config ARCH_M68K
-    bool "M68k"
-    select ARCH_32BIT
-    select ARCH_HAS_MMU
-        
-    config ARCH_MIPS
-    bool "MIPS"
 
     config ARCH_RISCV
     bool "RISC-V"

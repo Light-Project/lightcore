@@ -11,6 +11,8 @@
 #include <mm/ioremap.h>
 #include <mm/memblock.h>
 
+extern char _ld_startup_start;
+extern char _ld_startup_end;
 extern char _ld_text_start;
 extern char _ld_text_end;
 extern char _ld_rodata_rodata_start;
@@ -27,7 +29,6 @@ extern char _ld_image_end;
 
 #define page_align(addr) align_high(addr, PAGE_SIZE)
 #define page_aligned(addr) aligned(addr, PAGE_SIZE)
-
 
 void mem_init(void);
 

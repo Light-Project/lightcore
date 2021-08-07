@@ -26,6 +26,9 @@ struct usb_device *usb_device_alloc(struct usb_bus *bus, struct usb_device *pare
     struct usb_device *udev;
     
     udev = kzalloc(sizeof(*udev), GFP_KERNEL);
+    if (!udev)
+        return NULL;
+
     udev->bus = bus;
 
     udev->device.bus = &usb_bus_type;

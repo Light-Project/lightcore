@@ -21,7 +21,7 @@ void context_switch(struct task *prev, struct task *next)
     }
 
     /* it's ready to switch now. */
-    arch_switch(prev, next);
+    // arch_switch(prev, next);
 
 
 }

@@ -13,5 +13,6 @@
 | generic-ehci  | 0x00900000 | 0x400     | 59        |
 | generic-ohci0 | 0x00a00000 | 0x400     | 58        |
 | generic-ohci1 | 0x00b00000 | 0x400     | 57        |
+| gx6605s-vpu   | 0x04800000 |           | None      |
 | Internal DDR2 | 0x10000000 | 0x4000000 | None      |
 

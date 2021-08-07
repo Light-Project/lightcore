@@ -26,7 +26,6 @@ static struct platform_driver gx6605_driver = {
         .name = DRIVER_NAME,
     },
     .dt_table = gx6605_device_id,
-//     .probe = gx6605_probe,
 };
 
 static state gx6605_init(void)

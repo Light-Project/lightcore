@@ -56,7 +56,6 @@ void panic(const char *str, ...)
     
 out:
     halt();
-    while(1);
 } 
 
 void pr_init(void (*fun)(const char *))

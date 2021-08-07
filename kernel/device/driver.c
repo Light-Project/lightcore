@@ -54,7 +54,6 @@ struct driver *driver_find(struct bus_type *bus, const char *name)
 state driver_register(struct driver *drv)
 {
     struct driver *other;
-    state ret;
 
     if(!drv)
         return -EINVAL;
@@ -67,11 +66,7 @@ state driver_register(struct driver *drv)
 
     list_head_init(&drv->devices_list);
     
-    ret = bus_driver_add(drv);
-    if (ret)
-        return ret;
-
-    return ret;
+    return bus_driver_add(drv);
 }
 
 /**

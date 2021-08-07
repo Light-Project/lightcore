@@ -19,17 +19,18 @@ static size_t patterns[] = {
 
 static void bad_block(void *start, size_t size)
 {
-    pr_warn("bad memory size %ld @ 0xlx\n", size, start);
+    pr_warn("Bad block size %ld @ 0xlx\n", size, start);
+    memblock_reserve(va_to_pa(start), size);
 }
 
 static void __init memtest_once(size_t pattern, size_t *start, size_t *end)
 {
     size_t *walk, *bad_start = NULL;
 
-    for(walk = start; walk < end; ++walk)
+    for (walk = start; walk < end; ++walk)
         *walk++ = pattern;
 
-    for(walk = start; walk < end; ++walk) {
+    for (walk = start; walk < end; ++walk) {
         if(likely(*walk == pattern))
             continue;
         /* Bad memory start */

@@ -96,6 +96,7 @@ static inline void *pci_get_devdata(const struct pci_device *pdev)
 {
     return dev_get_devdata(&pdev->dev);
 }
+
 static inline void pci_set_devdata(struct pci_device *pdev, void *data)
 {
     dev_set_devdata(&pdev->dev, data);

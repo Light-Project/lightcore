@@ -67,7 +67,7 @@ static state i386pci_probe(struct platform_device *pdev)
 }
 
 static struct dt_device_id i386pci_id[] = {
-    {.compatible = "i386-pci"},
+    { .compatible = "i386-pci" },
     { }, /* NULL */
 };
 

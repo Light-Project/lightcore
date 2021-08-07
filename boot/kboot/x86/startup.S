@@ -10,6 +10,8 @@
 #define A20_FAST    (0x000100)
 #define A20_FULL    (0x200000)
 
+#define E820_ENTRY_MAX  128
+
 #define printf(str)             \
         movw $str, %si;         \
         call Service_printf
@@ -121,29 +123,35 @@ IO_DELAY:
     ret
     
 a20test:
-
     ret
 
 mem_detect:
+    movw   $E820_ENTRY_MAX, %cx
+    
+e820_loop:
     movw    $0xe820, %ax
-    movl    $0x534d4150,%edx    /* ASCII "SMAP" */
-    movw    (e820_pt), %di      /* e820 after int vector */
     movw    $0x14, %cx
-
+    movl    $0x534d4150,%edx
+    #movw    $e820_pt, %di
+    
     int     $0x15
-
-    cmpl    $0x534d4150, %eax   /* BIOS messed up map */
-    jne     1f
+    
+    /* BIOS messed up map */
+    cmpl    $0x534d4150, %eax 
+    jne     e820_over
 
     /* e820 over */
-    cmpl    $0, %eax
-    jne     1f
-    addw    $0x18, e820_pt
+    cmpl    $0, %ebx
+    jne     e820_over
     
-    jmp     mem_detect
-1:
+    #addw    $0x18, e820_pt
+    
+    popw    %cx
+    loop    e820_loop
     ret
-e820_pt: .word e820_table
+e820_over:
+    popw    %cx
+    ret
     
 Service_printf:
     movb    $0x0e, %ah
@@ -162,7 +170,7 @@ halt_16:
     jmp     halt_16
 
 e820_table:
-.rept 64
+.rept E820_ENTRY_MAX
     .long   0   // 0x00: addr
     .long   0
     .long   0   // 0x08: size

@@ -4,7 +4,7 @@
  */
 
 #include <mm.h>
-#include <driver/dt.h>
+#include <driver/dt/fdt.h>
 #include <driver/acpi.h>
 #include <driver/platform.h>
 #include "base.h"

@@ -1,5 +1,7 @@
 menuconfig ATA
 bool "ATA support"
+depends on BLOCK
+
 if ATA
 
 

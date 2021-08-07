@@ -25,6 +25,8 @@
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
+#define MSIZE (sizeof(void *))
+
 /**
  * container_of - cast a member of a structure out to the containing structure
  * @ptr: the pointer to the member.

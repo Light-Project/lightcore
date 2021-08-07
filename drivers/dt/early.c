@@ -1,13 +1,17 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#include <state.h> 
-#include <stddef.h>
-#include <init/init.h>
-#include <printk.h>
-#include <crc.h>
-#include <driver/dt.h>
-#include <driver/dt/libfdt.h>
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
 
-state __init early_init_dt_scan_chosen(unsigned long node, const char *uname, int depth, void *data)
+#include <state.h> 
+#include <crc.h>
+#include <mm/memblock.h>
+#include <init/init.h>
+#include <driver/dt/fdt.h>
+#include <driver/dt/libfdt.h>
+#include <printk.h>
+
+static state __init dt_scan_chosen(unsigned long node, const char *uname, int depth, void *data)
 {
     int len;
     const char *args;
@@ -27,7 +31,7 @@ state __init early_init_dt_scan_chosen(unsigned long node, const char *uname, in
     if (rng_seed && len > 0) {
         // add_bootloader_randomness(rng_seed, l);
 
-        /* try to clear seed so it won't be found. */
+        /* try to clear seed so it won't be found :) */
         fdt_nop_property(dt_start_addr, node, "rng-seed");
 
         /* update CRC check value */
@@ -37,24 +41,62 @@ state __init early_init_dt_scan_chosen(unsigned long node, const char *uname, in
     return -ENOERR;
 }
 
-state __init early_dt_scan_node()
+static state __init dt_scan_root(unsigned long node, const char *uname, int depth, void *data)
 {
-    state ret;
+    const be32 *prop;
 
-    /* Retrieve various information from the /chosen node */
-    ret = dt_scan_node(early_init_dt_scan_chosen, boot_args);
-    if (ret < 0)
-        pr_warn("No chosen node found, continuing without\n");
+    if (depth)
+        return -EINVAL;
 
-    return ret;   
+    prop = dt_get_prop(node, "#size-cells", NULL);
+    if (prop)
+        dt_root_size_cells = be32_to_cpup(prop);
+
+    prop = dt_get_prop(node, "#address-cells", NULL);
+    if (prop)
+        dt_root_size_cells = be32_to_cpup(prop);
+
+    return -ENOERR;
 }
 
-state __init early_dt_verify(void *dt_start)
+static state __init dt_scan_memory(unsigned long node, const char *uname, int depth, void *data)
+{
+    const char *type = dt_get_prop(node, "device_type", NULL);
+    const be32 *reg;
+    int len;
+    
+    /* Matching nodes */
+    if (!type || strcmp(type, "memory"))
+        return -EINVAL;
+
+    reg = dt_get_prop(node, "reg", &len);
+    if (!reg)
+        return -EINVAL;
+
+    while (len) {
+        phys_addr_t addr, size;
+
+        addr = dt_read(reg, dt_root_addr_cells);
+        reg += dt_root_addr_cells;
+        size = dt_read(reg, dt_root_addr_cells);
+        reg += dt_root_addr_cells;
+
+        if (!size)
+            continue;
+        memblock_add(addr, size);
+
+        len -= (dt_root_addr_cells + dt_root_size_cells) * sizeof(be32);
+    }
+
+    return -ENOERR;
+}
+
+state __init early_dt_scan(void *dt_start)
 {
     if (!dt_start)
         return -EINVAL;
 
-    /* check device tree validity */
+    /* Check device tree validity */
     if (fdt_check_header(dt_start))
         return -EINVAL;
 
@@ -62,17 +104,10 @@ state __init early_dt_verify(void *dt_start)
     dt_start_addr = dt_start;
     dt_crc32 = crc32(dt_start_addr, fdt_totalsize(dt_start_addr), ~0);
     
-    return -ENOERR;
-}
+    dt_scan_node(dt_scan_chosen, boot_args);
+    
+    dt_scan_node(dt_scan_root, NULL);
+    dt_scan_node(dt_scan_memory, NULL);
 
-state __init early_dt_scan(void *dt_start)
-{
-    state status;
-    
-    status = early_dt_verify(dt_start);
-    if(status)
-        return false;
-    
-    early_dt_scan_node();
-    return true;
+    return -ENOERR;
 }

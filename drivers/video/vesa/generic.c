@@ -22,9 +22,6 @@ static state vesa_probe(struct pci_device *pdev, int pdata)
         return -ENOMEM;
     pci_set_devdata(pdev, vesa);
 
-
-
-
     /* Default resolution */
     vesa->video.mode_table = vesa_video_mode;
     vesa->video.cur_mode = &vesa_video_mode[1];

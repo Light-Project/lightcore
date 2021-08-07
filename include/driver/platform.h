@@ -28,6 +28,16 @@ struct platform_device {
 #define device_to_platform_device(dev)	\
         (container_of((dev), struct platform_device, device))
 
+static inline void *platform_get_devdata(const struct platform_device *pdev)
+{
+    return dev_get_devdata((const struct device *)&pdev->device);
+}
+
+static inline void platform_set_devdata(struct platform_device *pdev, void *data)
+{
+    return dev_set_devdata((struct device *)&pdev->device, data);
+}
+
 #define platform_resource_start(pdev, bar)   ((pdev)->resource[(bar)].start)
 #define platform_resource_end(pdev, bar)     ((pdev)->resource[(bar)].end)
 #define platform_resource_type(pdev, bar)    ((pdev)->resource[(bar)].type)
@@ -58,16 +68,6 @@ const struct dt_device_id *platform_dt_match(struct platform_driver *pdrv, struc
 #if defined(CONFIG_ACPI)
 
 #endif
-
-static inline void *platform_get_devdata(const struct platform_device *pdev)
-{
-    return dev_get_devdata((const struct device *)&pdev->device);
-}
-
-static inline void platform_set_devdata(struct platform_device *pdev, void *data)
-{
-    return dev_set_devdata((struct device *)&pdev->device, data);
-}
 
 struct platform_device *platform_device_alloc(const char *name, int id);
 extern state platform_device_register(struct platform_device *);

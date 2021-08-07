@@ -115,9 +115,6 @@ void arch_page_switch(void *ptd_p, void *ptd_n)
     memcpy(ptd_n, page_dir, sizeof(struct pde) * kernel_index);
 }
 
-/**
- * arch_page_setup - Initialize global page table
- */
 void __init arch_page_setup(void)
 {    
     phys_addr_t pa = 0;

@@ -1,5 +1,8 @@
-#ifndef _TYPE_H_ 
-#define _TYPE_H_
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#ifndef _ASM_CSKY_TYPE_H_
+#define _ASM_CSKY_TYPE_H_
+
+#ifndef __ASSEMBLY__
 
 typedef signed char _int8_t;
 typedef unsigned char _uint8_t;
@@ -54,4 +57,5 @@ typedef signed int _ssize_t;
 /* Maximum value an 'unsigned long long int' can hold (Minimum is 0) */
 #define ULLONG_MAX		(2ULL * LLONG_MAX + 1)
 
-#endif
+#endif /* __ASSEMBLY__ */
+#endif /* _ASM_CSKY_TYPE_H_ */

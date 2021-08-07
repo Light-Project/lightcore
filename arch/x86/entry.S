@@ -1,4 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
 #include <linkage.h>
 #include <arch/x86/interrupt.h>
 
@@ -22,11 +26,13 @@
     popl    %esp
 .endm
 
-.macro SWITCH_TO_KERNEL_STACK
+.macro SWITCH_TO_KERNEL
+
+
 
 .endm
 
-.macro SWITCH_TO_PROCESS_STACK
+.macro SWITCH_TO_PROCESS
 
 .endm
 
@@ -61,20 +67,19 @@ END(entry_general_protection)
  * edx  arg3
  * esi  arg4
  * edi  arg5
- * ebp  user stack
- * 0(%ebp) arg6
+ * ebp  arg6
  */
-ENTRY(entry_syscall)
+ENTRY(entry_syscall_80)
     clac
     SAVE_REGS
 
     pushl   %esp
-    call    trap_general_protection
+    call    arch_syscall_80
     subl    $4, %esp
 
     REC_REGS
     iret
-END(entry_syscall)
+END(entry_syscall_80)
 
 ENTRY(entry_generic_interrupt)
     vector=IRQ_EXTERNAL

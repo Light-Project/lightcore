@@ -186,8 +186,6 @@ sys-ccflags-y += -std=gnu11
 
 #
 # acflags
-sys-acflags         += -O0
-
 sys-acflags-$(CONFIG_CC_OPTIMIZE_FOR_DEBUG)         += -O0
 sys-acflags-$(CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE)   += -O2
 sys-acflags-$(CONFIG_CC_OPTIMIZE_FOR_SIZE)          += -Os
@@ -293,8 +291,8 @@ endif
 # clean
 
 clean-subdir-y += $(kernel-y)
-clean-y += kernel kernel.o
-clean-y += kernel.map
+clean-y += lightcore lightcore.o
+clean-y += lightcore.map
 
 kernelclean: FORCE
 	$(Q)$(MAKE) $(clean)=$(srctree)

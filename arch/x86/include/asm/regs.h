@@ -1,4 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
 #ifndef _ASM_X86_REGS_H_ 
 #define _ASM_X86_REGS_H_
 

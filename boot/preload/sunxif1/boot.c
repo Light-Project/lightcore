@@ -115,7 +115,6 @@ int main()
 //         uart_printf("[preload]: booting from device \n");
 //         
 //         uart_printf("[preload] cannot find system\n");
-//         while(1);
 //     }
 //     
     pr_boot("return FEL\n");

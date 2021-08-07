@@ -57,6 +57,7 @@ static struct page *queue_smallest(struct region *region, int order)
 
         free_list_del(free, page);
         queue_division(&region->page_free[0], page, order, nd);
+        page->order = order;
         return page;
     }
 

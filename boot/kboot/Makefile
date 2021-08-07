@@ -27,7 +27,7 @@ ldsflags-y  := $(strip $(kboot-ldsflags-y) $(platform-ldsflags-y))
 elfflags-y  := $(strip $(kboot-elfflags-y) $(platform-elfflags-y))
 
 boot-flags-y += -Wl,--cref,-Map=$@.map
-boot-flags-y += -e _start -Wl,--no-dynamic-linker -Wl,--build-id=none -fPIE -nostdlib -m32 
+boot-flags-y += -e _start -Wl,--no-dynamic-linker -Wl,--build-id=none -fPIE -nostdlib
 quiet_cmd_link_boot = $(ECHO_ELF)  $@ 
       cmd_link_boot = $(RANLIB) $(obj)/built-in.a; \
                       $(LD) $(ldflags-y) -r -o $(obj)/built-in.o --whole-archive $(obj)/built-in.a; \

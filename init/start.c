@@ -39,19 +39,17 @@ static void __init command_setup(void)
 
 asmlinkage __visible void __init kernel_start(void)
 {
-    
     arch_irq_disable();
     arch_setup();
+    terminal_logo();
 
     /* Initialize kernel parameters */
     command_setup();
     early_device_init();
-    terminal_logo();
     pr_notice("Kernel version: "CONFIG_VERSION"\n");
     pr_notice("Kernel command: %s\n", boot_args);
-    
-    mem_init();
 
+    mem_init();
     device_init();
 
     // sched_init();

@@ -10,8 +10,13 @@
 void *kmalloc(size_t size, gfp_t gfp)
 {
     void *block;
+
+    size = align_high(size, MSIZE);
+
 #ifdef CONFIG_MM_SLOB
     block = slob_alloc(size, gfp, MSIZE);
+#elif CONFIG_MM_SLAB
+
 #endif
 
     return block;

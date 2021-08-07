@@ -13,16 +13,12 @@ elif [ $bochs ];then
 else 
     qemu-system-x86_64                      \
         -name "Lightcore for x86"           \
-        -cpu core2duo-v1                    \
         -smp 2,sockets=1,cores=2,threads=1  \
         -m 64M                              \
-        -fda $image                         \
-        -device qemu-xhci                   \
+        -hda $image                         \
         -device usb-ehci                    \
         -device piix3-usb-uhci              \
         -device usb-kbd                     \
-        -device rtl8139                     \
-        -device e1000                       \
         -device ES1370                      \
         -soundhw pcspk                      \
         -serial stdio

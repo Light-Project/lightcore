@@ -34,6 +34,9 @@ struct video_device {
     const struct video_mode *cur_mode;
     const struct video_mode *mode_table;
 
+    void  *frame_buffer;
+    size_t frame_size;
+
     struct video_ops *ops;
 };
 

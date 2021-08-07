@@ -9,14 +9,24 @@ depends on !ARCH_HAS_MMU
     help
         Select if you want MMU-based virtualised addressing space
         support by paged memory management. If unsure, say 'Y'.
-        
+
     config RAM_BASE
     hex "RAM offset"
     default 0
-        
+    
+    config PAGE_OFFSET
+    hex "kernel offset"
+    
+    config HIGHMAP_OFFSET
+    hex "Hige memory offset"
+    depends on REGION_HIMEM
+    help
+        The virtual address to which the high-end memory 
+        will be mapped
+
     choice
     prompt "Memory model"
-    default FLATMEM
+    default SPARCEMEM
         
         config FLATMEM
         bool "Flat Memory model"
@@ -56,16 +66,6 @@ depends on !ARCH_HAS_MMU
         depends on REGION_HIMEM
         
     endmenu
-    
-    config PAGE_OFFSET
-    hex "kernel offset"
-    
-    config HIGHMAP_OFFSET
-    hex "Hige memory offset"
-    depends on REGION_HIMEM
-    help
-        The virtual address to which the high-end memory 
-        will be mapped
         
     config XIP
     bool "Execute-In-Place from ROM"

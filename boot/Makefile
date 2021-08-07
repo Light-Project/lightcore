@@ -25,7 +25,7 @@ $(obj)/%.dtb: $(src)/dts/%.dts DTC FORCE
 dts: $(dtb) FORCE
 
 targets += $(dtb)
-clean-y += $(dtb-y) .$(dtb-y)*.dtc.tmp .$(dtb-y)*.dts.tmp
+clean-y += *.dtb *.dtc.tmp *.dts.tmp
 
 # KBOOT
 quiet_cmd_copy_kernel = OBJCOPY $@
@@ -149,7 +149,7 @@ endif
 clean-y += preload.bin preload-0x00000.bin disk.img
 
 # run & install
-ckfile := $(obj)/kernel.bin $(obj)/preload.bin
+ckfile := $(obj)/boot.bin
 ifneq ($(ckfile), $(wildcard $(ckfile)))
 run install: FORCE
 	$(Q)$(ECHO) "Please run make first"

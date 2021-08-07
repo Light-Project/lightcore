@@ -116,7 +116,7 @@ static state mc146818_probe(struct platform_device *pdev)
     struct rtc_device *mc146818_dev;
 
     mc146818_dev = kzalloc(sizeof(*mc146818_dev), GFP_KERNEL);
-    if(!mc146818_dev)
+    if (!mc146818_dev)
         goto out;
 
     pdev->dev->dev_data = mc146818_dev;

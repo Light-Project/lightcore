@@ -1,8 +1,6 @@
 menuconfig NETD
     bool "Network device support"
 if NETD
-
-    config CONFIG_ETHERNET
     
 
 endif

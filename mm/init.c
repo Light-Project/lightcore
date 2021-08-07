@@ -4,15 +4,15 @@
  */
 
 #include <mm.h>
+#include <printk.h>
 
 void __init mem_init(void)
 {
-    mem_reserve(va_to_pa(&_ld_text_start),
-        (size_t)&_ld_image_end - (size_t)&_ld_text_start);
-    mem_reserve(0, PAGE_SIZE);
-    
+    memblock_reserve(va_to_pa(&_ld_startup_start), 
+                     &_ld_image_end - &_ld_startup_start);
+    memmodel_init();
     region_init();
-    kmem_init();
 
+    kmem_init();
     vmem_init();
 }

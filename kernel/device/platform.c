@@ -103,7 +103,11 @@ struct bus_type platform_bus = {
 struct platform_device *platform_device_alloc(const char *name, int id)
 {
     struct platform_device *pdev;
+    
     pdev = kzalloc(sizeof(*pdev), GFP_KERNEL);
+    if (!pdev)
+        return NULL;
+        
     pdev->name  = name;
     pdev->id    = id;
     pdev->device.bus = &platform_bus;
@@ -153,5 +157,8 @@ EXPORT_SYMBOL(platform_driver_unregister);
 void __init platform_bus_init(void)
 {
     bus_register(&platform_bus);
+
+#ifdef CONFIG_DT
     platform_dt_init();
+#endif
 }

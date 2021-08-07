@@ -71,27 +71,29 @@ static struct pci_device_id uhci_pci_ids[] = {
 static state uhci_pci_probe(struct pci_device *pdev, int data)
 {
     struct uhci_host *uhci;
+    resource_size_t port;
     int val;
-
-    uhci = kzalloc(sizeof(*uhci), GFP_KERNEL);
-    if (!uhci)
-        return -ENOMEM;
 
     for (val = 0; val < PCI_STD_NUM_BARS; ++val) {
         if (pci_resource_type(pdev, val) != RESOURCE_PMIO)
             continue;
-        uhci->port = pci_resource_start(pdev, 0);
+        port = pci_resource_start(pdev, 0);
         break;
     } if (val == PCI_ROM_RESOURCE) {
         pr_warn("no i/o available\n");
         return -ENODEV;
     }
 
-    irq_request(pdev->irq, 0, uhci_handle, uhci, "uhci-pci");
-
+    uhci = kzalloc(sizeof(*uhci), GFP_KERNEL);
+    if (!uhci)
+        return -ENOMEM;
+        
+    uhci->port = port;
     uhci->device = &pdev->dev;
     uhci->host.type = USB_HOST_11;
     uhci->host.ops  = &uhci_ops;
+
+    irq_request(pdev->irq, 0, uhci_handle, uhci, "uhci-pci");
     return usb_host_register(&uhci->host);
 }
 

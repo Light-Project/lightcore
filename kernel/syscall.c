@@ -7,13 +7,9 @@
 #include <kernel/syscall.h>
 #include <kernel/sched.h>
 
-static void* syscall_table[SYSCALL_NR_MAX] = {
-    
+void *syscall_table[SYS_NR_MAX] = {
+    [SYS_READ]  = sys_read,
+    [SYS_WRITE] = sys_write,
+    [SYS_OPEN]  = sys_read,
+    [SYS_CLOSE] = sys_close,
 };
-
-long syscall_entry(long syscall, )
-{
-
-
-}
-

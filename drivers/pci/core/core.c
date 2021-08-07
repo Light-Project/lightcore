@@ -260,7 +260,7 @@ static state pci_scan_device(struct pci_bus *bus, uint32_t devfn,
 static __always_inline
 void pci_device_add(struct pci_bus *bus, struct pci_device *dev)
 {
-    pr_debug("New device: %02d:%02d:%d %04x %04x:%04x\n",
+    pr_debug("New device: %02d:%02d:%d %06x %04x:%04x\n",
         dev->bus->bus_nr, PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn),
         dev->class, dev->vendor, dev->device);
 

@@ -1,9 +1,8 @@
-#ifndef _DRIVER_CONSOLE_H_
-#define _DRIVER_CONSOLE_H_
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#ifndef _CONSOLE_H_
+#define _CONSOLE_H_
 
 #include <slist.h>
-
-
 
 #define CON_PRINTBUFFER	(1)
 #define CON_CONSDEV 	(2) /* Preferred console, /dev/console */
@@ -22,20 +21,20 @@ typedef struct console {
     int     (*read)(struct console *, char *, unsigned);        /* console receive */
     void    (*write)(struct console *, const char *, unsigned); /* console sent */
     
-    short   index;
-    void    *data;  /* Private data */
-
     uint16_t    enable:1;
     uint16_t    boot:1;
+
+    short   index;
+    void    *data;  /* Private data */
 } console_t; 
+
+void console_write(const char *str, unsigned int len);
 
 void console_lock(void);
 void console_unlock(void);
 
-void console_write(const char *str, unsigned int len);
-
-extern void console_register(console_t *);
-extern void console_unregister(console_t *);
-extern void console_init(void);
+void console_register(console_t *);
+void console_unregister(console_t *);
+void console_init(void);
 
 #endif

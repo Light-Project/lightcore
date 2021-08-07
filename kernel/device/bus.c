@@ -55,9 +55,7 @@ state bus_driver_add(struct driver *drv)
     list_add_prev(&bus->drivers_list, 
                   &drv->bus_list_driver);
 
-    driver_bind(drv);
-
-    return -ENOERR;
+    return driver_bind(drv);
 }
 
 void bus_driver_remove(struct driver *drv)

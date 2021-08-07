@@ -56,7 +56,7 @@ static const __initconst struct idt_data idt_data[] = {
     {IDT_INTERRUPT(CP_FAULT, entry_general_protection)},
 
     {IDT_SYSTEM(OF_TRAP, entry_general_protection)},
-    {IDT_SYSTEM(SYSCALL_TRAP, entry_syscall)},
+    {IDT_SYSTEM(SYSCALL_TRAP, entry_syscall_80)},
     
     {IDT_TASK(DF_ABORT, GDT_ENTRY_DOUBLEFAULT_TSS)},
 };
@@ -89,7 +89,6 @@ static void idt_setup(void)
 
 void __init arch_idt_setup(void)
 {
-
     idt_setup();
     idt_load(&idt_struct);
 }
