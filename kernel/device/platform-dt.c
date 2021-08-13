@@ -24,8 +24,8 @@ static const struct dt_device_id dt_skipped_table[] = {
     { }, /* NULL */
 };
 
-static inline const struct dt_device_id * 
-dt_device_match(const struct dt_device_id *ids, struct dt_node *node)
+static inline const struct dt_device_id * dt_device_match(const struct dt_device_id *ids, 
+                                                          struct dt_node *node)
 {
     while((ids->name && ids->name[0]) || (ids->type && ids->type[0]) ||
           (ids->compatible && ids->compatible[0])) {
@@ -36,17 +36,15 @@ dt_device_match(const struct dt_device_id *ids, struct dt_node *node)
     return NULL;
 }
 
-const struct dt_device_id * 
-platform_dt_match(struct platform_driver *pdrv, 
-                  struct platform_device *pdev)
+const struct dt_device_id *platform_dt_match(struct platform_driver *pdrv, 
+                                             struct platform_device *pdev)
 {
     if(!pdrv->dt_table || !pdev->dt_node)
         return NULL;
     return dt_device_match(pdrv->dt_table, pdev->dt_node);
 }
 
-static __always_inline struct platform_device *
-pdt_alloc_node(struct dt_node *node)
+static __always_inline struct platform_device *dt_alloc_node(struct dt_node *node)
 {
     struct platform_device *pdev;
 
@@ -58,23 +56,28 @@ pdt_alloc_node(struct dt_node *node)
 	return pdev;
 }
 
-static inline state
-pdt_populate_resource(struct platform_device *pdev)
+static inline state dt_populate_resource(struct platform_device *pdev)
 {
     struct resource *res;
-    int count, res_nr;
+    int res_nr, count;
 
     res_nr = dt_address_nr(pdev->dt_node);
-    res = kzalloc(sizeof(*res) * res_nr, GFP_KERNEL);
+
+    res = kmalloc(sizeof(*pdev->resource) * res_nr, GFP_KERNEL);
     if (!res)
         return -ENOMEM;
+    pdev->resource = res;
 
-    for (count = 0; count < res_nr; ++count) {
+    for (count = 0; count < res_nr; ++count, ++res) {
+        resource_size_t size;
+
+        if(dt_address(pdev->dt_node, count, &res->start, &size))
+            break;
+        res->end = res->start + size;
+        res->type = RESOURCE_MMIO;
     }
 
-    pdev->resource = res;
     pdev->resources_nr = res_nr;
-
     return -ENOERR;
 }
 
@@ -82,22 +85,21 @@ static state platform_dt_setup_node(struct dt_node *node)
 {
 	struct platform_device *pdev;
 
-    pdev = pdt_alloc_node(node);
+    pdev = dt_alloc_node(node);
     if(!pdev)
         return -ENOMEM;
 
     pr_debug("New device: %s\n", node->path);
-    // pdt_populate_resource(pdev);
+    dt_populate_resource(pdev);
 
     return device_register(&pdev->device);
 }
 
-state platform_dt_setup_bus(struct dt_node *bus, 
-                            const struct dt_device_id *matches)
+state platform_dt_setup_bus(struct dt_node *bus, const struct dt_device_id *matches)
 {
     struct dt_node *node;
 
-    if(!dt_attribute_get(bus, "compatible"))
+    if(!dt_attribute_get(bus, "compatible", NULL))
         return -ENOERR;
 
     if(unlikely(dt_match(dt_skipped_table, bus)))

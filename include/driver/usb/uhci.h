@@ -22,6 +22,9 @@ enum uhci_pci_config {
     UHCI_PCI_RESUME     = 0xc4, /* PCI Intel-specific resume-enable register */
 };
 
+/******************************************************************************/
+/*      Mnemonic            value        meaning/usage                        */
+
 #define UHCI_CMD_RUN        BIT(0)  /* Run/Stop */
 #define UHCI_CMD_HCRESET    BIT(1)  /* Host reset */
 #define UHCI_CMD_GRESET     BIT(2)  /* Global reset */

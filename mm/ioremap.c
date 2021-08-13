@@ -71,8 +71,12 @@ void *ioremap(phys_addr_t pa, size_t size)
     phys_addr_t offset;
  
     /* Don't allow zero size */
-    if(!size)
+    if (!size)
         return NULL;
+
+    if (pa < CONFIG_HIGHMEM_OFFSET) {
+        return pa_to_va(pa);
+    }
 
     /*
      * Mappings have to be page-aligned

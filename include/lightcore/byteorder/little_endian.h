@@ -90,18 +90,19 @@ static __always_inline uint16_t be16_to_cpup(const be16 *p)
 	return swab16p((uint16_t *)p);
 }
 
-#define cpu_to_le64s(x) do { (void)(x); } while (0)
-#define le64_to_cpus(x) do { (void)(x); } while (0)
-#define cpu_to_le32s(x) do { (void)(x); } while (0)
-#define le32_to_cpus(x) do { (void)(x); } while (0)
 #define cpu_to_le16s(x) do { (void)(x); } while (0)
 #define le16_to_cpus(x) do { (void)(x); } while (0)
-#define cpu_to_be64s(x) swab64s((x))
-#define be64_to_cpus(x) swab64s((x))
-#define cpu_to_be32s(x) swab32s((x))
-#define be32_to_cpus(x) swab32s((x))
+#define cpu_to_le32s(x) do { (void)(x); } while (0)
+#define le32_to_cpus(x) do { (void)(x); } while (0)
+#define cpu_to_le64s(x) do { (void)(x); } while (0)
+#define le64_to_cpus(x) do { (void)(x); } while (0)
+
 #define cpu_to_be16s(x) swab16s((x))
 #define be16_to_cpus(x) swab16s((x))
+#define cpu_to_be32s(x) swab32s((x))
+#define be32_to_cpus(x) swab32s((x))
+#define cpu_to_be64s(x) swab64s((x))
+#define be64_to_cpus(x) swab64s((x))
 
 
 #endif /* _LIGHTCORE_BYTEORDER_LITTLE_ENDIAN_H_ */

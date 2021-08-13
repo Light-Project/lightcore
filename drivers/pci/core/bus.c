@@ -8,8 +8,7 @@
 #include <printk.h>
 
 /**
- * pci_bus_device_start - Probe a single device on this PCI bus 
- * 
+ * pci_bus_device_start - Probe a single device on this PCI bus
  */
 void pci_bus_device_probe(struct pci_device *pdev)
 {
@@ -29,17 +28,17 @@ void pci_bus_devices_probe(const struct pci_bus *bus)
 
     pci_bus_for_each_pci_device(pdev, bus) {
         /* Skip already-added devices */
-        if(pdev->flags_added)
+        if (pdev->flags_added)
             continue;
         pci_bus_device_probe(pdev);
-    }    
-    
+    }
+
     pci_bus_for_each_pci_device(pdev, bus) {
         /* Skip if device attach failed */
-        if(!pdev->flags_added)
+        if (!pdev->flags_added)
             continue;
         bridge = pdev->bridge;
-        if(bridge)
+        if (bridge)
             pci_bus_devices_probe(bridge);
     }
 };

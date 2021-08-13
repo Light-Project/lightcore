@@ -22,10 +22,8 @@ enum irq_return {
 struct irq {
     const char *name;
 
-
     irq_handler_t handler;
     void *data; /* handler para */
-    
 };
 
 void irq_handle(irqnr_t vector);

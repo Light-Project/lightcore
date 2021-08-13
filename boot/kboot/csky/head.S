@@ -6,16 +6,11 @@
 #include <linkage.h>
 #include <size.h>
 
-    .section .setup,"ax"
+    .section .startup,"ax"
     
 GLOBAL(_start)
-    jmpi    kernel_start
+    jmpi    halt
 END(_start)
-     
-GLOBAL(kernel_start)
-    lrw     r1, CONFIG_PAGE_OFFSET + CONFIG_RAM_BASE
-    jmp     r1
-END(kernel_start)
   
 GLOBAL(halt)
     stop

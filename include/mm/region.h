@@ -23,9 +23,8 @@ enum region_type {
 
 struct region {
     const char *name;
-
     spinlock_t lock;
-    struct page_free page_free[PAGE_ORDER_MAX];
+    struct page_free page_free[PAGE_ORDER_MAX + 1];
 };
 
 extern struct region region_map[];
@@ -33,15 +32,8 @@ extern struct region region_map[];
 #define for_each_region(region) \
         list_for_each_entry(region, &region_list, list)
 
-static inline bool region_is_himem(enum region_type type)
-{
-#ifdef CONFIG_REGION_HIMEM
-    return type == REGION_HIMEM;
-#endif
-    return false;
-}
-
 struct region *gfp_to_region(gfp_t gfp);
+struct region *pa_to_region(phys_addr_t pa);
 void region_init(void);
 
 #endif /* _MM_REGION_H_ */

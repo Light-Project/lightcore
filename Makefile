@@ -176,49 +176,40 @@ include-y   += include/
 include-y   += arch/$(arch)/include/ \
                arch/$(arch)/include/generated/
 
-#
 # asflags
 sys-asflags-y += -D__ASSEMBLY__
 
-#
 # ccflags
 sys-ccflags-y += -std=gnu11
 
-#
 # acflags
 sys-acflags-$(CONFIG_CC_OPTIMIZE_FOR_DEBUG)         += -O0
 sys-acflags-$(CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE)   += -O2
 sys-acflags-$(CONFIG_CC_OPTIMIZE_FOR_SIZE)          += -Os
-sys-acflags-$(CONFIG_STRICT) += -Wall   \
-                                -Werror
-sys-acflags-y += -ffreestanding -nostdinc   \
-                 -fno-builtin -static       \
-                 -fno-pic -fno-PIE          \
-                 -fno-stack-protector
-#
-# acflags
+sys-acflags-$(CONFIG_STRICT) += -Wall -Werror
+sys-acflags-y += -ffreestanding -nostdinc -fno-builtin -static
+sys-acflags-y += -fno-pic -fno-PIE
+sys-acflags-y += -fno-stack-protector
+
+# ldsflags
 sys-ldsflags-y += -D__ASSEMBLY__
 
-                
 asflags-y   := $(strip $(sys-asflags-y) $(platform-asflags-y))
 ccflags-y   := $(strip $(sys-ccflags-y) $(platform-ccflags-y))
 acflags-y   := $(strip $(sys-acflags-y) $(platform-acflags-y))
 ldflags-y   := $(strip $(sys-ldflags-y) $(platform-ldflags-y))
 ldsflags-y  := $(strip $(sys-ldsflags-y) $(platform-ldsflags-y))
-elfflags-y  := $(strip $(sys-elfflags-y) $(platform-elfflags-y))
-export platform-asflags-y platform-ccflags-y platform-acflags-y platform-ldflags-y platform-ldsflags-y platform-elfflags-y
-export sys-asflags-y sys-ccflags-y sys-acflags-y sys-ldflags-y sys-ldsflags-y sys-elfflags-y
-export CROSS_COMPILE include-y asflags-y ccflags-y acflags-y ldsflags-y ldflags-y
-                 
+
 ifdef CONFIG_LD_DEAD_CODE_DATA_ELIMINATION
 acflags-y += -ffunction-sections -fdata-sections
 kernel-flags-y += -Wl,--gc-sections
 endif
 
 kernel-flags-$(CONFIG_KERNEL_MAP) += -Wl,--cref,-Map=$@.map
-kernel-flags-y += -e boot_head
+kernel-flags-y += -e boot_head $(platform-eflags-y)
 kernel-flags-y += -Wl,--build-id=sha1
-export kernel-flags-y
+
+export CROSS_COMPILE include-y asflags-y ccflags-y acflags-y ldsflags-y ldflags-y
 
 #############################################################
 # Compiler instruction
@@ -291,7 +282,7 @@ endif
 # clean
 
 clean-subdir-y += $(kernel-y)
-clean-y += lightcore lightcore.o
+clean-y += lightcore kernel.o
 clean-y += lightcore.map
 
 kernelclean: FORCE

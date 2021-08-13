@@ -11,7 +11,6 @@
 #include <linkage.h>
  
     .section    .startup,"ax"
-
 GLOBAL(boot_head)
     lrw     r1, init                            /* 0x00: csky jmp  */
     jmp     r1
@@ -21,12 +20,7 @@ END(boot_head)
     
     .section    .init.text,"ax"
     .type       init, %function
-    
 ENTRY(init)
-    mfcr    r1, cr0
-    bseti   r1, 9
-    mtcr    r1, cr0
-
     xor     r1, r1
     lrw     r13, _ld_bss_start
     lrw     r14, _ld_bss_end

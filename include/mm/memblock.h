@@ -9,8 +9,8 @@
 enum memblock_type {
     MEMBLOCK_USABLE     = 0x00, /* Memory that can be used */
     MEMBLOCK_ALLOCATED  = 0x01, /* allocated by memblock */
-    MEMBLOCK_TAKEOVER   = 0x01, /* buddy system takeover */
-    MEMBLOCK_RESERVED   = 0x02, /* nonexistent memory */
+    MEMBLOCK_TAKEOVER   = 0x02, /* buddy system takeover */
+    MEMBLOCK_RESERVED   = 0x03, /* nonexistent memory */
 };
 
 struct memblock_region {

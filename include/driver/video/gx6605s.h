@@ -89,7 +89,7 @@ enum gx6605s_osd_region {
 	GX6605S_OSDR_HIGHT      = 0x0c,
 	GX6605S_OSDR_FBADDR     = 0x10,
 	GX6605S_OSDR_NEXT_PTR   = 0x14,
-	GX6605S_OSDR = 0x18,
+	GX6605S_OSDR_ALPHA      = 0x18,
 };
 
 /************************************************************************************************/
@@ -97,7 +97,17 @@ enum gx6605s_osd_region {
 
 /* OSD_CTRL bitflag definitions */
 #define GX6605S_OSD_CTRL_EN                 BIT(0)
+#define GX6605S_OSD_CTRL_ZOOM_MODE_EN_IPS   BIT(25)
+#define GX6605S_OSD_CTRL_ANTI_FLICKER       BIT(29)
 #define GX6605S_OSD_CTRL_ANTI_FLICKER_CBCR  BIT(31)
+
+/* SYS_PARA bitflag definitions */
+#define GX6605S_SYS_PARA_BYTESEQ_LOW        (0x03 << 20)
+#define GX6605S_SYS_PARA_BYTESEQ_HIGH       (0x01 << 28)
+
+/* OSD_CTRL bitflag definitions */
+#define GX6605S_BUFF_CTRL2_REQ_LEN          (0x7ff << 0)
+#define GX6605S_BUFF_CTRL2_STATE_DELAY      (0xff << 16)
 
 /* OSD_POSITION bitflag definitions */
 #define GX6605S_OSD_POSITION_X              (0x3FF << 0)
@@ -114,6 +124,19 @@ enum gx6605s_osd_region {
 #define GX6605S_OSDR_CTRL_GLOBAL_ALPHA_EN   (0x01 << 23)
 #define GX6605S_OSDR_CTRL_TRUE_COLOR_MODE   (0x03 << 24)
 #define GX6605S_OSDR_CTRL_ARGB_CONVERT      (0x01 << 26)
-#define GX6605S_OSDR_CTRL_ARGB_CONVERT      (0x01 << 26)
+
+/* OSDR_WIDTH bitflag definitions */
+#define GX6605S_OSDR_WIDTH_LEFT             (0x7FF << 0)
+#define GX6605S_OSDR_WIDTH_RIGHT            (0x7FF << 16)
+
+/* OSDR_HIGHT bitflag definitions */
+#define GX6605S_OSDR_HIGHT_TOP              (0x7FF << 0)
+#define GX6605S_OSDR_HIGHT_BOTTOM           (0x7FF << 16)
+
+/* OSDR_ALPHA bitflag definitions */
+#define GX6605S_OSDR_BASELINE               (0x1fff << 0)
+#define GX6605S_OSDR_ALPHA_RATIO            (0xff << 16)
+#define GX6605S_OSDR_ALPHA_RATIO_EN         (0x01 << 24)
+#define GX6605S_OSDR_LIST_END               (0x01 << 31)
 
 #endif  /* _DRIVER_GPU_GX6605S_H_ */

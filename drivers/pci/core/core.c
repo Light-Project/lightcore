@@ -13,7 +13,7 @@
 #include <asm/io.h>
 
 /* PCI host bridge listhead */
-LIST_HEAD(host_list);
+static LIST_HEAD(host_list);
 
 /**
  * pci_res_size - Conversion pci size
@@ -53,14 +53,14 @@ uint64_t pci_res_size(uint64_t base, uint64_t size, uint64_t mask)
 /**
  * pci_resource_set - Setting one resource through pci bar
  * @defgroup: pci_resource_setup
- * 
+ *
  */
 static int pci_resource_set(struct pci_device *pdev, enum pci_bar_type type,
                     struct resource *res, unsigned int reg)
 {
     uint32_t l, sz, mask;
     uint64_t l64, sz64, mask64;
-    
+
     mask = type ? PCI_ROM_ADDRESS_MASK : 0xffffffff;
 
     l = pci_config_readl(pdev, reg);
@@ -109,7 +109,7 @@ static int pci_resource_set(struct pci_device *pdev, enum pci_bar_type type,
     sz64 = pci_res_size(l64, sz64, mask64);
     if(!sz64)
         goto error;
-    
+
     res->start = l64;
     res->end = l64 + sz64 - 1;
 
@@ -126,7 +126,7 @@ exit:
  * @defgroup: pci_device_setup
  * @pdev: pci device to set
  * @nr: bar number
- * 
+ *
  */
 static void pci_resource_setup(struct pci_device *pdev, int nr, int rom)
 {
@@ -148,7 +148,7 @@ static void pci_resource_setup(struct pci_device *pdev, int nr, int rom)
 /**
  * pci_device_setup - Setup pci device information
  * @defgroup: pci_scan_add_device
- * 
+ *
  */
 static state pci_device_setup(struct pci_device *pdev)
 {
@@ -188,7 +188,6 @@ static state pci_device_setup(struct pci_device *pdev)
 /**
  * pci_bus_alloc - Allocating for a new bus
  * @parent: parent bus
- * 
  */
 static struct pci_device *pci_device_alloc(struct pci_bus *bus)
 {
@@ -197,7 +196,7 @@ static struct pci_device *pci_device_alloc(struct pci_bus *bus)
     dev = kzalloc(sizeof(*dev), GFP_KERNEL);
     if (!dev)
         return NULL;
-    
+
     dev->bus = bus;
     return dev;
 }
@@ -205,30 +204,26 @@ static struct pci_device *pci_device_alloc(struct pci_bus *bus)
 /**
  * pci_bus_alloc - Allocating for a new bus
  * @parent: parent bus
- * 
  */
 static struct pci_bus *pci_bus_alloc(struct pci_bus *parent)
 {
     struct pci_bus *bus;
 
     bus = kzalloc(sizeof(*bus), GFP_KERNEL);
-    if(!bus)
+    if (!bus)
         return NULL;
 
     list_head_init(&bus->children);
-    list_head_init(&bus->node);
     list_head_init(&bus->pci_device_list);
 
     bus->parent = parent;
-
     return bus;
 }
 
 /**
  * pci_scan_device - Scan a device and create a pci device
- * 
  */
-static state pci_scan_device(struct pci_bus *bus, uint32_t devfn, 
+static state pci_scan_device(struct pci_bus *bus, uint32_t devfn,
                              struct pci_device **sdev)
 {
     struct pci_device *dev;
@@ -237,7 +232,7 @@ static state pci_scan_device(struct pci_bus *bus, uint32_t devfn,
     /* Check whether the device exists */
     val = pci_bus_config_readl(bus, devfn, PCI_VENDOR_ID);
     if ( val == 0x00000000 || val == 0xffffffff ||
-         val == 0x0000ffff || val == 0xffff0000 ) 
+         val == 0x0000ffff || val == 0xffff0000 )
         return -ENODEV;
 
     /* Alloc a pci device */
@@ -249,9 +244,8 @@ static state pci_scan_device(struct pci_bus *bus, uint32_t devfn,
     dev->vendor = val & 0xffff;
     dev->device = (val >> 16) & 0xffff;
 
-    if (pci_device_setup(dev)) {
+    if (pci_device_setup(dev))
         kfree(dev);
-    }
 
     *sdev = dev;
     return -ENOERR;
@@ -273,7 +267,6 @@ void pci_device_add(struct pci_bus *bus, struct pci_device *dev)
  * pci_scan_add_device - Scan a device and add the device to bus
  * @bus: PCI bus to scan
  * @devfn: device number to scan
- * 
  */
 static state pci_scan_add_device(struct pci_bus *bus, uint32_t devfn)
 {
@@ -285,18 +278,14 @@ static state pci_scan_add_device(struct pci_bus *bus, uint32_t devfn)
         return ret;
 
     pci_device_add(bus, dev);
-
     return -ENOERR;
 }
 
 static uint16_t fn_next(struct pci_bus *bus, uint32_t devfn)
 {
     // uint32_t val;
-
-
     // val = pci_bus_config_readl(bus, devfn, PCI_ARI_CAP);
 
-    
     return PCI_FUNC(devfn) + 1;
 }
 
@@ -304,78 +293,56 @@ static uint16_t fn_next(struct pci_bus *bus, uint32_t devfn)
  * pci_scan_slot - Scan a slot
  * @bus: PCI bus to scan
  * @slot: slot number to scan
- * 
  */
 static state pci_scan_slot(struct pci_bus *bus, uint8_t slot)
 {
-    uint8_t fn = 0;
+    uint8_t fn;
     state ret;
 
-    /* First check whether slot exists */   
-    ret = pci_scan_add_device(bus, PCI_DEVFN(slot, fn));
+    /* First check whether slot exists */
+    ret = pci_scan_add_device(bus, PCI_DEVFN(slot, 0));
     if (ret)
         return ret;
 
-    for(fn = fn_next(bus, PCI_DEVFN(slot, 0)); fn < 8; 
-        fn = fn_next(bus, PCI_DEVFN(slot, fn))) {
+    for (fn = fn_next(bus, PCI_DEVFN(slot, 0)); fn < 8;
+         fn = fn_next(bus, PCI_DEVFN(slot, fn))) {
         ret = pci_scan_add_device(bus, PCI_DEVFN(slot, fn));
     }
+
     return -ENOERR;
 }
 
 /**
- * pci_scan_host - Scan all devices of all bus of host :)
+ * pci_scan_host - Scan all devices of all bus of host
  * @host: pci host
- * 
  */
 state pci_scan_bus(struct pci_bus *bus)
 {
     uint8_t slot;
 
-    for(slot = 0; slot < 32; ++slot) {
+    for(slot = 0; slot < 32; ++slot)
         pci_scan_slot(bus, slot);
-    }
 
     return -ENOERR;
 }
 
 /**
  * pci_host_register - Register PCI bus and probe drive
- * 
- * @param host 
- * @return state 
+ * @param host
  */
 state pci_host_register(struct pci_host *host)
 {
     struct pci_bus *bus;
 
     /* Alloc host bus */
-    host->bus = pci_bus_alloc(NULL);
-    if (!host->bus)
+    bus = pci_bus_alloc(NULL);
+    if (!bus)
         return -ENOMEM;
 
-    bus = host->bus;
+    host->bus = bus;
     bus->ops = host->ops;
 
-    list_add_prev(&host_list, &bus->node);
-
     pci_scan_bus(bus);
-    
     pci_bus_devices_probe(bus);
-
-    return -ENOERR;
-}
-
-state pci_host_probe(void)
-{
-    struct pci_bus *bus;
-
-    list_for_each_entry(bus, &host_list, node) {
-        /* Scan all devices on pci root bus */
-        pci_scan_bus(bus);
-
-        /* Start all devices on pci root bus */
-        pci_bus_devices_probe(bus);
-    }
     return -ENOERR;
 }

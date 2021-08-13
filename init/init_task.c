@@ -29,9 +29,8 @@ void init_task(void)
     bool ret;
 
     ret = init_run("/bin/init");
-    if(ret)
+    if (ret)
         return;
-    
+
     panic("No init executable found.");
 }
- 

@@ -287,7 +287,6 @@
 #define PCI_AGP_SIZEOF 12
 
 /* Vital Product Data */
-
 #define PCI_VPD_ADDR 2           /* Address to access (15 bits!) */
 #define PCI_VPD_ADDR_MASK 0x7fff /* Address mask */
 #define PCI_VPD_ADDR_F 0x8000    /* Write 0, 1 indicates completion */
@@ -295,7 +294,6 @@
 #define PCI_CAP_VPD_SIZEOF 8
 
 /* Slot Identification */
-
 #define PCI_SID_ESR 2           /* Expansion Slot Register */
 #define PCI_SID_ESR_NSLOTS 0x1f /* Number of expansion slots available */
 #define PCI_SID_ESR_FIC 0x20    /* First In Chassis Flag */

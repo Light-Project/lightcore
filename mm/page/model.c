@@ -3,6 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
+#include <string.h>
 #include <mm/page.h>
 #include <mm/memmodel.h>
 #include <mm/memblock.h>
@@ -49,8 +50,11 @@ static void sparce_alloc(void)
 {
     struct page *page;
     unsigned int count;
+    size_t size;
 
-    page = pa_to_va(memblock_alloc(sparce_nr * PAGES_PER_SECTION * sizeof(*page), MSIZE, 0, ~0));
+    size = sparce_nr * PAGES_PER_SECTION * sizeof(*page);
+    page = pa_to_va(memblock_alloc(size, MSIZE, 0, ~0));
+    memset(page, 0, size);
 
     for (count = 0; count < SECTIONS_NR; ++count) {
         if (!sparce_map[count].present)

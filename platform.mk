@@ -7,7 +7,7 @@ CROSS_COMPILE       := arm-none-eabi-
 arch                := arm
 
 platform-acflags-y  += -D__ARCH_BIT32__
-kernel-flags-y      += -nostdlib
+platform-eflags-y   += -nostdlib
 
 ifdef CONFIG_ARCH_ARM_926EJS
 platform-acflags-y  += -march=armv5tej -mcpu=arm926ej-s -mfloat-abi=soft -marm
@@ -23,7 +23,7 @@ CROSS_COMPILE       := arm-none-eabi-
 arch                := arme
 
 platform-acflags-y  += -march=armv7-m -mthumb
-kernel-flags-y      += -nostdlib -mthumb 
+platform-eflags-y   += -nostdlib -mthumb 
 endif
 
 ifdef CONFIG_ARCH_CSKY
@@ -31,7 +31,7 @@ include arch/csky/config.mk
 CROSS_COMPILE       := /disk/d/project/buildroot/output/host/bin/csky-linux-
 arch                := csky
 
-kernel-flags-y      += -nostdlib
+platform-eflags-y   += -nostdlib
 endif
 
 ifdef CONFIG_ARCH_RISCV
@@ -39,7 +39,7 @@ CROSS_COMPILE       := riscv64-linux-gnu-
 arch                := riscv64
 
 platform-acflags-y  := -march=rv64imafdc -mabi=lp64d -mcmodel=medany
-kernel-flags-y      += -nostdlib
+platform-eflags-y   += -nostdlib
 endif
 
 ifdef CONFIG_ARCH_X86
@@ -66,7 +66,7 @@ platform-ccflags-y  += -mno-sse -mno-mmx -mno-sse2 -mno-3dnow
 platform-ccflags-y  += $(call cc-option,-mno-avx)
 
 platform-ldflags-y  += -m elf_i386
-kernel-flags-y      += -m32 -nostdlib
+platform-eflags-y   += -m32 -nostdlib
 endif
 
 ifdef CONFIG_ARCH_XTENSA
@@ -75,5 +75,8 @@ arch                := xtensa
 
 platform-ccflags-y  += -mtext-section-literals
 platform-acflags-y  += -pipe -mlongcalls 
-kernel-flags-y      += -nostdlib
+platform-eflags-y   += -nostdlib
 endif
+
+export platform-asflags-y platform-ccflags-y platform-acflags-y 
+export platform-ldflags-y platform-ldsflags-y platform-eflags-y

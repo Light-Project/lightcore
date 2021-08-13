@@ -62,7 +62,7 @@ static state bochs_hw_init(struct pci_device *pdev)
     /* Mapping framebuffer */
     mem = vesa_read(vesa, VBE_DISPI_INDEX_VIDEO_MEMORY_64K) * 64 * 1024;
 
-    if (!(pci_resource_type(pdev, 0) & RESOURCE_MMIO))
+    if (pci_resource_type(pdev, 0) != RESOURCE_MMIO)
         return -ENODEV;
     addr = pci_resource_start(pdev, 0);
     size = pci_resource_size(pdev, 0);

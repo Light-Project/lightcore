@@ -9,37 +9,28 @@
 
 static SLIST_HEAD(partition_list);
 
-struct partition_table *
-partition_scan(struct block_device *bdev)
+state partition_scan(struct block_device *bdev)
 {
     struct partition_type *part;
-    struct partition_table *entry;
+    state ret;
 
     slist_for_each_entry(part, &partition_list, list) {
-        entry = part->match(bdev);
-        if(entry)
-            return entry;
+        ret = part->match(bdev);
+        if (!ret)
+            return -ENOERR;
     }
-
-    return NULL;
-}
-
-state block_add_one(struct partition_table *part, 
-                    struct block_device *bdev)
-{
-
-    return -ENOERR;
+    return ret;
 }
 
 state block_add_parts(struct block_device *bdev)
 {
-    struct partition_table *part;
+    struct partition_entry *part;
 
-    part = partition_scan(bdev);
+    list_head_init(&bdev->parts);
+    partition_scan(bdev);
 
-    while (part) {
-        block_add_one(part, bdev);
-        part = part->next;
+    list_for_each_entry(part, &bdev->parts, list) {
+        
     }
 
     return -ENOERR;

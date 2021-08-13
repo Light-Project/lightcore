@@ -8,9 +8,9 @@
 #include <dt-bindings/input/input.h>
 
 / {
-    model = "C-SKY gx6605s";
     #address-cells = <1>;
     #size-cells = <1>;
+    model = "C-SKY gx6605s";
     
     clocks {
         dummy_apb: apb-clock {
@@ -20,17 +20,16 @@
         };
     };
     
-    memory@0 {
+    memory@10000000 {
         device_type = "memory";
         reg = <0x10000000 0x04000000>;
     };
 
-    pci {
+    soc {
         #address-cells = <1>;
         #size-cells = <1>;
         compatible = "amba-bus";
         interrupt-parent = <&intc>;
-        ranges;
 
         timer@20a000 {
             compatible = "csky,gx6605s-timer";
@@ -40,11 +39,11 @@
         };
 
         gpio0: gpio@305000 {
+            #gpio-cells = <2>;
             compatible = "wd,mbl-gpio";
             reg-names = "dirout", "dat", "set", "clr";
             reg = <0x305000 4>, <0x305004 4>, <0x305008 4>, <0x30500c 4>;
-            bgpio-base = <0>;
-            #gpio-cells = <2>;
+            gpio-base = <0>;
             gpio-controller;
         };
 

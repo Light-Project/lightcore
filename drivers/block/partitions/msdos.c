@@ -23,14 +23,14 @@ static state msdos_extended(struct block_device *bdev, uint32_t start)
         msdos = kmalloc(sizeof(*msdos), GFP_KERNEL);
         if (!msdos)
             return -ENOMEM;
-        
+
         block_device_read(bdev, msdos, 0, 1);
         if (MSDOS_MAGIC != cpu_to_be16(msdos->magic))
             goto fail;
 
         for (part = 0; part < 4; ++part) {
 
-        
+
         }
 
         kfree(msdos);
@@ -41,19 +41,19 @@ fail:
     return -EINVAL;
 }
 
-static struct partition_table *
-msdos_match(struct block_device *bdev)
+state msdos_match(struct block_device *bdev)
 {
+    struct partition_entry *entry;
     struct msdos_head *msdos;
     int part;
 
-    msdos = kmalloc(sizeof(*msdos), GFP_KERNEL);
+    msdos = kzalloc(sizeof(*msdos), GFP_KERNEL);
     if (!msdos)
-        return NULL;
-        
+        return -ENOMEM;
+
     block_device_read(bdev, msdos, 0, 1);
     if (MSDOS_MAGIC != cpu_to_be16(msdos->magic))
-        return NULL;
+        goto fail;
 
     for (part = 0; part < 4; ++part) {
         uint32_t start, size;
@@ -61,18 +61,31 @@ msdos_match(struct block_device *bdev)
         start = msdos->dpt[part].lba;
         size = msdos->dpt[part].size;
 
-        if (!start)
+        if (!size)
             continue;
 
-        if (msdos->dpt[part].size != MSDOS_DOS_EXT_PART   ||
-            msdos->dpt[part].size != MSDOS_WIN98_EXT_PART ||
-            msdos->dpt[part].size != MSDOS_LINUX_EXT_PART) {
-
-        } else  /* extended partition */
+        if (msdos->dpt[part].type == MSDOS_DOS_EXT_PART   ||
+            msdos->dpt[part].type == MSDOS_WIN98_EXT_PART ||
+            msdos->dpt[part].type == MSDOS_LINUX_EXT_PART) {
             msdos_extended(bdev, start + size);
+            continue;
+        }
+
+        entry = kzalloc(sizeof(*entry), GFP_KERNEL);
+        if (!entry)
+            break;
+        entry->start = start;
+        entry->len = size;
+        list_add_prev(&bdev->parts, &entry->list);
+        pr_debug("part%d: start 0x%x size 0x%x",
+                 part, start, size);
     }
 
-    return NULL;
+    return -ENOERR;
+
+fail:
+    kfree(msdos);
+    return -ENODATA;
 }
 
 static struct partition_type msdos_part = {

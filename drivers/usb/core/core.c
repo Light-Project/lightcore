@@ -24,7 +24,7 @@ state usb_host_request_submit(struct usb_request *request)
 struct usb_device *usb_device_alloc(struct usb_bus *bus, struct usb_device *parent)
 {
     struct usb_device *udev;
-    
+
     udev = kzalloc(sizeof(*udev), GFP_KERNEL);
     if (!udev)
         return NULL;
@@ -52,7 +52,7 @@ static state root_hub_register(struct usb_host *host)
 }
 
 state usb_host_register(struct usb_host *host)
-{   
+{
     struct usb_device *root_hub;
     state ret;
 
@@ -85,8 +85,8 @@ state usb_host_register(struct usb_host *host)
             return -EINVAL;
     }
 
-    if (host->ops->reset) {
-        ret = host->ops->reset(host);
+    if (host->ops->setup) {
+        ret = host->ops->setup(host);
         if (ret) {
             pr_err("reset error\n");
             return -EBUSY;
@@ -96,7 +96,7 @@ state usb_host_register(struct usb_host *host)
     ret = host->ops->start(host);
     if (unlikely(ret)) {
         pr_err("start error\n");
-        return -EBUSY;   
+        return -EBUSY;
     }
 
     root_hub_register(host);

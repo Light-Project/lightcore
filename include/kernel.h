@@ -3,6 +3,13 @@
 
 #include <types.h>
 
+#define MSIZE (sizeof(void *))
+
+/**
+ * min - return minimum of two values of the same or compatible types
+ * @x: first value
+ * @y: second value
+ */
 #define min(a, b) ({                \
     typeof(a) _amin = (a);          \
     typeof(b) _bmin = (b);          \
@@ -10,12 +17,25 @@
     _amin < _bmin ? _amin : _bmin;  \
 })
 
+/**
+ * max - return maximum of two values of the same or compatible types
+ * @x: first value
+ * @y: second value
+ */
 #define max(a, b) ({                \
     typeof(a) _amax = (a);          \
     typeof(b) _bmax = (b);          \
     (void)(&_amax == &_bmax);       \
     _amax > _bmax ? _amax : _bmax;  \
 })
+
+/**
+ * clamp - return a value clamped to a given range with strict typechecking
+ * @val: current value
+ * @lo: lowest allowable value
+ * @hi: highest allowable value
+ */
+#define clamp(val, lo, hi)  min((typeof(val))max(val, lo), hi)
 
 #define swap(a, b) ({   \
     typeof(a) tmp = a;  \
@@ -24,8 +44,6 @@
 })
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
-
-#define MSIZE (sizeof(void *))
 
 /**
  * container_of - cast a member of a structure out to the containing structure
@@ -61,4 +79,4 @@ void __kassert(const char *expr, const char *file, int line, const char *func);
 void panic(const char* fmt, ...);
 
 #endif
- 
+

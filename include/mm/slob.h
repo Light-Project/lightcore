@@ -6,10 +6,10 @@
 #include <asm/page.h>
 #include <mm/gfp.h>
 
-#if PAGE_SHIFT < 15
-#define slobidx_t   uint16_t
-#else
+#if (PAGE_SHIFT > 15) || defined(CONFIG_ARCH_CSKY)
 #define slobidx_t   uint32_t
+#else
+#define slobidx_t   uint16_t
 #endif
 
 /* A slob unit head */

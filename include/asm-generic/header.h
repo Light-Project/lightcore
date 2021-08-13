@@ -1,4 +1,4 @@
-#ifndef _ASM_GENERIC_HEAD_H_ 
+#ifndef _ASM_GENERIC_HEAD_H_
 #define _ASM_GENERIC_HEAD_H_
 
 #ifndef __ASSEMBLY__
@@ -13,7 +13,7 @@ struct boot_head{
     uint32_t    hcrc;           // 0x34: Head crc
     uint32_t    size;           // 0x38: kernel size
     uint32_t    crc;            // 0x3c: kernel crc
-} __packed;
+} __attribute__((__packed__));
 
 extern struct boot_head boot_head;
 
@@ -26,7 +26,7 @@ extern struct boot_head boot_head;
     .long   0                   /* 0x2c: Res */
     .long   _ld_head_size       /* 0x30: Head size */
     .long   0                   /* 0x34: Head crc32 */
-    .long   0                   /* 0x38: Kernel size */
+    .long   _ld_image_size      /* 0x38: Kernel size */
     .long   0                   /* 0x3c: Head crc32 */
 .endm
 

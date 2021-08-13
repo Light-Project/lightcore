@@ -27,26 +27,27 @@ static unsigned char pos_x, pos_y;
 static inline void video_cursor(const char pos_x, const char pos_y)
 {
     uint16_t cursor = pos_x + (pos_y * 80);
-
     outb(VESA_CRT_IC, VESA_CRTC_CURSOR_HI);
     outb(VESA_CRT_DC, cursor >> 8);
     outb(VESA_CRT_IC, VESA_CRTC_CURSOR_LO);
     outb(VESA_CRT_DC, cursor);
 }
 
-static inline void video_clear(int pos_y, int len)
+static void video_clear(int pos_y, int len)
 {
     int pos_x;
     for(; len--; pos_y++)
-    for(pos_x = 0; pos_x < 80; pos_x++) {
+    for(pos_x = 0; pos_x < xres; pos_x++) {
         vram_text->block[pos_y][pos_x].ch = '\0';
         vram_text->block[pos_y][pos_x].att = 0x07;
     }
 }
 
-static inline void video_roll()
+#define roll_size (2 * xres * (yres - 1))
+
+static void video_roll(void)
 {
-    memmove(&vram_text->block[0][0], &vram_text->block[1][0], 2 * xres * (yres - 1));
+    memmove(&vram_text->block[0][0], &vram_text->block[1][0], roll_size);
     video_clear(yres - 1, 1);
 }
 
@@ -55,8 +56,10 @@ static void video_write(struct console *con, const char *str, unsigned len)
     char ch;
     
     while((ch = *str++) != '\0' && 0 < len--) {
-        if (pos_y >= yres)
-            video_roll(pos_y--);
+        if (pos_y >= yres) {
+            video_roll();
+            pos_y--;
+        }
 
         if (ch == '\n') {
             pos_y++;

@@ -49,7 +49,7 @@ struct region *pa_to_region(phys_addr_t pa)
 static inline bool region_block_add(struct memblock_region *blk)
 {
     struct region *region = pa_to_region(blk->addr);
-    struct page *page = pa_to_page(blk->addr);
+    struct page *page = pa_to_page(align_high(blk->addr, PAGE_SIZE));
 
     if (!(blk->size >> PAGE_SHIFT))
         return false;
@@ -64,7 +64,7 @@ static inline bool region_block_add(struct memblock_region *blk)
 static inline void __init region_free_list_init(void)
 {
     for(int region = 0; region < REGION_NR_MAX; ++region)
-    for(int order = 0; order < PAGE_ORDER_MAX; ++order)
+    for(int order = 0; order <= PAGE_ORDER_MAX; ++order)
         list_head_init(&region_map[region].page_free[order].list);
 }
 

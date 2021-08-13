@@ -11,8 +11,7 @@ MEMORY
   INT       (rx)    : ORIGIN = 0x000,   LENGTH = 0x0400
   BIOSDATA  (rx)    : ORIGIN = 0x400,   LENGTH = 0x0100
   MBRSTACK  (rw)    : ORIGIN = 0x500,   LENGTH = 0x02c0
-  MBR       (rx)    : ORIGIN = 0x7c00,  LENGTH = 0x01b8
-  DPTSIG    (rw)    : ORIGIN = 0x7db8,  LENGTH = 0x0006 
+  MBR       (rx)    : ORIGIN = 0x7c00,  LENGTH = 0x01be
   DPT       (rw)    : ORIGIN = 0x7dbe,  LENGTH = 0x0040
   SIG       (rw)    : ORIGIN = 0x7dfe,  LENGTH = 0x0002
   

@@ -7,8 +7,10 @@ obj-y += syscall.o
 
 obj-y += irq.o
 obj-y += idt.o
-obj-y += recall.o
+obj-y += backtrace.o
 obj-y += traps.o
+
+obj-$(CONFIG_SMP) += smp.o
 
 obj-y += pre_printk.o
 

@@ -94,10 +94,12 @@ ENTRY(entry_generic_interrupt)
 .endr
 
 1:
+    cli
     pushl   %eax
 
     call    generic_interrupt
     addl    $4, %esp
 
+    sti
     iret
 END(entry_generic_interrupt)

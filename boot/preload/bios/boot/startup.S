@@ -136,9 +136,6 @@ TXT_MBR_BOOT:       .asciz "\n\rMBR booting\n"
 TXT_INT13_1_ERR:    .asciz "INT13/1 ERR!\n"
 TXT_INT13_2_ERR:    .asciz "INT13/2 ERR!\n"
 
-    .section ".dptsign","ax"
-dptsign: .asciz "dpt:"
-
 /****************************/
 /* The text section begins  */
 /****************************/

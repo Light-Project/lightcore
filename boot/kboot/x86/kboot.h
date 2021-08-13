@@ -1,9 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-
 #ifndef _KBOOT_H_
 #define _KBOOT_H_
 
-#include <lib.h> 
+#include <lib.h>
 
 #define bss_start   ((char *)ld_bss_start + (size_t)&head)
 #define bss_end     ((char *)ld_bss_end + (size_t)&head)
@@ -20,7 +19,6 @@
 #define load_addr   (size_1MiB * 16)
 #define page_offset ((void *)CONFIG_PAGE_OFFSET)
 #define kernel_entry (page_offset + 0x1000000)
-
 
 #ifndef __ASSEMBLY__
 

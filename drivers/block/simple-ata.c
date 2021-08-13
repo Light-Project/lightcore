@@ -25,19 +25,19 @@ struct atasim_device {
 #define block_to_atasim(bdev) \
     container_of(bdev, struct atasim_device, block);
 
-static __always_inline uint8_t 
+static __always_inline uint8_t
 atasim_inb(struct atasim_device *atasim, int reg)
 {
     return inb(atasim->port + reg);
 }
 
-static __always_inline uint16_t 
+static __always_inline uint16_t
 atasim_inw(struct atasim_device *atasim, int reg)
 {
     return inw(atasim->port + reg);
 }
 
-static __always_inline void 
+static __always_inline void
 atasim_outb(struct atasim_device *atasim, int reg, uint8_t val)
 {
     outb(atasim->port + reg, val);
@@ -111,7 +111,7 @@ static state atasim_probe(struct pci_device *pdev, int id)
     struct atasim_device *atasim;
     // resource_size_t port;
     // int count;
-    
+
 
     // for (count = 0; count < PCI_STD_NUM_BARS; ++count) {
     //     if (pci_resource_type(pdev, count) != RESOURCE_PMIO ||
@@ -131,14 +131,12 @@ static state atasim_probe(struct pci_device *pdev, int id)
     atasim->device = &pdev->dev;
     atasim->port = 0x1f0;
     atasim->block.ops = &atasim_ops;
-    block_device_register(&atasim->block);
-
-    return -ENOERR;
+    return block_device_register(&atasim->block);
 }
 
 static state atasim_remove(struct pci_device *pdev)
 {
-    
+
     return -ENOERR;
 }
 

@@ -1,18 +1,18 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com> 
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
 #include <delay.h>
 #include <driver/pci.h>
 
 static void uhci_pci_reset(struct uhci_host *uhci, struct pci_device *pdev)
-{	
+{
     /* Turn off PIRQ enable and SMI enable.  (This also turns off the
      * BIOS's USB Legacy Support.)  Turn off all the R/WC bits too.
      */
     pci_config_writew(pdev, UHCI_PCI_LEGSUP, UHCI_PCI_LEGSUP_RWC);
-    
+
     /* Reset the HC - this will force us to get a
      * new notification of any already connected
      * ports due to the virtual disconnect that it
@@ -56,7 +56,7 @@ reset:
 }
 
 static struct usb_ops uhci_ops = {
-    .reset = uhci_pci_setup,
+    .setup = uhci_pci_setup,
     .start = uhci_start,
     .ep_disable = uhci_endpoint_disable,
 
@@ -109,7 +109,7 @@ static struct pci_driver uhci_pci_driver = {
     .probe = uhci_pci_probe,
     .remove = uhci_pci_remove,
 };
- 
+
 static state uhci_pci_init(void)
 {
     return pci_driver_register(&uhci_pci_driver);

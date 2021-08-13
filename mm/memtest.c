@@ -31,16 +31,15 @@ static void __init memtest_once(size_t pattern, size_t *start, size_t *end)
         *walk++ = pattern;
 
     for (walk = start; walk < end; ++walk) {
-        if(likely(*walk == pattern))
+        if (likely(*walk == pattern))
             continue;
         /* Bad memory start */
-        if(!bad_start)
+        if (!bad_start)
             bad_start = walk;
         /* Bad memory end */
-        if(*(walk + 1) == pattern) {
+        if (*(walk + 1) == pattern) {
             bad_block(walk, (size_t)walk - (size_t)bad_start + 1);
             bad_start = NULL;
-            continue;
         }
     }
 }

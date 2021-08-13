@@ -2,7 +2,6 @@
 #ifndef _FSDEV_H_
 #define _FSDEV_H_
 
-
 struct fs_device_ops {
 
 };

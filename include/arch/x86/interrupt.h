@@ -1,19 +1,11 @@
-/*
- *  SPDX-License-Identifier: GPL-2.0-or-later
- *  include/arch/x86/interrupt.h
- *  x86 interrupt define
- *  (C) 2020 wzl finishing
- * 
- *  Change Logs:
- *  Date            Notes
- *  2021-02-26      first version 
- * 
- */
-
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _ARCH_X86_INTERRUPT_H_
 #define _ARCH_X86_INTERRUPT_H_
 
+#include <types.h>
+
 #ifndef __ASSEMBLY__
+
 struct idt_bits {
     union {
         struct {

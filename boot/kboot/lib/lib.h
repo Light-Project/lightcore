@@ -28,7 +28,7 @@ void heap_init(void *heap_start,size_t heap_size);
 void *malloc(size_t size);
 void free(void *mem);
 
-void memtest(void *mem_start, size_t size);
+int memtest(size_t *addr, size_t size);
 
 void extract_kernel(void *output_start, void *input_start, unsigned long len);
 

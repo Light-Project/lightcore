@@ -10,11 +10,6 @@
 extern void *dt_start_addr;
 extern uint32_t dt_crc32;
 
-extern unsigned int dt_root_addr_cells;
-extern unsigned int dt_root_size_cells;
-#define DT_ROOT_ADDR_CELLS_DEFAULT  1
-#define DT_ROOT_SIZE_CELLS_DEFAULT  1
-
 static inline uint64_t dt_read(const be32 *cell, int size)
 {
     uint64_t ret;

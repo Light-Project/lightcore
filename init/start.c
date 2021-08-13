@@ -5,7 +5,7 @@
 
 #include <string.h>
 #include <linkage.h>
-#include <kernel.h> 
+#include <kernel.h>
 #include <kernel/sched.h>
 
 #include <init/init.h>
@@ -20,7 +20,7 @@
 
 #include <device/driver.h>
 #include <driver/irqchip.h>
-#include <driver/clocksource.h>  
+#include <driver/clocksource.h>
 
 #include <asm-generic/header.h>
 #include <asm/irq.h>
@@ -60,8 +60,7 @@ asmlinkage __visible void __init kernel_start(void)
     arch_irq_enable();
 
     console_init();
-    
-    initcalls();
 
+    initcalls();
     init_task();
 }

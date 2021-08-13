@@ -112,7 +112,7 @@
 #endif
 
 /*
- * RO Data:  
+ * RO Data:
  */
 #define RODATA_RODATA(align)                    \
     . = ALIGN(align);                           \
@@ -122,7 +122,7 @@
         *(RODATA_MAIN)                          \
         _ld_rodata_rodata_end = .;              \
     }
-    
+
 #define NOTES                                   \
     .notes :                                    \
     AT(ADDR(.notes) - LOAD_OFFSET) {            \
@@ -131,8 +131,8 @@
         __stop_notes = .;                       \
     } NOTES_HEADERS                             \
     NOTES_HEADERS_RESTORE
-    
-    
+
+
 #define KSYMTAB(align)                          \
     . = ALIGN(align);                           \
     .ksymtab :                                  \
@@ -141,7 +141,7 @@
         KEEP(*(SORT(.ksymtab+*)))               \
         PROVIDE(_ld_ksymtab_end = .);           \
     }
-    
+
 #define KSYMTAB_GPL(align)                      \
     . = ALIGN(align);                           \
     .ksymtab_gpl :                              \
@@ -152,28 +152,19 @@
     }
 
 /*
- * RW Data: 
+ * RW Data:
  */
 
-#define INIT_TASK_STACK(align)                      \
-    . = ALIGN(align);                               \
-    _ld_init_task_stack_start = .;                  \
-    init_thread_union = .;                          \
-    init_stack = .;                                 \
-    KEEP(*(.data..init_task))                       \
-    KEEP(*(.data..init_thread_info))                \
-    . = _ld_init_task_stack_start + THREAD_SIZE;    \
-    _ld_init_task_stack_end = .;
-  
+
 /*
- * Init text: 
+ * Init text:
  */
 
 #define INIT_TEXT                           \
     *(.init.text .init.text.*)              \
     *(.text.startup)                        \
     MEM_DISCARD(init.text*)
- 
+
 /*
  * Init data: DT table
  */
@@ -193,7 +184,7 @@
 #define DT_RESERVEDMEM_TABLES()     DT_TABLE(CONFIG_RESERVED_MEM, reservedmem)
 #define DT_CPU_METHOD_TABLES()      DT_TABLE(CONFIG_SMP, cpu_method)
 #define DT_CPUIDLE_METHOD_TABLES()  DT_TABLE(CONFIG_CPU_IDLE, cpuidle_metho
-        
+
 #define INIT_DT_TABLES                      \
     _ld_init_dtb_start = .;                 \
     KEEP(*(.init.dtb));                     \
@@ -228,7 +219,7 @@
     INIT_CALLS_LEVEL(6)                     \
     INIT_CALLS_LEVEL(7)                     \
     _ld_initcall_end = .;
-        
+
 #define CONSOLE_INITCALL                    \
     _ld_pre_console_initcall_start = .;     \
     KEEP(*(.pre_console_initcall.init))     \
@@ -269,8 +260,18 @@
         *(.dynbss)                              \
         *(BSS_MAIN)                             \
         *(COMMON)                               \
-    } 
-        
+    }
+
+#define INIT_TASK_STACK(align)                      \
+    . = ALIGN(align);                               \
+    .task_stack :                                   \
+    AT(ADDR(.task_stack) - LOAD_OFFSET) {           \
+    _ld_init_task_stack_start = .;                  \
+    init_thread_union = .;                          \
+    . = _ld_init_task_stack_start + THREAD_SIZE;    \
+    _ld_init_task_stack_end = .;                    \
+    }
+
 #define COMMON_DISCARDS                         \
     *(.eh_frame)                                \
     *(.discard)                                 \
@@ -281,7 +282,7 @@
 #define DISCARDS                                \
     /DISCARD/ : {                               \
     COMMON_DISCARDS                             \
-    } 
+    }
 
 /*
  * Definition of the high level *_SECTION macros
@@ -312,17 +313,16 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
     KSYMTAB(align)                              \
     KSYMTAB_GPL(align)                          \
     NOTES
-    
-#define RWDATA_SECTION(cacheline, pagealign, inittask)  \
+
+#define RWDATA_SECTION(cacheline, pagealign)    \
     . = ALIGN(pagealign);                       \
     .data :                                     \
     AT(ADDR(.data) - LOAD_OFFSET) {             \
-        INIT_TASK_STACK(inittask)               \
         _ld_data_start = .;                     \
         *(DATA_MAIN)                            \
         _ld_data_end = .;                       \
     }
-    
+
 #define INIT_TEXT_SECTION(align)                \
     . = ALIGN(align);                           \
     .init.text :                                \
@@ -331,7 +331,7 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
         INIT_TEXT                               \
         _einittext = .;                         \
     }
-    
+
 #define INIT_DATA_SECTION(align)                \
     .init.data :                                \
     AT(ADDR(.init.data) - LOAD_OFFSET) {        \
@@ -344,12 +344,13 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
         CLKSRC_INITCALL                         \
         _ld_data_section_end = .;               \
     }
-    
+
 #define BSS_SECTION(sbss_align, bss_align, stop_align)  \
     . = ALIGN(sbss_align);                              \
     _ld_bss_start = .;                                  \
     SBSS(sbss_align)                                    \
     BSS(bss_align)                                      \
+    INIT_TASK_STACK(bss_align)                          \
     . = ALIGN(stop_align);                              \
     _ld_bss_end = .;
 
@@ -398,7 +399,7 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
         .debug_names    0 : { *(.debug_names) }             \
         .debug_rnglists    0 : { *(.debug_rnglists) }       \
         .debug_str_offsets    0 : { *(.debug_str_offsets) }
-    
-    
+
+
 #endif
-    
+

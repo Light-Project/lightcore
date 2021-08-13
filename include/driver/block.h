@@ -32,6 +32,7 @@ struct block_ops {
 
 struct block_device {
     struct block_ops *ops;
+    struct list_head parts;
 };
 
 /* block_part.c */

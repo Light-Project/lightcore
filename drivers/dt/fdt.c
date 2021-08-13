@@ -143,8 +143,10 @@ static inline bool __init populate_node(const void *blob, int offset, struct dt_
     node->path = fn = (char *)node + sizeof(*node);
     memcpy(fn, path, len);
 
-    if (parent)
+    if (parent) {
+        node->parent = parent;
         slist_add(&parent->child, &node->sibling);
+    }
 
     return populate_attribute(blob, offset, node);
 }

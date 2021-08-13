@@ -17,13 +17,13 @@ struct usb_device;
 
 enum usb_speed {
     USB_SPEED_UNKNOW,
-    USB_SPEED_LOW,
-    USB_SPEED_FULL,
-    USB_SPEED_HIGH,
-    USB_SPEED_WIRELESS,
-    USB_SPEED_SUPER,
-    USB_SPEED_SUPER_PLUS,
-    USB_SPEED_SUPER_PLUS_2,
+    USB_SPEED_LOW,          /* USB 1.0 */
+    USB_SPEED_FULL,         /* USB 1.1 */
+    USB_SPEED_HIGH,         /* USB 2.0 */
+    USB_SPEED_WIRELESS,     /* USB 2.5 */
+    USB_SPEED_SUPER,        /* USB 3.0 */
+    USB_SPEED_SUPER_PLUS,   /* USB 3.1 */
+    USB_SPEED_SUPER_PLUS_2, /* USB 3.2 */
 };
 
 enum usb_host_type {
@@ -42,7 +42,7 @@ struct usb_request {
     uint32_t pipe;
 
     struct usb_ctrlrequest *ctrl;   /* For control transmission only */
-    void *transfer_buff;            
+    void *transfer_buff;
     int   transfer_len;
 };
 
@@ -99,7 +99,7 @@ struct usb_host {
     (container_of((bpt), struct usb_host, bus))
 
 struct usb_ops {
-    state (*reset)(struct usb_host *);
+    state (*setup)(struct usb_host *);
     state (*start)(struct usb_host *);
     state (*stop)(struct usb_host *);
 
@@ -158,12 +158,12 @@ usb_pipe_endpoint(struct usb_device *udev, unsigned int pipe)
 }
 
 /* transfer.c */
-int usb_control_transfer(struct usb_device *udev, unsigned int pipe, uint8_t bRequestType, 
-                         uint8_t bRequest, uint16_t wValue, uint16_t wIndex, 
+int usb_control_transfer(struct usb_device *udev, unsigned int pipe, uint8_t bRequestType,
+                         uint8_t bRequest, uint16_t wValue, uint16_t wIndex,
                          void *data, uint16_t wLength, int timeout);
-int usb_bulk_transfer(struct usb_device *udev, unsigned int pipe, 
+int usb_bulk_transfer(struct usb_device *udev, unsigned int pipe,
                       void *data, int len, int *transferred, int timeout);
-int usb_interrupt_transfer(struct usb_device *udev, unsigned int pipe, 
+int usb_interrupt_transfer(struct usb_device *udev, unsigned int pipe,
                            void *data, int len, int *transferred, int timeout);
 state usb_descriptor_read(struct usb_device *udev, uint8_t type,
                           uint8_t index, void *buff, unsigned int size);

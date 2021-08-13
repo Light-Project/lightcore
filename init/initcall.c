@@ -21,19 +21,6 @@ static initcall_entry_t *initcall_levels[] __initdata = {
     _ld_initcall_end,
 };
 
-#ifdef CONFIG_DYNAMIC_DEBUG
-static const char *initcall_level_names[] __initdata = {
-    "pure",
-    "core",
-    "arch",
-    "framework",
-    "filesystem",
-    "rootfs",
-    "driver",
-    "late",
-};
-#endif
-
 static void __init do_one_initcall(int level, initcall_entry_t *fn)
 {
     initcall_t call;
@@ -41,8 +28,9 @@ static void __init do_one_initcall(int level, initcall_entry_t *fn)
 
     call = initcall_from_entry(fn);
     ret = call();
-    pr_debug("started %s %s %s. \n", initcall_level_names[level], 
-             fn->name, ret ?  "Fail" : "OK");
+
+    if (ret)
+        pr_debug("%s error code [%d]\n", fn->name, ret);
 }
 
 static void __init do_initcall_level(int level)

@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * lightcore/include/string.h
- * c library
- * (C) 2020 wzl
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
 #ifndef _STRING_H_
@@ -11,7 +10,7 @@
 #include <stddef.h>
 
 /*
- *String manipulation
+ * String manipulation
  */
 char *strcpy(char *dest, const char *src);
 char *strncpy(char *dest, const char *src, size_t n);
@@ -21,7 +20,7 @@ char *strncat(char *dest, const char *src, size_t n);
 size_t strlcat(char *dest, const char *src, size_t n);
 
 /*
- *String examination
+ * String examination
  */
 size_t strlen(const char *s);
 size_t strnlen(const char *s, size_t n);
@@ -46,7 +45,7 @@ char *strsep(char **s, const char *ct);
 char *strim(char *s);
 
 /*
- *Memory manipulation
+ * Memory manipulation
  */
 void *memset(void *s, int c, size_t n);
 void *memcpy(void *dest, const void*src, size_t len);
@@ -55,46 +54,10 @@ void *memchr(const void *s, int c, size_t n);
 void *memscan(void *addr, int c, size_t size);
 int memcmp(const void *s1, const void *s2, size_t n);
 
-/*
- *ffs - find first (least-significant) bit set
- */
-static inline __attribute__((always_inline)) int ffs(int x)
-{
-    return __builtin_ffs(x);
-}
-
-/*
- *fls - find last (most-significant) bit set
- *Note fls(0) = 0, fls(1) = 1, fls(0x80000000) = 32.
- */
-static inline __attribute__((always_inline)) int fls(int x)
-{
-    return x ? sizeof(x) *8 - __builtin_clz(x) : 0;
-}
-
-/*
- *__ffs - find first bit in word.
- *Undefined if no bit exists, so code should check against 0 first.
- */
-static inline __attribute__((always_inline)) unsigned long __ffs(unsigned long word)
-{
-    return __builtin_ctzl(word);
-}
-
-/*
- *__fls - find last (most-significant) set bit in a long word
- *Undefined if no set bit exists, so code should check against 0 first.
- */
-static inline __attribute__((always_inline)) unsigned long __fls(unsigned long word)
-{
-    return (sizeof(word) *8) - 1 - __builtin_clzl(word);
-}
-
-
 static inline const char *kbasename(const char *path)
 {
     const char *c = strrchr(path, '/');
     return c ? c + 1 : path;
 }
 
-#endif
+#endif /* _STRING_H_ */

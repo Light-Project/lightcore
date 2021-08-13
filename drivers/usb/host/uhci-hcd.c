@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com> 
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
 #define DRIVER_NAME "uhci"
@@ -78,12 +78,11 @@ uhci_writel(const struct uhci_host *host, int reg, uint32_t val)
 static inline int uhci_submit_control()
 {
 
-
     return 0;
 }
 
-static state uhci_enqueue(struct usb_host *host, 
-                                 struct usb_request *request)
+static state uhci_enqueue(struct usb_host *host,
+                          struct usb_request *request)
 {
     struct uhci_host *uhci = host_to_uhci(host);
     irqflags_t irqflags;
@@ -107,7 +106,7 @@ static enum irq_return uhci_handle(irqnr_t vector, void *data)
     uhci_writew(uhci, UHCI_STS, val);   /* Clear irq */
 
     spin_lock(&uhci->lock);
-    
+
     if (val & ~(UHCI_STS_USBINT | UHCI_STS_ERROR | UHCI_STS_RD)) {
         if (val & UHCI_STS_HSE)
             pr_err("\n");
@@ -122,7 +121,7 @@ static enum irq_return uhci_handle(irqnr_t vector, void *data)
     } else {
 
     }
-    
+
     spin_unlock(&uhci->lock);
     return IRQ_RET_HANDLED;
 }
@@ -133,7 +132,7 @@ static state uhci_start(struct usb_host *host)
     return -ENOERR;
 }
 
-static void uhci_endpoint_disable(struct usb_host *host, 
+static void uhci_endpoint_disable(struct usb_host *host,
                                   struct usb_endpoint *ep)
 {
     struct uhci_host *uhci = host_to_uhci(host);

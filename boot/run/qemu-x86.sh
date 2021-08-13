@@ -4,8 +4,8 @@ image='boot/disk.img'
 bochsconf='boot/run/bochs-x86'
 
 if [ $path ];then
-    dd if=$image of=$path bs=444 count=1 conv=notrunc
-    dd if=$image of=$path bs=512 skip=1 seek=1 conv=notrunc 
+    dd if=$image of=$path bs=444 count=1 oflag=sync conv=notrunc
+    dd if=$image of=$path bs=512 skip=1 seek=1 oflag=sync conv=notrunc 
     
 elif [ $bochs ];then
     bochs -q -f $bochsconf

@@ -2,6 +2,7 @@ menuconfig GPIO
     bool "Gpio support"
 if GPIO
 
-
+config GPIO_GENERIC
+    bool ""
 
 endif

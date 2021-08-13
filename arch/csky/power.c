@@ -1,22 +1,18 @@
 #include <asm/irq.h>
 #include <kernel/power.h>
 
-
-
 void power_halt()
 {
     arch_irq_disable();
-    asm volatile ("bkpt");
+    asm volatile ("wait");
 }
 
 void power_reboot()
 {
-    arch_irq_disable();
-    asm volatile ("bkpt");
+    power_halt();
 }
 
 void power_shutdown()
 {
-    arch_irq_disable();
-    asm volatile ("bkpt");
+    power_halt();
 }

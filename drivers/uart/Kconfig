@@ -2,7 +2,7 @@ menuconfig UART
     bool "UART support"
 if UART
 
-config CONFIG_UART_8250_DT
+config UART_8250
     bool "Devicetree based probing for 8250 ports"
     depends on DT
 

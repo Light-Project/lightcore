@@ -13,13 +13,15 @@ struct slob_page {
 };
 
 struct page {
+    uint32_t sparce_nr:8;
     uint32_t order:4;
     uint32_t region_type:3;
-    uint32_t sparce_nr:8;
-
-    struct list_head free_list;
+    uint32_t free:1;
 
     union {
+        struct {
+            struct list_head free_list;
+        };
         struct slob_page slob;
     };
 };

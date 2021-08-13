@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+
 include $(src)/dts/config.mk
 include $(src)/run/config.mk
 
@@ -25,7 +27,7 @@ $(obj)/%.dtb: $(src)/dts/%.dts DTC FORCE
 dts: $(dtb) FORCE
 
 targets += $(dtb)
-clean-y += *.dtb *.dtc.tmp *.dts.tmp
+clean-y += *.dtb .*.dtc.tmp .*.dts.tmp
 
 # KBOOT
 quiet_cmd_copy_kernel = OBJCOPY $@
@@ -85,12 +87,11 @@ clean-y += kernel.bin piggy_data boot boot.bin
 # UBOOT
 MKIMAGE := $(srctree)/scripts/mkuboot.sh
 
-UIMAGE_ARCH         = $(ARCH)
+UIMAGE_ARCH         = sandbox
 UIMAGE_COMPRESSION  = none
 UIMAGE_OPTS-y       =
 UIMAGE_TYPE         = kernel
-# UIMAGE_LOADADDR     = $(shell $(NM) $(obj)/kboot/boot | awk '$$NF == "_start" {print $$1}')
-UIMAGE_LOADADDR     = 0x90000000
+UIMAGE_LOADADDR     = $(shell $(NM) $(obj)/kboot/boot | awk '$$NF == "_start" {print $$1}')
 UIMAGE_ENTRYADDR    = $(UIMAGE_LOADADDR)
 UIMAGE_NAME         = 'Lightcore-$(KERNELVERSION)'
 

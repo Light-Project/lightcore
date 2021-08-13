@@ -1,16 +1,14 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- *  SPDX-License-Identifier: GPLV2
- *  lightcore/arch/arm/926ejs/boot/boot.S
- *  X86 serial boot
- *  (C) 2020 wzl
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
- 
+
 #include <asm-generic/header.h>
 #include <linkage.h>
 #include <asm/page.h>
 #include <arch/x86/seg.h>
 
-    .section    .startup,"ax"
+    .section    .startup, "ax"
 GLOBAL(boot_head)
     ljmpl   $GDT_ENTRY_KERNEL_CS_BASE, $init    /* 0x00: x86 jump */
     .align  16                                  /* ----: Reserved */

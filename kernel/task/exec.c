@@ -1,7 +1,16 @@
- 
+#include <fs.h>
+#include <kernel/syscall.h>
 
-long sys_execve()
+state kernel_execve(const char *file, const char *const *argv, const char *const *envp)
 {
+    
+    return -ENOERR;
+}
 
-    return 0;
+
+void execve()
+{
+    
+    
+    
 }

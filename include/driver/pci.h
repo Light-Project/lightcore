@@ -63,7 +63,6 @@ enum pci_speed {
 };
 
 struct pci_device {
-    /* Bus structure description */
     list_t pci_bus_list_pci_device; /* Node of pci_bus->pci_device_list */
     struct pci_bus *bridge;         /* Bus this device bridges to */
     struct device dev;              /* Generic device */
@@ -124,21 +123,18 @@ struct pci_driver {
 #define driver_to_pci_driver(dpt) \
         (container_of((dpt), struct pci_driver, driver))
 
-/* pci_bus structure declare the PCI bus */
 struct pci_bus {
-    /* Bus structure description */
-    list_t  node;               /* Node of children list */
-    list_t  children;           /* List head of child buses */
+    struct list_head list;      /* Node of children list */
+    struct list_head children;  /* List head of child buses */
     struct pci_bus *parent;     /* Parent bus on this bridge */
-    
-    struct list_head pci_device_list;   /* List head of pci_devices on this bus */
-    struct pci_ops *ops;
 
-    uint    bus_nr;
+    struct list_head pci_device_list;   /* pci_devices on this bus */
+    struct pci_ops *ops;
+    unsigned int bus_nr;
 };
 
 #define pci_bus_for_each_pci_device(pci_device, pci_bus)    \
-        list_for_each_entry(pci_device, &pci_bus->pci_device_list, pci_bus_list_pci_device)
+    list_for_each_entry(pci_device, &pci_bus->pci_device_list, pci_bus_list_pci_device)
 
 /* The pci_ops structure declare the operation method of PCI */
 struct pci_ops {
@@ -149,7 +145,7 @@ struct pci_ops {
 /* The pci_host structure declare PCI controller */
 struct pci_host {
     struct device   dev;
-    struct pci_ops  *ops;   
+    struct pci_ops  *ops;
     struct pci_bus  *bus;   /* Root bus */
     void *priv;             /* Private data */
 };

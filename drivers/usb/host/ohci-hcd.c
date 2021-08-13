@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com> 
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define DRIVER_NAME "uhci"
+#define DRIVER_NAME "ohci"
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
 #include <mm.h>

@@ -24,15 +24,16 @@
      inkscape:document-units="mm"
      showgrid="false"
      units="px"
-     inkscape:zoom="1.6630104"
-     inkscape:cx="528.86021"
-     inkscape:cy="316.59454"
+     inkscape:zoom="0.8315052"
+     inkscape:cx="897.76949"
+     inkscape:cy="303.66617"
      inkscape:window-width="1920"
      inkscape:window-height="1033"
      inkscape:window-x="0"
      inkscape:window-y="24"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer1" />
+     inkscape:current-layer="layer1"
+     showguides="false" />
   <defs
      id="defs2">
     <marker
@@ -138,6 +139,13 @@
      inkscape:label="图层 1"
      inkscape:groupmode="layer"
      id="layer1">
+    <rect
+       style="fill:#ffffff;stroke-width:2.69778;stroke-dasharray:64.7467, 64.7467"
+       id="rect2324"
+       width="338.66666"
+       height="190.5"
+       x="0"
+       y="0" />
     <rect
        style="fill:#fada95;fill-opacity:1;stroke-width:0.605979"
        id="rect20083"
@@ -369,10 +377,10 @@
        id="text34004"
        transform="rotate(-90)"><tspan
          sodipodi:role="line"
-         id="tspan34002"
          style="stroke-width:0.264583"
          x="-124.96135"
-         y="271.42337">PCI Bus</tspan></text>
+         y="271.42337"
+         id="tspan1194">I2C Bus</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
@@ -418,5 +426,12 @@
          style="stroke-width:0.264583"
          x="115.924"
          y="86.162361">MMIO</tspan></text>
+    <rect
+       style="fill:#b3b3b3;stroke-width:0.264583;stroke-dasharray:6.35, 6.35"
+       id="rect2278"
+       width="25.169548"
+       x="-8.4322481"
+       y="52.979973"
+       height="0" />
   </g>
 </svg>

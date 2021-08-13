@@ -1,4 +1,4 @@
-obj-y += address.o base.o fdt.o
+obj-y += address.o base.o fdt.o bus.o
 obj-y += early.o
 
 dtb := $(addprefix _dtb_,$(wildcard $(obj)/dtb.o))

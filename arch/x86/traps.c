@@ -8,7 +8,7 @@
 #include <printk.h>
 
 #include <asm/traps.h>
-#include <asm/recall.h>
+#include <asm/backtrace.h>
 
 asmlinkage __visible void trap_general_protection(struct regs *regs)
 {

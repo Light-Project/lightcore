@@ -9,8 +9,10 @@ ENTRY(_start)
 
 SECTIONS
 {
-    . = 0;
+    . = CONFIG_LOAD_ADDR;
+    
     head_start = .;
+    
     .head :
     {
         KEEP(*(.head))

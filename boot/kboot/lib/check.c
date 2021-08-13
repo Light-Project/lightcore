@@ -1,15 +1,10 @@
 #include <lib.h>
 #include <crc_table.h>
 
-static uint32_t crc32_byte(char c, uint32_t crc)
-{
-    return crc32_table[(crc ^ c) & 0xff] ^ (crc >> 8);
-}
-
-static uint32_t crc32(const char *s, int len, uint32_t crc)
+static uint32_t crc32(const uint8_t *src, int len, uint32_t crc)
 {
     while (len--)
-        crc = crc32_byte(*s++, crc);
+        crc = (crc >> 8) ^ crc32_table[(crc & 0xff ) ^ *src++];
     return crc;
 }
 
@@ -29,9 +24,9 @@ void kernel_check(void *addr)
         panic("can't find kernel!\n");
     
     crc32old = boot_head->crc;
-    crc32new = crc32((const char *)(boot_head + 1), size, 0xffffffff);
+    crc32new = crc32((uint8_t *)(boot_head + 1), size, 0xffffffff);
     if(crc32old == crc32new)
         pr_boot("kernel crc32 correct 0x%x\n", crc32new);
     else
-        panic("crc error 0x%x->0x%x\n", crc32new, crc32old);
+        panic("crc error 0x%x->0x%x\n", crc32old, crc32new);
 } 

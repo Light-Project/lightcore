@@ -15,9 +15,10 @@ struct irq irq_map[IRQ_NR_MAX];
 
 void irq_handle(irqnr_t vector)
 {
-    irq_handler_t handler = irq_map[vector].handler;
-    if(handler)
-        handler(vector, irq_map[vector].data);
+    struct irq *handler = &irq_map[vector];
+
+    if(handler->handler)
+        handler->handler(vector, handler->data);
 }
 
 state irq_request(irqnr_t vector, enum irq_flags flags,

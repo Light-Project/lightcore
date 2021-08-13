@@ -10,7 +10,7 @@
 uint8_t crc4(uint8_t *src, int len, uint8_t crc)
 {
     len *= 2;
-    while(len--)
+    while (len--)
         crc = crc4_table[(crc & 0xf) ^ *src++];
     return crc;
 }
@@ -18,8 +18,8 @@ EXPORT_SYMBOL(crc4);
 
 uint16_t crc16(uint8_t *src, int len, uint16_t crc)
 {
-    while(len--)
-        crc = (crc>>8) ^ crc16_table[(crc & 0xff) ^ *src++];
+    while (len--)
+        crc = (crc >> 8) ^ crc16_table[(crc & 0xff) ^ *src++];
     return crc;
 }
 EXPORT_SYMBOL(crc16);

@@ -9,6 +9,21 @@
 #include <fs.h>
 #include <fs/cpio.h>
 
+// static state cpio_read(struct file *fp, void *dest, size_t len, loff_t *off)
+// {
+
+
+// }
+
+// static struct file_ops cpio_file_ops = {
+//     .read = cpio_read,
+// };
+
+// static state cpio_mount()
+// {
+
+// }
+
 static struct fs_type cpio_type = {
     .name = "cpio"
 };

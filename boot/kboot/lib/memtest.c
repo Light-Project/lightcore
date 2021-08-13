@@ -1,24 +1,28 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
+#include <kernel.h>
 #include <kboot.h>
 
-static char tst[4] = {0x55, 0xaa, 0x00, 0xff};
+static size_t patterns[] = {
+    (size_t)0x0000000000000000ULL,
+    (size_t)0xffffffffffffffffULL,
+    (size_t)0x5555555555555555ULL,
+    (size_t)0xaaaaaaaaaaaaaaaaULL,
+};
 
-void memtest(void *mem_start, size_t size)
+int memtest(size_t *addr, size_t size)
 {
-    char *mem = mem_start;
-    pr_boot("memtest: %x - %x\n", 
-            (size_t)mem_start, (size_t)mem_start + size);
-    
-    while(size--)
-    {
-        for(unsigned char i = 0; i < 5; i++) {
-            *mem = tst[i];
-            if(*mem == tst[i])
-                goto fail;
-        }
-        ++mem;
+    pr_boot("memtest: size 0x%x @ 0x%x\n", addr, size);
+
+    size /= MSIZE;
+    for (; size--; ++addr)
+    for (unsigned char i = 0; i < ARRAY_SIZE(patterns); i++) {
+        *addr = patterns[i];
+        if (*addr != patterns[i])
+           return -1;
     }
-    pr_boot("    no errot");
-    return;
-fail:
-    panic("    badblock find: %x\n", mem);
+    return 0;
 }

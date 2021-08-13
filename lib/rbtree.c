@@ -173,7 +173,7 @@ void rb_del(const struct rb_root *root, struct rb_node *node)
 static __always_inline 
 struct rb_node *left_far(const struct rb_node *node)
 {
-    while(node->left != NULL)
+    while (node->left)
         node = node->left;
     return (struct rb_node *)node;
 }
@@ -181,7 +181,7 @@ struct rb_node *left_far(const struct rb_node *node)
 static __always_inline 
 struct rb_node *right_far(const struct rb_node *node)
 {
-    while(node->right != NULL)
+    while (node->right)
         node = node->right;
     return (struct rb_node *)node;
 }
@@ -192,8 +192,7 @@ struct rb_node *right_far(const struct rb_node *node)
 static __always_inline 
 struct rb_node *left_deep(const struct rb_node *node)
 {
-    while(node != NULL)
-    {
+    while (node) {
         if (node->left != NULL)
             node = node->left;
         else if (node->right != NULL)
@@ -207,8 +206,7 @@ struct rb_node *left_deep(const struct rb_node *node)
 static __always_inline 
 struct rb_node *right_deep(const struct rb_node *node)
 {
-    while(node != NULL)
-    {
+    while (node) {
         if (node->right != NULL)
             node = node->right;
         else if (node->left != NULL)
@@ -227,7 +225,7 @@ struct rb_node *rb_first(const struct rb_root *root)
 {
     struct rb_node *node = root->rb_node;
 
-    if ((!root) || (!node))
+    if (!root || !node)
         return NULL;
 
     /* Get the leftmost node */
@@ -239,7 +237,7 @@ struct rb_node *rb_last(const struct rb_root *root)
 {
     struct rb_node *node = root->rb_node;
 
-    if((!root)||(!node))
+    if(!root || !node)
         return NULL;
 
     /* Get the rightmost node */
@@ -343,7 +341,7 @@ struct rb_node *rb_post_first(const struct rb_root *root)
 {
     struct rb_node *node = root->rb_node;
 
-    if ((!root)||(!node))
+    if (!root || !node)
         return NULL;
 
     node = left_deep(node);
@@ -357,7 +355,6 @@ struct rb_node *rb_post_next(const struct rb_node *node)
     if (!node)
         return NULL;
 
-    /* Don't delete this comment :) */
     parent = node->parent;
 
     if (parent && node == parent->left && parent->right)

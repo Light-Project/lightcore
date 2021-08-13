@@ -54,12 +54,6 @@ static void i8250_out(struct uart_port *port, int offset, unsigned int value)
 
 #define both_empty (UART8250_LSR_THRE | UART8250_LSR_TEMT)
 
-
-static void uart8250_early_read(struct console *console, const char *str, unsigned int chount)
-{
-    
-}
-
 static inline void i8250_putc(struct uart_port *port, char ch)
 {
     while(i8250_in(port, UART8250_LSR) & both_empty == both_empty)
@@ -67,39 +61,33 @@ static inline void i8250_putc(struct uart_port *port, char ch)
     i8250_out(port, UART8250_RBR, ch);
 }
 
-static void uart8250_early_write(struct console *console, const char *str, unsigned int count)
+static void i8250_write(struct console *console, const char *str, unsigned int count)
 {
     struct uart_port port = console->data;
-    
     while(count--)
         uart8250_early_putc(port, *str++);
 }
 
-static void uart8250_early_init(struct uartcon_device *device)
+static void i8250_init(struct uartcon_device *device)
 {
     unsigned int div;
     size_t proc;
     
     struct uart_port *port = &device->port;
     
-    uart8250_early_out(port, UART8250_LCR, 0x03);   /* 8n1          */
-    uart8250_early_out(port, UART8250_IER, 0x00);   /* no interrupt */
-    uart8250_early_out(port, UART8250_FCR, 0x00);   /* no fifo      */
-    uart8250_early_out(port, UART8250_MCR, 0x00);   /* Clean MCR    */
+    i8250_out(port, UART8250_LCR, 0x03);   /* 8n1          */
+    i8250_out(port, UART8250_IER, 0x00);   /* no interrupt */
+    i8250_out(port, UART8250_FCR, 0x00);   /* no fifo      */
+    i8250_out(port, UART8250_MCR, 0x00);   /* Clean MCR    */
     
     if(port->uartclk) {
         div = DIV_ROUND_CLOSEST(port->uartclk, 16 * device->baud);
-        proc = uart8250_early_in(port, UART8250_LCR);
-        uart8250_early_out(port, UART8250_LCR, proc | UART8250_LCR_DLAB);   /* set DLAB */
-        uart8250_early_out(port, UART8250_DLR_LSB, div & 0xff);
-        uart8250_early_out(port, UART8250_DLR_MSB, (div >> 8) & 0xff);
-        proc = uart8250_early_in(port, UART8250_LCR);
-        uart8250_early_out(port, UART8250_LCR, proc & ~UART8250_LCR_DLAB);  /* clr DLAB */
+        proc = i8250_in(port, UART8250_LCR);
+        i8250_out(port, UART8250_LCR, proc | UART8250_LCR_DLAB);   /* set DLAB */
+        i8250_out(port, UART8250_DLR_LSB, div & 0xff);
+        i8250_out(port, UART8250_DLR_MSB, (div >> 8) & 0xff);
+        proc = i8250_in(port, UART8250_LCR);
+        i8250_out(port, UART8250_LCR, proc & ~UART8250_LCR_DLAB);  /* clr DLAB */
     }
-}
-
-void uart8250_early_setup(void)
-{
-
 }
 console_initcall(uart8250_early_setup);

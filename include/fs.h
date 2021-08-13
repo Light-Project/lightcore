@@ -22,15 +22,14 @@ struct file;
 struct inode;
 struct super_block;
 
-// struct file_ops {
-//     state (*read)(struct file *fp, void *dest, size_t len, loff_t *);
-//     state (*write)(struct file *fp, const void *src, size_t len, loff_t *);
-//     state (*mmap)(struct file *fp);
+struct file_ops {
+    state (*read)(struct file *fp, void *dest, size_t len, loff_t *off);
+    state (*write)(struct file *fp, const void *src, size_t len, loff_t *off);
+    state (*mmap)(struct file *fp);
 
-//     state (*open) (struct inode *, struct file *);
-//     state (*release) (struct inode *, struct file *);
-//     state (*flush) (struct file *, fl_owner_t id);
-// };
+    state (*open) (struct inode *, struct file *);
+    state (*release) (struct inode *, struct file *);
+};
 
 // struct inode_ops {
 //     struct dentry *(*lookup)(struct inode *,struct dentry *, unsigned int);
@@ -72,6 +71,9 @@ struct fs_type {
     char *name;
     list_t  list;
 };
+
+struct file *vfl_open(const char *name, int flags, umode_t mode);
+ssize_t vfl_read(struct file *fp, void *buf, size_t len, loff_t *pos);
 
 state kernel_execve(const char *file, const char *const *argv, const char *const *envp);
 state filesystem_register(struct fs_type *fs);

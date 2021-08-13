@@ -95,6 +95,30 @@ struct bus_type platform_bus = {
     .shutdown = platform_shutdown,
 };
 
+resource_size_t platform_resource_start(struct platform_device *pdev, 
+                                        unsigned int index)
+{
+    if (index > pdev->resources_nr)
+        return 0;
+    return pdev->resource[index].start;
+}
+
+resource_size_t platform_resource_end(struct platform_device *pdev, 
+                                      unsigned int index)
+{
+    if (index > pdev->resources_nr)
+        return 0;
+    return pdev->resource[index].end;
+}
+
+enum res_type platform_resource_type(struct platform_device *pdev, 
+                                     unsigned int index)
+{
+    if (index > pdev->resources_nr)
+        return RESOURCE_NONE;
+    return pdev->resource[index].type;
+}
+
 /**
  * platform_alloc_device - Allocating for a new platform device
  * @name: device name
