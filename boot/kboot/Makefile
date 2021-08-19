@@ -19,7 +19,6 @@ kboot-acflags-y := -ffreestanding -nostdinc -Wall -Werror \
 kboot-ldsflags-y := -D__ASSEMBLY__
 
 kboot-elfflags-y := -Wl,--gc-sections
-kboot-elfflags-y := -Wl,--cref,-Map=$@.map
 kboot-elfflags-y += -e _start -Wl,--no-dynamic-linker -Wl,--build-id=none -fPIE
 
 asflags-y   := $(strip $(kboot-asflags-y) $(platform-asflags-y))

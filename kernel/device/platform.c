@@ -20,9 +20,6 @@ platform_device_match_one(const struct platform_device_id *id,
     return !strcmp(id->name, pdev->name);
 }
 
-/**
- * platform_device_match - See if a device matches a driver's list of IDs
- */
 static inline const struct platform_device_id *
 platform_device_match(struct platform_driver *pdrv,
                       struct platform_device *pdev)
@@ -104,34 +101,10 @@ struct bus_type platform_bus = {
     .shutdown = platform_shutdown,
 };
 
-resource_size_t platform_resource_start(struct platform_device *pdev,
-                                        unsigned int index)
-{
-    if (index > pdev->resources_nr)
-        return 0;
-    return pdev->resource[index].start;
-}
-
-resource_size_t platform_resource_end(struct platform_device *pdev,
-                                      unsigned int index)
-{
-    if (index > pdev->resources_nr)
-        return 0;
-    return pdev->resource[index].end;
-}
-
-enum res_type platform_resource_type(struct platform_device *pdev,
-                                     unsigned int index)
-{
-    if (index > pdev->resources_nr)
-        return RESOURCE_NONE;
-    return pdev->resource[index].type;
-}
-
 /**
  * platform_alloc_device - Allocating for a new platform device
  * @name: device name
- * @id: device ID
+ * @id: device id
  */
 struct platform_device *platform_device_alloc(const char *name, int id)
 {
@@ -145,6 +118,25 @@ struct platform_device *platform_device_alloc(const char *name, int id)
     pdev->id    = id;
     pdev->device.bus = &platform_bus;
     return pdev;
+}
+
+/**
+ * platform_name_resource - Find resource in platform device by name
+ * @pdev: device to find
+ * @name: match name
+ */
+struct resource *platform_name_resource(struct platform_device *pdev, const char *name)
+{
+    struct resource *tmp;
+    unsigned int count;
+
+    for (count = 0; count < pdev->resources_nr; ++count) {
+        tmp = &pdev->resource[count];
+        if (!strcmp(tmp->name, name))
+            return tmp;
+    }
+
+    return NULL;
 }
 
 /**
@@ -173,7 +165,6 @@ state platform_driver_register(struct platform_driver *pdrv)
 {
     if(!pdrv)
         return -EINVAL;
-
     pdrv->driver.bus = &platform_bus;
     return driver_register(&pdrv->driver);
 }

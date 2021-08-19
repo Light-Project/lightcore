@@ -21,4 +21,7 @@ struct resource {
     resource_size_t end;
 };
 
+#define res_size(resource) \
+    (resource->end - resource->start)
+
 #endif  /* _RESOURCE_H_ */

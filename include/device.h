@@ -2,6 +2,7 @@
 #ifndef _DEVICE_DEVICE_H_
 #define _DEVICE_DEVICE_H_
 
+#include <mm/gfp.h>
 #include <kernel/mutex.h>
 #include <kernel/kobject.h>
 #include <kernel/pm.h>
@@ -33,6 +34,11 @@ static inline void dev_set_devdata(struct device *dev, void *data)
 {
     dev->dev_data = data;
 }
+
+void *dev_kmalloc(size_t size, gfp_t gfp);
+void  dev_kfree(void *block);
+void *dev_ioremap(resource_size_t addr, resource_size_t size);
+void  dev_iounmap(resource_size_t addr, resource_size_t size);
 
 state device_bind(struct device *);
 state driver_bind(struct driver *drv);
