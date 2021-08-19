@@ -1,3 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
 #include <stddef.h>
 #include <chip/esp8266/gpio.h>
 #include <chip/esp8266/iomux.h>
@@ -30,12 +35,12 @@ static void kernel_check(void *addr)
     uint32_t crc32new = 0, crc32old = 0;
     uint8_t cmp[17];
     uint32_t size;
-    
+
     pr_boot("Check addr: 0x%x\n", addr);
-    
+
     size = readl_sync(&boot_head->size);
     pr_boot("Kernel size: 0x%d\n", size);
-    
+
     for(uint8_t c = 0; c <= 4; c++)
         cmp[c*4] = readl_sync(&boot_head->magic[c*4]);
     cmp[17] = '\0';
@@ -43,7 +48,7 @@ static void kernel_check(void *addr)
         pr_boot("kernel magic correct\n");
     else
         panic("can't find kernel!\n");
-    
+
     crc32old = readl_sync(&boot_head->crc);
     crc32new = crc32((uint32_t *)(boot_head + 1), size, 0xffffffff);
     if(crc32old == crc32new)
@@ -72,7 +77,7 @@ void led_set(char out)
     ESP8266_IOMUX2->FUNH = 0;
 
     ESP8266_GPIO->enable_w1ts |= 1<<2;
-    
+
     if(out)
         ESP8266_GPIO->out_w1ts |= 1<<2;
     else
@@ -92,51 +97,51 @@ static const char *reset_reason[] = {
 void main()
 {
     uint8_t reason;
-    
+
     cpu_pll(1);
 
     uart_init();
     pr_init(uart_print);
-    
+
     timer_init();
 
     led_set(0);
-    
+
     reason = readb_sync((void *)(0x60000700 + 0x14));
     reason = min((uint8_t)ARRAY_SIZE(reset_reason), reason);
     pr_boot("Reset: %s\n", reset_reason[reason]);
-    
+
     /* XIP can only map 1MiB space at the same time ! */
-    
+
     /* arg0: Map address                     */
     /* 0: 0x000000 - 0x0fffff \              */
     /*                         \             */
     /*                           0x40200000  */
     /*                         /             */
     /* 1: 0x100000 - 0x1fffff /              */
-    
+
     /* arg1: Flash offset                    */
     /* 0: 0x000000 - 0x1fffff                */
     /* 1: 0x200000 - 0x3fffff                */
     /* 2: 0x400000 - 0x5fffff                */
     /* 3: 0x600000 - 0x7fffff                */
-    
+
     /* arg2: Xip cache size                  */
     /* 0: 16KiB                              */
     /* 1: 32KiB                              */
-    
+
     Cache_Read_Disable();
     Cache_Read_Enable(0, 0, 1);
     pr_boot("Mmap kernel to memory\n");
-    
+
     kernel_check((void *)CONFIG_XIP_BASE);
-    
+
     pr_boot("Start kernel...\n");
     pr_boot("total boot time: %dms\n", time_read());
-    
+
     led_set(1);
-        
+
     timer_stop();
-       
+
     kernel_start(NULL, &_ld_dts_start);
 }

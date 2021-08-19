@@ -3,7 +3,7 @@
 include $(src)/dts/config.mk
 include $(src)/run/config.mk
 
-# DTS
+# dts
 DTC ?= scripts/dtc/dtc
 dtb := $(addprefix $(obj)/, $(dtb-y))
 
@@ -29,7 +29,7 @@ dts: $(dtb) FORCE
 targets += $(dtb)
 clean-y += *.dtb .*.dtc.tmp .*.dts.tmp
 
-# KBOOT
+# kboot
 quiet_cmd_copy_kernel = OBJCOPY $@
       cmd_copy_kernel = $(OBJCOPY) -O binary $< $@
 $(obj)/kernel.bin.tmp: lightcore FORCE
@@ -84,14 +84,14 @@ clean-suffix += .gz .bz2 .lzma .xz .lzo .lz4 .zst
 clean-y += $(addprefix kernel.bin,$(clean-suffix))
 clean-y += kernel.bin piggy_data boot boot.bin
 
-# UBOOT
+# uboot
 MKIMAGE := $(srctree)/scripts/mkuboot.sh
 
 UIMAGE_ARCH         = sandbox
 UIMAGE_COMPRESSION  = none
 UIMAGE_OPTS-y       =
 UIMAGE_TYPE         = kernel
-UIMAGE_LOADADDR     = $(shell $(NM) $(obj)/kboot/boot | awk '$$NF == "_start" {print $$1}')
+UIMAGE_LOADADDR     = $(CONFIG_LOAD_ADDR)
 UIMAGE_ENTRYADDR    = $(UIMAGE_LOADADDR)
 UIMAGE_NAME         = 'Lightcore-$(KERNELVERSION)'
 
@@ -111,14 +111,13 @@ uboot: $(obj)/uImage
 targets += $(obj)/uImage
 clean-y += uImage
 
-# PRELOAD
+# preload
 quiet_cmd_copy_preload = OBJCOPY $@
       cmd_copy_preload = $(OBJCOPY) -O binary $(obj)/preload/preload $(obj)/preload.bin
       
 $(obj)/preload.bin: FORCE
 	$(Q)$(MAKE) $(build)=$(src)/preload
 	$(call if_changed,copy_preload)
-
 preload: $(obj)/preload.bin
 
 ifneq ($(CONFIG_CHIP_X86),)
@@ -126,11 +125,15 @@ preload:
 	$(Q)$(DD) if=$(obj)/preload.bin of=$(obj)/disk.img bs=512 conv=notrunc
 	$(Q)$(DD) if=$(obj)/boot.bin of=$(obj)/disk.img bs=512 seek=63 conv=notrunc
 endif
-ifneq ($(CONFIG_CHIP_SUNXIF1)$(CONFIG_CHIP_SUNXIH3),)
-preload:
+
+ifneq ($(CONFIG_CHIP_SUNIV),)
+preload: uboot
 	$(Q)$(MAKE) $(build)=tools/sunxi
 	$(Q) tools/sunxi/mksunxiboot $(obj)/preload.bin
+	$(Q)$(DD) if=$(obj)/preload.bin of=$(obj)/disk.img bs=512 conv=notrunc
+	$(Q)$(DD) if=$(obj)/uImage of=$(obj)/disk.img bs=512 seek=64 conv=notrunc
 endif
+
 ifneq ($(CONFIG_CHIP_ESP8266),)
 preload:
 	$(Q)tools/esp/esptool.py -c esp8266 elf2image -o $(obj)/preload- $(obj)/preload/preload
@@ -138,6 +141,7 @@ preload:
 	$(Q)$(DD) if=$(obj)/preload-0x00000.bin of=$(obj)/disk.img bs=512 conv=notrunc
 	$(Q)$(DD) if=$(obj)/kernel.bin of=$(obj)/disk.img bs=512 seek=64 conv=notrunc
 endif
+
 ifneq ($(CONFIG_CHIP_ESP32),)
 preload:
 	$(Q)tools/esp/esptool.py -c esp32 elf2image -fm dio -o $(obj)/preload.bin $(obj)/preload/preload

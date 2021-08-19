@@ -1,4 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
 
 #define DRIVER_NAME "i8259"
 
@@ -11,7 +14,7 @@
 
 #include <asm/io.h>
 
-#define PIC1_BASE   0x20 
+#define PIC1_BASE   0x20
 #define PIC2_BASE   0xa0
 #define PIC_NR      2
 #define PIC(nr)     ((nr) / 8)
@@ -31,7 +34,7 @@ static inline void pic_outb(int pic, int reg, uint8_t value)
 
 static void pic_irq_pass(struct irqchip_device *idev, irqnr_t irq)
 {
-    uint8_t val;   
+    uint8_t val;
     val = pic_inb(PIC(irq), I8259_DATA);
     val &= 1 << IRQ(irq);
     pic_outb(PIC(irq), I8259_DATA, val);
@@ -91,7 +94,7 @@ static struct dt_device_id i8259_id[] = {
 static struct platform_driver i8259_driver = {
     .driver = {
         .name = DRIVER_NAME,
-    }, 
+    },
     .dt_table = i8259_id,
     .probe = i8259_probe,
 };

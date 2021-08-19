@@ -4,7 +4,6 @@
 
 #include <arch/csky/regs.h>
 
-
 /* bytes per L1 cache line */
 #ifdef CONFIG_CPU_CK610
     #define L1_CACHE_SHIFT 4
@@ -25,21 +24,8 @@
 
 #ifndef __ASSEMBLY__
 
-void dcache_wb_line(unsigned long start);
-
-void icache_inv_range(unsigned long start, unsigned long end);
-void icache_inv_all(void);
-void local_icache_inv_all(void *priv);
-
-void dcache_wb_range(unsigned long start, unsigned long end);
-void dcache_wbinv_all(void);
-
-void cache_wbinv_range(unsigned long start, unsigned long end);
-void cache_wbinv_all(void);
-
-void dma_wbinv_range(unsigned long start, unsigned long end);
-void dma_inv_range(unsigned long start, unsigned long end);
-void dma_wb_range(unsigned long start, unsigned long end);
+void icache_inval_all(void);
+void dcache_writeback_all(void);
 
 #endif
 #endif  /* __ASM_CSKY_CACHE_H */

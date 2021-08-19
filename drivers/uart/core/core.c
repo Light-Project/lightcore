@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
 
 #include <driver/uart.h>
 
-int uart_register(struct uart_driver *drv, struct uart_port *port)
-{
-
-    return 0;
-}

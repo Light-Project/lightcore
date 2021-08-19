@@ -14,6 +14,7 @@
 #include <printk.h>
 
 #include <asm/io.h>
+#include <asm/cache.h>
 
 struct gx6605s_device {
     struct video_device video;
@@ -46,24 +47,29 @@ enum gx6605s_color_fmt {
     GX6605S_COLOR_RGBA8888          = 7,
     GX6605S_COLOR_RGB888            = 8,
     GX6605S_COLOR_BGR888            = 9,
+
     GX6605S_COLOR_ARGB4444          = 10,
     GX6605S_COLOR_ARGB1555          = 11,
     GX6605S_COLOR_ARGB8888          = 12,
+
     GX6605S_COLOR_YCBCR422          = 13,
     GX6605S_COLOR_YCBCRA6442        = 14,
     GX6605S_COLOR_YCBCR420          = 15,
+
     GX6605S_COLOR_YCBCR420_Y_UV     = 16,
     GX6605S_COLOR_YCBCR420_Y_U_V    = 17,
     GX6605S_COLOR_YCBCR420_Y        = 18,
     GX6605S_COLOR_YCBCR420_U        = 19,
     GX6605S_COLOR_YCBCR420_V        = 20,
     GX6605S_COLOR_YCBCR420_UV       = 21,
+
     GX6605S_COLOR_YCBCR422_Y_UV     = 22,
     GX6605S_COLOR_YCBCR422_Y_U_V    = 23,
     GX6605S_COLOR_YCBCR422_Y        = 24,
     GX6605S_COLOR_YCBCR422_U        = 25,
     GX6605S_COLOR_YCBCR422_V        = 26,
     GX6605S_COLOR_YCBCR422_UV       = 27,
+
     GX6605S_COLOR_YCBCR444          = 28,
     GX6605S_COLOR_YCBCR444_Y_UV     = 29,
     GX6605S_COLOR_YCBCR444_Y_U_V    = 30,
@@ -71,6 +77,7 @@ enum gx6605s_color_fmt {
     GX6605S_COLOR_YCBCR444_U        = 32,
     GX6605S_COLOR_YCBCR444_V        = 33,
     GX6605S_COLOR_YCBCR444_UV       = 34,
+
     GX6605S_COLOR_YCBCR400          = 35,
     GX6605S_COLOR_A8                = 36,
     GX6605S_COLOR_ABGR4444          = 37,
@@ -153,8 +160,8 @@ static void gx6605s_endian_set(struct gx6605s_device *gdev, enum gx6605s_byte_or
 static void gx6605s_alpha_set(struct gx6605s_device *gdev, uint32_t alpha)
 {
     gx6605s_region_mask(gdev, GX6605S_OSDR_CTRL, GX6605S_OSDR_CTRL_MIX_WEIGHT,
-        GX6605S_OSDR_CTRL_GLOBAL_ALPHA_EN || (GX6605S_OSDR_CTRL_MIX_WEIGHT & (0xff << 16)));
-    gx6605s_region_mask(gdev, GX6605S_OSDR_CTRL, GX6605S_OSDR_ALPHA_RATIO_EN, 0);
+        GX6605S_OSDR_CTRL_GLOBAL_ALPHA_EN | (GX6605S_OSDR_CTRL_MIX_WEIGHT & (0xff << 16)));
+    gx6605s_region_mask(gdev, GX6605S_OSDR_ALPHA, GX6605S_OSDR_ALPHA_RATIO_EN, 0);
 }
 
 static void gx6605s_format_set(struct gx6605s_device *gdev, enum gx6605s_color_fmt format)
@@ -164,12 +171,12 @@ static void gx6605s_format_set(struct gx6605s_device *gdev, enum gx6605s_color_f
     else
         gx6605s_mask(gdev, GX6605S_OSD_CTRL, 0, GX6605S_OSD_CTRL_ZOOM_MODE_EN_IPS);
 
-    if ((format >= GX6605S_COLOR_RGBA8888) && (format <= GX6605S_COLOR_BGR888)) {
+    if ((GX6605S_COLOR_RGBA8888 <= format) && (format <= GX6605S_COLOR_BGR888)) {
         gx6605s_region_mask(gdev, GX6605S_OSDR_CTRL, 0, GX6605S_OSDR_CTRL_COLOR_MODE);
         gx6605s_region_mask(gdev, GX6605S_OSDR_CTRL, GX6605S_OSDR_CTRL_TRUE_COLOR_MODE,
                            (format - GX6605S_COLOR_RGBA8888) << 24);
     } else {
-        if (format == GX6605S_COLOR_ARGB4444 || format == GX6605S_COLOR_RGBA5551 ||
+        if (format == GX6605S_COLOR_ARGB4444 || format == GX6605S_COLOR_ARGB1555 ||
             format == GX6605S_COLOR_RGBA8888)
             gx6605s_region_mask(gdev, GX6605S_OSDR_CTRL, 0, GX6605S_OSDR_CTRL_ARGB_CONVERT);
         else
@@ -201,10 +208,7 @@ static state gx6605s_setmode(struct video_device *vdev)
 }
 
 static const struct video_mode gx6605s_video_mode[] = {
-    {.name = "480p",   .xres = 640,   .yres = 480 },
     {.name = "720p",   .xres = 1280,  .yres = 720 },
-    {.name = "768p",   .xres = 1366,  .yres = 768 },
-    {.name = "1080p",  .xres = 1920,  .yres = 1080 },
     { }, /* NULL */
 };
 
@@ -213,7 +217,7 @@ static struct video_ops gx6605s_ops = {
 };
 
 #define def_xres    1280
-#define def_yres    680
+#define def_yres    720
 
 static state gx6605s_hwinit(struct platform_device *pdev)
 {
@@ -233,13 +237,13 @@ static state gx6605s_hwinit(struct platform_device *pdev)
     if (!gdev->mmio)
         return -ENOMEM;
 
-    gdev->video.frame_buffer = kmalloc(0x400000, GFP_KERNEL);
+    gdev->video.frame_buffer = kzalloc(0x200000, GFP_KERNEL);
     if (!gdev->video.frame_buffer)
         return -ENOMEM;
-    memset(gdev->video.frame_buffer, 0xff, 0x400000);
 
     gdev->region = kzalloc(page_align(0x1c), GFP_KERNEL);
     if (!gdev->region) {
+        iounmap(gdev->mmio);
         kfree(gdev->video.frame_buffer);
         return -ENOMEM;
     }
@@ -253,18 +257,18 @@ static state gx6605s_hwinit(struct platform_device *pdev)
     gx6605s_endian_set(gdev, byte_seq);
 
     if (bpp == 1)
-        request_block = def_yres / 4 / 128 * 128 / 8;
+        request_block = def_xres / 4 / 128 * 128 / 8;
     else
-        request_block = def_yres * (bpp >> 3) / 4 / 128 * 128;
+        request_block = def_xres * (bpp >> 3) / 4 / 128 * 128;
     request_block = clamp(request_block, 128U, 896U);
 
     gx6605s_mask(gdev, GX6605S_BUFF_CTRL2, GX6605S_BUFF_CTRL2_REQ_LEN,
                  request_block & GX6605S_BUFF_CTRL2_REQ_LEN);
 
     gx6605s_region_mask(gdev, GX6605S_OSDR_WIDTH, GX6605S_OSDR_WIDTH_LEFT, 0);
-    gx6605s_region_mask(gdev, GX6605S_OSDR_WIDTH, GX6605S_OSDR_WIDTH_RIGHT, def_xres << 16);
+    gx6605s_region_mask(gdev, GX6605S_OSDR_WIDTH, GX6605S_OSDR_WIDTH_RIGHT, (def_xres - 1) << 16);
     gx6605s_region_mask(gdev, GX6605S_OSDR_HIGHT, GX6605S_OSDR_HIGHT_TOP, 0);
-    gx6605s_region_mask(gdev, GX6605S_OSDR_HIGHT, GX6605S_OSDR_HIGHT_BOTTOM, def_yres << 16);
+    gx6605s_region_mask(gdev, GX6605S_OSDR_HIGHT, GX6605S_OSDR_HIGHT_BOTTOM, (def_yres - 1) << 16);
     gx6605s_writel(gdev, GX6605S_OSD_POSITION, 0);
 
     gx6605s_alpha_set(gdev, 0xff);
@@ -282,7 +286,7 @@ static state gx6605s_hwinit(struct platform_device *pdev)
     gx6605s_region_set(gdev, GX6605S_OSDR_NEXT_PTR, va_to_pa(gdev->region));
 
     gx6605s_region_mask(gdev, GX6605S_OSDR_ALPHA, 0, GX6605S_OSDR_LIST_END);
-    gx6605s_region_mask(gdev, GX6605S_OSDR_ALPHA, GX6605S_OSDR_BASELINE, 1080);
+    gx6605s_region_mask(gdev, GX6605S_OSDR_ALPHA, GX6605S_OSDR_BASELINE, def_xres);
 
     gx6605s_mask(gdev, GX6605S_OSD_CTRL, GX6605S_OSD_CTRL_ANTI_FLICKER_CBCR, 0);
 
@@ -291,27 +295,8 @@ static state gx6605s_hwinit(struct platform_device *pdev)
 
     gx6605s_writel(gdev, GX6605S_OSD_FIRST_HEAD_PTR, va_to_pa(gdev->region));
 
-    // gx6605s_writel(gdev, GX6605S_PP_VIEW_SIZE, (1080 << 16) | 1920);
-    // gx6605s_writel(gdev, GX6605S_PP_DISP_CTRL, 0x40000fff);
-    // gx6605s_writel(gdev, GX6605S_PP_DISP_R_PTR,  0x40000fff);
-
-    // gx6605s_writel(gdev, GX6605S_PIC_V_PHASE, 0x08860000);
-    // gx6605s_writel(gdev, GX6605S_PIC_VIEW_SIZE, (1080 << 16) | 1920);
-    // gx6605s_writel(gdev, GX6605S_PIC_ZOOM, 0x08860887);
-    // gx6605s_writel(gdev, GX6605S_PIC_SOURCE_SIZE, 0x02400400);
-    // gx6605s_writel(gdev, GX6605S_PIC_Y_TOP_ADDR, 0x118ccc98);
-    // gx6605s_writel(gdev, GX6605S_PIC_Y_BOTTOM_ADDR, 0x118cd498);
-
-    // gx6605s_writel(gdev, GX6605S_CHIPTEST, 0x000000ff);
-
-    // gx6605s_writel(gdev, GX6605S_OSD_ZOOM, 0x08870888);
-    // gx6605s_writel(gdev, GX6605S_OSD_COLOR_KEY, 0x00ff0000);
-
-    // gx6605s_mask(gdev, GX6605S_PIC_CTRL, 0, 1);
-
     gx6605s_enable(gdev, true);
-
-    for(;;);
+    dcache_writeback_all();
 
     return -ENOERR;
 }
@@ -332,17 +317,11 @@ static state gx6605s_probe(struct platform_device *pdev)
         return ret;
     }
 
-    return -ENOERR;
-
     gdev->video.mode_table = gx6605s_video_mode;
-    gdev->video.cur_mode = &gx6605s_video_mode[3];
-    gx6605s_setmode(&gdev->video);
-
+    gdev->video.cur_mode = &gx6605s_video_mode[0];
     gdev->video.device = &pdev->device;
     gdev->video.ops = &gx6605s_ops;
-    video_register(&gdev->video);
-
-    return -ENOERR;
+    return video_register(&gdev->video);
 }
 
 static state gx6605s_remove(struct platform_device *pdev)
@@ -350,7 +329,12 @@ static state gx6605s_remove(struct platform_device *pdev)
     struct gx6605s_device *gdev = platform_get_devdata(pdev);
 
     gx6605s_enable(gdev, false);
+
+    iounmap(gdev->mmio);
+    kfree(gdev->mmio);
+    kfree(gdev->video.frame_buffer);
     kfree(gdev);
+
     return -ENOERR;
 }
 

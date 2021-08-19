@@ -4,39 +4,25 @@
  */
 
 #include <mm.h>
-#include <font.h> 
-#include <logo.h> 
-#include <console.h>
+#include <font.h>
+#include <logo.h>
+#include <driver/tty.h>
 #include <driver/fbcon.h>
 
-// static void fbcon_putc( , int xpos, int ypos)
-// {
-
-// }
-
-static void fbcon_write(struct console *con, 
-                         const char *str, unsigned len)
+static void fbcon_putc(struct tty_device *tty, int xpos, int ypos)
 {
-    // struct video_device *vdev = con->data;
+
 }
 
-struct console fb_con = {
-    .write = fbcon_write,
+struct tty_ops fb_tty = {
+    .putc = fbcon_putc,
 };
-
-
-state fbcon_setup()
-{
-    return -ENOERR;
-}
 
 state fbcon_register(struct video_device *vdev)
 {
     // struct font *font;
 
     // font = font_suitable(vdev->mode.vxres, vdev->mode.vxres, 0 , 0);
-
-    console_register(&fb_con);
 
     return -ENOERR;
 }

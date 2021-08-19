@@ -1,4 +1,9 @@
-﻿#include <types.h>
+﻿/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
+#include <types.h>
 #include <stddef.h>
 #include <state.h>
 #include <asm/io.h>
@@ -24,25 +29,25 @@ void uart_deinit(void)
 void uart_init(void)
 {
     uint32_t val;
-    
+
     uart_deinit();
-    
+
     /* 8n1 */
     val = UART_ESP_CONF0_STB_1 | UART_ESP_CONF0_WSL_8;
     writel_sync((void *)UART_BASE + UART_ESP_CONF0, val);
-    
+
     /* set baudrate */
     val = (UART_CLK_FREQ / UART_BAUD) & UART_ESP_CLKDIV_DIV;
     writel_sync((void *)UART_BASE + UART_ESP_CLKDIV, val);
-    
+
     val = readl_sync((void *)UART_BASE + UART_ESP_CONF0);
     val |= UART_ESP_CONF0_TXFIFO_RST;
-    writel_sync((void *)UART_BASE + UART_ESP_CONF0, val);    
-    
+    writel_sync((void *)UART_BASE + UART_ESP_CONF0, val);
+
     val = readl_sync((void *)UART_BASE + UART_ESP_CONF0);
     val &= ~UART_ESP_CONF0_TXFIFO_RST;
     writel_sync((void *)UART_BASE + UART_ESP_CONF0, val);
-    
+
 }
 
 void uart_putc(char byte)

@@ -19,7 +19,7 @@ void icache_inval_all(void)
     cache_all_op(CFR_SELI | CFR_INV);
 }
 
-void dcache_writeback(void)
+void dcache_writeback_all(void)
 {
     cache_all_op(CFR_SELD | CFR_INV);
 }

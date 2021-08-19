@@ -2,7 +2,8 @@
 /*
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
-#include <boot.h> 
+
+#include <boot.h>
 #include <driver/video/vesa.h>
 
 #include <asm/io.h>
@@ -36,15 +37,15 @@ static void video_roll()
 {
     for(uint8_t pos_y = 0; pos_y < 25; pos_y++)
     for(int8_t pos_x = 0; pos_x < 80; pos_x++) {
-        ext_writeb(&vram_text->block[pos_y][pos_x].ch, 
+        ext_writeb(&vram_text->block[pos_y][pos_x].ch,
         ext_readb(&vram_text->block[pos_y + 1][pos_x].ch));
-    }   
+    }
 }
 
 void video_print(const char *str)
 {
     char ch;
-    
+
     while((ch = *str++) != '\0') {
         if (pos_y >= yres)
             video_roll(pos_y--);
@@ -54,13 +55,13 @@ void video_print(const char *str)
             pos_x = 0;
             continue;
         }
-        
+
         ext_writeb(&vram_text->block[pos_y][pos_x++].ch, ch);
         if (pos_x >= xres) {
             pos_y++;
             pos_x = 0;
         }
-        
+
         video_cursor(pos_x, pos_y);
     }
 }

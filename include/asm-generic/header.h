@@ -3,7 +3,25 @@
 
 #ifndef __ASSEMBLY__
 
-struct boot_head{
+#define UBOOT_NMLEN     32
+#define UBOOT_MAGIC     0x27051956
+
+struct uboot_head {
+    be32        magic;              // Image Header Magic Number
+    be32        hcrc;               // Image Header CRC Checksum
+    be32        time;               // Image Creation Timestamp
+    be32        size;               // Image Data Size
+    be32        load;               // Data Load Address
+    be32        ep;                 // Entry Point Address
+    be32        dcrc;               // Image Data CRC Checksum
+    uint8_t     os;                 // Operating System
+    uint8_t     arch;               // CPU architecture
+    uint8_t     type;               // Image Type
+    uint8_t     comp;               // Compression Type
+    uint8_t     name[UBOOT_NMLEN];  // Image Name
+} __attribute__((__packed__));
+
+struct boot_head {
     uint64_t    jump[2];        // 0x00: jump code
     uint64_t    para[2];        // 0x10: boot para
     uint8_t     magic[11];      // 0x20: kernel magic

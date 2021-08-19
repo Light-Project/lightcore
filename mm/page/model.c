@@ -23,8 +23,8 @@ static bool sparce_present(struct memblock_region *reg)
     struct sparce_block *sparce;
     unsigned int count;
 
-    sparce = &sparce_map[reg->addr >> SECTION_SHIFT];
-    count = (reg->size >> SECTION_SHIFT) + 1;
+    sparce = &sparce_map[reg->addr >> SPARCE_SHIFT];
+    count = (reg->size >> SPARCE_SHIFT) + 1;
 
     while (count--) {
         if(sparce->present)
@@ -66,7 +66,7 @@ static void sparce_alloc(void)
 }
 
 void memmodel_init(void)
-{   
+{
     memblock_takeover(MEMBLOCK_USABLE, sparce_present);
     sparce_alloc();
 }

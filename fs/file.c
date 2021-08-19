@@ -7,26 +7,6 @@
 #include <fs.h>
 #include <kernel/syscall.h>
 
-struct file *vfl_open(const char *name, int flags, umode_t mode)
-{
-    struct file *file = NULL;
-
-    return file;
-}
-
-ssize_t vfl_read(struct file *fp, void *buf, size_t len, loff_t *pos)
-{
-    ssize_t ret;
-
-    if(!(fp->fmode & FMODE_RDONLY))
-        return -EBADF;
-
-    if(fp->ops->read)
-        ret = fp->ops->read(fp, buf, len, pos);
-
-    return ret;
-}
-
 ssize_t sys_read(unsigned int fd, char *buf, size_t len)
 {
     if(!fd || !buf || !len)

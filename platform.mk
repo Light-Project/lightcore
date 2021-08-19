@@ -9,12 +9,13 @@ arch                := arm
 platform-acflags-y  += -D__ARCH_BIT32__
 platform-eflags-y   += -nostdlib
 
-ifdef CONFIG_ARCH_ARM_926EJS
-platform-acflags-y  += -march=armv5tej -mcpu=arm926ej-s -mfloat-abi=soft -marm
-endif
+arch-$(CONFIG_ARCH_ARM_V6)  = $(call cc-option,-march=armv7-a,-march=armv5t -Wa$(comma)-march=armv7-a)
+arch-$(CONFIG_ARCH_ARM_V6)  = $(call cc-option,-march=armv6,-march=armv5t -Wa$(comma)-march=armv6)
+arch-$(CONFIG_ARCH_ARM_V5)  = $(call cc-option,-march=armv5te,-march=armv4t)
+arch-$(CONFIG_ARCH_ARM_V4T) = -march=armv4t
+arch-$(CONFIG_ARCH_ARM_V4)  = -march=armv4
 
-ifdef CONFIG_ARCH_ARM_V7A
-endif
+platform-acflags-y += $(arch-y)
 
 endif # CONFIG_ARCH_ARM
 

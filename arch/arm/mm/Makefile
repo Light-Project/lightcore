@@ -1,6 +1,4 @@
-obj-y += cache.o
-obj-y += domain.o
-obj-y += mmu.o 
-obj-y += tlb.o 
+obj-y += page.o
 
+obj-$(CONFIG_CACHE_V4WT) += cache-v4wt.o
 obj-y += proc-arm926.o

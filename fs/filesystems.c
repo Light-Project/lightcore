@@ -5,14 +5,14 @@
 
 static LIST_HEAD(filesystem_list);
 
-struct fs_type *filesystem_find(char *name)
+struct fs_type *filesystem_find(const char *name)
 {
     struct fs_type *fs = NULL;
 
     list_for_each_entry(fs, &filesystem_list, list)
         if (strcmp(name, fs->name))
             return fs;
-    
+
     return NULL;
 }
 EXPORT_SYMBOL(filesystem_find);
@@ -20,7 +20,7 @@ EXPORT_SYMBOL(filesystem_find);
 state filesystem_register(struct fs_type *fs)
 {
     struct fs_type *ffs;
-    
+
     ffs = filesystem_find(fs->name);
     if (ffs)
         return -EINVAL;

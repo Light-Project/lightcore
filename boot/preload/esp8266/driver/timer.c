@@ -1,3 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
 #include <boot.h>
 #include <asm/io.h>
 #include <driver/clocksource/timer-esp8266.h>
@@ -29,11 +34,11 @@ int time_read(void)
 void timer_init(void)
 {
     uint32_t val;
-    
+
     val = TIME_CLK_FREQ / TICK_GRAIN;
     writel_sync((void *)TIMER_BASE + TIMER_ESP8266_LOAD, val);
     writel_sync((void *)TIMER_BASE + TIMER_ESP8266_COUNT, val);
-    
+
     val = TIMER_ESP8266_CTRL_EN | TIMER_ESP8266_CTRL_AUTOLOAD | TIMER_ESP8266_CTRL_DIV_256;
     writel_sync((void *)TIMER_BASE + TIMER_ESP8266_CTRL, val);
 }

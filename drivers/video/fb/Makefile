@@ -1,1 +1,1 @@
-obj-$(CONFIG_VIDEO_GX6605S) += gx6605s.o 
+obj-$(CONFIG_VIDEO_GX6605S) += gx6605s.o

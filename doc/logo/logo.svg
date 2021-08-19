@@ -107,8 +107,8 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="6.2623144"
-     inkscape:cx="62.676508"
-     inkscape:cy="54.213184"
+     inkscape:cx="60.760284"
+     inkscape:cy="57.08752"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
@@ -149,24 +149,9 @@
        height="25.4"
        x="0"
        y="0" />
-    <rect
-       style="fill:#778bd9;fill-opacity:1;stroke-width:2.82389"
-       id="rect47"
-       width="21.166666"
-       height="21.166666"
-       x="2.1166668"
-       y="2.1166668"
-       ry="5.5009642" />
-    <text
-       xml:space="preserve"
-       style="font-size:2.82223px;line-height:1.25;font-family:sans-serif;fill:#ffffff;stroke-width:0.264583"
-       x="4.8348246"
-       y="13.767293"
-       id="text10973"><tspan
-         sodipodi:role="line"
-         id="tspan10971"
-         style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-family:'Fira Code';-inkscape-font-specification:'Fira Code Medium';fill:#ffffff;stroke-width:0.264583"
-         x="4.8348246"
-         y="13.767293">LIGHTCORE</tspan></text>
+    <path
+       style="fill:#00ffff;stroke:#000000;stroke-width:0.397871px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 13.917694,22.929898 19.610369,11.366671 11.960848,13.946159 14.807175,1.7602977 4.1334292,18.482502 15.785605,13.946159 Z"
+       id="path495" />
   </g>
 </svg>

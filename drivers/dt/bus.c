@@ -1,12 +1,12 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com> 
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
 #include <driver/dt.h>
 #include <driver/dt/fdt.h>
 
-state dt_address(const struct dt_node *node, int index, 
+state dt_address(const struct dt_node *node, int index,
                  resource_size_t *addr, resource_size_t *size)
 {
     const be32 *prop;
@@ -33,7 +33,6 @@ int dt_address_nr(const struct dt_node *node)
 
     if (!dt_attribute_get(node, "reg", &len))
         return -ENODATA;
-    
+
     return len / (asize + sszie);
 }
-            

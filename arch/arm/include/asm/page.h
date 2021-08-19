@@ -1,22 +1,37 @@
-/* SPDX-License-Identifier: GPL-2.0-only */
-/*
- *  arch/arm/include/asm/page.h
- *
- *  Copyright (C) 1995-2003 Russell King
- */
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _ASM_ARM_PAGE_H_
 #define _ASM_ARM_PAGE_H_
 
 #include <const.h>
 
-/* PAGE_SHIFT determines the page size */
 #define PAGE_SHIFT      12
 #define PAGE_SIZE       (_AC(1,UL) << PAGE_SHIFT)
-#define PAGE_MASK       (~((1 << PAGE_SHIFT) - 1))
+#define PAGE_MASK       (~(PAGE_SIZE - 1))
 
-#define THREAD_SIZE_ORDER   1
-#define THREAD_SIZE         (PAGE_SIZE << THREAD_SIZE_ORDER)
-#define THREAD_START_SP     (THREAD_SIZE - 8)
+#define SECTION_SHIFT   20
+#define SECTION_SIZE    (_AC(1,UL) << SECTION_SHIFT)
+#define SECTION_MASK    (~(SECTION_SIZE - 1))
 
+#define THREAD_SHIFT    (PAGE_SHIFT + 1)
+#define THREAD_SIZE     (_AC(1,UL) << THREAD_SHIFT)
+#define THREAD_MASK     (~(THREAD_SIZE - 1))
 
+#define PHYS_SHIFT      32
+#define PHYS_SIZE       (_AC(1,ULL) << PHYS_SHIFT)
+#define PHYS_MASK       (~(PHYS_SIZE - 1))
+
+#define VIRTS_SHIFT     32
+#define VIRTS_SIZE      (_AC(1,ULL) << VIRTS_SHIFT)
+#define VIRTS_MASK      (~(VIRTS_SHIFT - 1))
+
+#define PGDIR_SHIFT     20
+#define COARSE_SHIFT    12
+#define PTRS_PER_PGD    4096
+#define PTRS_PER_PTE    256
+
+#define SPARCE_SHIFT    24
+
+#ifndef __ASSEMBLY__
+
+#endif	/* __ASSEMBLY__ */
 #endif

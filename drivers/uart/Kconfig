@@ -4,7 +4,9 @@ if UART
 
 config UART_8250
     bool "Devicetree based probing for 8250 ports"
-    depends on DT
+    
+config UART_8250_CON
+    bool "Devicetree based probing for 8250 ports"
 
 config UART_CH340
     bool "CH340/CH341 UART support"

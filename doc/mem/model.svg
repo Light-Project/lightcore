@@ -25,9 +25,9 @@
      showgrid="false"
      units="px"
      inkscape:snap-text-baseline="true"
-     inkscape:zoom="0.83150518"
-     inkscape:cx="751.04764"
-     inkscape:cy="356.58227"
+     inkscape:zoom="1.1759259"
+     inkscape:cx="800.64569"
+     inkscape:cy="476.64568"
      inkscape:window-width="1920"
      inkscape:window-height="1033"
      inkscape:window-x="0"
@@ -55,10 +55,10 @@
        x="69.324997"
        y="126.58078" />
     <rect
-       style="fill:#ff5555;stroke-width:2.71987"
+       style="fill:#ff5555;stroke-width:2.23682"
        id="rect58700"
        width="42.000042"
-       height="48.516968"
+       height="32.8139"
        x="119.25655"
        y="126.48303" />
     <rect
@@ -200,6 +200,13 @@
        height="15.113016"
        x="119.25655"
        y="111.37002" />
+    <rect
+       style="fill:#aade87;stroke-width:1.51801"
+       id="rect6086-6-0-56-5-7"
+       width="42"
+       height="15.113016"
+       x="119.25659"
+       y="159.29694" />
     <text
        xml:space="preserve"
        style="font-size:4.77427px;line-height:1.25;font-family:sans-serif;stroke-width:0.198928"
@@ -359,34 +366,8 @@
          y="41.130009">high memory</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.263022px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 119.23966,167.13152 h 42.00022"
-       id="path34459" />
-    <text
-       xml:space="preserve"
-       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
-       x="134.55507"
-       y="172.20195"
-       id="text35819"><tspan
-         sodipodi:role="line"
-         style="stroke-width:0.264583"
-         x="134.55507"
-         y="172.20195"
-         id="tspan39259">Page</tspan></text>
-    <path
-       style="fill:none;stroke:#000000;stroke-width:0.263022px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 119.23966,159.13152 h 42.00022"
        id="path34459-2" />
-    <text
-       xml:space="preserve"
-       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
-       x="134.55507"
-       y="164.20116"
-       id="text35819-6"><tspan
-         sodipodi:role="line"
-         style="stroke-width:0.264583"
-         x="134.55507"
-         y="164.20116"
-         id="tspan39259-1">Page</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.244625px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 69.316782,151.13152 H 105.647"
@@ -600,5 +581,20 @@
        style="fill:none;stroke:#000000;stroke-width:0.264583;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:6.34999, 6.34999;stroke-dashoffset:0;stroke-opacity:1"
        d="M 59.444991,13.95 V 179.64001"
        id="path105540" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.263022px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 119.23966,151.33527 h 42.00022"
+       id="path8538" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.77427px;line-height:1.25;font-family:sans-serif;stroke-width:0.198928"
+       x="135.16145"
+       y="168.81331"
+       id="text8587"><tspan
+         sodipodi:role="line"
+         style="font-size:4.77427px;stroke-width:0.198928"
+         x="135.16145"
+         y="168.81331"
+         id="tspan8585">Hole</tspan></text>
   </g>
 </svg>

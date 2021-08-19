@@ -12,6 +12,8 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 
+#define be32 uint32_t
+
 #include "../../include/asm-generic/header.h"
 #include "../../include/crc_table.h"
 
@@ -24,9 +26,10 @@ static void error(const char *str)
 
 static uint32_t crc32(const uint8_t *src, int len, uint32_t crc)
 {
+    uint32_t tmp = crc;
     while (len--)
-        crc = (crc >> 8) ^ crc32_table[(crc & 0xff ) ^ *src++];
-    return crc;
+        tmp = (tmp >> 8) ^ crc32_table[(tmp & 0xff) ^ *src++];
+    return tmp ^ crc;
 } 
 
 int main(int argc, char *argv[])

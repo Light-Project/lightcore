@@ -21,6 +21,11 @@ platform-ldflags-y      := -m elf_i386
 platform-elfflags-y     := -m16 -nostdlib -T $(src)/bios/boot.lds
 endif 
 
+ifdef CONFIG_CHIP_SUNIV
+include-y               += $(src)/suniv/include/
+platform-elfflags-y     := -nostdlib -T $(src)/suniv/boot.lds
+endif 
+
 ifdef CONFIG_CHIP_ESP8266
 include-y               += $(src)/esp8266/include/
 platform-elfflags-y     := -nostdlib -T $(src)/esp8266/boot.lds

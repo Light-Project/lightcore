@@ -32,18 +32,21 @@ struct region *gfp_to_region(gfp_t gfp)
 struct region *pa_to_region(phys_addr_t pa)
 {
 #ifdef CONFIG_REGION_DMA
-    if (pa < CONFIG_DMA_SIZE)
+    if (pa < (CONFIG_DMA_SIZE + CONFIG_RAM_BASE))
         return &region_map[REGION_DMA];
 #endif
 #ifdef CONFIG_REGION_DMA32
-    if (pa < CONFIG_DMA32_SIZE)
+    if (pa < (CONFIG_DMA32_SIZE + CONFIG_RAM_BASE))
         return &region_map[REGION_DMA32];
 #endif
 #ifdef CONFIG_REGION_HIMEM
-    if (CONFIG_HIGHMAP_OFFSET < pa)
+    if (pa > (CONFIG_HIGHMEM_OFFSET + CONFIG_RAM_BASE) ||
+        pa < CONFIG_RAM_BASE)
         return &region_map[REGION_HIMEM];
 #endif
-    return &region_map[REGION_NORMAL];
+    if (pa >= CONFIG_RAM_BASE)
+        return &region_map[REGION_NORMAL];
+    return NULL;
 }
 
 static inline bool region_block_add(struct memblock_region *blk)
@@ -51,7 +54,7 @@ static inline bool region_block_add(struct memblock_region *blk)
     struct region *region = pa_to_region(blk->addr);
     struct page *page = pa_to_page(align_high(blk->addr, PAGE_SIZE));
 
-    if (!(blk->size >> PAGE_SHIFT))
+    if (!(blk->size >> PAGE_SHIFT) || !region)
         return false;
 
     if (!page)

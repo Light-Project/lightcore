@@ -3,9 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <string.h>
 #include <mm.h>
-#include <ioport.h>
 #include <init/initcall.h>
 #include <driver/pci.h>
 
@@ -26,7 +24,7 @@ static void bochs_set_big_endian(struct vesa_device *bochs)
 #endif
 
 static state bochs_setmode(struct video_device *vdev)
-{   
+{
     /* select video card */
     outb(0x3c0, 0x20);
     return vesa_setmode(vdev);
@@ -77,7 +75,7 @@ static state bochs_hw_init(struct pci_device *pdev)
     vesa->video.frame_size = size;
     if(!vesa->video.frame_buffer)
         return -ENOMEM;
-    
+
     pr_info("Framebuffer size %ldKiB @ 0x%lx\n", size / 1024, addr);
 
     if(vesa->mmio)
@@ -85,6 +83,9 @@ static state bochs_hw_init(struct pci_device *pdev)
 
     return -ENOERR;
 }
+
+#include <string.h>
+#include <logo.h>
 
 static state bochs_probe(struct pci_device *pdev, int pdata)
 {
@@ -119,12 +120,12 @@ static state bochs_probe(struct pci_device *pdev, int pdata)
 }
 
 static state bochs_remove(struct pci_device *pdev)
-{    
+{
     struct vesa_device *vesa = pci_get_devdata(pdev);
 
     /* Deinit framebuffer */
     iounmap(vesa->video.frame_buffer);
-    
+
     /* Deinit configuration space */
     if(vesa->mmio)
         iounmap(vesa->mmio);

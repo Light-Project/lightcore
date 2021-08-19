@@ -2,13 +2,10 @@ menu "irq support"
 
     config IRQCHIP_8259
     bool "I8259 Interrupt Controller"
-    
-    config IRQCHIP_CSKY
-    bool "C-SKY APB Interrupt Controller"
-    depends on CSKY
-    help
-    Say yes here to enable C-SKY APB interrupt controller driver used
-    by C-SKY single core SOC system. It uses mmio map apb-bus to visit
-    the controller's register.
+    depends on ARCH_X86
+
+    config IRQCHIP_GX6605S
+    bool "GX6605s Interrupt Controller"
+    depends on ARCH_CSKY
 
 endmenu

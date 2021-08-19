@@ -3,9 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <string.h>
 #include <mm.h>
-#include <ioport.h>
 #include <init/initcall.h>
 #include <driver/pci.h>
 

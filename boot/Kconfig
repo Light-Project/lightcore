@@ -103,13 +103,8 @@ config CHIP_STM32
     depends on ARCH_ARME
     bool "Stm32 Series"
 
-config CHIP_SUNXIF1
-    depends on ARCH_ARM_926EJS
-    bool "Sunxi-F1 Series"
-            
-config CHIP_SUNXIH3
-    depends on ARCH_ARMV7A
-    bool "Sunxi-H3 Series"
+config CHIP_SUNIV
+    bool "Allwinner F-series SoCs support"
 
 config CHIP_GX6605S
     depends on CPU_CK610

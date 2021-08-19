@@ -3,91 +3,114 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
+#include <mm.h>
 #include <init/initcall.h>
 #include <console.h>
-#include <driver/uart.h>
+#include <driver/platform.h>
 #include <driver/uart/8250.h>
 
 #include <asm/io.h>
 #include <asm/proc.h>
 
-static unsigned int i8250_in(struct uart_port *port, int reg)
-{
-    reg <<= port->regshift;
+#define freq_def    115200
 
-    switch (port->iotype) {
-    case UPIO_MEM:
-        return readb(port->membase + reg);
-    case UPIO_MEM16:
-        return readw(port->membase + reg);
-    case UPIO_MEM32:
-        return readl(port->membase + reg);
-    case UPIO_PORT:
-        return inb(port->iobase + reg);
-    default:
-        return 0;
-    }
+struct i8250_console {
+    struct console console;
+    unsigned int regshift;
+    resource_size_t addr;
+    bool mmio;
+};
+
+#define console_to_dev(con) \
+    container_of(con, struct i8250_console, console)
+
+static inline uint8_t i8250_in(struct i8250_console *dev, int reg)
+{
+    reg <<= dev->regshift;
+
+    if (dev->mmio)
+        return readb((void *)reg);
+    return inb(reg);
 }
 
-static void i8250_out(struct uart_port *port, int offset, unsigned int value)
+static inline void i8250_out(struct i8250_console *dev, int reg, uint8_t val)
 {
-    offset <<= port->regshift;
+    reg <<= dev->regshift;
 
-    switch (port->iotype) {
-    case UPIO_MEM:
-        writeb((void *)port->membase + offset, value);
-        break;
-    case UPIO_MEM16:
-        writew((void *)port->membase + offset, value);
-        break;
-    case UPIO_MEM32:
-        writel((void *)port->membase + offset, value);
-        break;
-    case UPIO_PORT:
-        outb((unsigned int)port->membase + offset, value);
-        break;
-    case UPIO_AU:
-        port->write(port->membase + offset, value);
-        break;
-    }
-} 
+    if (dev->mmio)
+        writeb((void *)reg, val);
+    else
+        outb(reg, val);
+}
 
-#define both_empty (UART8250_LSR_THRE | UART8250_LSR_TEMT)
-
-static inline void i8250_putc(struct uart_port *port, char ch)
+static void serial_putc(struct i8250_console *dev, char ch)
 {
-    while(i8250_in(port, UART8250_LSR) & both_empty == both_empty)
+    while (!(i8250_in(dev, UART8250_LSR) & UART8250_LSR_THRE))
         cpu_relax();
-    i8250_out(port, UART8250_RBR, ch);
+    i8250_out(dev, UART8250_THR, ch);
 }
 
-static void i8250_write(struct console *console, const char *str, unsigned int count)
+void serial_putcs(struct console *con, const char *str, unsigned len)
 {
-    struct uart_port port = console->data;
-    while(count--)
-        uart8250_early_putc(port, *str++);
+    struct i8250_console *dev = console_to_dev(con);
+    while (len--)
+        serial_putc(dev, *str++);
 }
 
-static void i8250_init(struct uartcon_device *device)
+static void i8250_init(struct i8250_console *dev)
 {
-    unsigned int div;
-    size_t proc;
-    
-    struct uart_port *port = &device->port;
-    
-    i8250_out(port, UART8250_LCR, 0x03);   /* 8n1          */
-    i8250_out(port, UART8250_IER, 0x00);   /* no interrupt */
-    i8250_out(port, UART8250_FCR, 0x00);   /* no fifo      */
-    i8250_out(port, UART8250_MCR, 0x00);   /* Clean MCR    */
-    
-    if(port->uartclk) {
-        div = DIV_ROUND_CLOSEST(port->uartclk, 16 * device->baud);
-        proc = i8250_in(port, UART8250_LCR);
-        i8250_out(port, UART8250_LCR, proc | UART8250_LCR_DLAB);   /* set DLAB */
-        i8250_out(port, UART8250_DLR_LSB, div & 0xff);
-        i8250_out(port, UART8250_DLR_MSB, (div >> 8) & 0xff);
-        proc = i8250_in(port, UART8250_LCR);
-        i8250_out(port, UART8250_LCR, proc & ~UART8250_LCR_DLAB);  /* clr DLAB */
-    }
+    unsigned int clk = freq_def;
+
+    i8250_out(dev, UART8250_IER, 0);
+    i8250_out(dev, UART8250_MCR, UART8250_MCR_RTS | UART8250_MCR_DTR);
+    i8250_out(dev, UART8250_FCR, UART8250_FCR_FIFO_EN);
+
+    i8250_out(dev, UART8250_LCR, UART8250_LCR_DLAB);
+    i8250_out(dev, UART8250_DLL, clk);
+    i8250_out(dev, UART8250_DLH, clk >> 8);
+    i8250_out(dev, UART8250_LCR, UART8250_LCR_WLS_8);
 }
-console_initcall(uart8250_early_setup);
+
+static state i8250_probe(struct platform_device *pdev)
+{
+    struct i8250_console *dev;
+    int val;
+
+    dev = kmalloc(sizeof(*dev), GFP_KERNEL);
+    if (!dev)
+        return -ENOMEM;
+
+    val = platform_resource_type(pdev, 0);
+    if (val == RESOURCE_MMIO)
+        dev->mmio = true;
+    else if (val != RESOURCE_PMIO)
+        return -ENODEV;
+
+    dev->addr = platform_resource_start(pdev, 0);
+    i8250_init(dev);
+
+    dev->console.write = serial_putcs;
+    console_register(&dev->console);
+    return -ENOERR;
+}
+
+static struct dt_device_id i8250_ids[] = {
+    { .compatible = "ns16550" },
+    { .compatible = "ns16550a" },
+    { .compatible = "snps,dw-apb-uart" },
+    { }, /* NULL */
+};
+
+static struct platform_driver i8250_driver = {
+    .driver = {
+        .name = "i8250-console",
+    },
+    .dt_table = i8250_ids,
+    .probe = i8250_probe,
+};
+
+static state i8250_con_init(void)
+{
+    return platform_driver_register(&i8250_driver);
+}
+console_initcall(i8250_con_init);

@@ -1,4 +1,4 @@
-
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _ASM_CSKY_PROCESSOR_H_
 #define _ASM_CSKY_PROCESSOR_H_
  

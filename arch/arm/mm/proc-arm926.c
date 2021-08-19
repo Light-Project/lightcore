@@ -1,36 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- *  SPDX-License-Identifier: GPL-2.0-or-later
- *  arch/arm/926ejs/proc.c
- *  arm926 interface
- *  (C) 2020 wzl
- * 
- *  Change Logs:
- *  Date            Notes
- *  2021-01-18      first version 
- * 
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
 #include <types.h>
-
-void arch_irq_disable()
-{
-    asm volatile(
-        "mrs    ip, cpsr\n\t"
-        "orr    ip, #0xc0\n\t"
-        "msr    cpsr, ip"
-        :::"ip"
-    );
-}
-
-void arch_irq_enable()
-{
-    asm volatile(
-        "mrs    ip, cpsr\n\t"
-        "bic    ip, #0xc0\n\t"
-        "msr    cpsr, ip"
-        :::"ip"
-    );
-}
 
 void arch_mm_switch(uint32_t *addr)
 {
@@ -58,5 +31,5 @@ void arch_mm_switch(uint32_t *addr)
 
 void arch_halt()
 {
-    
+
 }

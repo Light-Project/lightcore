@@ -4,17 +4,23 @@
 
 #include <const.h>
 
-/* PAGE_SHIFT determines the page size */
 #define PAGE_SHIFT      12
 #define PAGE_SIZE       (_AC(1,UL) << PAGE_SHIFT)
 #define PAGE_MASK       (~(PAGE_SIZE - 1))
 
-#define THREAD_SIZE     (PAGE_SIZE * 2)
-#define THREAD_MASK     (~(THREAD_SIZE - 1))
 #define THREAD_SHIFT    (PAGE_SHIFT + 1)
+#define THREAD_SIZE     (_AC(1,UL) << THREAD_SHIFT)
+#define THREAD_MASK     (~(THREAD_SIZE - 1))
 
-#define SECTION_SHIFT   24
-#define PHYS_BITS_MAX   32
+#define PHYS_SHIFT      32
+#define PHYS_SIZE       (_AC(1,UL) << PHYS_SHIFT)
+#define PHYS_MASK       (~(PHYS_SIZE - 1))
+
+#define VIRTS_SHIFT     32
+#define VIRTS_SIZE      (_AC(1,UL) << VIRTS_SHIFT)
+#define VIRTS_MASK      (~(VIRTS_SHIFT - 1))
+
+#define SPARCE_SHIFT    24
 
 #ifndef __ASSEMBLY__
 

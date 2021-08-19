@@ -9,7 +9,6 @@ struct slob_page {
     list_t slob_list;       /* slob page list */
     struct slob_node* node; /* slob node list head of this page */
     int avail;              /* Free space on slob pages */
-    uint8_t page_use:1;     /* The whole page is used as a block of node */
 };
 
 struct page {

@@ -265,7 +265,7 @@ quiet_cmd_make_kernel = $(ECHO_ELF)  $@
 lightcore: kernel.o
 	$(call if_changed,make_kernel)
 
-uboot boot : lightcore FORCE
+uboot boot: lightcore FORCE
 	$(Q)$(MAKE) $(build)=boot $@
 preload dts run install: FORCE
 	$(Q)$(MAKE) $(build)=boot $@

@@ -1,15 +1,12 @@
-#include <arch.h>
-#include <types.h>
-#include <size.h>
-#include <init/initcall.h>
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
 
+#include <asm/pgalloc.h>
+#include <asm/irq.h>
 
-
-uint32_t arch_setup()
+void arch_setup(void)
 {
-//     arch_icache_enable();
-//     arch_dcache_enable();
-//     arch_mmu();
+    arch_page_setup();
 }
-
-arch_initcall(arch_setup);

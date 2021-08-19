@@ -3,12 +3,10 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
+#include <lib.h>
 #include <kernel.h>
-#include <kboot.h>
 
 static size_t patterns[] = {
-    (size_t)0x0000000000000000ULL,
-    (size_t)0xffffffffffffffffULL,
     (size_t)0x5555555555555555ULL,
     (size_t)0xaaaaaaaaaaaaaaaaULL,
 };

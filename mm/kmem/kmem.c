@@ -28,7 +28,7 @@ void *kmalloc(size_t size, gfp_t gfp)
     size = align_high(size, MSIZE);
 
 #ifdef CONFIG_MM_SLOB
-    if (size > PAGE_SIZE)
+    if (size >= PAGE_SIZE)
         block = kmalloc_large(size, gfp);
     else
         block = slob_alloc(size, gfp, MSIZE);

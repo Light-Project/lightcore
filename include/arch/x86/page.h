@@ -14,11 +14,11 @@ struct pde{
             uint32_t us:1;      // User/supervisor: if 0, user-mode accesses are not allowed
             uint32_t pwt:1;     // Page-level write-through
             uint32_t pcd:1;     // Page-level cache disable
-            uint32_t a:1;       // Accessed indicates whether software has accessed 
+            uint32_t a:1;       // Accessed indicates whether software has accessed
             uint32_t d:1;       // Dirty indicates whether software has written (4MB page only)
             uint32_t ps:1;      // Page size (0:4KB 1:4MB)
             uint32_t g:1;       // Global; if CR4.PGE = 1, determines whether the translation is global
-            uint32_t RES0:3;    // Global; if CR4.PGE = 1, determines whether the translation is global
+            uint32_t RES0:3;    //
             uint32_t addr:20;   // Physical address of 4-KByte aligned page table referenced by this entry
         };
         struct {                /* 4MiB page */
@@ -27,14 +27,14 @@ struct pde{
             uint32_t __us:1;    // User/supervisor: if 0, user-mode accesses are not allowed
             uint32_t __pwt:1;   // Page-level write-through
             uint32_t __pcd:1;   // Page-level cache disable
-            uint32_t __a:1;     // Accessed indicates whether software has accessed 
+            uint32_t __a:1;     // Accessed indicates whether software has accessed
             uint32_t __d:1;     // Dirty indicates whether software has written (4MB page only)
             uint32_t __ps:1;    // Page size (0:4KB 1:4MB)
             uint32_t __g:1;     // Global; if CR4.PGE = 1, determines whether the translation is global
-            uint32_t __RES0:3;  // Global; if CR4.PGE = 1, determines whether the translation is global
-            uint32_t pat:1;     // Global; if CR4.PGE = 1, determines whether the translation is global
+            uint32_t __RES0:3;  //
+            uint32_t pat:1;     //
             uint32_t addrh:4;   // Physical address of 4-KByte aligned page table referenced by this entry
-            uint32_t RES1:5;    // Physical address of 4-KByte aligned page table referenced by this entry
+            uint32_t RES1:5;    //
             uint32_t addrl:10;  // Physical address of 4-KByte aligned page table referenced by this entry
         };
         uint32_t val;
@@ -49,7 +49,7 @@ struct pte{
             uint32_t us:1;      // User/supervisor: if 0, user-mode accesses are not allowed
             uint32_t pwt:1;     // Page-level write-through
             uint32_t pcd:1;     // Page-level cache disable
-            uint32_t a:1;       // Accessed indicates whether software has accessed 
+            uint32_t a:1;       // Accessed indicates whether software has accessed
             uint32_t d:1;       // Dirty indicates whether software has written (4MB page only)
             uint32_t pat:1;     // Page size (0:4KB 1:4MB)
             uint32_t g:1;       // Global; if CR4.PGE = 1, determines whether the translation is global

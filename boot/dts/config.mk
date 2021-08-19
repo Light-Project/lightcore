@@ -11,4 +11,8 @@ endif
 ifdef CONFIG_ARCH_XTENSA
 dtb-y += esp32.dtb
 dtb-y += esp8266.dtb
+endif
+
+ifdef CONFIG_ARCH_ARM
+dtb-y += suniv.dtb
 endif 

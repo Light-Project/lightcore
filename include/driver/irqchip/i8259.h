@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#ifndef _CHIP_X86_PIC_H_
-#define _CHIP_X86_PIC_H_
+#ifndef _DRIVER_IRQCHIP_8259_H_
+#define _DRIVER_IRQCHIP_8259_H_
 
 enum i8259_registers {
     I8259_CMD   = 0x00,
@@ -37,7 +37,7 @@ enum i8259_registers {
 #define PIC2_IRQ9           (1<<9)  /* Redirected IRQ 2, Open, Network Available        */
 #define PIC2_IRQ10          (1<<10) /* Open                                             */
 #define PIC2_IRQ11          (1<<11) /* Open, SCSI, Video                                */
-#define PIC2_IRQ12          (1<<12) /* Open, PS2                                        */           
+#define PIC2_IRQ12          (1<<12) /* Open, PS2                                        */
 #define PIC2_IRQ13          (1<<13) /* Coprocessor                                      */
 #define PIC2_IRQ14          (1<<14) /* Open, Primary hard drive, Hard drive controller  */
 #define PIC2_IRQ15          (1<<15) /* Open, 2nd hard drive (secondary)                 */

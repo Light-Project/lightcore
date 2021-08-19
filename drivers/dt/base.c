@@ -1,9 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Equipment tree basic operation
- *
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
- * 
  */
 
 #include <driver/dt.h>
@@ -14,7 +11,7 @@ struct dt_node *dt_root;
 struct dt_node *dt_chosen;
 struct dt_node *dt_stdout;
 
-struct dt_attribute *dt_attribute_find(const struct dt_node *node, 
+struct dt_attribute *dt_attribute_find(const struct dt_node *node,
                                        const char *name)
 {
     struct dt_attribute *attribute;
@@ -25,7 +22,7 @@ struct dt_attribute *dt_attribute_find(const struct dt_node *node,
     return NULL;
 }
 
-const void *dt_attribute_get(const struct dt_node *node, 
+const void *dt_attribute_get(const struct dt_node *node,
                              const char *name, int *len)
 {
     struct dt_attribute *attribute;
@@ -83,7 +80,7 @@ state dt_attribute_read_u64(const struct dt_node *node, const char *name,
     return -ENOERR;
 }
 
-state dt_attribute_read_string(const struct dt_node *node, const char *name, 
+state dt_attribute_read_string(const struct dt_node *node, const char *name,
                                int index, const char **str)
 {
     const char *attribute = dt_attribute_get(node, name, NULL);
@@ -96,7 +93,7 @@ state dt_attribute_read_string(const struct dt_node *node, const char *name,
         len = strlen(attribute);
         attribute += len;
     }
-    
+
     *str = attribute;
     return -ENOERR;
 }
@@ -129,7 +126,7 @@ uint32_t dt_addr_cell(const struct dt_node *node)
         if (!dt_attribute_read_u32(node, DT_ADDR_CELL, 0, &cell))
             return cell;
     }
-    
+
     return DT_ROOT_ADDR_CELLS_DEFAULT;
 }
 
@@ -145,13 +142,13 @@ uint32_t dt_size_cell(const struct dt_node *node)
         if (!dt_attribute_read_u32(node, DT_ADDR_CELL, 0, &cell))
             return cell;
     }
-    
+
     return DT_ROOT_ADDR_CELLS_DEFAULT;
 }
 
 /* Function for matching */
 
-bool dt_attribute_match(const struct dt_node *node, 
+bool dt_attribute_match(const struct dt_node *node,
                         const char *atname, const char *val)
 {
     struct dt_attribute *attribute;
@@ -160,13 +157,13 @@ bool dt_attribute_match(const struct dt_node *node,
 }
 
 bool dt_match_name(const struct dt_node *node, const char *name)
-{   
+{
     const char *node_name;
     int len;
 
     node_name = kbasename(node->path);
 	len = strchrnul(name, '@') - node_name;
-	return (strlen(node_name) == len) && 
+	return (strlen(node_name) == len) &&
            (!strncmp(node_name, name, len));
 }
 

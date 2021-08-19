@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-/**
- * esp8266 preload startup code 
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
 #include <linkage.h>
@@ -22,25 +22,25 @@ Bss_segment_Init:
     addi    a3, a3, 4
 Bss_loop:
     bne     a3, a4, 1b
-    
+
     /* User vector mode */
     rsr     a0, ps
     movi    a1, 1<<5
     or      a0, a0, a1
     xor     a0, a0, a1
     wsr     a0, ps
-    
+
     /* relocate vector */
     movi    a0, _start
     wsr     a0, vecbase
-    
+
     /* enable timer intc */
     movi    a0, 0x3ff00000
     movi    a1, 1<<1
     l32i    a2, a0, 0x04
     or      a2, a2, a1
     s32i    a2, a0, 0x04
-    
+
     /* enable timer int */
     rsr     a0, intenable
     movi    a1, 1<<9
@@ -119,26 +119,26 @@ END(nmi_vector)
 ENTRY(kernel_vector)
     wsr         a0, excsave1
     j           kernel_handle
-END(kernel_vector)    
+END(kernel_vector)
 
     .section    .text, "ax"
 ENTRY(kernel_handle)
     /* Save context */
     movi        a0, int_table
     s32i        sp, a0, 0x00
-    
+
     rsr         sp, ps
     s32i        sp, a0, 0x04
-    
+
     rsr         sp, epc1
     s32i        sp, a0, 0x08
-    
+
     rsr         sp, excsave1
     s32i        sp, a0, 0x0c
-    
+
     rsr         sp, sar
     s32i        sp, a0, 0x10
-    
+
     s32i        a2, a0, 0x14
     s32i        a3, a0, 0x18
     s32i        a4, a0, 0x1c
@@ -153,14 +153,14 @@ ENTRY(kernel_handle)
     s32i        a13, a0, 0x40
     s32i        a14, a0, 0x44
     s32i        a15, a0, 0x48
-    
+
     l32i        sp, a0, 0x00
     call0       timer_handle
 
     /* clear all interrupt */
     movi        a0, 0x3fff
     wsr         a0, intclear
-    
+
     /* Recovery context */
     movi        a0, int_table
     l32i        a15, a0, 0x48
@@ -177,16 +177,16 @@ ENTRY(kernel_handle)
     l32i        a4, a0, 0x1c
     l32i        a3, a0, 0x18
     l32i        a2, a0, 0x14
-    
+
     l32i        sp, a0, 0x10
     wsr         sp, sar
-    
+
     l32i        sp, a0, 0x08
     wsr         sp, epc1
-    
+
     l32i        sp, a0, 0x04
     wsr         sp, ps
-    
+
     l32i        sp, a0, 0x00
     l32i        a0, a0, 0x0c
 
@@ -205,7 +205,7 @@ END(user_vector)
 
 /*
  * Double Exception.
- * Double exceptions are not a normal occurrence. 
+ * Double exceptions are not a normal occurrence.
  * They indicate a bug of some kind.
  */
     .section    .Double.Vector, "ax"
@@ -215,7 +215,7 @@ END(double_vector)
 
 /*
  * Reset Exception.
- * The vecbase is restored when hardware reset, 
+ * The vecbase is restored when hardware reset,
  * so this vector is useless. It's just to show chip design.
  */
     .section    .Reset.Vector, "ax"

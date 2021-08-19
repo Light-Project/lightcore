@@ -3,13 +3,8 @@ menuconfig PRELOAD
     
 if PRELOAD
 
-source "boot/preload/sunxif1/Kconfig"
-    
-source "boot/preload/sunxih3/Kconfig"
+source "boot/preload/suniv/Kconfig"
     
 source "boot/preload/bios/Kconfig"
-    
-config PERLOAD_CMD
-    string "Param to kernel"
 
 endif

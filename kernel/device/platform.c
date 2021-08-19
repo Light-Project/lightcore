@@ -8,13 +8,13 @@
 #include <string.h>
 #include <export.h>
 #include <mm.h>
-#include <driver/platform.h> 
+#include <driver/platform.h>
 #include <init/initcall.h>
 #include "base.h"
 #include <printk.h>
 
 static __always_inline bool
-platform_device_match_one(const struct platform_device_id *id, 
+platform_device_match_one(const struct platform_device_id *id,
                           struct platform_device *pdev)
 {
     return !strcmp(id->name, pdev->name);
@@ -24,11 +24,11 @@ platform_device_match_one(const struct platform_device_id *id,
  * platform_device_match - See if a device matches a driver's list of IDs
  */
 static inline const struct platform_device_id *
-platform_device_match(struct platform_driver *pdrv, 
+platform_device_match(struct platform_driver *pdrv,
                       struct platform_device *pdev)
 {
     const struct platform_device_id *pids = pdrv->platform_table;
-    
+
     if(!pids || !pdev->name)
         return NULL;
 
@@ -45,9 +45,18 @@ static state platform_match(struct device *dev, struct driver *drv)
     struct platform_device *pdev = device_to_platform_device(dev);
     struct platform_driver *pdrv = driver_to_platform_driver(drv);
 
-    if(platform_device_match(pdrv, pdev) ||
-       platform_dt_match(pdrv, pdev))
+    if (platform_device_match(pdrv, pdev))
         return -ENOERR;
+
+#ifdef CONFIG_DT
+    if (platform_dt_match(pdrv, pdev))
+        return -ENOERR;
+#endif
+
+#ifdef CONFIG_ACPI
+    if (platform_acpi_match(pdrv, pdev))
+        return -ENOERR;
+#endif
 
     return -ENODEV;
 }
@@ -95,7 +104,7 @@ struct bus_type platform_bus = {
     .shutdown = platform_shutdown,
 };
 
-resource_size_t platform_resource_start(struct platform_device *pdev, 
+resource_size_t platform_resource_start(struct platform_device *pdev,
                                         unsigned int index)
 {
     if (index > pdev->resources_nr)
@@ -103,7 +112,7 @@ resource_size_t platform_resource_start(struct platform_device *pdev,
     return pdev->resource[index].start;
 }
 
-resource_size_t platform_resource_end(struct platform_device *pdev, 
+resource_size_t platform_resource_end(struct platform_device *pdev,
                                       unsigned int index)
 {
     if (index > pdev->resources_nr)
@@ -111,7 +120,7 @@ resource_size_t platform_resource_end(struct platform_device *pdev,
     return pdev->resource[index].end;
 }
 
-enum res_type platform_resource_type(struct platform_device *pdev, 
+enum res_type platform_resource_type(struct platform_device *pdev,
                                      unsigned int index)
 {
     if (index > pdev->resources_nr)
@@ -127,11 +136,11 @@ enum res_type platform_resource_type(struct platform_device *pdev,
 struct platform_device *platform_device_alloc(const char *name, int id)
 {
     struct platform_device *pdev;
-    
+
     pdev = kzalloc(sizeof(*pdev), GFP_KERNEL);
     if (!pdev)
         return NULL;
-        
+
     pdev->name  = name;
     pdev->id    = id;
     pdev->device.bus = &platform_bus;

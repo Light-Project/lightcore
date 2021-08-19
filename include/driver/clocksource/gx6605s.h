@@ -1,16 +1,16 @@
-#ifndef _DRIVER_CLOCKSOURCT_GX6605S_H_ 
+#ifndef _DRIVER_CLOCKSOURCT_GX6605S_H_
 #define _DRIVER_CLOCKSOURCT_GX6605S_H_
 
 #include <bits.h>
 
-enum TIMER_Registers
+enum timer_registers
 {
-    TIMER_STATUS    = 0x00,
-    TIMER_VALUE     = 0x04,
-    TIMER_CONTRL    = 0x10,
-    TIMER_CONFIG    = 0x20,
-    TIMER_DIV       = 0x24,
-    TIMER_INI       = 0x28,
+    GX6605S_TIM_STATUS  = 0x00,
+    GX6605S_TIM_VALUE   = 0x04,
+    GX6605S_TIM_CONTRL  = 0x10,
+    GX6605S_TIM_CONFIG  = 0x20,
+    GX6605S_TIM_DIV     = 0x24,
+    GX6605S_TIM_INI     = 0x28,
 };
 
 #define TIMER_STATUS_CLR        BIT(0)

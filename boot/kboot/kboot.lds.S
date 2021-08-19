@@ -10,14 +10,13 @@ ENTRY(_start)
 SECTIONS
 {
     . = CONFIG_LOAD_ADDR;
-    
     head_start = .;
-    
+
     .head :
     {
         KEEP(*(.head))
     }
-    
+
     .startup :
     {
         KEEP(*(.startup))
@@ -36,30 +35,30 @@ SECTIONS
         *(.rodata)
         *(.rodata*)
     }
-    
+
     .data :
     {
         . = ALIGN(4);
         *(.data)
         *(.data*)
-    } 
-    
+    }
+
     .piggydata :
     {
         _ld_piggy_start = .;
         KEEP(*(.piggydata))
         _ld_piggy_end = .;
-    }    
-        
+    }
+
     .align :
     {
         PROVIDE(_ld_align = .);
         SHORT(0xaa55)
         . = ALIGN(512);
     }
-    
+
     _ld_end = .;
-    
+
     .bss(NOLOAD) :
     {
         . = ALIGN(4);
@@ -68,8 +67,8 @@ SECTIONS
         *(.bss*)
         . = ALIGN(4);
         _ld_bss_end = .;
-    }   
-    
+    }
+
     .stack(NOLOAD) :
     {
         . = ALIGN(4);
@@ -77,7 +76,7 @@ SECTIONS
         . = _ld_stack_start + stack_size;
         _ld_stack_end = .;
     }
-    
+
     .heap(NOLOAD) :
     {
         . = ALIGN(4);
@@ -85,12 +84,12 @@ SECTIONS
         . = _ld_heap_start + heap_size;
         . = ALIGN(4);
         _ld_heap_end = .;
-    }    
-    DWARF_DEBUG  
-    
+    }
+    DWARF_DEBUG
+
     /* Sections to be discarded */
     DISCARDS
-    
+
     PROVIDE(_ld_size = _ld_end - head_start);
     PROVIDE(_ld_bsize = _ld_size / 512);
 }

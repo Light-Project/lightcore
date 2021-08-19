@@ -41,11 +41,11 @@ area_parent(struct vm_area *va, struct rb_root *root,
 
     do {
         parent = vm_rb_entry(*link);
-        
-        if (va->addr < (parent->addr + parent->size) && 
+
+        if (va->addr < (parent->addr + parent->size) &&
            (va->addr + va->size) <= parent->addr)
             link = &(*link)->left;
-        else if ((va->addr + va->size) > parent->addr && 
+        else if ((va->addr + va->size) > parent->addr &&
                   va->addr >= (parent->addr + parent->size))
             link = &(*link)->right;
         else {
@@ -58,8 +58,8 @@ area_parent(struct vm_area *va, struct rb_root *root,
     return link;
 }
 
-static inline state 
-area_insert(struct vm_area *va, struct rb_root *root, 
+static inline state
+area_insert(struct vm_area *va, struct rb_root *root,
             struct list_head *head, bool free)
 {
     struct rb_node *parent, **link;
@@ -87,14 +87,14 @@ area_insert(struct vm_area *va, struct rb_root *root,
     return -ENOERR;
 }
 
-static __always_inline void 
+static __always_inline void
 area_del(struct vm_area *va, struct rb_root *root)
 {
     rb_del(root, &va->rb_node);
 }
 
 /**
- * area_split - 
+ * area_split -
  */
 static __always_inline state
 area_split(struct vm_area *va, size_t align_start, size_t size)
@@ -105,7 +105,7 @@ area_split(struct vm_area *va, size_t align_start, size_t size)
         return -EINVAL;
 
     if (va->addr == align_start) {
-        if(va->size == size) {		
+        if(va->size == size) {
             /*
              * No need to split VA, it fully fits.
              *
@@ -152,9 +152,9 @@ area_split(struct vm_area *va, size_t align_start, size_t size)
 /**
  * vmem_find_free - find the first free node in list
  * @size: allocation size
- * @align: 
+ * @align:
  */
-static inline size_t 
+static inline size_t
 free_area_find(size_t size, unsigned int align, struct vm_area **vap)
 {
     struct vm_area *va;
@@ -217,7 +217,7 @@ struct vm_area *vmem_area_find(void *addr)
     rb_node = vm_area_root.rb_node;
     while (rb_node) {
         va = rb_entry(rb_node, struct vm_area, rb_node);
-        
+
         if ((size_t)addr < va->addr)
             rb_node = rb_node->right;
         else if ((size_t)addr > va->addr + va->size)
@@ -251,13 +251,12 @@ void __weak __init vmem_init(void)
 {
     struct vm_area *vm;
 
-    vm = kzalloc(sizeof(*vm), GFP_KERNEL);    
+    vm = kzalloc(sizeof(*vm), GFP_KERNEL);
     if (unlikely(!vm)) {
         panic("vmem initialization failed");
     }
 
     vm->addr = CONFIG_HIGHMAP_OFFSET;
-    vm->size = 0x10000000 - 1;
-
+    vm->size = VIRTS_SIZE - CONFIG_HIGHMAP_OFFSET;
     area_insert(vm, &vm_area_root, &vm_free_area_list, true);
 }

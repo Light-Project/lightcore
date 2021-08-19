@@ -122,11 +122,13 @@ struct page *page_alloc(uint order, gfp_t gfp)
         return NULL;
 
     region = gfp_to_region(gfp);
+
     page = buddy_smallest(region, order);
+    if (unlikely(!page))
+        return NULL;
 
     if (gfp & GFP_ZERO)
         memset(page_to_va(page), 0, PAGE_SIZE << order);
-
     return page;
 }
 

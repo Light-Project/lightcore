@@ -1,8 +1,8 @@
 #ifndef _BOOT_H_
 #define _BOOT_H_
 
-#include <stddef.h> /* For NULL and so on */
-#include <types.h>  /* For uintx_t */
+#include <stddef.h>
+#include <types.h>
 #include <lib.h>
 
 extern unsigned char BOOT_DEV;

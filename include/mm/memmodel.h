@@ -10,9 +10,6 @@
 /* Flat Memory model */
 #ifdef CONFIG_FLATMEM
 
-struct mem_section {
-};
-
 #define PAGE_NR ((PAGE_MASK >> PAGE_SHIFT) + 1)
 #define PAGE_BITMAP_NR (PAGE_NR / MSIZE)
 extern struct page page_map[];
@@ -25,8 +22,8 @@ static inline void memmodel_init(void) {}
 /* Sparce Memory model */
 #elif CONFIG_SPARCEMEM
 
-#define SECTIONS_WIDE (PHYS_BITS_MAX - SECTION_SHIFT)
-#define SECTIONS_PFN_SHIFT (SECTION_SHIFT - PAGE_SHIFT)
+#define SECTIONS_WIDE (PHYS_SHIFT - SPARCE_SHIFT)
+#define SECTIONS_PFN_SHIFT (SPARCE_SHIFT - PAGE_SHIFT)
 
 #define SECTIONS_NR (1UL << SECTIONS_WIDE)
 #define PAGES_PER_SECTION (1UL << SECTIONS_PFN_SHIFT)
@@ -41,7 +38,7 @@ extern struct sparce_block sparce_map[];
 #define sparce_base(sp) \
     ((unsigned long)((sp) - sparce_map) << SECTIONS_PFN_SHIFT)
 
-static inline unsigned long 
+static inline unsigned long
 sparce_page_nr(const struct sparce_block *sparce, const struct page *page)
 {
     return sparce_base(sparce) + (page - sparce->page_map);
@@ -67,8 +64,8 @@ sparce_nr_page(const struct sparce_block *sparce, unsigned long pnr)
 
 #endif
 
-#define va_to_pa(va)        ((phys_addr_t)(va) - CONFIG_PAGE_OFFSET)
-#define pa_to_va(pa)        ((void *)((pa) + CONFIG_PAGE_OFFSET))
+#define va_to_pa(va)        ((phys_addr_t)(va) - CONFIG_PAGE_OFFSET + CONFIG_RAM_BASE)
+#define pa_to_va(pa)        ((void *)((pa) - CONFIG_RAM_BASE + CONFIG_PAGE_OFFSET))
 
 #define page_to_pa(page)    (page_to_nr(page) << PAGE_SHIFT)
 #define pa_to_page(pa)      (nr_to_page(pa >> PAGE_SHIFT))

@@ -20,8 +20,6 @@
 #define page_offset ((void *)CONFIG_PAGE_OFFSET)
 #define kernel_entry (page_offset + 0x1000000)
 
-#ifndef __ASSEMBLY__
-
 /* startup.S */
 void head(void);
 void kernel_start(void *addr);
@@ -40,5 +38,4 @@ void segment_init(void);
 void console_print(const char *str);
 void console_clear(void);
 
-#endif  /* __ASSEMBLY__ */
 #endif  /* _KBOOT_H_ */

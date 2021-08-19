@@ -8,15 +8,15 @@
 
 #include <asm/tlb.h>
 #include <asm/regs.h>
-#include <asm/page.h>
 #include <asm/pgalloc.h>
 #include <asm/pgtable.h>
 
-struct pde page_dir[PTRS_PER_PGD] __aligned(0x1000);
-struct pte pt_himem[64][PTRS_PER_PTE] __aligned(0x1000);
-
 #define kernel_index    (CONFIG_PAGE_OFFSET >> PGDIR_SHIFT)
 #define himem_index     (CONFIG_HIGHMAP_OFFSET >> PGDIR_SHIFT)
+#define himem_pts       ((VIRTS_SIZE - CONFIG_HIGHMAP_OFFSET) >> PGDIR_SHIFT)
+
+struct pde page_dir[PTRS_PER_PGD] __aligned(0x1000);
+struct pte pt_himem[himem_pts][PTRS_PER_PTE] __aligned(0x1000);
 
 /*
  *  Kernel page table
@@ -25,11 +25,11 @@ struct pte pt_himem[64][PTRS_PER_PTE] __aligned(0x1000);
  *        | ####################|+++++++++++|#######
  *  Space |        User         ^  Kernel   ^ Himem
  *  Index |               kernel_index  himem_index
- * 
+ *
  *  User:   This part is blank
  *  Kernel: Use fixed huge page mapping
  *  Himem:  Use statically assigned pt_himem
- * 
+ *
  */
 
 static void pde_set(int index, bool huge, phys_addr_t pa_pte, bool user)
@@ -54,9 +54,8 @@ static void pde_set(int index, bool huge, phys_addr_t pa_pte, bool user)
  * pte_set - set page table entry
  * @addr: virtual address
  * @val: PTE filling content
- * 
  */
-static void pte_set(size_t va, struct pte *pte_val)
+static void pte_set(size_t va, struct pte *val)
 {
     struct pde *pde;
     struct pte *pte;
@@ -72,28 +71,28 @@ static void pte_set(size_t va, struct pte *pte_val)
     pte = pa_to_va((pde->addr << PAGE_SHIFT));
 
     index = pte_index(va);
-    pte[index] = *pte_val;
+    pte[index] = *val;
 }
 
-/**
- * arch_page_map - map 
- */
 state arch_page_map(size_t pa, size_t va, size_t size)
 {
     struct pte pte;
 
-    if(!(page_aligned(va) && page_aligned(va)))
+    if (!(page_aligned(va) && page_aligned(size)))
         return -EINVAL;
 
-    for(size >>= PAGE_SHIFT; size; --size) {
+    for (size >>= PAGE_SHIFT; size; --size) {
         pte.val = 0x1;
         pte.us = 0;
         pte.addr = pa >> PAGE_SHIFT;
+
         pte_set(va, &pte);
+
+        va += PAGE_SIZE;
+        pa += PAGE_SIZE;
     }
 
     tlb_flush_all();
-
     return -ENOERR;
 }
 
@@ -106,7 +105,7 @@ void *arch_page_alloc_user(void)
  * arch_page_switch - Toggle user section in global page table
  * @ptd_p: Page directory of the previous process
  * @ptd_n: Page directory of the next process
- * 
+ *
  */
 void arch_page_switch(void *ptd_p, void *ptd_n)
 {
@@ -116,8 +115,8 @@ void arch_page_switch(void *ptd_p, void *ptd_n)
 }
 
 void __init arch_page_setup(void)
-{    
-    phys_addr_t pa = 0;
+{
+    phys_addr_t pa = CONFIG_RAM_BASE;
     uint32_t val = 0;
 
     /* Mapping kernel space directly */

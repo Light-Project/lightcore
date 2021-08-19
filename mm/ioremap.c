@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com> 
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
 #define pr_fmt(fmt) "ioremap: " fmt
@@ -22,7 +22,7 @@ static LIST_HEAD(ioremap_list);
 struct ioremap {
     phys_addr_t start;
     phys_addr_t end;
-    
+
     struct list_head list;
     struct vm_area *vm_area;
     int count;
@@ -45,7 +45,7 @@ static struct ioremap *ioremap_get(phys_addr_t pa, size_t size)
     struct ioremap *io;
 
     vm = vmem_alloc(size);
-    if(!vm)
+    if (!vm)
         return NULL;
 
     pa = align_low(pa, PAGE_SIZE);
@@ -69,7 +69,7 @@ void *ioremap(phys_addr_t pa, size_t size)
 {
     struct ioremap *io;
     phys_addr_t offset;
- 
+
     /* Don't allow zero size */
     if (!size)
         return NULL;

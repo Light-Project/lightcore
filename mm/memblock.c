@@ -53,17 +53,19 @@ static state memblock_insert(phys_addr_t addr, size_t size, enum memblock_type t
         } else if(addr <= block->addr && block->addr < end) {
             /* front cover */
             if (type == block->type) {
-                addr = block->addr;
+                size += block_end - end;
                 memblock_node_remove(block);
             } else {
                 block->addr = end;
+                block->size -= size;
                 prev = block->list.prev;
             }
             break;
         } else if (addr < block_end && block_end <= end) {
             /* back cover */
             if (type == block->type) {
-                size += block->size;
+                addr = block->addr;
+                size += addr - block->addr;
                 memblock_node_remove(block);
             } else {
                 block->size -= block_end - addr;
@@ -159,6 +161,9 @@ phys_addr_t memblock_alloc(size_t size, size_t align,
 
     list_for_each_entry(tmp, &memblock_list, list) {
         align_start = align_high(tmp->addr, align);
+
+        if (tmp->type != MEMBLOCK_USABLE)
+            continue;
 
         if (tmp->addr < min_addr || max_addr < tmp->addr)
             continue;

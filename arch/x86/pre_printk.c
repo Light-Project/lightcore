@@ -2,6 +2,7 @@
 /*
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
+
 #include <mm.h>
 #include <string.h>
 #include <driver/video/vesa.h>
@@ -54,8 +55,8 @@ static void video_roll(void)
 static void video_write(struct console *con, const char *str, unsigned len)
 {
     char ch;
-    
-    while((ch = *str++) != '\0' && 0 < len--) {
+
+    while ((ch = *str++) != '\0' && 0 < len--) {
         if (pos_y >= yres) {
             video_roll();
             pos_y--;
@@ -66,13 +67,13 @@ static void video_write(struct console *con, const char *str, unsigned len)
             pos_x = 0;
             continue;
         }
-        
+
         vram_text->block[pos_y][pos_x++].ch = ch;
         if (pos_x >= xres) {
             pos_y++;
             pos_x = 0;
         }
-        
+
         video_cursor(pos_x, pos_y);
     }
 }

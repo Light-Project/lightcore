@@ -49,12 +49,6 @@ static void *slob_page_alloc(struct slob_page *slob_page, size_t size, int bsize
     struct slob_node *node, *free;
     slobidx_t avail;
 
-    /* This is the limit of slob allocation, use whole page ;) */
-    if ((PAGE_SIZE == size) || ((PAGE_SHIFT == align) && (size <= PAGE_SIZE))) {
-        slob_page->page_use = true;
-        return slob_page->node;
-    }
-
     for (node = slob_page->node;; node = slob_node_next(node)) {
         avail = node->size;
 
@@ -91,10 +85,6 @@ static void *slob_page_alloc(struct slob_page *slob_page, size_t size, int bsize
 static bool slob_page_free(struct slob_page *slob_page, void *block)
 {
     struct slob_node *node, *next, *prev = NULL;
-
-    /* if use whole page, release this page directly */
-    if (slob_page->page_use)
-        return true;
 
     for (node = slob_page->node;; node = slob_node_next(node)) {
         next = slob_node_next(node);
@@ -142,7 +132,7 @@ void *slob_alloc(size_t size, gfp_t gfp, int align)
      * Slob can only handle memory
      * no more than one page
      */
-    if (size > PAGE_SIZE || align > PAGE_SHIFT)
+    if (size >= PAGE_SIZE || align >= PAGE_SHIFT)
         return NULL;
 
     if (size < SLOB_BREAK1) {

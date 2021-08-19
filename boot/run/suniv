@@ -1,0 +1,10 @@
+target remote :2331
+file lightcore
+
+# reset CPU
+monitor reset
+
+set $pc=0x81000000
+
+break kernel_start
+continue

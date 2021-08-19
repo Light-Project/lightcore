@@ -3,20 +3,17 @@
 choice ARCH
 prompt "Architecture Select"
 
-    config ARCH_ALPHA
-    bool "Alpha"
-    select ARCH_32BIT
-    select ARCH_HAS_MMU
-        
     config ARCH_ARM
     bool "ARM"
     select ARCH_32BIT
     select ARCH_HAS_MMU
+    select ARCH_HAS_HIMEM
 
     config ARCH_ARM64
     bool "ARM64"
     select ARCH_64BIT
     select ARCH_HAS_MMU
+    select ARCH_HAS_HIMEM
 
     config ARCH_ARME
     bool "ARM-Embedded"
