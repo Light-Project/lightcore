@@ -24,8 +24,8 @@ elf             := $(sort $(elf))
 # Add path                             #
 ########################################
 
-elf             := $(addprefix $(obj)/,$(elf))
-elf_always      := $(addprefix $(obj)/,$(elf_always))
+elf             := $(addprefix $(obj),$(elf))
+elf_always      := $(addprefix $(obj),$(elf_always))
 
 ########################################
 # Always rule                          #
@@ -37,4 +37,4 @@ always-y	+= $(elf_always)
 # clean rule                           #
 ########################################
 
-clean-files += $(elf) 
+clean-files += $(elf)

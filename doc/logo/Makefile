@@ -1,13 +1,11 @@
-# It is forbidden to place files except logo here
-# Because he will clean up the C file
+# SPDX-License-Identifier: GPL-2.0-or-later
 
+$(obj)%.bmp: $(obj)%.svg
+	$(Q)$(BASH) $(obj)logogen.sh
 
-$(obj)/%.bmp: $(src)/%.svg
-	$(Q)$(BASH) $(src)/logogen.sh
-
-$(obj)/logo.c: $(obj)/logo.bmp
-	$(Q)$(MAKE) $(build)=tools/logo
-	$(Q)$(srctree)/tools/logo/bmp2c $^ -o $@
+$(obj)logo.c: $(obj)logo.bmp
+	$(Q)$(MAKE) $(build)=tools/logo/
+	$(Q)tools/logo/bmp2c $^ -o $@
 
 obj-y += logo.o terminal-logo.o
 

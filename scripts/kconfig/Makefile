@@ -19,31 +19,31 @@ endif
 # We need this, in case the user has it in its environment
 unexport CONFIG_
 
-xconfig: $(obj)/qconf
+xconfig: $(obj)qconf
 	$(Q)$< $(silent) $(Kconfig)
 
-gconfig: $(obj)/gconf
+gconfig: $(obj)gconf
 	$(Q)$< $(silent) $(Kconfig)
 
-menuconfig: $(obj)/mconf
+menuconfig: $(obj)mconf
 	$(Q)$< $(silent) $(Kconfig)
 
-config: $(obj)/conf
+config: $(obj)conf
 	$(Q)$< $(silent) --oldaskconfig $(Kconfig)
 
-nconfig: $(obj)/nconf
+nconfig: $(obj)nconf
 	$(Q)$< $(silent) $(Kconfig)
 
-build_menuconfig: $(obj)/mconf
+build_menuconfig: $(obj)mconf
 
-build_nconfig: $(obj)/nconf
+build_nconfig: $(obj)nconf
 
-build_gconfig: $(obj)/gconf
+build_gconfig: $(obj)gconf
 
-build_xconfig: $(obj)/qconf
+build_xconfig: $(obj)qconf
 
-localyesconfig localmodconfig: $(obj)/conf
-	$(Q)$(PERL) $(MAKE_HOME)/$(src)/streamline_config.pl --$@ $(MAKE_HOME) $(Kconfig) > .tmp.config
+localyesconfig localmodconfig: $(obj)conf
+	$(Q)$(PERL) $(MAKE_HOME)/$(obj)streamline_config.pl --$@ $(MAKE_HOME) $(Kconfig) > .tmp.config
 	$(Q)if [ -f .config ]; then 				\
 		cmp -s .tmp.config .config ||			\
 		(mv -f .config .config.old.1;			\
@@ -67,15 +67,15 @@ simple-targets := oldconfig allnoconfig allyesconfig allmodconfig \
 
 PHONY += $(simple-targets)
 
-$(simple-targets): $(obj)/conf
+$(simple-targets): $(obj)conf
 	$(Q)$< $(silent) --$@ $(Kconfig)
 
 PHONY += savedefconfig defconfig
 
-savedefconfig: $(obj)/conf
+savedefconfig: $(obj)conf
 	$(Q)$< $(silent) --$@=defconfig $(Kconfig)
 
-defconfig: $(obj)/conf
+defconfig: $(obj)conf
 ifneq ($(wildcard $(MAKE_HOME)/arch/$(SRCARCH)/configs/$(KBUILD_DEFCONFIG)),)
 	@$(kecho) "*** Default configuration is based on '$(KBUILD_DEFCONFIG)'"
 	$(Q)$< $(silent) --defconfig=arch/$(SRCARCH)/configs/$(KBUILD_DEFCONFIG) $(Kconfig)
@@ -84,12 +84,12 @@ else
 	$(Q)$(MAKE) -f Makefile $(KBUILD_DEFCONFIG)
 endif
 
-%_defconfig: $(obj)/conf
+%_defconfig: $(obj)conf
 	$(Q)$< $(silent) --defconfig=configs/$@ $(Kconfig)
 
 configfiles=$(wildcard $(MAKE_HOME)/kernel/configs/$@ $(MAKE_HOME)/arch/$(SRCARCH)/configs/$@)
 
-%.config: $(obj)/conf
+%.config: $(obj)conf
 	$(if $(call configfiles),, $(error No configuration exists for this target on this architecture))
 	$(Q)$(CONFIG_SHELL) $(MAKE_HOME)/scripts/kconfig/merge_config.sh -m .config $(configfiles)
 	$(Q)$(MAKE) -f $(MAKE_HOME)/Makefile olddefconfig
@@ -110,9 +110,9 @@ tinyconfig:
 
 # CHECK: -o cache_dir=<path> working?
 PHONY += testconfig
-testconfig: $(obj)/conf
-	$(Q)$(PYTHON3) -B -m pytest $(MAKE_HOME)/$(src)/tests \
-	-o cache_dir=$(abspath $(obj)/tests/.cache) \
+testconfig: $(obj)conf
+	$(Q)$(PYTHON3) -B -m pytest $(MAKE_HOME)/$(obj)tests \
+	-o cache_dir=$(abspath $(obj)tests/.cache) \
 	$(if $(findstring 1,$(KBUILD_VERBOSE)),--capture=no)
 clean-files += tests/.cache
 
@@ -149,9 +149,9 @@ help:
 common-objs	:= confdata.o expr.o lexer.lex.o parser.tab.o preprocess.o \
 		   symbol.o util.o
 
-$(obj)/lexer.lex.o: $(obj)/parser.tab.h
-HOSTCFLAGS_lexer.lex.o	:= -I $(MAKE_HOME)/$(src)
-HOSTCFLAGS_parser.tab.o	:= -I $(MAKE_HOME)/$(src)
+$(obj)lexer.lex.o: $(obj)parser.tab.h
+HOSTCFLAGS_lexer.lex.o	:= -I $(src)
+HOSTCFLAGS_parser.tab.o	:= -I $(src)
 
 # conf: Used for defconfig, oldconfig and related targets
 hostprogs	+= conf
@@ -161,11 +161,11 @@ conf-objs	:= conf.o $(common-objs)
 hostprogs	+= nconf
 nconf-objs	:= nconf.o nconf.gui.o $(common-objs)
 
-HOSTLDLIBS_nconf	= $(shell . $(obj)/nconf-cfg && echo $$libs)
-HOSTCFLAGS_nconf.o	= $(shell . $(obj)/nconf-cfg && echo $$cflags)
-HOSTCFLAGS_nconf.gui.o	= $(shell . $(obj)/nconf-cfg && echo $$cflags)
+HOSTLDLIBS_nconf	= $(shell . $(obj)nconf-cfg && echo $$libs)
+HOSTCFLAGS_nconf.o	= $(shell . $(obj)nconf-cfg && echo $$cflags)
+HOSTCFLAGS_nconf.gui.o	= $(shell . $(obj)nconf-cfg && echo $$cflags)
 
-$(obj)/nconf.o $(obj)/nconf.gui.o: $(obj)/nconf-cfg
+$(obj)nconf.o $(obj)nconf.gui.o: $(obj)nconf-cfg
 
 # mconf: Used for the menuconfig target based on lxdialog
 hostprogs	+= mconf
@@ -173,44 +173,42 @@ lxdialog	:= $(addprefix lxdialog/, \
 		     checklist.o inputbox.o menubox.o textbox.o util.o yesno.o)
 mconf-objs	:= mconf.o $(lxdialog) $(common-objs)
 
-HOSTLDLIBS_mconf = $(shell . $(obj)/mconf-cfg && echo $$libs)
+HOSTLDLIBS_mconf = $(shell . $(obj)mconf-cfg && echo $$libs)
 $(foreach f, mconf.o $(lxdialog), \
-  $(eval HOSTCFLAGS_$f = $$(shell . $(obj)/mconf-cfg && echo $$$$cflags)))
+  $(eval HOSTCFLAGS_$f = $$(shell . $(obj)mconf-cfg && echo $$$$cflags)))
 
-$(addprefix $(obj)/, mconf.o $(lxdialog)): $(obj)/mconf-cfg
+$(addprefix $(obj), mconf.o $(lxdialog)): $(obj)mconf-cfg
 
 # qconf: Used for the xconfig target based on Qt
 hostprogs	+= qconf
 qconf-cxxobjs	:= qconf.o qconf-moc.o
 qconf-objs	:= images.o $(common-objs)
 
-HOSTLDLIBS_qconf	= $(shell . $(obj)/qconf-cfg && echo $$libs)
-HOSTCXXFLAGS_qconf.o	= $(shell . $(obj)/qconf-cfg && echo $$cflags)
-HOSTCXXFLAGS_qconf-moc.o = $(shell . $(obj)/qconf-cfg && echo $$cflags)
+HOSTLDLIBS_qconf	= $(shell . $(obj)qconf-cfg && echo $$libs)
+HOSTCXXFLAGS_qconf.o	= $(shell . $(obj)qconf-cfg && echo $$cflags)
+HOSTCXXFLAGS_qconf-moc.o = $(shell . $(obj)qconf-cfg && echo $$cflags)
 
-$(obj)/qconf.o: $(obj)/qconf-cfg
+$(obj)qconf.o: $(obj)qconf-cfg
 
 quiet_cmd_moc = MOC     $@
-      cmd_moc = $(shell . $(obj)/qconf-cfg && echo $$moc) $< -o $@
-
-$(obj)/qconf-moc.cc: $(src)/qconf.h $(obj)/qconf-cfg FORCE
+      cmd_moc = $(shell . $(obj)qconf-cfg && echo $$moc) $< -o $@
+$(obj)qconf-moc.cc: $(obj)qconf.h $(obj)qconf-cfg FORCE
 	$(call if_changed,moc)
-
 targets += qconf-moc.cc
 
 # gconf: Used for the gconfig target based on GTK+
 hostprogs	+= gconf
 gconf-objs	:= gconf.o images.o $(common-objs)
 
-HOSTLDLIBS_gconf    = $(shell . $(obj)/gconf-cfg && echo $$libs)
-HOSTCFLAGS_gconf.o  = $(shell . $(obj)/gconf-cfg && echo $$cflags)
+HOSTLDLIBS_gconf    = $(shell . $(obj)gconf-cfg && echo $$libs)
+HOSTCFLAGS_gconf.o  = $(shell . $(obj)gconf-cfg && echo $$cflags)
 
-$(obj)/gconf.o: $(obj)/gconf-cfg
+$(obj)gconf.o: $(obj)gconf-cfg
 
 # check if necessary packages are available, and configure build flags
 filechk_conf_cfg = $(CONFIG_SHELL) $<
 
-$(obj)/%conf-cfg: $(src)/%conf-cfg.sh FORCE
+$(obj)%conf-cfg: $(obj)%conf-cfg.sh FORCE
 	$(call filechk,conf_cfg)
 
 clean-files += *conf-cfg

@@ -41,37 +41,31 @@ void resource_unregister(struct resource *resource)
 }
 EXPORT_SYMBOL(resource_unregister);
 
-static inline void devres_add(struct device *dev, struct resource *res)
-{
-
-}
-
-static inline void devres_remove(struct device *dev, struct resource *res)
-{
-
-}
-
 void *dev_kmalloc(size_t size, gfp_t gfp)
 {
 
     return NULL;
 }
+EXPORT_SYMBOL(dev_kmalloc);
 
 void dev_kfree(void *block)
 {
 
 }
+EXPORT_SYMBOL(dev_kfree);
 
 void *dev_ioremap(resource_size_t addr, resource_size_t size)
 {
 
     return NULL;
 }
+EXPORT_SYMBOL(dev_ioremap);
 
-void dev_iounmap(resource_size_t addr, resource_size_t size)
+void dev_iounmap(void *block)
 {
 
 }
+EXPORT_SYMBOL(dev_iounmap);
 
 void devres_release_all(void)
 {

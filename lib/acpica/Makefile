@@ -1,4 +1,4 @@
-include-y += $(src)/include/
+include-y += $(obj)include/
 
 obj-$(CONFIG_ACPI_DEBUG) += debugger/
 obj-y += dispatcher/

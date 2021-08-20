@@ -36,9 +36,9 @@ static inline void dev_set_devdata(struct device *dev, void *data)
 }
 
 void *dev_kmalloc(size_t size, gfp_t gfp);
-void  dev_kfree(void *block);
+void dev_kfree(void *block);
 void *dev_ioremap(resource_size_t addr, resource_size_t size);
-void  dev_iounmap(resource_size_t addr, resource_size_t size);
+void dev_iounmap(void *block);
 
 state device_bind(struct device *);
 state driver_bind(struct driver *drv);

@@ -9,45 +9,28 @@
 PHONY := all
 all:
 
-src := $(subst /generated,,$(obj))
--include $(src)/Kbuild
-
 # $(generic)/Kbuild lists mandatory-y.
-include $(generic)/Makefile
+include $(generic)Makefile
 
-#
 # Include Buildsystem function
-include $(srctree)/scripts/include.mk
+include scripts/include.mk
 
 redundant := $(filter $(mandatory-y) $(generated-y), $(generic-y))
-redundant += $(foreach f, $(generic-y), $(if $(wildcard $(srctree)/$(src)/$(f)),$(f)))
+redundant += $(foreach f, $(generic-y), $(if $(wildcard $(obj)$(f)),$(f)))
 redundant := $(sort $(redundant))
 $(if $(redundant),\
-	$(warning redundant generic-y found in $(src)/Kbuild: $(redundant)))
+	$(warning redundant generic-y found in $(obj)Kbuild: $(redundant)))
 
 # If arch does not implement mandatory headers, fallback to asm-generic ones.
 mandatory-y := $(filter-out $(generated-y), $(mandatory-y))
-generic-y   += $(foreach f, $(mandatory-y), $(if $(wildcard $(srctree)/$(src)/$(f)),,$(f)))
-
-generic-y   := $(addprefix $(obj)/, $(generic-y))
-generated-y := $(addprefix $(obj)/, $(generated-y))
-
-# Remove stale wrappers when the corresponding files are removed from generic-y
-old-headers := $(wildcard $(obj)/*.h)
-unwanted    := $(filter-out $(generic-y) $(generated-y),$(old-headers))
+generic-y   += $(foreach f, $(mandatory-y), $(if $(wildcard $(obj)$(f)),,$(f)))
+generic-y   := $(addprefix $(obj), $(generic-y))
 
 quiet_cmd_wrap = WRAP    $@
       cmd_wrap = echo "\#include <asm-generic/$*.h>" > $@
-
-quiet_cmd_remove = REMOVE  $(unwanted)
-      cmd_remove = rm -f $(unwanted)
-
-all: $(generic-y)
-	$(if $(unwanted),$(call cmd,remove))
-	@:
-
-$(obj)/%.h:
+$(obj)%.h:
 	$(call cmd,wrap)
+all: $(generic-y)
 
 # Create output directory. Skip it if at least one old header exists
 # since we know the output directory already exists.

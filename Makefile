@@ -67,8 +67,6 @@ export quiet Q
 # Start path                           #
 ########################################
 
-export srctree := .
-
 # Kconfig path config
 ifndef Kconfig
 Kconfig := Kconfig
@@ -90,7 +88,7 @@ include scripts/include.mk
 # Basic helpers built in scripts/basic/
 PHONY += scripts_basic
 scripts_basic:
-	$(Q)$(MAKE) $(build)=scripts/basic
+	$(Q)$(MAKE) $(build)=scripts/basic/
 	$(Q)rm -f .tmp_quiet_recordmcount
 
 # Before starting out-of-tree build, make sure the source tree is clean.
@@ -126,18 +124,18 @@ endif
 export KBUILD_DEFCONFIG KBUILD_KCONFIG CC_VERSION_TEXT
 
 config: outputmakefile scripts_basic FORCE
-	$(Q)$(MAKE) $(build)=scripts/kconfig $@
-	$(Q)$(MAKE) $(build)=scripts/kconfig syncconfig
+	$(Q)$(MAKE) $(build)=scripts/kconfig/ $@
+	$(Q)$(MAKE) $(build)=scripts/kconfig/ syncconfig
 
 %config: outputmakefile scripts_basic FORCE
-	$(Q)$(MAKE) $(build)=scripts/kconfig $@
-	$(Q)$(MAKE) $(build)=scripts/kconfig syncconfig
+	$(Q)$(MAKE) $(build)=scripts/kconfig/ $@
+	$(Q)$(MAKE) $(build)=scripts/kconfig/ syncconfig
 
 %doc:
-	$(Q)$(MAKE) $(build)=doc $@
+	$(Q)$(MAKE) $(build)=doc/ $@
 
 usr-%: FORCE
-	$(Q)$(MAKE) $(build)=usr $@
+	$(Q)$(MAKE) $(build)=usr/ $@
 
 #####################
 # Subproject
@@ -172,7 +170,7 @@ include-y   += include/kconfig.h                       \
                include/compiler/compiler.h             \
                include/compiler/sections.h             \
                include/compiler/stringify.h
-include-y   += include/  
+include-y   += include/
 include-y   += arch/$(arch)/include/ \
                arch/$(arch)/include/generated/
 
@@ -215,8 +213,7 @@ export CROSS_COMPILE include-y asflags-y ccflags-y acflags-y ldsflags-y ldflags-
 # Compiler instruction
 #############################################################
 
-check_file := $(srctree)/.config                          \
-              $(srctree)/include/generated/autoconf.h
+check_file := .config include/generated/autoconf.h
 
 ifneq ($(wildcard $(check_file)), $(check_file))
 __all:
@@ -236,39 +233,40 @@ __all: boot
 endif
 
 # Support for using generic headers in asm-generic
-asm-generic := -f $(srctree)/scripts/asm-generic.mk obj
+asm-generic := -f scripts/asm-generic.mk obj
 
 PHONY += asm-generic
 asm-generic: FORCE
-	$(Q)$(MAKE) $(asm-generic)=arch/$(arch)/include/generated/asm \
-	generic=include/asm-generic
-	$(Q)$(MAKE) $(asm-generic)=arch/$(arch)/include/generated/lightcore/asm \
-	generic=include/lightcore/asm-generic
+	$(Q)$(MAKE) $(asm-generic)=arch/$(arch)/include/generated/asm/ \
+		generic=include/asm-generic/
+	$(Q)$(MAKE) $(asm-generic)=arch/$(arch)/include/generated/lightcore/asm/ \
+		generic=include/lightcore/asm-generic/
 
 # Build kernel built-in.a
 $(kernel-y): asm-generic dts FORCE
-	$(Q)$(MAKE) $(build)=$(patsubst %/,%,$@)
+	$(Q)$(MAKE) $(build)=$@
 	$(Q)$(RANLIB) $(patsubst %,%built-in.a,$@)
 
 # Link a setof built-in.a to kernel.o
 kernel-subfile := $(patsubst %/,%/built-in.a,$(kernel-y))
 quiet_cmd_link_kernel = $(ECHO_LD)  $@
       cmd_link_kernel = $(LD) $(ldflags-y) -r -o kernel.o \
-                        --whole-archive $(kernel-subfile)
+                            --whole-archive $(kernel-subfile)
 kernel.o: $(kernel-y) scripts_basic
 	$(call if_changed,link_kernel)
 
 # Link kernel.o to kernel
 ldscripts := arch/$(arch)/kernel.lds
 quiet_cmd_make_kernel = $(ECHO_ELF)  $@
-      cmd_make_kernel = $(MKELF) $(kernel-flags-y) -T $(ldscripts) -o $@ $< -lgcc
+      cmd_make_kernel = $(MKELF) $(kernel-flags-y) -T \
+                            $(ldscripts) -o $@ $< -lgcc
 lightcore: kernel.o
 	$(call if_changed,make_kernel)
 
 uboot boot: lightcore FORCE
-	$(Q)$(MAKE) $(build)=boot $@
+	$(Q)$(MAKE) $(build)=boot/ $@
 preload dts run install: FORCE
-	$(Q)$(MAKE) $(build)=boot $@
+	$(Q)$(MAKE) $(build)=boot/ $@
 
 endif
 
@@ -280,28 +278,18 @@ endif
 # make distclean Remove editor backup files, patch leftover files and the like
 
 # clean
-
 clean-subdir-y += $(kernel-y)
 clean-y += lightcore kernel.o
 clean-y += lightcore.map
 
-kernelclean: FORCE
-	$(Q)$(MAKE) $(clean)=$(srctree)
-
 bootclean: FORCE
-	$(Q)$(MAKE) $(clean)=boot
+	$(Q)$(MAKE) $(clean)=boot/
 
 usrclean: FORCE
-	$(Q)$(MAKE) $(clean)=usr
+	$(Q)$(MAKE) $(clean)=usr/
 
-toolsclean: FORCE
-	$(Q)$(MAKE) $(clean)=tools
-
-scriptsclean: FORCE
-	$(Q)$(MAKE) $(clean)=$(srctree)/scripts
-
-PHONY += clean 
-clean: kernelclean bootclean usrclean toolsclean
+clean: bootclean usrclean FORCE
+	$(Q)$(MAKE) $(clean)=
 
 # mrproper
 MRPROPER_DIRS   += include/config include/generated
@@ -312,7 +300,7 @@ rm-files := $(wildcard $(MRPROPER_FILES))
 mrproper-dirs := $(addprefix _mrproper_,$(rm-dirs))
 mrproper-files := $(addprefix _mrproper_,$(rm-files))
 
-PHONY += $(mrproper-dirs) 
+PHONY += $(mrproper-dirs)
 $(mrproper-dirs):
 	$(Q)$(ECHO) "  $(ECHO_RMDIR) $(patsubst _mrproper_%,%,$@)"
 	$(Q)$(RMDIR) $(patsubst _mrproper_%,%,$@)
@@ -329,7 +317,8 @@ mrproper: $(mrproper-files) $(mrproper-dirs) clean
 
 # destclean
 distclean: mrproper
-	$(Q)$(MAKE) $(clean)=$(srctree)/scripts
+	$(Q)$(MAKE) $(clean)=scripts/
+	$(Q)$(MAKE) $(clean)=tools/
 
 PHONY += help
 help:
@@ -366,7 +355,6 @@ help:
 	@echo  ''
 	@echo  '  make V=0|1 [targets] 0 => quiet build (default), 1 => verbose build'
 	@echo  '  make V=2   [targets] 2 => give reason for rebuild of target'
-	@echo  '  make O=dir [targets] Locate all output files in "dir", including .config'
 	@echo  '  make W=n   [targets] Enable extra build checks, n=1,2,3 where'
 	@echo  '		1: warnings which may be relevant and do not occur too often'
 	@echo  '		2: warnings which occur quite often but may still be relevant'

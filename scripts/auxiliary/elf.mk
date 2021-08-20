@@ -15,7 +15,7 @@ include $(BUILD_HOME)/auxiliary/elf_rule.mk
 # host-csingle -> Executable
 quiet_cmd_build_elf = $(ECHO_ELF)  $@
       cmd_build_elf = $(MKELF) $($(@F)-flags-y) -o $@    \
-                      $(addprefix $(obj)/,$($(@F)-obj-y))\
+                      $(addprefix $(obj),$($(@F)-obj-y))\
 	                  $($(@F)-direct-y)
 $(elf): FORCE
 	$(error_ignored) $(call if_changed,build_elf)

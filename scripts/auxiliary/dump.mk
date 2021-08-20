@@ -17,7 +17,7 @@ quiet_cmd_build_dump = $(ECHO_DUMP)  $@
       cmd_build_dump = $(OBJDUMP)                           \
                        $(dump-flags-y)                      \
                        $($(@F)-flags-y)                     \
-                       $(addprefix $(obj)/,$($(@F)-obj-y))  \
+                       $(addprefix $(obj),$($(@F)-obj-y))  \
                        > $@
 $(dump): FORCE
 	$(error_ignored) $(call if_changed,build_dump)

@@ -1,4 +1,4 @@
- 
+
 # SPDX-License-Identifier: GPL-2.0
 # ==========================================================================
 # dump rule
@@ -32,9 +32,9 @@ dump-flags-y	?= -D
 # Add path                             #
 ########################################
 
-dump            := $(addprefix $(obj)/,$(dump))
-dump-always     := $(addprefix $(obj)/,$(dump-always))
-dump-dis        := $(addprefix $(obj)/,$(dump-dis))
+dump            := $(addprefix $(obj),$(dump))
+dump-always     := $(addprefix $(obj),$(dump-always))
+dump-dis        := $(addprefix $(obj),$(dump-dis))
 
 ########################################
 # Always rule                          #

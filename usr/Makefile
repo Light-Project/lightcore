@@ -8,9 +8,9 @@ apps-y += ksh klib
 apps-y := $(addprefix usr-, $(apps-y))
 acflags-y += -Wall -Werror -ffreestanding -static
 asflags-y += -D__ASSEMBLY__
-include-y += $(src)/include/
-include-y += $(src)/uapi/
-include-y += $(src)/uapi/asm/
+include-y += $(obj)include/
+include-y += $(obj)uapi/
+include-y += $(obj)uapi/asm/
 
 ifdef CONFIG_USR_XIP
 
@@ -20,21 +20,21 @@ xipflags-y := -DRAM_BASE=$(CONFIG_USR_RAM_BASE) \
               -DXIP_BASE=$(CONFIG_USR_XIP_BASE)
 acflags-y += -fPIE
 $(apps-y): FORCE
-	$(Q)$(MAKE) $(build)=$(src)/$@
-	$(shell $(NM) $(obj)/kboot/boot | awk '$$NF == "_ld_text_end" {print $$1}')
-	$(shell $(NM) $(obj)/kboot/boot | awk '$$NF == "_ld_bss_end" {print $$1}')
+	$(Q)$(MAKE) $(build)=$(obj)$@/
+	$(shell $(NM) $(obj)kboot/boot | awk '$$NF == "_ld_text_end" {print $$1}')
+	$(shell $(NM) $(obj)kboot/boot | awk '$$NF == "_ld_bss_end" {print $$1}')
 
 else #CONFIG_USR_XIP
 $(apps-y): FORCE
-	$(Q)$(MAKE) $(build)=$(src)/$(patsubst usr-%,%,$@)
+	$(Q)$(MAKE) $(build)=$(obj)$(patsubst usr-%,%,$@)/
 endif
 
 $(apps-y): link-asm
 link-asm: FORCE
 	$(Q)$(LN) ../../../../$(arch-include-y)/lightcore/asm \
-	$(src)/uapi/asm/lightcore/
+	$(obj)uapi/asm/lightcore/
 
-rootfs    := $(obj)/rootfs
+rootfs    := $(obj)rootfs
 rootdir-y := bin/ boot/ dev/ etc/ lib/ mnt/ root/ sbin/ sys/
 rootdir   := $(addprefix $(rootfs)/,$(rootdir-y))
 rootexc-y := . Makefile
@@ -43,7 +43,7 @@ export    rootfs
 
 usr-genrootfs: $(apps-y)
 	$(Q)$(MKDIR) $(rootdir)
-	$(Q)$(CD) $(obj)/rootfs/;\
+	$(Q)$(CD) $(obj)rootfs/;\
 	$(FIND) . $(rootexc) | \
 	$(MKCPIO) > ../rootfs.cpio
 

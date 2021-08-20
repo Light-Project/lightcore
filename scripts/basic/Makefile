@@ -10,7 +10,7 @@
 # fixdep: 	 Used to generate dependency information during build process
 
 hostprogs	:= fixdep
-always-y	:= $(obj)/$(hostprogs)
+always-y	:= $(obj)$(hostprogs)
 
 # fixdep is needed to compile other host programs
-# $(addprefix $(obj)/,$(filter-out fixdep,$(always))): $(obj)/fixdep
+# $(addprefix $(obj),$(filter-out fixdep,$(always))): $(obj)fixdep

@@ -27,7 +27,7 @@ sed-y = -e ':a; s/\*(\([^)]*\)\.text\.unlikely/*(\1.literal.unlikely .{text}.unl
 quiet_cmd__cpp_lds_S = LDS     $@
 cmd__cpp_lds_S = $(CPP) $(cpp_flags) -P -C -Uxtensa -D__ASSEMBLY__ \
                 -DLINKER_SCRIPT $< | sed $(sed-y) >$@
-$(obj)/kernel.lds: $(src)/kernel.lds.S FORCE
+$(obj)kernel.lds: $(obj)kernel.lds.S FORCE
 	$(call if_changed_dep,_cpp_lds_S)
 extra-y += kernel.lds
 

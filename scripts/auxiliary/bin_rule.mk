@@ -32,9 +32,9 @@ bin-flags-y ?= -O binary
 # Add path                             #
 ########################################
 
-bin         := $(addprefix $(obj)/,$(bin))
-bin-always  := $(addprefix $(obj)/,$(bin-always))
-bin_dis     := $(addprefix $(obj)/,$(bin_dis))
+bin         := $(addprefix $(obj),$(bin))
+bin-always  := $(addprefix $(obj),$(bin-always))
+bin_dis     := $(addprefix $(obj),$(bin_dis))
 
 ########################################
 # Always rule                          #
