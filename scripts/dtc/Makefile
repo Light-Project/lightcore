@@ -9,13 +9,10 @@ dtc-objs	+= dtc-lexer.lex.o dtc-parser.tab.o
 hostc-flags-y += -I $(obj)libfdt
 
 ifeq ($(shell pkg-config --exists yaml-0.1 2>/dev/null && echo yes),)
-ifneq ($(CHECK_DT_BINDING)$(CHECK_DTBS),)
 $(error dtc needs libyaml for DT schema validation support. \
 	Install the necessary libyaml development package.)
-endif
-HOST_EXTRACFLAGS += -DNO_YAML
 else
-dtc-objs	+= yamltree.o
+dtc-objs	+=  yamltree.o
 # To include <yaml.h> installed in a non-default path
 HOSTCFLAGS_yamltree.o := $(shell pkg-config --cflags yaml-0.1)
 # To link libyaml installed in a non-default path

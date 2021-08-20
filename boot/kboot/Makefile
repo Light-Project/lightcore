@@ -4,12 +4,12 @@ obj-$(CONFIG_ARCH_ARM)      += arm/
 obj-$(CONFIG_ARCH_CSKY)     += csky/
 obj-$(CONFIG_ARCH_RISCV64)  += riscv64/
 obj-$(CONFIG_ARCH_X86)      += x86/
-obj-y += lib/
-
-extra-y += kboot.lds
 
 include-y += $(obj)$(obj-y)
 include-y += $(obj)lib/
+
+obj-y += lib/
+extra-y += kboot.lds
 
 kboot-asflags-y := -D__ASSEMBLY__
 kboot-ccflags-y := -std=gnu11
