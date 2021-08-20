@@ -58,7 +58,7 @@ LN              := ln -fsn
 CD              := cd
 MV              := mv
 FIND            := find
-ECHO            := echo " "
+ECHO            := echo -e " "
 PERL            := perl
 CONFIG_SHELL    := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
                     else if [ -x /bin/bash ]; then echo /bin/bash; \
