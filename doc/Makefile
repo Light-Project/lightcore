@@ -1,1 +1,1 @@
-# obj-y += logo/
+obj-y += logo/
