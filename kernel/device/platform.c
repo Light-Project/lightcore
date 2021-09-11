@@ -9,7 +9,7 @@
 #include <export.h>
 #include <mm.h>
 #include <driver/platform.h>
-#include <init/initcall.h>
+#include <initcall.h>
 #include "base.h"
 #include <printk.h>
 
@@ -34,6 +34,7 @@ platform_device_match(struct platform_driver *pdrv,
             return pids;
         ++pids;
     }
+
     return NULL;
 }
 
@@ -79,7 +80,8 @@ static state platform_remove(struct device *dev)
     if (!pdrv->remove)
         return -ENXIO;
 
-    return pdrv->remove(pdev);
+    pdrv->remove(pdev);
+    return -ENOERR;
 }
 
 static state platform_shutdown(struct device *dev)
@@ -90,7 +92,8 @@ static state platform_shutdown(struct device *dev)
     if (!pdrv->shutdown)
         return -ENXIO;
 
-    return pdrv->shutdown(pdev);
+    pdrv->shutdown(pdev);
+    return -ENOERR;
 }
 
 struct bus_type platform_bus = {

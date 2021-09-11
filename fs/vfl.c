@@ -5,7 +5,7 @@
 
 #include <mm.h>
 #include <fs.h>
-#include <kernel/syscall.h>
+#include <syscall.h>
 
 ssize_t vfl_read(struct file *file, void *buf, size_t len, loff_t *pos)
 {
@@ -38,4 +38,37 @@ struct file *vfl_open(const char *name, int flags, umode_t mode)
         return NULL;
 
     return file;
+}
+
+state vfl_mkdir(struct dcache *dir, struct inode *node, umode_t mode)
+{
+    state retval;
+
+    if (!node->ops->mkdir)
+        return -EPERM;
+
+    retval = node->ops->mkdir(dir, node, mode);
+    return retval;
+}
+
+// state vfl_mount(struct fs_type *fs, struct fsdev *fsdev, enum mount_flag flag)
+// {
+//     srtuct dcache *dir;
+//     fs->mount(fs, fsdev, flag, )
+// }
+
+// state vfl_automount(struct fsdev *fsdev, enum mount_flag flag)
+// {
+//     struct fs_type *fs;
+
+//     filesystem_for_each(fs) {
+//         if (!vfl_mount())
+//             return -ENOERR;
+//     }
+//     return -ENXIO;
+// }
+
+void __init vfl_init(void)
+{
+
 }

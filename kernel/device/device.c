@@ -11,11 +11,22 @@
 
 state device_register(struct device *dev)
 {
+    state retval;
+
     if (!dev)
         return -EINVAL;
 
-    if (bus_device_add(dev))
-        return -EINVAL;
+    list_head_init(&dev->dev_res);
+
+    retval = bus_device_add(dev);
+    if (retval)
+        return retval;
 
     return -ENOERR;
+}
+
+void device_unregister(struct device *dev)
+{
+
+
 }

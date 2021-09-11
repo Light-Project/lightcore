@@ -6,7 +6,7 @@
 #include <mm.h>
 #include <string.h>
 #include <driver/video/vesa.h>
-#include <printk.h>
+#include <console.h>
 
 #include <asm/io.h>
 
@@ -25,7 +25,7 @@ struct _vram_text{
 
 static unsigned char pos_x, pos_y;
 
-static inline void video_cursor(const char pos_x, const char pos_y)
+static inline void vga_cursor(const char pos_x, const char pos_y)
 {
     uint16_t cursor = pos_x + (pos_y * 80);
     outb(VESA_CRT_IC, VESA_CRTC_CURSOR_HI);
@@ -34,7 +34,7 @@ static inline void video_cursor(const char pos_x, const char pos_y)
     outb(VESA_CRT_DC, cursor);
 }
 
-static void video_clear(int pos_y, int len)
+static inline void vga_clear(int pos_y, int len)
 {
     int pos_x;
     for(; len--; pos_y++)
@@ -46,19 +46,19 @@ static void video_clear(int pos_y, int len)
 
 #define roll_size (2 * xres * (yres - 1))
 
-static void video_roll(void)
+static inline void vga_roll(void)
 {
     memmove(&vram_text->block[0][0], &vram_text->block[1][0], roll_size);
-    video_clear(yres - 1, 1);
+    vga_clear(yres - 1, 1);
 }
 
-static void video_write(struct console *con, const char *str, unsigned len)
+static void vga_write(struct console *con, const char *str, unsigned len)
 {
     char ch;
 
     while ((ch = *str++) != '\0' && 0 < len--) {
         if (pos_y >= yres) {
-            video_roll();
+            vga_roll();
             pos_y--;
         }
 
@@ -74,25 +74,23 @@ static void video_write(struct console *con, const char *str, unsigned len)
             pos_x = 0;
         }
 
-        video_cursor(pos_x, pos_y);
+        vga_cursor(pos_x, pos_y);
     }
 }
 
-static inline void console_clear()
-{
-    video_clear(0, yres);
-    video_cursor(0, 0);
-}
-
-static struct console pre_console_dev = {
-    .name   = "precon",
-    .write  = video_write,
-    .boot   = true,
-    .index  = -1,
+static struct console_ops vga_console_ops = {
+    .write = vga_write,
 };
 
-void pre_console_init(void)
+static struct console vga_console = {
+    .name = "prevga",
+    .ops = &vga_console_ops,
+    .flags = CONSOLE_BOOT | CONSOLE_ENABLED,
+};
+
+void pre_printk_init(void)
 {
-    console_clear();
-    pre_console = &pre_console_dev;
+    vga_clear(0, yres);
+    vga_cursor(0, 0);
+    pre_console_register(&vga_console);
 }

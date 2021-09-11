@@ -1,1 +1,1 @@
-obj-$(CONFIG_ARCH_X86) += pci-i386.o 
+obj-$(CONFIG_PCI_I386) += pci-i386.o 

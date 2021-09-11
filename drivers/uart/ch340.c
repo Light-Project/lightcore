@@ -6,7 +6,7 @@
 #define DRIVER_NAME "ch340"
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
-#include <init/initcall.h>
+#include <initcall.h>
 #include <driver/usb.h>
 #include <driver/uart/ch340.h>
 
@@ -19,7 +19,7 @@
 // static __always_inline state
 // ch340_control_out(struct usb_device *udev, uint8_t req)
 // {
-    
+
 // }
 
 static struct usb_device_id ch340_id_table[] = {

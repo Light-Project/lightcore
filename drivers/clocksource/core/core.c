@@ -5,7 +5,7 @@
 
 #define pr_fmt(fmt) "clksrc: " fmt
 
-#include <init/initcall.h>
+#include <initcall.h>
 #include <driver/clocksource.h>
 #include <printk.h>
 
@@ -18,7 +18,7 @@ void timer_init(void)
 {
     initcall_entry_t *fn;
     initcall_t call;
- 
+
     initcall_for_each_fn(fn, clocksource_initcall) {
         call = initcall_from_entry(fn);
         if (call())

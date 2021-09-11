@@ -6,7 +6,7 @@
 #define pr_fmt(fmt)	"pdt: " fmt
 
 #include <mm.h>
-#include <init/initcall.h>
+#include <initcall.h>
 #include <driver/platform.h>
 #include <driver/dt.h>
 #include "base.h"
@@ -24,8 +24,8 @@ static const struct dt_device_id dt_skipped_table[] = {
     { }, /* NULL */
 };
 
-static inline const struct dt_device_id * dt_device_match(const struct dt_device_id *ids,
-                                                          struct dt_node *node)
+static inline const struct dt_device_id *dt_device_match(const struct dt_device_id *ids,
+                                                         struct dt_node *node)
 {
     while ((ids->name && ids->name[0]) || (ids->type && ids->type[0]) ||
           (ids->compatible && ids->compatible[0])) {
@@ -66,19 +66,21 @@ static inline state dt_populate_resource(struct platform_device *pdev)
     res = kmalloc(sizeof(*pdev->resource) * res_nr, GFP_KERNEL);
     if (!res)
         return -ENOMEM;
+
     pdev->resource = res;
+    pdev->resources_nr = res_nr;
 
     for (count = 0; count < res_nr; ++count, ++res) {
         resource_size_t size;
 
         if(dt_address(pdev->dt_node, count, &res->start, &size))
             break;
-        res->end = res->start + size;
+
+        res->size = size;
         res->type = RESOURCE_MMIO;
-        dt_attribute_read_string(pdev->dt_node, "reg-names", count, &res->name);
+        dt_attribute_read_string_index(pdev->dt_node, "reg-names", count, &res->name);
     }
 
-    pdev->resources_nr = res_nr;
     return -ENOERR;
 }
 

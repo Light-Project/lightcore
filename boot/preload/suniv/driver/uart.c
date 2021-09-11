@@ -29,6 +29,12 @@ void uart_print(const char *str)
     }
 }
 
+void uart_sync(void)
+{
+    while (!(readl(SER_BASE + UART8250_LSR) & UART8250_LSR_TEMT))
+        cpu_relax();
+}
+
 void uart_init(uint32_t freq)
 {
     uint32_t clk = (clock_apb / freq) / 16;
@@ -48,6 +54,8 @@ void uart_init(uint32_t freq)
     writel(CCU_BASE + SUNIV_BUS_SOFT_RST_REG2, val);
     val |= 1 << 20;
     writel(CCU_BASE + SUNIV_BUS_SOFT_RST_REG2, val);
+
+    mdelay(10);
 
     writel(SER_BASE + UART8250_IER, 0);
 

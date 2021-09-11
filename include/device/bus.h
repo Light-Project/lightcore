@@ -15,10 +15,10 @@ struct bus_type {
 
     state (*match)(struct device *dev, struct driver *drv);
     state (*probe)(struct device *dev);
-    state (*remove)(struct device *dev);
-    state (*sync_state)(struct device *dev);
-    state (*shutdown)(struct device *dev);
     state (*resume)(struct device *dev);
+    state (*remove)(struct device *dev);
+    state (*shutdown)(struct device *dev);
+
     state (*online)(struct device *dev);
     state (*offline)(struct device *dev);
 

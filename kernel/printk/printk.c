@@ -3,40 +3,59 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <types.h>
-#include <stdarg.h>
-#include <stddef.h>
-#include <printk.h>
-#include <kfifo.h>
-#include <console.h>
-#include <init/initcall.h>
 #include <kernel.h>
+#include <console.h>
+#include <time.h>
+#include <export.h>
+#include <printk.h>
 
-#define ringbuffer_len  0x4000
-
-static char buffer[ringbuffer_len];
-struct kfifo ringbuffer = {
-    .buffer = buffer,
-    .size = ringbuffer_len,
-};
-
-static void vprintk(char *str, int len)
+static inline char printk_get_level(const char *str)
 {
-    console_write(str, len);
+    if (str[0] == KERN_SOH_ASCII && str[1])
+        return str[1];
+    return 0;
 }
 
-int printk(const char *fmt,...)
+static const char *printk_level(const char *str, enum klevel *klevel)
+{
+    char kern_level;
+
+    for(*klevel = KLEVEL_DEFAULT; *str; str += 2) {
+        kern_level = printk_get_level(str);
+        if (!kern_level)
+            break;
+
+        switch (kern_level) {
+            case '0' ... '9':
+                *klevel = kern_level - '0';
+        }
+    }
+
+    return str;
+}
+
+static int vprintk(const char *fmt, va_list args)
+{
+    char buffer[256];
+    enum klevel klevel;
+    int len;
+
+    fmt = printk_level(fmt, &klevel);
+    len = vsnprintf(buffer, sizeof(buffer), fmt, args);
+
+    console_write(buffer, len);
+    return len;
+}
+
+asmlinkage __visible int printk(const char *fmt, ...)
 {
     va_list para;
-    char buf[128];
-    int len;
-    
+    int length;
+
     va_start(para,fmt);
-    len = vsnprintf(buf, sizeof(buf), fmt, para);
+    length = vprintk(fmt, para);
     va_end(para);
 
-    vprintk(buf, len);
-
-    return len;   
+    return length;
 }
-
+EXPORT_SYMBOL(printk);

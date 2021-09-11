@@ -4,7 +4,7 @@
  */
 
 #include <mm.h>
-#include <init/initcall.h>
+#include <initcall.h>
 #include <driver/pci.h>
 
 static struct video_ops vbox_ops = {
@@ -13,33 +13,42 @@ static struct video_ops vbox_ops = {
 
 static state vbox_hw_init(struct pci_device *pdev)
 {
+    struct vesa_device *vesa = pci_get_devdata(pdev);
+    resource_size_t addr, size;
+
+    addr = pci_resource_start(pdev, 0);
+    size = pci_resource_size(pdev, 0);
+    if (!addr)
+        return -ENODEV;
+
+    vesa->video.frame_buffer = dev_ioremap(&pdev->dev, addr, size);
+    vesa->video.frame_size = size;
+
+    pr_info("Framebuffer size %dKiB @ 0x%x\n", size / 1024, addr);
 
     return -ENOERR;
 }
+
+#include <string.h>
 
 static state vbox_probe(struct pci_device *pdev, int pdata)
 {
     struct vesa_device *vesa;
     state ret;
 
-    if(vesa_ready)
-        return -ENOERR;
-
-    vesa = kmalloc(sizeof(*vesa), GFP_KERNEL);
+    vesa = dev_kmalloc(&pdev->dev, sizeof(*vesa), GFP_KERNEL);
     if(!vesa)
         return -ENOMEM;
     pci_set_devdata(pdev, vesa);
 
     ret = vbox_hw_init(pdev);
-    if (ret) {
-        kfree(vesa);
+    if (ret)
         return ret;
-    }
 
-    /* Default resolution */
     vesa->video.mode_table = vesa_video_mode;
-    vesa->video.cur_mode = &vesa_video_mode[1];
+    vesa->video.cur_mode = &vesa_video_mode[3];
     vesa_setmode(&vesa->video);
+    memset(vesa->video.frame_buffer, 0xff, vesa->video.frame_size);
 
     vesa->video.device = &pdev->dev;
     vesa->video.ops = &vbox_ops;
@@ -48,14 +57,14 @@ static state vbox_probe(struct pci_device *pdev, int pdata)
     return -ENOERR;
 }
 
-static state vbox_remove(struct pci_device *pdev)
+static void vbox_remove(struct pci_device *pdev)
 {
-
-    return -ENOERR;
+    struct vesa_device *vesa = pci_get_devdata(pdev);
+    video_unregister(&vesa->video);
 }
 
 static struct pci_device_id vbox_id_table[] = {
-    { PCI_DEVICE(0x80ee, 0xbeef) },
+    { PCI_DEVICE(0x80ee, 0xbeef) }, /* vbox */
     { }, /* NULL */
 };
 

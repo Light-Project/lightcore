@@ -1,4 +1,4 @@
-#include <kernel/mutex.h>
+#include <mutex.h>
 
 
 void mutex_lock(struct mutex *mutex)

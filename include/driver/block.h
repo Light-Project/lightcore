@@ -5,22 +5,29 @@
 #include <types.h>
 #include <state.h>
 #include <list.h>
-
-struct block_device;
-
-enum block_request_type {
-    BLOCK_REQ_READ,
-    BLOCK_REQ_WRITE,
-    BLOCK_REQ_FLUSH,
-};
+#include <fsdev.h>
 
 struct block_request {
-    struct list_head list;          /* request list */
-    enum block_request_type type;   /* request type */
-
+    struct list_head list;  /* request list */
+    enum request_type type; /* request type */
     sector_t sector;
     size_t sector_nr;
     void *buffer;
+};
+
+struct block_part {
+    struct fsdev fsdev;
+    sector_t start, len;
+    struct block_device *device;
+    struct list_head list;
+};
+
+#define fsdev_to_block_part(fd) \
+    container_of(fd, struct block_part, fsdev)
+
+struct block_device {
+    struct list_head parts;
+    struct block_ops *ops;
 };
 
 struct block_ops {
@@ -30,14 +37,8 @@ struct block_ops {
     state (*dequeue)(struct block_device *, struct block_request *);
 };
 
-struct block_device {
-    struct block_ops *ops;
-    struct list_head parts;
-};
+state block_add_fsdev(struct block_device *);
 
-/* block_part.c */
-
-/* core.c */
 state block_device_register(struct block_device *);
 state block_device_read(struct block_device *blk, void *buff, sector_t sector, size_t len);
 

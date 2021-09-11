@@ -1,5 +1,5 @@
 #include <asm/irq.h>
-#include <kernel/power.h>
+#include <power.h>
 
 void power_halt()
 {

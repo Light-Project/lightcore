@@ -1,7 +1,7 @@
 #include <arch.h>
 #include <types.h>
 #include <size.h>
-#include <init/initcall.h>
+#include <initcall.h>
 
 uint32_t arch_setup()
 {

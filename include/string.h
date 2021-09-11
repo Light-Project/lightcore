@@ -1,8 +1,4 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-/*
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
- */
-
 #ifndef _STRING_H_
 #define _STRING_H_
 
@@ -54,7 +50,19 @@ void *memchr(const void *s, int c, size_t n);
 void *memscan(void *addr, int c, size_t size);
 int memcmp(const void *s1, const void *s2, size_t n);
 
-static inline const char *kbasename(const char *path)
+static inline int memcount(const void *addr, int c, size_t size)
+{
+    const char *p = addr;
+    int count;
+
+    while (size--)
+        if (c == *p++)
+            count++;
+
+    return count;
+}
+
+static inline const char *basename(const char *path)
 {
     const char *c = strrchr(path, '/');
     return c ? c + 1 : path;

@@ -5,10 +5,8 @@
 
 #include <string.h>
 #include <mm.h>
-
 #include <asm/tlb.h>
 #include <asm/regs.h>
-#include <asm/pgalloc.h>
 #include <asm/pgtable.h>
 
 #define kernel_index    (CONFIG_PAGE_OFFSET >> PGDIR_SHIFT)
@@ -92,7 +90,7 @@ state arch_page_map(size_t pa, size_t va, size_t size)
         pa += PAGE_SIZE;
     }
 
-    tlb_flush_all();
+    tlb_inval_all();
     return -ENOERR;
 }
 

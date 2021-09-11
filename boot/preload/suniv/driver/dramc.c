@@ -3,190 +3,88 @@
  * Base on xboot: src/arch/arm32/mach-f1c100s/sys-dram.c
  * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
 
 #include <boot.h>
 #include <size.h>
 #include <driver/clk/suniv.h>
-
+#include <driver/gpio/sunxi.h>
 #include <asm/io.h>
 #include <asm/proc.h>
 
-#define DRAM_SCONR          (0x00)
-#define DRAM_STMG0R         (0x04)
-#define DRAM_STMG1R         (0x08)
-#define DRAM_SCTLR          (0x0c)
-#define DRAM_SREFR          (0x10)
-#define DRAM_SEXTMR         (0x14)
-#define DRAM_DDLYR          (0x24)
-#define DRAM_DADRR          (0x28)
-#define DRAM_DVALR          (0x2c)
-#define DRAM_DRPTR0         (0x30)
-#define DRAM_DRPTR1         (0x34)
-#define DRAM_DRPTR2         (0x38)
-#define DRAM_DRPTR3         (0x3c)
-#define DRAM_SEFR           (0x40)
-#define DRAM_MAE            (0x44)
-#define DRAM_ASPR           (0x48)
-#define DRAM_SDLY0          (0x4C)
-#define DRAM_SDLY1          (0x50)
-#define DRAM_SDLY2          (0x54)
-#define DRAM_MCR0           (0x100)
-#define DRAM_MCR1           (0x104)
-#define DRAM_MCR2           (0x108)
-#define DRAM_MCR3           (0x10c)
-#define DRAM_MCR4           (0x110)
-#define DRAM_MCR5           (0x114)
-#define DRAM_MCR6           (0x118)
-#define DRAM_MCR7           (0x11c)
-#define DRAM_MCR8           (0x120)
-#define DRAM_MCR9           (0x124)
-#define DRAM_MCR10          (0x128)
-#define DRAM_MCR11          (0x12c)
-#define DRAM_BWCR           (0x140)
+#define DRAM_ROW1_WIDTH  13 /* Preferred Row Configuration */
+#define DRAM_ROW2_WIDTH  12 /* Alternative Row Configuration */
+#define DRAM_COL1_WIDTH  10 /* Preferred Column Configuration */
+#define DRAM_COL2_WIDTH  9  /* Alternative Column Configuration */
+#define DRAM_CAS_LATENCY 3  /* Alternative Column Configuration */
+#define DRAM_DATA_WIDTH  16 /* Data Bus Width */
+#define DRAM_BANK_NUM    4  /* Internal Banks Number */
+#define DRAM_CS_NUM      1  /* Dram Chip Number */
 
-#define SDR_T_CAS           (0x2)
-#define SDR_T_RAS           (0x8)
-#define SDR_T_RCD           (0x3)
-#define SDR_T_RP            (0x3)
-#define SDR_T_WR            (0x3)
-#define SDR_T_RFC           (0xd)
-#define SDR_T_XSR           (0xf9)
-#define SDR_T_RC            (0xb)
-#define SDR_T_INIT          (0x8)
-#define SDR_T_INIT_REF      (0x7)
-#define SDR_T_WTR           (0x2)
-#define SDR_T_RRD           (0x2)
-#define SDR_T_XP            (0x0)
+struct dram_para {
+    union {
+        struct {
+            uint32_t ddr_8bit:1;
+            uint32_t enable:2;
+            uint32_t bank_size:1;
+            uint32_t cs_number:1;
+            uint32_t row_width:4;
+            uint32_t col_width:4;
+            uint32_t data_width:2;
+            uint32_t access_mode:1;
+            uint32_t dram_type:1;
+        };
+        uint32_t val;
+    };
+} __packed;
 
 enum dram_type {
-    DRAM_TYPE_SDR    = 0,
-    DRAM_TYPE_DDR    = 1,
-    DRAM_TYPE_MDDR    = 2,
+    DRAM_TYPE_SDR   = 0,
+    DRAM_TYPE_DDR   = 1,
 };
 
-struct dram_para_t {
-    uint32_t size;          // dram size (unit: MByte)
-    uint32_t clk;           // dram work clock (unit: MHz)
-    uint32_t access_mode;   // 0: interleave mode 1: sequence mode
-    uint32_t cs_num;        // dram chip count  1: one chip  2: two chip
-    uint32_t ddr8_remap;    // for 8bits data width DDR 0: normal  1: 8bits
-    enum dram_type sdr_ddr; // dram type
-    uint32_t bwidth;        // dram bus width
-    uint32_t col_width;     // column address width
-    uint32_t row_width;     // row address width
-    uint32_t bank_size;     // dram bank count
-    uint32_t cas;           // dram cas
+enum dram_mode {
+    DRAM_MODE_INT   = 0,
+    DRAM_MODE_SEQ   = 1,
 };
 
-static inline void sdelay(int loops)
+enum dram_remap {
+    DRAM_REMAP_NOR  = 0,
+    DRAM_REMAP_8BIT = 1,
+};
+
+static void dram_delay_scan(void)
 {
-    __asm__ __volatile__ ("1:\n" "subs %0, %1, #1\n"
-        "bne 1b":"=r" (loops):"0"(loops));
+    uint32_t val;
+
+    val = readl(DRAMC_BASE + SUNIV_DRAMC_DDLY);
+    val |= 0x1 << 0;
+    writel(DRAMC_BASE + SUNIV_DRAMC_DDLY, val);
+
+    while (readl(DRAMC_BASE + SUNIV_DRAMC_DDLY) & 0x1)
+        cpu_relax();
 }
 
-static void dram_delay(int ms)
-{
-    sdelay(ms * 2 * 1000);
-}
-
-static int dram_initial(void)
-{
-    unsigned int time = 0xffffff;
-
-    writel(DRAMC_BASE + DRAM_SCTLR, readl(DRAMC_BASE + DRAM_SCTLR) | 0x1);
-    while ((readl(DRAMC_BASE + DRAM_SCTLR) & 0x1) && time--) {
-        if (time == 0)
-            return 0;
-    }
-
-    return 1;
-}
-
-static int dram_delay_scan(void)
-{
-    unsigned int time = 0xffffff;
-
-    writel(DRAMC_BASE + DRAM_DDLYR, readl(DRAMC_BASE + DRAM_DDLYR) | 0x1);
-    while ((readl(DRAMC_BASE + DRAM_DDLYR) & 0x1) && time--) {
-        if (time == 0)
-            return 0;
-    }
-
-    return 1;
-}
-
-static void dram_set_autofresh_cycle(uint32_t clk)
-{
-    uint32_t val = 0;
-    uint32_t row = 0;
-    uint32_t temp = 0;
-
-    row = readl(DRAMC_BASE + DRAM_SCONR);
-    row &= 0x1e0;
-    row >>= 0x5;
-
-    if (row == 0xc) {
-        if (clk >= 1000000) {
-            temp = clk + (clk >> 3) + (clk >> 4) + (clk >> 5);
-            while(temp >= (10000000 >> 6))
-            {
-                temp -= (10000000 >> 6);
-                val++;
-            }
-        } else {
-            val = (clk * 499) >> 6;
-        }
-    } else if (row == 0xb) {
-        if (clk >= 1000000) {
-            temp = clk + (clk >> 3) + (clk >> 4) + (clk >> 5);
-            while (temp >= (10000000 >> 7)) {
-                temp -= (10000000 >> 7);
-                val++;
-            }
-        }
-        else
-            val = (clk * 499) >> 5;
-    }
-    writel(DRAMC_BASE + DRAM_SREFR, val);
-}
-
-static int dram_para_setup(struct dram_para_t * para)
-{
-    uint32_t val = 0;
-
-    val = (para->ddr8_remap) |
-        (0x1 << 1) |
-        ((para->bank_size >> 2) << 3) |
-        ((para->cs_num >> 1) << 4) |
-        ((para->row_width - 1) << 5) |
-        ((para->col_width - 1) << 9) |
-        ((para->sdr_ddr ? (para->bwidth >> 4) : (para->bwidth >> 5)) << 13) |
-        (para->access_mode << 15) |
-        (para->sdr_ddr << 16);
-
-    writel(DRAMC_BASE + DRAM_SCONR, val);
-    writel(DRAMC_BASE + DRAM_SCTLR, readl(DRAMC_BASE + DRAM_SCTLR) | (0x1 << 19));
-    return dram_initial();
-}
-
-static uint32_t dram_check_delay(uint32_t bwidth)
+static uint32_t dram_check_delay(uint32_t data_width)
 {
     uint32_t dsize;
-    uint32_t i,j;
+    uint32_t i, j;
     uint32_t num = 0;
     uint32_t dflag = 0;
 
-    dsize = ((bwidth == 16) ? 4 : 2);
+    dsize = (data_width == 16) ? 4 : 2;
 
     for (i = 0; i < dsize; i++) {
         if (i == 0)
-            dflag = readl(DRAMC_BASE + DRAM_DRPTR0);
+            dflag = readl(DRAMC_BASE + SUNIV_DRAMC_DRPTR0);
         else if (i == 1)
-            dflag = readl(DRAMC_BASE + DRAM_DRPTR1);
+            dflag = readl(DRAMC_BASE + SUNIV_DRAMC_DRPTR1);
         else if (i == 2)
-            dflag = readl(DRAMC_BASE + DRAM_DRPTR2);
+            dflag = readl(DRAMC_BASE + SUNIV_DRAMC_DRPTR2);
         else if (i == 3)
-            dflag = readl(DRAMC_BASE + DRAM_DRPTR3);
+            dflag = readl(DRAMC_BASE + SUNIV_DRAMC_DRPTR3);
 
         for (j = 0; j < 32; j++) {
             if (dflag & 0x1)
@@ -200,267 +98,328 @@ static uint32_t dram_check_delay(uint32_t bwidth)
 
 static int sdr_readpipe_scan(void)
 {
-    uint32_t k = 0;
+    uint32_t tmp;
 
-    for (k = 0; k < 32; k++) {
-        writel((void *)0x80000000 + 4 * k, k);
-    }
+    for (tmp = 0; tmp < 32; tmp++)
+        writel((void *)0x80000000 + 4 * tmp, tmp);
 
-    for (k = 0; k < 32; k++) {
-        if (readl((void *)0x80000000 + 4 * k) != k)
+    for (tmp = 0; tmp < 32; tmp++)
+        if (readl((void *)0x80000000 + 4 * tmp) != tmp)
             return 0;
-    }
 
     return 1;
 }
 
 static uint32_t sdr_readpipe_select(void)
 {
-    uint32_t value = 0;
-    uint32_t i = 0;
+    uint32_t val, count;
 
-    for (i = 0; i < 8; i++) {
-        writel(DRAMC_BASE + DRAM_SCTLR, (readl(DRAMC_BASE + DRAM_SCTLR) & (~(0x7 << 6))) | (i << 6));
-        if (sdr_readpipe_scan()) {
-            value = i;
-            return value;
-        }
-    }
-
-    return value;
-}
-
-static uint32_t dram_check_type(struct dram_para_t * para)
-{
-    uint32_t val = 0;
-    uint32_t times = 0;
-    uint32_t i;
-
-    for (i = 0; i < 8; i++) {
-        val = readl(DRAMC_BASE + DRAM_SCTLR);
+    for (count = 0; count < 8; count++) {
+        val = readl(DRAMC_BASE + SUNIV_DRAMC_SCTL);
         val &= ~(0x7 << 6);
-        val |= (i << 6);
-        writel(DRAMC_BASE + DRAM_SCTLR, val);
+        val |= count << 6;
+        writel(DRAMC_BASE + SUNIV_DRAMC_SCTL, val);
 
-        dram_delay_scan();
-        if (readl(DRAMC_BASE + DRAM_DDLYR) & 0x30)
-            times++;
+        if (sdr_readpipe_scan())
+            return count;
     }
 
-    if (times == 8) {
-        para->sdr_ddr = DRAM_TYPE_SDR;
-        return 0;
-    } else {
-        para->sdr_ddr = DRAM_TYPE_DDR;
-        return 1;
-    }
+    return 0;
 }
 
-static uint32_t dram_scan_readpipe(struct dram_para_t * para)
+static void dram_scan_readpipe(struct dram_para *para)
 {
-    uint32_t i, rp_best = 0, rp_val = 0;
-    uint32_t val = 0;
+    uint32_t i, rp_best, rp_val = 0;
+    uint32_t val;
     uint32_t readpipe[8];
 
-    if (para->sdr_ddr == DRAM_TYPE_DDR) {
+    if (para->dram_type == DRAM_TYPE_DDR) {
         for (i = 0; i < 8; i++) {
-            val = readl(DRAMC_BASE + DRAM_SCTLR);
+            val = readl(DRAMC_BASE + SUNIV_DRAMC_SCTL);
             val &= ~(0x7 << 6);
             val |= (i << 6);
-            writel(DRAMC_BASE + DRAM_SCTLR, val);
+            writel(DRAMC_BASE + SUNIV_DRAMC_SCTL, val);
             dram_delay_scan();
             readpipe[i] = 0;
-            if ((((readl(DRAMC_BASE + DRAM_DDLYR) >> 4) & 0x3) == 0x0) &&
-                (((readl(DRAMC_BASE + DRAM_DDLYR) >> 4) & 0x1) == 0x0)) {
-                readpipe[i] = dram_check_delay(para->bwidth);
+
+            if (!((readl(DRAMC_BASE + SUNIV_DRAMC_DDLY) >> 4) & 0x3)) {
+                readpipe[i] = dram_check_delay(para->data_width);
             }
+
             if (rp_val < readpipe[i]) {
                 rp_val = readpipe[i];
                 rp_best = i;
             }
         }
-        val = readl(DRAMC_BASE + DRAM_SCTLR);
+
+        val = readl(DRAMC_BASE + SUNIV_DRAMC_SCTL);
         val &= ~(0x7 << 6);
-        val |= (rp_best << 6);
-        writel(DRAMC_BASE + DRAM_SCTLR, val);
+        val |= rp_best << 6;
+        writel(DRAMC_BASE + SUNIV_DRAMC_SCTL, val);
         dram_delay_scan();
-    } else {
-        val = readl(DRAMC_BASE + DRAM_SCONR);
-        val &= (~(0x1 << 16));
-        val &= (~(0x3 << 13));
-        writel(DRAMC_BASE + DRAM_SCONR, val);
-        rp_best = sdr_readpipe_select();
-        val = readl(DRAMC_BASE + DRAM_SCTLR);
+    } else if (para->dram_type == DRAM_TYPE_SDR) {
+        val = readl(DRAMC_BASE + SUNIV_DRAMC_SCON);
+        val &= ~(0x1 << 16);
+        val &= ~(0x3 << 13);
+        writel(DRAMC_BASE + SUNIV_DRAMC_SCON, val);
+
+        val = readl(DRAMC_BASE + SUNIV_DRAMC_SCTL);
         val &= ~(0x7 << 6);
-        val |= (rp_best << 6);
-        writel(DRAMC_BASE + DRAM_SCTLR, val);
+        val |= sdr_readpipe_select() << 6;
+        writel(DRAMC_BASE + SUNIV_DRAMC_SCTL, val);
     }
-
-    return 0;
 }
 
-static uint32_t dram_get_dram_size(struct dram_para_t * para)
+static int dram_type_get(void)
 {
-    uint32_t colflag = 10, rowflag = 13;
-    uint32_t i = 0;
-    uint32_t val1 = 0;
-    uint32_t count = 0;
-    uint32_t addr1, addr2;
+    uint32_t val, i, times = 0;
 
-    para->col_width = colflag;
-    para->row_width = rowflag;
-    dram_para_setup(para);
-    dram_scan_readpipe(para);
-
-    for (i = 0; i < 32; i++) {
-        *((uint32_t *)(0x80000200 + i)) = 0x11111111;
-        *((uint32_t *)(0x80000600 + i)) = 0x22222222;
+    for (i = 0; i < 8; i++) {
+        val = readl(DRAMC_BASE + SUNIV_DRAMC_SCTL);
+        val &= ~(0x7 << 6);
+        val |= (i << 6);
+        writel(DRAMC_BASE + SUNIV_DRAMC_SCTL, val);
+        dram_delay_scan();
+        if (readl(DRAMC_BASE + SUNIV_DRAMC_DDLY) & 0x30)
+            times++;
     }
 
+    if (times == 8)
+        return DRAM_TYPE_SDR;
+    return DRAM_TYPE_DDR;
+}
+
+static void dram_para_setup(struct dram_para *para)
+{
+    uint32_t val;
+
+    writel(DRAMC_BASE + SUNIV_DRAMC_SCON, para->val);
+
+    val = readl(DRAMC_BASE + SUNIV_DRAMC_SCTL);
+    val |= 0x1 << 19;
+    writel(DRAMC_BASE + SUNIV_DRAMC_SCTL, val);
+
+    val = readl(DRAMC_BASE + SUNIV_DRAMC_SCTL);
+    val |= 0x1 << 0;
+    writel(DRAMC_BASE + SUNIV_DRAMC_SCTL, val);
+
+    while (readl(DRAMC_BASE + SUNIV_DRAMC_SCTL) & 0x1)
+        cpu_relax();
+}
+
+static void dram_autorefresh(struct dram_para *para, uint32_t clk)
+{
+    uint32_t tmp, val = 0;
+
+    if ((para->row_width + 1) == 12) {
+        if (clk >= 1000000) {
+            tmp = clk + (clk >> 3) + (clk >> 4) + (clk >> 5);
+            while (tmp >= (10000000 >> 7)) {
+                tmp -= (10000000 >> 7);
+                val++;
+            }
+        }
+        else
+            val = (clk * 499) >> 5;
+    } else if ((para->row_width + 1) == 13) {
+        if (clk >= 1000000) {
+            tmp = clk + (clk >> 3) + (clk >> 4) + (clk >> 5);
+            while(tmp >= (10000000 >> 6)) {
+                tmp -= (10000000 >> 6);
+                val++;
+            }
+        } else
+            val = (clk * 499) >> 6;
+    }
+
+    writel(DRAMC_BASE + SUNIV_DRAMC_SREF, val);
+}
+
+static uint32_t dram_autoset(struct dram_para *para, uint32_t freq)
+{
+    uint32_t *addr1, *addr2;
+    unsigned int i, count;
+    uint32_t col, row, val;
+
+    /* Check col parameters */
+    addr1 = (uint32_t *)0x80000200;
+    addr2 = (uint32_t *)0x80000600;
+
     for (i = 0; i < 32; i++) {
-        val1 = *((uint32_t *)(0x80000200 + i));
-        if (val1 == 0x22222222)
+        writel(addr1 + i, 0x5a5a5a5a);
+        writel(addr2 + i, 0xa5a5a5a5);
+    }
+
+    for (count = 0, i = 0; i < 32; i++)
+        if (readl(addr1 + i) == 0xa5a5a5a5)
             count++;
+
+    if (count)
+        col = DRAM_COL2_WIDTH;
+    else
+        col = DRAM_COL1_WIDTH;
+
+    if (count) {
+        para->col_width = col - 1;
+        dram_para_setup(para);
     }
 
-    if (count == 32)
-        colflag = 9;
-    else
-        colflag = 10;
-    count = 0;
-    para->col_width = colflag;
-    para->row_width = rowflag;
-    dram_para_setup(para);
-
-    if (colflag == 10) {
-        addr1 = 0x80400000;
-        addr2 = 0x80c00000;
+    /* Check row parameters */
+    if (col == DRAM_COL1_WIDTH) {
+        addr1 = (uint32_t *)0x80400000;
+        addr2 = (uint32_t *)0x80c00000;
     } else {
-        addr1 = 0x80200000;
-        addr2 = 0x80600000;
+        addr1 = (uint32_t *)0x80200000;
+        addr2 = (uint32_t *)0x80600000;
     }
 
     for (i = 0; i < 32; i++) {
-        *((uint32_t *)(addr1 + i)) = 0x33333333;
-        *((uint32_t *)(addr2 + i)) = 0x44444444;
+        writel(addr1 + i, 0x5a5a5a5a);
+        writel(addr2 + i, 0xa5a5a5a5);
     }
 
-    for (i = 0; i < 32; i++) {
-        val1 = *((uint32_t *)(addr1 + i));
-        if (val1 == 0x44444444)
+    for (count = 0, i = 0; i < 32; i++)
+        if (readl(addr1 + i) == 0xa5a5a5a5)
             count++;
+
+    if (count)
+        row = DRAM_ROW2_WIDTH;
+    else
+        row = DRAM_ROW1_WIDTH;
+
+    if (count) {
+        para->row_width = row - 1;
+        dram_autorefresh(para, freq);
     }
 
-    if (count == 32)
-        rowflag = 12;
-    else
-        rowflag = 13;
-
-    para->col_width = colflag;
-    para->row_width = rowflag;
-
-    if (para->row_width != 13)
-        para->size = 16;
-    else if (para->col_width == 10)
-        para->size = 64;
-    else
-        para->size = 32;
-
-    dram_set_autofresh_cycle(para->clk);
-    para->access_mode = 0;
+    /* Turn on interleaving mode */
+    para->access_mode = DRAM_MODE_INT;
     dram_para_setup(para);
 
-    return 0;
-}
-
-static void dram_setup(struct dram_para_t *para)
-{
-    uint32_t val = 0;
-    uint32_t i;
-
-    writel((void *)0x01c20800 + 0x24, readl((void *)0x01c20800 + 0x24) | (0x7 << 12));
-    dram_delay(5);
-
-    if (((para->cas) >> 3) & 0x1)
-        writel((void *)0x01c20800 + 0x2c4, readl((void *)0x01c20800 + 0x2c4) | (0x1 << 23) | (0x20 << 17));
-
-    if ((para->clk >= 144) && (para->clk <= 180))
-        writel((void *)0x01c20800 + 0x2c0, 0xaaa);
-
-    if (para->clk >= 180)
-        writel((void *)0x01c20800 + 0x2c0, 0xfff);
-
-    if ((para->clk) <= 96)
-        val = (0x1 << 0) | (0x0 << 4) | (((para->clk * 2) / 12 - 1) << 8) | (0x1u << 31);
+    if (row == 12)
+        val = 2;
+    else if (col == 9)
+        val = 4;
     else
-        val = (0x0 << 0) | (0x0 << 4) | (((para->clk * 2) / 24 - 1) << 8) | (0x1u << 31);
+        val = 8;
 
-    if (para->cas & (0x1 << 4))
-        writel(CCU_BASE + SUNIV_PLL_DDR_PAT_CTRL, 0xd1303333);
-    else if (para->cas & (0x1 << 5))
-        writel(CCU_BASE + SUNIV_PLL_DDR_PAT_CTRL, 0xcce06666);
-    else if (para->cas & (0x1 << 6))
-        writel(CCU_BASE + SUNIV_PLL_DDR_PAT_CTRL, 0xc8909999);
-    else if (para->cas & (0x1 << 7))
-        writel(CCU_BASE + SUNIV_PLL_DDR_PAT_CTRL, 0xc440cccc);
-
-    if (para->cas & (0xf << 4))
-        val |= 0x1 << 24;
-    writel(CCU_BASE + SUNIV_PLL_DDR_CTRL, val);
-    writel(CCU_BASE + SUNIV_PLL_DDR_CTRL, readl(CCU_BASE + SUNIV_PLL_DDR_CTRL) | (0x1 << 20));
-
-    while((readl(CCU_BASE + SUNIV_PLL_DDR_CTRL) & (1 << 28)) == 0);
-    dram_delay(5);
-    writel(CCU_BASE + SUNIV_BUS_CLK_GATING_REG0, readl(CCU_BASE + SUNIV_BUS_CLK_GATING_REG0) | (0x1 << 14));
-    writel(CCU_BASE + SUNIV_BUS_SOFT_RST_REG0, readl(CCU_BASE + SUNIV_BUS_SOFT_RST_REG0) & ~(0x1 << 14));
-
-    for (i = 0; i < 10; i++)
-        continue;
-    writel(CCU_BASE + SUNIV_BUS_SOFT_RST_REG0, readl(CCU_BASE + SUNIV_BUS_SOFT_RST_REG0) | (0x1 << 14));
-
-    val = readl((void *)0x01c20800 + 0x2c4);
-    (para->sdr_ddr == DRAM_TYPE_DDR) ? (val |= (0x1 << 16)) : (val &= ~(0x1 << 16));
-    writel((void *)0x01c20800 + 0x2c4, val);
-
-    val = (SDR_T_CAS << 0) | (SDR_T_RAS << 3) | (SDR_T_RCD << 7) | (SDR_T_RP << 10) | (SDR_T_WR << 13) | (SDR_T_RFC << 15) | (SDR_T_XSR << 19) | (SDR_T_RC << 28);
-    writel(DRAMC_BASE + DRAM_STMG0R, val);
-    val = (SDR_T_INIT << 0) | (SDR_T_INIT_REF << 16) | (SDR_T_WTR << 20) | (SDR_T_RRD << 22) | (SDR_T_XP << 25);
-    writel(DRAMC_BASE + DRAM_STMG1R, val);
-    dram_para_setup(para);
-    dram_check_type(para);
-
-    val = readl((void *)0x01c20800 + 0x2c4);
-    (para->sdr_ddr == DRAM_TYPE_DDR) ? (val |= (0x1 << 16)) : (val &= ~(0x1 << 16));
-    writel((void *)0x01c20800 + 0x2c4, val);
-
-    dram_set_autofresh_cycle(para->clk);
-    dram_scan_readpipe(para);
-    dram_get_dram_size(para);
+    val *= DRAM_DATA_WIDTH / 8;
+    val *= DRAM_CS_NUM * DRAM_BANK_NUM;
+    return val;
 }
 
-void dram_init(uint32_t freq)
+void dramc_init(uint32_t freq)
 {
-    struct dram_para_t para = {
-        .clk = freq / 1000000,
-        .access_mode = 1,
-        .cs_num = 1,
-        .ddr8_remap = 0,
-        .sdr_ddr = DRAM_TYPE_DDR,
-        .bwidth = 16,
-        .col_width = 10,
-        .row_width = 13,
-        .bank_size = 4,
-        .cas = 0x3,
+    uint32_t val;
+
+    /* Fixed initial configuration */
+    struct dram_para para = {
+        .enable      = true,
+        .ddr_8bit    = DRAM_REMAP_NOR,
+        .access_mode = DRAM_MODE_SEQ,
+        .dram_type   = DRAM_TYPE_DDR,
+        .bank_size   = (DRAM_BANK_NUM >> 2),
+        .cs_number   = (DRAM_CS_NUM - 1),
+        .row_width   = (DRAM_ROW1_WIDTH - 1),
+        .col_width   = (DRAM_COL1_WIDTH - 1),
     };
 
-    dram_setup(&para);
+    if (para.dram_type == DRAM_TYPE_DDR)
+        para.data_width = DRAM_DATA_WIDTH >> 4;
+    else if ((para.dram_type == DRAM_TYPE_SDR))
+        para.data_width = (DRAM_DATA_WIDTH >> 5) << 13;
 
-    pr_boot("DDR size: %dMiB\n", para.size);
+    /* Disable DDR_REF_D */
+    val = readl(PIO_B + SUNXI_GPIO_CFG0);
+    val |= 0x7 << 12;
+    writel(PIO_B + SUNXI_GPIO_CFG0, val);
 
-    if ((para.size >= 64 && memtest(DRAM_BASE + (63 * size_1Mib), size_1MiB)) ||
-        (para.size >= 32 && memtest(DRAM_BASE + (31 * size_1Mib), size_1MiB)) ||
-        (para.size >= 16 && memtest(DRAM_BASE + (15 * size_1Mib), size_1MiB)))
-        panic("DDR init error\n");
+    mdelay(10);
 
-    return;
+    /* Reference configuration factor */
+    val = readl(PIO_BASE + SUNIV_GPIO_SDR_PUL);
+    if ((DRAM_CAS_LATENCY >> 3) & 0x1)
+        val |= (0x1 << 23) | (0x20 << 17);
+    else
+        val &= ~(0x1 << 23);
+    writel(PIO_BASE + SUNIV_GPIO_SDR_PUL, val);
+
+    /* Configure dram io level type */
+    val = readl(PIO_BASE + SUNIV_GPIO_SDR_PUL);
+    if (para.dram_type == DRAM_TYPE_DDR)  /* 2.5v */
+        val |= 0x01 << 16;
+    else  /* 3.3v */
+        val &= ~(0x01 << 16);
+    writel(PIO_BASE + SUNIV_GPIO_SDR_PUL, val);
+
+    /* Configure dram drive capability */
+    if ((360 * MHZ) <= freq)
+        writel(PIO_BASE + SUNIV_GPIO_SDR_DRV, 0x3fff);
+    else if (((288 * MHZ) <= freq) && (freq < (360 * MHZ)))
+        writel(PIO_BASE + SUNIV_GPIO_SDR_DRV, 0x2aaa);
+    else if (((192 * MHZ) <= freq) && (freq < (288 * MHZ)))
+        writel(PIO_BASE + SUNIV_GPIO_SDR_DRV, 0x1555);
+    else
+        writel(PIO_BASE + SUNIV_GPIO_SDR_DRV, 0x0000);
+
+    if (DRAM_CAS_LATENCY & (0x1 << 4))
+        writel(CCU_BASE + SUNIV_PLL_DDR_PAT_CTRL, 0xd1303333);
+    else if (DRAM_CAS_LATENCY & (0x1 << 5))
+        writel(CCU_BASE + SUNIV_PLL_DDR_PAT_CTRL, 0xcce06666);
+    else if (DRAM_CAS_LATENCY & (0x1 << 6))
+        writel(CCU_BASE + SUNIV_PLL_DDR_PAT_CTRL, 0xc8909999);
+    else if (DRAM_CAS_LATENCY & (0x1 << 7))
+        writel(CCU_BASE + SUNIV_PLL_DDR_PAT_CTRL, 0xc440cccc);
+
+    if (DRAM_CAS_LATENCY & (0xf << 4)) {
+        val = readl(CCU_BASE + SUNIV_PLL_DDR_CTRL);
+        val = 0x1 << 24;
+        writel(CCU_BASE + SUNIV_PLL_DDR_CTRL, val);
+    }
+
+    mdelay(10);
+
+    /* Reset and enable dram controller */
+    val = readl(CCU_BASE + SUNIV_BUS_CLK_GATING_REG0);
+    val |= SUNIV_BUS0_SDRAM;
+    writel(CCU_BASE + SUNIV_BUS_CLK_GATING_REG0, val);
+
+    val = readl(CCU_BASE + SUNIV_BUS_SOFT_RST_REG0);
+    val &= ~SUNIV_BUS0_SDRAM;
+    writel(CCU_BASE + SUNIV_BUS_SOFT_RST_REG0, val);
+    mdelay(50);
+    val |= SUNIV_BUS0_SDRAM;
+    writel(CCU_BASE + SUNIV_BUS_SOFT_RST_REG0, val);
+
+    writel(DRAMC_BASE + SUNIV_DRAMC_STMG0,      SUNIV_DRAMC_STMG0_RC  | SUNIV_DRAMC_STMG0_XSR |
+                        SUNIV_DRAMC_STMG0_RFC | SUNIV_DRAMC_STMG0_WR  | SUNIV_DRAMC_STMG0_RP  |
+                        SUNIV_DRAMC_STMG0_RCD | SUNIV_DRAMC_STMG0_RAS | SUNIV_DRAMC_STMG0_CAS );
+    writel(DRAMC_BASE + SUNIV_DRAMC_STMG1,      SUNIV_DRAMC_STMG1_RRD | SUNIV_DRAMC_STMG1_WTR |
+                        SUNIV_DRAMC_STMG1_REF | SUNIV_DRAMC_STMG1_INIT);
+
+    /* Get dram type */
+    dram_para_setup(&para);
+    para.dram_type = dram_type_get();
+
+    /* Configure dram io level type */
+    val = readl(PIO_BASE + SUNIV_GPIO_SDR_PUL);
+    if (para.dram_type == DRAM_TYPE_DDR)  /* 2.5v */
+        val |= 0x01 << 16;
+    else  /* 3.3v */
+        val &= ~(0x01 << 16);
+    writel(PIO_BASE + SUNIV_GPIO_SDR_PUL, val);
+
+    pr_boot("Dram type: %s\n", para.dram_type ? "ddr" : "sdram");
+
+    /* Get memory size */
+    dram_autorefresh(&para, freq);
+    dram_scan_readpipe(&para);
+    dram_para_setup(&para);
+    val = dram_autoset(&para, freq);
+
+    pr_boot("Dram size: %dMiB\n", val);
+    if ((val >= 64 && memtest_fast(DRAM_BASE + (63 * size_1Mib), size_1KiB)) ||
+        (val >= 32 && memtest_fast(DRAM_BASE + (31 * size_1Mib), size_1KiB)) ||
+        (val >= 16 && memtest_fast(DRAM_BASE + (15 * size_1Mib), size_1KiB)))
+        pr_boot("Dram init error\n");
 }

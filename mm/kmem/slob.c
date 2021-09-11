@@ -39,10 +39,6 @@ bool slob_node_last(struct slob_node *node)
  * @size: allocate size
  * @bsize: minimum limit of allocate
  * @align:
- * @full: page full flag
- *
- * Because we are in a page allocation, so the size
- * can not exceed one page
  */
 static void *slob_page_alloc(struct slob_page *slob_page, size_t size, int bsize, int align)
 {
@@ -60,7 +56,7 @@ static void *slob_page_alloc(struct slob_page *slob_page, size_t size, int bsize
             return NULL;
     }
 
-    node->use = 1;
+    node->use = true;
 
     /* avoid generating unusable fragments */
     avail -= size;
@@ -79,8 +75,7 @@ static void *slob_page_alloc(struct slob_page *slob_page, size_t size, int bsize
 /**
  * slob_page_free - free memory within a given page
  * @slob_page:
- *
- * Yeah, I didn't write very well
+ * @block:
  */
 static bool slob_page_free(struct slob_page *slob_page, void *block)
 {
@@ -90,32 +85,36 @@ static bool slob_page_free(struct slob_page *slob_page, void *block)
         next = slob_node_next(node);
 
         /* find node */
-        if (((void *)node < block)&&(block < (void *)next))
+        if (((void *)node < block) && (block < (void *)next))
             break;
 
         /* Not this node, save prev node */
         prev = node;
 
         /* It's the last node. There's no block found */
-        if(unlikely(slob_node_last(node))) {
-            pr_err("release %llx error\n", block);
+        if (unlikely(slob_node_last(node))) {
+            pr_err("release %p error\n", block);
             return false;
         }
     }
 
-    /* set node free at first */
     node->use = false;
+    slob_page->avail += node->size;
 
     /* Merge the next free node */
-    if (!next->use)
+    if (!slob_node_last(node) && !next->use) {
         node->size += SLOB_SIZE(next->size);
+        slob_page->avail += sizeof(*next);
+    }
 
-    /*
-     * If it's not the first node, then we merge the
-     * previous free node
-     */
-    if (prev && (!prev->use))
-        prev->size += SLOB_SIZE(next->size);
+    /* Merge the prev free node */
+    if (prev && !prev->use) {
+        prev->size += SLOB_SIZE(node->size);
+        slob_page->avail += sizeof(*node);
+    }
+
+    // if (slob_node_last(slob_page->node))
+    //     return true;
 
     return false;
 }
@@ -201,12 +200,15 @@ void *slob_alloc(size_t size, gfp_t gfp, int align)
 void slob_free(void *block)
 {
     struct page *page = va_to_page((size_t)block & PAGE_MASK);
+    struct slob_page *slob_page = &page->slob;
     irqflags_t irq_save;
 
     spin_lock_irqsave(&lock, &irq_save);
 
-    if (slob_page_free(&page->slob, block))
-        page_free(page, 0);
+    if (slob_page_free(&page->slob, block)) {
+        list_del(&slob_page->slob_list);
+        page_free(page);
+    }
 
     spin_unlock_irqrestore(&lock, &irq_save);
 }

@@ -6,7 +6,7 @@
 #include <linkage.h>
 #include <arch/x86/interrupt.h>
 
-.macro SAVE_REGS 
+.macro SAVE_REGS
     pushl   %esp
     pushl   %ss
     pushw   %ds
@@ -16,7 +16,7 @@
     pushal
 .endm
 
-.macro REC_REGS 
+.macro REC_REGS
     popal
     popw    %gs
     popw    %fs
@@ -32,7 +32,7 @@
 
 .endm
 
-.macro SWITCH_TO_PROCESS
+.macro SWITCH_TO_USER
 
 .endm
 

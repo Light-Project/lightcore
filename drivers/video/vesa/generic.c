@@ -6,7 +6,7 @@
 #include <string.h>
 #include <mm.h>
 #include <ioport.h>
-#include <init/initcall.h>
+#include <initcall.h>
 #include <driver/pci.h>
 
 static state vesa_probe(struct pci_device *pdev, int pdata)
@@ -16,7 +16,7 @@ static state vesa_probe(struct pci_device *pdev, int pdata)
 
     if(vesa_ready)
         return -ENOERR;
-        
+
     vesa = kmalloc(sizeof(*vesa), GFP_KERNEL);
     if(!vesa)
         return -ENOMEM;

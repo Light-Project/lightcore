@@ -14,9 +14,6 @@ void pre_console_init(void);
 
 void arch_setup(void)
 {
-    /* init pre_printk */
-    pre_console_init();
-
     arch_gdt_setup();
     arch_idt_setup();
 

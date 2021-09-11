@@ -1,0 +1,26 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#ifndef _DRIVER_MMC_H_
+#define _DRIVER_MMC_H_
+
+#include <bits.h>
+#include <driver/mmc/mmc_standard.h>
+
+enum mmc_response {
+    MMC_RESP_CRC     = BIT(0),
+    MMC_RESP_LONG    = BIT(1),
+    MMC_RESP_PRESENT = BIT(2),
+    MMC_RESP_BUSY    = BIT(3),
+    MMC_RESP_OPCODE  = BIT(4),
+
+    MMC_RESP_NONE   = 0,
+    MMC_RESP_R1     = MMC_RESP_PRESENT | MMC_RESP_CRC | MMC_RESP_OPCODE,
+    MMC_RESP_R1B    = MMC_RESP_PRESENT | MMC_RESP_CRC | MMC_RESP_OPCODE | MMC_RESP_BUSY,
+    MMC_RESP_R2     = MMC_RESP_PRESENT | MMC_RESP_CRC | MMC_RESP_LONG,
+    MMC_RESP_R3     = MMC_RESP_PRESENT,
+    MMC_RESP_R4     = MMC_RESP_PRESENT,
+    MMC_RESP_R5     = MMC_RESP_PRESENT | MMC_RESP_CRC | MMC_RESP_OPCODE,
+    MMC_RESP_R6     = MMC_RESP_PRESENT | MMC_RESP_CRC | MMC_RESP_OPCODE,
+    MMC_RESP_R7     = MMC_RESP_PRESENT | MMC_RESP_CRC | MMC_RESP_OPCODE,
+};
+
+#endif  /* _DRIVER_MMC_H_ */

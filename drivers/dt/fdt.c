@@ -3,7 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt)	"fdt: " fmt
+#define pr_fmt(fmt)	"FDT: " fmt
 
 #include <mm.h>
 #include <driver/dt.h>
@@ -18,7 +18,7 @@ void *dt_start_addr;
 unsigned int dt_root_addr_cells = DT_ROOT_ADDR_CELLS_DEFAULT;
 unsigned int dt_root_size_cells = DT_ROOT_SIZE_CELLS_DEFAULT;
 
-state __init dt_scan_node(state (*fn)(unsigned long node, const char *uname, 
+state __init dt_scan_node(state (*fn)(unsigned long node, const char *uname,
                                       int depth, void *data), void *data)
 {
     const void *node = dt_start_addr;
@@ -39,13 +39,11 @@ state __init dt_scan_node(state (*fn)(unsigned long node, const char *uname,
 }
 
 /**
- * of_scan_flat_dt_subnodes - scan sub-nodes of a node call callback on each.
+ * dt_scan_subnode - scan sub-nodes call callback on each.
  * @it: callback function
  * @data: context data pointer
- *
- * This function is used to scan sub-nodes of a node.
  */
-int __init dt_scan_subnode(unsigned long parent, int (*it)(unsigned long node, 
+int __init dt_scan_subnode(unsigned long parent, int (*it)(unsigned long node,
                            const char *uname,void *data), void *data)
 {
     const void *blob = dt_start_addr;
@@ -64,38 +62,22 @@ int __init dt_scan_subnode(unsigned long parent, int (*it)(unsigned long node,
 }
 
 /**
- * of_get_flat_dt_subnode_by_name - get the subnode by given name
- *
+ * dt_get_subnode_by_name - get the subnode by given name
  * @node: the parent node
  * @uname: the name of subnode
- * @return offset of the subnode, or -FDT_ERR_NOTFOUND if there is none
+ * @return offset of the subnode
  */
-
 int __init dt_get_subnode_by_name(unsigned long node, const char *uname)
 {
     return fdt_subnode_offset(dt_start_addr, node, uname);
 }
 
-/**
- * of_get_flat_dt_root - find the root node in the flat blob
- */
-unsigned long __init dt_get_root(void)
-{
-    return 0;
-}
-
-/**
- * of_get_flat_dt_prop - Given a node in the flat blob, return the property ptr
- *
- * This function can be used within scan_flattened_dt callback to get
- * access to properties
- */
-const void *__init dt_get_prop(unsigned long node, const char *name, int *size)
+const __init void *dt_get_prop(unsigned long node, const char *name, int *size)
 {
     return fdt_getprop(dt_start_addr, node, name, size);
 }
 
-static inline bool 
+static inline bool
 populate_attribute(const void *blob, int offset, struct dt_node *node)
 {
     struct dt_attribute *att;
@@ -107,13 +89,16 @@ populate_attribute(const void *blob, int offset, struct dt_node *node)
          cur >= 0;
          cur = fdt_next_property_offset(blob, cur)) {
         value = fdt_getprop_by_offset(blob, cur, &name, &len);
-        
+
         if (!value || !name)
             continue;
 
         att = kzalloc(sizeof(*att), GFP_KERNEL);
-        if (!att) 
+        if (!att)
             return false;
+
+        if (!strcmp(name, "phandle"))
+            node->phandle = be32_to_cpup(value);
 
         att->name   = name;
         att->len    = len;
@@ -124,11 +109,12 @@ populate_attribute(const void *blob, int offset, struct dt_node *node)
     return true;
 }
 
-static inline bool __init populate_node(const void *blob, int offset, struct dt_node *parent, 
+static inline bool __init populate_node(const void *blob, int offset, struct dt_node *parent,
                                         struct dt_node **nodep)
 {
     struct dt_node *node;
 	const char *path;
+    state retval;
     char *fn;
     int len;
 
@@ -148,7 +134,12 @@ static inline bool __init populate_node(const void *blob, int offset, struct dt_
         slist_add(&parent->child, &node->sibling);
     }
 
-    return populate_attribute(blob, offset, node);
+    retval = populate_attribute(blob, offset, node);
+    node->name = dt_attribute_get(node, "name", NULL);
+    if (!node->name)
+        node->name = "none";
+
+    return retval;
 }
 
 static inline struct dt_node * __init populate_bus(const void *blob, struct dt_node *parent)
@@ -164,11 +155,11 @@ static inline struct dt_node * __init populate_bus(const void *blob, struct dt_n
     for (offset = 0;
          offset >= 0 && depth >= sdepth;
          offset = fdt_next_node(blob, offset, &depth)) {
-        
+
         if (unlikely(depth >= DT_DEPTH_MAX))
             continue;
 
-        if (!populate_node(blob, offset, 
+        if (!populate_node(blob, offset,
             nodes[depth], &nodes[depth + 1]))
             return NULL;
 
@@ -193,10 +184,10 @@ struct dt_node * __init dt_populate_table(const void *table, struct dt_node *par
     }
 
     pr_info("Device tree info:\n");
-    pr_info("magic: 0x%08lx\n",   fdt_magic(table));
-    pr_info("size: 0x%08lx\n",    fdt_totalsize(table));
-    pr_info("version: 0x%08lx\n", fdt_version(table));
-    
+    pr_info("magic: 0x%08x\n",   fdt_magic(table));
+    pr_info("size: 0x%08x\n",    fdt_totalsize(table));
+    pr_info("version: 0x%08x\n", fdt_version(table));
+
     return populate_bus(table, parent);
 }
 

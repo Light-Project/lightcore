@@ -4,7 +4,8 @@
  */
 
 #include <linkage.h>
-#include <kernel/power.h>
+#include <kernel.h>
+#include <power.h>
 #include <printk.h>
 
 #include <asm/traps.h>
@@ -12,7 +13,6 @@
 
 asmlinkage __visible void trap_general_protection(struct regs *regs)
 {
-    
     recall("general protection", regs);
     panic("general protection");
     power_halt();

@@ -1,9 +1,13 @@
+# SPDX-License-Identifier: GPL-2.0-only
 menuconfig WATCHDOG
     bool "Watchdog support"
 if WATCHDOG
 
 config WATCHDOG_ESP8266
-    bool "Espressif UART support"
+    bool "esp8266 watchdog support"
+
+config WATCHDOG_TCO
+    bool "Intel tco watchdog support"
 
 endif
- 
+

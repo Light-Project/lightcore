@@ -5,28 +5,28 @@
 
 #include <types.h>
 #include <export.h>
-#include <init/initcall.h>
+#include <initcall.h>
 #include <device/bus.h>
 #include <driver/usb.h>
 #include <printk.h>
 
 static __always_inline bool
-usb_device_match_one(const struct usb_device_id *id, 
+usb_device_match_one(const struct usb_device_id *id,
                      const struct usb_device_descriptor *descriptor)
 {
-    return((id->idVendor == descriptor->idVendor || 
+    return((id->idVendor == descriptor->idVendor ||
           !(id->match_mode & USB_DEV_MATCH_VENDOR)) &&
-           (id->idProduct == descriptor->idProduct || 
+           (id->idProduct == descriptor->idProduct ||
           !(id->match_mode & USB_DEV_MATCH_PRODUCT)) &&
-           (id->bDeviceClass == descriptor->bDeviceClass || 
+           (id->bDeviceClass == descriptor->bDeviceClass ||
           !(id->match_mode & USB_DEV_MATCH_DEV_CLASS)) &&
-           (id->bDeviceSubClass == descriptor->bDeviceSubClass || 
+           (id->bDeviceSubClass == descriptor->bDeviceSubClass ||
           !(id->match_mode & USB_DEV_MATCH_DEV_SUBCLASS)) &&
-           (id->bDeviceProtocol == descriptor->bDeviceProtocol || 
+           (id->bDeviceProtocol == descriptor->bDeviceProtocol ||
           !(id->match_mode & USB_DEV_MATCH_DEV_PROTOCOL)) &&
-           (id->bcdDevice_lo < descriptor->bcdDevice || 
+           (id->bcdDevice_lo < descriptor->bcdDevice ||
           !(id->match_mode & USB_DEV_MATCH_DEV_LO)) &&
-           (id->bcdDevice_hi > descriptor->bcdDevice || 
+           (id->bcdDevice_hi > descriptor->bcdDevice ||
           !(id->match_mode & USB_DEV_MATCH_DEV_HI)));
 }
 
@@ -37,7 +37,7 @@ static const struct usb_device_id *
 usb_bus_device_match(struct usb_driver *udrv, struct usb_device *udev)
 {
     const struct usb_device_id *pids = udrv->id_table;
-    while(pids->idVendor || pids->idProduct || pids->bDeviceClass || 
+    while(pids->idVendor || pids->idProduct || pids->bDeviceClass ||
           pids->bInterfaceClass) {
         if(usb_device_match_one(pids, &udev->descriptor))
             return pids;
@@ -82,7 +82,7 @@ static state usb_bus_remove(struct device *dev)
 }
 
 struct bus_type usb_bus_type = {
-    .name = "pci",
+    .name = "usb",
     .match = usb_bus_match,
     .probe = usb_bus_probe,
     .remove = usb_bus_remove,

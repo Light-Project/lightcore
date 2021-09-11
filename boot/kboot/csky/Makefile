@@ -1,1 +1,1 @@
-obj-y += head.o
+obj-y += head.o main.o page.o

@@ -186,7 +186,7 @@ sys-acflags-$(CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE)   += -O2
 sys-acflags-$(CONFIG_CC_OPTIMIZE_FOR_SIZE)          += -Os
 sys-acflags-$(CONFIG_STRICT) += -Wall -Werror
 sys-acflags-y += -ffreestanding -nostdinc -fno-builtin -static
-sys-acflags-y += -fno-pic -fno-PIE
+sys-acflags-y += -fno-PIC -fno-PIE -fno-common
 sys-acflags-y += -fno-stack-protector
 
 # ldsflags
@@ -227,7 +227,6 @@ else
 
 ifdef CONFIG_PRELOAD
 __all: preload
-preload: boot
 else
 __all: boot
 endif
@@ -265,7 +264,9 @@ lightcore: kernel.o
 
 uboot boot: lightcore FORCE
 	$(Q)$(MAKE) $(build)=boot/ $@
-preload dts run install: FORCE
+preload: uboot
+	$(Q)$(MAKE) $(build)=boot/ $@
+dts run install: FORCE
 	$(Q)$(MAKE) $(build)=boot/ $@
 
 endif
@@ -324,26 +325,8 @@ PHONY += help
 help:
 	@echo  'Other generic targets:'
 	@echo  '  all		  - Build all targets marked with [*]'
-	@echo  '* vmlinux	  - Build the bare kernel'
-	@echo  '* modules	  - Build all modules'
-	@echo  '  modules_install - Install all modules to INSTALL_MOD_PATH (default: /)'
 	@echo  '  dir/            - Build all files in dir and below'
-	@echo  '  dir/file.[ois]  - Build specified target only'
-	@echo  '  dir/file.ll     - Build the LLVM assembly file'
-	@echo  '                    (requires compiler support for LLVM assembly generation)'
-	@echo  '  dir/file.lst    - Build specified mixed source/assembly target only'
 	@echo  '                    (requires a recent binutils and recent build (System.map))'
-	@echo  '  dir/file.ko     - Build module including final link'
-	@echo  '  modules_prepare - Set up for building external modules'
-	@echo  '  tags/TAGS	  - Generate tags file for editors'
-	@echo  '  cscope	  - Generate cscope index'
-	@echo  '  gtags           - Generate GNU GLOBAL index'
-	@echo  '  kernelrelease	  - Output the release version string (use with make -s)'
-	@echo  '  kernelversion	  - Output the version stored in Makefile (use with make -s)'
-	@echo  '  image_name	  - Output the image name (use with make -s)'
-	@echo  '  headers_install - Install sanitised kernel headers to INSTALL_HDR_PATH'; \
-	 echo  '                    (default: $(INSTALL_HDR_PATH))'; \
-	 echo  ''
 	@echo  'Cleaning targets:'
 	@echo  '  clean		  - Remove most generated files but keep the config and'
 	@echo  '                    enough build support to build external modules'
@@ -351,7 +334,7 @@ help:
 	@echo  '  distclean	  - mrproper + remove editor backup and patch files'
 	@echo  ''
 	@echo  'Configuration targets:'
-	@$(MAKE) -f $(srctree)/scripts/kconfig/Makefile help
+	@$(MAKE) -f scripts/kconfig/Makefile help
 	@echo  ''
 	@echo  '  make V=0|1 [targets] 0 => quiet build (default), 1 => verbose build'
 	@echo  '  make V=2   [targets] 2 => give reason for rebuild of target'

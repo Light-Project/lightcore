@@ -1,9 +1,0 @@
- 
-
-void spi_register()
-{
-    
-    
-}
- 
- 

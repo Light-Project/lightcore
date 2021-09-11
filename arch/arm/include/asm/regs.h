@@ -3,19 +3,17 @@
 #define _ASM_ARM_REGS_H_
 
 #include <types.h>
+#include <arch/arm/regs.h>
 
 #ifndef __ASSEMBLY__
 
 struct regs {
-    uint32_t    tls;
-    uint32_t    pc, lr;
-    uint32_t    sp, psr;
-
-    uint32_t    a2, a3, a4;
-    uint32_t    a5, a6, a7;
-    uint32_t    a1, a8, a9;
-    uint32_t    a10, a11, a12;
-    uint32_t    a13, a14;
+    uint32_t    a1, a2, a3, a4;
+    uint32_t    v1, v2, v3;
+    uint32_t    v4, v5, v6;
+    uint32_t    sl, fp, ip;
+    uint32_t    sp, lr, pc;
+    uint32_t    cpsr;
 };
 
 #define cp15_get(CRn, CRm, OP) ({                       \

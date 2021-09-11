@@ -9,47 +9,65 @@
     model = "X86 IBM compatible computer";
     #address-cells = <1>;
     #size-cells = <1>;
+    interrupt-parent = <&pic>;
 
     memory@0 {
         device_type = "memory";
         reg = <0x00000000 0x000a0000>,
               <0x00100000 0x03f00000>;
     };
-    
+
     isa {
         #address-cells = <1>;
         #size-cells = <1>;
         compatible = "isa-bus";
-        interrupt-parent = <&pic>;
+		dma-ranges;
         ranges;
-    
+
+        dma: dma-controller@0 {
+            #dma-cells = <1>;
+            compatible = "intel,i8237";
+            reg = <0x0000 0x20>;
+        };
+
         pic: interrupt-controller@20 {
             #interrupt-cells = <1>;
             #address-cells = <0>;
-            compatible = "i8259";
+            compatible = "intel,i8259";
             interrupt-controller;
-            reg = <0x0020 2>, <0x00a0 2>;
+            reg = <0x0020 0x02>, <0x00a0 0x02>;
         };
-        
-        pit: timer@42 {
-            compatible = "i8253";
-            reg = <0x0042 4>;
+
+        timer@42 {
+            compatible = "intel,i8253";
+            reg = <0x0042 0x044>;
             interrupts = <0>;
         };
-        
+
+        rtc@71 {
+            compatible = "motorola,mc146818";
+            reg = <0x0071 0x02>;
+            interrupts = <8>;
+        };
+
         uart0: serial@3f8 {
-            compatible = "i8250";
-            reg = <0x03f8 8>;
+            compatible = "intel,i8250";
+            reg = <0x03f8 0x08>;
             interrupts = <4>;
         };
-        
-        pci@c00 {
+
+        pci: pci@c00 {
             compatible = "i386-pci";
-            reg = <0x0c00 16>;
+            reg = <0x0c00 0x10>;
+        };
+
+        power: pci@cf9 {
+            compatible = "i386-reset";
+            reg = <0x0cf9 0x10>;
         };
     };
-    
+
     chosen {
         bootargs = "console=tty0";
     };
-}; 
+};

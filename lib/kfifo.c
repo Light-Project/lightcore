@@ -7,13 +7,13 @@
 #include <string.h>
 #include <mm.h>
 #include <kfifo.h>
-#include <kernel/spinlock.h>
+#include <spinlock.h>
 #include <export.h>
 
 void kfifo_read(struct kfifo *fifo, uint8_t *buff, size_t size)
 {
     size_t rsize; /* fold back length */
-    
+
     if(!fifo || !buff)
         return;
 
@@ -26,12 +26,12 @@ void kfifo_read(struct kfifo *fifo, uint8_t *buff, size_t size)
 EXPORT_SYMBOL(kfifo_read);
 
 void kfifo_write(struct kfifo *fifo, uint8_t *buff, size_t size)
-{   
+{
     size_t rsize; /* fold back length */
 
     if(!fifo || !buff)
         return;
-    
+
     size = min(size, fifo->size - fifo->in + fifo->out);
     rsize = min(size, fifo->size - (fifo->out & (fifo->size - 1)));
     memcpy(fifo->buffer + (fifo->in & (fifo->size - 1)), buff, rsize);

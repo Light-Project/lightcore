@@ -4,7 +4,7 @@
 
 #include <device.h>
 #include <resource.h>
-#include <mod_devicetable.h>
+#include <devtable.h>
 
 extern struct bus_type platform_bus;
 
@@ -19,7 +19,6 @@ struct platform_device {
     /* I/O resource */
     struct resource *resource;
     unsigned int resources_nr;
-
     struct acpi_node *acpi_node;
     struct dt_node *dt_node;
 };
@@ -44,8 +43,8 @@ struct platform_driver {
     const struct platform_device_id *platform_table;
 
     state (*probe)(struct platform_device *pdev);
-    state (*remove)(struct platform_device *pdev);
-    state (*shutdown)(struct platform_device *pdev);
+    void (*remove)(struct platform_device *pdev);
+    void (*shutdown)(struct platform_device *pdev);
     state (*suspend)(struct platform_device *pdev, pm_message_t state);
     state (*resume)(struct platform_device *pdev);
 };
@@ -62,21 +61,14 @@ platform_resource_start(struct platform_device *pdev, unsigned int index)
 }
 
 static inline resource_size_t
-platform_resource_end(struct platform_device *pdev, unsigned int index)
+platform_resource_size(struct platform_device *pdev, unsigned int index)
 {
     if (index > pdev->resources_nr)
         return 0;
-    return pdev->resource[index].end;
+    return pdev->resource[index].size;
 }
 
-static inline resource_size_t
-platform_resource_size(struct platform_device *pdev, unsigned int index)
-{
-    return platform_resource_end(pdev, index) -
-           platform_resource_start(pdev, index);
-}
-
-static inline enum res_type
+static inline enum resource_type
 platform_resource_type(struct platform_device *pdev, unsigned int index)
 {
     if (index > pdev->resources_nr)

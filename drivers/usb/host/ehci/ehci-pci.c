@@ -32,12 +32,6 @@ static state ehci_probe(struct pci_device *pdev, int data)
     return usb_host_register(&ehci->host);
 }
 
-static state ehci_remove(struct pci_device *pdev)
-{
-
-    return -ENOERR;
-}
-
 static struct pci_device_id ehci_pci_ids[] = {
     { PCI_DEVICE_CLASS(PCI_CLASS_SERIAL_USB_EHCI, ~0) },
     { }, /* NULL */
@@ -49,7 +43,6 @@ static struct pci_driver ehci_pci_driver = {
     },
     .id_table = ehci_pci_ids,
     .probe = ehci_probe,
-    .remove = ehci_remove,
 };
 
 static state ehci_pci_init(void)

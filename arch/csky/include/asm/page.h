@@ -20,6 +20,13 @@
 #define VIRTS_SIZE      (_AC(1,ULL) << VIRTS_SHIFT)
 #define VIRTS_MASK      (~(VIRTS_SHIFT - 1))
 
+#define PGDIR_SHIFT     22
+#define PGDIR_SIZE      (_AC(1,UL) << PGDIR_SHIFT)
+#define PGDIR_MASK      (~(PGDIR_SHIFT - 1))
+
+#define PTRS_PER_PGD    1024
+#define PTRS_PER_PTE    1024
+
 #define SPARCE_SHIFT    24
 
 #ifndef __ASSEMBLY__

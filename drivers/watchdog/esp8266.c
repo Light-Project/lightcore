@@ -1,9 +1,14 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
 #include <mm.h>
-#include <init/initcall.h>
+#include <initcall.h>
 #include <driver/platform.h>
-#include <driver/watchdog.h> 
+#include <driver/watchdog.h>
 #include <asm/io.h>
-#include <driver/watchdog/watchdog-esp8266.h> 
+#include <driver/watchdog/watchdog-esp8266.h>
 
 static state esp8266_wdt_start(struct watchdog_device *wdev)
 {
@@ -39,19 +44,17 @@ static state esp8266_wdt_probe(struct platform_device *pdev)
 
     wdev->ops = &esp8266_wdt_ops;
 
-    
+
     return watchdog_register(wdev);
 }
 
-static state esp8266_wdt_remove(struct platform_device *pdev)
+static void esp8266_wdt_remove(struct platform_device *pdev)
 {
 
-
-    return -ENOERR;
 }
 
 static const struct dt_device_id esp8266_wdt_id[] = {
-    { 
+    {
         .compatible = "espressif,esp8266-wdt",
     },
     {},

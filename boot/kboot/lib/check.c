@@ -15,7 +15,7 @@ void kernel_check(void *addr)
     uint32_t crc32new, crc32old;
     uint32_t size = boot_head->size;
 
-    pr_boot("Verification info:\n");
+    pr_boot("verification info:\n");
     pr_boot("    start: 0x%x\n", addr);
     pr_boot("    ksize: %ld\n", size);
 

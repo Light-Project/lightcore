@@ -1,8 +1,8 @@
 
 #include <klist.h>
 #include <export.h>
-#include <kernel/sched.h>
-#include <kernel/spinlock.h>
+#include <sched.h>
+#include <spinlock.h>
 
 /*
  * Use the lowest bit of n_klist to mark deleted nodes and exclude

@@ -10,7 +10,7 @@
 
 #ifndef __ASSEMBLY__
 
-struct pde{
+struct pde {
     union {
         struct {
             uint32_t type:2;    // Page type (1: Coarse 2:Section 3:Fine)
@@ -37,13 +37,13 @@ struct pde{
     };
 } __packed;
 
-struct pte{
+struct pte {
     union {
         struct {
             uint32_t type:2;
             uint32_t b:1;
             uint32_t c:1;
-            uint32_t ap0:2;
+            uint32_t ap:2;
         };
         struct {
             uint32_t res:10;
@@ -66,17 +66,24 @@ struct pte{
         };
         uint32_t val;
     };
-};
+} __packed;
 
-#define PAGE_TYPE_FINE      0x03    // Indicates that this is a fine page table descriptor
-#define PAGE_TYPE_COARSE    0x01    // Indicates that this is a coarse page table descriptor
-#define PAGE_TYPE_SECTION   0x02    // Indicates that this is a section descriptor
+#define PDE_TYPE_FINE       0x03    // Indicates that this is a fine page table descriptor
+#define PDE_TYPE_COARSE     0x01    // Indicates that this is a coarse page table descriptor
+#define PDE_TYPE_SECTION    0x02    // Indicates that this is a section descriptor
+
+#define PTE_TYPE_TINY       0x03
+#define PTE_TYPE_SMALL      0x02
+#define PTE_TYPE_LARGE      0x01
 
 #define PAGE_B_THROUGH      0x00
 #define PAGE_B_BACK         0x01
 
 #define PAGE_C_CACHEOFF     0x00
 #define PAGE_C_CACHEON      0x01
+
+#define PAGE_AP_SYSTEM      0x01    // Privileged permissions
+#define PAGE_AP_USER        0x03    // User permissions
 
 #define PAGE_DOMAIN_NONE    0x00    // Any access generates a domain fault
 #define PAGE_DOMAIN_CLIENT  0x01    // Accesses are checked against the access permission bits

@@ -8,11 +8,10 @@
 
 void __init mem_init(void)
 {
-    memblock_reserve(va_to_pa(&_ld_startup_start), 
-                     &_ld_image_end - &_ld_startup_start);
+    memblock_reserve(va_to_pa(&_ld_startup_start),
+            &_ld_image_end - &_ld_startup_start);
     memmodel_init();
     region_init();
-
     kmem_init();
     vmem_init();
 }

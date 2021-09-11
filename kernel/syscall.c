@@ -4,8 +4,8 @@
  */
 
 #include <types.h>
-#include <kernel/syscall.h>
-#include <kernel/sched.h>
+#include <syscall.h>
+#include <sched.h>
 
 void *syscall_table[SYS_NR_MAX] = {
     [SYS_RESTART] = NULL,

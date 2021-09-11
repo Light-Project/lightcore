@@ -1,8 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _COMPILER_H_
 #define _COMPILER_H_
 
 #ifndef __ASSEMBLY__
-
 
 #define likely(x)               __builtin_expect(!!(x), 1)
 #define unlikely(x)             __builtin_expect(!!(x), 0)

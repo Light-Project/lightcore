@@ -3,72 +3,80 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <string.h>
-#include <stdarg.h>
-#include <list.h>
 #include <console.h>
+#include <initcall.h>
 #include <printk.h>
-#include <init/initcall.h>
 
 /* the console list head */
-SLIST_HEAD(console_list);
+static LIST_HEAD(console_list);
+static struct console *current_console;
 
 void console_write(const char *str, unsigned int len)
 {
     struct console *console;
-    
-    slist_for_each_entry(console, &console_list, list) {
-        if (!(console->enable))
+
+    list_for_each_entry(console, &console_list, list) {
+        if (!(console->flags & CONSOLE_ENABLED))
             continue;
-        if(!console->write)
+        if(!console->ops->write)
             continue;
-        console->write(console, str, len);
+        return console->ops->write(console, str, len);
+    }
+
+    pre_console_write(str, len);
+}
+
+void console_startup(struct console *con)
+{
+    if (con->flags & CONSOLE_ENABLED ||
+        !con->ops->startup)
+        return;
+
+    con->flags |= CONSOLE_ENABLED;
+}
+
+void console_shutdown(struct console *con)
+{
+    if (~(con->flags & CONSOLE_ENABLED) ||
+        !con->ops->shutdown)
+        return;
+
+    con->flags &= ~CONSOLE_ENABLED;
+}
+
+void console_register(struct console *con)
+{
+    struct console *tmp;
+
+    list_for_each_entry(tmp, &console_list, list)
+    if (tmp == con) {
+        pr_warn("console %s already register\n",
+                tmp->name);
         return;
     }
 
-#ifdef CONFIG_PRE_PRINTK
-    pre_console->write(pre_console, str, len);
-#endif
-} 
-
-
-void console_lock(void)
-{
-
-    
-}
-
-void console_unlock(void)
-{
-
-    
-}
-
-void console_register(struct console *ncon)
-{
-    struct console *bcon = NULL;
-
-    slist_for_each_entry(bcon, &console_list, list) {
-        if(bcon == ncon)
-            pr_warn("console %s%d already register\n", 
-                    bcon->name, bcon->index);
+    if (!current_console) {
+        console_startup(con);
+        current_console = con;
     }
 
-    console_lock();
-
-    /* add new console to the list */
-    slist_add(&console_list, &ncon->list);
-
-    console_unlock();
+    list_add_prev(&console_list, &con->list);
 }
 
-void console_unregister(struct console *dcon)
+void console_unregister(struct console *con)
 {
-    console_lock();
+    struct console *tmp;
+    int val;
 
-    slist_del(&console_list, &dcon->list);
+    list_for_each_entry(tmp, &console_list, list) {
+        if (tmp == con)
+            val = 1;
+    } if (!val) {
+        return;
+    }
 
-    console_unlock();
+    console_shutdown(con);
+    list_del(&con->list);
 }
 
 void __init console_init(void)
@@ -76,7 +84,7 @@ void __init console_init(void)
     initcall_entry_t *fn;
     initcall_t call;
     int ret;
-    
+
     for(fn = _ld_console_initcall_start;
         fn < _ld_console_initcall_end;
         fn++)
@@ -87,3 +95,9 @@ void __init console_init(void)
             pr_warn("console: init error\n");
     }
 }
+
+static state console_bootarg(const char *arg)
+{
+    return -ENOERR;
+}
+bootarg_initcall("console", console_bootarg);

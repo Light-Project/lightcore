@@ -2,11 +2,7 @@ menuconfig UART
     bool "UART support"
 if UART
 
-config UART_8250
-    bool "Devicetree based probing for 8250 ports"
-    
-config UART_8250_CON
-    bool "Devicetree based probing for 8250 ports"
+source "drivers/uart/8250/Kconfig"
 
 config UART_CH340
     bool "CH340/CH341 UART support"

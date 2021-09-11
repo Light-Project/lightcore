@@ -3,7 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <asm/pgalloc.h>
+#include <asm/pgtable.h>
 #include <asm/irq.h>
 
 void arch_setup(void)

@@ -5,20 +5,16 @@
 
 #define pr_fmt(fmt) "init: " fmt
 
-#include <types.h>
-#include <init/initcall.h>
+#include <kernel.h>
+#include <initcall.h>
 #include <printk.h>
 
-static initcall_entry_t *initcall_levels[] __initdata = {
+static __initdata initcall_entry_t *initcall_levels[] = {
     _ld_initcall_start,
-    _ld_initcall1_start,
-    _ld_initcall2_start,
-    _ld_initcall3_start,
-    _ld_initcall4_start,
-    _ld_initcall5_start,
-    _ld_initcall6_start,
-    _ld_initcall7_start,
-    _ld_initcall_end,
+    _ld_initcall1_start, _ld_initcall2_start,
+    _ld_initcall3_start, _ld_initcall4_start,
+    _ld_initcall5_start, _ld_initcall6_start,
+    _ld_initcall7_start, _ld_initcall_end,
 };
 
 static void __init do_one_initcall(int level, initcall_entry_t *fn)
@@ -30,21 +26,31 @@ static void __init do_one_initcall(int level, initcall_entry_t *fn)
     ret = call();
 
     if (ret)
-        pr_debug("%s error code [%d]\n", fn->name, ret);
+        pr_warn("%s error code [%d]\n", fn->name, ret);
 }
 
-static void __init do_initcall_level(int level)
+static void __init initcall_level(int level)
 {
     initcall_entry_t *fn;
 
-    for(fn = initcall_levels[level]; fn < initcall_levels[level+1]; fn++)
-            do_one_initcall(level, fn);
+    for (fn = initcall_levels[level];
+         fn < initcall_levels[level+1]; fn++) {
+        do_one_initcall(level, fn);
+    }
 }
 
 void __init initcalls(void)
 {
     int level;
-    for (level = 0; level < ARRAY_SIZE(initcall_levels) - 1; level++) {
-        do_initcall_level(level);
+
+    for (level = 0;
+         level < ARRAY_SIZE(initcall_levels) - 1;
+         level++) {
+        initcall_level(level);
     }
+}
+
+void __init bootargs_init(const char *cmd)
+{
+
 }

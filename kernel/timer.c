@@ -4,7 +4,16 @@
  */
 
 #include <time.h>
+#include <timer.h>
 
 volatile uint64_t ticktime;
 
+void timer_update(unsigned long ticks)
+{
+    ticktime += ticks;
+}
 
+void timer_tick(void)
+{
+    timer_update(1);
+}

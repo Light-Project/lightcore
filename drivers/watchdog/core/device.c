@@ -1,5 +1,5 @@
 
-#include <init/initcall.h>
+#include <initcall.h>
 #include <driver/platform.h>
 #include <driver/watchdog.h>
 

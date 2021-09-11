@@ -1,0 +1,252 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#include "bcm283x.dtsi"
+#include "bcm2835-com.dtsi"
+
+
+/ {
+    compatible = "brcm,bcm2836";
+    
+    clocks {
+        clk_osc: clk-osc {
+            compatible = "fixed-clock";
+            #clock-cells = <0>;
+            clock-output-names = "osc";
+            clock-frequency = <19200000>;
+        };
+
+        clk_usb: clk-usb {
+            compatible = "fixed-clock";
+            #clock-cells = <0>;
+            clock-output-names = "otg";
+            clock-frequency = <480000000>;
+        };
+    }
+    
+    soc {
+        compatible = "amba-bus";
+        ranges = <0x7e000000 0x3f000000 0x01000000>,
+                 <0x40000000 0x40000000 0x00001000>;
+        dma-ranges = <0xc0000000 0x00000000 0x3f000000>;
+        #address-cells = <1>;
+        #size-cells = <1>;
+        
+        local_intc: local_intc@40000000 {
+            compatible = "brcm,bcm2836-l1-intc";
+            reg = <0x40000000 0x100>;
+            interrupt-controller;
+            #interrupt-cells = <2>;
+            interrupt-parent = <&local_intc>;
+        };
+        
+        clocks: cprman@7e101000 {
+            compatible = "brcm,bcm2835-cprman";
+            #clock-cells = <1>;
+            reg = <0x7e101000 0x2000>;
+            clocks = <&clk_osc>,
+                <&dsi0 0>, <&dsi0 1>, <&dsi0 2>,
+                <&dsi1 0>, <&dsi1 1>, <&dsi1 2>;
+        };
+        
+        gpio: gpio@7e200000 {
+            compatible = "brcm,bcm2835-gpio";
+            reg = <0x7e200000 0xb4>;
+        };
+        
+        uart0: serial@7e201000 {
+            compatible = "arm,pl011", "arm,primecell";
+            reg = <0x7e201000 0x200>;
+            interrupts = <2 25>;
+            clocks = <&clocks BCM2835_CLOCK_UART>,
+                <&clocks BCM2835_CLOCK_VPU>;
+            clock-names = "uartclk", "apb_pclk";
+            arm,primecell-periphid = <0x00241011>;
+        };
+
+        sdhost: mmc@7e202000 {
+            compatible = "brcm,bcm2835-sdhost";
+            reg = <0x7e202000 0x100>;
+            interrupts = <2 24>;
+            clocks = <&clocks BCM2835_CLOCK_VPU>;
+            status = "disabled";
+        };
+
+        i2s: i2s@7e203000 {
+            compatible = "brcm,bcm2835-i2s";
+            reg = <0x7e203000 0x24>;
+            clocks = <&clocks BCM2835_CLOCK_PCM>;
+            status = "disabled";
+        };
+
+        spi: spi@7e204000 {
+            compatible = "brcm,bcm2835-spi";
+            reg = <0x7e204000 0x200>;
+            interrupts = <2 22>;
+            clocks = <&clocks BCM2835_CLOCK_VPU>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+            status = "disabled";
+        };
+
+        i2c0: i2c@7e205000 {
+            compatible = "brcm,bcm2835-i2c";
+            reg = <0x7e205000 0x200>;
+            interrupts = <2 21>;
+            clocks = <&clocks BCM2835_CLOCK_VPU>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+            status = "disabled";
+        };
+
+        dpi: dpi@7e208000 {
+            compatible = "brcm,bcm2835-dpi";
+            reg = <0x7e208000 0x8c>;
+            clocks = <&clocks BCM2835_CLOCK_VPU>,
+                <&clocks BCM2835_CLOCK_DPI>;
+            clock-names = "core", "pixel";
+            #address-cells = <1>;
+            #size-cells = <0>;
+            status = "disabled";
+        };
+
+        dsi0: dsi@7e209000 {
+            compatible = "brcm,bcm2835-dsi0";
+            reg = <0x7e209000 0x78>;
+            interrupts = <2 4>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+            #clock-cells = <1>;
+
+            clocks = <&clocks BCM2835_PLLA_DSI0>,
+                <&clocks BCM2835_CLOCK_DSI0E>,
+                <&clocks BCM2835_CLOCK_DSI0P>;
+            clock-names = "phy", "escape", "pixel";
+
+            clock-output-names = "dsi0_byte",
+                        "dsi0_ddr2",
+                        "dsi0_ddr";
+
+            status = "disabled";
+        };
+
+        aux: aux@7e215000 {
+            compatible = "brcm,bcm2835-aux";
+            #clock-cells = <1>;
+            reg = <0x7e215000 0x8>;
+            clocks = <&clocks BCM2835_CLOCK_VPU>;
+        };
+
+        uart1: serial@7e215040 {
+            compatible = "brcm,bcm2835-aux-uart";
+            reg = <0x7e215040 0x40>;
+            interrupts = <1 29>;
+            clocks = <&aux BCM2835_AUX_CLOCK_UART>;
+            status = "disabled";
+        };
+
+        spi1: spi@7e215080 {
+            compatible = "brcm,bcm2835-aux-spi";
+            reg = <0x7e215080 0x40>;
+            interrupts = <1 29>;
+            clocks = <&aux BCM2835_AUX_CLOCK_SPI1>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+            status = "disabled";
+        };
+
+        spi2: spi@7e2150c0 {
+            compatible = "brcm,bcm2835-aux-spi";
+            reg = <0x7e2150c0 0x40>;
+            interrupts = <1 29>;
+            clocks = <&aux BCM2835_AUX_CLOCK_SPI2>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+            status = "disabled";
+        };
+
+        pwm: pwm@7e20c000 {
+            compatible = "brcm,bcm2835-pwm";
+            reg = <0x7e20c000 0x28>;
+            clocks = <&clocks BCM2835_CLOCK_PWM>;
+            assigned-clocks = <&clocks BCM2835_CLOCK_PWM>;
+            assigned-clock-rates = <10000000>;
+            #pwm-cells = <2>;
+            status = "disabled";
+        };
+
+        sdhci: mmc@7e300000 {
+            compatible = "brcm,bcm2835-sdhci";
+            reg = <0x7e300000 0x100>;
+            interrupts = <2 30>;
+            clocks = <&clocks BCM2835_CLOCK_EMMC>;
+            status = "disabled";
+        };
+
+        hvs@7e400000 {
+            compatible = "brcm,bcm2835-hvs";
+            reg = <0x7e400000 0x6000>;
+            interrupts = <2 1>;
+        };
+
+        dsi1: dsi@7e700000 {
+            compatible = "brcm,bcm2835-dsi1";
+            reg = <0x7e700000 0x8c>;
+            interrupts = <2 12>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+            #clock-cells = <1>;
+
+            clocks = <&clocks BCM2835_PLLD_DSI1>,
+                <&clocks BCM2835_CLOCK_DSI1E>,
+                <&clocks BCM2835_CLOCK_DSI1P>;
+            clock-names = "phy", "escape", "pixel";
+
+            clock-output-names = "dsi1_byte",
+                        "dsi1_ddr2",
+                        "dsi1_ddr";
+
+            status = "disabled";
+        };
+
+        i2c1: i2c@7e804000 {
+            compatible = "brcm,bcm2835-i2c";
+            reg = <0x7e804000 0x1000>;
+            interrupts = <2 21>;
+            clocks = <&clocks BCM2835_CLOCK_VPU>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+            status = "disabled";
+        };
+
+        vec: vec@7e806000 {
+            compatible = "brcm,bcm2835-vec";
+            reg = <0x7e806000 0x1000>;
+            clocks = <&clocks BCM2835_CLOCK_VEC>;
+            interrupts = <2 27>;
+            status = "disabled";
+        };
+
+        usb: usb@7e980000 {
+            compatible = "brcm,bcm2835-usb";
+            reg = <0x7e980000 0x10000>;
+            interrupts = <1 9>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+            clocks = <&clk_usb>;
+            clock-names = "otg";
+            phys = <&usbphy>;
+            phy-names = "usb2-phy";
+        };
+    };
+    
+    usbphy: phy {
+        compatible = "usb-nop-xceiv";
+        #phy-cells = <0>;
+    };
+};
+
+&intc {
+    compatible = "brcm,bcm2836-armctrl-ic";
+    reg = <0x7e00b200 0x200>;
+    interrupt-parent = <&local_intc>;
+    interrupts = <8 1>;
+};

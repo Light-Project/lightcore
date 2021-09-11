@@ -6,7 +6,7 @@
 
 #ifndef __ASSEMBLY__
 
-static inline void tlb_flush_all(void)
+static inline void tlb_inval_all(void)
 {
     cr3_set(cr3_get());
 }

@@ -20,6 +20,7 @@ int strncmp(const char *s1, const char *s2, size_t n);
 extern void *memset(void *, int, size_t);
 extern void *memmove(void * dest, const void * src, size_t n);
 
+int memtest_fast(size_t *addr, size_t size);
 int memtest(size_t *addr, size_t size);
 
 extern int vsprintf(char *, const char *, va_list);

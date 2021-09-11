@@ -4,17 +4,16 @@
  */
 
 #include <printk.h>
-
 #include <asm/backtrace.h>
 #include <asm/regs.h>
 
 void show_regs(struct regs *regs)
 {
     printk("Regs:\n");
-    printk("EIP: %08lx EFLAGS: %08lx\n", regs->eip, regs->eflags);
-    printk("EAX: %08lx EBX: %08lx ECX: %08lx EDX: %08lx\n",
+    printk("EIP: %08x EFLAGS: %08x\n", regs->eip, regs->eflags);
+    printk("EAX: %08x EBX: %08x ECX: %08x EDX: %08x\n",
             regs->eax, regs->ebx, regs->ecx, regs->edx);
-    printk("ESI: %08lx EDI: %08lx EBP: %08lx ESP: %08lx\n",
+    printk("ESI: %08x EDI: %08x EBP: %08x ESP: %08x\n",
             regs->esi, regs->edi, regs->ebp, regs->esp);
     printk("CS: %04x DS: %04x ES: %04x FS: %04x GS: %04x SS: %04x\n",
             regs->cs, regs->ds, regs->es, regs->fs, regs->gs, regs->ss);
@@ -26,7 +25,7 @@ void show_stack(size_t *sp)
 {
     printk("Stack:\n");
     for (int i = 0; i < 8; i++) {
-        printk("%08x: ", sp);
+        printk("%p: ", sp);
         for (int i = 0; i < 4; i++)
             printk("%08x ", *sp++);
         printk("\n");

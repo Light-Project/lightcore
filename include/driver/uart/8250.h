@@ -2,6 +2,8 @@
 #ifndef _DRIVER_UART_8250_H_
 #define _DRIVER_UART_8250_H_
 
+#include <bits.h>
+
 #ifndef UART8250_SHIFT
 #define UART8250_SHIFT 0
 #endif

@@ -3,13 +3,10 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <string.h>
 #include <mm.h>
-
-#include <asm/page.h>
 #include <asm/pgtable.h>
+#include <asm/cache.h>
 #include <asm/tlb.h>
-#include <asm/regs.h>
 #include <asm/mmu.h>
 
 #define kernel_index    (CONFIG_PAGE_OFFSET >> PGDIR_SHIFT)
@@ -33,16 +30,17 @@ struct pte pt_himem[himem_pts][PTRS_PER_PTE] __aligned(0x400);
 
 static void pde_set(int index, bool huge, phys_addr_t pa_pte, bool user)
 {
-    page_dir[index].b       = PAGE_B_BACK;
-    page_dir[index].c       = PAGE_C_CACHEON;
+    page_dir[index].p           = true;
+    page_dir[index].c           = PAGE_C_CACHEON;
+    page_dir[index].b           = PAGE_B_BACK;
 
-    if (!huge) {
-        page_dir[index].type    = PAGE_TYPE_COARSE;
-        page_dir[index].coarse  = pa_pte >> SECTION_SHIFT;
+    if (huge) {
+        page_dir[index].type    = PDE_TYPE_SECTION;
+        page_dir[index].ap      = PAGE_AP_SYSTEM;
+        page_dir[index].section = pa_pte >> PGDIR_SHIFT;
     } else {
-        page_dir[index].type    = PAGE_TYPE_SECTION;
-        page_dir[index].ap      = 0x03;
-        page_dir[index].section = pa_pte >> SECTION_SHIFT;
+        page_dir[index].type    = PDE_TYPE_COARSE;
+        page_dir[index].coarse  = pa_pte >> PGDIR_COARSE_SHIFT;
     }
 }
 
@@ -55,7 +53,7 @@ static void pte_set(size_t va, struct pte *val)
     index = pde_index(va);
     pde = &page_dir[index];
 
-    pte = pa_to_va((pde->coarse << COARSE_SHIFT));
+    pte = pa_to_va((pde->coarse << PGDIR_COARSE_SHIFT));
 
     index = pte_index(va);
     pte[index] = *val;
@@ -69,10 +67,15 @@ state arch_page_map(size_t pa, size_t va, size_t size)
         return -EINVAL;
 
     for (size >>= PAGE_SHIFT; size; --size) {
-        pte.val = 0;
-        pte.b = PAGE_B_BACK;
+        pte.val = PTE_TYPE_SMALL;
         pte.c = PAGE_C_CACHEON;
+        pte.b = PAGE_B_BACK;
         pte.small = pa >> PAGE_SHIFT;
+
+        pte.ap  = PAGE_AP_SYSTEM;
+        pte.ap1 = PAGE_AP_SYSTEM;
+        pte.ap2 = PAGE_AP_SYSTEM;
+        pte.ap3 = PAGE_AP_SYSTEM;
 
         pte_set(va, &pte);
 
@@ -80,26 +83,31 @@ state arch_page_map(size_t pa, size_t va, size_t size)
         pa += PAGE_SIZE;
     }
 
+    dcache_writeback_all();
     tlb_inval_all();
     return -ENOERR;
 }
+
 void arch_page_setup(void)
 {
     phys_addr_t pa = CONFIG_RAM_BASE;
-    uint32_t val = 0;
+    uint32_t c = 0;
 
     /* Mapping kernel space directly */
     for(int index = kernel_index; index < himem_index; ++index) {
         pde_set(index, true, pa, 0);
-        pa += 1 << PGDIR_SHIFT;
+        pa += PGDIR_SIZE;
     }
 
     /* Loading himem pte */
     for(int index = himem_index; index < PTRS_PER_PGD; ++index) {
-        pa = va_to_pa(&pt_himem[val++][0]);
+        pa = va_to_pa(&pt_himem[c++][0]);
         pde_set(index, false, pa, 0);
     }
 
+    cp15_set(c3, c0, 0, (DOMAIN_CLIENT << 2) | DOMAIN_CLIENT);
+
+    dcache_writeback_all();
     ttb_set(va_to_pa(page_dir));
     tlb_inval_all();
 }

@@ -2,8 +2,8 @@
 #ifndef _ASM_ARM_PROCESSOR_H_
 #define _ASM_ARM_PROCESSOR_H_
 
+#include <types.h>
 #include <asm/barrier.h>
-
 
 static inline void arm32_domain_set(uint32_t domain)
 {

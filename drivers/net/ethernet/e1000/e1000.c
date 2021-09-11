@@ -1,10 +1,13 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
 #define DRIVER_NAME "net-e1000"
-#undef pr_fmt
 #define pr_fmt(fmt)     DRIVER_NAME ": " fmt
 
 #include <driver/pci.h>
-#include <init/initcall.h>
+#include <initcall.h>
 
 #include "e1000_hw.h"
 
@@ -109,5 +112,4 @@ static state e1000_init(void)
 
     return pci_driver_register(&e1000_driver);
 }
-
 driver_initcall(e1000_init);

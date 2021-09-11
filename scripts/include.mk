@@ -58,7 +58,7 @@ LN              := ln -fsn
 CD              := cd
 MV              := mv
 FIND            := find
-ECHO            := echo -e " "
+ECHO            := echo -e "    "
 PERL            := perl
 CONFIG_SHELL    := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
                     else if [ -x /bin/bash ]; then echo /bin/bash; \
@@ -113,12 +113,6 @@ ECHO_LD         := \e[35mLD\e[0m
 ECHO_LDS        := \e[35mLDS\e[0m
 
 ECHO_DTB        := \e[36mDTB\e[0m
-
-ECHO_CUSTCPP    := \e[33mCUSTCPP\e[0m
-ECHO_CUSTAS     := \e[33mCUSTAS\e[0m
-ECHO_CUSTCC     := \e[33mCUSTCC\e[0m
-ECHO_CUSTCXX    := \e[33mCUSTCXX\e[0m
-ECHO_CUSTLD     := \e[35mCUSTLD\e[0m
 
 ECHO_HOSTCC     := \e[33mHOSTCC\e[0m
 ECHO_HOSTCXX    := \e[33mHOSTCXX\e[0m
@@ -315,7 +309,7 @@ endef
 # echo command.
 # Short version is used, if $(quiet) equals `quiet_', otherwise full one.
 echo-cmd = $(if $($(quiet)cmd_$(1)),\
-    $(ECHO) '  $(call escsq,$($(quiet)cmd_$(1)))$(echo-why)';)
+    $(ECHO) '$(call escsq,$($(quiet)cmd_$(1)))$(echo-why)';)
 
 # printing commands
 cmd = $(Q)$(echo-cmd) $(cmd_$(1))

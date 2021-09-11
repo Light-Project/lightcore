@@ -14,5 +14,8 @@ dtb-y += esp8266.dtb
 endif
 
 ifdef CONFIG_ARCH_ARM
-dtb-y += suniv.dtb
+dtb-y += neopi-nano.dtb
+# dtb-y += neopi-one.dtb
+# dtb-y += raspi-zero.dtb
+# dtb-y += raspi-2b.dtb
 endif 

@@ -8,7 +8,7 @@
 
 #include <string.h>
 #include <mm.h>
-#include <init/initcall.h>
+#include <initcall.h>
 #include <driver/platform.h>
 #include <driver/irqchip.h>
 #include <driver/irqchip/gx6605s.h>
@@ -81,7 +81,7 @@ static state gx6605s_probe(struct platform_device *pdev)
     return -ENOERR;
 }
 
-static state gx6605s_remove(struct platform_device *pdev)
+static void gx6605s_remove(struct platform_device *pdev)
 {
     struct gx6605s_device *gdev = platform_get_devdata(pdev);
 
@@ -90,8 +90,6 @@ static state gx6605s_remove(struct platform_device *pdev)
 
     iounmap(gdev->mmio);
     kfree(gdev);
-
-    return -ENOERR;
 }
 
 static struct dt_device_id gx6605s_id[] = {

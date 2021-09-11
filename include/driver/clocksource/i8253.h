@@ -9,9 +9,6 @@ enum i8253_registers {
     I8253_MODE        = 0x03, // Mode/Command register (write only, a read is ignored)
 };
 
-#define I8253_CLKRATE   0x1234DE
-#define PIT_LATCH(HZ)   ((I8253_CLKRATE + (HZ) / 2) / (HZ))
-
 /*************************************************************************************/
 /*      Mnemonic                 value        meaning/usage                          */
 
@@ -47,5 +44,8 @@ enum i8253_registers {
 /* Read-back flags (first) bitflag definitions */
 #define I8253_STATUS_PIN          (1<<7)    // Output pin state
 #define I8253_STATUS_NULL         (1<<6)    // Null count flags
+
+#define I8253_CLKRATE   0x1234DE
+#define PIT_LATCH(HZ)   ((I8253_CLKRATE + (HZ) / 2) / (HZ))
 
 #endif  /* _DRIVER_CLOCKSOURCT_I8253_H_ */

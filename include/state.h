@@ -1,8 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _STATE_H_
 #define _STATE_H_
 
-
-#define ENOERR          0       /* No error */ 
+#define ENOERR          0       /* No error */
 #define EPERM           1       /* Operation not permitted */
 #define ENOENT          2       /* No such file or directory */
 #define ESRCH           3       /* No such process */

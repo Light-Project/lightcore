@@ -7,8 +7,8 @@
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
 #include <mm.h>
-#include <init/initcall.h>
-#include <kernel/irq.h>
+#include <initcall.h>
+#include <irq.h>
 #include <driver/usb.h>
 #include <driver/usb/uhci.h>
 #include <printk.h>

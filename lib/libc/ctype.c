@@ -1,5 +1,6 @@
-#include <export.h>
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <ctype.h>
+#include <export.h>
 
 int isalnum(int c)
 {

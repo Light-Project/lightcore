@@ -128,7 +128,7 @@ preload:
 endif
 
 ifneq ($(CONFIG_CHIP_SUNIV),)
-preload: uboot
+preload:
 	$(Q)$(MAKE) $(build)=tools/sunxi/
 	$(Q) tools/sunxi/mksunxiboot $(obj)preload.bin
 	$(Q)$(DD) if=$(obj)preload.bin of=$(obj)disk.img bs=512 conv=notrunc

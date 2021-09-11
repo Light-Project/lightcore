@@ -5,7 +5,7 @@
 
 #include <types.h>
 #include <export.h>
-#include <init/initcall.h>
+#include <initcall.h>
 #include <device/bus.h>
 #include <driver/pci.h>
 #include <printk.h>
@@ -67,7 +67,8 @@ static state pci_bus_remove(struct device *dev)
     if (!pdrv->remove)
         return -ENXIO;
 
-    return pdrv->remove(pdev);
+    pdrv->remove(pdev);
+    return -ENOERR;
 }
 
 struct bus_type pci_bus_type = {

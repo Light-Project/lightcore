@@ -3,17 +3,17 @@
  *  bootloader/x86/driver/ide.c
  *  x86 pre ide driver
  *  (C) 2020 wzl
- * 
+ *
  *  Change Logs:
  *  Date            Notes
- *  2021-02-26      first version 
- * 
+ *  2021-02-26      first version
+ *
  */
 
 #include <types.h>
 #include <state.h>
 #include <driver/pci.h>
-#include <init/initcall.h>
+#include <initcall.h>
 #include <driver/ata.h>
 #include <printk.h>
 
@@ -227,14 +227,12 @@ static const struct pci_device_id piix_pci_tbl[] = {
 
 static state piix_probe(struct pci_device *pdev, int pdata)
 {
-    
+
     return -ENOERR;
 }
 
-static state piix_remove(struct pci_device *pdev)
+static void piix_remove(struct pci_device *pdev)
 {
-    
-    return -ENOERR;
 }
 
 static struct pci_driver piix_pci_driver = {

@@ -22,8 +22,8 @@ typedef struct list_head{
  * @member:	the name of the list_head within the struct.
  */
 #define list_entry(ptr, type, member) \
-        container_of(ptr, type, member)
-        
+    container_of(ptr, type, member)
+
 /**
  * list_first_entry - get the first element from a list
  * @ptr:	the list head to take the element from.
@@ -34,7 +34,7 @@ typedef struct list_head{
  */
 #define list_first_entry(ptr, type, member) \
     list_entry((ptr)->next, type, member)
-    
+
 /**
  * list_prev_entry - get the prev element in list
  * @pos:	the type * to cursor
@@ -78,10 +78,10 @@ typedef struct list_head{
  * list_for_each - iterate over a list
  * @head:	the head for your list.
  * @pos:	the &struct list_head to use as a loop cursor.
- */    
+ */
 #define list_for_each(head, pos) \
     for (pos = (head)->next; pos != (head); pos = pos->next)
-        
+
 /**
  * list_for_each_prev	-	iterate over a list backwards
  * @pos:	the &struct list_head to use as a loop cursor.
@@ -89,7 +89,7 @@ typedef struct list_head{
  */
 #define list_for_each_prev(head, pos) \
     for (pos = (head)->prev; pos != (head); pos = pos->prev)
-    
+
 /**
  * list_for_each_entry	-	iterate over list of given type
  * @pos:	the type * to use as a loop cursor.
@@ -98,8 +98,8 @@ typedef struct list_head{
  */
 #define list_for_each_entry(pos, head, member)                  \
     for (pos = list_first_entry(head, typeof(*pos), member);    \
-        &pos->member != (head);                                 \
-        pos = list_next_entry(pos, member))
+         &pos->member != (head);                                \
+         pos = list_next_entry(pos, member))
 
 /**
  * list_for_each_entry_safe - iterate over list of given type safe against removal of list entry
@@ -110,9 +110,9 @@ typedef struct list_head{
  */
 #define list_for_each_entry_safe(pos, n, head, member)          \
     for (pos = list_first_entry(head, typeof(*pos), member),    \
-        n = list_next_entry(pos, member);                       \
-        !list_entry_is_head(pos, head, member);                 \
-        pos = n, n = list_next_entry(n, member))
+         n = list_next_entry(pos, member);                      \
+         !list_entry_is_head(pos, head, member);                \
+         pos = n, n = list_next_entry(n, member))
 
 void list_head_init(struct list_head *list);
 void list_insert(struct list_head *prev, struct list_head *next, struct list_head *new);

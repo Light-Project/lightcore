@@ -4,7 +4,6 @@
 
 #include <lightcore/types.h>
 #include <lightcore/asm/bitsperlong.h>
-// #include <lightcore/asm/swab.h>
 
 /*
  * casts are necessary for constants, because we never know how for sure

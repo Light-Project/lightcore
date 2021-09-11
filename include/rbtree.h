@@ -1,15 +1,4 @@
-/*
- *  SPDX-License-Identifier: GPL-2.0-or-later
- *  lightcore/include/rbtree.h
- *  light core rbtree lib
- *  (C) 2020 wzl
- * 
- *  Change Logs:
- *  Date            Notes
- *  2021-01-20      first version 
- * 
- */
-
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _RBTREE_H_
 #define _RBTREE_H_
 
@@ -105,7 +94,7 @@ rb_find(const void *key, const struct rb_root *root,
  * 
  * @return: Matching nodes
  */
-static __always_inline struct rb_node *
+static inline struct rb_node *
 rb_find_first(const void *key, const struct rb_root *root,
     int (*cmp)(const void *key, const struct rb_node *))
 {
@@ -136,7 +125,7 @@ rb_find_first(const void *key, const struct rb_root *root,
  * 
  * @return: Matching nodes
  */
-static __always_inline struct rb_node *
+static inline struct rb_node *
 rb_next_match(const void *key, struct rb_node *node,
     int (*cmp)(const void *key, const struct rb_node *))
 {
@@ -152,13 +141,10 @@ rb_next_match(const void *key, struct rb_node *node,
  * @node: iterator
  * @tree: tree to search
  * @cmp: operator defining the node order
- * 
- * @return: Matching nodes
  */
 #define rb_for_each(node, key, tree, cmp)               \
-    for(                                                \
-        node = rb_find_first((key), (tree), (cmp));     \
-        (node); rb_next_match((key), (node), (cmp))     \
+    for(node = rb_find_first((key), (tree), (cmp));     \
+       (node); rb_next_match((key), (node), (cmp))      \
     )
 
 #endif	/* __ASSEMBLY__ */

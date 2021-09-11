@@ -4,8 +4,8 @@
 
 #include <state.h>
 #include <slist.h>
-#include <kernel/kobject.h>
-#include <mod_devicetable.h>
+#include <kobject.h>
+#include <devtable.h>
 
 extern struct dt_node *dt_root;
 extern struct dt_node *dt_chosen;
@@ -28,39 +28,52 @@ struct dt_attribute {
 };
 
 struct dt_node {
-    const char *path;
     struct kobject kobj;
+    const char *name;
+    const char *path;
+    uint32_t phandle;
 
     struct dt_node      *parent;
     struct slist_head   child;
     struct slist_head   sibling;
     struct slist_head   attribute;
-
-    void *driver_data;
 };
 
 extern struct dt_node *dt_root;
 extern struct dt_node *dt_chosen;
 extern struct dt_node *dt_stdout;
 
+struct dt_node *dt_find_by_phandle(uint32_t phandle);
+struct dt_node *dt_for_each_all_node(struct dt_node *prev);
+struct dt_attribute *dt_attribute_find(const struct dt_node *node, const char *name);
+const void *dt_attribute_get(const struct dt_node *node, const char *name, int *len);
+
+#define dt_for_each_all(node) \
+    for (node = dt_for_each_all_node(NULL); node; node = dt_for_each_all_node(node))
 #define dt_have_child(node) \
     slist_first_entry_or_null(&prev->child, struct dt_node, sibling)
 #define dt_for_each_child(_child, bus) \
     slist_for_each_entry(_child, &bus->child, sibling)
 
-/* base.c */
-struct dt_node *dt_for_each_all(struct dt_node *prev);
-struct dt_attribute *dt_attribute_find(const struct dt_node *node, const char *name);
-const void *dt_attribute_get(const struct dt_node *node, const char *name, int *len);
+bool  dt_attribute_read_bool(const struct dt_node *node, const char *name);
+state dt_attribute_read_u32_index(const struct dt_node *node, const char *name, int index, uint32_t *value);
+state dt_attribute_read_u64_index(const struct dt_node *node, const char *name, int index, uint64_t *value);
+state dt_attribute_read_string_index(const struct dt_node *node, const char *name, int index, const char **str);
+state dt_attribute_string_index(const struct dt_node *node, const char *name, const char *str);
 
-bool dt_attribute_read_bool(const struct dt_node *node, const char *name);
-state dt_attribute_read_u32(const struct dt_node *node, const char *name, int index, uint32_t *value);
-state dt_attribute_read_u64(const struct dt_node *node, const char *name, int index, uint64_t *value);
-state dt_attribute_read_string(const struct dt_node *node, const char *name, int index, const char **str);
+#define dt_attribute_read_u32(node, name, val) \
+    dt_attribute_read_u32_index(node, name, 0, val)
+#define dt_attribute_read_u64(node, name, val) \
+    dt_attribute_read_u64_index(node, name, 0, val)
+#define dt_attribute_read_struct(node, name, val) \
+    dt_attribute_read_string_index(node, name, 0, val)
 
+struct dt_node *dt_search_up(struct dt_node *node, const char *name, uint32_t *value);
 uint32_t dt_addr_cell(const struct dt_node *node);
 uint32_t dt_size_cell(const struct dt_node *node);
 
+bool dt_attribute_match(const struct dt_node *node, const char *atname, const char *val);
+bool dt_match_name(const struct dt_node *node, const char *name);
 bool dt_match(const struct dt_device_id *id, const struct dt_node *node);
 
 /* bus.c */

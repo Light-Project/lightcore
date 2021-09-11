@@ -5,7 +5,7 @@
 #include <list.h>
 #include <mm/gfp.h>
 #include <mm/memmodel.h>
-#include <kernel/spinlock.h>
+#include <spinlock.h>
 
 enum region_type {
 #ifdef CONFIG_REGION_DMA

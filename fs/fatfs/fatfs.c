@@ -6,7 +6,7 @@
 #define pr_fmt(fmt) "fatfs: " fmt
 
 #include <mm.h>
-#include <init/initcall.h>
+#include <initcall.h>
 #include <fs.h>
 
 #include "ff.h"

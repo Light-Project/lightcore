@@ -6,13 +6,12 @@
 #define pr_fmt(fmt) "pci: " fmt
 
 #include <mm.h>
-#include <init/initcall.h>
+#include <initcall.h>
 #include <driver/pci.h>
 #include <printk.h>
 
 #include <asm/io.h>
 
-/* PCI host bridge listhead */
 static LIST_HEAD(host_list);
 
 /**
@@ -20,7 +19,7 @@ static LIST_HEAD(host_list);
  * @defgroup: pci_resource_set
  */
 static __always_inline
-enum res_type pci_res_type(uint32_t bar)
+enum resource_type pci_res_type(uint32_t bar)
 {
     if ((bar & PCI_BASE_ADDRESS_SPACE) == PCI_BASE_ADDRESS_SPACE_IO)
         return RESOURCE_PMIO;
@@ -53,7 +52,6 @@ uint64_t pci_res_size(uint64_t base, uint64_t size, uint64_t mask)
 /**
  * pci_resource_set - Setting one resource through pci bar
  * @defgroup: pci_resource_setup
- *
  */
 static int pci_resource_set(struct pci_device *pdev, enum pci_bar_type type,
                     struct resource *res, unsigned int reg)
@@ -111,14 +109,14 @@ static int pci_resource_set(struct pci_device *pdev, enum pci_bar_type type,
         goto error;
 
     res->start = l64;
-    res->end = l64 + sz64 - 1;
+    res->size = sz64;
 
     goto exit;
 
 error:
     res->type = RESOURCE_NONE;
 exit:
-    return (res->type & RESOURCE_MMIO64) ? 1 : 0;
+    return (res->type == RESOURCE_MMIO64) ? 1 : 0;
 }
 
 /**
@@ -126,7 +124,6 @@ exit:
  * @defgroup: pci_device_setup
  * @pdev: pci device to set
  * @nr: bar number
- *
  */
 static void pci_resource_setup(struct pci_device *pdev, int nr, int rom)
 {
@@ -145,10 +142,33 @@ static void pci_resource_setup(struct pci_device *pdev, int nr, int rom)
     }
 }
 
+static void pci_subsystem_setup(struct pci_device *pdev)
+{
+    uint32_t val;
+
+    /* Setup subsystem-vendor */
+    val = pci_config_readw(pdev, PCI_SUBSYSTEM_VENDOR_ID);
+    pdev->subvendor = val;
+
+    /* Setup subsystem-id */
+    val = pci_config_readw(pdev, PCI_SUBSYSTEM_ID);
+    pdev->subdevice = val;
+}
+
+static void pci_irq_setup(struct pci_device *pdev)
+{
+    uint8_t val;
+
+    val = pci_config_readb(pdev, PCI_INTERRUPT_PIN);
+    pdev->pin = val;
+
+    val = pci_config_readb(pdev, PCI_INTERRUPT_LINE);
+    pdev->irq = val;
+}
+
 /**
  * pci_device_setup - Setup pci device information
  * @defgroup: pci_scan_add_device
- *
  */
 static state pci_device_setup(struct pci_device *pdev)
 {
@@ -169,17 +189,13 @@ static state pci_device_setup(struct pci_device *pdev)
     /* Setup resource form bar */
     if (pdev->head == PCI_HEADER_TYPE_NORMAL){
         pci_resource_setup(pdev, 6, PCI_ROM_ADDRESS);
-
-        /* Setup subsystem-vendor */
-        val = pci_config_readw(pdev, PCI_SUBSYSTEM_VENDOR_ID);
-        pdev->subvendor = val;
-
-        /* Setup subsystem-id */
-        val = pci_config_readw(pdev, PCI_SUBSYSTEM_ID);
-        pdev->subdevice = val;
-
+        pci_subsystem_setup(pdev);
+        pci_irq_setup(pdev);
     } else if (pdev->head == PCI_HEADER_TYPE_BRIDGE) {
         pci_resource_setup(pdev, 2, PCI_ROM_ADDRESS1);
+    } else {
+        pr_warn("unknown head type %x\n", pdev->head);
+        return -EIO;
     }
 
     return -ENOERR;
@@ -228,6 +244,7 @@ static state pci_scan_device(struct pci_bus *bus, uint32_t devfn,
 {
     struct pci_device *dev;
     uint32_t val;
+    state retval;
 
     /* Check whether the device exists */
     val = pci_bus_config_readl(bus, devfn, PCI_VENDOR_ID);
@@ -244,8 +261,11 @@ static state pci_scan_device(struct pci_bus *bus, uint32_t devfn,
     dev->vendor = val & 0xffff;
     dev->device = (val >> 16) & 0xffff;
 
-    if (pci_device_setup(dev))
+    retval = pci_device_setup(dev);
+    if (retval) {
         kfree(dev);
+        return retval;
+    }
 
     *sdev = dev;
     return -ENOERR;
@@ -281,7 +301,7 @@ static state pci_scan_add_device(struct pci_bus *bus, uint32_t devfn)
     return -ENOERR;
 }
 
-static uint16_t fn_next(struct pci_bus *bus, uint32_t devfn)
+static uint16_t pci_next_fn(struct pci_bus *bus, uint32_t devfn)
 {
     // uint32_t val;
     // val = pci_bus_config_readl(bus, devfn, PCI_ARI_CAP);
@@ -290,7 +310,7 @@ static uint16_t fn_next(struct pci_bus *bus, uint32_t devfn)
 }
 
 /**
- * pci_scan_slot - Scan a slot
+ * pci_scan_slot - Scan a pci slot
  * @bus: PCI bus to scan
  * @slot: slot number to scan
  */
@@ -304,8 +324,8 @@ static state pci_scan_slot(struct pci_bus *bus, uint8_t slot)
     if (ret)
         return ret;
 
-    for (fn = fn_next(bus, PCI_DEVFN(slot, 0)); fn < 8;
-         fn = fn_next(bus, PCI_DEVFN(slot, fn))) {
+    for (fn = pci_next_fn(bus, PCI_DEVFN(slot, 0)); fn < 8;
+         fn = pci_next_fn(bus, PCI_DEVFN(slot, fn))) {
         ret = pci_scan_add_device(bus, PCI_DEVFN(slot, fn));
     }
 

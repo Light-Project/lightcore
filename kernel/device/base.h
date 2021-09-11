@@ -21,7 +21,6 @@ void bus_device_remove(struct device *drv);
 state bus_driver_add(struct driver *drv);
 void bus_driver_remove(struct driver *dev);
 
-
 /* Platform device tree interactive */
 void platform_dt_init(void);
 

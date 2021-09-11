@@ -11,6 +11,7 @@ extern struct pde page_dir[1024];
 #define pte_index(va) (((va) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
 #define pde_index(va) ((va) >> PGDIR_SHIFT)
 
+state arch_page_map(size_t pa, size_t va, size_t size);
 void arch_page_setup(void);
 
 #endif  /* _ASM_X86_PGTABLE_H_ */

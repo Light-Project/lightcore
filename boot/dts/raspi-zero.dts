@@ -1,0 +1,16 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
+/dts-v1/;
+#include "broadcom/bcm2835.dtsi"
+
+/ {
+    model = "Raspberry Pi Zero";
+
+    memory@0 {
+        device_type = "memory";
+        reg = <0 0x20000000>;
+    };
+};

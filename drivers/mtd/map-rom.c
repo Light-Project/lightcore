@@ -2,11 +2,11 @@
 /**
  * mtd read-only memory
  */
-#include <init/initcall.h>
+#include <initcall.h>
 #include <driver/platform.h>
 #include <driver/mtd.h>
 
-static map_rom_read(struct mtd_device *mdev, loff_t src, 
+static map_rom_read(struct mtd_device *mdev, loff_t src,
                 uchar *buff, size_t len, size_t *rlen)
 {
     *rlen = min(mdev->size, src + len);

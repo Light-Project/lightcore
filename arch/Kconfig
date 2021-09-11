@@ -37,7 +37,6 @@ prompt "Architecture Select"
     select ARCH_32BIT
     select ARCH_HAS_RELOCATABLE
     select ARCH_HAS_MMU
-    select ARCH_HAS_PRE_PRINTK
     select ARCH_HAS_DMA
     select ARCH_HAS_HIMEM
     select ARCH_HAS_KASLR
@@ -48,7 +47,6 @@ prompt "Architecture Select"
     select ARCH_64BIT
     select ARCH_HAS_RELOCATABLE
     select ARCH_HAS_MMU
-    select ARCH_HAS_PRE_PRINTK
     select ARCH_HAS_DMA
     select ARCH_HAS_DMA32
     select ARCH_HAS_HIMEM
@@ -98,12 +96,6 @@ config ARCH_HAS_DMA32
     bool
 config ARCH_HAS_HIMEM
     bool
-
-# pre-printk
-config ARCH_HAS_PRE_PRINTK
-    bool
-    help
-        The architecture implements pre-printk func
 
 # Security configuration
 config ARCH_HAS_KASLR

@@ -1,0 +1,11 @@
+menuconfig UART_8250
+    bool "UART8250 support"
+if UART_8250
+
+config UART_8250_ISA
+    bool "8250 ISA support"
+
+endif
+
+config UART_8250_CON
+    bool "Devicetree based probing for 8250 ports"

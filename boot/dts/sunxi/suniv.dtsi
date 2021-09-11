@@ -1,0 +1,255 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#include <dt-bindings/clk/suniv.h>
+
+/ {
+    #address-cells = <1>;
+    #size-cells = <1>;
+    model = "Allwinner F-series (suniv) SoCs";
+    interrupt-parent = <&intc>;
+
+    clocks {
+        osc24M: clk-24M {
+            #clock-cells = <0>;
+            compatible = "fixed-clock";
+            clock-frequency = <24000000>;
+            clock-output-names = "osc24M";
+        };
+
+        osc32k: clk-32k {
+            #clock-cells = <0>;
+            compatible = "fixed-clock";
+            clock-frequency = <32768>;
+            clock-output-names = "osc32k";
+        };
+    };
+
+    soc {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        compatible = "amba-bus";
+		dma-ranges;
+		ranges;
+
+        system-controller@1c00000 {
+            compatible = "allwinner,suniv-sram";
+            reg = <0x01c00000 0x30>;
+        };
+
+        dma: dma-controller@1c02000 {
+            #dma-cells = <1>;
+            compatible = "allwinner,suniv-dma";
+            reg = <0x01c02000 0x1000>;
+            clocks = <&ccu SUNIV_CLK_DMA>;
+            resets = <&reset SUNIV_CLK_DMA>;
+        };
+
+        spi0: spi@1c05000 {
+            #address-cells = <1>;
+            #size-cells = <0>;
+            compatible = "allwinner,suniv-spi";
+            reg = <0x01c05000 0x1000>;
+            clocks = <&ccu SUNIV_CLK_SPI0>;
+            resets = <&reset SUNIV_CLK_SPI0>;
+        };
+
+        spi1: spi@1c06000 {
+            #address-cells = <1>;
+            #size-cells = <0>;
+            compatible = "allwinner,suniv-spi";
+            reg = <0x01c05000 0x1000>;
+            clocks = <&ccu SUNIV_CLK_SPI1>;
+            resets = <&reset SUNIV_CLK_SPI1>;
+        };
+
+        mmc0: mmc@1c0f000 {
+            compatible = "allwinner,suniv-mmc";
+            reg = <0x01c0f000 0x1000>;
+            clocks = <&ccu SUNIV_CLK_MMC0>;
+            resets = <&reset SUNIV_CLK_MMC0>;
+        };
+
+        mmc1: mmc@1c10000 {
+            compatible = "allwinner,suniv-mmc";
+            reg = <0x01c10000 0x1000>;
+            clocks = <&ccu SUNIV_CLK_MMC1>;
+            resets = <&reset SUNIV_CLK_MMC1>;
+        };
+
+        usb_otg: usb@1c19000 {
+            compatible = "allwinner,suniv-musb";
+            reg = <0x01c13000 0x1000>;
+            clocks = <&ccu SUNIV_CLK_OTG>;
+            resets = <&reset SUNIV_CLK_OTG>;
+        };
+
+        ccu: clock@1c20000 {
+            compatible = "allwinner,suniv-ccu";
+            reg = <0x01c20000 0x2c0>;
+            clocks = <&osc24M>, <&osc32k>;
+            clock-names = "hosc", "losc";
+            #clock-cells = <1>;
+        };
+
+        reset: reset@1c202c0 {
+            compatible = "allwinner,suniv-reset";
+            reg = <0x01c202c0 0x140>;
+            #reset-cells = <1>;
+        };
+
+        intc: interrupt-controller@1c20400 {
+            #interrupt-cells = <1>;
+            #address-cells = <0>;
+            compatible = "allwinner,suniv-intc";
+            reg = <0x01c20400 0x400>;
+            interrupt-controller;
+        };
+
+        pio: pinctrl@1c20800 {
+            #interrupt-cells = <3>;
+            #gpio-cells = <3>;
+            #address-cells = <0>;
+            compatible = "allwinner,suniv-pinctrl";
+            reg = <0x01c20800 0x400>;
+            clocks = <&ccu 37>, <&osc24M>, <&osc32k>;
+            clock-names = "apb", "hosc", "losc";
+            interrupts = <38>, <39>, <40>;
+            interrupt-names = "PIOD", "PIOE", "PIOF";
+            gpio-controller;
+            interrupt-controller;
+
+            uart0_pins: uart0-pins {
+                pins = "PE0", "PE1";
+                function = "uart0";
+            };
+        };
+
+        timer@1c20c00 {
+            compatible = "allwinner,suniv-timer";
+            reg = <0x01c20c00 0x90>;
+            interrupts = <13>;
+            clocks = <&osc24M>;
+        };
+
+        wdt: watchdog@1c20ca0 {
+            compatible = "allwinner,suniv-wdt";
+            reg = <0x01c20ca0 0x20>;
+            clocks = <&osc24M>;
+        };
+
+        pwm@1c21000 {
+            compatible = "allwinner,suniv-pwm";
+            reg = <0x01c21000 0x400>;
+            clocks = <&osc24M>;
+        };
+
+        spdif@1c21400 {
+            compatible = "allwinner,suniv-spdif";
+            reg = <0x01c21400 0x400>;
+            clocks = <&ccu SUNIV_CLK_OWA>;
+            resets = <&reset SUNIV_CLK_OWA>;
+        };
+
+        rsb@1c21800 {
+            compatible = "allwinner,suniv-rsb";
+            reg = <0x01c21800 0x400>;
+            clocks = <&ccu SUNIV_CLK_RSB>;
+            resets = <&reset SUNIV_CLK_RSB>;
+        };
+
+        i2s@1c22000 {
+            compatible = "allwinner,suniv-i2s";
+            reg = <0x01c22000 0x400>;
+            clocks = <&ccu SUNIV_CLK_DAUDIO>;
+            resets = <&reset SUNIV_CLK_DAUDIO>;
+        };
+
+        cir@1c22C00 {
+            compatible = "allwinner,suniv-cir";
+            reg = <0x01c22C00 0x400>;
+            clocks = <&ccu SUNIV_CLK_CIR>;
+            resets = <&reset SUNIV_CLK_CIR>;
+        };
+
+        adc@1c23400 {
+            compatible = "allwinner,suniv-adc";
+            reg = <0x01c23400 0x400>;
+        };
+
+        codec@1c23c00 {
+            compatible = "allwinner,suniv-codec";
+            reg = <0x01c23c00 0x400>;
+            clocks = <&ccu SUNIV_CLK_CODEC>;
+            resets = <&reset SUNIV_CLK_CODEC>;
+        };
+
+        tp@1c24800 {
+            compatible = "allwinner,suniv-tp";
+            reg = <0x01c24800 0x400>;
+        };
+
+        uart0: serial@1c25000 {
+            compatible = "snps,dw-apb-uart";
+            reg = <0x01c25000 0x400>;
+            interrupts = <1>;
+            reg-shift = <2>;
+            reg-io-width = <4>;
+            clocks = <&ccu SUNIV_CLK_UART0>;
+            resets = <&reset SUNIV_CLK_UART0>;
+            status = "disabled";
+        };
+
+        uart1: serial@1c25400 {
+            compatible = "snps,dw-apb-uart";
+            reg = <0x01c25400 0x400>;
+            interrupts = <2>;
+            reg-shift = <2>;
+            reg-io-width = <4>;
+            clocks = <&ccu SUNIV_CLK_UART1>;
+            resets = <&reset SUNIV_CLK_UART1>;
+            status = "disabled";
+        };
+
+        uart2: serial@1c25800 {
+            compatible = "snps,dw-apb-uart";
+            reg = <0x01c25800 0x400>;
+            interrupts = <3>;
+            reg-shift = <2>;
+            reg-io-width = <4>;
+            clocks = <&ccu SUNIV_CLK_UART2>;
+            resets = <&reset SUNIV_CLK_UART2>;
+            status = "disabled";
+        };
+
+        i2c0: i2c@1c27000 {
+            compatible = "allwinner,suniv-i2c";
+            reg = <0x01c27000 0x400>;
+            clocks = <&ccu SUNIV_CLK_TWI0>;
+            resets = <&reset SUNIV_CLK_TWI0>;
+            status = "disabled";
+        };
+
+        i2c1: i2c@1c27400 {
+            compatible = "allwinner,suniv-i2c";
+            reg = <0x01c27400 0x400>;
+            clocks = <&ccu SUNIV_CLK_TWI1>;
+            resets = <&reset SUNIV_CLK_TWI1>;
+            status = "disabled";
+        };
+
+        i2c2: i2c@1c27800 {
+            compatible = "allwinner,suniv-i2c";
+            reg = <0x01c27800 0x400>;
+            clocks = <&ccu SUNIV_CLK_TWI2>;
+            resets = <&reset SUNIV_CLK_TWI2>;
+            status = "disabled";
+        };
+
+        csi: csi@1cb0000 {
+            compatible = "allwinner,suniv-csi";
+            reg = <0x01cb0000 0x400>;
+            clocks = <&ccu SUNIV_CLK_CSI>;
+            resets = <&reset SUNIV_CLK_CSI>;
+            status = "disabled";
+        };
+    };
+};

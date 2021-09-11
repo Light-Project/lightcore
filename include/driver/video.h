@@ -41,5 +41,6 @@ struct video_device {
 };
 
 state video_register(struct video_device *);
+void video_unregister(struct video_device *);
 
 #endif

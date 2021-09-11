@@ -1,9 +1,18 @@
 
-#include <init/initcall.h>
+#include <initcall.h>
 #include <driver/platform.h>
 #include <driver/watchdog.h>
 
 LIST_HEAD(watchdog_list);
+
+void watchdog_daemon(void)
+{
+    struct watchdog_device *wdev;
+    list_for_each_entry(wdev, &watchdog_list, list) {
+        watchdog_feed(wdev);
+    }
+}
+
 
 state watchdog_register(struct watchdog_device *wdev)
 {
@@ -12,15 +21,6 @@ state watchdog_register(struct watchdog_device *wdev)
     return -ENOERR;
 }
 
-void watchdog_daemon(void)
-{
-    struct watchdog_device *wdev;
-    for(;;){
-        list_for_each_entry(wdev, &watchdog_list, list) {
-            watchdog_feed(wdev);
-        }
-    }
-}
 
 static __init state watchdog_init(void)
 {

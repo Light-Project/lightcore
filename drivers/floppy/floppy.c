@@ -14,8 +14,8 @@
 #include <bits.h>
 #include <mm.h>
 #include <delay.h>
-#include <init/initcall.h>
-#include <kernel/irq.h>
+#include <initcall.h>
+#include <irq.h>
 #include <driver/platform.h>
 #include <driver/block.h>
 #include <driver/floppy/floppy.h>
@@ -80,11 +80,11 @@ static inline void motor_power(int fdc, int dev, bool power)
         return;
 
     if(power) {
-        fdc_outb(fdc, FLOPPY_DIGITAL_OUTPUT_REGISTER, 
+        fdc_outb(fdc, FLOPPY_DIGITAL_OUTPUT_REGISTER,
                 val | (FLOPPY_DOR_MOTOR_A << dev));
         msleep(300); /* wait for stability */
     } else {
-        fdc_outb(fdc, FLOPPY_DIGITAL_OUTPUT_REGISTER, 
+        fdc_outb(fdc, FLOPPY_DIGITAL_OUTPUT_REGISTER,
                 val & ~(FLOPPY_DOR_MOTOR_A << dev));
     }
 }
@@ -152,7 +152,7 @@ retry:
         timeout = 50;
 
         while(--timeout) {
-            val = fdc_inb(fdc, FLOPPY_MAIN_STATUS_REGISTER) & 
+            val = fdc_inb(fdc, FLOPPY_MAIN_STATUS_REGISTER) &
                 (FLOPPY_MSR_RQM | FLOPPY_MSR_DIO);
             if(val == FLOPPY_MSR_RQM)
                 break;
@@ -177,11 +177,11 @@ wait:
             fdc_reset(fdc);
             goto retry;
         }
-    } 
-    
+    }
+
     if(cmd->type & CMD_PIO) {
         while(--timeout) {
-            val = fdc_inb(fdc, FLOPPY_MAIN_STATUS_REGISTER) & 
+            val = fdc_inb(fdc, FLOPPY_MAIN_STATUS_REGISTER) &
                 (FLOPPY_MSR_RQM | FLOPPY_MSR_NDMA);
             if(val == (FLOPPY_MSR_RQM | FLOPPY_MSR_NDMA))
                 break;
@@ -214,7 +214,7 @@ out:
         timeout = 50;
 
         while(--timeout) {
-            val = fdc_inb(fdc, FLOPPY_MAIN_STATUS_REGISTER) & 
+            val = fdc_inb(fdc, FLOPPY_MAIN_STATUS_REGISTER) &
                 (FLOPPY_MSR_RQM | FLOPPY_MSR_DIO | FLOPPY_MSR_NDMA | FLOPPY_MSR_CB);
             if(val & FLOPPY_MSR_RQM)
                 break;
@@ -233,7 +233,7 @@ out:
             break;
     }
 
-    val = fdc_inb(fdc, FLOPPY_MAIN_STATUS_REGISTER) & 
+    val = fdc_inb(fdc, FLOPPY_MAIN_STATUS_REGISTER) &
     (FLOPPY_MSR_RQM | FLOPPY_MSR_DIO | FLOPPY_MSR_NDMA | FLOPPY_MSR_CB);
     if(FLOPPY_MSR_RQM != val) {
         fdc_reset(fdc);
@@ -284,7 +284,7 @@ static enum floppy_version floppy_version(int fdc)
     cmd.rxlen = 16;
     cmd.txcmd[0] = FLOPPY_COMMAND_DUMPREG;
     ret = floppy_transmit(fdc, &cmd);
-    
+
     if(ret || (cmd.replen <= 0))
         return FDC_NONE;
 
@@ -297,7 +297,7 @@ static enum floppy_version floppy_version(int fdc)
         pr_info("FDC%d DUMPREGS: return of %d bytes.\n", fdc, cmd.replen);
         return FDC_UNKNOWN;
     }
-        
+
     memset(&cmd, 0, sizeof(cmd));
     cmd.txlen = 1;
     cmd.rxlen = 16;
@@ -319,7 +319,7 @@ static enum floppy_version floppy_version(int fdc)
         pr_info("FDC%d version pre 82077\n", fdc);
         return FDC_82077_ORIG;
     }
-        
+
     if((cmd.replen != 1) && (cmd.rxcmd[0] != 0x00)) {
         pr_info("FDC%d UNLOCK: return of %d bytes.\n", fdc, cmd.replen);
         return FDC_UNKNOWN;
@@ -355,7 +355,7 @@ static enum floppy_version floppy_version(int fdc)
             pr_info("FDC%d version PC87306\n", fdc);
             return FDC_82078;
     }
-    
+
     pr_info("FDC%d version 82078 variant %d\n", fdc, cmd.rxcmd[0] >> 5);
 	return FDC_82078_UNKN;
 }
@@ -367,12 +367,11 @@ static state floppy_probe(struct platform_device *pdev)
     // bdev = kmalloc(sizeof(*bdev), GFP_KERNEL);
     // // block_device_register(bdev);
 
-    return -ENOERR; 
+    return -ENOERR;
 }
 
-static state floppy_remove(struct platform_device *pdev)
+static void floppy_remove(struct platform_device *pdev)
 {
-    return -ENOERR;
 }
 
 static struct platform_device_id floppy_id[] = {
@@ -392,7 +391,7 @@ static struct platform_driver floppy_driver = {
 static int floppy_scan_driver(int fdc)
 {
     int driver = 0;
-    
+
     /* Register device */
     floppy_device[fdc][driver].name = DRIVER_NAME;
     floppy_device[fdc][driver].id = driver;
@@ -404,9 +403,9 @@ static int floppy_scan_driver(int fdc)
 static int floppy_scan_fdc(int fdc)
 {
     int count, driver;
- 
+
     fdc_info[fdc].base = fdc_base[fdc];
-    
+
     irq_request(FLOPPY_IRQ, 0, floppy_interrupt, NULL, DRIVER_NAME);
 
     if(!(fdc_info[fdc].version = floppy_version(fdc)))

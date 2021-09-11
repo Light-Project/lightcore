@@ -2,39 +2,48 @@
 #ifndef _CONSOLE_H_
 #define _CONSOLE_H_
 
-#include <slist.h>
+#include <types.h>
+#include <bits.h>
+#include <state.h>
+#include <list.h>
 
-#define CON_PRINTBUFFER	(1)
-#define CON_CONSDEV 	(2) /* Preferred console, /dev/console */
-#define CON_ENABLED	    (4)
-#define CON_BOOT	    (8)
-#define CON_ANYTIME	    (16) /* Safe to call when cpu is offline */
-#define CON_BRL		    (32) /* Used for a braille device */
-#define CON_EXTENDED	(64) /* Use the extended output format a la /dev/kmsg */
+#define CONSOLE_ENABLED BIT(0)
+#define CONSOLE_BOOT    BIT(1)
+#define CONSOLE_BUFFER  BIT(2)
+#define CONSOLE_CONSDEV BIT(3)
+#define CONSOLE_ANYTIME	BIT(4)
 
-typedef struct console {
-    char    name[16];
-    slist_t list;       /* console slist */
-    
-    int     (*setup)(struct console *, char *);                 /* entry console */
-    int     (*exit)(struct console *);                          /* exit console */
-    int     (*read)(struct console *, char *, unsigned);        /* console receive */
-    void    (*write)(struct console *, const char *, unsigned); /* console sent */
-    
-    uint16_t    enable:1;
-    uint16_t    boot:1;
+struct console {
+    const char *name;
+    unsigned int index;
+    struct list_head list;
+    struct console_ops *ops;
+    uint8_t flags;
+    void *data;
+};
 
-    short   index;
-    void    *data;  /* Private data */
-} console_t; 
+struct console_ops {
+    void (*read)(struct console *, char *, unsigned);
+    void (*write)(struct console *, const char *, unsigned);
+    state (*startup)(struct console *);
+    void (*shutdown)(struct console *);
+};
 
+/* pre console */
+#ifdef CONFIG_PRE_PRINTK
+void pre_console_write(const char *str, unsigned int len);
+void pre_console_register(struct console *con);
+void pre_printk_init(void);
+#else
+static inline void pre_console_write(const char *str, unsigned int len) {}
+static inline void pre_console_register(struct console *con) {}
+static inline void pre_printk_init(void) {}
+#endif
+
+/* console */
 void console_write(const char *str, unsigned int len);
-
-void console_lock(void);
-void console_unlock(void);
-
-void console_register(console_t *);
-void console_unregister(console_t *);
+void console_register(struct console *);
+void console_unregister(struct console *);
 void console_init(void);
 
-#endif
+#endif  /* _CONSOLE_H_ */

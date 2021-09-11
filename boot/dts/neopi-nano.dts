@@ -1,0 +1,32 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
+/dts-v1/;
+#include "sunxi/suniv.dtsi"
+
+/ {
+    model = "NeoPi-Nano";
+
+    memory@80000000 {
+        device_type = "memory";
+        reg = <0x80000000 0x02000000>;
+    };
+
+    chosen {
+        bootargs = "init=/sbin/init";
+    };
+};
+
+&spi0 {
+    status = "disabled";
+
+    flash@0 {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        compatible = "mxicy,mx25l1606e";
+        reg = <0>;
+        spi-max-frequency = <40000000>;
+    };
+};

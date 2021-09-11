@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#ifndef _DEVICE_SOUND_H_
-#define _DEVICE_SOUND_H_
+#ifndef _DRIVER_SOUND_H_
+#define _DRIVER_SOUND_H_
 
 #include <device.h>
 

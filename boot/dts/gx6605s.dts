@@ -9,7 +9,7 @@
     #address-cells = <1>;
     #size-cells = <1>;
     model = "C-SKY gx6605s";
-    
+
     clocks {
         dummy_apb: apb-clock {
             #clock-cells = <0>;
@@ -17,7 +17,7 @@
             clock-frequency = <27000000>;
         };
     };
-    
+
     memory@10000000 {
         device_type = "memory";
         reg = <0x10000000 0x04000000>;
@@ -54,7 +54,7 @@
             reg-shift = <2>;
             reg-io-width = <1>;
         };
-        
+
         intc: interrupt-controller@500000 {
             #interrupt-cells = <1>;
             #address-cells = <0>;
@@ -86,7 +86,7 @@
             reg = <0x04800000 0x1000>;
         };
     };
-    
+
     chosen {
         bootargs = "root=/dev/sda1 init=/sbin/init";
     };

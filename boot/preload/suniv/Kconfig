@@ -1,41 +1,40 @@
-menu "Sunxif1 bootloader config"
-depends on BOOTLOADER_ENABLE
-depends on CHIP_SUNXIF1
-    
-    choice BOOTLOADER_BOOT_MODE
-    prompt "Choice Sunxif1 boot media"
-    default BOOTLOADER_BOOT_MODE_NOR
-    
-        config BOOTLOADER_BOOT_MODE_NOR
-        bool "boot from Norflash"
-        
-        config BOOTLOADER_BOOT_MODE_SD
-        bool "boot from sdcard"
-    
-    endchoice
-    
-    menu "chip clock system"
-        config BOOTLOADER_CPU_CLK
-        int "CPU frequency"
-        default 800000000
-        
-        config BOOTLOADER_SYS_CLK
-        int "System-Bus frequency"
-        default 480000000
-        
-        config BOOTLOADER_DDR_CLK
-        int "DDR frequency"
-        default 240000000
-        
-        config BOOTLOADER_SPI_CLK
-        int "norflash frequency"
-        default 300000
-        
-        config BOOTLOADER_UART_CLK
-        int "Sys-Uart frequency"
-        default 115200
-    endmenu
+if CHIP_SUNIV
+comment "Suniv bootloader config"
 
+config PRELOAD_CPU_CLK
+    int "cpu clock speed"
+    range 200 800
+    default 480
+    help
+        Too high frequency will make the FEL unavailable
+
+config PRELOAD_BUS_CLK
+    int "bus clock speed"
+    range 150 300
+    default 200
+    help
+        Too low a frequency will make bus unavailable
+
+config PRELOAD_DRAM_CLK
+    int "dram clock speed"
+    range 24 480
+    default 312
+
+config PRELOAD_SPI_CLK
+    int "norflash clock speed"
+    default 20
+
+config PRELOAD_MMC
+    bool "Support boot from mmc (JTAG not available)"
+    default y
     
-endmenu
- 
+config PRELOAD_MMC_CLK
+    int "mmc clock speed"
+    depends on PRELOAD_MMC
+    default 20
+    
+config PRELOAD_UART_CLK
+    int "serial clock speed"
+    default 115200
+
+endif

@@ -5,7 +5,7 @@
 
 #include <string.h>
 #include <mm.h>
-#include <kernel/irq.h>
+#include <irq.h>
 #include <driver/irqchip.h>
 #include <printk.h>
 
@@ -29,19 +29,11 @@ state irq_request(irqnr_t vector, enum irq_flags flags,
 
     irq_map[vector].name = name;
     irq_map[vector].handler = handler;
-    
-    irqchip_pass(vector);
 
     return -ENOERR;
 }
 
-void irq_free(irqnr_t nr)
+void irq_free(irqnr_t vector)
 {
-    
-}
-
-
-void irq_enable(irqnr_t nr)
-{
-
+    irq_map[vector].handler = NULL;
 }

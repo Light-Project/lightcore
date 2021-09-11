@@ -1,9 +1,4 @@
-
-
-void cpu_online_set()
-{
-    
-    
-}
-
-void cpu_offline_set
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */

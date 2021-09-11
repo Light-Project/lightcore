@@ -1,1 +1,9 @@
- 
+menu "sched setup"
+
+config SCHED_FIFO
+    bool "FIFO scheduler support"
+
+config SCHED_DEADLINE
+    bool "Deadline scheduler support"
+
+endmenu

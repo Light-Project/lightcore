@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
-#ifndef _ASM_REGS_H_
-#define _ASM_REGS_H_
+#ifndef _ASM_CSKY_REGS_H_
+#define _ASM_CSKY_REGS_H_
 
 #include <types.h>
 #include <arch/csky/regs.h>
@@ -8,16 +8,16 @@
 #ifndef __ASSEMBLY__
 
 #ifdef CONFIG_CSKY_ABIV1
-struct regs {
-    uint32_t    tls;
-    uint32_t    pc, lr;
-    uint32_t    sp, psr;
 
-    uint32_t    a2, a3, a4;
-    uint32_t    a5, a6, a7;
-    uint32_t    a1, a8, a9;
-    uint32_t    a10, a11, a12;
-    uint32_t    a13, a14;
+struct regs {
+    uint32_t    psr, sp;
+    uint32_t    lr, pc;
+
+    uint32_t    r1, r2, r3;
+    uint32_t    r4, r5, r6;
+    uint32_t    r7, r8, r9;
+    uint32_t    r10, r11, r12;
+    uint32_t    r13, r14;
 };
 
 #define cprcr(reg) ({       \

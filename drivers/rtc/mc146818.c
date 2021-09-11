@@ -4,7 +4,7 @@
 #include <asm/proc.h>
 #include <mm.h>
 #include <driver/rtc.h>
-#include <init/initcall.h>
+#include <initcall.h>
 #include <driver/platform.h>
 #include <driver/rtc/mc146818.h>
 
@@ -63,7 +63,7 @@ static state mc146818_gettime(struct device *dev, struct rtc_time *time)
 static state mc146818_settime(struct device *dev, struct rtc_time *time)
 {
 	unsigned int year, mon, day, hour, min, sec;
-    
+
     sec = time->tm_sec;
     min = time->tm_min;
     hour = time->tm_hour;
@@ -88,19 +88,19 @@ static state mc146818_settime(struct device *dev, struct rtc_time *time)
     mc146818_write(MC146818_Month, year);
     mc146818_write(MC146818_Year, year);
 
-    return -ENOERR; 
+    return -ENOERR;
 }
 
 static state mc146818_getalarm(struct device *dev, struct rtc_alarm *alarm)
 {
 
-    return -ENOERR; 
+    return -ENOERR;
 }
 
 static state mc146818_setalarm(struct device *dev, struct rtc_alarm *alarm)
 {
 
-    return -ENOERR; 
+    return -ENOERR;
 }
 
 
@@ -128,10 +128,10 @@ out:
     return -ENOMEM;
 }
 
-static state mc146818_remove(struct platform_device *dev)
+static void mc146818_remove(struct platform_device *dev)
 {
     struct rtc_device *mc146818_dev = platform_get_devdata(dev);
-    return rtc_unregister(mc146818_dev);
+    rtc_unregister(mc146818_dev);
 }
 
 static struct platform_driver mc146818_driver = {

@@ -1,11 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-#
-# Makefile for Memory manager
-
-obj-$(CONFIG_MMU) += page/
-obj-y += kmem/
-
-obj-y += ioremap.o
-obj-y += memblock.o
-obj-y += memtest.o
-obj-y += init.o
+obj-y += init.o memblock.o kmem/
+obj-y += region.o model.o
+obj-y += page.o vmem.o highmem.o ioremap.o
+obj-$(CONFIG_MEMTEST) += memtest.o

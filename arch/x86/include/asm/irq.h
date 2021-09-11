@@ -9,14 +9,14 @@
 
 enum isa_vector {
     I8253_IRQ       = IRQ_EXTERNAL + 0x00,  // System Timer
-    PIC2_IRQ        = IRQ_EXTERNAL + 0x01,  // Keyboard
-    I8042_IRQ       = IRQ_EXTERNAL + 0x02,  // PIC 2
+    I8042_IRQ       = IRQ_EXTERNAL + 0x01,  // Keyboard
+    PIC2_IRQ        = IRQ_EXTERNAL + 0x02,  // PIC 2
     COM24_IRQ       = IRQ_EXTERNAL + 0x03,  // COM 2 and 4
     COM13_IRQ       = IRQ_EXTERNAL + 0x04,  // COM 1 and 3
     SND_IRQ         = IRQ_EXTERNAL + 0x05,  // Sound, Parallel port 2
     FLOPPY_IRQ      = IRQ_EXTERNAL + 0x06,  // Floppy
     PPC_IRQ         = IRQ_EXTERNAL + 0x07,  // Parallel Port 1
-    RTC_IRQ         = IRQ_EXTERNAL + 0x08,  // Real-time clock  
+    RTC_IRQ         = IRQ_EXTERNAL + 0x08,  // Real-time clock
     NETWORK_IRQ     = IRQ_EXTERNAL + 0x09,  // Redirected IRQ 2, Open, Network Available
 };
 

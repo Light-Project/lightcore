@@ -6,7 +6,7 @@
 #define DRIVER_NAME "i386pci"
 
 #include <mm.h>
-#include <init/initcall.h>
+#include <initcall.h>
 #include <driver/platform.h>
 #include <driver/pci.h>
 
@@ -14,12 +14,12 @@
 
 static state pci_config_read(struct pci_bus *bus, uint devfn, uint reg, int size, uint32_t *val)
 {
-    uint32_t addr = (1 << 31) | (bus->bus_nr << 16) | (PCI_SLOT(devfn) << 11) | 
+    uint32_t addr = (1 << 31) | (bus->bus_nr << 16) | (PCI_SLOT(devfn) << 11) |
                     (PCI_FUNC(devfn)<<8) | reg;
 
     /* Use North Bridge Port */
     outl(0x0cf8, addr);
-    
+
     if (size == 1)
         *val = inb(0x0cfc);
     else if (size == 2)
@@ -32,7 +32,7 @@ static state pci_config_read(struct pci_bus *bus, uint devfn, uint reg, int size
 
 static state pci_config_write(struct pci_bus *bus, uint devfn, uint reg, int size, uint32_t val)
 {
-    uint32_t addr = (1 << 31) | (bus->bus_nr << 16) | (PCI_SLOT(devfn) << 11) | 
+    uint32_t addr = (1 << 31) | (bus->bus_nr << 16) | (PCI_SLOT(devfn) << 11) |
                     (PCI_FUNC(devfn)<<8) | reg;
 
     /* Use North Bridge Port */

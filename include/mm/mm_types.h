@@ -12,10 +12,13 @@ struct slob_page {
 };
 
 struct page {
-    uint32_t sparce_nr:8;
-    uint32_t order:4;
     uint32_t region_type:3;
+    uint32_t order:4;
     uint32_t free:1;
+
+#ifdef CONFIG_SPARCEMEM
+    uint32_t sparce_nr:8;
+#endif
 
     union {
         struct {
@@ -28,6 +31,12 @@ struct page {
 struct page_free {
     struct list_head list;  /* free page list */
     size_t free_nr;         /* free page number */
+};
+
+struct uvm_area {
+    size_t addr;    /* virtual start address */
+    size_t size;    /* virtual allocation size */
+    struct list_head list;
 };
 
 #endif  /* _MM_PAGE_DEF_H_ */

@@ -1,10 +1,28 @@
 menuconfig PRELOAD
     bool "Builtin preload(Replace bootloader)"
-    
 if PRELOAD
 
-source "boot/preload/suniv/Kconfig"
+choice
+    prompt "Chip platform selection"
+
+config CHIP_SUNIV
+    bool "Allwinner F-series SoCs support"
     
+config CHIP_X86
+    depends on ARCH_X86
+    bool "X86"
+
+config CHIP_ESP32
+    depends on ARCH_XTENSA
+    bool "esp32"
+            
+config CHIP_ESP8266
+    depends on ARCH_XTENSA
+    bool "esp8266"
+            
+endchoice
+
+source "boot/preload/suniv/Kconfig"    
 source "boot/preload/bios/Kconfig"
 
 endif

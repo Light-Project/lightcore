@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#ifndef _MM_KMEM_H_ 
+#ifndef _MM_KMEM_H_
 #define _MM_KMEM_H_
 
 #include <list.h>
-#include <kernel/spinlock.h>
+#include <spinlock.h>
 #include <mm/slob.h>
 #include <mm/gfp.h>
 

@@ -1,0 +1,9 @@
+menuconfig SPI
+    bool "SPI support"
+if SPI
+
+config SPI_SUNIV
+    bool "Allwinner F-series SPI support"
+
+endif
+    

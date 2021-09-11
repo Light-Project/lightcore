@@ -1,9 +1,13 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
 #include <fs.h>
 #include <string.h>
 #include <export.h>
 
-static LIST_HEAD(filesystem_list);
+LIST_HEAD(filesystem_list);
 
 struct fs_type *filesystem_find(const char *name)
 {
@@ -36,10 +40,3 @@ void filesystem_unregister(struct fs_type *fs)
     list_del(&fs->list);
 }
 EXPORT_SYMBOL(filesystem_unregister);
-
-long sys_sysfs(int ops, unsigned long arg1, unsigned long arg2)
-{
-    state ret = -EINVAL;
-
-    return ret;
-}

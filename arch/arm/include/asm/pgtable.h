@@ -9,5 +9,6 @@
 #define pde_index(va) ((va) >> PGDIR_SHIFT)
 
 void arch_page_setup(void);
+state arch_page_map(size_t pa, size_t va, size_t size);
 
 #endif  /* _ASM_X86_PGTABLE_H_ */

@@ -1,10 +1,10 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+obj-y += libc/ font/
+
 obj-$(CONFIG_ACPI) += acpica/
 obj-$(CONFIG_DT) += fdt/
-obj-y += math/ font/ libc/
 
 obj-y += crc.o
-obj-y += hash.o
-
 obj-y += list.o
 # obj-y += hlist.o
 obj-y += kfifo.o

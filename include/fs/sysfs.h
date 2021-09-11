@@ -1,9 +1,9 @@
 
-#include <kernel/kobject.h>
+#include <kobject.h>
 
 #ifdef CONFIG_SYSFS
 
-#else 
+#else
 
 static inline int sysfs_dir_create_ns(struct kobject *kobj, const void *ns)
 {
@@ -11,7 +11,7 @@ static inline int sysfs_dir_create_ns(struct kobject *kobj, const void *ns)
 }
 
 static inline void sysfs_dir_remove_ns(struct kobject *kobj)
-{    
+{
 }
 
 static inline int sysfs_dir_rename_ns(struct kobject *kobj, struct kobject *new_name, const void *new_ns)

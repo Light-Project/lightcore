@@ -1,4 +1,4 @@
-#include <init/initcall.h>
+#include <initcall.h>
 #include <font.h>
 
 static const char fontdata_7x14[] = {
@@ -4108,7 +4108,7 @@ static struct font font_7x14 = {
 
 static state font_7x14_install(void)
 {
-    return font_register((struct font *)&font_7x14); 
+    return font_register((struct font *)&font_7x14);
 }
 
 console_initcall(font_7x14_install);

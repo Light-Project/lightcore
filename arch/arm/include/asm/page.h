@@ -8,10 +8,6 @@
 #define PAGE_SIZE       (_AC(1,UL) << PAGE_SHIFT)
 #define PAGE_MASK       (~(PAGE_SIZE - 1))
 
-#define SECTION_SHIFT   20
-#define SECTION_SIZE    (_AC(1,UL) << SECTION_SHIFT)
-#define SECTION_MASK    (~(SECTION_SIZE - 1))
-
 #define THREAD_SHIFT    (PAGE_SHIFT + 1)
 #define THREAD_SIZE     (_AC(1,UL) << THREAD_SHIFT)
 #define THREAD_MASK     (~(THREAD_SIZE - 1))
@@ -25,11 +21,14 @@
 #define VIRTS_MASK      (~(VIRTS_SHIFT - 1))
 
 #define PGDIR_SHIFT     20
-#define COARSE_SHIFT    12
-#define PTRS_PER_PGD    4096
-#define PTRS_PER_PTE    256
+#define PGDIR_SIZE      (_AC(1,UL) << PGDIR_SHIFT)
+#define PGDIR_MASK      (~(PGDIR_SHIFT - 1))
 
-#define SPARCE_SHIFT    24
+#define PGDIR_COARSE_SHIFT  10
+#define PTRS_PER_PGD        4096
+#define PTRS_PER_PTE        256
+
+#define SPARCE_SHIFT        24
 
 #ifndef __ASSEMBLY__
 

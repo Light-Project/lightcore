@@ -253,10 +253,8 @@ __weak size_t strspn(const char *s, const char *accept)
     const char *a;
     size_t count = 0;
 
-    for (p = s; *p != '\0'; ++p)
-    {
-        for (a = accept; *a != '\0'; ++a)
-        {
+    for (p = s; *p != '\0'; ++p) {
+        for (a = accept; *a != '\0'; ++a) {
             if (*p == *a)
                 break;
         }
@@ -264,6 +262,7 @@ __weak size_t strspn(const char *s, const char *accept)
             return count;
         ++count;
     }
+
     return count;
 }
 EXPORT_SYMBOL(strspn);
@@ -274,15 +273,14 @@ __weak size_t strcspn(const char *s, const char *reject)
     const char *r;
     size_t count = 0;
 
-    for (p = s; *p != '\0'; ++p)
-    {
-        for (r = reject; *r != '\0'; ++r)
-        {
+    for (p = s; *p != '\0'; ++p) {
+        for (r = reject; *r != '\0'; ++r) {
             if (*p == *r)
                 return count;
         }
         ++count;
     }
+
     return count;
 }
 EXPORT_SYMBOL(strcspn);
@@ -291,10 +289,8 @@ __weak char *strpbrk(const char *s1, const char *s2)
 {
     const char *sc1, *sc2;
 
-    for (sc1 = s1; *sc1 != '\0'; ++sc1)
-    {
-        for (sc2 = s2; *sc2 != '\0'; ++sc2)
-        {
+    for (sc1 = s1; *sc1 != '\0'; ++sc1) {
+        for (sc2 = s2; *sc2 != '\0'; ++sc2) {
             if (*sc1 == *sc2)
                 return (char *)sc1;
         }
@@ -313,8 +309,7 @@ __weak char *strstr(const char *s1, const char *s2)
         return (char *)s1;
 
     l1 = strlen(s1);
-    while (l1 >= l2)
-    {
+    while (l1 >= l2) {
         l1--;
         if (!memcmp(s1, s2, l2))
             return (char *)s1;
@@ -349,11 +344,11 @@ __weak char *strdup(const char *s)
 {
     char *p;
 
-    if(!s)
+    if (!s)
         return NULL;
 
     p = kmalloc(strlen(s) + 1, GFP_KERNEL);
-    if(p)
+    if (p)
         return(strcpy(p, s));
 
     return NULL;
@@ -381,7 +376,7 @@ __weak char *strim(char *s)
 {
     char *e;
 
-    if(s) {
+    if (s) {
         while(isspace(*s))
             s++;
         if(*s == 0)
@@ -391,6 +386,7 @@ __weak char *strim(char *s)
             e--;
         *(e + 1) = 0;
     }
+
     return s;
 }
 EXPORT_SYMBOL(strim);
@@ -410,16 +406,16 @@ __weak void *memset(void *s, int c, size_t n)
 EXPORT_SYMBOL(memset);
 
 __weak void *memcpy(void *dest, const void*src, size_t len)
-{   
+{
     uint8_t *ndest = (uint8_t *)dest;
     uint8_t *nsrc = (uint8_t *)src;
 
-    if(ndest == NULL || nsrc == NULL || len == 0)
+    if (ndest == NULL || nsrc == NULL || len == 0)
         return NULL;
-    
-    while(len--)
+
+    while (len--)
         *ndest++ = *nsrc++;
-    
+
     return dest;
 }
 EXPORT_SYMBOL(memcpy);
@@ -429,14 +425,12 @@ __weak void *memmove(void *dest, const void *src, size_t n)
     char *tmp;
     const char *s;
 
-    if (dest <= src)
-    {
+    if (dest <= src) {
         tmp = dest;
         s = src;
         while (n--)
             *tmp++ = *s++;
-    }
-    else{
+    } else {
         tmp = dest;
         tmp += n;
         s = src;
@@ -444,6 +438,7 @@ __weak void *memmove(void *dest, const void *src, size_t n)
         while (n--)
             *--tmp = *--s;
     }
+
     return dest;
 }
 EXPORT_SYMBOL(memmove);
@@ -451,13 +446,10 @@ EXPORT_SYMBOL(memmove);
 __weak void *memchr(const void *s, int c, size_t n)
 {
     char *str = (char *)s;
+
     while (n-- != 0)
-    {
         if (c == *str++)
-        {
             return str - 1;
-        }
-    }
 
     return NULL;
 }
@@ -467,13 +459,13 @@ __weak void *memscan(void *addr, int c, size_t size)
 {
     unsigned char *p = addr;
 
-    while (size)
-    {
+    while (size) {
         if (*p == c)
             return (void *)p;
         p++;
         size--;
     }
+
     return (void *)p;
 }
 EXPORT_SYMBOL(memscan);
@@ -486,6 +478,7 @@ __weak int memcmp(const void *s1, const void *s2, size_t n)
     for (su1 = s1, su2 = s2; 0 < n; ++su1, ++su2, n--)
         if ((res = *su1 - *su2) != 0)
             break;
+
     return res;
 }
 EXPORT_SYMBOL(memcmp);

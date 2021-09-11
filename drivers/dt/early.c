@@ -4,7 +4,7 @@
  */
 
 #include <crc.h>
-#include <init/init.h> 
+#include <init/init.h>
 #include <mm/memblock.h>
 #include <driver/dt.h>
 #include <driver/dt/fdt.h>
@@ -63,7 +63,7 @@ static state __init dt_scan_memory(unsigned long node, const char *uname, int de
     const char *type = dt_get_prop(node, "device_type", NULL);
     const be32 *reg;
     int len;
-    
+
     /* Matching nodes */
     if (!type || strcmp(type, "memory"))
         return -EINVAL;
@@ -77,8 +77,8 @@ static state __init dt_scan_memory(unsigned long node, const char *uname, int de
 
         addr = dt_read(reg, dt_root_addr_cells);
         reg += dt_root_addr_cells;
-        size = dt_read(reg, dt_root_addr_cells);
-        reg += dt_root_addr_cells;
+        size = dt_read(reg, dt_root_size_cells);
+        reg += dt_root_size_cells;
 
         if (!size)
             continue;
@@ -102,9 +102,8 @@ state __init early_dt_scan(void *dt_start)
     /* Setup flat device-tree pointer */
     dt_start_addr = dt_start;
     dt_crc32 = crc32(dt_start_addr, fdt_totalsize(dt_start_addr), ~0);
-    
+
     dt_scan_node(dt_scan_chosen, boot_args);
-    
     dt_scan_node(dt_scan_root, NULL);
     dt_scan_node(dt_scan_memory, NULL);
 

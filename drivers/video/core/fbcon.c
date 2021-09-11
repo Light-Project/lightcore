@@ -28,7 +28,7 @@ state fbcon_register(struct video_device *vdev)
 }
 
 
-void __init fb_console_init()
+void __init fbcon_init()
 {
 }
 

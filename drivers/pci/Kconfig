@@ -2,5 +2,7 @@ menuconfig PCI
     bool "PCI support"
 if PCI
 
+config PCI_I386
+    bool "i386 PCI support"
 
 endif

@@ -1,20 +1,39 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
 #include <printk.h>
 #include <console.h>
 
-struct console *pre_console;
+static struct console *pre_console;
 
-void pre_printk(const char *str, ...)
+void pre_console_write(const char *str, unsigned int len)
+{
+    if(!pre_console)
+        return;
+    pre_console->ops->write(pre_console, str, len);
+}
+
+void pre_printk(const char *fmt, ...)
 {
     char buf[256];
     int len;
     va_list ap;
 
-    if(!pre_console)
-        return;
-
-    va_start(ap, str);
-    len = vsnprintf(buf, sizeof(buf), str, ap);
+    va_start(ap, fmt);
+    len = vsnprintf(buf, sizeof(buf), fmt, ap);
     va_end(ap);
 
-    pre_console->write(pre_console, buf, len);
+    pre_console_write(buf, len);
+}
+
+void pre_console_register(struct console *con)
+{
+    if (!pre_console)
+        pre_console = con;
+}
+
+void __weak pre_printk_init(void)
+{
 }

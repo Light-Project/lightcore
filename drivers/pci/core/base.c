@@ -6,7 +6,7 @@
 #include <driver/pci.h>
 #include <export.h>
 
-uint8_t pci_bus_config_readb(struct pci_bus *bus, 
+uint8_t pci_bus_config_readb(struct pci_bus *bus,
                             uint devfn, uint reg)
 {
     uint32_t val;
@@ -15,7 +15,7 @@ uint8_t pci_bus_config_readb(struct pci_bus *bus,
 }
 EXPORT_SYMBOL(pci_bus_config_readb);
 
-uint16_t pci_bus_config_readw(struct pci_bus *bus, 
+uint16_t pci_bus_config_readw(struct pci_bus *bus,
                             uint devfn, uint reg)
 {
     uint32_t val;
@@ -24,7 +24,7 @@ uint16_t pci_bus_config_readw(struct pci_bus *bus,
 }
 EXPORT_SYMBOL(pci_bus_config_readw);
 
-uint32_t pci_bus_config_readl(struct pci_bus *bus, 
+uint32_t pci_bus_config_readl(struct pci_bus *bus,
                             uint devfn, uint reg)
 {
     uint32_t val;
@@ -33,21 +33,21 @@ uint32_t pci_bus_config_readl(struct pci_bus *bus,
 }
 EXPORT_SYMBOL(pci_bus_config_readl);
 
-void pci_bus_config_writeb(struct pci_bus *bus, 
+void pci_bus_config_writeb(struct pci_bus *bus,
                             uint devfn, uint reg, uint8_t val)
 {
     bus->ops->write(bus, devfn, reg, 1, val);
 }
 EXPORT_SYMBOL(pci_bus_config_writeb);
 
-void pci_bus_config_writew(struct pci_bus *bus, 
+void pci_bus_config_writew(struct pci_bus *bus,
                             uint devfn, uint reg, uint16_t val)
 {
     bus->ops->write(bus, devfn, reg, 2, val);
 }
 EXPORT_SYMBOL(pci_bus_config_writew);
 
-void pci_bus_config_writel(struct pci_bus *bus, 
+void pci_bus_config_writel(struct pci_bus *bus,
                             uint devfn, uint reg, uint32_t val)
 {
     bus->ops->write(bus, devfn, reg, 4, val);
@@ -145,7 +145,7 @@ EXPORT_SYMBOL(pcix_mmrbc_get);
 state pcix_mmrbc_set(struct pci_device *pdev, uint32_t mmrbc)
 {
 
-    
+
     return -ENOERR;
 }
 EXPORT_SYMBOL(pcix_mmrbc_set);

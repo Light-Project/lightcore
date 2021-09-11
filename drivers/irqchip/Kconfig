@@ -7,5 +7,9 @@ menu "irq support"
     config IRQCHIP_GX6605S
     bool "GX6605s Interrupt Controller"
     depends on ARCH_CSKY
+    
+    config IRQCHIP_SUNIV
+    bool "Suniv Interrupt Controller"
+    depends on ARCH_ARM
 
 endmenu

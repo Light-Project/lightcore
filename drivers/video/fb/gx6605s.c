@@ -7,7 +7,7 @@
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
 #include <string.h>
-#include <init/initcall.h>
+#include <initcall.h>
 #include <driver/platform.h>
 #include <driver/video.h>
 #include <driver/video/gx6605s.h>
@@ -324,7 +324,7 @@ static state gx6605s_probe(struct platform_device *pdev)
     return video_register(&gdev->video);
 }
 
-static state gx6605s_remove(struct platform_device *pdev)
+static void gx6605s_remove(struct platform_device *pdev)
 {
     struct gx6605s_device *gdev = platform_get_devdata(pdev);
 

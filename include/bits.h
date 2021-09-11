@@ -4,6 +4,6 @@
 
 #include <asm-generic/bitsperlong.h>
 
-#define BIT(nr)         ((1) << (nr))
+#define BIT(nr)         (1UL << (nr))
 
-#endif
+#endif  /* _BITS_H_ */

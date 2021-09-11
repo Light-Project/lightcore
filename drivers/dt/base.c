@@ -11,6 +11,30 @@ struct dt_node *dt_root;
 struct dt_node *dt_chosen;
 struct dt_node *dt_stdout;
 
+struct dt_node *dt_for_each_all_node(struct dt_node *node)
+{
+    if(!node)
+        return dt_root;
+    else if (!slist_check_empty(&node->child))
+        return slist_first_entry(&node->child, struct dt_node, sibling);
+    else {
+        while (slist_check_end(&node->sibling) && node->parent)
+            node = node->parent;
+        return slist_next_entry_or_null(node, sibling);
+    }
+}
+
+struct dt_node *dt_find_by_phandle(uint32_t phandle)
+{
+    struct dt_node *node;
+
+    dt_for_each_all(node)
+        if (node->phandle == phandle)
+            return node;
+
+    return NULL;
+}
+
 struct dt_attribute *dt_attribute_find(const struct dt_node *node,
                                        const char *name)
 {
@@ -49,8 +73,8 @@ bool dt_attribute_read_bool(const struct dt_node *node, const char *name)
  * @index: index of the values
  * @value: pointer to return value
  */
-state dt_attribute_read_u32(const struct dt_node *node, const char *name,
-                            int index, uint32_t *value)
+state dt_attribute_read_u32_index(const struct dt_node *node, const char *name,
+                                  int index, uint32_t *value)
 {
     const be32 *attribute = dt_attribute_get(node, name, NULL);
 
@@ -68,8 +92,8 @@ state dt_attribute_read_u32(const struct dt_node *node, const char *name,
  * @index: index of the values
  * @value: pointer to return value
  */
-state dt_attribute_read_u64(const struct dt_node *node, const char *name,
-                            int index, uint64_t *value)
+state dt_attribute_read_u64_index(const struct dt_node *node, const char *name,
+                                  int index, uint64_t *value)
 {
     const be64 *attribute = dt_attribute_get(node, name, NULL);
 
@@ -80,8 +104,8 @@ state dt_attribute_read_u64(const struct dt_node *node, const char *name,
     return -ENOERR;
 }
 
-state dt_attribute_read_string(const struct dt_node *node, const char *name,
-                               int index, const char **str)
+state dt_attribute_read_string_index(const struct dt_node *node, const char *name,
+                                     int index, const char **str)
 {
     const char *attribute = dt_attribute_get(node, name, NULL);
     unsigned int len;
@@ -98,20 +122,36 @@ state dt_attribute_read_string(const struct dt_node *node, const char *name,
     return -ENOERR;
 }
 
-struct dt_node *dt_for_each_all(struct dt_node *prev)
+state dt_attribute_string_index(const struct dt_node *node,
+                                const char *name, const char *str)
 {
-    struct dt_node *node;
-    if(!prev)
-        node = dt_root;
-    else if (!slist_check_empty(&prev->child))
-        node = slist_first_entry(&prev->child, struct dt_node, sibling);
-    else {
-        node = prev;
-        while (node->parent && slist_check_empty(&prev->sibling))
-            node = node->parent;
-        node = slist_next_entry(node, sibling);
+    const char *attribute;
+    int len, index;
+
+    attribute = dt_attribute_get(node, name, &len);
+    if (!attribute)
+        return -EINVAL;
+
+    len = memcount(attribute, '\0', len);
+
+    for (index = 0; index < len; index++) {
+        dt_attribute_read_string_index(node, name, index, &attribute);
+        if (!strcmp(attribute, str))
+            return index;
     }
-    return node;
+
+    return -ENODATA;
+}
+
+struct dt_node *dt_search_up(struct dt_node *node,
+                             const char *name, uint32_t *value)
+{
+    do {
+        if (!dt_attribute_read_u32(node, DT_ADDR_CELL, value))
+            return node;
+    } while((node = node->parent));
+
+    return NULL;
 }
 
 /**
@@ -123,7 +163,7 @@ uint32_t dt_addr_cell(const struct dt_node *node)
     uint32_t cell;
 
     while((node = node->parent)) {
-        if (!dt_attribute_read_u32(node, DT_ADDR_CELL, 0, &cell))
+        if (!dt_attribute_read_u32(node, DT_ADDR_CELL, &cell))
             return cell;
     }
 
@@ -139,7 +179,7 @@ uint32_t dt_size_cell(const struct dt_node *node)
     uint32_t cell;
 
     while((node = node->parent)) {
-        if (!dt_attribute_read_u32(node, DT_ADDR_CELL, 0, &cell))
+        if (!dt_attribute_read_u32(node, DT_ADDR_CELL, &cell))
             return cell;
     }
 
@@ -161,7 +201,7 @@ bool dt_match_name(const struct dt_node *node, const char *name)
     const char *node_name;
     int len;
 
-    node_name = kbasename(node->path);
+    node_name = basename(node->path);
 	len = strchrnul(name, '@') - node_name;
 	return (strlen(node_name) == len) &&
            (!strncmp(node_name, name, len));

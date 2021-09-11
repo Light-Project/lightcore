@@ -16,6 +16,15 @@ uint8_t crc4(uint8_t *src, int len, uint8_t crc)
 }
 EXPORT_SYMBOL(crc4);
 
+uint8_t crc8(uint8_t *src, int len, uint8_t crc)
+{
+    uint8_t tmp = crc;
+    while (len--)
+        tmp = crc8_table[(tmp) ^ *src++];
+    return tmp ^ crc;
+}
+EXPORT_SYMBOL(crc8);
+
 uint16_t crc16(uint8_t *src, int len, uint16_t crc)
 {
     while (len--)
@@ -26,8 +35,9 @@ EXPORT_SYMBOL(crc16);
 
 uint32_t crc32(const uint8_t *src, int len, uint32_t crc)
 {
+    uint32_t tmp = crc;
     while (len--)
-        crc = (crc >> 8) ^ crc32_table[(crc & 0xff ) ^ *src++];
-    return crc;
-} 
+        tmp = (tmp >> 8) ^ crc32_table[(tmp & 0xff) ^ *src++];
+    return tmp ^ crc;
+}
 EXPORT_SYMBOL(crc32);

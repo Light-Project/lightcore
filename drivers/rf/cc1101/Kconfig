@@ -1,4 +1,0 @@
-config Drivers_cc1101
-	bool "Support Spi cc1101"
-	default n
- 

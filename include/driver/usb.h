@@ -7,7 +7,7 @@
 #include <list.h>
 #include <device.h>
 #include <resource.h>
-#include <mod_devicetable.h>
+#include <devtable.h>
 #include <driver/usb/usb_standard.h>
 
 extern struct bus_type usb_bus_type;

@@ -1,20 +1,18 @@
 menu "Kernel hacking" 
 
-    config PRINTK
+config PRE_PRINTK
+    bool "Primary printk"
+    default y
+    
+config PRINTK
     bool "printk"
     default y
 
-    config DYNAMIC_DEBUG
+config DYNAMIC_DEBUG
     bool "Kernel generate debug file"
     depends on PRINTK
     default y
     help
         Compiles debug level messages into the kernel
-    
-    config PRE_PRINTK
-    bool "Kernel generate debug file"
-    depends on ARCH_HAS_PRE_PRINTK
-    default y
-    
-    
+
 endmenu

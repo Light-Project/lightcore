@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#ifndef _DRIVER_GPU_GX6605S_H_
-#define _DRIVER_GPU_GX6605S_H_
+#ifndef _DRIVER_VIDEO_GX6605S_H_
+#define _DRIVER_VIDEO_GX6605S_H_
 
 #include <bits.h>
 
@@ -139,4 +139,4 @@ enum gx6605s_osd_region {
 #define GX6605S_OSDR_ALPHA_RATIO_EN         (0x01 << 24)
 #define GX6605S_OSDR_LIST_END               (0x01 << 31)
 
-#endif  /* _DRIVER_GPU_GX6605S_H_ */
+#endif  /* _DRIVER_VIDEO_GX6605S_H_ */

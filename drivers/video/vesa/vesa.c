@@ -20,8 +20,6 @@ struct vesa_device {
 #define video_to_vesa(video_device) \
     container_of(video_device, struct vesa_device, video)
 
-static bool vesa_ready;
-
 static inline uint16_t vesa_read(struct vesa_device *vesa,
                                  uint8_t reg)
 {

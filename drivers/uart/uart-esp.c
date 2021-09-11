@@ -5,11 +5,11 @@
 #include <asm/io.h>
 #include <console.h>
 #include <mm.h>
-#include <init/initcall.h>
+#include <initcall.h>
 #include <driver/platform.h>
 #include <driver/dt.h>
 #include <driver/uart.h>
-#include <kernel/spinlock.h>
+#include <spinlock.h>
 
 #include <driver/uart/uart-esp.h>
 
@@ -34,7 +34,7 @@ static void esp_uart_putc(struct uart_port *port, char ch)
     writel((void *)(port->membase + UART_ESP_FIFO), ch);
 }
 
-static void esp_uart_console_write(struct console *con, const char *str, 
+static void esp_uart_console_write(struct console *con, const char *str,
                     unsigned int len)
 {
     struct uart_port *port = con->data;
@@ -46,7 +46,7 @@ static void esp_uart_console_write(struct console *con, const char *str,
     /* Save and disable interrupt */
     ena_old = readl((void *)port->membase + UART_ESP_INT_ENA);
     writel((void *)port->membase + UART_ESP_INT_ENA, UART_ESP_INT_ENA_DEFAULT);
-    
+
     while(len--)
         esp_uart_putc(port, *str++);
 
@@ -63,8 +63,8 @@ static int esp_uart_console_setup(struct console *con, char *options)
 //     int bits = 8;
 //     int parity = 'n';
 //     int flow = 'n';
-    
-    
+
+
     return 0;
 }
 
@@ -87,11 +87,11 @@ console_initcall(esp_uart_console_init)
 static void esp_uart_startup(struct uart_port *port)
 {
     uint32_t val;
-    
+
     /* 8n1 */
     val = UART_ESP_CONF0_STB_1 | UART_ESP_CONF0_WSL_8;
     writel(port->membase + UART_ESP_CONF0, val);
-    
+
     // /* set baudrate */
     // val = (UART_CLK_FREQ / UART_BAUD) & UART_ESP_CLKDIV_DIV;
     // writel(port->membase + UART_ESP_CLKDIV, val);
@@ -146,11 +146,11 @@ static state espressif_uart_probe(struct platform_device *device)
     return -ENOERR;
 }
 
-static state espressif_uart_remove(struct platform_device *device)
+static void espressif_uart_remove(struct platform_device *device)
 {
     struct esp_uart_port* esp_port;
     esp_port = (struct esp_uart_port *)platform_get_devdata(device);
-    
+
     kfree(esp_port);
 
     return -ENOERR;

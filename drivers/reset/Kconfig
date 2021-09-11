@@ -1,0 +1,9 @@
+menuconfig RESET
+    bool "reset support"
+if RESET
+
+config RESET_SUNIV
+    bool "Suniv Reset Controller"
+    depends on ARCH_ARM
+
+endif

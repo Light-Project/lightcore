@@ -13,8 +13,7 @@
 #include <linkage.h>
 
     .arm
-    .section    .setup,"ax"
-
+    .section    .setup, "ax"
 GLOBAL(_start)
     ldr pc, =init                                   /* 0x00: jump instruction   */
     .byte 'e', 'G', 'O', 'N', '.', 'B', 'T', '0'    /* 0x04: magic              */

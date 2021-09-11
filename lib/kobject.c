@@ -6,4 +6,4 @@
 #include <string.h>
 #include <export.h>
 #include <mm.h>
-#include <kernel/kobject.h>
+#include <kobject.h>

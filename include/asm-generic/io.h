@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _ASM_GENERIC_IO_H_
 #define _ASM_GENERIC_IO_H_
 
@@ -5,13 +6,6 @@
 #include <asm/barrier.h>
 #include <lightcore/asm/byteorder.h>
 
-/*
- * raw_{read,write}{b,w,l,q}() access memory in native endianness.
- *
- * On some architectures memory mapped IO needs to be accessed differently.
- * On the simple architectures, we just read/write the memory location
- * directly.
- */
 #ifndef raw_readb
 #define raw_readb raw_readb
 static inline uint8_t raw_readb(const volatile void *addr)
@@ -78,11 +72,7 @@ static inline void raw_writeq(const volatile void *addr, uint64_t value)
 #endif
 #endif /* CONFIG_ARCH_64BIT */
 
-/*
- * {read,write}{b,w,l,q}() are like the regular version, but
- * are not guaranteed to provide ordering against spinlocks or memory
- * accesses.
- */
+
 #ifndef readb
 #define readb readb
 static inline uint8_t readb(void *addr)
@@ -117,7 +107,6 @@ static inline uint64_t readq(void *addr)
 #endif
 #endif /* CONFIG_ARCH_64BIT */
 
-
 #ifndef writeb
 #define writeb writeb
 static inline void writeb(void *addr, uint8_t value)
@@ -142,7 +131,6 @@ static inline void writel(void *addr, uint32_t value)
 }
 #endif
 
-
 #ifdef CONFIG_ARCH_64BIT
 #ifndef writeq
 #define writeq writeq
@@ -153,10 +141,7 @@ static inline void writeq(void *addr, uint64_t value)
 #endif
 #endif /* CONFIG_ARCH_64BIT */
 
-/*
- * {read,write}{b,w,l,q}_sync() access little endian memory and return result in
- * native endianness.
- */
+
 #ifndef readb_sync
 #define readb_sync readb_sync
 static inline uint8_t readb_sync(void *addr)
@@ -203,7 +188,7 @@ static inline uint64_t readq_sync(void *addr)
     val = raw_readq(addr);
     rmb();
     return val;
-    
+
 }
 #endif
 #endif /* CONFIG_ARCH_64BIT */
@@ -245,20 +230,17 @@ static inline void writeq_sync(void *addr, uint64_t val)
 }
 #endif
 #endif /* CONFIG_ARCH_64BIT */
-/*
- * {read,write}s{b,w,l,q}() repeatedly access the same memory address in
- * native endianness in 8-, 16-, 32- or 64-bit chunks (@count times).
- */
+
 #ifndef readsb
 #define readsb readsb
 static inline void readsb(const volatile void *addr, void *buffer,
-              unsigned int count)
+                          unsigned int count)
 {
     if (count) {
-        u8 *buf = (u8 *)buffer;
+        uint8_t *buf = (uint8_t *)buffer;
 
         do {
-            u8 x = raw_readb(addr);
+            uint8_t x = raw_readb(addr);
             *buf++ = x;
         } while (--count);
     }
@@ -268,13 +250,13 @@ static inline void readsb(const volatile void *addr, void *buffer,
 #ifndef readsw
 #define readsw readsw
 static inline void readsw(const volatile void *addr, void *buffer,
-              unsigned int count)
+                          unsigned int count)
 {
     if (count) {
-        u16 *buf = (u16 *)buffer;
+        uint16_t *buf = (uint16_t *)buffer;
 
         do {
-            u16 x = raw_readw(addr);
+            uint16_t x = raw_readw(addr);
             *buf++ = x;
         } while (--count);
     }
@@ -284,13 +266,13 @@ static inline void readsw(const volatile void *addr, void *buffer,
 #ifndef readsl
 #define readsl readsl
 static inline void readsl(const volatile void *addr, void *buffer,
-              unsigned int count)
+                          unsigned int count)
 {
     if (count) {
-        u32 *buf = (u32 *)buffer;
+        uint32_t *buf = (uint32_t *)buffer;
 
         do {
-            u32 x = raw_readl(addr);
+            uint32_t x = raw_readl(addr);
             *buf++ = x;
         } while (--count);
     }
@@ -321,7 +303,7 @@ static inline void writesb(volatile void *addr, const void *buffer,
                unsigned int count)
 {
     if (count) {
-        const u8 *buf = (u8 *)buffer;
+        const uint8_t *buf = (uint8_t *)buffer;
 
         do {
             raw_writeb(addr, *buf++);
@@ -336,7 +318,7 @@ static inline void writesw(volatile void *addr, const void *buffer,
                unsigned int count)
 {
     if (count) {
-        const u16 *buf = (u16 *)buffer;
+        const uint16_t *buf = (uint16_t *)buffer;
 
         do {
             raw_writew(addr, *buf++);
@@ -351,7 +333,7 @@ static inline void writesl(volatile void *addr, const void *buffer,
                unsigned int count)
 {
     if (count) {
-        const u32 *buf = (u32 *)buffer;
+        const uint32_t *buf = (uint32_t *)buffer;
 
         do {
             raw_writel(addr, *buf++);
@@ -381,16 +363,11 @@ static inline void writesq(volatile void *addr, const void *buffer,
 #define PCI_IOBASE ((void *)0)
 #endif
 
-/*
- * {in,out}{b,w,l}() access little endian I/O. {in,out}{b,w,l}_p() can be
- * implemented on hardware that needs an additional delay for I/O accesses to
- * take effect.
- */
 #ifndef inb
 #define inb inb
-static inline u8 inb(unsigned long addr)
+static inline uint8_t inb(unsigned long addr)
 {
-    u8 val;
+    uint8_t val;
 
     barrier();
     val = raw_readb((void *)PCI_IOBASE + addr);
@@ -401,9 +378,9 @@ static inline u8 inb(unsigned long addr)
 
 #ifndef inw
 #define inw inw
-static inline u16 inw(unsigned long addr)
+static inline uint16_t inw(unsigned long addr)
 {
-    u16 val;
+    uint16_t val;
 
     barrier();
     val = raw_readw((void *)PCI_IOBASE + addr);
@@ -414,9 +391,9 @@ static inline u16 inw(unsigned long addr)
 
 #ifndef inl
 #define inl inl
-static inline u32 inl(unsigned long addr)
+static inline uint32_t inl(unsigned long addr)
 {
-    u32 val;
+    uint32_t val;
 
     barrier();
     val = raw_readl((void *)PCI_IOBASE + addr);
@@ -436,7 +413,7 @@ static inline void outb(unsigned long addr, uint8_t value)
 
 #ifndef outw
 #define outw outw
-static inline void outw(unsigned long addr, u16 value)
+static inline void outw(unsigned long addr, uint16_t value)
 {
     wmb();
     raw_writew((void *)PCI_IOBASE + addr, value);
@@ -445,7 +422,7 @@ static inline void outw(unsigned long addr, u16 value)
 
 #ifndef outl
 #define outl outl
-static inline void outl(unsigned long addr, u32 value)
+static inline void outl(unsigned long addr, uint32_t value)
 {
     wmb();
     raw_writel((void *)PCI_IOBASE + addr, value);

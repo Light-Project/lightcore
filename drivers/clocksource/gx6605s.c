@@ -7,8 +7,8 @@
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
 #include <mm.h>
-#include <kernel/irq.h>
-#include <init/initcall.h>
+#include <irq.h>
+#include <initcall.h>
 #include <driver/platform.h>
 #include <driver/clocksource.h>
 #include <driver/clocksource/gx6605s.h>

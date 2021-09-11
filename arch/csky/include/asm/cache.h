@@ -2,8 +2,6 @@
 #ifndef _ASM_CSKY_CACHE_H_
 #define _ASM_CSKY_CACHE_H_
 
-#include <arch/csky/regs.h>
-
 /* bytes per L1 cache line */
 #ifdef CONFIG_CPU_CK610
     #define L1_CACHE_SHIFT 4

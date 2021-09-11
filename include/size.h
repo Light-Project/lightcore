@@ -1,4 +1,5 @@
-#ifndef _SIZE_H_ 
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#ifndef _SIZE_H_
 #define _SIZE_H_
 
 #define size_1Kib    0x80
@@ -9,4 +10,4 @@
 #define size_1MiB    0x100000
 #define size_1GiB    0x40000000
 
-#endif
+#endif  /* _SIZE_H_ */

@@ -3,11 +3,11 @@
  *  include/arch/arme/interrupt.h
  *  arme interrupt define
  *  (C) 2020 wzl finishing
- * 
+ *
  *  Change Logs:
  *  Date            Notes
- *  2021-02-26      first version 
- * 
+ *  2021-02-26      first version
+ *
  */
 
 #ifndef _ARCH_ARME_INTERRUPT_H_
@@ -15,7 +15,7 @@
 
 enum INT_VECTOR{
 /*  Mnemonic        Vector     Description                      Source                                                  */
-    RST_FAULT       = 1,    /* Reset                            Power-On Reset or Local Reset                           */  
+    RST_FAULT       = 1,    /* Reset                            Power-On Reset or Local Reset                           */
     NMI_INTERRUPT   = 2,    /* NMI                              Non-Maskable Interrupt                                  */
     HF_FAULT        = 3,    /* HardFault                        A fault that no other exception mechanism can handle    */
     MM_FAULT        = 4,    /* MemManage                        MemManage fault                                         */

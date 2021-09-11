@@ -11,21 +11,20 @@ include-y += $(obj)lib/
 
 include $(obj)platform.mk
 
-preload-asflags-y := -D__ASSEMBLY__
-preload-ccflags-y := -std=gnu11
-preload-acflags-y := -ffreestanding -nostdinc -Wall -Werror \
-                     -fno-PIE  -fno-stack-protector \
-                     -ffunction-sections -fdata-sections
-preload-ldflags-y  :=
-preload-ldsflags-y := -D__ASSEMBLY__
-preload-elfflags-y := -Wl,--gc-sections
+preload-asflags-y = -D__ASSEMBLY__
+preload-ccflags-y = -std=gnu11
+preload-acflags-y = -ffreestanding -nostdinc -Wall -Werror \
+                    -fno-PIE  -fno-stack-protector \
+                    -ffunction-sections -fdata-sections
+preload-ldsflags-y = -D__ASSEMBLY__
+preload-elfflags-y = -Wl,--gc-sections -Wl,--cref,-Map=$@.map
 
-asflags-y   := $(strip $(preload-asflags-y) $(platform-asflags-y))
-ccflags-y   := $(strip $(preload-ccflags-y) $(platform-ccflags-y))
-acflags-y   := $(strip $(preload-acflags-y) $(platform-acflags-y))
-ldflags-y   := $(strip $(preload-ldflags-y) $(platform-ldflags-y))
-ldsflags-y  := $(strip $(preload-ldsflags-y) $(platform-ldsflags-y))
-elfflags-y  := $(strip $(preload-elfflags-y) $(platform-elfflags-y))
+asflags-y   = $(strip $(preload-asflags-y) $(platform-asflags-y))
+ccflags-y   = $(strip $(preload-ccflags-y) $(platform-ccflags-y))
+acflags-y   = $(strip $(preload-acflags-y) $(platform-acflags-y))
+ldflags-y   = $(strip $(preload-ldflags-y) $(platform-ldflags-y))
+ldsflags-y  = $(strip $(preload-ldsflags-y) $(platform-ldsflags-y))
+elfflags-y  = $(strip $(preload-elfflags-y) $(platform-elfflags-y))
 
 quiet_cmd_link_preload = $(ECHO_ELF)  $@
       cmd_link_preload = $(RANLIB) $(obj)built-in.a; \

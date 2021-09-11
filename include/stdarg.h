@@ -1,15 +1,4 @@
-/*
- *  SPDX-License-Identifier: GPL-2.0-or-later
- *  bootloader/x86/driver/floppy.c
- *  stdarg lib
- *  (C) 2020 wzl
- * 
- *  Change Logs:
- *  Date            Notes
- *  2021-01-18      first version 
- * 
- */
-
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _STDARG_H_
 #define _STDARG_H_
 

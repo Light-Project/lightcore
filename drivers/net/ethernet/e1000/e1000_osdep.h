@@ -11,9 +11,9 @@
 #include <types.h>
 #include <mm.h>
 #include <delay.h>
-#include <kernel/spinlock.h>
-#include <kernel/mutex.h>
-#include <kernel/sched.h>
+#include <spinlock.h>
+#include <mutex.h>
+#include <sched.h>
 #include <driver/pci.h>
 #include <printk.h>
 

@@ -4,50 +4,34 @@ config VERSION
 
 menu "General setup"
 
-    config DEFAULT_HOSTNAME
+config DEFAULT_HOSTNAME
     string "Default hostname"
     default "none"
-    help
-        This option determines the default system hostname before userspace
-        calls sethostname(2). The kernel traditionally uses "(none)" here,
-        but you may wish to use a different default here to make a minimal
-        system more usable with less configuration.
-            
-    config DEFAULT_INIT
+    
+config DEFAULT_INIT
     string "Default init path"
     default ""
-    help
-        This option determines the default init for the system if no init=
-        option is passed on the kernel command line. If the requested path is
-        not present, we will still then move on to attempting further
-        locations (e.g. /sbin/init, etc). If this is empty, we will just use
-        the fallback list when init= is not passed.
         
-    config SYSVIPC
+config SYSVIPC
     bool "System V IPC"
     default y
         
-    config SYSTICK_FREQ
+config SYSTICK_FREQ
     int "System tick frequency"
     range 100 1000
     default 300
     
-    config EXPERT
+config EXPERT
     bool "Configure standard kernel features (expert users)"
-    help
-        This option allows certain base kernel options and settings
-        to be disabled or tweaked. This is for specialized
-        environments which can tolerate a "non-standard" kernel.
-        Only use this if you really know what you are doing.
             
-    config BOOT_PARAMS
+config BOOT_PARAMS
     bool "Accept kernel instructions"
     default y
     
-    config BUILTIN_DTB
+config BUILTIN_DTB
     bool "builtin dtb"
 
-    config BUILTIN_DTB_PATH
+config BUILTIN_DTB_PATH
     string "builtin dtb path"
     depends on BUILTIN_DTB
     

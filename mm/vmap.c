@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com> 
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
 #define pr_fmt(fmt) "vmalloc: " fmt
@@ -13,7 +13,7 @@
 /**
  * vmap - mapping page arrays to contiguous virtual addresses.
  * @page: page array pointer
- * @page_nr: 
+ * @page_nr:
  */
 void *vmap(struct page *page, int page_nr)
 {
@@ -45,10 +45,9 @@ void *vunmap(const void *addr, int page_nr)
 
     vmem_area_find
 
-
     for (i = 0; i < area->nr_pages; i++) {
         page = va->page[count];
-        page_free(page, 0);
+        page_free(page);
     }
 
 }

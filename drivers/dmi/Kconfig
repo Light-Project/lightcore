@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+menuconfig DMI
+    bool "DMI support"
+if DMI
+
+endif

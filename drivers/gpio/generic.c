@@ -7,7 +7,7 @@
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
 #include <mm.h>
-#include <init/initcall.h>
+#include <initcall.h>
 #include <driver/platform.h>
 #include <driver/gpio.h>
 
@@ -58,21 +58,21 @@ static struct gpio_ops ggpio_ops = {
 static state ggpio_probe(struct platform_device *pdev)
 {
     struct ggpio_device *ggdev;
-    struct resource *res;
+    // struct resource *res;
 
     ggdev = kzalloc(sizeof(*ggdev), GFP_KERNEL);
     if (!ggdev)
         return -ENOMEM;
 
-    res = platform_name_resource(pdev, "dat");
-    ggdev->dat = dev_ioremap(res->start, res_size(res));
-    if (!ggdev->dat)
-        return -ENOMEM;
+    // res = platform_name_resource(pdev, "dat");
+    // ggdev->dat = dev_ioremap(res->start, res_size(res));
+    // if (!ggdev->dat)
+    //     return -ENOMEM;
 
-    res = platform_name_resource(pdev, "dirout");
-    ggdev->dirout = dev_ioremap(res->start, res_size(res));
-    if (!ggdev->dirout)
-        return -ENOMEM;
+    // res = platform_name_resource(pdev, "dirout");
+    // ggdev->dirout = dev_ioremap(res->start, res_size(res));
+    // if (!ggdev->dirout)
+    //     return -ENOMEM;
 
     ggdev->gpio.ops = &ggpio_ops;
     return gpio_register(&ggdev->gpio);

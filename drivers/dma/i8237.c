@@ -7,15 +7,14 @@
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
 #include <mm.h>
-#include <init/initcall.h>
+#include <initcall.h>
 #include <driver/platform.h>
 #include <driver/dma.h>
 #include <printk.h>
 
 #include <asm/io.h>
 
-
-static struct dma_ops i8237_ops {
+static struct dma_ops i8237_ops = {
 
 };
 
@@ -25,10 +24,8 @@ static state i8237_prebe(struct platform_device *pdev)
     return -ENOERR;
 }
 
-static state i8237_remove(struct platform_device *pdev)
+static void i8237_remove(struct platform_device *pdev)
 {
-
-    return -ENOERR;
 }
 
 static struct dt_device_id i8237_id_table[] = {

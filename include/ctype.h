@@ -1,9 +1,6 @@
-#ifndef __CTYPE_H__
-#define __CTYPE_H__
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#ifndef _CTYPE_H_
+#define _CTYPE_H_
 
 int isalnum(int c);
 int isalpha(int c);
@@ -22,8 +19,4 @@ int toascii(int c);
 int tolower(int c);
 int toupper(int c);
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* __CTYPE_H__ */
+#endif /* _CTYPE_H_ */

@@ -93,37 +93,6 @@ config PACK_ZSTD
             
 endchoice
 
-choice
-    prompt "Chip platform selection"
-    help
-        The chip select only used for 'flatted device tree', 
-        preload and "make run"
-        
-config CHIP_STM32
-    depends on ARCH_ARME
-    bool "Stm32 Series"
-
-config CHIP_SUNIV
-    bool "Allwinner F-series SoCs support"
-
-config CHIP_GX6605S
-    depends on CPU_CK610
-    bool "NationalChip gx6605s"
-    
-config CHIP_X86
-    depends on ARCH_X86
-    bool "X86"
-
-config CHIP_ESP32
-    depends on ARCH_XTENSA
-    bool "esp32"
-            
-config CHIP_ESP8266
-    depends on ARCH_XTENSA
-    bool "esp8266"
-            
-endchoice 
-
 source "boot/kboot/Kconfig"
 source "boot/preload/Kconfig"
 

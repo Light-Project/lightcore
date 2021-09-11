@@ -3,11 +3,11 @@
  *  boot/preload/bios/boot/startup.S
  *  x86 preload entry
  *  (C) 2020 wzl
- * 
+ *
  *  Change Logs:
  *  Date            Notes
- *  2021-01-18      first version 
- * 
+ *  2021-01-18      first version
+ *
  */
 
 #include <linkage.h>
@@ -39,7 +39,7 @@ GLOBAL(_start)
 
     /* Disable interrupt */
     cli
-    
+
     /* Normalize the memory address */
     ljmpl   $0x00, $1f
 1:  xorl    %eax, %eax
@@ -52,18 +52,18 @@ GLOBAL(_start)
 
     /* Save device number */
     movw    %dx, BOOT_DEV
-    
+
     /* clean screen */
     movb    $0x00, %ah
     movb    $0x02, %al
     int     $0x10
-    
+
     printf(TXT_MBR_BOOT)
 
     /* Load full code */
     chs_read(BOOT_DEV, 0, _ld_text_start, _ld_block_num, 2, 0, 0)
     jmp     init
-    
+
 END(_start)
 
 /*
@@ -95,7 +95,7 @@ Service_diskcheck:
     jne     INT13_1_ERR
     ret
 
-/* 
+/*
  * disk chs reading service:
  *
  * Service number:  %AH
@@ -113,7 +113,7 @@ Service_chsdisk:
     cmp     $0, %ah
     jne     INT13_1_ERR
     ret
-    
+
 INT13_1_ERR:
     printf(TXT_INT13_1_ERR)
     jmp     halt
@@ -130,7 +130,7 @@ END(halt)
     .globl BOOT_DEV
 BOOT_DEV:
     .byte 0x00  // Startup device number
-    
+
     .align 4
 TXT_MBR_BOOT:       .asciz "\n\rMBR booting\n"
 TXT_INT13_1_ERR:    .asciz "INT13/1 ERR!\n"
@@ -179,7 +179,7 @@ init:
 setfs:
     /* Load gdt table */
     lgdtl   gdt_struct
-    
+
     /* Enable PE mode */
     movl    %cr0, %eax
     orl     $(1<<0), %eax
@@ -214,7 +214,7 @@ Bss_segment_Init:
 	shrl    $2, %ecx
     xorl    %eax, %eax
     rep;    stosl %eax, %es:(%edi)
-    
+
     call    main
     call    halt
 
@@ -234,13 +234,13 @@ GLOBAL(bios_int)
     /* Save env */
     pushl   %ebp
     movl    %esp, %ebp
-    pushfl  
+    pushfl
     pushw   %fs
     pushw   %gs
     pushw   %ds
     pushw   %es
     pushal
-    
+
     movl    $1, %eax
     movl    $2, %ebx
     addl    %eax, %ebx
@@ -248,16 +248,16 @@ GLOBAL(bios_int)
     /* arg0: call number */
     movl    8(%ebp), %eax
     movb    %al, intnr
-    
+
     /* arg2: Save regs */
     movl    16(%ebp), %eax
     addl    $0x2c, %eax
     pushl   %eax
-    
+
     /* arg1: load regs */
     movl    %esp, save_sp
     movl    12(%ebp), %esp  /* arg1: input register */
-    
+
     /* Pop register form ir */
     popal
     popw    %gs
@@ -265,16 +265,16 @@ GLOBAL(bios_int)
     popw    %es
     popw    %ds
     popfl
-    
+
     /* Recovery sp */
     movl    %cs:save_sp, %esp
-    
+
     /* int imm8.  */
     .byte   0xcd
 intnr:  .byte   0
 
-    popl    %esp  
-    
+    popl    %esp
+
     /* Push register to or */
     pushfl
     pushw   %ds
@@ -282,10 +282,10 @@ intnr:  .byte   0
     pushw   %fs
     pushw   %gs
     pushal
-    
+
     movl    save_sp, %esp
     addl    $0x4, %esp
-    
+
     /* Recovery env */
     popal
     popw    %es
@@ -295,7 +295,7 @@ intnr:  .byte   0
     popfl
     leavel
     ret
-    
+
 save_sp: .long  0x00
 END(bios_int)
 
@@ -305,7 +305,7 @@ GLOBAL(ext_rw)
     pushl   %ebx
     pushl   %ecx
     pushl   %edx
-    
+
     /* arg0 flags - %esi */
     movl    8(%ebp), %esi
 
@@ -350,7 +350,7 @@ GLOBAL(ext_rw)
     jne     2f
     movl    %edx, %es:(%bx)
 
-2:  
+2:
     popl    %edx
     popl    %ecx
     popl    %ebx
@@ -362,13 +362,13 @@ ENTRY(delayus)
     pushl   %ebp
     movl    %esp, %ebp
     pushal
-    
+
     movl    8(%ebp), %eax
-    
+
     movw    %ax, %dx
     shrl    $16, %eax
     movw    %ax, %cx
-    
+
     movb    $0x86, %ah
     int     $0x15
 
@@ -380,14 +380,14 @@ END(delayus)
 ENTRY(Service_A20TEST)
     pusha
     pushl   0x80 * 4
-    
+
     call    io_delay
-    
+
     popl    0x80 * 4
     popa
     ret
 END(Service_A20TEST)
-    
+
 ENTRY(io_delay)
     outw    %ax, $0x80
     ret

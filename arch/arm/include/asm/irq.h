@@ -5,12 +5,13 @@
 #include <types.h>
 #include <asm/regs.h>
 #include <asm-generic/irq.h>
+#include <arch/arm/interrupt.h>
 
 static inline void arch_irq_disable(void)
 {
     asm volatile(
-        "mrs    ip, cpsr\n\t"
-        "orr    ip, #0xc0\n\t"
+        "mrs    ip, cpsr\n"
+        "orr    ip, #0xc0\n"
         "msr    cpsr, ip"
         :::"ip"
     );
@@ -19,8 +20,8 @@ static inline void arch_irq_disable(void)
 static inline void arch_irq_enable(void)
 {
     asm volatile(
-        "mrs    ip, cpsr\n\t"
-        "bic    ip, #0xc0\n\t"
+        "mrs    ip, cpsr\n"
+        "bic    ip, #0xc0\n"
         "msr    cpsr, ip"
         :::"ip"
     );
@@ -36,5 +37,7 @@ static inline void arch_irq_restore(irqflags_t flags)
 {
     arch_irq_enable();
 }
+
+void arch_irq_set(void(*)(struct regs *));
 
 #endif  /* _ASM_ARM_IRQ_H */

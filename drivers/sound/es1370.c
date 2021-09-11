@@ -4,8 +4,8 @@
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
 #include <mm.h>
-#include <kernel/irq.h>
-#include <init/initcall.h>
+#include <irq.h>
+#include <initcall.h>
 #include <driver/pci.h>
 #include <driver/sound.h>
 #include <driver/sound/es1370.h>
@@ -19,7 +19,7 @@ struct ensoniq_device {
     uint16_t base;
 };
 
-static __always_inline uint8_t 
+static __always_inline uint8_t
 es1370_inb(struct ensoniq_device *ensoniq, uint16_t reg)
 {
     return inb(ensoniq->base + reg);
@@ -94,7 +94,7 @@ static state es1370_probe(struct pci_device *pdev, int pdata)
         return -ENOMEM;
     pci_set_devdata(pdev, ensoniq);
 
-    irq_request(pdev->irq, IRQ_FLAG_SHARED, es1370_handle, 
+    irq_request(pdev->irq, IRQ_FLAG_SHARED, es1370_handle,
                 ensoniq, DRIVER_NAME);
 
     ensoniq->base = pci_resource_start(pdev, 0);
@@ -103,9 +103,9 @@ static state es1370_probe(struct pci_device *pdev, int pdata)
     return -ENOERR;
 }
 
-static state es1370_remove(struct pci_device *pdev)
+static void es1370_remove(struct pci_device *pdev)
 {
-    return -ENOERR;
+
 }
 
 static struct pci_driver es1370_pci_driver = {

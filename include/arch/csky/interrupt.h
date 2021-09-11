@@ -10,17 +10,26 @@
 
 enum fault_vector {
 /*  Mnemonic        Vector     Description          */
-    RS_FAULT        = 0,    /* Reset                */
-    AG_FAULT        = 1,    /* Alignment Check      */
-    AC_FAULT        = 2,    /* Access Error         */
-    DZ_FAULT        = 3,    /* Divide Error         */
-    IG_FAULT        = 4,    /* Invalid Opcode       */
-    PV_FAULT        = 5,    /* Privilege Violation  */
-    DE_FAULT        = 6,    /* Debug Exception      */
-    BP_FAULT        = 7,    /* Breakpoint           */
-    SR_FAULT        = 9,    /* Soft reset           */
-    AUTO_INT        = 10,   /* Soft reset           */
-    FAST_INT        = 11,   /* Soft reset           */
+    VEC_RESET       = 0,    /* Reset                */
+    VEC_ALIGN       = 1,    /* Alignment Check      */
+    VEC_ACCESS      = 2,    /* Access Error         */
+    VEC_ZERODIV     = 3,    /* Divide Error         */
+    VEC_ILLEGAL     = 4,    /* Invalid Opcode       */
+    VEC_PRIV        = 5,    /* Privilege Violation  */
+    VEC_TRACE       = 6,    /* Debug Exception      */
+    VEC_BREAKPOINT  = 7,    /* Breakpoint           */
+    VEC_SOFTRESET   = 9,    /* Soft reset           */
+    VEC_AUTOVEC     = 10,   /* Soft reset           */
+    VEC_FAUTOVEC    = 11,   /* Soft reset           */
+    VEC_HWACCEL     = 11,    /* Soft reset           */
+    VEC_TLBMISS     = 14,    /* Soft reset           */
+    VEC_TRAP0       = 16,
+    VEC_TRAP1       = 17,
+    VEC_TRAP2       = 18,
+    VEC_TRAP3       = 19,
+    VEC_TLBMODIFIED = 15,
+    VEC_TLBINVALIDL = 20,
+    VEC_TLBINVALIDS = 21,
 };
 
 #endif  /* __ASSEMBLY__ */

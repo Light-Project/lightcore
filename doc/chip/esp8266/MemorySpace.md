@@ -1,7 +1,5 @@
 # ESP8266 memory space 
 
-## Eagel:
-
 | bus  | name       | address    | size       | Description              |
 | ---- | ---------- | ---------- | ---------- | ------------------------ |
 | Data | Reserved   | 0x00000000 | 0x20000000 | Operation forbidden      |
@@ -45,6 +43,3 @@
 * Code Bus:  (rwx) only be accessed in 32-bit alignment, otherwise cause command exception
 * Data Bus:  (rw) No execution
 * AHB  Bus:  (rw) Peripheral bus
-
-## Wdev:
-

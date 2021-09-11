@@ -3,7 +3,7 @@
 #include <stddef.h>
 
 void (*stdout)(const char *) = NULL;
-void __weak halt(void){while(1);}
+void __weak halt(void) {while(1);}
 
 int printf(const char *str, ...)
 {

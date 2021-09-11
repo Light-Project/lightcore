@@ -29,16 +29,23 @@ state bus_device_add(struct device *dev)
 {
     struct bus_type *bus = dev->bus;
 
-    list_add_prev(&bus->devices_list, 
-                  &dev->bus_list_device);
+    if (!bus)
+        return -EINVAL;
+
+    pr_debug("%s add device %s\n", bus->name, dev->name);
 
     device_bind(dev);
+    list_add_prev(&bus->devices_list, &dev->bus_list_device);
 
     return -ENOERR;
 }
 
 void bus_device_remove(struct device *dev)
 {
+    struct bus_type *bus = dev->bus;
+
+    pr_debug("%s remove device %s\n", bus->name, dev->name);
+
     list_del(&dev->bus_list_device);
 }
 
@@ -49,11 +56,10 @@ void bus_device_remove(struct device *dev)
 state bus_driver_add(struct driver *drv)
 {
     struct bus_type *bus = drv->bus;
-    
+
     pr_debug("%s add driver %s\n", bus->name, drv->name);
 
-    list_add_prev(&bus->drivers_list, 
-                  &drv->bus_list_driver);
+    list_add_prev(&bus->drivers_list, &drv->bus_list_driver);
 
     return driver_bind(drv);
 }
@@ -65,7 +71,6 @@ void bus_driver_remove(struct driver *drv)
 
 state bus_register(struct bus_type *bus)
 {
-
     pr_debug("register bus %s\n", bus->name);
 
     list_head_init(&bus->devices_list);
@@ -82,5 +87,5 @@ void bus_unregister(struct bus_type *bus)
 
 void __init bus_init(void)
 {
-    
+
 }

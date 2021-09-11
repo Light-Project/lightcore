@@ -3,24 +3,29 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt)	"bus: " fmt
+#define pr_fmt(fmt)	"dbase: " fmt
 
 #include <device.h>
-#include "base.h"
 #include <printk.h>
 
-static __always_inline state
-device_probe(struct device *dev)
-{
-    return dev->bus->probe(dev);
-}
+#include "base.h"
 
-state driver_probe_device(struct driver *drv, 
-                          struct device *dev)
+/**
+ * @driver_probe_device - probe a device through a driver
+ * @drv: device driver
+ * @dev: device to probe
+ */
+state driver_probe_device(struct driver *drv, struct device *dev)
 {
     state ret;
-    ret = device_probe(dev);
-    return ret;
+
+    ret = drv->bus->probe(dev);
+    if (ret) {
+        devres_release_all(dev);
+        return ret;
+    }
+
+    return -ENOERR;
 }
 
 state device_match(struct device *dev)
@@ -36,19 +41,17 @@ state device_match(struct device *dev)
         ret = bus->match(dev, drv);
         if(!ret)
             break;
+    } if (ret) {
+        return -ENODEV;
     }
 
-    if (ret)
-        return -ENODEV;
-
     dev->driver = drv;
-
     return -ENOERR;
 }
 
 /**
- * device_bind - try to attach device to a driver
- * @drv: driver
+ * device_bind - try to bind device to a driver
+ * @dev: device to bind
  */
 state device_bind(struct device *dev)
 {
@@ -63,7 +66,6 @@ state device_bind(struct device *dev)
     ret = driver_probe_device(dev->driver, dev);
 
     mutex_unlock(&dev->mutex);
-
     return -ENOERR;
 }
 
@@ -76,14 +78,12 @@ state driver_bind(struct driver *drv)
     struct bus_type *bus = drv->bus;
     struct device *dev;
     state ret;
-    
+
     bus_for_each_device(dev, bus) {
         ret = bus->match(dev, drv);
         if(ret)
             continue;
-
         dev->driver = drv;
-
         driver_probe_device(drv, dev);
     }
 

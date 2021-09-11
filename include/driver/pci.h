@@ -8,7 +8,7 @@
 #include <device.h>
 #include <resource.h>
 #include <lightcore/pci.h>
-#include <mod_devicetable.h>
+#include <devtable.h>
 
 #include <driver/pci/pci_ids.h>
 #include <driver/pci/pci_regs.h>
@@ -102,10 +102,8 @@ static inline void pci_set_devdata(struct pci_device *pdev, void *data)
 }
 
 #define pci_resource_start(pdev, bar)   ((pdev)->resource[(bar)].start)
-#define pci_resource_end(pdev, bar)     ((pdev)->resource[(bar)].end)
+#define pci_resource_size(pdev, bar)    ((pdev)->resource[(bar)].size)
 #define pci_resource_type(pdev, bar)    ((pdev)->resource[(bar)].type)
-#define pci_resource_size(pdev, bar) \
-    (pci_resource_end((pdev), (bar)) - pci_resource_start((pdev), (bar)) + 1)
 
 struct pci_driver {
     struct driver driver;
@@ -114,7 +112,7 @@ struct pci_driver {
 
     /* Operation function */
     state (*probe)(struct pci_device *pdev, int id);
-    state (*remove)(struct pci_device *pdev);
+    void (*remove)(struct pci_device *pdev);
     void (*shutdown)(struct pci_device *pdev);
     state (*suspend)(struct pci_device *pdev, pm_message_t state);
     state (*resume)(struct pci_device *pdev);
@@ -151,14 +149,13 @@ struct pci_host {
 };
 
 /* base.c - PCI basic operation */
-uint8_t pci_bus_config_readb(struct pci_bus *bus, uint devfn, uint reg);
+uint8_t  pci_bus_config_readb(struct pci_bus *bus, uint devfn, uint reg);
 uint16_t pci_bus_config_readw(struct pci_bus *bus, uint devfn, uint reg);
 uint32_t pci_bus_config_readl(struct pci_bus *bus, uint devfn, uint reg);
 void pci_bus_config_writeb(struct pci_bus *bus, uint devfn, uint reg, uint8_t val);
 void pci_bus_config_writew(struct pci_bus *bus, uint devfn, uint reg, uint16_t val);
 void pci_bus_config_writel(struct pci_bus *bus, uint devfn, uint reg, uint32_t val);
-
-uint8_t pci_config_readb(struct pci_device *pdev, uint reg);
+uint8_t  pci_config_readb(struct pci_device *pdev, uint reg);
 uint16_t pci_config_readw(struct pci_device *pdev, uint reg);
 uint32_t pci_config_readl(struct pci_device *pdev, uint reg);
 void pci_config_writeb(struct pci_device *pdev, uint reg, uint8_t val);
@@ -166,20 +163,19 @@ void pci_config_writew(struct pci_device *pdev, uint reg, uint16_t val);
 void pci_config_writel(struct pci_device *pdev, uint reg, uint32_t val);
 
 state pci_cacheline_size(struct pci_device *pdev);
-
 void pci_mwi_clear(struct pci_device *pdev);
 state pci_mwi_set(struct pci_device *pdev);
-
 uint32_t pcix_mmrbc_get(struct pci_device *pdev);
 state pcix_mmrbc_set(struct pci_device *pdev, uint32_t mmrbc);
 
-/* core.c -  */
+/* core.c */
 state pci_host_register(struct pci_host *host);
+state pci_host_unregister(struct pci_host *host);
 
-/* bus.c -  */
+/* bus.c */
 void pci_bus_devices_probe(const struct pci_bus *bus);
 
-/* driver.c -  */
+/* driver.c */
 state pci_driver_register(struct pci_driver *);
 void pci_driver_unregiste(struct pci_driver *drv);
 

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
 menu "Device Drivers"
 
 source "drivers/acpi/Kconfig"
@@ -5,10 +7,6 @@ source "drivers/acpi/Kconfig"
 source "drivers/ata/Kconfig"
 
 source "drivers/block/Kconfig"
-
-# source "drivers/buzzer/Kconfig"
-
-# source "drivers/cdrom/Kconfig"
 
 source "drivers/char/Kconfig"
 
@@ -18,11 +16,9 @@ source "drivers/clocksource/Kconfig"
 
 # source "drivers/cpufreq/Kconfig"
 
-# source "drivers/dma/Kconfig"
+source "drivers/dmi/Kconfig"
 
 source "drivers/dt/Kconfig"
-
-# source "drivers/firmware/Kconfig"
 
 source "drivers/floppy/Kconfig"
 
@@ -33,8 +29,6 @@ source "drivers/gpio/Kconfig"
 # source "drivers/hid/Kconfig"
 
 source "drivers/i2c/Kconfig"
-
-# source "drivers/i2s/Kconfig"
 
 source "drivers/input/Kconfig"
 
@@ -48,23 +42,15 @@ source "drivers/mtd/Kconfig"
 
 source "drivers/net/Kconfig"
 
-# source "drivers/nfc/Kconfig"
-
 source "drivers/pci/Kconfig"
 
-# source "drivers/rf/Kconfig"
-
-# source "drivers/rng/Kconfig"
+source "drivers/reset/Kconfig"
 
 source "drivers/rtc/Kconfig"
 
-# source "drivers/scsi/Kconfig"
-
 source "drivers/sound/Kconfig"
 
-# source "drivers/spi/Kconfig"
-
-# source "drivers/thermal/Kconfig"
+source "drivers/spi/Kconfig"
 
 source "drivers/uart/Kconfig"
 

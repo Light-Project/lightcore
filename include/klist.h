@@ -1,14 +1,12 @@
 #ifndef _KLIST_H_
 #define _KLIST_H_
 
-#include <list.h> 
-#include <kernel/kref.h>
-#include <kernel/spinlock.h>
+#include <list.h>
+#include <spinlock.h>
 
 struct klist_node {
     void        *n_klist;
     list_t      n_node;
-    kref_t      n_ref;
 } klist_node_t;
 
 struct klist {

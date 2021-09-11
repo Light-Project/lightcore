@@ -1,1 +1,1 @@
-#include <kernel/sched.h>
+#include <sched.h>

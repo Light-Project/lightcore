@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 
-#ifndef _LIGHTCORE_ASM_X86_TYPES_H_ 
+#ifndef _LIGHTCORE_ASM_X86_TYPES_H_
 #define _LIGHTCORE_ASM_X86_TYPES_H_
 
 #ifndef __ASSEMBLY__

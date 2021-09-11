@@ -4,7 +4,6 @@
  */
 
 #include <kboot.h>
-#include <size.h>
 
 void main(void)
 {
@@ -16,8 +15,6 @@ void main(void)
 
     /* Initialization MMU */
     kernel_map();
-
     extract_kernel(kernel_entry, piggy_start, piggy_size);
-
     kernel_start(kernel_entry);
 }

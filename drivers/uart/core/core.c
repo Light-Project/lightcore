@@ -5,3 +5,13 @@
 
 #include <driver/uart.h>
 
+state uart_register(struct uart_device *udev)
+{
+
+    return -ENOERR;
+}
+
+void uart_unregister(struct uart_device *udev)
+{
+
+}

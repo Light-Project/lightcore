@@ -1,0 +1,20 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
+/dts-v1/;
+#include "sunxi/suniv.dtsi"
+
+/ {
+    model = "NeoPi-One";
+
+    memory@80000000 {
+        device_type = "memory";
+        reg = <0x80000000 0x04000000>;
+    };
+
+    chosen {
+        bootargs = "init=/sbin/init";
+    };
+};

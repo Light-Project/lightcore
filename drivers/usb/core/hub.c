@@ -6,17 +6,17 @@
 #define DRIVER_NAME "usb-hub"
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
-#include <init/initcall.h>
+#include <initcall.h>
 #include <driver/usb.h>
 
 static state hub_probe(struct usb_device *udev, int id)
 {
-    
+
 }
 
 static state hub_remove(struct usb_device *udev)
 {
-    
+
 }
 
 static struct usb_device_id hub_id_table[] = {

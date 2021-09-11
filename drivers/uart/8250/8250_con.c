@@ -4,113 +4,128 @@
  */
 
 #include <mm.h>
-#include <init/initcall.h>
 #include <console.h>
+#include <initcall.h>
 #include <driver/platform.h>
 #include <driver/uart/8250.h>
 
 #include <asm/io.h>
 #include <asm/proc.h>
 
-#define freq_def    115200
+#define freq_def 115200
 
 struct i8250_console {
     struct console console;
     unsigned int regshift;
-    resource_size_t addr;
-    bool mmio;
+    resource_size_t pmio;
+    void *mmio;
 };
 
 #define console_to_dev(con) \
     container_of(con, struct i8250_console, console)
 
-static inline uint8_t i8250_in(struct i8250_console *dev, int reg)
+static inline uint8_t i8250con_in(struct i8250_console *dev, int reg)
 {
     reg <<= dev->regshift;
 
     if (dev->mmio)
-        return readb((void *)reg);
-    return inb(reg);
-}
-
-static inline void i8250_out(struct i8250_console *dev, int reg, uint8_t val)
-{
-    reg <<= dev->regshift;
-
-    if (dev->mmio)
-        writeb((void *)reg, val);
+        return readb(dev->mmio + reg);
     else
-        outb(reg, val);
+        return inb(dev->pmio + reg);
 }
 
-static void serial_putc(struct i8250_console *dev, char ch)
+static inline void i8250con_out(struct i8250_console *dev, int reg, uint8_t val)
 {
-    while (!(i8250_in(dev, UART8250_LSR) & UART8250_LSR_THRE))
-        cpu_relax();
-    i8250_out(dev, UART8250_THR, ch);
+    reg <<= dev->regshift;
+
+    if (dev->mmio)
+        writeb(dev->mmio + reg, val);
+    else
+        outb(dev->pmio + reg, val);
 }
 
-void serial_putcs(struct console *con, const char *str, unsigned len)
+static void i8250con_putc(struct i8250_console *dev, char ch)
+{
+    while (!(i8250con_in(dev, UART8250_LSR) & UART8250_LSR_THRE))
+        cpu_relax();
+    i8250con_out(dev, UART8250_THR, ch);
+}
+
+static void i8250con_putcs(struct console *con, const char *str, unsigned len)
 {
     struct i8250_console *dev = console_to_dev(con);
     while (len--)
-        serial_putc(dev, *str++);
+        i8250con_putc(dev, *str++);
 }
 
-static void i8250_init(struct i8250_console *dev)
+static state i8250con_setup(struct console *con)
 {
-    unsigned int clk = freq_def;
+    struct i8250_console *dev = console_to_dev(con);
 
-    i8250_out(dev, UART8250_IER, 0);
-    i8250_out(dev, UART8250_MCR, UART8250_MCR_RTS | UART8250_MCR_DTR);
-    i8250_out(dev, UART8250_FCR, UART8250_FCR_FIFO_EN);
+    if (0) {
+        unsigned int clk = freq_def;
+        i8250con_out(dev, UART8250_LCR, UART8250_LCR_DLAB);
+        i8250con_out(dev, UART8250_DLL, clk);
+        i8250con_out(dev, UART8250_DLH, clk >> 8);
+    }
 
-    i8250_out(dev, UART8250_LCR, UART8250_LCR_DLAB);
-    i8250_out(dev, UART8250_DLL, clk);
-    i8250_out(dev, UART8250_DLH, clk >> 8);
-    i8250_out(dev, UART8250_LCR, UART8250_LCR_WLS_8);
+    i8250con_out(dev, UART8250_IER, 0);
+    i8250con_out(dev, UART8250_MCR, UART8250_MCR_RTS | UART8250_MCR_DTR);
+    i8250con_out(dev, UART8250_FCR, UART8250_FCR_FIFO_EN);
+    i8250con_out(dev, UART8250_LCR, UART8250_LCR_WLS_8);
+
+    return -ENOERR;
 }
 
-static state i8250_probe(struct platform_device *pdev)
+static struct console_ops i8250con_ops = {
+    .write = i8250con_putcs,
+    .startup = i8250con_setup,
+};
+
+static state i8250con_probe(struct platform_device *pdev)
 {
     struct i8250_console *dev;
+    resource_size_t addr, size;
     int val;
 
-    dev = kmalloc(sizeof(*dev), GFP_KERNEL);
+    val = platform_resource_type(pdev, 0);
+    if (val != RESOURCE_MMIO)
+        return -ENODEV;
+
+    dev = dev_kzalloc(&pdev->device, sizeof(*dev), GFP_KERNEL);
     if (!dev)
         return -ENOMEM;
 
-    val = platform_resource_type(pdev, 0);
-    if (val == RESOURCE_MMIO)
-        dev->mmio = true;
-    else if (val != RESOURCE_PMIO)
-        return -ENODEV;
+    addr = platform_resource_start(pdev, 0);
+    size = platform_resource_size(pdev, 0);
+    dev->mmio = dev_ioremap(&pdev->device, addr, size);
+    if (!dev->mmio)
+        return -ENOMEM;
 
-    dev->addr = platform_resource_start(pdev, 0);
-    i8250_init(dev);
-
-    dev->console.write = serial_putcs;
+    dev->regshift = 4;
+    dev->console.ops = &i8250con_ops;
+    dev->console.flags = CONSOLE_BOOT;
     console_register(&dev->console);
     return -ENOERR;
 }
 
-static struct dt_device_id i8250_ids[] = {
+static struct dt_device_id i8250con_ids[] = {
     { .compatible = "ns16550" },
     { .compatible = "ns16550a" },
     { .compatible = "snps,dw-apb-uart" },
     { }, /* NULL */
 };
 
-static struct platform_driver i8250_driver = {
+static struct platform_driver i8250con_driver = {
     .driver = {
         .name = "i8250-console",
     },
-    .dt_table = i8250_ids,
-    .probe = i8250_probe,
+    .dt_table = i8250con_ids,
+    .probe = i8250con_probe,
 };
 
-static state i8250_con_init(void)
+static state i8250con_init(void)
 {
-    return platform_driver_register(&i8250_driver);
+    return platform_driver_register(&i8250con_driver);
 }
-console_initcall(i8250_con_init);
+console_initcall(i8250con_init);

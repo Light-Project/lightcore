@@ -2,6 +2,8 @@
 #ifndef _ASM_ARM_TLB_H_
 #define _ASM_ARM_TLB_H_
 
+#include <types.h>
+
 static inline void tlb_inval_all(void)
 {
     asm volatile (

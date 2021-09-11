@@ -3,33 +3,16 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <types.h>
+#include <asm/cache.h>
+#include <asm/tlb.h>
+#include <asm/proc.h>
 
 void arch_mm_switch(uint32_t *addr)
 {
-    asm volatile(
-        "mov    ip, #0\n"
 
-        /* invalidate D cache */
-        "mcr    p15, 0, ip, c7, c6, 0\n"
+    dcache_writeback_all();
+    icache_inval_all();
+    wcache_drain_all();
 
-        /* invalidate I cache */
-        "mcr	p15, 0, ip, c7, c5, 0\n"
-
-        /* Drain write buffer */
-        "mcr	p15, 0, ip, c7, c10, 4\n"
-
-        /* load page table pointer */
-        "mcr    p15, 0, %0, c2, c0, 0\n"
-
-        /* invalidate instruct and data tlb */
-        "mcr    p15, 0, ip, c8, c7, 0\n"
-
-        ::"r"(addr):"ip"
-    );
-}
-
-void arch_halt()
-{
-
+    tlb_inval_all();
 }

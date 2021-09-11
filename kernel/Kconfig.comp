@@ -25,9 +25,10 @@ menu "Compile config"
     config KERNEL_DEBUG
     bool "Kernel generate debug file"
     default y
-        
-    config LD_DEAD_CODE_DATA_ELIMINATION
-    bool "Dead code and data elimination (EXPERIMENTAL)"
+    
+    config KERNEL_MAP
+    bool "Kernel generate map file"
+    default y
         
     config RELOCATABLE
     bool "Build a relocatable kernel"
@@ -42,6 +43,9 @@ menu "Compile config"
     default y
     help
         This randomizes the kernel load address and the mapping address.
+        
+    config LD_DEAD_CODE_DATA_ELIMINATION
+    bool "Dead code and data elimination (EXPERIMENTAL)"
 
 endmenu
 
