@@ -33,7 +33,7 @@ void init_task(void);
 
 static void __init command_setup(void)
 {
-    const char *args = (void *)(size_t)boot_head.para[0];
+    const char *args = (void *)(size_t)boot_head.para;
     if(!args)
         return;
     strlcpy(boot_args, args, boot_args_size);

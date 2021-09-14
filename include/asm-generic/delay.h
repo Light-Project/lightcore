@@ -2,16 +2,12 @@
 #ifndef _DELAY_H_
 #define _DELAY_H_
 
-static inline void udelay(unsigned long nsecs)
+static inline void ndelay(unsigned long msecs)
 {
-
-
 }
 
-static inline void mdelay(unsigned long msecs)
+static inline void udelay(unsigned long nsecs)
 {
-
-
 }
 
 #endif /* _DELAY_H_ */

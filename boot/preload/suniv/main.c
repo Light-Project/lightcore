@@ -124,7 +124,7 @@ static inline void recovery_fel(void)
     val = cp15_get(c1, c0, 0);
     cp15_set(c1, c0, 0, val | (1 << 13));
 
-    kboot_start(fel_entry);
+    kboot_start(FEL_ENTRY);
 }
 
 void main(void)

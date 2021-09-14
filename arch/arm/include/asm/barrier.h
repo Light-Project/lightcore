@@ -1,32 +1,34 @@
-#ifndef _BARRIER_H_
-#define _BARRIER_H_
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#ifndef _ASM_ARM_BARRIER_H_
+#define _ASM_ARM_BARRIER_H_
 
-// #if __ARM32_ARCH__ == 5
-#define isb()		__asm__ __volatile__ ("" : : : "memory")
-#define dsb()		__asm__ __volatile__ ("mcr p15, 0, %0, c7, c10,  4" : : "r" (0) : "memory")
-#define dmb()		__asm__ __volatile__ ("" : : : "memory")
-// #elif __ARM32_ARCH__ == 6
-// #define isb()		__asm__ __volatile__ ("mcr p15, 0, %0, c7, c5,  4" : : "r" (0) : "memory")
-// #define dsb()		__asm__ __volatile__ ("mcr p15, 0, %0, c7, c10, 4" : : "r" (0) : "memory")
-// #define dmb()		__asm__ __volatile__ ("mcr p15, 0, %0, c7, c10, 5" : : "r" (0) : "memory")
-// #else
-// #define isb()		__asm__ __volatile__ ("isb" : : : "memory")
-// #define dsb()		__asm__ __volatile__ ("dsb" : : : "memory")
-// #define dmb()		__asm__ __volatile__ ("dmb" : : : "memory")
-// #endif
+#ifndef __ASSEMBLY__
 
-/* Read and write memory barrier */
-#define mb()		dsb()
-/* Read memory barrier */
-#define rmb()		dsb()
-/* Write memory barrier */
-#define wmb()		dsb()
+#if __ARM_ARCH__ >= 7
+#define isb(op)     __asm__ __volatile__ ("isb" : : : "memory")
+#define dsb(op)     __asm__ __volatile__ ("dsb" : : : "memory")
+#define dmb(op)     __asm__ __volatile__ ("dmb" : : : "memory")
+#elif __ARM_ARCH__ == 6
+#define isb(op)     __asm__ __volatile__ ("mcr p15, 0, %0, c7, c5,  4" : : "r" (0) : "memory")
+#define dsb(op)     __asm__ __volatile__ ("mcr p15, 0, %0, c7, c10, 4" : : "r" (0) : "memory")
+#define dmb(op)     __asm__ __volatile__ ("mcr p15, 0, %0, c7, c10, 5" : : "r" (0) : "memory")
+#else
+#define isb(op)     __asm__ __volatile__ ("" : : : "memory")
+#define dsb(op)     __asm__ __volatile__ ("mcr p15, 0, %0, c7, c10,  4" : : "r" (0) : "memory")
+#define dmb(op)     __asm__ __volatile__ ("" : : : "memory")
+#endif
 
-/* SMP read and write memory barrier */
+#ifdef CONFIG_SMP
+#define mb()        dsb()
+#define rmb()       dsb()
+#define wmb()       dsb()
+#endif
+
 #define smp_mb()	dmb()
-/* SMP read memory barrier */
 #define smp_rmb()	dmb()
-/* SMP write memory barrier */
 #define smp_wmb()	dmb()
 
-#endif
+#include <asm-generic/barrier.h>
+
+#endif  /* __ASSEMBLY__ */
+#endif  /* _ASM_ARM_BARRIER_H_ */

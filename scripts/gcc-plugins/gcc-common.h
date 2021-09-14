@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-2.0 */
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef GCC_COMMON_H_INCLUDED
 #define GCC_COMMON_H_INCLUDED
 

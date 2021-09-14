@@ -12,12 +12,12 @@
 /* Optimization barrier */
 #ifndef barrier
 /* The "volatile" is due to gcc bugs */
-# define barrier() __asm__ __volatile__("": : :"memory")
+#define barrier() __asm__ __volatile__("": : :"memory")
 #endif
 
 /* Not-quite-unique ID. */
 #ifndef __UNIQUE_ID
-# define __UNIQUE_ID(prefix) __PASTE(__PASTE(__UNIQUE_ID_, prefix), __LINE__)
+#define __UNIQUE_ID(prefix) __PASTE(__PASTE(__UNIQUE_ID_, prefix), __LINE__)
 #endif
 
 /*
@@ -39,6 +39,5 @@ static inline void *offset_to_ptr(const int *off)
     return (void *)((unsigned long)off + *off);
 }
 
-#endif /* __ASSEMBLY__ */
-
-#endif /* _COMPILER_H_ */
+#endif  /* __ASSEMBLY__ */
+#endif  /* _COMPILER_H_ */

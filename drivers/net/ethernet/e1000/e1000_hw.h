@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-2.0 */
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /* Copyright(c) 1999 - 2006 Intel Corporation. */
 
 /* e1000_hw.h

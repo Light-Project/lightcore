@@ -28,9 +28,9 @@ void extract_kernel(void *output_start, void *input_start, unsigned long len)
     pr_boot("    input: 0x%x\n", input_start);
     pr_boot("    output: 0x%x\n", output_start);
     pr_boot("    length: %d\n", len);
-    
-#ifdef CONFIG_PACK_KERNEL   
-    int ret;     
+
+#ifdef CONFIG_PACK_KERNEL
+    int ret;
     ret = __decompress(input_start, len, NULL, NULL, output_start,
                         0, NULL, (void (*)(char *))panic);
     if (ret)

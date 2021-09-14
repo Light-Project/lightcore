@@ -27,28 +27,30 @@
 .endm
 
 .macro SWITCH_TO_KERNEL
-
-
-
 .endm
 
 .macro SWITCH_TO_USER
-
 .endm
 
-ENTRY(entry_divide_error)
+SYM_CODE_START(entry_switch_stack)
+    pushl   %ebp
+    pushl   %ebp
+    pushl   %ebp
+    pushl   %ebp
+
+SYM_CODE_END(entry_switch_stack)
+
+SYM_CODE_START(entry_divide_error)
     jmp .
-
     iret
-END(entry_divide_error)
+SYM_CODE_END(entry_divide_error)
 
-ENTRY(entry_nmi)
+SYM_CODE_START(entry_nmi)
     jmp .
-
     iret
-END(entry_nmi)
+SYM_CODE_END(entry_nmi)
 
-ENTRY(entry_general_protection)
+SYM_CODE_START(entry_general_protection)
     SAVE_REGS
 
     pushl   %esp
@@ -57,7 +59,7 @@ ENTRY(entry_general_protection)
 
     REC_REGS
     iret
-END(entry_general_protection)
+SYM_CODE_END(entry_general_protection)
 
 /**
  * Arguments:
@@ -69,7 +71,7 @@ END(entry_general_protection)
  * edi  arg5
  * ebp  arg6
  */
-ENTRY(entry_syscall_80)
+SYM_CODE_START(entry_syscall_80)
     clac
     SAVE_REGS
 
@@ -79,9 +81,9 @@ ENTRY(entry_syscall_80)
 
     REC_REGS
     iret
-END(entry_syscall_80)
+SYM_CODE_END(entry_syscall_80)
 
-ENTRY(entry_generic_interrupt)
+SYM_CODE_START(entry_generic_interrupt)
     vector=IRQ_EXTERNAL
 
 .rept(IRQ_NR_MAX - IRQ_EXTERNAL)
@@ -102,4 +104,4 @@ ENTRY(entry_generic_interrupt)
 
     sti
     iret
-END(entry_generic_interrupt)
+SYM_CODE_END(entry_generic_interrupt)

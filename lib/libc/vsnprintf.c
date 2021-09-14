@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <types.h>
-#include <string.h>
 #include <stdarg.h>
+#include <string.h>
 
 enum flags {
     FL_ZERO             = 0x01,     /* Zero modifier */

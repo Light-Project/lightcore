@@ -1,10 +1,10 @@
-/* SPDX-License-Identifier: GPL-2.0 */
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef LIBFDT_ENV_H
 #define LIBFDT_ENV_H
 
 #include <limits.h>         /* For INT_MAX */
-#include <string.h>   
-#include <stddef.h>      
+#include <string.h>
+#include <stddef.h>
 
 #include <lightcore/asm/byteorder.h>  /* For be32_to_cpu */
 

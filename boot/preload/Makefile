@@ -1,11 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-
 tar-$(CONFIG_ARCH_X86)     += bios/
 tar-$(CONFIG_CHIP_ESP32)   += esp32/
 tar-$(CONFIG_CHIP_ESP8266) += esp8266/
 tar-$(CONFIG_CHIP_SUNIV)   += suniv/
-obj-y += $(tar-y)
-obj-y += lib/
+obj-y += $(tar-y) lib/
 
 include-y += $(obj)lib/
 

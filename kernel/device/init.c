@@ -15,7 +15,7 @@ void __init early_device_init(void)
 {
 #ifdef CONFIG_DT
     void *dt_start;
-    dt_start = (void *)(size_t)boot_head.para[1];
+    dt_start = (void *)(size_t)boot_head.dtb;
 #ifdef CONFIG_BUILTIN_DTB
     if(!dt_start)
         dt_start = &_ld_init_dtb_start;

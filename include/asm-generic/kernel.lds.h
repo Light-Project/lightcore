@@ -71,16 +71,22 @@
 #endif
 
 /*
- * RO Data:
+ * RO data: RO data
  */
 #define RODATA_RODATA(align)                                \
-    . = ALIGN(align);                                       \
-    .rodata :                                               \
-    AT(ADDR(.rodata) - LOAD_OFFSET) {                       \
-        _ld_rodata_rodata_start = .;                        \
-        *(RODATA_MAIN)                                      \
-        _ld_rodata_rodata_end = .;                          \
-    }
+    _ld_rodata_rodata_start = .;                            \
+    *(RODATA_MAIN)                                          \
+    _ld_rodata_rodata_end = .;
+
+#define KSYMTAB(align)                                      \
+    _ld_ksymtab_start = .;                                  \
+    KEEP(*(SORT(.ksymtab+*)))                               \
+    _ld_ksymtab_end = .;
+
+#define KSYMTAB_GPL(align)                                  \
+    _ld_ksymtab_gpl_start = .;                              \
+    KEEP(*(SORT(.ksymtab_gpl+*)))                           \
+    _ld_ksymtab_gpl_end = .;
 
 #define NOTES                                               \
     .notes :                                                \
@@ -91,29 +97,9 @@
     } NOTES_HEADERS                                         \
     NOTES_HEADERS_RESTORE
 
-
-#define KSYMTAB(align)                                      \
-    . = ALIGN(align);                                       \
-    .ksymtab :                                              \
-    AT(ADDR(.ksymtab) - LOAD_OFFSET) {                      \
-        PROVIDE(_ld_ksymtab_start = .);                     \
-        KEEP(*(SORT(.ksymtab+*)))                           \
-        PROVIDE(_ld_ksymtab_end = .);                       \
-    }
-
-#define KSYMTAB_GPL(align)                                  \
-    . = ALIGN(align);                                       \
-    .ksymtab_gpl :                                          \
-    AT(ADDR(.ksymtab_gpl) - LOAD_OFFSET) {                  \
-        PROVIDE(_ld_ksymtab_gpl_start = .);                 \
-        KEEP(*(SORT(.ksymtab_gpl+*)))                       \
-        PROVIDE(_ld_ksymtab_gpl_end = .);                   \
-    }
-
 /*
- * Init text:
+ * Init text: init text
  */
-
 #define INIT_TEXT                                           \
     *(.init.text .init.text.*)                              \
     *(.text.startup)                                        \
@@ -122,7 +108,6 @@
 /*
  * Init data: DT table
  */
-
 #define INIT_DT_TABLES                                      \
     _ld_init_dtb_start = .;                                 \
     KEEP(*(.init.dtb));                                     \
@@ -131,8 +116,8 @@
 /*
  * Init data: Boot param table
  */
-#define INIT_ARGS(initsetup_align)                          \
-    . = ALIGN(initsetup_align);                             \
+#define INIT_ARGS(align)                                    \
+    . = ALIGN(align);                                       \
     _ld_boot_param_start = .;                               \
     KEEP(*(.init.bootargs))                                 \
     _ld_boot_param_end = .;
@@ -165,6 +150,11 @@
     KEEP(*(.init.console_initcall))                         \
     _ld_console_initcall_end = .;
 
+#define SCHEDULER_INITCALL                                  \
+    _ld_scheduler_initcall_start = .;                       \
+    KEEP(*(.init.scheduler_initcall))                       \
+    _ld_scheduler_initcall_end = .;
+
 #define IRQCHIP_INITCALL                                    \
     _ld_irqchip_initcall_start = .;                         \
     KEEP(*(.init.irqchip_initcall))                         \
@@ -179,8 +169,8 @@
  * bss (Block Started by Symbol) - uninitialized data
  * zeroed during startup
  */
-#define SBSS(sbss_align)                                    \
-    . = ALIGN(sbss_align);                                  \
+#define SBSS(align)                                         \
+    . = ALIGN(align);                                       \
     .sbss :                                                 \
     AT(ADDR(.sbss) - LOAD_OFFSET) {                         \
         *(.dynsbss)                                         \
@@ -188,8 +178,8 @@
         *(.scommon)                                         \
     }
 
-#define BSS(bss_align)                                      \
-    . = ALIGN(bss_align);                                   \
+#define BSS(align)                                          \
+    . = ALIGN(align);                                       \
     .bss :                                                  \
     AT(ADDR(.bss) - LOAD_OFFSET) {                          \
         . = ALIGN(PAGE_SIZE);                               \
@@ -236,8 +226,8 @@
     }                                                       \
 PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
 
-#define TEXT_SECTION(align)                                 \
-    . = ALIGN(align);                                       \
+#define TEXT_SECTION(pagealign)                             \
+    . = ALIGN(pagealign);                                   \
     .text :                                                 \
     AT(ADDR(.text) - LOAD_OFFSET) {                         \
         _ld_text_start = .;                                 \
@@ -245,11 +235,14 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
         _ld_text_end = .;                                   \
     }
 
-#define RODATA_SECTION(align)                               \
-    . = ALIGN(align);                                       \
-    RODATA_RODATA(align)                                    \
-    KSYMTAB(align)                                          \
-    KSYMTAB_GPL(align)                                      \
+#define RODATA_SECTION(pagealign)                           \
+    . = ALIGN(pagealign);                                   \
+    .rodata :                                               \
+    AT(ADDR(.rodata) - LOAD_OFFSET) {                       \
+    RODATA_RODATA(pagealign)                                \
+    KSYMTAB(pagealign)                                      \
+    KSYMTAB_GPL(pagealign)                                  \
+    }                                                       \
     NOTES
 
 #define RWDATA_SECTION(cacheline, pagealign)                \
@@ -261,8 +254,15 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
         _ld_data_end = .;                                   \
     }
 
-#define INIT_TEXT_SECTION(align)                            \
-    . = ALIGN(align);                                       \
+#define PERCPU_SECTION(cacheline, pagealign)                \
+    . = ALIGN(pagealign);                                   \
+    .percpu :                                               \
+    AT(ADDR(.data) - LOAD_OFFSET) {                         \
+    }
+
+
+#define INIT_TEXT_SECTION(pagealign)                        \
+    . = ALIGN(pagealign);                                   \
     .init.text :                                            \
     AT(ADDR(.init.text) - LOAD_OFFSET) {                    \
         _ld_inittext_start = .;                             \
@@ -275,6 +275,7 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
     AT(ADDR(.init.data) - LOAD_OFFSET) {                    \
         _ld_data_section_start = .;                         \
         CONSOLE_INITCALL                                    \
+        SCHEDULER_INITCALL                                  \
         IRQCHIP_INITCALL                                    \
         CLKSRC_INITCALL                                     \
         INIT_CALLS                                          \
@@ -292,11 +293,6 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
     . = ALIGN(stop_align);                                  \
     _ld_bss_end = .;
 
-/*
-* DWARF debug sections.
-* Symbols in the DWARF debugging sections are relative to
-* the beginning of the section so we begin them at 0.
-*/
 #define DWARF_DEBUG                                         \
     /* DWARF 1 */                                           \
     .debug          0 : { *(.debug) }                       \

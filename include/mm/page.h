@@ -10,7 +10,6 @@
 static inline int to_order(size_t size)
 {
     if (__builtin_constant_p(size)) {
-
     }
 
     size -= 1;

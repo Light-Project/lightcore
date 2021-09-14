@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-2.0
+# SPDX-License-Identifier: GPL-2.0-or-later
 # ==========================================================================
 # Cleaning up
 # ==========================================================================
@@ -81,6 +81,4 @@ _clean: $(clean_subdir) $(clean_files) $(clean_dirs)
 PHONY += FORCE
 FORCE:
 
-# Declare the contents of the PHONY variable as phony.  We keep that
-# information in a variable so we can use it in if_changed and friends.
 .PHONY: $(PHONY)

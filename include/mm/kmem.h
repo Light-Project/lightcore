@@ -11,11 +11,11 @@
 
 #ifndef __ASSEMBLY__
 
-void *kmalloc(size_t size, gfp_t);
+void __malloc *kmalloc(size_t size, gfp_t);
 #define kzalloc(size, gfp)  kmalloc(size, gfp | GFP_ZERO)
 
-void *kcalloc (size_t nmemb, size_t size, gfp_t);
-void *krealloc(void* mem, size_t size, gfp_t);
+void __malloc *kcalloc (size_t nmemb, size_t size, gfp_t);
+void __malloc *krealloc(void* mem, size_t size, gfp_t);
 void kfree(void *mem);
 
 void kmem_init(void);

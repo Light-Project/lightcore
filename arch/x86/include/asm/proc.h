@@ -1,14 +1,21 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _ASM_X86_PROC_H_
 #define _ASM_X86_PROC_H_
 
-#include <asm/regs.h>
+#include <types.h>
+#include <state.h>
 
-/* REP NOP (PAUSE) is a good thing to insert into busy-wait loops. */
+struct task;
+
 static __always_inline void cpu_relax(void)
 {
+	/*
+	 * rep nop (PAUSE) is a good thing to
+	 * insert into busy-wait loops.
+	 */
 	asm volatile("rep; nop" ::: "memory");
 }
 
-struct task *arch_switch(struct task *prev, struct task *next);
+state arch_switch_task(struct task *prev, struct task *next);
 
 #endif /* _ASM_X86_PROC_H_ */

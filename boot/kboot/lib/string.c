@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+
 #include <lib.h>
 
 __weak void *memcpy(void *dest, const void* src, size_t len)

@@ -14,21 +14,14 @@ GLOBAL(head)
     MZ_HEADER
 .endr
     b   _start
-    // EFI_HEADER
 END(head)
 
 GLOBAL(_start)
     ldr     sp, =_ld_stack_end
-
-    bl      main
-    b       halt
+    mov     lr, #0
+    b       main
 END(_start)
 
 GLOBAL(kernel_start)
     mov     pc, a1
 END(kernel_start)
-
-ENTRY(halt)
-    nop
-    b   halt
-END(halt)

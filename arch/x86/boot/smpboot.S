@@ -8,17 +8,14 @@
 
     .code16
     .section    .text, "ax"
-
-GLOBAL(smp_start)
+SYM_CODE_START(smp_start)
     wbinvd
-
     cli
 
     movw    %cs, %ax
     movw    %ax, %dx
-
     movw    $1, %ax
     lmsw    %ax
 
     ljmpl   $GDT_ENTRY_KERNEL_CS_BASE, $init
-END(smp_start)
+SYM_FUNC_END(smp_start)

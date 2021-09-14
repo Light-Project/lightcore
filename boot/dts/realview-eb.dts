@@ -1,0 +1,24 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+
+/dts-v1/;
+#include "arm/realview-eb.dtsi"
+
+/ {
+    model = "ARM RealView Emulation Baseboard";
+
+    soc {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        compatible = "arm,realview-eb-soc", "simple-bus";
+        ranges;
+
+        intc: interrupt-controller@10040000 {
+            compatible = "arm,pl390";
+            #interrupt-cells = <3>;
+            #address-cells = <1>;
+            interrupt-controller;
+            reg = <0x10041000 0x1000>,
+                  <0x10040000 0x100>;
+        };
+    };
+};

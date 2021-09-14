@@ -15,7 +15,8 @@ endif
 
 ifdef CONFIG_ARCH_ARM
 dtb-y += neopi-nano.dtb
-# dtb-y += neopi-one.dtb
+dtb-y += neopi-one.dtb
+dtb-y += realview-eb.dtb
 # dtb-y += raspi-zero.dtb
 # dtb-y += raspi-2b.dtb
 endif 

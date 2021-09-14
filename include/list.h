@@ -128,5 +128,5 @@ bool list_check_end(struct list_head *head, struct list_head *node);
 bool list_check_around(struct list_head *prev, struct list_head *next);
 bool list_check_empty(struct list_head *head);
 
-#endif	/* __ASSEMBLY__ */
+#endif  /* __ASSEMBLY__ */
 #endif  /* _LIST_H_ */

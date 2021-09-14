@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-2.0 */
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 
 #ifndef _ASM_CSKY_BARRIER_H_
 #define _ASM_CSKY_BARRIER_H_
@@ -51,7 +51,7 @@
 
 #define __smp_mb()      __bar_brwarw()
 #define __smp_rmb()     __bar_brar()
-#define __smp_wmb()     __bar_bwaw() 
+#define __smp_wmb()     __bar_bwaw()
 
 /*
  * sync:        completion barrier, all sync.xx instructions

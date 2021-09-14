@@ -17,33 +17,6 @@ __all:
 MAKEFLAGS   += -rR
 MAKEFLAGS   += --no-print-directory
 
-# Beautify output
-# ---------------------------------------------------------------------------
-#
-# Normally, we echo the whole command before executing it. By making
-# that echo $($(quiet)$(cmd)), we now have the possibility to set
-# $(quiet) to choose other forms of output instead, e.g.
-#
-#         quiet_cmd_cc_o_c = Compiling $(RELDIR)/$@
-#         cmd_cc_o_c       = $(CC) $(c_flags) -c -o $@ $<
-#
-# If $(quiet) is empty, the whole command will be printed.
-# If it is set to "quiet_", only the short version will be printed.
-# If it is set to "silent_", nothing will be printed at all, since
-# the variable $(silent_cmd_cc_o_c) doesn't exist.
-#
-# A simple variant is to prefix commands with $(Q) - that's useful
-# for commands that shall be hidden in non-verbose mode.
-#
-#	$(Q)ln $@ :<
-#
-# If KBUILD_VERBOSE equals 0 then the above command will be hidden.
-# If KBUILD_VERBOSE equals 1 then the above command is displayed.
-# If KBUILD_VERBOSE equals 2 then give the reason why each target is rebuilt.
-#
-# To put more focus on warnings, be less verbose as default
-# Use 'make V=1' to see the full commands
-
 ifndef V
 DEBUG_MODE  := 0
 endif
@@ -67,7 +40,6 @@ export quiet Q
 # Start path                           #
 ########################################
 
-# Kconfig path config
 ifndef Kconfig
 Kconfig := Kconfig
 endif
@@ -164,15 +136,15 @@ endif
 export G
 export BUILD_ENABLE_EXTRA_GCC_DEBUG := $(G)
 
-include-y   += include/kconfig.h                       \
-               include/compiler/compiler_attributes.h  \
-               include/compiler/compiler_type.h        \
-               include/compiler/compiler.h             \
-               include/compiler/sections.h             \
-               include/compiler/stringify.h
-include-y   += include/
-include-y   += arch/$(arch)/include/ \
-               arch/$(arch)/include/generated/
+include-sub-y += include/kconfig.h                       \
+                 include/compiler/compiler_attributes.h  \
+                 include/compiler/compiler_type.h        \
+                 include/compiler/compiler.h             \
+                 include/compiler/sections.h             \
+                 include/compiler/stringify.h
+include-sub-y += include/
+include-sub-y += arch/$(arch)/include/ \
+                 arch/$(arch)/include/generated/
 
 # asflags
 sys-asflags-y += -D__ASSEMBLY__
@@ -207,7 +179,7 @@ kernel-flags-$(CONFIG_KERNEL_MAP) += -Wl,--cref,-Map=$@.map
 kernel-flags-y += -e boot_head $(platform-eflags-y)
 kernel-flags-y += -Wl,--build-id=sha1
 
-export CROSS_COMPILE include-y asflags-y ccflags-y acflags-y ldsflags-y ldflags-y
+export CROSS_COMPILE asflags-y ccflags-y acflags-y ldsflags-y ldflags-y
 
 #############################################################
 # Compiler instruction

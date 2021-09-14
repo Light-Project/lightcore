@@ -16,7 +16,7 @@ GLOBAL(boot_head)
 END(boot_head)
 
     .section    .text.init,"ax"
-ENTRY(init)
+SYM_CODE_START(init)
     movw    $GDT_ENTRY_KERNEL_DS_BASE, %di
     xorl    %eax, %eax
 
@@ -29,7 +29,7 @@ ENTRY(init)
 
     /* Clear bss */
     movl    $_ld_bss_start, %edi
-    movl    $_ld_bss_end, %ecx 
+    movl    $_ld_bss_end, %ecx
     subl    %edi, %ecx
     shrl    $2, %ecx
     rep;    stosl %eax, %es:(%edi)
@@ -38,10 +38,9 @@ ENTRY(init)
     addl    $THREAD_SIZE, %esp
 
     call    kernel_start
-END(init)
 
-ENTRY(halt)
+halt:
     cli
     rep;    hlt
     jmp     halt
-END(halt)
+SYM_FUNC_END(init)

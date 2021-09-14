@@ -3,16 +3,11 @@
 #define _KTHREAD_H_
 
 #include <state.h>
+#include <sched.h>
 
-enum kthread_flags {
-};
+typedef state (*kthread_t)(void *data);
 
-struct kthread {
-    enum kthread_flags flasg;
-    struct
-};
-
-__printf(2, 3) struct kthread *
-kthread_create(const char *name, ...);
+__printf(2, 3) struct task *
+kthread_create(kthread_t kthread, void *data, const char *name, ...);
 
 #endif  /* _KTHREAD_H_ */

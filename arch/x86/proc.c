@@ -1,12 +1,12 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#include <sched.h>
 
+#include <asm/entry.h>
 #include <asm/proc.h>
 
-struct task *arch_switch(struct task *prev, struct task *next)
+state arch_switch_task(struct task *prev, struct task *next)
 {
 
 
 
-    return NULL;
+    return -ENOERR;
 }

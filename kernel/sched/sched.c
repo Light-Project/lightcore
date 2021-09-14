@@ -3,38 +3,102 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
+#define pr_fmt(fmt) "sched: " fmt
+
 #include <string.h>
+#include <initcall.h>
+#include <sort.h>
 #include <sched.h>
+#include <printk.h>
 #include <asm/proc.h>
 
 static LIST_HEAD(sched_list);
+DEFINE_PERCPU(struct sched_queue, sched_queues);
 
-struct sched_type *sched_find(const char *name)
+static int sched_sort(struct list_head *a, struct list_head *b, void *data)
+{
+    struct sched_type *sched_a = list_entry(a, struct sched_type, list);
+    struct sched_type *sched_b = list_entry(b, struct sched_type, list);
+    return sched_a->priority - sched_b->priority;
+}
+
+static inline struct sched_type *sched_find(const char *name)
 {
     struct sched_type *sched;
-
     list_for_each_entry(sched, &sched_list, list)
         if (!strcmp(sched->name, name))
             return sched;
+    return NULL;
+}
+
+static __always_inline void
+context_switch(struct sched_queue *queue, struct task *prev, struct task *next)
+{
+
+    if (next->mm) {
+
+    } else {
+
+    }
+
+    arch_switch_task(prev, next);
+}
+
+static inline struct task *
+sched_task_get(struct sched_queue *queue, struct task *curr)
+{
+    struct sched_type *sched;
+    struct task *task;
+
+    list_for_each_entry(sched, &sched_list, list) {
+        task = sched->task_next(queue);
+        if (task)
+            return task;
+    }
 
     return NULL;
 }
 
-state sched_register(struct sched_type *sched)
+void sched_dispatch(void)
 {
-    list_add(&sched_list, &sched->list);
+    struct sched_queue *queue;
+    struct task *curr, *next;
+
+    queue = thiscpu_ptr(&sched_queues);
+    curr = queue->current;
+
+    next = sched_task_get(queue, curr);
+    context_switch(NULL, curr, next);
+}
+
+void __noreturn task_exit(void)
+{
+
+    for (;;)
+        cpu_relax();
+}
+
+struct task *task_create(const char *schedn)
+{
+    struct sched_type *sched = sched_find(schedn);
+    struct task *task;
+
+    task = sched->task_create(0);
+    if (task)
+        return NULL;
+
+    return task;
+}
+
+state task_start(struct task *task)
+{
+
     return -ENOERR;
 }
 
-void sched_unregister(struct sched_type *sched)
+void task_stop(struct task *task)
 {
-    list_del(&sched->list);
-}
 
-void sched_set(struct task *task, const char *name)
-{
-    struct sched_type *sched = sched_find(name);
-    sched->task_setup(task);
 }
 
 void sched_relax(void)
@@ -42,24 +106,36 @@ void sched_relax(void)
 
 }
 
-/**
- * context_switch - switch context form prev to next
- * @prev: switch form
- * @next: switch to
- */
-void context_switch(struct task *prev, struct task *next)
+void sched_tick(void)
 {
-
-    if(!next->mm) {     /* switch to kernel */
-
-    } else {            /* switch to user */
-
-    }
 
 }
 
+state sched_register(struct sched_type *sched)
+{
+    if (!sched || !sched->name)
+        return -EINVAL;
+
+    list_add(&sched_list, &sched->list);
+    sort_list(&sched_list, sched_sort, NULL);
+    return -ENOERR;
+}
+
+void sched_unregister(struct sched_type *sched)
+{
+    if (!sched)
+        return;
+    list_del(&sched->list);
+}
 
 void __init sched_init(void)
 {
+    initcall_entry_t *fn;
+    initcall_t call;
 
+    initcall_for_each_fn(fn, scheduler_initcall) {
+        call = initcall_from_entry(fn);
+        if (call())
+            pr_err("%s startup failed", fn->name);
+    }
 }

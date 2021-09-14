@@ -1,10 +1,7 @@
-# SPDX-License-Identifier: GPL-2.0
-# include/asm-generic contains a lot of files that are used
-# verbatim by several architectures.
-#
-# This Makefile reads the file arch/$(SRCARCH)/include/(uapi/)/asm/Kbuild
-# and for each file listed in this file with generic-y creates
-# a small wrapper file in arch/$(SRCARCH)/include/generated/(uapi/)/asm.
+# SPDX-License-Identifier: GPL-2.0-or-later
+# ==========================================================================
+# Make asm-generic
+# ==========================================================================
 
 PHONY := all
 all:
@@ -26,7 +23,11 @@ mandatory-y := $(filter-out $(generated-y), $(mandatory-y))
 generic-y   += $(foreach f, $(mandatory-y), $(if $(wildcard $(obj)$(f)),,$(f)))
 generic-y   := $(addprefix $(obj), $(generic-y))
 
-quiet_cmd_wrap = WRAP    $@
+########################################
+# Start Make                           #
+########################################
+
+quiet_cmd_wrap = $(ECHO_WRAP) $@
       cmd_wrap = echo "\#include <asm-generic/$*.h>" > $@
 $(obj)%.h:
 	$(call cmd,wrap)
@@ -37,5 +38,8 @@ all: $(generic-y)
 ifeq ($(old-headers),)
 $(shell mkdir -p $(obj))
 endif
+
+PHONY += FORCE
+FORCE:
 
 .PHONY: $(PHONY)

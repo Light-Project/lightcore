@@ -2,7 +2,11 @@ menuconfig PCI
     bool "PCI support"
 if PCI
 
+config PCI_GENERIC
+    bool "Generic PCI support"
+
 config PCI_I386
     bool "i386 PCI support"
+    depends on ARCH_X86
 
 endif

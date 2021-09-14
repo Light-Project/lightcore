@@ -1,22 +1,18 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-
-obj-$(CONFIG_ARCH_ARM)      += arm/
-obj-$(CONFIG_ARCH_CSKY)     += csky/
-obj-$(CONFIG_ARCH_RISCV64)  += riscv64/
-obj-$(CONFIG_ARCH_X86)      += x86/
-include-y += $(obj)$(obj-y)
-
-obj-y += lib/
-include-y += $(obj)lib/
-
+arch-$(CONFIG_ARCH_ARM)      += arm/
+arch-$(CONFIG_ARCH_CSKY)     += csky/
+arch-$(CONFIG_ARCH_RISCV64)  += riscv64/
+arch-$(CONFIG_ARCH_X86)      += x86
+obj-y += $(arch-y) lib/
 extra-y += kboot.lds
 
-kboot-asflags-y = -D__ASSEMBLY__
-kboot-ccflags-y = -std=gnu11
-kboot-acflags-y = -ffreestanding -nostdinc -Wall -Werror -fPIE \
-                  -fno-stack-protector -ffunction-sections -fno-common
+include-y += $(arch-y) lib/
+
+kboot-asflags-y  = -D__ASSEMBLY__
+kboot-ccflags-y  = -std=gnu11
+kboot-acflags-y  = -ffreestanding -nostdinc -Wall -Werror -fPIE -fno-stack-protector -fno-common
 kboot-ldsflags-y = -D__ASSEMBLY__
-kboot-elfflags-y = -Wl,--gc-sections -Wl,--cref,-Map=$@.map -Wl,--no-dynamic-linker
+kboot-elfflags-y = -Wl,--cref,-Map=$@.map -Wl,--no-dynamic-linker
 
 asflags-y   = $(strip $(kboot-asflags-y) $(platform-asflags-y))
 ccflags-y   = $(strip $(kboot-ccflags-y) $(platform-ccflags-y))

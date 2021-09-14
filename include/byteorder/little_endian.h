@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-2.0 */
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _BYTEORDER_LITTLE_ENDIAN_H_
 #define _BYTEORDER_LITTLE_ENDIAN_H_
 
@@ -9,4 +9,4 @@
 #endif
 
 #include <byteorder/generic.h>
-#endif /* _BYTEORDER_LITTLE_ENDIAN_H_ */ 
+#endif /* _BYTEORDER_LITTLE_ENDIAN_H_ */

@@ -1,4 +1,4 @@
-
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _ASM_GENERIC_BARRIER_H_
 #define _ASM_GENERIC_BARRIER_H_
 
@@ -77,6 +77,5 @@
 #define smp_wmb()   barrier()
 #endif
 
-#endif /* CONFIG_SMP */
-
-#endif 
+#endif  /* CONFIG_SMP */
+#endif  /* _ASM_GENERIC_BARRIER_H_ */

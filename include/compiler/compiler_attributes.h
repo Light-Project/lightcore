@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-2.0 */
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _COMPILER_ATTRIBUTES_H_
 #define _COMPILER_ATTRIBUTES_H_
 
@@ -153,6 +153,12 @@
  */
 #define __printf(a, b)                  __attribute__((__format__(printf, a, b)))
 #define __scanf(a, b)                   __attribute__((__format__(scanf, a, b)))
+
+/*
+ *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-nonnull-function-attribute
+ * clang: https://clang.llvm.org/docs/AttributeReference.html#nonnull
+ */
+#define __nonnull(nr, ...)              __attribute__((__nonnull__(nr, ##__VA_ARGS__)))
 
 /*
  *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-gnu_005finline-function-attribute

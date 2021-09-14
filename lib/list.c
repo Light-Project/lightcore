@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <types.h>
 #include <stddef.h>
 #include <list.h>
@@ -9,7 +10,7 @@ void list_head_init(struct list_head *list)
 }
 
 void list_insert(struct list_head *prev,
-                 struct list_head *next, 
+                 struct list_head *next,
                  struct list_head *new)
 {
     next->prev = new;
@@ -29,7 +30,7 @@ void list_add(struct list_head *head,
  *       add a new node after old node
  * @para node: list head to add it next
  * @para new:  new entry to be added
- * 
+ *
  * @return None
  */
 
@@ -44,7 +45,7 @@ void list_add_prev(struct list_head *node,
  *       add a new node next old node
  * @para node: list head to add it next
  * @para new:  new entry to be added
- * 
+ *
  * @return None
  */
 
@@ -59,7 +60,7 @@ void list_add_next(struct list_head *node,
  *       in fact, it just connect next and prev node
  * @para node: list head to add it next
  * @para new:  new entry to be added
- * 
+ *
  * @return None
  */
 
@@ -75,11 +76,11 @@ void list_del(struct list_head *node)
  * list_replace - Replace a linked list node with an external node
  * @node: list head to add it next
  * @new:  new entry to be added
- * 
+ *
  * @return None
  */
 
-void list_replace(struct list_head *old, 
+void list_replace(struct list_head *old,
                   struct list_head *new)
 {
     new->prev = old->prev;
@@ -92,7 +93,7 @@ void list_replace(struct list_head *old,
  * list_move_tail - Move the node to the tail of the list
  * @node: list head to add it next
  * @new:  new entry to be added
- * 
+ *
  * @return None
  */
 void list_move_tail(struct list_head *head, struct list_head *node)
@@ -106,11 +107,11 @@ void list_move_tail(struct list_head *head, struct list_head *node)
  *       Check whether the node is a header
  * @para node: list head to add it next
  * @para new:  new entry to be added
- * 
+ *
  * @return None
  */
 
-bool list_check_first(struct list_head *head, 
+bool list_check_first(struct list_head *head,
                       struct list_head *node)
 {
     return node->prev == head;
@@ -121,14 +122,14 @@ bool list_check_first(struct list_head *head,
  *       Check whether the node is a ending
  * @para node: list head to add it next
  * @para new:  new entry to be added
- * 
+ *
  * @return None
  */
 
-bool list_check_end(struct list_head *head, 
+bool list_check_end(struct list_head *head,
                      struct list_head *node)
 {
-    return node->next == head; 
+    return node->next == head;
 }
 
 /**
@@ -136,22 +137,22 @@ bool list_check_end(struct list_head *head,
  *       Check whether the node is a ending
  * @para node: list head to add it next
  * @para new:  new entry to be added
- * 
+ *
  * @return None
  */
 
-bool list_check_around(struct list_head *prev, 
+bool list_check_around(struct list_head *prev,
                      struct list_head *next)
 {
-    return prev->next == next; 
+    return prev->next == next;
 }
 
 /**
  * list_check_empty:
  *       add a new node next old node
  * @para head: list head to check
- * 
- * @return if it's empty, return true 
+ *
+ * @return if it's empty, return true
  */
 
 bool list_check_empty(struct list_head *head)
@@ -164,7 +165,7 @@ bool list_check_empty(struct list_head *head)
  *       add a new node next old node
  * @para node: list head to add it next
  * @para new:  new entry to be added
- * 
+ *
  * @return None
  */
 

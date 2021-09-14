@@ -33,6 +33,7 @@ extern uint32_t     clock_ahb;
 #define PIO_BASE    ((void *)0x01c20800)
 #define SER_BASE    ((void *)0x01c25000)
 #define DRAM_BASE   ((void *)0x80000000)
+#define FEL_ENTRY   ((void *)0xffff0020)
 
 #define PIO_A       (PIO_BASE + (0 * 0x24))
 #define PIO_B       (PIO_BASE + (1 * 0x24))
@@ -43,7 +44,6 @@ extern uint32_t     clock_ahb;
 
 #define head_addr   0x8000
 #define sdcard_lba  ((0x2000 + head_addr) / 512)
-#define fel_entry   ((void *)0xffff0020)
 
 #define MMC_READ    0
 #define MMC_WRITE   1

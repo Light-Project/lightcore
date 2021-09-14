@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-2.0
+# SPDX-License-Identifier: GPL-2.0-or-later
 # ==========================================================================
 # Main build system
 # ==========================================================================
@@ -26,10 +26,10 @@ include scripts/auxiliary/pack.mk
 # Include File                         #
 ########################################
 
-include_blend   := $(include-y)
+include_blend   := $(addprefix $(obj),$(include-y))
 
-include_file    := $(filter %.h, $(include_blend))
-include_path    := $(filter %/, $(include_blend))
+include_file    := $(filter %.h,$(include_blend))
+include_path    := $(filter %/,$(include_blend))
 include_path    := $(patsubst %/,%,$(include_path))
 
 include_file    := $(addprefix -include ,$(include_file))

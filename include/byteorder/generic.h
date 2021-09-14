@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-2.0 */
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _BYTEORDER_GENERIC_H
 #define _BYTEORDER_GENERIC_H
 
@@ -124,4 +124,4 @@ static inline void be32_to_cpu_array(u32 *dst, const __be32 *src, size_t len)
 }
 
 #endif /* _LINUX_BYTEORDER_GENERIC_H */
- 
+

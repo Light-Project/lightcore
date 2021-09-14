@@ -72,6 +72,7 @@ void *ioremap(phys_addr_t pa, size_t size)
     if (!size)
         return NULL;
 
+    /* Get mmio form ram pad */
     if (pa >= CONFIG_RAM_BASE &&
         pa < CONFIG_HIGHMEM_OFFSET)
         return pa_to_va(pa);

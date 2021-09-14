@@ -132,6 +132,7 @@ ECHO_CLEAN_DIR  := \e[31mCLEANDIR\e[0m
 ECHO_DONE       := \e[5m\e[34mDONE\e[0m
 ECHO_OUTPUT     := \e[5m\e[34mOUTPUT\e[0m
 
+ECHO_WRAP       := \e[33mWRAP\e[0m
 ECHO_CHECK      := \e[5m\e[33mCHECK\e[0m
 
 ########################################

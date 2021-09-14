@@ -8,9 +8,9 @@ apps-y += ksh klib
 apps-y := $(addprefix usr-, $(apps-y))
 acflags-y += -Wall -Werror -ffreestanding -static
 asflags-y += -D__ASSEMBLY__
-include-y += $(obj)include/
-include-y += $(obj)uapi/
-include-y += $(obj)uapi/asm/
+include-y += include/
+include-y += uapi/
+include-y += uapi/asm/
 
 ifdef CONFIG_USR_XIP
 

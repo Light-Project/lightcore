@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 mandatory-y += atomic.h
 mandatory-y += barrier.h
 mandatory-y += bitops.h
@@ -5,3 +6,5 @@ mandatory-y += bug.h
 mandatory-y += delay.h
 mandatory-y += io.h
 mandatory-y += mmiowb.h
+mandatory-y += percpu.h
+mandatory-y += sched.h

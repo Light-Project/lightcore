@@ -27,8 +27,8 @@
         #address-cells = <1>;
         #size-cells = <1>;
         compatible = "amba-bus";
-		dma-ranges;
-		ranges;
+        dma-ranges;
+        ranges;
 
         system-controller@1c00000 {
             compatible = "allwinner,suniv-sram";

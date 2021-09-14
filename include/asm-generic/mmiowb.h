@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-2.0 */
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _ASM_GENERIC_MMIOWB_H_
 #define _ASM_GENERIC_MMIOWB_H_
 
@@ -6,12 +6,11 @@
 
 #include <asm-generic/mmiowb_types.h>
 
+#else   /* CONFIG_MMIOWB */
 
-
-
-#else
 #define mmiowb_set_pending()    do { } while (0)
 #define mmiowb_spin_lock()      do { } while (0)
 #define mmiowb_spin_unlock()    do { } while (0)
-#endif /* CONFIG_MMIOWB */
-#endif /* _ASM_GENERIC_MMIOWB_H_ */
+
+#endif  /* CONFIG_MMIOWB */
+#endif  /* _ASM_GENERIC_MMIOWB_H_ */

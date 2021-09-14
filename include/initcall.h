@@ -47,8 +47,8 @@ extern initcall_entry_t _ld_clocksource_initcall_end[];
 
 extern initcall_entry_t _ld_console_initcall_start[];
 extern initcall_entry_t _ld_console_initcall_end[];
-extern initcall_entry_t _ld_sched_initcall_start[];
-extern initcall_entry_t _ld_sched_initcall_end[];
+extern initcall_entry_t _ld_scheduler_initcall_start[];
+extern initcall_entry_t _ld_scheduler_initcall_end[];
 
 /* Format: <modname>__<counter>_<line>_<fn> */
 #define __initcall_id(fn)                               \
@@ -69,7 +69,7 @@ extern initcall_entry_t _ld_sched_initcall_end[];
 #define __define_initcall_stub(__stub, fn)              \
         __ADDRESSABLE(fn)
 
-#define __initcall_stub(fn, __iid, id)  fn
+#define __initcall_stub(fn, __iid, id) fn
 #define __initcall_section(__sec, __iid) ".init" #__sec
 
 #ifdef CONFIG_DYNAMIC_DEBUG
@@ -115,7 +115,7 @@ extern initcall_entry_t _ld_sched_initcall_end[];
 #define clocksource_initcall(fn)        ___define_initcall(fn, clk, .clocksource_initcall)
 
 #define console_initcall(fn)            ___define_initcall(fn, con, .console_initcall)
-#define sched_initcall(fn)              ___define_initcall(fn, clk, .sched_initcall)
+#define scheduler_initcall(fn)          ___define_initcall(fn, sch, .scheduler_initcall)
 
 #define initcall_for_each_fn(fn, sec)                   \
     for(fn = (initcall_entry_t *)&_ld_##sec##_start;    \

@@ -5,10 +5,10 @@
 #include <types.h>
 
 typedef size_t irqflags_t;
-typedef uint8_t irqnr_t;
+typedef size_t irqnr_t;
 
 #ifndef IRQ_NR_MAX
-#define IRQ_NR_MAX 256
+#define IRQ_NR_MAX 65536
 #endif
 
 
