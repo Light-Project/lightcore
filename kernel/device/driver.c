@@ -9,13 +9,13 @@
 #include <string.h>
 #include <device/driver.h>
 #include "base.h"
-#include <printk.h> 
+#include <printk.h>
 
 /**
  * device_find - Find device through driver
  * @drv: driver to scan for the device.
  */
-struct device *device_find(struct driver *drv, const void *data, 
+struct device *device_find(struct driver *drv, const void *data,
                 bool (*match)(struct device *, const void *data))
 {
     struct device *dev = NULL;
@@ -23,8 +23,7 @@ struct device *device_find(struct driver *drv, const void *data,
     if(!drv || !match)
         return NULL;
 
-    driver_for_each_device(dev, drv)
-    {
+    driver_for_each_device(dev, drv) {
         if(match(dev, data))
             return dev;
     }
@@ -39,24 +38,22 @@ struct device *device_find(struct driver *drv, const void *data,
 struct driver *driver_find(struct bus_type *bus, const char *name)
 {
     struct driver *drv;
-    bus_for_each_driver(drv, bus)
-    {
+
+    bus_for_each_driver(drv, bus) {
         if(!strcmp(drv->name, name))
             return drv;
     }
+
     return NULL;
 }
 
 /**
- * driver_register - register driver on bus
- * @drv: 
+ * driver_register - register driver form bus
+ * @drv:
  */
 state driver_register(struct driver *drv)
 {
     struct driver *other;
-
-    if(!drv)
-        return -EINVAL;
 
     other = driver_find(drv->bus, drv->name);
     if (other) {
@@ -65,19 +62,13 @@ state driver_register(struct driver *drv)
     }
 
     list_head_init(&drv->devices_list);
-    
     return bus_driver_add(drv);
 }
 
 /**
- * driver_unregister - remove driver
+ * driver_unregister - remove driver form bus
  */
 void driver_unregister(struct driver *drv)
 {
-    if (!drv) {
-        pr_warn("driver unregister fail");
-        return;
-    }
-
     bus_driver_remove(drv);
 }

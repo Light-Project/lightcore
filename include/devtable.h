@@ -19,6 +19,7 @@ struct dt_device_id {
     char name[DT_NAME_LEN];
     char type[DT_TYPE_LEN];
     char compatible[DT_COMPATIBLE_LEN];
+    const void *data;
 };
 
 #define PLATFORM_NAME_LEN 32

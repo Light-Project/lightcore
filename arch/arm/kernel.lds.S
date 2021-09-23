@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
-* Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
-*/
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
 
 #include <asm-generic/kernel.lds.h>
 #include <asm/page.h>
@@ -35,7 +35,7 @@ ENTRY(boot_head)
 
 SECTIONS
 {
-    . = CONFIG_PAGE_OFFSET;
+    . = CONFIG_PAGE_OFFSET + CONFIG_RAM_PAD;
 
     STARTUP_SECTION
 
@@ -49,13 +49,13 @@ SECTIONS
     ARM_UNWIND(4)
 #endif
 
-    RWDATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE)
+    RWDATA_SECTION(CACHE_LINE_SIZE, PAGE_SIZE)
 
     INIT_TEXT_SECTION(PAGE_SIZE)
 
     INIT_DATA_SECTION(PAGE_SIZE)
 
-    BSS_SECTION(L1_CACHE_BYTES, PAGE_SIZE, L1_CACHE_BYTES)
+    BSS_SECTION(CACHE_LINE_SIZE, PAGE_SIZE, CACHE_LINE_SIZE)
 
     _ld_image_end = .;
 

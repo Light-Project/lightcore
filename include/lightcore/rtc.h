@@ -1,22 +1,25 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _LIGHTCORE_RTC_H_
 #define _LIGHTCORE_RTC_H_
 
+#include <lightcore/types.h>
+
 struct rtc_time {
-    int tm_sec;
-    int tm_min;
-    int tm_hour;
-    int tm_mday;
-    int tm_mon;
-    int tm_year;
-    int tm_wday;
-    int tm_yday;
-    int tm_isdst;
+    unsigned int tm_sec;
+    unsigned int tm_min;
+    unsigned int tm_hour;
+    unsigned int tm_mday;
+    unsigned int tm_mon;
+    unsigned int tm_year;
+    unsigned int tm_wday;
+    unsigned int tm_yday;
+    unsigned int tm_isdst;
 };
 
 struct rtc_alarm {
-    char enable;
-    char pending;  
-    struct rtc_time time;    
+    struct rtc_time time;
+    uint8_t enable:1;
+    uint8_t pending:1;
 };
 
-#endif
+#endif  /* _LIGHTCORE_RTC_H_ */

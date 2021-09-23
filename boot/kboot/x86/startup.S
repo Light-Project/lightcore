@@ -77,7 +77,6 @@ GLOBAL(startup16)
      * mode, we can detect the memory 
      * through the BIOS
      */
-    #call    mem_detect
 
     /* reset coprocessor */
     mov     $0xf0, %al
@@ -124,9 +123,6 @@ IO_DELAY:
     
 a20test:
     ret
-
-mem_detect:
-    movw   $E820_ENTRY_MAX, %cx
     
 e820_loop:
     movw    $0xe820, %ax
@@ -195,9 +191,9 @@ idt_table:
     .word   0x0000      // IDT limit
     .long   0x00000000  // IDT addr
 
-TXT_A20BIOS:    .asciz "Open A20 through BIOS\n"
-TXT_A20PCH:     .asciz "Open A20 through PCH\n"
-TXT_A20ERROR:   .asciz "A20 can't open\n"
+TXT_A20BIOS:    .asciz "Open A20 through BIOS\n\r"
+TXT_A20PCH:     .asciz "Open A20 through PCH\n\r"
+TXT_A20ERROR:   .asciz "A20 can't open\n\r"
 
 END(startup16)
 

@@ -2,7 +2,7 @@
 #ifndef _STDDEF_H_
 #define _STDDEF_H_
 
-enum {
+enum bool {
     false = 0,
     true = 1,
 };

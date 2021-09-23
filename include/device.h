@@ -63,6 +63,7 @@ void devres_release_all(struct device *dev);
 state device_bind(struct device *);
 state driver_bind(struct driver *);
 state device_register(struct device *);
+void device_unregister(struct device *dev);
 
 void early_device_init(void);
 void device_init(void);

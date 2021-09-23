@@ -2,7 +2,7 @@
 #ifndef LIBFDT_ENV_H
 #define LIBFDT_ENV_H
 
-#include <limits.h>         /* For INT_MAX */
+#include <limits.h>
 #include <string.h>
 #include <stddef.h>
 

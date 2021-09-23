@@ -89,6 +89,8 @@
 
 #define aligned(size,align) (!(size & (align - 1)))
 
+#ifndef __ASSEMBLY__
+
 int vsprintf(char *buf, const char *fmt, va_list args);
 int vsnprintf(char * buf, size_t n, const char * fmt, va_list args);
 
@@ -97,5 +99,6 @@ void panic(const char* fmt, ...);
 
 #define kassert(x) ((void)((!!(x)) || (kassert(#x, __FILE__, __LINE__, __func__), 0)))
 
-#endif
+#endif  /* __ASSEMBLY__ */
+#endif  /* _KERNEL_H_ */
 

@@ -25,13 +25,13 @@ prompt "Architecture Select"
     bool "C-SKY"
     select BOOT_HAS_MAP
     select ARCH_HAS_HIMEM
-    select ARCH_32BIT       
+    select ARCH_32BIT
     select ARCH_HAS_MMU
 
     config ARCH_RISCV
     bool "RISC-V"
     select ARCH_HAS_MMU
-            
+
     config ARCH_X86
     bool "X86"
     select ARCH_32BIT
@@ -42,20 +42,10 @@ prompt "Architecture Select"
     select ARCH_HAS_KASLR
     select CPU_LITTLE_ENDIAN
 
-    config ARCH_X86_64
-    bool "X86_64"
-    select ARCH_64BIT
-    select ARCH_HAS_RELOCATABLE
-    select ARCH_HAS_MMU
-    select ARCH_HAS_DMA
-    select ARCH_HAS_DMA32
-    select ARCH_HAS_HIMEM
-    select CPU_LITTLE_ENDIAN
-
     config ARCH_XTENSA
     bool "Xtensa"
     select ARCH_32BIT
-        
+
 endchoice
 
 source "arch/arm/Kconfig"
@@ -63,7 +53,6 @@ source "arch/arme/Kconfig"
 source "arch/csky/Kconfig"
 source "arch/x86/Kconfig"
 source "arch/xtensa/Kconfig"
-
 
 #
 # Architecture supported
@@ -83,13 +72,13 @@ config CPU_LITTLE_ENDIAN
     bool
 config CPU_BIG_ENDIAN
     bool
-    
+
 # Mem manage
 config ARCH_HAS_MMU
     bool
 config ARCH_HAS_XIP
     bool
-    
+
 config ARCH_HAS_DMA
     bool
 config ARCH_HAS_DMA32

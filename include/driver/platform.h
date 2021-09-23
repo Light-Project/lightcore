@@ -16,11 +16,12 @@ struct platform_device {
     bool        id_auto;
     uint64_t    platform_dma_mask;
 
+    struct acpi_node *acpi_node;
+    struct dt_node *dt_node;
+
     /* I/O resource */
     struct resource *resource;
     unsigned int resources_nr;
-    struct acpi_node *acpi_node;
-    struct dt_node *dt_node;
 };
 
 #define device_to_platform_device(dev)	\

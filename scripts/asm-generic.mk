@@ -3,14 +3,13 @@
 # Make asm-generic
 # ==========================================================================
 
-PHONY := all
-all:
+all: FORCE
 
 # $(generic)/Kbuild lists mandatory-y.
-include $(generic)Makefile
+include $(generic)/Makefile
 
 # Include Buildsystem function
-include scripts/include.mk
+include $(build_home)/include/define.mk
 
 redundant := $(filter $(mandatory-y) $(generated-y), $(generic-y))
 redundant += $(foreach f, $(generic-y), $(if $(wildcard $(obj)$(f)),$(f)))
@@ -21,16 +20,17 @@ $(if $(redundant),\
 # If arch does not implement mandatory headers, fallback to asm-generic ones.
 mandatory-y := $(filter-out $(generated-y), $(mandatory-y))
 generic-y   += $(foreach f, $(mandatory-y), $(if $(wildcard $(obj)$(f)),,$(f)))
-generic-y   := $(addprefix $(obj), $(generic-y))
+generic-y   := $(addprefix $(obj)/, $(generic-y))
 
 ########################################
 # Start Make                           #
 ########################################
 
 quiet_cmd_wrap = $(ECHO_WRAP) $@
-      cmd_wrap = echo "\#include <asm-generic/$*.h>" > $@
+      cmd_wrap = $(ECHO) "\#include <asm-generic/$*.h>" > $@
 $(obj)%.h:
 	$(call cmd,wrap)
+
 all: $(generic-y)
 
 # Create output directory. Skip it if at least one old header exists
@@ -39,6 +39,7 @@ ifeq ($(old-headers),)
 $(shell mkdir -p $(obj))
 endif
 
+# We are always building only modules.
 PHONY += FORCE
 FORCE:
 

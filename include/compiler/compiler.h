@@ -38,6 +38,13 @@ static inline void *offset_to_ptr(const int *off)
 {
     return (void *)((unsigned long)off + *off);
 }
+/*
+ * Force a compilation error if condition is true, but also produce a
+ * result (of value 0 and type int), so the expression can be used
+ * e.g. in a structure initializer (or where-ever else comma expressions
+ * aren't permitted).
+ */
+#define BUILD_ASSERT(e) ((int)(sizeof(struct { int:(-!!(e)); })))
 
 #endif  /* __ASSEMBLY__ */
 #endif  /* _COMPILER_H_ */

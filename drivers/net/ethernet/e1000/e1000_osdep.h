@@ -10,7 +10,7 @@
 
 #include <types.h>
 #include <mm.h>
-#include <delay.h>
+#include <sleep.h>
 #include <spinlock.h>
 #include <mutex.h>
 #include <sched.h>

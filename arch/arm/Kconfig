@@ -18,9 +18,6 @@ config ARCH_ARM_V5
     depends on !ARCH_MULTI_V6_V7
     select ARCH_ARM_V4_V5
 
-config ARCH_ARM_V4_V5
-    bool
-
 config ARCH_ARM_V6
     bool "ARMv6 based platforms (ARM11)"
     select ARCH_MULTI_V6_V7
@@ -31,8 +28,56 @@ config ARCH_ARM_V7
 
 config ARCH_MULTI_V6_V7
     bool
-    select MIGHT_HAVE_CACHE_L2X0
 
 endmenu
 
-endmenu 
+choice CPU
+    prompt "Architecture Select"
+
+config CPU_ARM926
+    bool "based platforms"
+    depends on ARCH_ARM_V5
+    select CPU_CACHE_V4WT
+    select CPU_TLB_V4WBI
+
+config CPU_V6
+    bool "based platforms"
+    depends on ARCH_ARM_V6
+
+config CPU_V7
+    bool "based platforms"
+    depends on ARCH_ARM_V7
+    select CPU_CACHE_V7
+    select CPU_TLB_V7
+
+endchoice
+endmenu
+
+# Cache model
+config CPU_CACHE_V4WT
+    bool
+
+config CPU_CACHE_V4WB
+    bool
+
+config CPU_CACHE_V6
+    bool
+
+config CPU_CACHE_V7
+    bool
+
+# TLB model
+config CPU_TLB_V4WT
+    bool
+
+config CPU_TLB_V4WB
+    bool
+
+config CPU_TLB_V4WBI
+    bool
+
+config CPU_TLB_V6
+    bool
+
+config CPU_TLB_V7
+    bool

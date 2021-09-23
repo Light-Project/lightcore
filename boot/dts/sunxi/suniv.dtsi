@@ -7,6 +7,8 @@
     model = "Allwinner F-series (suniv) SoCs";
     interrupt-parent = <&intc>;
 
+    chosen { };
+
     clocks {
         osc24M: clk-24M {
             #clock-cells = <0>;

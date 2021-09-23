@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#ifndef _DRIVER_GPU_VBOX_H_
-#define _DRIVER_GPU_VBOX_H_
+#ifndef _DRIVER_VIDEO_VBOX_H_
+#define _DRIVER_VIDEO_VBOX_H_
 
 enum vbox_registers {
     VBE_DISPI_IOPORT_INDEX              = 0x01CE,

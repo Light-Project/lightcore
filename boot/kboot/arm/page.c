@@ -39,7 +39,6 @@ void kernel_map(void)
 
     cp15_set(c3, c0, 0, 0x03);
 
-    dcache_writeback_all();
     tlb_inval_all();
     ttb_set((phys_addr_t)page_dir);
     mmu_enable();

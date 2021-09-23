@@ -2,27 +2,31 @@
 # ==========================================================================
 # Cleaning up
 # ==========================================================================
-
 _clean:
+
+src := $(obj)
 
 # Read auto.conf if it exists, otherwise ignore
 -include $(srctree)/include/config/auto.conf
 
+# Include Buildsystem function
+include $(build_home)/include/define.mk
+
 # The filename Kbuild has precedence over Makefile
-build-file := $(if $(wildcard $(obj)Kbuild),$(obj)Kbuild,$(obj)Makefile)
+build-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
+build-file := $(if $(wildcard $(build-dir)/Kbuild),$(build-dir)/Kbuild,$(build-dir)/Makefile)
 include $(build-file)
 
-# Include Buildsystem function
-include scripts/rule.mk
-include scripts/include.mk
+# Include Build rule
+include $(build_home)/include/rule.mk
 
 ########################################
 # Filter files                         #
 ########################################
 
 clean_file      := $(filter-out %/,$(clean-y))
-clean_file      := $(addprefix $(obj),$(clean_file))
-clean_file      += $(wildcard $(clean-dire-y))
+clean_file      := $(addprefix $(obj)/,$(clean_file))
+clean_file      += $(wildcard $(clean-files))
 clean_cmd       := $(wildcard $(foreach f,$(clean_file),$(dir $(f)).$(notdir $(f)).cmd))
 clean_cmd       += $(wildcard $(foreach f,$(clean_file),$(dir $(f)).$(notdir $(f)).d))
 
@@ -34,15 +38,16 @@ clean_files     := $(wildcard $(clean_files))
 clean_dirs      := $(strip $(sort $(clean-y)))
 clean_dirs      := $(filter %/, $(clean_dirs))
 clean_dirs      := $(patsubst %/,%,$(clean_dirs))
-clean_dirs      := $(addprefix $(obj),$(clean_dirs))
+clean_dirs      := $(addprefix $(obj)/,$(clean_dirs))
 clean_dirs      := $(wildcard $(clean_dirs))
 
 # The system recurses these folders down
 clean_subdir    := $(clean-subdir-y)
 clean_subdir    := $(strip $(sort $(clean_subdir)))
 clean_subdir    := $(filter %/, $(clean_subdir))
-clean_subdir    := $(addprefix $(obj),$(clean_subdir))
-clean_subdir    += $(clean-subdire-y)
+clean_subdir   	:= $(patsubst %/,%,$(clean_subdir))
+clean_subdir    := $(addprefix $(obj)/,$(clean_subdir))
+clean_subdir    += $(clean-subdirs)
 
 # Avoid conflict
 clean_files     := $(addprefix _clean_,$(clean_files))
@@ -78,7 +83,10 @@ $(clean_subdir):
 PHONY += _clean
 _clean: $(clean_subdir) $(clean_files) $(clean_dirs)
 
+# We are always building only modules.
 PHONY += FORCE
 FORCE:
 
+# Declare the contents of the PHONY variable as phony.  We keep that
+# information in a variable so we can use it in if_changed and friends.
 .PHONY: $(PHONY)

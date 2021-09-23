@@ -2,4 +2,4 @@
 obj-y += core.o fsdev.o
 obj-y += partition.o partitions/
 
-obj-y += simple-ata.o
+obj-$(CONFIG_BLK_ATASIM) += simple-ata.o

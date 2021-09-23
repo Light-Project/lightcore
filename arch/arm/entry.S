@@ -15,8 +15,7 @@
 .endm
 
 SYM_CODE_START(arch_switch_task)
-    stmfd   sp!, {r4 - sl, fp, sp, lr}
-
+    stmfd   sp!, {v1 - fp, lr}
 SYM_CODE_END(arch_switch_task)
 
 SYM_CODE_START(entry_rst)

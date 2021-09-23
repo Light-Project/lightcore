@@ -4,7 +4,6 @@
  */
 
 #define DRIVER_NAME "i8253"
-#define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
 #include <mm.h>
 #include <irq.h>
@@ -29,7 +28,7 @@ static __always_inline void pit_outb(int reg, uint8_t value)
     outb(I8253_BASE + reg, value);
 }
 
-static irq_return_t pit_handle(irqnr_t vector, void *data)
+static irqreturn_t pit_handle(irqnr_t vector, void *data)
 {
     timer_tick();
     return IRQ_RET_HANDLED;
@@ -39,7 +38,7 @@ static state i8253_probe(struct platform_device *pdev)
 {
     struct irqchip_channel *channel;
 
-    channel = dt_get_irqchip(pdev->dt_node, 0);
+    channel = dt_get_irqchip_channel(pdev->dt_node, 0);
     if (!channel)
         return -ENODEV;
 

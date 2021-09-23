@@ -1,1 +1,0 @@
-hostprog-always-y += kanalyse

@@ -11,7 +11,7 @@
 #include <irq.h>
 #include <driver/usb.h>
 #include <driver/usb/ehci.h>
-#include <delay.h>
+#include <sleep.h>
 #include <printk.h>
 
 #include <asm/io.h>
@@ -86,7 +86,7 @@ static state ehci_reset(struct ehci_host *ehci)
     EHCI_STS_ERR | EHCI_STS_INT   | EHCI_STS_FLR    \
 )
 
-static enum irq_return ehci_irq(irqnr_t vector, void *host)
+static irqreturn_t ehci_irq(irqnr_t vector, void *host)
 {
     struct ehci_host *ehci = host_to_ehci(host);
     uint32_t val;

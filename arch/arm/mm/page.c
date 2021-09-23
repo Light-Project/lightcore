@@ -61,12 +61,13 @@ static void pte_set(size_t va, struct pte *val)
 
 state arch_page_map(size_t pa, size_t va, size_t size)
 {
+    size_t count = size;
     struct pte pte;
 
     if (!(page_aligned(va) && page_aligned(size)))
         return -EINVAL;
 
-    for (size >>= PAGE_SHIFT; size; --size) {
+    for (count >>= PAGE_SHIFT; count; --count) {
         pte.val = PTE_TYPE_SMALL;
         pte.c = PAGE_C_CACHEON;
         pte.b = PAGE_B_BACK;
@@ -84,7 +85,8 @@ state arch_page_map(size_t pa, size_t va, size_t size)
     }
 
     dcache_writeback_all();
-    tlb_inval_all();
+    tlb_inval_range(va, size);
+
     return -ENOERR;
 }
 

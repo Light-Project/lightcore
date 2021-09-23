@@ -8,17 +8,16 @@
 #include <device.h>
 #include <lightcore/rtc.h>
 
-struct rtc_ops {
-    state (*read_time)(struct device *, struct rtc_time *);
-    state (*set_time)(struct device *, struct rtc_time *);
-    state (*read_alarm)(struct device *, struct rtc_alarm *);
-    state (*set_alarm)(struct device *, struct rtc_alarm *);
+struct rtc_device {
+	struct device *device;
+    struct rtc_ops *ops;
 };
 
-struct rtc_device {
-	struct device dev;
-    spinlock_t lock;
-    struct rtc_ops *ops;
+struct rtc_ops {
+    state (*read_time)(struct rtc_device *, struct rtc_time *);
+    state (*set_time)(struct rtc_device *, struct rtc_time *);
+    state (*read_alarm)(struct rtc_device *, struct rtc_alarm *);
+    state (*set_alarm)(struct rtc_device *, struct rtc_alarm *);
 };
 
 state rtc_register(struct rtc_device *);

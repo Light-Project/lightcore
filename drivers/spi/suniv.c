@@ -68,7 +68,7 @@ static void suniv_fifo_drain(struct suniv_device *sdev)
     }
 }
 
-static enum irq_return suniv_handler(irqnr_t vector, void *data)
+static irqreturn_t suniv_handler(irqnr_t vector, void *data)
 {
     struct suniv_device *sdev = data;
     uint32_t val;

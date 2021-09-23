@@ -11,7 +11,7 @@ struct block_request {
     struct list_head list;  /* request list */
     enum request_type type; /* request type */
     sector_t sector;
-    size_t sector_nr;
+    unsigned int length;
     void *buffer;
 };
 

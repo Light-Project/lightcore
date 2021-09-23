@@ -13,24 +13,24 @@
 #include <stdarg.h>
 
 struct bmp_file {
-    uint16_t magic;         /* 0x00: */
-    uint32_t size;          /* 0x02: */
-    uint16_t reserved[2];   /* 0x06: */
-    uint32_t offset;        /* 0x0A: */
+    uint16_t magic;         /* 0x00: bmp magic*/
+    uint32_t size;          /* 0x02: bmp data size*/
+    uint16_t reserved[2];   /* 0x06: reserved */
+    uint32_t offset;        /* 0x0A: bmp data offset*/
 } __attribute__((__packed__));
 
 struct bmp_info {
-    uint32_t hdsize;    /* 0x0e: bmp_info head size */
-    uint32_t width;     /* 0x12: Image width */
-    uint32_t hight;     /* 0x16: Image hight */
-    uint16_t planes;    /* 0x18: */
-    uint16_t bitcount;  /* 0x1c: */
-    uint32_t compre;    /* 0x2e: */
-    uint32_t size;      /* 0x22: */
-    uint32_t xppm;      /* 0x26: XPelsPerMeter */
-    uint32_t yppm;      /* 0x2a: YPelsPerMeter */
-    uint32_t colour;    /* 0x2e:  */
-    uint32_t clrmsk;    /* 0x30: */
+    uint32_t hdsize;        /* 0x0e: bmp_info head size */
+    uint32_t width;         /* 0x12: Image width */
+    uint32_t hight;         /* 0x16: Image hight */
+    uint16_t planes;        /* 0x18: */
+    uint16_t bitcount;      /* 0x1c: */
+    uint32_t compre;        /* 0x2e: */
+    uint32_t size;          /* 0x22: */
+    uint32_t xppm;          /* 0x26: XPelsPerMeter */
+    uint32_t yppm;          /* 0x2a: YPelsPerMeter */
+    uint32_t colour;        /* 0x2e:  */
+    uint32_t clrmsk;        /* 0x30:  */
 } __attribute__((__packed__));
 
 struct bmp_head {

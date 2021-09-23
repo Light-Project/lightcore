@@ -2,6 +2,11 @@ menuconfig BLOCK
     bool "block support"
 if BLOCK
 
+config BLK_ATASIM
+    bool "Simple ATA controller support"
 
+config BLK_ATASIM32
+    bool "Simple ATA 32bit PIO"
+    depends on BLK_ATASIM
 
 endif

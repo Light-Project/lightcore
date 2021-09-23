@@ -10,6 +10,7 @@
 #include <sort.h>
 #include <sched.h>
 #include <printk.h>
+
 #include <asm/proc.h>
 
 static LIST_HEAD(sched_list);
@@ -73,7 +74,6 @@ void sched_dispatch(void)
 
 void __noreturn task_exit(void)
 {
-
     for (;;)
         cpu_relax();
 }
@@ -116,6 +116,8 @@ state sched_register(struct sched_type *sched)
     if (!sched || !sched->name)
         return -EINVAL;
 
+    pr_info("register scheduler %s\n", sched->name);
+
     list_add(&sched_list, &sched->list);
     sort_list(&sched_list, sched_sort, NULL);
     return -ENOERR;
@@ -125,6 +127,8 @@ void sched_unregister(struct sched_type *sched)
 {
     if (!sched)
         return;
+
+    pr_info("unregister scheduler %s\n", sched->name);
     list_del(&sched->list);
 }
 

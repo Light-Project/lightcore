@@ -27,24 +27,8 @@ config CPU_ARM940T
 
 # ARM946E-S
 config CPU_ARM946
-
-# ARMv7
-config CPU_V7E
-
-    
-    
+        
 # The cache model
 config CACHE_V4
     bool
 
-config CACHE_V4WT
-    bool
-
-config CACHE_V4WB
-    bool
-
-config CACHE_V6
-    bool
-
-config CACHE_V7
-    bool

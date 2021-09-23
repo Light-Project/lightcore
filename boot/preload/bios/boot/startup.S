@@ -132,9 +132,9 @@ BOOT_DEV:
     .byte 0x00  // Startup device number
 
     .align 4
-TXT_MBR_BOOT:       .asciz "\n\rMBR booting\n"
-TXT_INT13_1_ERR:    .asciz "INT13/1 ERR!\n"
-TXT_INT13_2_ERR:    .asciz "INT13/2 ERR!\n"
+TXT_MBR_BOOT:       .asciz "\n\rMBR booting\n\r"
+TXT_INT13_1_ERR:    .asciz "INT13/1 ERR!\n\r"
+TXT_INT13_2_ERR:    .asciz "INT13/2 ERR!\n\r"
 
 /****************************/
 /* The text section begins  */
@@ -393,9 +393,9 @@ ENTRY(io_delay)
     ret
 END(io_delay)
 
-TXT_A20BIOS:    .asciz "Open A20 through BIOS\n"
-TXT_A20PCH:     .asciz "Open A20 through PCH\n"
-TXT_A20ERROR:   .asciz "A20 can't open\n"
+TXT_A20BIOS:    .asciz "Open A20 through BIOS\n\r"
+TXT_A20PCH:     .asciz "Open A20 through PCH\n\r"
+TXT_A20ERROR:   .asciz "A20 can't open\n\r"
 
     .align 16
 gdt_table:              // GDT Table

@@ -52,9 +52,7 @@ static state vbox_probe(struct pci_device *pdev, int pdata)
 
     vesa->video.device = &pdev->dev;
     vesa->video.ops = &vbox_ops;
-    video_register(&vesa->video);
-
-    return -ENOERR;
+    return video_register(&vesa->video);
 }
 
 static void vbox_remove(struct pci_device *pdev)

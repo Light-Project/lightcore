@@ -4,30 +4,34 @@
 
 char *strstr(const char *cs, const char *ct)
 {
-int	d0, d1;
-register char *__res;
-__asm__ __volatile__(
-	"movl %6,%%edi\n\t"
-	"repne\n\t"
-	"scasb\n\t"
-	"notl %%ecx\n\t"
-	"decl %%ecx\n\t"	/* NOTE! This also sets Z if searchstring='' */
-	"movl %%ecx,%%edx\n"
-	"1:\tmovl %6,%%edi\n\t"
-	"movl %%esi,%%eax\n\t"
-	"movl %%edx,%%ecx\n\t"
-	"repe\n\t"
-	"cmpsb\n\t"
-	"je 2f\n\t"		/* also works for empty string, see above */
-	"xchgl %%eax,%%esi\n\t"
-	"incl %%esi\n\t"
-	"cmpb $0,-1(%%eax)\n\t"
-	"jne 1b\n\t"
-	"xorl %%eax,%%eax\n\t"
-	"2:"
-	: "=a" (__res), "=&c" (d0), "=&S" (d1)
-	: "0" (0), "1" (0xffffffff), "2" (cs), "g" (ct)
-	: "dx", "di");
-return __res;
+    register char *res;
+    int	d0, d1;
+
+    asm volatile (
+        "movl %6,%%edi\n"
+        "repne\n"
+        "scasb\n"
+        "notl %%ecx\n"
+        "decl %%ecx\n"  /* NOTE! This also sets Z if searchstring='' */
+        "movl %%ecx,%%edx\n"
+        "1:\n"
+        "movl %6,%%edi\n"
+        "movl %%esi,%%eax\n"
+        "movl %%edx,%%ecx\n"
+        "repe\n"
+        "cmpsb\n"
+        "je 2f\n"       /* also works for empty string, see above */
+        "xchgl %%eax,%%esi\n"
+        "incl %%esi\n"
+        "cmpb $0,-1(%%eax)\n"
+        "jne 1b\n"
+        "xorl %%eax,%%eax\n"
+        "2:"
+        :"=a"(res), "=&c"(d0), "=&S"(d1)
+        :"0"(0), "1"(0xffffffff), "2"(cs), "g"(ct)
+        :"dx", "di"
+    );
+
+    return res;
 }
 EXPORT_SYMBOL(strstr);

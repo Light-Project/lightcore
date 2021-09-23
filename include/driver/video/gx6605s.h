@@ -4,7 +4,7 @@
 
 #include <bits.h>
 
-enum GX6605Ss_vpu_registers {
+enum gx6605s_vpu_registers {
     GX6605S_PP_CTRL                 = 0x00,
     GX6605S_PP_V_PHASE              = 0x04,
     GX6605S_PP_POSITION             = 0x08,

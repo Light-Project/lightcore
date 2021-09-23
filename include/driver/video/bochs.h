@@ -1,10 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-/*
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
- */
-
-#ifndef _DRIVER_GPU_BOCHS_H_
-#define _DRIVER_GPU_BOCHS_H_
+#ifndef _DRIVER_VIDEO_BOCHS_H_
+#define _DRIVER_VIDEO_BOCHS_H_
 
 enum bochs_registers {
     VBE_DISPI_IOPORT_INDEX              = 0x01CE,

@@ -1,13 +1,13 @@
-#############################################################
-# Platform Config
-#############################################################
+# SPDX-License-Identifier: GPL-2.0-or-later
+# ==========================================================================
+# Platform configure
+# ==========================================================================
 
 ifdef CONFIG_ARCH_ARM
 CROSS_COMPILE       := arm-none-eabi-
 arch                := arm
 
 platform-acflags-y  += -D__ARCH_BIT32__
-platform-eflags-y   += -nostdlib
 
 arch-$(CONFIG_ARCH_ARM_V7)  = -D__ARM_ARCH__=7 $(call cc-option,-march=armv7-a,-march=armv5t -Wa$(comma)-march=armv7-a)
 arch-$(CONFIG_ARCH_ARM_V6)  = -D__ARM_ARCH__=6 $(call cc-option,-march=armv6,-march=armv5t -Wa$(comma)-march=armv6)
@@ -15,33 +15,23 @@ arch-$(CONFIG_ARCH_ARM_V5)  = -D__ARM_ARCH__=5 $(call cc-option,-march=armv5te,-
 arch-$(CONFIG_ARCH_ARM_V4T) = -D__ARM_ARCH__=4 -march=armv4t
 arch-$(CONFIG_ARCH_ARM_V4)  = -D__ARM_ARCH__=4 -march=armv4
 
-platform-acflags-y += $(arch-y)
+platform-acflags-y  += -marm $(arch-y) -msoft-float 
+platform-ldflags-y  += -EL
 
 endif # CONFIG_ARCH_ARM
 
-ifdef CONFIG_ARCH_ARME
-CROSS_COMPILE       := arm-none-eabi-
-arch                := arme
-
-platform-acflags-y  += -march=armv7-m -mthumb
-platform-eflags-y   += -nostdlib -mthumb
-endif
-
 ifdef CONFIG_ARCH_CSKY
 include arch/csky/config.mk
-CROSS_COMPILE       := /disk/d/project/buildroot/output/host/bin/csky-linux-
+CROSS_COMPILE       := csky-linux-
 arch                := csky
-
-platform-eflags-y   += -nostdlib
-endif
+endif # CONFIG_ARCH_CSKY
 
 ifdef CONFIG_ARCH_RISCV
 CROSS_COMPILE       := riscv64-linux-gnu-
 arch                := riscv64
 
-platform-acflags-y  := -march=rv64imafdc -mabi=lp64d -mcmodel=medany
-platform-eflags-y   += -nostdlib
-endif
+platform-acflags-y  += -march=rv64imafdc -mabi=lp64d -mcmodel=medany
+endif # CONFIG_ARCH_RISCV
 
 ifdef CONFIG_ARCH_X86
 CROSS_COMPILE       :=
@@ -53,22 +43,15 @@ else ifneq ($(call cc-option, -mstack-alignment=4),)
       cc_stack_align4 := -mstack-alignment=4
 endif
 
-biarch := $(call cc-option,-m32)
+platform-ccflags-y  += $(cc_stack_align4)
+# platform-ccflags-y  += -msoft-float -mregparm=3 -freg-struct-return
 
 platform-acflags-y  += -m32
-
-platform-ccflags-y  += $(cc_stack_align4)
-
-# Try to use registers to pass parameters
-# platform-ccflags-y  += -mregparm=3
-
-# Prevent GCC from generating any FP code by mistake.
 platform-ccflags-y  += -mno-sse -mno-mmx -mno-sse2 -mno-3dnow
 platform-ccflags-y  += $(call cc-option,-mno-avx)
-
 platform-ldflags-y  += -m elf_i386
-platform-eflags-y   += -m32 -nostdlib
-endif
+platform-elfflags-y += -m32
+endif # CONFIG_ARCH_X86
 
 ifdef CONFIG_ARCH_XTENSA
 include arch/xtensa/config.mk
@@ -76,8 +59,8 @@ arch                := xtensa
 
 platform-ccflags-y  += -mtext-section-literals
 platform-acflags-y  += -pipe -mlongcalls
-platform-eflags-y   += -nostdlib
-endif
+endif # CONFIG_ARCH_XTENSA
 
 export platform-asflags-y platform-ccflags-y platform-acflags-y
-export platform-ldflags-y platform-ldsflags-y platform-eflags-y
+export platform-ldflags-y platform-ldsflags-y platform-elfflags-y
+export CROSS_COMPILE arch

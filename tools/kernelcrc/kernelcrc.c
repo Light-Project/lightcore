@@ -30,7 +30,7 @@ static uint32_t crc32(const uint8_t *src, int len, uint32_t crc)
     while (len--)
         tmp = (tmp >> 8) ^ crc32_table[(tmp & 0xff) ^ *src++];
     return tmp ^ crc;
-} 
+}
 
 int main(int argc, char *argv[])
 {
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     uint32_t old_crc, new_crc;
     struct stat stat;
     int fd;
-    
+
     if ((fd = open(argv[1], O_RDWR)) < 0)
         error("can not open file");
 
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 
     if (strcmp("lightcore!", (char *)boot_head->magic))
         error("Magic error");
-    
+
     boot_head->size = stat.st_size - sizeof(struct boot_head);
     old_crc = boot_head->crc;
     new_crc = crc32((void *)(boot_head + 1), boot_head->size, ~0);
@@ -61,6 +61,7 @@ int main(int argc, char *argv[])
     } else
         printf("The kernel CRC already exists");
 
+    boot_head->hsize = sizeof(struct boot_head);
     old_crc = boot_head->hcrc;
     boot_head->hcrc = 0;
     new_crc = crc32((void *)boot_head, sizeof(struct boot_head), ~0);
@@ -71,7 +72,7 @@ int main(int argc, char *argv[])
         boot_head->hcrc = old_crc;
         printf("The header CRC already exists");
     }
-    
-    close(fd);    
+
+    close(fd);
     return 0;
 }

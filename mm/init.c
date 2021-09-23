@@ -8,10 +8,15 @@
 
 void __init mem_init(void)
 {
+    /* keep unavailable memory areas */
+    memblock_reserve(0, CONFIG_RAM_BASE + CONFIG_RAM_PAD);
     memblock_reserve(va_to_pa(&_ld_startup_start),
-            &_ld_image_end - &_ld_startup_start);
+             &_ld_image_end - &_ld_startup_start);
+
+    /* initialization buddy */
     memmodel_init();
     region_init();
+
     kmem_init();
     vmem_init();
 }

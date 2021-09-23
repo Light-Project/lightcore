@@ -46,7 +46,7 @@
 
         rtc@71 {
             compatible = "motorola,mc146818";
-            reg = <0x0071 0x02>;
+            reg = <0x0070 0x02>;
             interrupts = <8>;
         };
 

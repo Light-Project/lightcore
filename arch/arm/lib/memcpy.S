@@ -1,34 +1,30 @@
-/*
- * memcpy.S
- */
-
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <linkage.h>
 
-    .section    .startup,"ax"
-    .type       memcpy, %function
-GLOBAL(memcpy)
+    .section    .text
+SYM_CODE_START(memcpy)
     /* determine copy direction */
     cmp     r1, r0
     bcc     .Lmemcpy_backwards
 
-    moveq   r0, #0                    /* quick abort for len=0 */
+    moveq   r0, #0                  /* quick abort for len=0 */
     moveq   pc, lr
 
-    stmdb   sp!, {r0, lr}            /* memcpy() returns dest addr */
+    stmdb   sp!, {r0, lr}           /* memcpy() returns dest addr */
     subs    r2, r2, #4
     blt     .Lmemcpy_fl4            /* less than 4 bytes */
     ands    r12, r0, #3
     bne     .Lmemcpy_fdestul        /* oh unaligned destination addr */
     ands    r12, r1, #3
-    bne     .Lmemcpy_fsrcul            /* oh unaligned source addr */
+    bne     .Lmemcpy_fsrcul         /* oh unaligned source addr */
 
 .Lmemcpy_ft8:
     /* we have aligned source and destination */
     subs    r2, r2, #8
-    blt     .Lmemcpy_fl12            /* less than 12 bytes (4 from above) */
+    blt     .Lmemcpy_fl12           /* less than 12 bytes (4 from above) */
     subs    r2, r2, #0x14
-    blt     .Lmemcpy_fl32            /* less than 32 bytes (12 from above) */
-    stmdb   sp!, {r4}                /* borrow r4 */
+    blt     .Lmemcpy_fl32           /* less than 32 bytes (12 from above) */
+    stmdb   sp!, {r4}               /* borrow r4 */
 
     /* blat 32 bytes at a time */
 .Lmemcpy_floop32:
@@ -40,10 +36,10 @@ GLOBAL(memcpy)
     bge     .Lmemcpy_floop32
 
     cmn     r2, #0x10
-    ldmgeia r1!, {r3, r4, r12, lr}    /* blat a remaining 16 bytes */
+    ldmgeia r1!, {r3, r4, r12, lr}  /* blat a remaining 16 bytes */
     stmgeia r0!, {r3, r4, r12, lr}
     subge   r2, r2, #0x10
-    ldmia   sp!, {r4}                /* return r4 */
+    ldmia   sp!, {r4}               /* return r4 */
 
 .Lmemcpy_fl32:
     adds    r2, r2, #0x14
@@ -401,4 +397,4 @@ GLOBAL(memcpy)
 .Lmemcpy_bsrcul1l4:
     add     r1, r1, #1
     b       .Lmemcpy_bl4
-END(memcpy)
+SYM_FUNC_END(memcpy)

@@ -13,7 +13,7 @@
 #include <string.h>
 #include <bits.h>
 #include <mm.h>
-#include <delay.h>
+#include <sleep.h>
 #include <initcall.h>
 #include <irq.h>
 #include <driver/platform.h>
@@ -106,7 +106,7 @@ static void fdc_reset(int fdc)
 }
 
 static bool irq_occur;
-static irq_return_t floppy_interrupt(irqnr_t intnr, void *fdc)
+static irqreturn_t floppy_interrupt(irqnr_t intnr, void *fdc)
 {
     irq_occur = 1;
     return IRQ_RET_HANDLED;

@@ -13,7 +13,6 @@
 state bus_device_probe(struct device *dev)
 {
     struct bus_type *bus = dev->bus;
-    // state ret;
 
     mutex_lock(&bus->mutex);
 
@@ -36,7 +35,6 @@ state bus_device_add(struct device *dev)
 
     device_bind(dev);
     list_add_prev(&bus->devices_list, &dev->bus_list_device);
-
     return -ENOERR;
 }
 
@@ -45,7 +43,6 @@ void bus_device_remove(struct device *dev)
     struct bus_type *bus = dev->bus;
 
     pr_debug("%s remove device %s\n", bus->name, dev->name);
-
     list_del(&dev->bus_list_device);
 }
 
@@ -60,7 +57,6 @@ state bus_driver_add(struct driver *drv)
     pr_debug("%s add driver %s\n", bus->name, drv->name);
 
     list_add_prev(&bus->drivers_list, &drv->bus_list_driver);
-
     return driver_bind(drv);
 }
 
@@ -75,14 +71,12 @@ state bus_register(struct bus_type *bus)
 
     list_head_init(&bus->devices_list);
     list_head_init(&bus->drivers_list);
-
     return -ENOERR;
 }
 
 void bus_unregister(struct bus_type *bus)
 {
     pr_debug("unregister bus %s\n", bus->name);
-
 }
 
 void __init bus_init(void)

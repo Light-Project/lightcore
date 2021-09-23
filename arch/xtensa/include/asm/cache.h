@@ -6,21 +6,21 @@
 
 /* bytes per L1 cache line */
 #ifdef CONFIG_CPU_CK610
-    #define L1_CACHE_SHIFT 4
+    #define CACHE_LINE_SHIFT 4
 #endif /* CPU_CK610 */
 #ifdef CONFIG_CPU_CK807
-    #define L1_CACHE_SHIFT 5
+    #define CACHE_LINE_SHIFT 5
 #endif /* CPU_CK807 */
 #ifdef CONFIG_CPU_CK810
-    #define L1_CACHE_SHIFT 5
+    #define CACHE_LINE_SHIFT 5
 #endif /* CPU_CK810 */
 #ifdef CONFIG_CPU_CK860
-    #define L1_CACHE_SHIFT 6
+    #define CACHE_LINE_SHIFT 6
 #endif /* CPU_CK860 */
 
-#define L1_CACHE_BYTES	(1 << L1_CACHE_SHIFT)
+#define CACHE_LINE_SIZE	(1 << CACHE_LINE_SHIFT)
 
-#define ARCH_DMA_MINALIGN	L1_CACHE_BYTES
+#define ARCH_DMA_MINALIGN	CACHE_LINE_SIZE
 
 #ifndef __ASSEMBLY__
 

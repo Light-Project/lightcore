@@ -21,7 +21,7 @@ state block_device_read(struct block_device *blk, void *buff,
 
     request->type = REQ_READ;
     request->sector = sector;
-    request->sector_nr = len;
+    request->length = len;
     request->buffer = buff;
 
     return blk->ops->enqueue(blk, request);

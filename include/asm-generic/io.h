@@ -233,8 +233,7 @@ static inline void writeq_sync(void *addr, uint64_t val)
 
 #ifndef readsb
 #define readsb readsb
-static inline void readsb(const volatile void *addr, void *buffer,
-                          unsigned int count)
+static inline void readsb(const volatile void *addr, void *buffer, unsigned int count)
 {
     if (count) {
         uint8_t *buf = (uint8_t *)buffer;
@@ -249,8 +248,7 @@ static inline void readsb(const volatile void *addr, void *buffer,
 
 #ifndef readsw
 #define readsw readsw
-static inline void readsw(const volatile void *addr, void *buffer,
-                          unsigned int count)
+static inline void readsw(const volatile void *addr, void *buffer, unsigned int count)
 {
     if (count) {
         uint16_t *buf = (uint16_t *)buffer;
@@ -265,8 +263,7 @@ static inline void readsw(const volatile void *addr, void *buffer,
 
 #ifndef readsl
 #define readsl readsl
-static inline void readsl(const volatile void *addr, void *buffer,
-                          unsigned int count)
+static inline void readsl(const volatile void *addr, void *buffer, unsigned int count)
 {
     if (count) {
         uint32_t *buf = (uint32_t *)buffer;
@@ -282,8 +279,7 @@ static inline void readsl(const volatile void *addr, void *buffer,
 #ifdef CONFIG_ARCH_64BIT
 #ifndef readsq
 #define readsq readsq
-static inline void readsq(const volatile void *addr, void *buffer,
-              unsigned int count)
+static inline void readsq(const volatile void *addr, void *buffer, unsigned int count)
 {
     if (count) {
         u64 *buf = (u64 *)buffer;
@@ -299,8 +295,7 @@ static inline void readsq(const volatile void *addr, void *buffer,
 
 #ifndef writesb
 #define writesb writesb
-static inline void writesb(volatile void *addr, const void *buffer,
-               unsigned int count)
+static inline void writesb(volatile void *addr, const void *buffer, unsigned int count)
 {
     if (count) {
         const uint8_t *buf = (uint8_t *)buffer;
@@ -314,8 +309,7 @@ static inline void writesb(volatile void *addr, const void *buffer,
 
 #ifndef writesw
 #define writesw writesw
-static inline void writesw(volatile void *addr, const void *buffer,
-               unsigned int count)
+static inline void writesw(volatile void *addr, const void *buffer, unsigned int count)
 {
     if (count) {
         const uint16_t *buf = (uint16_t *)buffer;
@@ -329,8 +323,7 @@ static inline void writesw(volatile void *addr, const void *buffer,
 
 #ifndef writesl
 #define writesl writesl
-static inline void writesl(volatile void *addr, const void *buffer,
-               unsigned int count)
+static inline void writesl(volatile void *addr, const void *buffer, unsigned int count)
 {
     if (count) {
         const uint32_t *buf = (uint32_t *)buffer;
@@ -345,8 +338,7 @@ static inline void writesl(volatile void *addr, const void *buffer,
 #ifdef CONFIG_ARCH_64BIT
 #ifndef writesq
 #define writesq writesq
-static inline void writesq(volatile void *addr, const void *buffer,
-               unsigned int count)
+static inline void writesq(volatile void *addr, const void *buffer, unsigned int count)
 {
     if (count) {
         const u64 *buf = (u64 *)buffer;
@@ -426,6 +418,54 @@ static inline void outl(unsigned long addr, uint32_t value)
 {
     wmb();
     raw_writel((void *)PCI_IOBASE + addr, value);
+}
+#endif
+
+#ifndef insb
+#define insb insb
+static inline void insb(unsigned long addr, void *buffer, unsigned int count)
+{
+    readsb(PCI_IOBASE + addr, buffer, count);
+}
+#endif
+
+#ifndef insw
+#define insw insw
+static inline void insw(unsigned long addr, void *buffer, unsigned int count)
+{
+    readsw(PCI_IOBASE + addr, buffer, count);
+}
+#endif
+
+#ifndef insl
+#define insl insl
+static inline void insl(unsigned long addr, void *buffer, unsigned int count)
+{
+    readsl(PCI_IOBASE + addr, buffer, count);
+}
+#endif
+
+#ifndef outsb
+#define outsb outsb
+static inline void outsb(unsigned long addr, const void *buffer, unsigned int count)
+{
+    writesb(PCI_IOBASE + addr, buffer, count);
+}
+#endif
+
+#ifndef outsw
+#define outsw outsw
+static inline void outsw(unsigned long addr, const void *buffer, unsigned int count)
+{
+    writesw(PCI_IOBASE + addr, buffer, count);
+}
+#endif
+
+#ifndef outsl
+#define outsl outsl
+static inline void outsl(unsigned long addr, const void *buffer, unsigned int count)
+{
+    writesl(PCI_IOBASE + addr, buffer, count);
 }
 #endif
 

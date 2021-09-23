@@ -107,7 +107,7 @@ static void bochs_remove(struct pci_device *pdev)
 }
 
 static struct pci_device_id bochs_id_table[] = {
-    { PCI_DEVICE(0x1234, 0x1111) },
+    { PCI_DEVICE(0x1234, 0x1111) }, /* bochs */
     { }, /* NULL */
 };
 

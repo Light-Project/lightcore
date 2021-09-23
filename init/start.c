@@ -61,8 +61,9 @@ asmlinkage __visible void __init kernel_start(void)
     pre_printk("Kernel command: %s\n", boot_args);
 
     mem_init();
-    device_init();
     sched_init();
+
+    device_init();
     irqchip_init();
     timer_init();
 

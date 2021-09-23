@@ -27,33 +27,32 @@ struct ioremap {
     int count;
 };
 
-static struct ioremap *ioremap_find(phys_addr_t start, phys_addr_t end)
-{
-    struct ioremap *tmp, *io = NULL;
-    list_for_each_entry(tmp, &ioremap_list, list)
-        if((tmp->start <= start) && (tmp->end >= end)) {
-            io = tmp;
-            break;
-        }
-    return io;
-}
+// static struct ioremap *ioremap_find(phys_addr_t start, phys_addr_t end)
+// {
+//     struct ioremap *tmp, *io = NULL;
+//     list_for_each_entry(tmp, &ioremap_list, list)
+//         if((tmp->start <= start) && (tmp->end >= end)) {
+//             io = tmp;
+//             break;
+//         }
+//     return io;
+// }
 
 static struct ioremap *ioremap_get(phys_addr_t pa, size_t size)
 {
     struct vm_area *vm;
     struct ioremap *io;
 
-    vm = vmem_alloc(size);
-    if (!vm)
+    io = kzalloc(sizeof(*io), GFP_KERNEL);
+    if (unlikely(!io))
         return NULL;
+
+    vm = vmem_alloc(size);
+    if (unlikely(!vm))
+        kfree(io);
 
     pa = align_low(pa, PAGE_SIZE);
     arch_page_map(pa, vm->addr, vm->size);
-
-    /* set the io node assigned to */
-    io = kzalloc(sizeof(*io), GFP_KERNEL);
-    if(unlikely(!io))
-        vmem_free(vm);
 
     io->start = pa;
     io->end = pa + size;
@@ -81,15 +80,14 @@ void *ioremap(phys_addr_t pa, size_t size)
     pa &= PAGE_MASK;
     size = align_high(size, PAGE_SIZE);
 
-    io = ioremap_find(pa, pa + size);
-    if(io)
-        goto got_io;
+    // io = ioremap_find(pa, pa + size);
+    // if (io)
+    //     goto got_io;
 
     io = ioremap_get(pa, size);
-    if(!io)
+    if (!io)
         return NULL;
 
-got_io:
     io->count++;
     return (void *)(io->vm_area->addr + offset);
 }

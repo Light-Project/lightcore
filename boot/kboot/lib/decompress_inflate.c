@@ -1,16 +1,15 @@
-// SPDX-License-Identifier: GPL-2.0
+/* SPDX-License-Identifier: GPL-2.0 */
 
 #include "../../../lib/compress/zlib_inflate/inftrees.c"
 #include "../../../lib/compress/zlib_inflate/inffast.c"
 #include "../../../lib/compress/zlib_inflate/inflate.c"
+
 #ifdef CONFIG_ZLIB_DFLTCC
 #include "zlib_dfltcc/dfltcc.c"
 #include "zlib_dfltcc/dfltcc_inflate.c"
 #endif
 
-#include <kboot.h>
-
-#define GZIP_IOBUF_SIZE (16*1024)
+#define GZIP_IOBUF_SIZE (16 * 1024)
 
 static long nofill(void *buffer, unsigned long len)
 {
@@ -18,17 +17,17 @@ static long nofill(void *buffer, unsigned long len)
 }
 
 /* Included from initramfs et al code */
-static int __gunzip(unsigned char *buf, long len,
+static int decompress(unsigned char *buf, long len,
             long (*fill)(void*, unsigned long),
             long (*flush)(void*, unsigned long),
             unsigned char *out_buf, long out_len,
-            long *pos,
-            void(*error)(char *x)) {
-    u8 *zbuf;
+            long *pos) {
+    uint8_t *zbuf;
     struct z_stream_s *strm;
     int rc;
 
     rc = -1;
+
     if (flush) {
         out_len = 0x8000; /* 32 K */
         out_buf = malloc(out_len);
@@ -36,8 +35,9 @@ static int __gunzip(unsigned char *buf, long len,
         if (!out_len)
             out_len = ((size_t)~0) - (size_t)out_buf; /* no limit */
     }
+
     if (!out_buf) {
-        error("Out of memory while allocating output buffer");
+        pr_boot("Out of memory while allocating output buffer");
         goto gunzip_nomem1;
     }
 
@@ -47,14 +47,15 @@ static int __gunzip(unsigned char *buf, long len,
         zbuf = malloc(GZIP_IOBUF_SIZE);
         len = 0;
     }
+
     if (!zbuf) {
-        error("Out of memory while allocating input buffer");
+        pr_boot("Out of memory while allocating input buffer");
         goto gunzip_nomem2;
     }
 
     strm = malloc(sizeof(*strm));
     if (strm == NULL) {
-        error("Out of memory while allocating z_stream");
+        pr_boot("Out of memory while allocating z_stream");
         goto gunzip_nomem3;
     }
 
@@ -66,7 +67,7 @@ static int __gunzip(unsigned char *buf, long len,
                 sizeof(struct inflate_state));
 #endif
     if (strm->workspace == NULL) {
-        error("Out of memory while allocating workspace");
+        pr_boot("Out of memory while allocating workspace");
         goto gunzip_nomem4;
     }
 
@@ -81,25 +82,25 @@ static int __gunzip(unsigned char *buf, long len,
     zbuf[0] != 0x1f || zbuf[1] != 0x8b || zbuf[2] != 0x08) {
         if (pos)
             *pos = 0;
-        error("Not a gzip file");
+        pr_boot("Not a gzip file");
         goto gunzip_5;
     }
 
     /* skip over gzip header (1f,8b,08... 10 bytes total +
-    * possible asciz filename)
-    */
+     * possible asciz filename)
+     */
     strm->next_in = zbuf + 10;
     strm->avail_in = len - 10;
     /* skip over asciz filename */
     if (zbuf[3] & 0x8) {
         do {
             /*
-            * If the filename doesn't fit into the buffer,
-            * the file is very probably corrupt. Don't try
-            * to read more data.
-            */
+             * If the filename doesn't fit into the buffer,
+             * the file is very probably corrupt. Don't try
+             * to read more data.
+             */
             if (strm->avail_in == 0) {
-                error("header error");
+                pr_boot("header error");
                 goto gunzip_5;
             }
             --strm->avail_in;
@@ -126,7 +127,7 @@ static int __gunzip(unsigned char *buf, long len,
             len = fill(zbuf, GZIP_IOBUF_SIZE);
             if (len < 0) {
                 rc = -1;
-                error("read error");
+                pr_boot("read error");
                 break;
             }
             strm->next_in = zbuf;
@@ -139,7 +140,7 @@ static int __gunzip(unsigned char *buf, long len,
             long l = strm->next_out - out_buf;
             if (l != flush(out_buf, l)) {
                 rc = -1;
-                error("write error");
+                pr_boot("write error");
                 break;
             }
             strm->next_out = out_buf;
@@ -151,7 +152,7 @@ static int __gunzip(unsigned char *buf, long len,
             rc = 0;
             break;
         } else if (rc != Z_OK) {
-            error("uncompression error");
+            pr_boot("uncompression error");
             rc = -1;
         }
     }
@@ -173,14 +174,4 @@ gunzip_nomem2:
         free(out_buf);
 gunzip_nomem1:
     return rc; /* returns Z_OK (0) if successful */
-}
-
-int __decompress(unsigned char *buf, long len,
-            long (*fill)(void*, unsigned long),
-            long (*flush)(void*, unsigned long),
-            unsigned char *out_buf, long out_len,
-            long *pos,
-            void (*error)(char *x))
-{
-    return __gunzip(buf, len, fill, flush, out_buf, out_len, pos, error);
 }

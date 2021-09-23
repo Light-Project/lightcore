@@ -71,4 +71,4 @@ SYM_CODE_START(memset)
 
     ldmfd   sp!, {r0}
     mov     pc, lr                  /* exit */
-END(memset)
+SYM_FUNC_END(memset)

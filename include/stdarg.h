@@ -2,6 +2,8 @@
 #ifndef _STDARG_H_
 #define _STDARG_H_
 
+#ifndef __ASSEMBLY__
+
 typedef __builtin_va_list	va_list;
 
 /*
@@ -23,5 +25,6 @@ typedef __builtin_va_list	va_list;
  * copy variable args
  */
 #define va_copy(d, s)		__builtin_va_copy(d, s)
-    
-#endif 
+
+#endif  /* __ASSEMBLY__ */
+#endif  /* _STDARG_H_ */

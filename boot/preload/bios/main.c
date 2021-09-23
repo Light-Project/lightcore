@@ -10,7 +10,6 @@
 #define load_addr   (void *)0x10000
 
 extern void *_ld_dts_start;
-char kernel_cmd[80];
 
 void main(void)
 {
@@ -35,6 +34,5 @@ void main(void)
     biosdisk_read(BOOT_DEV, load_addr, load_seek, val);
 
     pr_boot("start kboot...\n");
-
     kboot_start(((uint32_t)load_addr) >> 4);
 }

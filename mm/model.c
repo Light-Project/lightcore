@@ -27,7 +27,7 @@ static bool sparce_present(struct memblock_region *reg)
     count = (reg->size >> SPARCE_SHIFT) + 1;
 
     while (count--) {
-        if(sparce->present)
+        if (sparce->present)
             continue;
         sparce->present = true;
         sparce++;

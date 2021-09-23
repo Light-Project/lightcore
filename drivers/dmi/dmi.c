@@ -122,6 +122,8 @@ static void dmi_scan(void)
     for (addr = DMI_ENTRY_POINT_START;
          addr < DMI_ENTRY_POINT_END; addr++) {
         entry = ioremap(addr, 32);
+        if (!entry)
+            break;
         if (dmi3_head_check(entry) ||
             dmi_head_check(entry))
             break;

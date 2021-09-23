@@ -13,9 +13,6 @@ state device_register(struct device *dev)
 {
     state retval;
 
-    if (!dev)
-        return -EINVAL;
-
     list_head_init(&dev->dev_res);
 
     retval = bus_device_add(dev);

@@ -1,1 +1,2 @@
-#include "../../../lib/libfdt/fdt_addresses.c"
+#include "libfdt_env.h"
+#include "../../../lib/fdt/fdt_addresses.c"

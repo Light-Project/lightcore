@@ -3,7 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <delay.h>
+#include <sleep.h>
 
 void msleep(unsigned int ms)
 {

@@ -12,7 +12,7 @@
         @ there.
         .inst   MZ_MAGIC | (0x1310 << 16)   @ tstne r0, #0x4d000
 #else
-        mov     r0, r0
+        nop
 #endif
         .endm
 

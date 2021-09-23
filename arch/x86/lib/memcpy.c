@@ -4,10 +4,10 @@
 
 void *memmove(void *dest, const void *src, size_t n)
 {
-    int d0,d1,d2,d3,d4,d5;
+    int d0, d1, d2, d3, d4, d5;
     char *ret = dest;
 
-    __asm__ __volatile__(
+    asm volatile (
         /* Handle more 16 bytes in loop */
         "cmp $0x10, %0\n\t"
         "jb	1f\n\t"
@@ -182,9 +182,9 @@ void *memmove(void *dest, const void *src, size_t n)
         :"0" (n),
          "1" (src),
          "2" (dest)
-        :"memory");
+        :"memory"
+    );
 
     return ret;
-
 }
 EXPORT_SYMBOL(memmove);

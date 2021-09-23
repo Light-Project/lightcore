@@ -52,7 +52,7 @@ static struct irqchip_device *dt_irqchip_find(struct dt_node *node)
  * @node:
  * @index:
  */
-struct irqchip_channel *dt_get_irqchip(struct dt_node *node, int index)
+struct irqchip_channel *dt_get_irqchip_channel(struct dt_node *node, int index)
 {
     struct irqchip_device *idev;
     struct dt_node *parent;
@@ -69,7 +69,7 @@ struct irqchip_channel *dt_get_irqchip(struct dt_node *node, int index)
     return irqchip_get_channel(idev, chnr);
 }
 
-struct irqchip_channel *dt_get_irqchip_by_name(struct dt_node *node, const char *name)
+struct irqchip_channel *dt_get_irqchip_channel_by_name(struct dt_node *node, const char *name)
 {
     int index;
 
@@ -80,5 +80,5 @@ struct irqchip_channel *dt_get_irqchip_by_name(struct dt_node *node, const char 
     if (index < 0)
         return NULL;
 
-    return dt_get_irqchip(node, index);
+    return dt_get_irqchip_channel(node, index);
 }

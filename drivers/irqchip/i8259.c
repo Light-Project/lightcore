@@ -61,7 +61,7 @@ static void i8250_hw_init(void)
     /* ICW2: PIC vector offset */
     pic_outb(0, I8259_DATA, IRQ_EXTERNAL);
     /* ICW3: tell Master PIC that there is a slave PIC at IRQ2 */
-    pic_outb(0, I8259_DATA, 1 << PIC1_IRQ2);
+    pic_outb(0, I8259_DATA, PIC1_IRQ2);
     /* ICW4: Auto EOI */
     pic_outb(0, I8259_DATA, ICW4_8086 | ICW4_AUTO);
 

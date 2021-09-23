@@ -31,7 +31,7 @@ es1370_outb(struct ensoniq_device *ensoniq, uint16_t reg, uint8_t val)
     outb(ensoniq->base + reg, val);
 }
 
-static enum irq_return es1370_handle(irqnr_t vector, void *data)
+static irqreturn_t es1370_handle(irqnr_t vector, void *data)
 {
 
 

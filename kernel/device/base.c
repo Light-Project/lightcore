@@ -20,6 +20,7 @@ state driver_probe_device(struct driver *drv, struct device *dev)
     state ret;
 
     ret = drv->bus->probe(dev);
+
     if (ret) {
         devres_release_all(dev);
         return ret;

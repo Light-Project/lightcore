@@ -1,29 +1,26 @@
-/*
- * strncmp.S
- */
-	.text
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#include <linkage.h>
 
-    .global strncmp
-    .type strncmp, %function
-    .align 4
+    .text
+SYM_CODE_START(strncmp)
+    /* if (len == 0) return 0 */
+    cmp     a3, #0
+    moveq   a1, #0
+    moveq   pc, lr
 
-strncmp:
-	/* if (len == 0) return 0 */
-	cmp	r2, #0
-	moveq	r0, #0
-	moveq	pc, lr
+    /* subtract one to have the index of the last character to check */
+    sub     a3, #1
 
-	/* subtract one to have the index of the last character to check */
-	sub	r2, r2, #1
+    /* ip == last src address to compare */
+    add     ip, a1, a3
 
-	/* ip == last src address to compare */
-	add	ip, r0, r2
-
-1:	ldrb	r2, [r0], #1
-	ldrb	r3, [r1], #1
-	cmp	ip, r0
-	cmpcs	r2, #1
-	cmpcs	r2, r3
-	beq	1b
-	sub	r0, r2, r3
-	mov	pc, lr
+1:
+    ldrb    v1, [a1], #1
+    ldrb    v2, [a2], #1
+    cmp     ip, a1
+    cmpcs   v1, #1
+    cmpcs   v1, v2
+    beq     1b
+    sub     a1, v1, v2
+    mov     pc, lr
+SYM_FUNC_END(strncmp)

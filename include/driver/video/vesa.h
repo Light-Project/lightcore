@@ -1,10 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-/*
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
- */
-
-#ifndef _DRIVER_GPU_VESA_H_
-#define _DRIVER_GPU_VESA_H_
+#ifndef _DRIVER_VIDEO_VESA_H_
+#define _DRIVER_VIDEO_VESA_H_
 
 #include <bits.h>
 

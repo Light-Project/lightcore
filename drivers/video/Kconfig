@@ -2,24 +2,30 @@ menuconfig VIDEO
 bool "Video device support"
 if VIDEO
 
-    config FBCON
+config FBCON
     bool "frame buffer console driver"
     select FONT
     select FONT_6X8
-    
-    config VIDEO_GX6605S
+
+config VIDEO_GX6605S
     bool "Support Nationalchip gx6605s framebuffer"
-    
-    config VIDEO_VESA
+
+config VIDEO_PL11X
+    bool "Support arm pl11x framebuffer"
+
+config VIDEO_SIMPLE
+    bool "Simple framebuffer support"
+
+config VIDEO_VESA
     bool "Support vesa device"
-    
-    config VIDEO_BOCHS
+
+config VIDEO_BOCHS
     bool "Support for bochs dispi vga interface (qemu stdvga)"
     depends on VIDEO_VESA
-    
-    config VIDEO_VBOX
+
+config VIDEO_VBOX
     bool "Support for vbox dispi vga interface"
     depends on VIDEO_VESA
-    
+
 endif
- 
+

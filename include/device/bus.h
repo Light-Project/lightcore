@@ -11,7 +11,7 @@ struct driver;
 
 struct bus_type {
     const char *name;
-    struct device  *dev_root;
+    struct device *dev_root;
 
     state (*match)(struct device *dev, struct driver *drv);
     state (*probe)(struct device *dev);

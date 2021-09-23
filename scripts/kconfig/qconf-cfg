@@ -1,3 +1,0 @@
-cflags="-std=c++11 -fPIC -I/usr/include/qt/QtCore -I/usr/include/qt -I/usr/include/qt/QtGui -DQT_WIDGETS_LIB -I/usr/include/qt/QtWidgets -DQT_GUI_LIB -DQT_CORE_LIB "
-libs="-lQt5Widgets -lQt5Gui -lQt5Core "
-moc="/usr/bin/moc"

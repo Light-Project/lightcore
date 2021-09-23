@@ -232,5 +232,10 @@
             clocks = <&pclk>;
             clock-names = "apb_pclk";
         };
+        
+        clcd: clcd@10020000 {
+            compatible = "arm,pl111";
+            reg = <0x10020000 0x1000>;
+        };
     };
 };

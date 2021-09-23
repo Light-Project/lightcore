@@ -95,7 +95,7 @@ static state uhci_enqueue(struct usb_host *host,
     return -ENOERR;
 }
 
-static enum irq_return uhci_handle(irqnr_t vector, void *data)
+static irqreturn_t uhci_handle(irqnr_t vector, void *data)
 {
     struct uhci_host *uhci = data;
     uint16_t val;

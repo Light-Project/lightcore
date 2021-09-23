@@ -148,9 +148,6 @@ struct resource *platform_name_resource(struct platform_device *pdev, const char
  */
 state platform_device_register(struct platform_device *pdev)
 {
-    if(!pdev)
-        return -EINVAL;
-
     pdev->device.bus = &platform_bus;
     return device_register(&pdev->device);
 }
@@ -158,16 +155,12 @@ EXPORT_SYMBOL(platform_device_register);
 
 void platform_device_unregister(struct platform_device *pdev)
 {
-    if(!pdev)
-        return;
-
+    device_unregister(&pdev->device);
 }
 EXPORT_SYMBOL(platform_device_unregister);
 
 state platform_driver_register(struct platform_driver *pdrv)
 {
-    if(!pdrv)
-        return -EINVAL;
     pdrv->driver.bus = &platform_bus;
     return driver_register(&pdrv->driver);
 }
@@ -175,8 +168,6 @@ EXPORT_SYMBOL(platform_driver_register);
 
 void platform_driver_unregister(struct platform_driver *pdrv)
 {
-    if(!pdrv)
-        return;
     driver_unregister(&pdrv->driver);
 }
 EXPORT_SYMBOL(platform_driver_unregister);

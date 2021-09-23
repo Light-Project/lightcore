@@ -1,6 +1,9 @@
-#include <asm-generic/kernel.lds.h>
-#include <size.h>
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
 
+#include <size.h>
 #define stack_size (size_1KiB * 8)
 
 ENTRY(_start)
@@ -44,25 +47,17 @@ SECTIONS
     .rodata :
     {
         PROVIDE(_ld_rodata_start = .);
-        *(.rodata)         /* .rodata sections (code) */
-        *(.rodata*)        /* .rodata* sections (code) */
+        *(.rodata)
+        *(.rodata*)
         PROVIDE(_ld_rodata_end = .);
     } > RAM
 
     .data :
     {
         PROVIDE(_ld_data_start = .);
-        *(.data)           /* .data sections */
-        *(.data*)          /* .data* sections */
+        *(.data)
+        *(.data*)
         PROVIDE(_ld_data_end = .);
-    } > RAM
-
-    .dts :
-    {
-        . = ALIGN(4);
-        PROVIDE(_ld_dts_start = .);
-        KEEP(*(.dts))
-        . = ALIGN(4);
     } > RAM
 
     .align :
@@ -73,7 +68,6 @@ SECTIONS
         PROVIDE(_ld_align_end = .);
     } > RAM
 
-    /* Uninitialized data section */
     .bss (NOLOAD) :
     {
         PROVIDE(_ld_bss_start = .);
@@ -82,7 +76,7 @@ SECTIONS
         PROVIDE(_ld_bss_end = .);
     } > RAM
 
-    .stack(NOLOAD) :
+    .stack (NOLOAD) :
     {
         . = ALIGN(4);
         PROVIDE(_ld_stack_start = .);

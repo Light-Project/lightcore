@@ -19,31 +19,25 @@ endif
 # We need this, in case the user has it in its environment
 unexport CONFIG_
 
-xconfig: $(obj)qconf
-	$(Q)$< $(silent) $(Kconfig)
+config-prog	    := conf
+menuconfig-prog	:= mconf
+nconfig-prog	:= nconf
+gconfig-prog	:= gconf
+xconfig-prog	:= qconf
 
-gconfig: $(obj)gconf
-	$(Q)$< $(silent) $(Kconfig)
+define config_rule
+PHONY += $(1)
+$(1): $(obj)/$($(1)-prog)
+	$(Q)$$< $(silent) $(Kconfig)
 
-menuconfig: $(obj)mconf
-	$(Q)$< $(silent) $(Kconfig)
+PHONY += build_$(1)
+build_$(1): $(obj)/$($(1)-prog)
+endef
 
-config: $(obj)conf
-	$(Q)$< $(silent) --oldaskconfig $(Kconfig)
+$(foreach c, config menuconfig nconfig gconfig xconfig, $(eval $(call config_rule,$(c))))
 
-nconfig: $(obj)nconf
-	$(Q)$< $(silent) $(Kconfig)
-
-build_menuconfig: $(obj)mconf
-
-build_nconfig: $(obj)nconf
-
-build_gconfig: $(obj)gconf
-
-build_xconfig: $(obj)qconf
-
-localyesconfig localmodconfig: $(obj)conf
-	$(Q)$(PERL) $(MAKE_HOME)/$(obj)streamline_config.pl --$@ $(MAKE_HOME) $(Kconfig) > .tmp.config
+localyesconfig localmodconfig: $(obj)/conf
+	$(Q)$(PERL) $(srctree)/$(obj)streamline_config.pl --$@ $(srctree) $(Kconfig) > .tmp.config
 	$(Q)if [ -f .config ]; then 				\
 		cmp -s .tmp.config .config ||			\
 		(mv -f .config .config.old.1;			\
@@ -62,21 +56,21 @@ localyesconfig localmodconfig: $(obj)conf
 #  syncconfig has become an internal implementation detail and is now
 #  deprecated for external use
 simple-targets := oldconfig allnoconfig allyesconfig allmodconfig \
-	alldefconfig randconfig listnewconfig olddefconfig syncconfig \
-	helpnewconfig yes2modconfig mod2yesconfig
+		alldefconfig randconfig listnewconfig olddefconfig syncconfig \
+		helpnewconfig yes2modconfig mod2yesconfig
 
 PHONY += $(simple-targets)
 
-$(simple-targets): $(obj)conf
+$(simple-targets): $(obj)/conf
 	$(Q)$< $(silent) --$@ $(Kconfig)
 
 PHONY += savedefconfig defconfig
 
-savedefconfig: $(obj)conf
+savedefconfig: $(obj)/conf
 	$(Q)$< $(silent) --$@=defconfig $(Kconfig)
 
-defconfig: $(obj)conf
-ifneq ($(wildcard $(MAKE_HOME)/arch/$(SRCARCH)/configs/$(KBUILD_DEFCONFIG)),)
+defconfig: $(obj)/conf
+ifneq ($(wildcard $(srctree)/arch/$(SRCARCH)/configs/$(KBUILD_DEFCONFIG)),)
 	@$(kecho) "*** Default configuration is based on '$(KBUILD_DEFCONFIG)'"
 	$(Q)$< $(silent) --defconfig=arch/$(SRCARCH)/configs/$(KBUILD_DEFCONFIG) $(Kconfig)
 else
@@ -84,15 +78,15 @@ else
 	$(Q)$(MAKE) -f Makefile $(KBUILD_DEFCONFIG)
 endif
 
-%_defconfig: $(obj)conf
+%_defconfig: $(obj)/conf
 	$(Q)$< $(silent) --defconfig=configs/$@ $(Kconfig)
 
-configfiles=$(wildcard $(MAKE_HOME)/kernel/configs/$@ $(MAKE_HOME)/arch/$(SRCARCH)/configs/$@)
+configfiles=$(wildcard $(srctree)/kernel/configs/$@ $(srctree)/arch/$(SRCARCH)/configs/$@)
 
-%.config: $(obj)conf
+%.config: $(obj)/conf
 	$(if $(call configfiles),, $(error No configuration exists for this target on this architecture))
-	$(Q)$(CONFIG_SHELL) $(MAKE_HOME)/scripts/kconfig/merge_config.sh -m .config $(configfiles)
-	$(Q)$(MAKE) -f $(MAKE_HOME)/Makefile olddefconfig
+	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/kconfig/merge_config.sh -m .config $(configfiles)
+	$(Q)$(MAKE) -f $(srctree)/Makefile olddefconfig
 
 PHONY += kvmconfig
 kvmconfig: kvm_guest.config
@@ -106,52 +100,24 @@ xenconfig: xen.config
 
 PHONY += tinyconfig
 tinyconfig:
-	$(Q)$(MAKE) -f $(MAKE_HOME)/Makefile allnoconfig tiny.config
+	$(Q)$(MAKE) -f $(srctree)/Makefile allnoconfig tiny.config
 
 # CHECK: -o cache_dir=<path> working?
 PHONY += testconfig
-testconfig: $(obj)conf
-	$(Q)$(PYTHON3) -B -m pytest $(MAKE_HOME)/$(obj)tests \
+testconfig: $(obj)/conf
+	$(Q)$(PYTHON3) -B -m pytest $(srctree)/$(obj)tests \
 	-o cache_dir=$(abspath $(obj)tests/.cache) \
 	$(if $(findstring 1,$(KBUILD_VERBOSE)),--capture=no)
 clean-files += tests/.cache
 
-# Help text used by make help
-help:
-	@echo  '  config	  - Update current config utilising a line-oriented program'
-	@echo  '  nconfig         - Update current config utilising a ncurses menu based program'
-	@echo  '  menuconfig	  - Update current config utilising a menu based program'
-	@echo  '  xconfig	  - Update current config utilising a Qt based front-end'
-	@echo  '  gconfig	  - Update current config utilising a GTK+ based front-end'
-	@echo  '  oldconfig	  - Update current config utilising a provided .config as base'
-	@echo  '  localmodconfig  - Update current config disabling modules not loaded'
-	@echo  '                    except those preserved by LMC_KEEP environment variable'
-	@echo  '  localyesconfig  - Update current config converting local mods to core'
-	@echo  '                    except those preserved by LMC_KEEP environment variable'
-	@echo  '  defconfig	  - New config with default from ARCH supplied defconfig'
-	@echo  '  savedefconfig   - Save current config as ./defconfig (minimal config)'
-	@echo  '  allnoconfig	  - New config where all options are answered with no'
-	@echo  '  allyesconfig	  - New config where all options are accepted with yes'
-	@echo  '  allmodconfig	  - New config selecting modules when possible'
-	@echo  '  alldefconfig    - New config with all symbols set to default'
-	@echo  '  randconfig	  - New config with random answer to all options'
-	@echo  '  yes2modconfig	  - Change answers from yes to mod if possible'
-	@echo  '  mod2yesconfig	  - Change answers from mod to yes if possible'
-	@echo  '  listnewconfig   - List new options'
-	@echo  '  helpnewconfig   - List new options and help text'
-	@echo  '  olddefconfig	  - Same as oldconfig but sets new symbols to their'
-	@echo  '                    default value without prompting'
-	@echo  '  tinyconfig	  - Configure the tiniest possible kernel'
-	@echo  '  testconfig	  - Run Kconfig unit tests (requires python3 and pytest)'
-
 # ===========================================================================
 # object files used by all kconfig flavours
-common-objs	:= confdata.o expr.o lexer.lex.o parser.tab.o preprocess.o \
-		   symbol.o util.o
+common-objs	:= confdata.o expr.o lexer.lex.o menu.o \
+			   parser.tab.o preprocess.o symbol.o util.o
 
-$(obj)lexer.lex.o: $(obj)parser.tab.h
-HOSTCFLAGS_lexer.lex.o	:= -I $(src)
-HOSTCFLAGS_parser.tab.o	:= -I $(src)
+$(obj)/lexer.lex.o: $(obj)/parser.tab.h
+HOSTCFLAGS_lexer.lex.o	:= -I $(srctree)/$(src)
+HOSTCFLAGS_parser.tab.o	:= -I $(srctree)/$(src)
 
 # conf: Used for defconfig, oldconfig and related targets
 hostprogs	+= conf
@@ -161,11 +127,11 @@ conf-objs	:= conf.o $(common-objs)
 hostprogs	+= nconf
 nconf-objs	:= nconf.o nconf.gui.o $(common-objs)
 
-HOSTLDLIBS_nconf	= $(shell . $(obj)nconf-cfg && echo $$libs)
-HOSTCFLAGS_nconf.o	= $(shell . $(obj)nconf-cfg && echo $$cflags)
-HOSTCFLAGS_nconf.gui.o	= $(shell . $(obj)nconf-cfg && echo $$cflags)
+HOSTLDLIBS_nconf	    = $(shell . $(obj)/nconf-cfg && echo $$libs)
+HOSTCFLAGS_nconf.o	    = $(shell . $(obj)/nconf-cfg && echo $$cflags)
+HOSTCFLAGS_nconf.gui.o	= $(shell . $(obj)/nconf-cfg && echo $$cflags)
 
-$(obj)nconf.o $(obj)nconf.gui.o: $(obj)nconf-cfg
+$(obj)/nconf.o $(obj)/nconf.gui.o: $(obj)/nconf-cfg
 
 # mconf: Used for the menuconfig target based on lxdialog
 hostprogs	+= mconf
@@ -173,42 +139,71 @@ lxdialog	:= $(addprefix lxdialog/, \
 		     checklist.o inputbox.o menubox.o textbox.o util.o yesno.o)
 mconf-objs	:= mconf.o $(lxdialog) $(common-objs)
 
-HOSTLDLIBS_mconf = $(shell . $(obj)mconf-cfg && echo $$libs)
+HOSTLDLIBS_mconf = $(shell . $(obj)/mconf-cfg && echo $$libs)
 $(foreach f, mconf.o $(lxdialog), \
-  $(eval HOSTCFLAGS_$f = $$(shell . $(obj)mconf-cfg && echo $$$$cflags)))
+  $(eval HOSTCFLAGS_$f = $$(shell . $(obj)/mconf-cfg && echo $$$$cflags)))
 
-$(addprefix $(obj), mconf.o $(lxdialog)): $(obj)mconf-cfg
+$(addprefix $(obj)/, mconf.o $(lxdialog)): $(obj)/mconf-cfg
 
 # qconf: Used for the xconfig target based on Qt
 hostprogs	+= qconf
 qconf-cxxobjs	:= qconf.o qconf-moc.o
 qconf-objs	:= images.o $(common-objs)
 
-HOSTLDLIBS_qconf	= $(shell . $(obj)qconf-cfg && echo $$libs)
-HOSTCXXFLAGS_qconf.o	= $(shell . $(obj)qconf-cfg && echo $$cflags)
-HOSTCXXFLAGS_qconf-moc.o = $(shell . $(obj)qconf-cfg && echo $$cflags)
+HOSTLDLIBS_qconf            = $(shell . $(obj)/qconf-cfg && echo $$libs)
+HOSTCXXFLAGS_qconf.o	    = $(shell . $(obj)/qconf-cfg && echo $$cflags)
+HOSTCXXFLAGS_qconf-moc.o    = $(shell . $(obj)/qconf-cfg && echo $$cflags)
 
-$(obj)qconf.o: $(obj)qconf-cfg
+$(obj)/qconf.o: $(obj)/qconf-cfg
 
 quiet_cmd_moc = MOC     $@
-      cmd_moc = $(shell . $(obj)qconf-cfg && echo $$moc) $< -o $@
-$(obj)qconf-moc.cc: $(obj)qconf.h $(obj)qconf-cfg FORCE
+      cmd_moc = $(shell . $(obj)/qconf-cfg && echo $$moc) $< -o $@
+$(obj)/qconf-moc.cc: $(src)/qconf.h $(obj)/qconf-cfg FORCE
 	$(call if_changed,moc)
+
 targets += qconf-moc.cc
 
 # gconf: Used for the gconfig target based on GTK+
 hostprogs	+= gconf
 gconf-objs	:= gconf.o images.o $(common-objs)
 
-HOSTLDLIBS_gconf    = $(shell . $(obj)gconf-cfg && echo $$libs)
-HOSTCFLAGS_gconf.o  = $(shell . $(obj)gconf-cfg && echo $$cflags)
+HOSTLDLIBS_gconf    = $(shell . $(obj)/gconf-cfg && echo $$libs)
+HOSTCFLAGS_gconf.o  = $(shell . $(obj)/gconf-cfg && echo $$cflags)
 
-$(obj)gconf.o: $(obj)gconf-cfg
+$(obj)/gconf.o: $(obj)/gconf-cfg
 
 # check if necessary packages are available, and configure build flags
 filechk_conf_cfg = $(CONFIG_SHELL) $<
 
-$(obj)%conf-cfg: $(obj)%conf-cfg.sh FORCE
+$(obj)/%conf-cfg: $(src)/%conf-cfg.sh FORCE
 	$(call filechk,conf_cfg)
 
-clean-files += *conf-cfg
+# Help text used by make help
+help:
+	$(Q)$(ECHO) 'config         - Update current config utilising a line-oriented program'
+	$(Q)$(ECHO) 'nconfig        - Update current config utilising a ncurses menu based program'
+	$(Q)$(ECHO) 'menuconfig	    - Update current config utilising a menu based program'
+	$(Q)$(ECHO) 'xconfig	    - Update current config utilising a Qt based front-end'
+	$(Q)$(ECHO) 'gconfig	    - Update current config utilising a GTK+ based front-end'
+	$(Q)$(ECHO) 'oldconfig	    - Update current config utilising a provided .config as base'
+	$(Q)$(ECHO) 'localmodconfig - Update current config disabling modules not loaded'
+	$(Q)$(ECHO) '                  except those preserved by LMC_KEEP environment variable'
+	$(Q)$(ECHO) 'localyesconfig - Update current config converting local mods to core'
+	$(Q)$(ECHO) '                  except those preserved by LMC_KEEP environment variable'
+	$(Q)$(ECHO) 'defconfig      - New config with default from ARCH supplied defconfig'
+	$(Q)$(ECHO) 'savedefconfig  - Save current config as ./defconfig (minimal config)'
+	$(Q)$(ECHO) 'allnoconfig    - New config where all options are answered with no'
+	$(Q)$(ECHO) 'allyesconfig   - New config where all options are accepted with yes'
+	$(Q)$(ECHO) 'allmodconfig   - New config selecting modules when possible'
+	$(Q)$(ECHO) 'alldefconfig   - New config with all symbols set to default'
+	$(Q)$(ECHO) 'randconfig     - New config with random answer to all options'
+	$(Q)$(ECHO) 'yes2modconfig  - Change answers from yes to mod if possible'
+	$(Q)$(ECHO) 'mod2yesconfig  - Change answers from mod to yes if possible'
+	$(Q)$(ECHO) 'listnewconfig  - List new options'
+	$(Q)$(ECHO) 'helpnewconfig  - List new options and help text'
+	$(Q)$(ECHO) 'olddefconfig   - Same as oldconfig but sets new symbols to their'
+	$(Q)$(ECHO) '                  default value without prompting'
+	$(Q)$(ECHO) 'tinyconfig	    - Configure the tiniest possible kernel'
+	$(Q)$(ECHO) 'testconfig	    - Run Kconfig unit tests (requires python3 and pytest)'
+
+clean-y += *conf-cfg

@@ -88,22 +88,25 @@ static state memblock_insert(phys_addr_t addr, size_t size, enum memblock_type t
             break;
         }
 
-        if(block->addr < addr)
+        if (block->addr < addr)
             last = block;
     }
 
+    /* init new node */
     new->addr = addr;
     new->size = size;
     new->type = type;
 
+    /* insert new node */
     if (!prev) {
         if (last)
             prev = &last->list;
-        else
+        else  /* first node */
             prev = &memblock_list;
     }
     list_add_next(prev, &new->list);
 
+    /* merge the prev same attribute node */
     if (last) {
         tmp = list_prev_entry(new, list);
         if (type == tmp->type && (tmp->addr + tmp->size + 1) == addr) {
@@ -113,6 +116,7 @@ static state memblock_insert(phys_addr_t addr, size_t size, enum memblock_type t
         }
     }
 
+    /* merge the next same attribute node */
     tmp = list_next_entry(new, list);
     if (type == tmp->type && (addr + size + 1) == tmp->addr) {
         new->size += tmp->size;

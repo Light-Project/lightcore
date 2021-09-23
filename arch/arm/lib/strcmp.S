@@ -1,17 +1,13 @@
-/*
- * strcmp.S
- */
-	.text
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#include <linkage.h>
 
-    .global strcmp
-    .type strcmp, %function
-    .align 4
-
-strcmp:
-1:	ldrb	r2, [r0], #1
-	ldrb	r3, [r1], #1
-	cmp	r2, #1
-	cmpcs	r2, r3
-	beq	1b
-	sub	r0, r2, r3
-	mov	pc, lr
+    .text
+SYM_CODE_START(strcmp)
+    ldrb    v1, [a1], #1
+    ldrb    v2, [a2], #1
+    cmp     v1, #1
+    cmpcs   v1, v2
+    beq     strcmp
+    sub     r0, v1, v2
+    mov     pc, lr
+SYM_FUNC_END(strcmp)

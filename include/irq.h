@@ -6,17 +6,17 @@
 #include <list.h>
 #include <asm/irq.h>
 
-typedef enum irq_return irq_return_t;
-typedef irq_return_t (*irq_handler_t)(irqnr_t, void *);
+typedef enum irqreturn irqreturn_t;
+typedef irqreturn_t (*irq_handler_t)(irqnr_t, void *);
 
-enum irq_flags {
-    IRQ_FLAG_SHARED     = 0x00000000,
-};
-
-enum irq_return {
+enum irqreturn {
     IRQ_RET_NONE        = 0x00,
     IRQ_RET_HANDLED     = 0x01,
     IRQ_RET_WAKE        = 0x02,
+};
+
+enum irq_flags {
+    IRQ_FLAG_SHARED     = 0x00000000,
 };
 
 struct irq {
