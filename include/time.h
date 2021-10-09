@@ -11,4 +11,7 @@ struct timespec {
     long    tv_nsec;
 };
 
+time_t mktime(unsigned int year, unsigned int mon, unsigned int day,
+              unsigned int hour, unsigned int min, unsigned int sec);
+
 #endif  /* _TIME_H_ */

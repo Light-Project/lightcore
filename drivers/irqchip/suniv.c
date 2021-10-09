@@ -18,18 +18,19 @@
 
 struct suniv_device {
     struct irqchip_device irq;
-    void *mmio;
+    void *base;
 };
 
 static __always_inline uint32_t
 suniv_readl(struct suniv_device *sdev, int reg)
 {
-    return readl(sdev->mmio + reg);
+    return readl(sdev->base + reg);
 }
-static __always_inline uint32_t
+
+static __always_inline void
 suniv_writel(struct suniv_device *sdev, int reg, uint32_t val)
 {
-    writel(sdev->mmio + reg, val);
+    writel(sdev->base + reg, val);
 }
 
 static void suniv_handle(struct regs *regs)
@@ -39,13 +40,13 @@ static void suniv_handle(struct regs *regs)
     irq_handle(vector);
 }
 
-static state suniv_probe(struct platform_device *pdev)
+static state suniv_probe(struct platform_device *pdev, void *pdata)
 {
     struct suniv_device *sdev;
     resource_size_t start, size;
     uint32_t val;
 
-    sdev = dev_kmalloc(&pdev->device, sizeof(*sdev), GFP_KERNEL);
+    sdev = dev_kzalloc(&pdev->dev, sizeof(*sdev), GFP_KERNEL);
     if (!sdev)
         return -ENOMEM;
 

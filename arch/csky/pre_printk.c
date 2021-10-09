@@ -19,8 +19,8 @@ struct _vram_text{
     } block[yres][xres];
 } __packed;
 
-#define vram_text_base  (pa_to_va(0xb8000))
-#define vram_text       ((struct _vram_text *)vram_text_base)
+#define VRAM_BASE   (pa_to_va(0xb8000))
+#define vram_text   ((struct _vram_text *)VRAM_BASE)
 
 static unsigned char pos_x, pos_y;
 
@@ -53,7 +53,7 @@ static inline void video_roll()
 static void video_write(struct console *con, const char *str, unsigned len)
 {
     char ch;
-    
+
     while((ch = *str++) != '\0' && 0 < len--) {
         if (pos_y >= yres)
             video_roll(pos_y--);
@@ -63,13 +63,13 @@ static void video_write(struct console *con, const char *str, unsigned len)
             pos_x = 0;
             continue;
         }
-        
+
         vram_text->block[pos_y][pos_x++].ch = ch;
         if (pos_x >= xres) {
             pos_y++;
             pos_x = 0;
         }
-        
+
         video_cursor(pos_x, pos_y);
     }
 }

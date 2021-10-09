@@ -1,20 +1,18 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-arch-$(CONFIG_ARCH_ARM)     += arm/
-arch-$(CONFIG_ARCH_CSKY)    += csky/
-arch-$(CONFIG_ARCH_RISCV64) += riscv64/
-arch-$(CONFIG_ARCH_X86)     += x86/
-obj-y += $(arch-y) lib/ piggy.o
+include $(srctree)/platform.mk
+
+obj-y += $(arch)/ lib/ piggy.o
 extra-y += kboot.lds
 
-include-y += $(arch-y) lib/
+include-y += $(arch)/ lib/
 
 kboot-asflags-y  += -D__ASSEMBLY__
 kboot-ccflags-y  += -std=gnu11
 kboot-acflags-y  += -ffreestanding -nostdinc -Wall -Werror -fPIE -fno-stack-protector -fno-common
 kboot-ldsflags-y += -D__ASSEMBLY__
 kboot-elfflags-y += -T $(obj)/kboot.lds -Wl,--cref,-Map=$@.map
-kboot-elfflags-y += -Wl,--no-dynamic-linker -nostdlib -lgcc
+kboot-elfflags-y += -Wl,--no-dynamic-linker -nostdlib
 
 asflags-y   = $(strip $(kboot-asflags-y) $(platform-asflags-y))
 ccflags-y   = $(strip $(kboot-ccflags-y) $(platform-ccflags-y))
@@ -29,13 +27,10 @@ elf-always-y += kboot
 boot.bin-obj += kboot
 bin-always-y += boot.bin
 
-fixtool: FORCE
-	$(Q)$(MAKE) $(build)=tools/kernelcrc
-
 quiet_cmd_copy_kernel = $(ECHO_BIN) $@
       cmd_copy_kernel = $(OBJCOPY) -O binary $< $@
 quiet_cmd_fix_kernel  = FIXCRC $@
-      cmd_fix_kernel  = tools/kernelcrc/kernelcrc $@
+      cmd_fix_kernel  = $(objtree)/tools/kernelcrc/kernelcrc $@
 $(obj)/kernel.bin: lightcore
 	$(call if_changed,copy_kernel)
 	$(call if_changed,fix_kernel)
@@ -63,10 +58,10 @@ suffix-$(CONFIG_PACK_LZO)     := .lzo
 suffix-$(CONFIG_PACK_LZ4)     := .lz4
 suffix-$(CONFIG_PACK_ZSTD)    := .zst
 
-quiet_cmd_mkpiggy = MKPIGGY $@
-      cmd_mkpiggy = $(objtree)/tools/mkpiggy/mkpiggy $< > $@
+quiet_cmd_mkincbin = MKINCBIN $@
+      cmd_mkincbin = $(objtree)/tools/mkincbin/mkincbin .piggydata $< > $@
 $(obj)/piggy.S: $(obj)/kernel.bin$(suffix-y) FORCE
-	$(call if_changed,mkpiggy)
+	$(call if_changed,mkincbin)
 targets += piggy.S kernel.bin$(suffix-y)
 
 clean-suffix += .gz .bz2 .lzma .xz .lzo .lz4 .zst

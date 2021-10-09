@@ -149,7 +149,7 @@
  *
  *****************************************************************************/
 
-#include <driver/acpi.h>
+#include <driver/acpi/acpi.h>
 #include "accommon.h"
 #include "acdebug.h"
 

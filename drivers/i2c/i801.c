@@ -3,7 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define DRIVER_NAME "i2c-i801"
+#define DRIVER_NAME "i801-i2c"
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
 #include <initcall.h>
@@ -11,7 +11,7 @@
 #include <driver/pci.h>
 #include <printk.h>
 
-static state i801_probe(struct pci_device *pdev, int pdata)
+static state i801_probe(struct pci_device *pdev, void *pdata)
 {
     struct platform_device *tco_dev;
 
@@ -19,11 +19,6 @@ static state i801_probe(struct pci_device *pdev, int pdata)
     platform_device_register(tco_dev);
 
     return -ENOERR;
-}
-
-static void i801_remove(struct pci_device *pdev)
-{
-
 }
 
 static struct pci_device_id i801_ids[] = {
@@ -94,12 +89,10 @@ static struct pci_driver i801_driver = {
     },
     .id_table = i801_ids,
     .probe = i801_probe,
-    .remove = i801_remove,
 };
 
 static state i801_i2c_init(void)
 {
     return pci_driver_register(&i801_driver);
 }
-
 driver_initcall(i801_i2c_init);

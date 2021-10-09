@@ -78,7 +78,7 @@ static state pl11x_hw_init(struct pl11x_device *pl11x)
     return -ENOERR;
 }
 
-static state pl11x_probe(struct platform_device *pdev)
+static state pl11x_probe(struct platform_device *pdev, void *pdata)
 {
     struct pl11x_device *pl11x;
     resource_size_t start, size;
@@ -86,14 +86,14 @@ static state pl11x_probe(struct platform_device *pdev)
     if (platform_resource_type(pdev, 0) != RESOURCE_MMIO)
         return -ENODEV;
 
-    pl11x = dev_kzalloc(&pdev->device, sizeof(*pl11x), GFP_KERNEL);
+    pl11x = dev_kzalloc(&pdev->dev, sizeof(*pl11x), GFP_KERNEL);
     if (!pl11x)
         return -ENOMEM;
     platform_set_devdata(pdev, pl11x);
 
     start = platform_resource_start(pdev, 0);
     size = platform_resource_size(pdev, 0);
-    pl11x->base = dev_ioremap(&pdev->device, start, size);
+    pl11x->base = dev_ioremap(&pdev->dev, start, size);
     if (!pl11x->base)
         return -ENOMEM;
 

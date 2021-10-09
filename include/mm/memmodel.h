@@ -5,8 +5,6 @@
 #include <mm/mm_types.h>
 #include <asm/page.h>
 
-#define PAGE_ORDER_MAX  11
-
 /* Flat Memory model */
 #ifdef CONFIG_FLATMEM
 
@@ -63,15 +61,6 @@ sparce_nr_page(const struct sparce_block *sparce, unsigned long pnr)
 })
 
 #endif
-
-#define va_to_pa(va)        ((phys_addr_t)(va) - CONFIG_PAGE_OFFSET + CONFIG_RAM_BASE)
-#define pa_to_va(pa)        ((void *)((pa) - CONFIG_RAM_BASE + CONFIG_PAGE_OFFSET))
-
-#define page_to_pa(page)    (page_to_nr(page) << PAGE_SHIFT)
-#define pa_to_page(pa)      (nr_to_page(pa >> PAGE_SHIFT))
-
-#define page_to_va(page)    (pa_to_va(page_to_pa(page)))
-#define va_to_page(address) (pa_to_page(va_to_pa(address)))
 
 void memmodel_init(void);
 

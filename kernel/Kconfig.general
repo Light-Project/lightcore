@@ -15,7 +15,11 @@ config DEFAULT_INIT
 config SYSVIPC
     bool "System V IPC"
     default y
-        
+    
+config KSHELL
+    bool "Accept kernel instructions"
+    default y
+
 config SYSTICK_FREQ
     int "System tick frequency"
     range 100 1000

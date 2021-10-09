@@ -1,1 +1,0 @@
-hostprogs-always-y += mkpiggy

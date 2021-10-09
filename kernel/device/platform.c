@@ -17,7 +17,7 @@ static __always_inline bool
 platform_device_match_one(const struct platform_device_id *id,
                           struct platform_device *pdev)
 {
-    return !strcmp(id->name, pdev->name);
+    return !strncmp(id->name, pdev->name, PLATFORM_NAME_LEN);
 }
 
 static inline const struct platform_device_id *
@@ -26,11 +26,11 @@ platform_device_match(struct platform_driver *pdrv,
 {
     const struct platform_device_id *pids = pdrv->platform_table;
 
-    if(!pids || !pdev->name)
+    if (!pdev->name || !pdrv->platform_table)
         return NULL;
 
-    while(pids->name) {
-        if(platform_device_match_one(pids, pdev))
+    while (pids->name && pids->name[0]) {
+        if (platform_device_match_one(pids, pdev))
             return pids;
         ++pids;
     }
@@ -42,19 +42,34 @@ static state platform_match(struct device *dev, struct driver *drv)
 {
     struct platform_device *pdev = device_to_platform_device(dev);
     struct platform_driver *pdrv = driver_to_platform_driver(drv);
-
-    if (platform_device_match(pdrv, pdev))
-        return -ENOERR;
+    const struct platform_device_id *platform;
 
 #ifdef CONFIG_DT
-    if (platform_dt_match(pdrv, pdev))
+    const struct dt_device_id *dt;
+    dt = platform_dt_match(pdrv, pdev);
+    if (dt) {
+        if (!device_get_pdata(dev))
+            device_set_pdata(dev, dt->data);
         return -ENOERR;
+    }
 #endif
 
 #ifdef CONFIG_ACPI
-    if (platform_acpi_match(pdrv, pdev))
+    const struct acpi_device_id *acpi;
+    acpi = platform_acpi_match(pdrv, pdev);
+    if (acpi) {
+        if (!device_get_pdata(dev))
+            device_set_pdata(dev, acpi->data);
         return -ENOERR;
+    }
 #endif
+
+    platform = platform_device_match(pdrv, pdev);
+    if (platform) {
+        if (!device_get_pdata(dev))
+            device_set_pdata(dev, platform->data);
+        return -ENOERR;
+    }
 
     return -ENODEV;
 }
@@ -69,7 +84,7 @@ static state platform_probe(struct device *dev)
         return -ENXIO;
     }
 
-    return pdrv->probe(pdev);
+    return pdrv->probe(pdev, device_get_pdata(dev));
 }
 
 static state platform_remove(struct device *dev)
@@ -119,7 +134,7 @@ struct platform_device *platform_device_alloc(const char *name, int id)
 
     pdev->name  = name;
     pdev->id    = id;
-    pdev->device.bus = &platform_bus;
+    pdev->dev.bus = &platform_bus;
     return pdev;
 }
 
@@ -148,29 +163,24 @@ struct resource *platform_name_resource(struct platform_device *pdev, const char
  */
 state platform_device_register(struct platform_device *pdev)
 {
-    pdev->device.bus = &platform_bus;
-    return device_register(&pdev->device);
+    pdev->dev.bus = &platform_bus;
+    return device_register(&pdev->dev);
 }
-EXPORT_SYMBOL(platform_device_register);
 
 void platform_device_unregister(struct platform_device *pdev)
 {
-    device_unregister(&pdev->device);
+    device_unregister(&pdev->dev);
 }
-EXPORT_SYMBOL(platform_device_unregister);
-
 state platform_driver_register(struct platform_driver *pdrv)
 {
     pdrv->driver.bus = &platform_bus;
     return driver_register(&pdrv->driver);
 }
-EXPORT_SYMBOL(platform_driver_register);
 
 void platform_driver_unregister(struct platform_driver *pdrv)
 {
     driver_unregister(&pdrv->driver);
 }
-EXPORT_SYMBOL(platform_driver_unregister);
 
 void __init platform_bus_init(void)
 {
@@ -180,3 +190,8 @@ void __init platform_bus_init(void)
     platform_dt_init();
 #endif
 }
+
+EXPORT_SYMBOL(platform_device_register);
+EXPORT_SYMBOL(platform_device_unregister);
+EXPORT_SYMBOL(platform_driver_register);
+EXPORT_SYMBOL(platform_driver_unregister);

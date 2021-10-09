@@ -5,29 +5,29 @@
 
 #include <driver/pci.h>
 
-static state ehci_probe(struct pci_device *pdev, int data)
+static state ehci_probe(struct pci_device *pdev, void *pdata)
 {
     struct ehci_host *ehci;
     resource_size_t start, size;
     void *mmio;
 
+    if (pci_resource_type(pdev, 0) != RESOURCE_MMIO)
+        return -ENODEV;
+
     start = pci_resource_start(pdev, 0);
     size = pci_resource_size(pdev, 0);
-    mmio = ioremap(start, size);
-    if (!mmio) {
-        pr_debug("io mapping error\n");
-        return -EFAULT;
-    }
+    mmio = dev_ioremap(&pdev->dev, start, size);
+    if (!mmio)
+        return -ENOMEM;
 
-    ehci = kzalloc(sizeof(*ehci), GFP_KERNEL);
-    if(!ehci)
+    ehci = dev_kzalloc(&pdev->dev, sizeof(*ehci), GFP_KERNEL);
+    if (!ehci)
         return -ENOMEM;
 
     ehci->mmio = mmio;
     ehci->device = &pdev->dev;
     ehci->host.type = USB_HOST_2;
     ehci->host.ops  = &ehci_pci_ops;
-
     irq_request(pdev->irq, 0, ehci_irq, ehci, "ehci-pci");
     return usb_host_register(&ehci->host);
 }

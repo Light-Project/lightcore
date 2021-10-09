@@ -29,6 +29,7 @@ state irq_request(irqnr_t vector, enum irq_flags flags,
 
     irq_map[vector].name = name;
     irq_map[vector].handler = handler;
+    irq_map[vector].data = data;
 
     return -ENOERR;
 }

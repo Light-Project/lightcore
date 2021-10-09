@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#ifndef _ASM_RMWCC_H_
-#define _ASM_RMWCC_H_
+#ifndef _ASM_X86_RMWCC_H_
+#define _ASM_X86_RMWCC_H_
 
 /* This counts to 12. Any more, it will return 13th argument. */
 #define __RMWcc_ARGS(_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _n, X...) _n
@@ -67,4 +67,4 @@ cc_label:	c = true;						\
 	__GEN_RMWcc(op " %[val], %[var]\n\t" suffix, var, cc,		\
 		    __CLOBBERS_MEM(clobbers), [val] vcon (_val))
 
-#endif /* _ASM_X86_RMWcc */
+#endif /* _ASM_X86_RMWCC_H_ */

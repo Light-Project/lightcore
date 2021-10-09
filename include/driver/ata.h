@@ -16,12 +16,12 @@ enum ata_registers {
     ATA_REG_CMD         = 0x07, /* (WO) used to send ATA commands to the device */
 
     /* control block regs */
-    ATA_REG_ASTAT       = 0x206, /* (RO) alternate status */
-    ATA_REG_DEVCTL      = 0x206, /* (WO) device control */
-    ATA_REG_DEVADR      = 0x207, /* (RO) device address */
+    ATA_REG_ASTAT       = 0x02, /* (RO) alternate status */
+    ATA_REG_DEVCTL      = 0x02, /* (WO) device control */
+    ATA_REG_DEVADR      = 0x03, /* (RO) device address */
 };
 
-#define ATA_DEVSEL_OBS      BIT(7) | BIT(5) /* Always set */
+#define ATA_DEVSEL_IBM      BIT(7) | BIT(5) /* 512 byte sectors & ECC  */
 #define ATA_DEVSEL_LBA      BIT(6)  /* Uses CHS addressing if clear or LBA addressing if set */
 #define ATA_DEVSEL_DEV      BIT(4)  /* Selects the drive number */
 

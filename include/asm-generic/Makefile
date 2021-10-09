@@ -7,4 +7,5 @@ mandatory-y += delay.h
 mandatory-y += io.h
 mandatory-y += mmiowb.h
 mandatory-y += percpu.h
+mandatory-y += rwonce.h
 mandatory-y += sched.h

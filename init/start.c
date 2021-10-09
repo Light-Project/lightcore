@@ -3,12 +3,14 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
+#define pr_fmt(fmt) "start: " fmt
+
 #include <string.h>
 #include <linkage.h>
 #include <kernel.h>
 #include <sched.h>
 
-#include <init/init.h>
+#include <init.h>
 #include <initcall.h>
 
 #include <mm.h>
@@ -21,15 +23,15 @@
 #include <printk.h>
 
 #include <device/driver.h>
+#include <driver/clk.h>
 #include <driver/irqchip.h>
 #include <driver/clocksource.h>
 
 #include <asm-generic/header.h>
+#include <asm/proc.h>
 #include <asm/irq.h>
 
-char boot_args[boot_args_size];
-
-void init_task(void);
+void __noreturn init_task(void);
 
 static void __init command_setup(void)
 {
@@ -44,35 +46,40 @@ static void __init mount_rootfs(void)
 
 }
 
-asmlinkage __visible void __init kernel_start(void)
+asmlinkage __visible __init __noreturn void kernel_start(void)
 {
-    arch_irq_disable();
+    cpu_irq_disable();
 
-    /* arch early init */
-    arch_setup();
+    /* early init */
     pre_printk_init();
-
-    /* Command setup */
+    terminal_logo();
     early_device_init();
     command_setup();
 
-    terminal_logo();
-    pre_printk("Kernel version: "CONFIG_VERSION"\n");
-    pre_printk("Kernel command: %s\n", boot_args);
+    /* arch init */
+    arch_setup();
 
+    pr_early("Kernel version: "CONFIG_VERSION"\n");
+    pr_early("Kernel command: %s\n", boot_args);
+
+    /* kernel init */
     mem_init();
     sched_init();
 
+    /* driver init */
     device_init();
+    clk_init();
     irqchip_init();
     timer_init();
-
-    arch_irq_enable();
+    cpu_irq_enable();
 
     console_init();
 
+    /* late init */
     vfl_init();
     initcalls();
+
+    /* init task */
     mount_rootfs();
     init_task();
 }

@@ -5,8 +5,6 @@
 
 #include <boot.h>
 #include <driver/mmc.h>
-#include <driver/clk/suniv.h>
-#include <driver/gpio/sunxi.h>
 #include <driver/mmc/sunxi.h>
 
 #include <asm/io.h>
@@ -150,4 +148,4 @@ void mmc_deinit(void)
     val &= ~SUNIV_BUS0_MMC0;
     writel(CCU_BASE + SUNIV_BUS_SOFT_RST_REG0, val);
 }
- 
+

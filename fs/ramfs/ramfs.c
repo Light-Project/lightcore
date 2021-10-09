@@ -13,7 +13,7 @@ static state ramfs_create()
 }
 
 
-static struct fs_type ramfs_type = {
+static struct filesystem_type ramfs_type = {
     .name = "ramfs",
 
 };

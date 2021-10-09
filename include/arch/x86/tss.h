@@ -42,4 +42,4 @@ struct tss_entry {
     uint16_t iobase;    // iobase
 } __packed; 
 
-#endif
+#endif  /* _ARCH_X86_TSS_H_ */

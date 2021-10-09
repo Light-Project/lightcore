@@ -29,11 +29,9 @@ static state suniv_adc_read(struct raw_channel *channel, ssize_t *val)
 static struct raw_ops suniv_adc_ops = {
 };
 
-static state suniv_adc_probe()
+static state suniv_adc_probe(struct platform_device *pdev, void *pdata)
 {
     struct suniv_adc_device *sdev;
-
-    sdev =
 
     return -ENOERR;
 }
@@ -47,8 +45,8 @@ static struct platform_driver suniv_adc_driver = {
     .driver = {
         .name = DRIVER_NAME,
     },
-    .dt_table = ,
-
+    .dt_table = suniv_adc_ids,
+    .probe = suniv_adc_probe,
 };
 
 static state suniv_adc_init(void)

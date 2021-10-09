@@ -3,7 +3,7 @@
 
 void power_halt()
 {
-    arch_irq_disable();
+    cpu_irq_disable();
     asm volatile ("wait");
 }
 

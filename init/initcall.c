@@ -6,8 +6,11 @@
 #define pr_fmt(fmt) "init: " fmt
 
 #include <kernel.h>
+#include <init.h>
 #include <initcall.h>
 #include <printk.h>
+
+char boot_args[boot_args_size];
 
 static __initdata initcall_entry_t *initcall_levels[] = {
     _ld_initcall_start,
@@ -17,7 +20,7 @@ static __initdata initcall_entry_t *initcall_levels[] = {
     _ld_initcall7_start, _ld_initcall_end,
 };
 
-static void __init do_one_initcall(int level, initcall_entry_t *fn)
+static void __init do_one_initcall(initcall_entry_t *fn)
 {
     initcall_t call;
     state ret;
@@ -26,16 +29,18 @@ static void __init do_one_initcall(int level, initcall_entry_t *fn)
     ret = call();
 
     if (ret)
-        pr_warn("%s error code [%d]\n", fn->name, ret);
+        pr_err("%s error code [%d]\n", fn->name, ret);
 }
 
 static void __init initcall_level(int level)
 {
     initcall_entry_t *fn;
 
+    pr_info("call level%d\n", level);
+
     for (fn = initcall_levels[level];
          fn < initcall_levels[level+1]; fn++) {
-        do_one_initcall(level, fn);
+        do_one_initcall(fn);
     }
 }
 

@@ -5,7 +5,7 @@
 
 #include <boot.h>
 #include <kernel.h>
-#include <driver/mtd/norflash.h>
+#include <driver/mtd/spinor.h>
 
 bool norflash_id(void)
 {

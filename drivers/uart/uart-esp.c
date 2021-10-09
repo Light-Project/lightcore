@@ -130,12 +130,12 @@ static struct dt_device_id espressif_uart_dt_table[] =
     {},
 };
 
-static state espressif_uart_probe(struct platform_device *device)
+static state espressif_uart_probe(struct platform_device *device, void *pdata)
 {
     struct esp_uart_port *esp_port;
     struct uart_port *port;
 
-    esp_port = kmalloc(sizeof(*esp_port), GFP_KERNEL);
+    esp_port = kzalloc(sizeof(*esp_port), GFP_KERNEL);
     if (!esp_port)
         return -ENOMEM;
 
@@ -169,5 +169,4 @@ static state espressif_uart_init(void)
 {
     return platform_driver_register(&espressif_uart_driver);
 }
-
 driver_initcall(espressif_uart_init);

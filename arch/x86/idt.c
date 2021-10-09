@@ -57,11 +57,11 @@ static const __initconst struct idt_data idt_data[] = {
 
     {IDT_SYSTEM(OF_TRAP, entry_general_protection)},
     {IDT_SYSTEM(SYSCALL_TRAP, entry_syscall_80)},
-    
+
     {IDT_TASK(DF_ABORT, GDT_ENTRY_DOUBLEFAULT_TSS)},
 };
 
-static void idt_int_gate(irqnr_t nr, void *handle)
+void idt_int_gate(irqnr_t nr, void *handle)
 {
     idt_entry[nr].offsetl  = (size_t)handle;
     idt_entry[nr].offseth  = (size_t)handle >> 16;
@@ -69,7 +69,7 @@ static void idt_int_gate(irqnr_t nr, void *handle)
     idt_entry[nr].bits.val = IDT_BITS_INT;
 }
 
-static void idt_setup(void)
+void __init idt_setup(void)
 {
     const struct idt_data *data;
     unsigned int count;
@@ -83,12 +83,8 @@ static void idt_setup(void)
     }
 
     for(count = IRQ_EXTERNAL; count < IRQ_NR_MAX; ++count)
-        idt_int_gate(count, (void *)((size_t)entry_generic_interrupt + 
+        idt_int_gate(count, (void *)((size_t)entry_generic_interrupt +
         (0x10 * (count - IRQ_EXTERNAL))));
-}
 
-void __init arch_idt_setup(void)
-{
-    idt_setup();
     idt_load(&idt_struct);
 }

@@ -35,7 +35,7 @@ gx6605s_write(struct gx6605s_device *gdev, uint16_t reg, uint32_t val)
     writel(gdev->mmio + reg, val);
 }
 
-static state gx6605s_probe(struct platform_device *pdev)
+static state gx6605s_probe(struct platform_device *pdev, void *pdata)
 {
     return -ENOERR;
 }

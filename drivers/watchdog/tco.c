@@ -3,6 +3,9 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
+#define DRIVER_NAME "intel-tco"
+#define pr_fmt(fmt) DRIVER_NAME ": " fmt
+
 #include <mm.h>
 #include <initcall.h>
 #include <driver/platform.h>
@@ -39,14 +42,14 @@ static struct watchdog_ops tco_ops = {
     .feed = tco_feed,
 };
 
-static state tco_probe(struct platform_device *pdev)
+static state tco_probe(struct platform_device *pdev, void *pdata)
 {
     struct tco_device *tco;
 
     if (platform_resource_type(pdev, 0) != RESOURCE_PMIO)
         return -ENODEV;
 
-    tco = dev_kzalloc(&pdev->device, sizeof(*tco), GFP_KERNEL);
+    tco = dev_kzalloc(&pdev->dev, sizeof(*tco), GFP_KERNEL);
     if (!tco)
         return -ENOMEM;
 

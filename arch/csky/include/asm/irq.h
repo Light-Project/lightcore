@@ -7,7 +7,7 @@
 #include <arch/csky/interrupt.h>
 #include <asm-generic/irq.h>
 
-static inline void arch_irq_disable()
+static inline void cpu_irq_disable()
 {
     asm volatile(
         "psrclr ie\n"
@@ -15,7 +15,7 @@ static inline void arch_irq_disable()
     );
 }
 
-static inline void arch_irq_enable()
+static inline void cpu_irq_enable()
 {
     asm volatile(
         "psrset ee, ie\n"
@@ -23,15 +23,15 @@ static inline void arch_irq_enable()
     );
 }
 
-static inline irqflags_t arch_irq_save(void)
+static inline irqflags_t cpu_irq_save(void)
 {
     irqflags_t flags;
     flags = mfcr("psr");
-    arch_irq_disable();
+    cpu_irq_disable();
     return flags;
 }
 
-static inline void arch_irq_restore(irqflags_t flags)
+static inline void cpu_irq_restore(irqflags_t flags)
 {
     mtcr("psr", flags);
 }

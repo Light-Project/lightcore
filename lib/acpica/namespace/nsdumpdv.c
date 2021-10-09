@@ -150,7 +150,7 @@
  *
  *****************************************************************************/
 
-#include <driver/acpi.h>
+#include <driver/acpi/acpi.h>
 
 
 /* TBD: This entire module is apparently obsolete and should be removed */

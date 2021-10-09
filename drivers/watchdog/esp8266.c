@@ -34,11 +34,11 @@ static struct watchdog_ops esp8266_wdt_ops = {
     .set_timeout = esp8266_wdt_set_timeout,
 };
 
-static state esp8266_wdt_probe(struct platform_device *pdev)
+static state esp8266_wdt_probe(struct platform_device *pdev, void *pdata)
 {
     struct watchdog_device *wdev;
 
-    wdev = kmalloc(sizeof(*wdev), GFP_KERNEL);
+    wdev = kzalloc(sizeof(*wdev), GFP_KERNEL);
     if (!wdev)
         return -ENOMEM;
 

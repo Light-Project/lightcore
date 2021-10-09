@@ -3,6 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
+#define pr_fmt(fmt) "usb: " fmt
+
 #include <mm.h>
 #include <driver/usb.h>
 #include <printk.h>
@@ -30,7 +32,6 @@ struct usb_device *usb_device_alloc(struct usb_bus *bus, struct usb_device *pare
         return NULL;
 
     udev->bus = bus;
-
     udev->device.bus = &usb_bus_type;
     return udev;
 }
@@ -87,7 +88,7 @@ state usb_host_register(struct usb_host *host)
 
     if (host->ops->setup) {
         ret = host->ops->setup(host);
-        if (ret) {
+        if (unlikely(ret)) {
             pr_err("reset error\n");
             return -EBUSY;
         }

@@ -159,61 +159,6 @@ clean       := -f $(build_home)/clean.mk obj
 submake     := -f $(build_home)/submake.mk obj
 
 ########################################
-# Build option                         #
-########################################
-
-# real prerequisites without phony targets
-real-prereqs = $(filter-out $(PHONY), $^)
-
-# as-option
-# Usage: cflags-y += $(call as-option,-Wa$(comma)-isa=foo,)
-as-option = $(call try-run,\
-    $(CC) $(BUILD_CFLAGS) $(1) -c -x assembler /dev/null -o "$$TMP",$(1),$(2))
-
-# as-instr
-# Usage: cflags-y += $(call as-instr,instr,option1,option2)
-as-instr = $(call try-run,\
-    printf "%b\n" "$(1)" | $(CC) $(BUILD_AFLAGS) -c -x assembler -o "$$TMP" -,$(2),$(3))
-
-# cc-option
-# Usage: cflags-y += $(call cc-option,-march=winchip-c6,-march=i586)
-cc-option = $(call try-run,\
-    $(CC) $(KBUILD_CPPFLAGS) $(BUILD_CFLAGS) $(1) -c -xc /dev/null -o "$$TMP",$(1),$(2))
-
-# cc-option-yn
-# Usage: flag := $(call cc-option-yn,-march=winchip-c6)
-cc-option-yn = $(call try-run,\
-    $(CC) $(KBUILD_CPPFLAGS) $(BUILD_CFLAGS) $(1) -c -xc /dev/null -o "$$TMP",y,n)
-
-# cc-option-align
-# Prefix align with either -falign or -malign
-cc-option-align = $(subst -functions=0,,\
-    $(call cc-option,-falign-functions=0,-malign-functions=0))
-
-# cc-disable-warning
-# Usage: cflags-y += $(call cc-disable-warning,unused-but-set-variable)
-cc-disable-warning = $(call try-run,\
-    $(CC) $(KBUILD_CPPFLAGS) $(KBUILD_CFLAGS) -W$(strip $(1)) -c -xc /dev/null -o "$$TMP",-Wno-$(strip $(1)))
-
-# cc-version
-# Usage gcc-ver := $(call cc-version)
-cc-version = $(shell $(CONFIG_SHELL) $(srctree)/scripts/tools/gcc-version.sh $(CC))
-
-# cc-ifversion
-# Usage:  EXTRA_CFLAGS += $(call cc-ifversion, -lt, 0402, -O1)
-cc-ifversion = $(shell [ $(call cc-version, $(CC)) $(1) $(2) ] && echo $(3))
-
-# cc-ldoption
-# Usage: ldflags += $(call cc-ldoption, -Wl$(comma)--hash-style=both)
-cc-ldoption = $(call try-run,\
-    $(CC) $(1) -nostdlib -xc /dev/null -o "$$TMP",$(1),$(2))
-
-# hostcc-option
-# Usage: cflags-y += $(call hostcc-option,-march=winchip-c6,-march=i586)
-hostcc-option = $(call __cc-option, $(HOSTCC),\
-    $(HOSTCFLAGS) $(HOST_EXTRACFLAGS),$(1),$(2))
-
-########################################
 # conifg definitions                   #
 ########################################
 
@@ -293,6 +238,61 @@ define filechk
         mv -f $@.tmp $@;                    \
     fi
 endef
+
+########################################
+# Build option                         #
+########################################
+
+# real prerequisites without phony targets
+real-prereqs = $(filter-out $(PHONY), $^)
+
+# as-option
+# Usage: cflags-y += $(call as-option,-Wa$(comma)-isa=foo,)
+as-option = $(call try-run,\
+    $(CC) $(BUILD_CFLAGS) $(1) -c -x assembler /dev/null -o "$$TMP",$(1),$(2))
+
+# as-instr
+# Usage: cflags-y += $(call as-instr,instr,option1,option2)
+as-instr = $(call try-run,\
+    printf "%b\n" "$(1)" | $(CC) $(BUILD_AFLAGS) -c -x assembler -o "$$TMP" -,$(2),$(3))
+
+# cc-option
+# Usage: cflags-y += $(call cc-option,-march=winchip-c6,-march=i586)
+cc-option = $(call try-run,\
+    $(CC) $(KBUILD_CPPFLAGS) $(BUILD_CFLAGS) $(1) -c -xc /dev/null -o "$$TMP",$(1),$(2))
+
+# cc-option-yn
+# Usage: flag := $(call cc-option-yn,-march=winchip-c6)
+cc-option-yn = $(call try-run,\
+    $(CC) $(KBUILD_CPPFLAGS) $(BUILD_CFLAGS) $(1) -c -xc /dev/null -o "$$TMP",y,n)
+
+# cc-option-align
+# Prefix align with either -falign or -malign
+cc-option-align = $(subst -functions=0,,\
+    $(call cc-option,-falign-functions=0,-malign-functions=0))
+
+# cc-disable-warning
+# Usage: cflags-y += $(call cc-disable-warning,unused-but-set-variable)
+cc-disable-warning = $(call try-run,\
+    $(CC) $(KBUILD_CPPFLAGS) $(KBUILD_CFLAGS) -W$(strip $(1)) -c -xc /dev/null -o "$$TMP",-Wno-$(strip $(1)))
+
+# cc-version
+# Usage gcc-ver := $(call cc-version)
+cc-version = $(shell $(CONFIG_SHELL) $(srctree)/scripts/tools/gcc-version.sh $(CC))
+
+# cc-ifversion
+# Usage:  EXTRA_CFLAGS += $(call cc-ifversion, -lt, 0402, -O1)
+cc-ifversion = $(shell [ $(call cc-version, $(CC)) $(1) $(2) ] && echo $(3))
+
+# cc-ldoption
+# Usage: ldflags += $(call cc-ldoption, -Wl$(comma)--hash-style=both)
+cc-ldoption = $(call try-run,\
+    $(CC) $(1) -nostdlib -xc /dev/null -o "$$TMP",$(1),$(2))
+
+# hostcc-option
+# Usage: cflags-y += $(call hostcc-option,-march=winchip-c6,-march=i586)
+hostcc-option = $(call __cc-option, $(HOSTCC),\
+    $(HOSTCFLAGS) $(HOST_EXTRACFLAGS),$(1),$(2))
 
 ########################################
 # Auxiliary tool                       #

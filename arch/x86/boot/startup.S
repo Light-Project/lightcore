@@ -37,6 +37,7 @@ SYM_CODE_START(init)
     movl    $init_thread_union, %esp
     addl    $THREAD_SIZE, %esp
 
+    xorl    %ebp, %ebp
     call    kernel_start
 
 halt:

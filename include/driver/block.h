@@ -7,6 +7,12 @@
 #include <list.h>
 #include <fsdev.h>
 
+enum request_type {
+    REQ_READ    = 0x01,
+    REQ_WRITE   = 0x02,
+    REQ_FLUSH   = 0x03,
+};
+
 struct block_request {
     struct list_head list;  /* request list */
     enum request_type type; /* request type */

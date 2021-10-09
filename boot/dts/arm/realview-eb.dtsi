@@ -1,27 +1,27 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 
-#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/gpio.h>
 
 / {
     #address-cells = <1>;
     #size-cells = <1>;
     compatible = "arm,realview-eb";
-    
+
     chosen { };
-    
-    memory {
+
+    memory@0 {
         device_type = "memory";
         reg = <0x00000000 0x08000000>;
     };
-    
+
     clocks {
-        xtal24mhz: xtal24mhz@24M {
+        xtal24mhz: xtal24mhz {
             #clock-cells = <0>;
             compatible = "fixed-clock";
             clock-frequency = <24000000>;
         };
 
-        timclk: timclk@1M {
+        timclk: timclk-1M {
             #clock-cells = <0>;
             compatible = "fixed-factor-clock";
             clock-div = <24>;
@@ -29,7 +29,7 @@
             clocks = <&xtal24mhz>;
         };
 
-        mclk: mclk@24M {
+        mclk: mclk-24M {
             #clock-cells = <0>;
             compatible = "fixed-factor-clock";
             clock-div = <1>;
@@ -37,7 +37,7 @@
             clocks = <&xtal24mhz>;
         };
 
-        kmiclk: kmiclk@24M {
+        kmiclk: kmiclk-24M {
             #clock-cells = <0>;
             compatible = "fixed-factor-clock";
             clock-div = <1>;
@@ -45,7 +45,7 @@
             clocks = <&xtal24mhz>;
         };
 
-        sspclk: sspclk@24M {
+        sspclk: sspclk-24M {
             #clock-cells = <0>;
             compatible = "fixed-factor-clock";
             clock-div = <1>;
@@ -53,36 +53,36 @@
             clocks = <&xtal24mhz>;
         };
 
-        uartclk: uartclk@24M {
+        uartclk: uartclk-24M {
             #clock-cells = <0>;
             compatible = "fixed-factor-clock";
             clock-div = <1>;
             clock-mult = <1>;
             clocks = <&xtal24mhz>;
         };
-        
-        wdogclk: wdogclk@24M {
+
+        wdogclk: wdogclk-24M {
             #clock-cells = <0>;
             compatible = "fixed-factor-clock";
             clock-div = <1>;
             clock-mult = <1>;
             clocks = <&xtal24mhz>;
         };
-        
-        pclk: pclk@0 {
+
+        pclk: pclk {
             #clock-cells = <0>;
             compatible = "fixed-clock";
             clock-frequency = <0>;
         };
     };
-    
+
     fpga {
         #address-cells = <1>;
         #size-cells = <1>;
         compatible = "amba-bus";
         dma-ranges;
         ranges;
-    
+
         i2c: i2c@10002000 {
             #address-cells = <1>;
             #size-cells = <0>;
@@ -232,7 +232,7 @@
             clocks = <&pclk>;
             clock-names = "apb_pclk";
         };
-        
+
         clcd: clcd@10020000 {
             compatible = "arm,pl111";
             reg = <0x10020000 0x1000>;

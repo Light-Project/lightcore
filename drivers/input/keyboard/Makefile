@@ -1,1 +1,2 @@
-obj-y += i8042.o 
+# SPDX-License-Identifier: GPL-2.0-or-later
+obj-$(CONFIG_INPUT_ATKBD) += atkbd.o

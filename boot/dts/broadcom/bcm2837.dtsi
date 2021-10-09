@@ -1,0 +1,72 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#include "bcm283x.dtsi"
+#include <dt-bindings/irq.h>
+
+/ {
+    compatible = "brcm,bcm2837";
+
+    cpus {
+        #address-cells = <1>;
+        #size-cells = <0>;
+        enable-method = "brcm,bcm2837-smp";
+
+		cpu0: cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53";
+			reg = <0>;
+			enable-method = "spin-table";
+			cpu-release-addr = <0x0 0x000000d8>;
+		};
+
+		cpu1: cpu@1 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53";
+			reg = <1>;
+			enable-method = "spin-table";
+			cpu-release-addr = <0x0 0x000000e0>;
+		};
+
+		cpu2: cpu@2 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53";
+			reg = <2>;
+			enable-method = "spin-table";
+			cpu-release-addr = <0x0 0x000000e8>;
+		};
+
+		cpu3: cpu@3 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a53";
+			reg = <3>;
+			enable-method = "spin-table";
+			cpu-release-addr = <0x0 0x000000f0>;
+		};
+    };
+
+    arm-pmu {
+        compatible = "arm,cortex-a53-pmu";
+        interrupt-parent = <&local_intc>;
+        interrupts = <9 IRQ_TYPE_LEVEL_HIGH>;
+    };
+
+    soc {
+        ranges = <0x7e000000 0x3f000000 0x1000000>,
+             <0x40000000 0x40000000 0x00001000>;
+        dma-ranges = <0xc0000000 0x00000000 0x3f000000>;
+
+        local_intc: local_intc@40000000 {
+            compatible = "brcm,bcm2836-l1-intc";
+            reg = <0x40000000 0x100>;
+            interrupt-controller;
+            #interrupt-cells = <2>;
+            interrupt-parent = <&local_intc>;
+        };
+    };
+};
+
+&intc {
+	compatible = "brcm,bcm2836-armctrl-ic";
+	reg = <0x7e00b200 0x200>;
+	interrupt-parent = <&local_intc>;
+	interrupts = <8 IRQ_TYPE_LEVEL_HIGH>;
+};

@@ -23,25 +23,25 @@ static void uart_deinit(void)
 static void uart_init(void)
 {
     uint32_t val;
-    
+
     uart_deinit();
-    
+
     /* 8n1 */
     val = UART_ESP_CONF0_STB_1 | UART_ESP_CONF0_WSL_8;
     writel((void *)UART_BASE + UART_ESP_CONF0, val);
-    
+
     /* set baudrate */
     val = (UART_CLK_FREQ / UART_BAUD) & UART_ESP_CLKDIV_DIV;
     writel((void *)UART_BASE + UART_ESP_CLKDIV, val);
-    
-    val = readl_sync((void *)UART_BASE + UART_ESP_CONF0);
+
+    val = readl((void *)UART_BASE + UART_ESP_CONF0);
     val |= UART_ESP_CONF0_TXFIFO_RST;
-    writel((void *)UART_BASE + UART_ESP_CONF0, val);    
-    
-    val = readl_sync((void *)UART_BASE + UART_ESP_CONF0);
+    writel((void *)UART_BASE + UART_ESP_CONF0, val);
+
+    val = readl((void *)UART_BASE + UART_ESP_CONF0);
     val &= ~UART_ESP_CONF0_TXFIFO_RST;
     writel((void *)UART_BASE + UART_ESP_CONF0, val);
-    
+
 }
 
 static void uart_putc(char byte)
@@ -49,11 +49,11 @@ static void uart_putc(char byte)
     uint32_t status;
     for(;;)
     {
-        status = readl_sync((void *)UART_BASE + UART_ESP_STATUS);
+        status = readl((void *)UART_BASE + UART_ESP_STATUS);
         if(((status >> 16) & 0xff) == 0)
             break;
     }
-    writel_sync((void *)UART_BASE + UART_ESP_FIFO, byte);
+    writel((void *)UART_BASE + UART_ESP_FIFO, byte);
 }
 
 static void pre_console_write(struct console *con, const char *str, unsigned len)

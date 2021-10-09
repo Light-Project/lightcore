@@ -82,7 +82,7 @@ static struct console_ops i8250con_ops = {
     .startup = i8250con_setup,
 };
 
-static state i8250con_probe(struct platform_device *pdev)
+static state i8250con_probe(struct platform_device *pdev, void *pdata)
 {
     struct i8250_console *dev;
     resource_size_t addr, size;
@@ -92,13 +92,13 @@ static state i8250con_probe(struct platform_device *pdev)
     if (val != RESOURCE_MMIO)
         return -ENODEV;
 
-    dev = dev_kzalloc(&pdev->device, sizeof(*dev), GFP_KERNEL);
+    dev = dev_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
     if (!dev)
         return -ENOMEM;
 
     addr = platform_resource_start(pdev, 0);
     size = platform_resource_size(pdev, 0);
-    dev->mmio = dev_ioremap(&pdev->device, addr, size);
+    dev->mmio = dev_ioremap(&pdev->dev, addr, size);
     if (!dev->mmio)
         return -ENOMEM;
 

@@ -2,24 +2,40 @@
 #ifndef _LIGHTCORE_TYPES_H_
 #define _LIGHTCORE_TYPES_H_
 
-#include <lightcore/asm/types.h>
+#include <lightcore/asm/bitsperlong.h>
 
 #ifndef __ASSEMBLY__
 
-typedef _int8_t     int8_t;
-typedef _uint8_t    uint8_t;
+#ifdef __CHECKER__
+#define __bitwise__ __attribute__((bitwise))
+#else
+#define __bitwise__
+#endif
+#define __bitwise __bitwise__
 
-typedef _int16_t    int16_t;
-typedef _uint16_t   uint16_t;
+typedef signed char         int8_t;
+typedef unsigned char       uint8_t;
+typedef signed short        int16_t;
+typedef unsigned short      uint16_t;
+typedef signed int          int32_t;
+typedef unsigned int        uint32_t;
+typedef signed long long    int64_t;
+typedef unsigned long long  uint64_t;
 
-typedef _int32_t    int32_t;
-typedef _uint32_t   uint32_t;
+#if __BITS_PER_LONG == 32
+typedef int32_t         ssize_t;
+typedef uint32_t        size_t;
+#elif __BITS_PER_LONG == 32
+typedef int64_t         ssize_t;
+typedef uint64_t        size_t;
+#endif
 
-typedef _int64_t    int64_t;
-typedef _uint64_t   uint64_t;
-
-typedef _size_t     size_t;
-typedef _ssize_t    ssize_t;
+typedef uint16_t __bitwise le16;
+typedef uint32_t __bitwise le32;
+typedef uint64_t __bitwise le64;
+typedef uint16_t __bitwise be16;
+typedef uint32_t __bitwise be32;
+typedef uint64_t __bitwise be64;
 
 typedef ssize_t     state;
 

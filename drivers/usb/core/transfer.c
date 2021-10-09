@@ -14,7 +14,7 @@ static int usb_request_start(struct usb_request *request, int timeout)
     int retval;
 
     retval = usb_request_submit(request);
-    
+
     return retval;
 }
 
@@ -29,12 +29,12 @@ static int usb_request_start(struct usb_request *request, int timeout)
  * @data: memory pointer to exchange data
  * @wLength: length of transfer to send
  * @timeout: time in msecs to wait for message to return
- * 
- * @return: The length is returned if the transmission succeeds, 
+ *
+ * @return: The length is returned if the transmission succeeds,
  * and the error value is returned if the transmission fails
  */
-int usb_control_transfer(struct usb_device *udev, unsigned int pipe, uint8_t bRequestType, 
-                         uint8_t bRequest, uint16_t wValue, uint16_t wIndex, 
+int usb_control_transfer(struct usb_device *udev, unsigned int pipe, uint8_t bRequestType,
+                         uint8_t bRequest, uint16_t wValue, uint16_t wIndex,
                          void *data, uint16_t wLength, int timeout)
 {
     struct usb_ctrlrequest *ctrlrequest;
@@ -66,8 +66,8 @@ int usb_control_transfer(struct usb_device *udev, unsigned int pipe, uint8_t bRe
     return ret;
 }
 
-int usb_control_transfer_recv(struct usb_device *udev, unsigned int pipe, uint8_t bRequestType, 
-                              uint8_t bRequest, uint16_t wValue, uint16_t wIndex, 
+int usb_control_transfer_recv(struct usb_device *udev, unsigned int pipe, uint8_t bRequestType,
+                              uint8_t bRequest, uint16_t wValue, uint16_t wIndex,
                               void **data, uint16_t wLength, int timeout, gfp_t gfp)
 {
     int ret;
@@ -76,16 +76,16 @@ int usb_control_transfer_recv(struct usb_device *udev, unsigned int pipe, uint8_
     if (!*data)
         return -ENOMEM;
 
-    ret = usb_control_transfer(udev, pipe, bRequestType, bRequest, 
+    ret = usb_control_transfer(udev, pipe, bRequestType, bRequest,
                                wValue, wIndex, *data, wLength, timeout);
     if (ret < 0)
         kfree(*data);
-    
+
     return ret;
 }
 
-int usb_control_transfer_send(struct usb_device *udev, unsigned int pipe, uint8_t bRequestType, 
-                              uint8_t bRequest, uint16_t wValue, uint16_t wIndex, 
+int usb_control_transfer_send(struct usb_device *udev, unsigned int pipe, uint8_t bRequestType,
+                              uint8_t bRequest, uint16_t wValue, uint16_t wIndex,
                               void *data, uint16_t wLength, int timeout, gfp_t gfp)
 {
     void *buff;
@@ -97,9 +97,9 @@ int usb_control_transfer_send(struct usb_device *udev, unsigned int pipe, uint8_
 
     memcpy(buff, data, wLength);
 
-    ret = usb_control_transfer(udev, pipe, bRequestType, bRequest, 
+    ret = usb_control_transfer(udev, pipe, bRequestType, bRequest,
                          wValue, wIndex, buff, wLength, timeout);
-    
+
     kfree(buff);
 
     return ret < 0 ? ret : 0;
@@ -111,11 +111,11 @@ int usb_control_transfer_send(struct usb_device *udev, unsigned int pipe, uint8_
  * @pipe: endpoint "pipe" for send the message
  * @wLength: length of transfer to send
  * @timeout: time in msecs to wait for message to return
- * 
- * @return: The length is returned if the transmission succeeds, 
+ *
+ * @return: The length is returned if the transmission succeeds,
  * and the error value is returned if the transmission fails
  */
-int usb_bulk_transfer(struct usb_device *udev, unsigned int pipe, 
+int usb_bulk_transfer(struct usb_device *udev, unsigned int pipe,
                       void *data, int length, int *transferred, int timeout)
 {
     struct usb_request *request;
@@ -125,7 +125,7 @@ int usb_bulk_transfer(struct usb_device *udev, unsigned int pipe,
     if (!ep)
         return -EINVAL;
 
-    request = kmalloc(sizeof(*request), GFP_KERNEL);
+    request = kzalloc(sizeof(*request), GFP_KERNEL);
     if (!request)
         return -ENOMEM;
 
@@ -150,11 +150,11 @@ int usb_bulk_transfer(struct usb_device *udev, unsigned int pipe,
  * @pipe: endpoint "pipe" for send the message
  * @wLength: length of transfer to send
  * @timeout: time in msecs to wait for message to return
- * 
- * @return: The length is returned if the transmission succeeds, 
+ *
+ * @return: The length is returned if the transmission succeeds,
  * and the error value is returned if the transmission fails
  */
-int usb_interrupt_transfer(struct usb_device *udev, unsigned int pipe, 
+int usb_interrupt_transfer(struct usb_device *udev, unsigned int pipe,
                           void *data, int len, int *transferred, int timeout)
 {
     return usb_bulk_transfer(udev, pipe, data, len, transferred, timeout);
@@ -169,8 +169,8 @@ state usb_descriptor_read(struct usb_device *udev, uint8_t type,
     memset(buff, 0, size);
 
     for (retry = 0; retry < 3; ++retry) {
-        retval = usb_control_transfer(udev, usb_pipe_ctlrcv(udev, 0), 
-                    USB_DIR_IN, USB_REQ_GET_DESCRIPTOR, (type << 8) + index, 
+        retval = usb_control_transfer(udev, usb_pipe_ctlrcv(udev, 0),
+                    USB_DIR_IN, USB_REQ_GET_DESCRIPTOR, (type << 8) + index,
                     0, buff, size, USB_CTRL_TIMEOUT);
         if (retval <= 0)
             continue;
@@ -188,7 +188,7 @@ state usb_descriptor_read(struct usb_device *udev, uint8_t type,
  * usb_descriptor_get - device descriptor settings
  * @dev: device to read device descriptor
  * @size: how much of the descriptor to read
- * 
+ *
  */
 state usb_descriptor_get(struct usb_device *udev, unsigned int size)
 {

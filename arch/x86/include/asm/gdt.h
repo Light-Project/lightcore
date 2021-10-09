@@ -23,7 +23,7 @@ static inline void tss_set(unsigned int seg)
         ::"Na"(seg):);
 }
 
-void arch_gdt_setup(void);
+void gdt_setup(void);
 
 #endif	/* __ASSEMBLY__ */
 #endif /* _ASM_X86_IDT_H_ */

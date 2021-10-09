@@ -149,8 +149,8 @@
  *
  *****************************************************************************/
 
-#ifndef __ACLINUX_H__
-#define __ACLINUX_H__
+#ifndef __ACLC_H__
+#define __ACLC_H__
 
 
 #define INT8        int8_t
@@ -199,14 +199,13 @@
 #endif
 
 #include <string.h>
-#include <printk.h>
 #include <ctype.h>
 #include <sched.h>
 #include <atomic.h>
-// #include <math64.h>
-#include <mm.h>
+#include <kmalloc.h>
 #include <spinlock_type.h>
 #include <export.h>
+#include <printk.h>
 
 #ifdef CONFIG_ACPI
 // #include <asm/acenv.h>
@@ -257,9 +256,9 @@
 #define ACPI_EXPORT_SYMBOL(symbol)  EXPORT_SYMBOL(symbol);
 #define strtoul                     simple_strtoul
 
-// #define ACPI_CACHE_T                struct kmem_cache
+#define ACPI_CACHE_T                struct kcache
 #define ACPI_SPINLOCK               spinlock_t *
-#define ACPI_CPU_FLAGS              unsigned long
+#define ACPI_CPU_FLAGS              irqflags_t
 
 /* Use native linux version of AcpiOsAllocateZeroed */
 
@@ -309,4 +308,4 @@
  */
 #define ACPI_STRUCT_INIT(field, value)  .field = value
 
-#endif /* __ACLINUX_H__ */
+#endif /* __ACLC_H__ */

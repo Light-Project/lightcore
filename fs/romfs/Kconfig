@@ -1,0 +1,5 @@
+menuconfig FS_ROMFS
+    bool "ROM filesystem support"
+if FS_ROMFS
+
+endif

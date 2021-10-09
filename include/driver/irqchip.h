@@ -14,6 +14,7 @@ struct irqchip_channel {
 };
 
 struct irqchip_device {
+    struct device *dev;
     struct list_head list;
     struct irqchip_ops *ops;
     struct dt_node *dt_node;
@@ -37,7 +38,8 @@ state irqchip_mask(struct irqchip_channel *);
 state irqchip_ack(struct irqchip_channel *);
 state irqchip_eoi(struct irqchip_channel *);
 
-struct irqchip_channel *irqchip_get_channel(struct irqchip_device *idev, irqnr_t chnr);
+struct irqchip_channel *irqchip_channel_get(struct irqchip_device *idev, irqnr_t chnr);
+void irqchip_channel_release(struct irqchip_channel *channel);
 state irqchip_register(struct irqchip_device *);
 void irqchip_unregister(struct irqchip_device *);
 void irqchip_init(void);

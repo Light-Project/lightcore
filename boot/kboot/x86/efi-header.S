@@ -42,7 +42,7 @@ optional_header:
 extra_header_fields:
         # PE specification requires ImageBase to be 64k aligned
         .set    image_base, (0 + 0xffff) & ~0xffff
-    
+
 #ifdef CONFIG_X86_32
         .long    image_base                     # ImageBase
 #else
@@ -105,4 +105,5 @@ section_table:
                 IMAGE_SCN_MEM_EXECUTE           # Characteristics
 
     .set    section_count, (. - section_table) / 40
+
 .endm

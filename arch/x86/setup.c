@@ -3,19 +3,20 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <types.h>
+#include <mm/memblock.h>
 #include <asm/gdt.h>
 #include <asm/idt.h>
 #include <asm/pgtable.h>
-
-#include <printk.h>
-
-void pre_console_init(void);
+#include <asm/tsc.h>
 
 void arch_setup(void)
 {
-    arch_gdt_setup();
-    arch_idt_setup();
-
+    idt_setup();
+    gdt_setup();
     arch_page_setup();
+
+    tsc_init();
+
+    memblock_reserve(0xa0000, 0x60000);
+    memblock_reserve(0xf00000, 0x100000);
 }

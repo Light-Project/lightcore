@@ -150,7 +150,7 @@
  *****************************************************************************/
 
 #define ACPI_CLIBRARY
-#include <driver/acpi.h>
+#include <driver/acpi/acpi.h>
 #include "accommon.h"
 
 /*

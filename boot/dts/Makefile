@@ -1,24 +1,16 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
+dtb-$(CONFIG_ARCH_ARM) += neopi-nano.dtb
+dtb-$(CONFIG_ARCH_ARM) += neopi-one.dtb
+dtb-$(CONFIG_ARCH_ARM) += realview-eb.dtb
+dtb-$(CONFIG_ARCH_ARM) += raspi-zero.dtb
+dtb-$(CONFIG_ARCH_ARM) += raspi-2b.dtb
+dtb-$(CONFIG_ARCH_ARM) += raspi-3b.dtb
 
-ifdef CONFIG_ARCH_CSKY
-dtb-y += gx6605s.dtb
-endif
+dtb-$(CONFIG_ARCH_CSKY) += gx6605s.dtb
 
-ifdef CONFIG_ARCH_X86
-dtb-y += ibmpc.dtb
-endif
+dtb-$(CONFIG_ARCH_X86) += ibmpc.dtb
 
-ifdef CONFIG_ARCH_XTENSA
-dtb-y += esp32.dtb
-dtb-y += esp8266.dtb
-endif
-
-ifdef CONFIG_ARCH_ARM
-dtb-y += neopi-nano.dtb
-dtb-y += neopi-one.dtb
-dtb-y += realview-eb.dtb
-# dtb-y += raspi-zero.dtb
-# dtb-y += raspi-2b.dtb
-endif
+dtb-$(CONFIG_ARCH_XTENSA) += esp32.dtb
+dtb-$(CONFIG_ARCH_XTENSA) += esp8266.dtb
 
 clean-y += .*.tmp

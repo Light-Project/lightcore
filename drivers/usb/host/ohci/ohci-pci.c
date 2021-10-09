@@ -68,7 +68,7 @@ static struct pci_device_id uhci_pci_ids[] = {
     { }, /* NULL */
 };
 
-static state uhci_pci_probe(struct pci_device *pdev, int data)
+static state uhci_pci_probe(struct pci_device *pdev, void *pdata)
 {
     struct uhci_host *uhci;
     int val;
@@ -95,19 +95,12 @@ static state uhci_pci_probe(struct pci_device *pdev, int data)
     return usb_host_register(&uhci->host);
 }
 
-static state uhci_pci_remove(struct pci_device *pdev)
-{
-
-    return -ENOERR;
-}
-
 static struct pci_driver uhci_pci_driver = {
     .driver = {
         .name = "uhci-pci",
     },
     .id_table = uhci_pci_ids,
     .probe = uhci_pci_probe,
-    .remove = uhci_pci_remove,
 };
 
 static state uhci_pci_init(void)

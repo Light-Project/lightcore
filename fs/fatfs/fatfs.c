@@ -52,7 +52,7 @@ static struct file_ops fatfs_file_ops = {
 
 static struct
 
-static struct fs_type fatfs_type = {
+static struct filesystem_type fatfs_type = {
     .name = "fatfs",
 };
 

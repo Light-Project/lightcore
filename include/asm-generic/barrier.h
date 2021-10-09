@@ -31,33 +31,21 @@
 #define dma_wmb()   wmb()
 #endif
 
-#ifndef __smp_mb
-#define __smp_mb()  mb()
-#endif
-
-#ifndef __smp_rmb
-#define __smp_rmb() rmb()
-#endif
-
-#ifndef __smp_wmb
-#define __smp_wmb() wmb()
-#endif
-
 #ifdef CONFIG_SMP
 
 /* SMP read and write memory barrier */
 #ifndef smp_mb
-#define smp_mb()    __smp_mb()
+#define smp_mb()    mb()
 #endif
 
 /* SMP read memory barrier */
 #ifndef smp_rmb
-#define smp_rmb()   __smp_rmb()
+#define smp_rmb()   rmb()
 #endif
 
 /* SMP write memory barrier */
 #ifndef smp_wmb
-#define smp_wmb()   __smp_wmb()
+#define smp_wmb()   wmb()
 #endif
 
 #else /* !CONFIG_SMP */

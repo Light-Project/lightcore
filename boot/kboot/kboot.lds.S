@@ -1,7 +1,6 @@
-#include <asm-generic/kernel.lds.h>
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <size.h>
 
-#define ADDR_ALIGN  4
 #define stack_size (size_1KiB * 8)
 #define heap_size (size_1KiB * 64)
 
@@ -12,46 +11,39 @@ SECTIONS
     . = CONFIG_LOAD_ADDR;
     head_start = .;
 
-    .head :
-    {
+    .head : {
         KEEP(*(.head))
     }
 
-    .startup :
-    {
+    .startup : {
         KEEP(*(.startup))
     }
 
-    .text :
-    {
+    .text : {
         . = ALIGN(4);
         *(.text)
         *(.text*)
     }
 
-    .rodata :
-    {
+    .rodata : {
         . = ALIGN(4);
         *(.rodata)
         *(.rodata*)
     }
 
-    .data :
-    {
+    .data : {
         . = ALIGN(4);
         *(.data)
         *(.data*)
     }
 
-    .piggydata :
-    {
+    .piggydata : {
         _ld_piggy_start = .;
         KEEP(*(.piggydata))
         _ld_piggy_end = .;
     }
 
-    .align :
-    {
+    .align : {
         PROVIDE(_ld_align = .);
         SHORT(0xaa55)
         . = ALIGN(512);
@@ -59,8 +51,7 @@ SECTIONS
 
     _ld_end = .;
 
-    .bss(NOLOAD) :
-    {
+    .bss(NOLOAD) : {
         . = ALIGN(4);
         _ld_bss_start = .;
         *(.bss)
@@ -69,26 +60,24 @@ SECTIONS
         _ld_bss_end = .;
     }
 
-    .stack(NOLOAD) :
-    {
+    .stack(NOLOAD) : {
         . = ALIGN(4);
         _ld_stack_start = .;
         . = _ld_stack_start + stack_size;
         _ld_stack_end = .;
     }
 
-    .heap(NOLOAD) :
-    {
+    .heap(NOLOAD) : {
         . = ALIGN(4);
         _ld_heap_start = .;
         . = _ld_heap_start + heap_size;
         . = ALIGN(4);
         _ld_heap_end = .;
     }
-    DWARF_DEBUG
-
-    /* Sections to be discarded */
-    DISCARDS
+    
+    /DISCARD/ : {
+        *(.note*)
+    }
 
     PROVIDE(_ld_size = _ld_end - head_start);
     PROVIDE(_ld_bsize = _ld_size / 512);

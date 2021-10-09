@@ -2,7 +2,7 @@
 #ifndef _HASH_H_
 #define _HASH_H_
 
-static uint32_t strhash(const char *str)
+static unsigned long strhash(const char *str)
 {
     uint32_t hash = 5320;
     if(str == NULL)

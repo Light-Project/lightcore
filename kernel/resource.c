@@ -5,8 +5,8 @@
 
 #include <mm.h>
 #include <initcall.h>
-#include <export.h>
 #include <resource.h>
+#include <export.h>
 
 static LIST_HEAD(resource_list);
 

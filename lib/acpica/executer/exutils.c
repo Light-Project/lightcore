@@ -165,7 +165,7 @@
 
 #define DEFINE_AML_GLOBALS
 
-#include <driver/acpi.h>
+#include <driver/acpi/acpi.h>
 #include "accommon.h"
 #include "acinterp.h"
 #include "amlcode.h"

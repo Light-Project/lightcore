@@ -7,8 +7,6 @@
 
 #ifndef __ASSEMBLY__
 
-typedef uint32_t gfp_t;
-
 /* Physical address region bitmasks */
 #define GFP_DMA                 BIT(0)
 #define GFP_DMA32               BIT(1)

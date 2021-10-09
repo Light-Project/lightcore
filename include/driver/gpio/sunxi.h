@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#ifndef _CHIP_GPIO_SUNXI_H_
-#define _CHIP_GPIO_SUNXI_H_
+#ifndef _DRIVER_GPIO_SUNXI_H_
+#define _DRIVER_GPIO_SUNXI_H_
 
 enum sunxi_gpio_registers {
     SUNXI_GPIO_CFG0         = 0x00,     /* n * 0x24 + (0x00) */
@@ -23,6 +23,21 @@ enum sunxi_gpio_registers {
 
     SUNIV_GPIO_SDR_DRV      = 0x2c0,
     SUNIV_GPIO_SDR_PUL      = 0x2c4,
+};
+
+enum sunxi_iobase {
+    SUNXI_PA_BASE   = 0,
+    SUNXI_PB_BASE   = 32,
+    SUNXI_PC_BASE   = 64,
+    SUNXI_PD_BASE   = 96,
+    SUNXI_PE_BASE   = 128,
+    SUNXI_PF_BASE   = 160,
+    SUNXI_PG_BASE   = 192,
+    SUNXI_PH_BASE   = 224,
+    SUNXI_PI_BASE   = 256,
+    SUNXI_PL_BASE   = 352,
+    SUNXI_PM_BASE   = 384,
+    SUNXI_PN_BASE   = 416,
 };
 
 #define SUNXI_GPIO_CFG_INPUT    0x00

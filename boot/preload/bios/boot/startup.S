@@ -211,12 +211,12 @@ Bss_segment_Init:
     movl    $_ld_bss_start, %edi
     movl    $_ld_bss_end, %ecx
     subl    %edi, %ecx
-	shrl    $2, %ecx
+    shrl    $2, %ecx
     xorl    %eax, %eax
     rep;    stosl %eax, %es:(%edi)
 
-    call    main
-    call    halt
+    xorl    %ebp, %ebp
+    jmp     main
 
 GLOBAL(kboot_start)
     movl    4(%esp), %eax

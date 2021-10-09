@@ -9,6 +9,7 @@
 
 struct acpi_device_id {
     char id[ACPI_ID_LEN];
+    void *data;
 };
 
 #define DT_NAME_LEN 32
@@ -19,14 +20,14 @@ struct dt_device_id {
     char name[DT_NAME_LEN];
     char type[DT_TYPE_LEN];
     char compatible[DT_COMPATIBLE_LEN];
-    const void *data;
+    void *data;
 };
 
 #define PLATFORM_NAME_LEN 32
 
 struct platform_device_id {
     char name[PLATFORM_NAME_LEN];
-    const void *data;
+    void *data;
 };
 
 #define DMI_NAME_LEN 79
@@ -60,7 +61,7 @@ enum dmi_region_type {
 struct dmi_deivce_id {
     char name[DMI_NAME_LEN];
     enum dmi_region_type region;
-    int driver_data;
+    void *data;
 };
 
 #define SDIO_ANY_ID  (~0)
@@ -85,7 +86,7 @@ struct pci_device_id {
     uint32_t vendor,    device;
     uint32_t subvendor, subdevice;
     uint32_t class,     class_mask;
-    int driver_data;
+    void *data;
 };
 
 #define PCI_DEVICE(Vendor, Device) \
@@ -128,7 +129,7 @@ struct usb_device_id {
     uint8_t bInterfaceProtocol;
     uint8_t bInterfaceNumber;
 
-    int driver_data;
+    void *data;
     enum usb_match_mode match_mode;
 };
 

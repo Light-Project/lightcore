@@ -3,7 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define DRIVER_NAME "i386pci"
+#define DRIVER_NAME "i386-pci"
 
 #include <mm.h>
 #include <initcall.h>
@@ -12,10 +12,11 @@
 
 #include <asm/io.h>
 
-static state pci_config_read(struct pci_bus *bus, uint devfn, uint reg, int size, uint32_t *val)
+state pci_raw_config_read(unsigned int domain, unsigned int bus, unsigned int devfn,
+                          unsigned int reg, int size, uint32_t *val)
 {
-    uint32_t addr = (1 << 31) | (bus->bus_nr << 16) | (PCI_SLOT(devfn) << 11) |
-                    (PCI_FUNC(devfn)<<8) | reg;
+    uint32_t addr = (1 << 31) | (bus << 16) | (PCI_SLOT(devfn) << 11) |
+                    (PCI_FUNC(devfn) << 8) | reg;
 
     /* Use North Bridge Port */
     outl(0x0cf8, addr);
@@ -30,9 +31,10 @@ static state pci_config_read(struct pci_bus *bus, uint devfn, uint reg, int size
     return -ENOERR;
 }
 
-static state pci_config_write(struct pci_bus *bus, uint devfn, uint reg, int size, uint32_t val)
+state pci_raw_config_write(unsigned int domain, unsigned int bus, unsigned int devfn,
+                           unsigned int reg, int size, uint32_t val)
 {
-    uint32_t addr = (1 << 31) | (bus->bus_nr << 16) | (PCI_SLOT(devfn) << 11) |
+    uint32_t addr = (1 << 31) | (bus << 16) | (PCI_SLOT(devfn) << 11) |
                     (PCI_FUNC(devfn)<<8) | reg;
 
     /* Use North Bridge Port */
@@ -48,26 +50,35 @@ static state pci_config_write(struct pci_bus *bus, uint devfn, uint reg, int siz
     return -ENOERR;
 }
 
+static state pci_config_read(struct pci_bus *bus, uint devfn, uint reg, int size, uint32_t *val)
+{
+    return pci_raw_config_read(0, bus->bus_nr, devfn, reg, size, val);
+}
+
+static state pci_config_write(struct pci_bus *bus, uint devfn, uint reg, int size, uint32_t val)
+{
+    return pci_raw_config_write(0, bus->bus_nr, devfn, reg, size, val);
+}
+
 static struct pci_ops i386pci_ops = {
     .read = pci_config_read,
     .write = pci_config_write,
 };
 
-static state i386pci_probe(struct platform_device *pdev)
+static state i386pci_probe(struct platform_device *pdev, void *pdata)
 {
     struct pci_host *host;
 
-    host = kmalloc(sizeof(*host), GFP_KERNEL);
+    host = kzalloc(sizeof(*host), GFP_KERNEL);
     if(!host)
         return -ENOMEM;
 
     host->ops = &i386pci_ops;
-
     return pci_host_register(host);
 }
 
 static struct dt_device_id i386pci_id[] = {
-    { .compatible = "i386-pci" },
+    { .compatible = "intel,i386-pci" },
     { }, /* NULL */
 };
 

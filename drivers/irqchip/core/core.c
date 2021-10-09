@@ -5,7 +5,7 @@
 
 #define pr_fmt(fmt) "irqchip: " fmt
 
-#include <mm.h>
+#include <kmalloc.h>
 #include <initcall.h>
 #include <driver/irqchip.h>
 #include <printk.h>
@@ -73,7 +73,7 @@ irqchip_alloc_channel(struct irqchip_device *idev, irqnr_t chnr)
 {
     struct irqchip_channel *channel;
 
-    channel = kzalloc(sizeof(struct irqchip_channel), GFP_KERNEL);
+    channel = dev_kzalloc(idev->dev, sizeof(*channel), GFP_KERNEL);
     if (!channel)
         return NULL;
 
@@ -84,7 +84,7 @@ irqchip_alloc_channel(struct irqchip_device *idev, irqnr_t chnr)
     return channel;
 }
 
-struct irqchip_channel *irqchip_get_channel(struct irqchip_device *idev, irqnr_t chnr)
+struct irqchip_channel *irqchip_channel_get(struct irqchip_device *idev, irqnr_t chnr)
 {
     struct irqchip_channel *channel;
 
@@ -95,9 +95,20 @@ struct irqchip_channel *irqchip_get_channel(struct irqchip_device *idev, irqnr_t
     return irqchip_alloc_channel(idev, chnr);
 }
 
+void irqchip_channel_release(struct irqchip_channel *channel)
+{
+    struct irqchip_device *irqchip = channel->irqchip;
+
+    if (irqchip_mask(channel))
+        dev_err(irqchip->dev, "channel%d release", channel->index);
+
+    list_del(&channel->list);
+    dev_kfree(irqchip->dev, channel);
+}
+
 state irqchip_register(struct irqchip_device *idev)
 {
-    if(!idev || !idev->ops)
+    if(!idev->dev || !idev->ops)
         return -EINVAL;
 
     list_head_init(&idev->channel_list);

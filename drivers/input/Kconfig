@@ -1,6 +1,10 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig INPUT
-bool "Input device support"
+    bool "Input device support"
 if INPUT
 
+source "drivers/input/keyboard/Kconfig"
+
+source "drivers/input/mouse/Kconfig"
 
 endif

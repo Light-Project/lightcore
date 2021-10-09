@@ -1,0 +1,8 @@
+menuconfig PS2
+    bool "PS2 device support"
+if PS2
+
+config PS2_I8042
+    bool "I8042 PS2 support"
+
+endif

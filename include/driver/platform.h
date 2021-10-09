@@ -10,7 +10,7 @@ extern struct bus_type platform_bus;
 
 struct platform_device {
     const char *name;               /* Match witch driver */
-    struct device device;           /* Generic device */
+    struct device dev;              /* Generic device */
 
     int         id;
     bool        id_auto;
@@ -24,17 +24,17 @@ struct platform_device {
     unsigned int resources_nr;
 };
 
-#define device_to_platform_device(dev)	\
-    (container_of((dev), struct platform_device, device))
+#define device_to_platform_device(devp)	\
+    container_of((devp), struct platform_device, dev)
 
 static inline void *platform_get_devdata(const struct platform_device *pdev)
 {
-    return dev_get_devdata((const struct device *)&pdev->device);
+    return device_get_pdata(&pdev->dev);
 }
 
 static inline void platform_set_devdata(struct platform_device *pdev, void *data)
 {
-    return dev_set_devdata((struct device *)&pdev->device, data);
+    return device_set_pdata(&pdev->dev, data);
 }
 
 struct platform_driver {
@@ -43,15 +43,15 @@ struct platform_driver {
     const struct acpi_device_id     *acpi_table;
     const struct platform_device_id *platform_table;
 
-    state (*probe)(struct platform_device *pdev);
+    state (*probe)(struct platform_device *pdev, void *pdata);
     void (*remove)(struct platform_device *pdev);
     void (*shutdown)(struct platform_device *pdev);
     state (*suspend)(struct platform_device *pdev, pm_message_t state);
     state (*resume)(struct platform_device *pdev);
 };
 
-#define driver_to_platform_driver(drv)	\
-    (container_of((drv), struct platform_driver, driver))
+#define driver_to_platform_driver(drv) \
+    container_of(drv, struct platform_driver, driver)
 
 static inline resource_size_t
 platform_resource_start(struct platform_device *pdev, unsigned int index)
@@ -77,11 +77,12 @@ platform_resource_type(struct platform_device *pdev, unsigned int index)
     return pdev->resource[index].type;
 }
 
-#if defined(CONFIG_DT)
+#ifdef CONFIG_DT
 const struct dt_device_id *platform_dt_match(struct platform_driver *pdrv, struct platform_device *pdev);
 #endif
-#if defined(CONFIG_ACPI)
-const struct dt_device_id *platform_acpi_match(struct platform_driver *pdrv, struct platform_device *pdev);
+
+#ifdef CONFIG_ACPI
+const struct acpi_device_id *platform_acpi_match(struct platform_driver *pdrv, struct platform_device *pdev);
 #endif
 
 struct platform_device *platform_device_alloc(const char *name, int id);
@@ -91,5 +92,8 @@ extern state platform_device_register(struct platform_device *);
 extern void platform_device_unregister(struct platform_device *);
 extern state platform_driver_register(struct platform_driver *);
 extern void platform_driver_unregister(struct platform_driver *);
+
+void __init platform_dt_init(void);
+void __init platform_bus_init(void);
 
 #endif  /* _DEVICE_PLATFORM_H_ */

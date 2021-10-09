@@ -6,6 +6,11 @@ _clean:
 
 src := $(obj)
 
+clean-y 		:=
+clean-files 	:=
+clean-subdir-y	:=
+clean-subdirs	:=
+
 # Read auto.conf if it exists, otherwise ignore
 -include $(srctree)/include/config/auto.conf
 

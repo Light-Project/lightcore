@@ -2,14 +2,10 @@
 #ifndef _MM_H_
 #define _MM_H_
 
-#include <types.h>
-#include <stddef.h>
-#include <mm/region.h>
-#include <mm/page.h>
-#include <mm/kmem.h>
+#include <kernel.h>
+#include <mm/memmodel.h>
+#include <kmalloc.h>
 #include <mm/vmem.h>
-#include <mm/ioremap.h>
-#include <mm/memblock.h>
 
 extern char _ld_startup_start;
 extern char _ld_startup_end;
@@ -29,6 +25,15 @@ extern char _ld_image_end;
 
 #define page_align(addr) align_high(addr, PAGE_SIZE)
 #define page_aligned(addr) aligned(addr, PAGE_SIZE)
+
+#define va_to_pa(va)        ((phys_addr_t)(va) - CONFIG_PAGE_OFFSET + CONFIG_RAM_BASE)
+#define pa_to_va(pa)        ((void *)((pa) - CONFIG_RAM_BASE + CONFIG_PAGE_OFFSET))
+
+#define page_to_pa(page)    (page_to_nr(page) << PAGE_SHIFT)
+#define pa_to_page(pa)      (nr_to_page(pa >> PAGE_SHIFT))
+
+#define page_to_va(page)    (pa_to_va(page_to_pa(page)))
+#define va_to_page(address) (pa_to_page(va_to_pa(address)))
 
 void mem_init(void);
 

@@ -151,7 +151,7 @@
 
 #define EXPORT_ACPI_INTERFACES
 
-#include <driver/acpi.h>
+#include <driver/acpi/acpi.h>
 #include "accommon.h"
 #include "acnamesp.h"
 #include "actables.h"

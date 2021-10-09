@@ -3,9 +3,9 @@
 #define _DRIVER_ACPI_H_
 
 #include <state.h>
-#include <driver/acpi/acpi.h> 
+#include <driver/acpi/acpi.h>
 
-
-state acpi_table_init(void);
+state acpi_init(void);
+state early_acpi_scan(void);
 
 #endif /* _DRIVER_ACPI_H_ */

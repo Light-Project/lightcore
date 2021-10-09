@@ -12,6 +12,7 @@ build_home := $(srctree)/scripts
 -include include/config/auto.conf
 
 include $(build_home)/include/define.mk
+include $(build_home)/include/warn.mk
 
 # Do not use make's built-in rules and variables
 # Do not print "Entering directory ...",
@@ -132,6 +133,9 @@ else
 _start: start FORCE
 endif
 
+build/%.o: scripts_basic
+	$(Q)$(MAKE) $(build)=$(patsubst build/%/,%,$(dir $@)) $(patsubst build/%,%,$@)
+
 build/%: scripts_basic
 	$(Q)$(MAKE) $(build)=$(patsubst build/%,%,$@)
 
@@ -168,8 +172,9 @@ mrproper: clean $(mrproper-files) $(mrproper-dirs)
 	$(call cmd,rmdirs)
 	$(call cmd,rmfiles)
 
-distclean: FORCE
+distclean: mrproper FORCE
 	$(Q)$(MAKE) $(clean)=$(build_home)
+	$(Q)$(MAKE) $(clean)=tools
 
 #####################################
 # Help rule                         #

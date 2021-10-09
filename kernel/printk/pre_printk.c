@@ -15,7 +15,7 @@ void pre_console_write(const char *str, unsigned int len)
     pre_console->ops->write(pre_console, str, len);
 }
 
-void pre_printk(const char *fmt, ...)
+int pr_early(const char *fmt, ...)
 {
     char buf[256];
     int len;
@@ -26,6 +26,7 @@ void pre_printk(const char *fmt, ...)
     va_end(ap);
 
     pre_console_write(buf, len);
+    return len;
 }
 
 void pre_console_register(struct console *con)

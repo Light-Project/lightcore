@@ -18,7 +18,7 @@ static struct dma_ops i8237_ops = {
 
 };
 
-static state i8237_prebe(struct platform_device *pdev)
+static state i8237_prebe(struct platform_device *pdev, void *pdata)
 {
 
     return -ENOERR;

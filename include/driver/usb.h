@@ -74,7 +74,7 @@ struct usb_driver {
     const struct usb_device_id *id_table;
 
     /* Operation function */
-    state (*probe)(struct usb_device *pdev, int id);
+    state (*probe)(struct usb_device *pdev, void *data);
     state (*remove)(struct usb_device *pdev);
     void (*shutdown)(struct usb_device *pdev);
     state (*suspend)(struct usb_device *pdev, pm_message_t state);
@@ -82,7 +82,7 @@ struct usb_driver {
 };
 
 #define driver_to_usb_driver(dpt) \
-    (container_of((dpt), struct usb_driver, driver))
+    container_of((dpt), struct usb_driver, driver)
 
 struct usb_bus {
     struct usb_device *root_hub;
@@ -96,7 +96,7 @@ struct usb_host {
 };
 
 #define usb_bus_to_host(bpt) \
-    (container_of((bpt), struct usb_host, bus))
+    container_of((bpt), struct usb_host, bus)
 
 struct usb_ops {
     state (*setup)(struct usb_host *);

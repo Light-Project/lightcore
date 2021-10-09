@@ -6,8 +6,8 @@
  * converts to "bar".
  */
 
-#define __stringify_1(x...)	#x
-#define __stringify(x...)	__stringify_1(x)
+#define ___stringify(x...)  #x
+#define __stringify(x...)   ___stringify(x)
 
 #endif	/* !_STRINGIFY_H_ */
- 
+

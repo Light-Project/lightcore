@@ -10,7 +10,7 @@ include scripts/top.mk
 
 include $(srctree)/platform.mk
 
-sys-include-y += include/ include/kconfig.h             \
+sys-include-y += include/ include/generated/autoconf.h  \
                  include/compiler/compiler_attributes.h \
                  include/compiler/compiler_type.h       \
                  include/compiler/compiler.h            \
@@ -40,7 +40,7 @@ include-direct-y := $(strip $(sys-include-y) $(platform-include-y))
 
 lightcore-flags-$(CONFIG_KERNEL_MAP) += -Wl,--cref,-Map=$@.map
 lightcore-flags-y += -e boot_head -T arch/$(arch)/kernel.lds -nostdlib
-lightcore-flags-y += $(platform-elfflags-y) -Wl,--build-id=sha1 -lgcc -fno-pic
+lightcore-flags-y += $(platform-elfflags-y) -Wl,--build-id=sha1 -lgcc
 
 ifdef CONFIG_KERNEL_DEBUG
 acflags-y += -g
@@ -52,7 +52,8 @@ acflags-y += -ffunction-sections -fdata-sections
 lightcore-flags-y += -Wl,--gc-sections
 endif
 
-export include-direct-y
+export CROSS_COMPILE include-direct-y
+export asflags-y ccflags-y cppflags-y acflags-y ldsflags-y ldflags-y
 
 # ---------------------------------------------------------------------------
 # Generic headers
@@ -92,6 +93,7 @@ obj-y += lib/
 obj-y += mm/
 obj-y += net/
 obj-y += virt/
+obj-$(CONFIG_KUSR) += usr/
 
 # ---------------------------------------------------------------------------
 # Compiler
@@ -99,10 +101,13 @@ obj-y += virt/
 lightcore-objs += built-in.o
 elf-always-y += lightcore
 
-build: asm-generic scripts_basic FORCE
+tools: build/tools/kernelcrc build/tools/mkincbin
+
+build: asm-generic scripts_basic tools FORCE
 	$(Q)$(MAKE) $(build)=$(srctree)
 
-kboot: build build/boot/kboot FORCE
+build/boot/kboot: build
+kboot: build/boot/kboot FORCE
 preload: build/boot/preload FORCE
 
 disk: preload
@@ -131,4 +136,4 @@ run: FORCE
 	$(Q)$(SHELL) $(srctree)/boot/install $@
 endif
 
-clean-subdir-y += boot/ usr/
+clean-subdir-y += boot/

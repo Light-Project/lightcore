@@ -3,7 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt)	"FDT: " fmt
+#define pr_fmt(fmt)	"fdt: " fmt
 
 #include <mm.h>
 #include <driver/dt.h>

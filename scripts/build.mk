@@ -41,9 +41,7 @@ export include_blend
 # ... is a shorthand for
 # hostprogs += foo
 hostprogs   += $(hostprogs-always-y)
-
 bin   		+= $(bin-always-y)
-
 elf   		+= $(elf-always-y)
 
 #####################################

@@ -155,6 +155,11 @@
     KEEP(*(.init.scheduler_initcall))                       \
     _ld_scheduler_initcall_end = .;
 
+#define CLK_INITCALL                                        \
+    _ld_clk_initcall_start = .;                             \
+    KEEP(*(.init.clk_initcall))                             \
+    _ld_clk_initcall_end = .;
+
 #define IRQCHIP_INITCALL                                    \
     _ld_irqchip_initcall_start = .;                         \
     KEEP(*(.init.irqchip_initcall))                         \
@@ -164,6 +169,11 @@
     _ld_clocksource_initcall_start = .;                     \
     KEEP(*(.init.clocksource_initcall))                     \
     _ld_clocksource_initcall_end = .;
+
+#define KSHELL_INITCALL                                     \
+    _ld_kshell_initcall_start = .;                          \
+    KEEP(*(.init.kshell_initcall))                          \
+    _ld_kshell_initcall_end = .;
 
 /*
  * bss (Block Started by Symbol) - uninitialized data
@@ -239,9 +249,9 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
     . = ALIGN(pagealign);                                   \
     .rodata :                                               \
     AT(ADDR(.rodata) - LOAD_OFFSET) {                       \
-    RODATA_RODATA(pagealign)                                \
-    KSYMTAB(pagealign)                                      \
-    KSYMTAB_GPL(pagealign)                                  \
+        RODATA_RODATA(pagealign)                            \
+        KSYMTAB(pagealign)                                  \
+        KSYMTAB_GPL(pagealign)                              \
     }                                                       \
     NOTES
 
@@ -276,8 +286,10 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
         _ld_data_section_start = .;                         \
         CONSOLE_INITCALL                                    \
         SCHEDULER_INITCALL                                  \
+        CLK_INITCALL                                        \
         IRQCHIP_INITCALL                                    \
         CLKSRC_INITCALL                                     \
+        KSHELL_INITCALL                                     \
         INIT_CALLS                                          \
         INIT_ARGS(align)                                    \
         INIT_DT_TABLES                                      \

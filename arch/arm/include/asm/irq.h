@@ -7,7 +7,7 @@
 #include <asm-generic/irq.h>
 #include <arch/arm/interrupt.h>
 
-static inline void arch_irq_disable(void)
+static inline void cpu_irq_disable(void)
 {
     asm volatile(
         "mrs    ip, cpsr\n"
@@ -17,7 +17,7 @@ static inline void arch_irq_disable(void)
     );
 }
 
-static inline void arch_irq_enable(void)
+static inline void cpu_irq_enable(void)
 {
     asm volatile(
         "mrs    ip, cpsr\n"
@@ -27,15 +27,15 @@ static inline void arch_irq_enable(void)
     );
 }
 
-static inline irqflags_t arch_irq_save(void)
+static inline irqflags_t cpu_irq_save(void)
 {
-    arch_irq_disable();
+    cpu_irq_disable();
     return 0;
 }
 
-static inline void arch_irq_restore(irqflags_t flags)
+static inline void cpu_irq_restore(irqflags_t flags)
 {
-    arch_irq_enable();
+    cpu_irq_enable();
 }
 
 void arch_irq_set(void(*)(struct regs *));

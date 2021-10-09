@@ -1,3 +1,2 @@
-obj-y += memcpy.o
-obj-y += string.o
-obj-y += strstr.o
+obj-y += delay.o memcpy.o
+obj-y += string.o strstr.o

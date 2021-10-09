@@ -1,8 +1,11 @@
-menu "User tools"
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig KUSR
+    bool "Kernel application support"
+    default y
+if KUSR
     
-    config GENROOTFS
-    bool "Construct a simple rootfs"
-    depends on !USR_XIP
+config KSH
+    bool "Kernel shell support"
     default y
 
-endmenu
+endif

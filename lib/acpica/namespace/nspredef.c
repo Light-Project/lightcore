@@ -151,7 +151,7 @@
 
 #define ACPI_CREATE_PREDEFINED_TABLE
 
-#include <driver/acpi.h>
+#include <driver/acpi/acpi.h>
 #include "accommon.h"
 #include "acnamesp.h"
 #include "acpredef.h"

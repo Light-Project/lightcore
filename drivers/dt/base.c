@@ -35,6 +35,11 @@ struct dt_node *dt_find_by_phandle(uint32_t phandle)
     return NULL;
 }
 
+/**
+ * dt_attribute_get - find a attribute form device node.
+ * @node: device node to find attribute
+ * @name: name of the attribute
+ */
 struct dt_attribute *dt_attribute_find(const struct dt_node *node,
                                        const char *name)
 {
@@ -46,6 +51,12 @@ struct dt_attribute *dt_attribute_find(const struct dt_node *node,
     return NULL;
 }
 
+/**
+ * dt_attribute_get - find and get value from attribute.
+ * @node: device node to read the attribute value
+ * @name: name of the attribute to be searched
+ * @len: attribute value len
+ */
 const void *dt_attribute_get(const struct dt_node *node,
                              const char *name, int *len)
 {
@@ -59,6 +70,13 @@ const void *dt_attribute_get(const struct dt_node *node,
     return attribute->value;
 }
 
+/**
+ * dt_attribute_read_bool - find and check exist from attribute.
+ * @node: device node to read the attribute value
+ * @name: name of the attribute to be searched
+ * @index: index of the values
+ * @value: pointer to return value
+ */
 bool dt_attribute_read_bool(const struct dt_node *node, const char *name)
 {
     struct dt_attribute *attribute;
@@ -67,7 +85,7 @@ bool dt_attribute_read_bool(const struct dt_node *node, const char *name)
 }
 
 /**
- * dt_attribute_read_u32 - find and read a uint32_t from attribute.
+ * dt_attribute_read_u32_index - find and read a uint32_t from attribute.
  * @node: device node to read the attribute value
  * @name: name of the attribute to be searched
  * @index: index of the values
@@ -86,7 +104,7 @@ state dt_attribute_read_u32_index(const struct dt_node *node, const char *name,
 }
 
 /**
- * dt_attribute_read_u64 - find and read a uint64_t from attribute.
+ * dt_attribute_read_u64_index - find and read a uint64_t from attribute.
  * @node: device node to read the attribute value
  * @name: name of the attribute to be searched
  * @index: index of the values
@@ -104,6 +122,13 @@ state dt_attribute_read_u64_index(const struct dt_node *node, const char *name,
     return -ENOERR;
 }
 
+/**
+ * dt_attribute_read_string_index - find and read a string from attribute.
+ * @node: device node to read the attribute string
+ * @name: name of the attribute to be searched
+ * @index: index of the string
+ * @str: pointer to return string
+ */
 state dt_attribute_read_string_index(const struct dt_node *node, const char *name,
                                      int index, const char **str)
 {
@@ -122,6 +147,12 @@ state dt_attribute_read_string_index(const struct dt_node *node, const char *nam
     return -ENOERR;
 }
 
+/**
+ * dt_attribute_read_string_index - find and read string index from attribute.
+ * @node: device node to read the attribute string index
+ * @name: name of the attribute to be searched
+ * @str: string to read index
+ */
 state dt_attribute_string_index(const struct dt_node *node,
                                 const char *name, const char *str)
 {
@@ -155,14 +186,14 @@ struct dt_node *dt_search_up(struct dt_node *node,
 }
 
 /**
- * dt_addr_cell -  read the address cell of the node
+ * dt_addr_cell - read the address cell of the node
  * @node: device node to read the address cell
  */
 uint32_t dt_addr_cell(const struct dt_node *node)
 {
     uint32_t cell;
 
-    while((node = node->parent)) {
+    while ((node = node->parent)) {
         if (!dt_attribute_read_u32(node, DT_ADDR_CELL, &cell))
             return cell;
     }
@@ -171,14 +202,14 @@ uint32_t dt_addr_cell(const struct dt_node *node)
 }
 
 /**
- * dt_size_cell -  read the size cell of the node
+ * dt_size_cell - read the size cell of the node
  * @node: device node to read the size cell
  */
 uint32_t dt_size_cell(const struct dt_node *node)
 {
     uint32_t cell;
 
-    while((node = node->parent)) {
+    while ((node = node->parent)) {
         if (!dt_attribute_read_u32(node, DT_ADDR_CELL, &cell))
             return cell;
     }
@@ -186,7 +217,7 @@ uint32_t dt_size_cell(const struct dt_node *node)
     return DT_ROOT_ADDR_CELLS_DEFAULT;
 }
 
-/* Function for matching */
+/*** Function for matching ***/
 
 bool dt_attribute_match(const struct dt_node *node,
                         const char *atname, const char *val)

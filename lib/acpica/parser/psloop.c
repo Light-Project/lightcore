@@ -157,7 +157,7 @@
  * opcode templates in AmlOpInfo[].
  */
 
-#include <driver/acpi.h>
+#include <driver/acpi/acpi.h>
 #include "accommon.h"
 #include "acinterp.h"
 #include "acparser.h"

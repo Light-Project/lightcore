@@ -160,7 +160,7 @@
  * occurs in the body of AcpiUtFree.
  */
 
-#include <driver/acpi.h>
+#include <driver/acpi/acpi.h>
 #include "accommon.h"
 
 #ifdef ACPI_DBG_TRACK_ALLOCATIONS

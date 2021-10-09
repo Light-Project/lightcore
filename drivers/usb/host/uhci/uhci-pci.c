@@ -68,7 +68,7 @@ static struct pci_device_id uhci_pci_ids[] = {
     { }, /* NULL */
 };
 
-static state uhci_pci_probe(struct pci_device *pdev, int data)
+static state uhci_pci_probe(struct pci_device *pdev, void *data)
 {
     struct uhci_host *uhci;
     resource_size_t port;

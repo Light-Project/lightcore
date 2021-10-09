@@ -9,25 +9,32 @@
     model = "X86 IBM compatible computer";
     #address-cells = <1>;
     #size-cells = <1>;
-    interrupt-parent = <&pic>;
+
+    chosen { };
 
     memory@0 {
         device_type = "memory";
-        reg = <0x00000000 0x000a0000>,
-              <0x00100000 0x03f00000>;
+        reg = <0x00000000 0x02000000>;
+    };
+
+    clocks {
+        timclk: clk-1M {
+            #clock-cells = <0>;
+            compatible = "fixed-clock";
+            clock-frequency = <1193182>;
+        };
     };
 
     isa {
         #address-cells = <1>;
         #size-cells = <1>;
         compatible = "isa-bus";
-		dma-ranges;
-        ranges;
+        interrupt-parent = <&pic>;
 
-        dma: dma-controller@0 {
+        dma0: dma-controller@0 {
             #dma-cells = <1>;
             compatible = "intel,i8237";
-            reg = <0x0000 0x20>;
+            reg = <0x0000 0x10>;
         };
 
         pic: interrupt-controller@20 {
@@ -35,19 +42,74 @@
             #address-cells = <0>;
             compatible = "intel,i8259";
             interrupt-controller;
-            reg = <0x0020 0x02>, <0x00a0 0x02>;
+            reg = <0x0020 0x02>,
+                  <0x00a0 0x02>;
         };
 
         timer@42 {
             compatible = "intel,i8253";
-            reg = <0x0042 0x044>;
+            reg = <0x0042 0x04>;
             interrupts = <0>;
+            clocks = <&timclk>;
+        };
+
+        ps2@60 {
+            compatible = "intel,i8042";
+            reg = <0x0060 0x08>;
+            interrupts = <1>;
         };
 
         rtc@71 {
             compatible = "motorola,mc146818";
-            reg = <0x0070 0x02>;
+            reg = <0x0070 0x08>;
             interrupts = <8>;
+        };
+
+        dma1: dma-controller@c0 {
+            #dma-cells = <1>;
+            compatible = "intel,i8237";
+            reg = <0x00c0 0x10>;
+        };
+
+        uart1: serial@2f8 {
+            compatible = "intel,i8250";
+            reg = <0x02f8 0x08>;
+            interrupts = <3>;
+        };
+
+        uart3: serial@2e8 {
+            compatible = "intel,i8250";
+            reg = <0x02e8 0x08>;
+            interrupts = <3>;
+        };
+
+        lpt1: parallel@278 {
+            compatible = "intel,i8255";
+            reg = <0x0278 0x08>;
+            interrupts = <5>;
+        };
+
+        fdc1: floppy@370 {
+            compatible = "ibm,floppy";
+            reg = <0x0370 0x08>;
+            interrupts = <6>;
+        };
+
+        lpt0: parallel@378 {
+            compatible = "intel,i8255";
+            reg = <0x0378 0x08>;
+            interrupts = <7>;
+        };
+
+        lpt3: parallel@3bc {
+            compatible = "intel,i8255";
+            reg = <0x03bc 0x08>;
+        };
+
+        fdc0: floppy@3f0 {
+            compatible = "ibm,floppy";
+            reg = <0x03f0 0x08>;
+            interrupts = <6>;
         };
 
         uart0: serial@3f8 {
@@ -56,18 +118,20 @@
             interrupts = <4>;
         };
 
+        uart2: serial@3e8 {
+            compatible = "intel,i8250";
+            reg = <0x03f8 0x08>;
+            interrupts = <4>;
+        };
+
         pci: pci@c00 {
-            compatible = "i386-pci";
+            compatible = "intel,i386-pci";
             reg = <0x0c00 0x10>;
         };
 
-        power: pci@cf9 {
-            compatible = "i386-reset";
-            reg = <0x0cf9 0x10>;
+        power@cf9 {
+            compatible = "intel,piix-power";
+            reg = <0x0cf9 0x01>;
         };
-    };
-
-    chosen {
-        bootargs = "console=tty0";
     };
 };

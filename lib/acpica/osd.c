@@ -1,32 +1,63 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * osd.c - OS-dependent functions
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
+#define pr_fmt(fmt) "acpi-osd: " fmt
+
+#include <string.h>
+#include <sleep.h>
+#include <mm.h>
+#include <kmalloc.h>
+#include <ioremap.h>
+#include <spinlock.h>
 #include <driver/acpi.h>
+#include <driver/pci.h>
+#include <asm/delay.h>
+#include <asm/io.h>
+#include <printk.h>
+
 #include "accommon.h"
 #include "acnamesp.h"
-
-#include <asm/io.h>
 
 /*
  * ACPI Table interfaces
  */
-
 ACPI_PHYSICAL_ADDRESS
 AcpiOsGetRootPointer (
     void)
 {
-    // ACPI_PHYSICAL_ADDRESS *Pa;
+    ACPI_PHYSICAL_ADDRESS PhyAdd;
 
-    return 0;   
+    AcpiFindRootPointer(&PhyAdd);
+
+    return PhyAdd;
 }
+
+#define ACPI_MAX_OVERRIDE_LEN 100
+static bool acpi_rev_override;
+static char acpi_os_name[ACPI_MAX_OVERRIDE_LEN];
 
 ACPI_STATUS
 AcpiOsPredefinedOverride (
     const ACPI_PREDEFINED_NAMES *InitVal,
     ACPI_STRING                 *NewVal)
 {
+    if (!InitVal || !NewVal)
+        return (AE_BAD_PARAMETER);
+
+    *NewVal = NULL;
+
+    if (!memcmp(InitVal->Name, "_OS_", 4) && strlen(acpi_os_name)) {
+        pr_info("Overriding _OS definition to '%s'\n", acpi_os_name);
+        *NewVal = acpi_os_name;
+    }
+
+    if (!memcmp(InitVal->Name, "_REV", 4) && acpi_rev_override) {
+        pr_info("Overriding _REV return value to 5\n");
+        *NewVal = (char *)5;
+    }
+
     return (AE_OK);
 }
 
@@ -35,6 +66,10 @@ AcpiOsTableOverride (
     ACPI_TABLE_HEADER       *ExistingTable,
     ACPI_TABLE_HEADER       **NewTable)
 {
+    if (!ExistingTable || !NewTable)
+        return (AE_BAD_PARAMETER);
+
+    *NewTable = NULL;
     return (AE_OK);
 }
 
@@ -44,7 +79,61 @@ AcpiOsPhysicalTableOverride (
     ACPI_PHYSICAL_ADDRESS   *NewAddress,
     UINT32                  *NewTableLength)
 {
-    return (AE_OK);
+    // struct ACPI_TABLE_HEADER *Table;
+    // int TableOffset = 0;
+    // int TableIndex = 0;
+    // UINT32 TableLength;
+
+    *NewAddress = 0;
+    *NewTableLength = 0;
+
+    // if (!acpi_tables_addr)
+    //     return AE_OK;
+
+//     while (table_offset + ACPI_HEADER_SIZE <= all_tables_size) {
+//         table = acpi_os_map_memory(acpi_tables_addr + table_offset,
+//                        ACPI_HEADER_SIZE);
+//         if (table_offset + table->length > all_tables_size) {
+//             acpi_os_unmap_memory(table, ACPI_HEADER_SIZE);
+//             WARN_ON(1);
+//             return AE_OK;
+//         }
+
+//         table_length = table->length;
+
+//         /* Only override tables matched */
+//         if (memcmp(existing_table->signature, table->signature, 4) ||
+//             memcmp(table->oem_id, existing_table->oem_id,
+//                ACPI_OEM_ID_SIZE) ||
+//             memcmp(table->oem_table_id, existing_table->oem_table_id,
+//                ACPI_OEM_TABLE_ID_SIZE)) {
+//             acpi_os_unmap_memory(table, ACPI_HEADER_SIZE);
+//             goto next_table;
+//         }
+//         /*
+//          * Mark the table to avoid being used in
+//          * acpi_table_initrd_scan() and check the revision.
+//          */
+//         if (test_and_set_bit(table_index, acpi_initrd_installed) ||
+//             existing_table->oem_revision >= table->oem_revision) {
+//             acpi_os_unmap_memory(table, ACPI_HEADER_SIZE);
+//             goto next_table;
+//         }
+
+//         *length = table_length;
+//         *address = acpi_tables_addr + table_offset;
+//         pr_info("Table Upgrade: override [%4.4s-%6.6s-%8.8s]\n",
+//             table->signature, table->oem_id,
+//             table->oem_table_id);
+//         acpi_os_unmap_memory(table, ACPI_HEADER_SIZE);
+//         break;
+
+// next_table:
+//         table_offset += table_length;
+//         table_index++;
+//     }
+
+    return AE_OK;
 }
 
 /*
@@ -54,14 +143,15 @@ void
 AcpiOsDeleteLock (
     ACPI_SPINLOCK           Handle)
 {
-
 }
 
 ACPI_CPU_FLAGS
 AcpiOsAcquireLock (
     ACPI_SPINLOCK           Handle)
 {
-    return 0;   
+	irqflags_t flags;
+	spin_lock_irqsave(Handle, &flags);
+	return flags;
 }
 
 void
@@ -69,16 +159,16 @@ AcpiOsReleaseLock (
     ACPI_SPINLOCK           Handle,
     ACPI_CPU_FLAGS          Flags)
 {
-
+	spin_lock_irqsave(Handle, &Flags);
 }
 
 /*
  * Semaphore primitives
  */
-ACPI_STATUS 
-AcpiOsCreateSemaphore( 
-    UINT32          max_units, 
-    UINT32          initial_units, 
+ACPI_STATUS
+AcpiOsCreateSemaphore(
+    UINT32          max_units,
+    UINT32          initial_units,
     ACPI_HANDLE     *handle)
 {
 
@@ -117,8 +207,7 @@ AcpiOsMapMemory (
     ACPI_PHYSICAL_ADDRESS   Where,
     ACPI_SIZE               Length)
 {
-
-    return NULL;
+    return ioremap(Where, Length);
 }
 
 void
@@ -126,7 +215,7 @@ AcpiOsUnmapMemory (
     void                    *LogicalAddress,
     ACPI_SIZE               Size)
 {
-
+    iounmap(LogicalAddress);
 }
 
 ACPI_STATUS
@@ -134,13 +223,17 @@ AcpiOsGetPhysicalAddress (
     void                    *LogicalAddress,
     ACPI_PHYSICAL_ADDRESS   *PhysicalAddress)
 {
+    if (!LogicalAddress || !PhysicalAddress)
+        return (AE_BAD_PARAMETER);
+
+    *PhysicalAddress = va_to_pa(LogicalAddress);
+
     return (AE_OK);
 }
 
 /*
  * Memory/Object Cache
  */
-#ifndef ACPI_USE_LOCAL_CACHE
 ACPI_STATUS
 AcpiOsCreateCache (
     char                    *CacheName,
@@ -148,13 +241,15 @@ AcpiOsCreateCache (
     UINT16                  MaxDepth,
     ACPI_CACHE_T            **ReturnCache)
 {
-    return (AE_OK);
+    *ReturnCache = kcache_create(CacheName, ObjectSize, MSIZE);
+    return *ReturnCache ? (AE_OK) : (AE_ERROR);
 }
 
 ACPI_STATUS
 AcpiOsDeleteCache (
     ACPI_CACHE_T            *Cache)
 {
+    kcache_release(Cache);
     return (AE_OK);
 }
 
@@ -170,9 +265,9 @@ AcpiOsReleaseObject (
     ACPI_CACHE_T            *Cache,
     void                    *Object)
 {
+    kcache_free(Cache, Object);
     return (AE_OK);
 }
-#endif /* ACPI_USE_LOCAL_CACHE */
 
 /*
  * Interrupt handlers
@@ -217,14 +312,14 @@ void
 AcpiOsSleep (
     UINT64                  Milliseconds)
 {
-
+    msleep(Milliseconds);
 }
 
 void
 AcpiOsStall (
     UINT32                  Microseconds)
 {
-
+    mdelay(Microseconds);
 }
 
 /*
@@ -275,6 +370,24 @@ AcpiOsReadMemory (
     UINT64                  *Value,
     UINT32                  Width)
 {
+    void *virt;
+
+    virt = ioremap(Address, Width);
+    if (!virt)
+        return (AE_ERROR);
+
+    if (Width <= 8)
+        *Value = readb(virt);
+    else if (Width <= 16)
+        *Value = readw(virt);
+    else if (Width <= 32)
+        *Value = readl(virt);
+    else if (Width <= 64)
+        *Value = readq(virt);
+    else
+        *Value = ~0ULL;
+
+    iounmap(virt);
     return (AE_OK);
 }
 
@@ -284,6 +397,22 @@ AcpiOsWriteMemory (
     UINT64                  Value,
     UINT32                  Width)
 {
+    void *virt;
+
+    virt = ioremap(Address, Width);
+    if (!virt)
+        return (AE_ERROR);
+
+    if (Width <= 8)
+        readb(virt);
+    else if (Width <= 16)
+        readw(virt);
+    else if (Width <= 32)
+        readl(virt);
+    else if (Width <= 64)
+        readq(virt);
+
+    iounmap(virt);
     return (AE_OK);
 }
 
@@ -294,7 +423,16 @@ AcpiOsReadPciConfiguration (
     UINT64                  *Value,
     UINT32                  Width)
 {
-    return (AE_OK);
+    state retval;
+
+    if (!Value)
+        return (AE_BAD_PARAMETER);
+
+    retval = pci_raw_config_read(PciId->Segment, PciId->Bus,
+            PCI_DEVFN(PciId->Device, PciId->Function),
+            Reg, Width / 8, (uint32_t *)Value);
+
+    return retval ? (AE_ERROR) : (AE_OK);
 }
 
 ACPI_STATUS
@@ -304,9 +442,14 @@ AcpiOsWritePciConfiguration (
     UINT64                  Value,
     UINT32                  Width)
 {
-    return (AE_OK);
-}
+    state retval;
 
+    retval = pci_raw_config_write(PciId->Segment, PciId->Bus,
+            PCI_DEVFN(PciId->Device, PciId->Function),
+            Reg, Width / 8, (uint32_t)Value);
+
+    return retval ? (AE_ERROR) : (AE_OK);
+}
 
 /*
  * Miscellaneous
@@ -345,6 +488,7 @@ AcpiOsPrintf (
     ...)
 {
     va_list Args;
+
     va_start(Args, Format);
     AcpiOsVprintf(Format, Args);
     va_end(Args);
@@ -358,26 +502,22 @@ AcpiOsVprintf (
     static char buffer[512];
 
     vsnprintf(buffer, sizeof(buffer), Format, Args);
-
     printk("%s", buffer);
 }
 
 /*
  * Debug IO
  */
-ACPI_STATUS ACPI_INIT_FUNCTION 
+ACPI_STATUS ACPI_INIT_FUNCTION
 AcpiOsInitialize (
     void)
 {
-
-
     return (AE_OK);
 }
 
-ACPI_STATUS 
+ACPI_STATUS
 AcpiOsTerminate (
     void)
 {
-
     return (AE_OK);
 }

@@ -16,7 +16,7 @@ elf_objs     	:= $(foreach m,$(elf),$($(m)-objs))
 # Add path                             #
 ########################################
 
-elf             := $(strip $(sort $(addprefix $(obj)/,$(elf))))
+elf_file        := $(strip $(sort $(addprefix $(obj)/,$(elf))))
 elf_objs        := $(strip $(sort $(addprefix $(obj)/,$(elf_objs))))
 elf_always      := $(strip $(sort $(addprefix $(obj)/,$(elf_always))))
 
@@ -24,11 +24,10 @@ elf_always      := $(strip $(sort $(addprefix $(obj)/,$(elf_always))))
 # Always rule                          #
 ########################################
 
-elf_targets     := $(elf)
+elf_targets     := $(elf_file)
 elf_targets     += $(elf_objs)
-
 
 always          += $(elf_always)
 targets         += $(elf_targets)
 clean-files     += $(elf_targets)
-clean-files     += $(wildcard $(foreach f,$(elf),$(f).map))
+clean-files     += $(wildcard $(foreach f,$(elf_file),$(f).map))

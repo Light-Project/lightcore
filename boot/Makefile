@@ -18,7 +18,7 @@ UIMAGE_TYPE         = kernel
 UIMAGE_ENTRYADDR    = $(UIMAGE_LOADADDR)
 UIMAGE_NAME         = 'Lightcore-$(KERNELVERSION)'
 
-quiet_cmd_uimage = UIMAGE  $@
+quiet_cmd_uimage = UIMAGE $@
       cmd_uimage = $(BASH) $(MKIMAGE) -A $(UIMAGE_ARCH) -O invalid      \
                         -C $(UIMAGE_COMPRESSION) $(UIMAGE_OPTS-y)       \
                         -T $(UIMAGE_TYPE)                               \
@@ -33,14 +33,14 @@ targets += uImage
 # ---------------------------------------------------------------------------
 # Disk
 
+quiet_cmd_disk = MKDISK $@
+
 ifneq ($(CONFIG_CHIP_X86),)
-$(obj)/disk.img: FORCE
-	$(Q)$(DD) if=$(obj)/preload/preload.bin of=$(obj)/disk.img bs=512 conv=notrunc
-	$(Q)$(DD) if=$(obj)/kboot/boot.bin of=$(obj)/disk.img bs=512 seek=63 conv=notrunc
+cmd_disk = $(DD) if=$(obj)/preload/preload.bin of=$(obj)/disk.img bs=512 conv=notrunc; \
+           $(DD) if=$(obj)/kboot/boot.bin of=$(obj)/disk.img bs=512 seek=63 conv=notrunc
 endif
 
 ifneq ($(CONFIG_CHIP_ESP8266),)
-$(obj)/disk.img: FORCE
 	$(Q)tools/esp/esptool.py -c esp8266 elf2image -o $(obj)preload- $(obj)preload/preload
 	$(Q)tools/esp/esptool.py -c esp8266 image_info $(obj)preload-0x00000.bin
 	$(Q)$(DD) if=$(obj)preload-0x00000.bin of=$(obj)disk.img bs=512 conv=notrunc
@@ -48,7 +48,6 @@ $(obj)/disk.img: FORCE
 endif
 
 ifneq ($(CONFIG_CHIP_ESP32),)
-$(obj)/disk.img: FORCE
 	$(Q)tools/esp/esptool.py -c esp32 elf2image -fm dio -o $(obj)preload.bin $(obj)preload/preload
 	$(Q)tools/esp/esptool.py -c esp32 image_info $(obj)preload.bin
 	$(Q)$(DD) if=/dev/zero of=$(obj)disk.img bs=512 count=8 conv=notrunc
@@ -57,14 +56,17 @@ $(obj)/disk.img: FORCE
 endif
 
 ifneq ($(CONFIG_CHIP_SUNIV),)
-$(obj)/disk.img: $(obj)/uImage FORCE
-	$(Q)$(MAKE) $(build)=tools/sunxi/
-	$(Q) tools/sunxi/mksunxiboot $(obj)preload.bin
-	$(Q)$(DD) if=$(obj)preload.bin of=$(obj)disk.img bs=512 conv=notrunc
-	$(Q)$(DD) if=$(obj)uImage of=$(obj)disk.img bs=512 seek=64 conv=notrunc
+cmd_disk = $(MAKE) $(build)=tools/sunxi/;                                       \
+           tools/sunxi/mksunxiboot $(obj)/preload.bin;                          \
+           $(DD) if=$(obj)/preload.bin of=$(obj)/disk.img bs=512 conv=notrunc;  \
+           $(DD) if=$(obj)/uImage of=$(obj)/disk.img bs=512 seek=64 conv=notrunc
 endif
 
+$(obj)/disk.img: $(obj)/preload/preload.bin $(obj)/kboot/boot.bin FORCE
+	$(call if_changed,disk)
 disk: $(obj)/disk.img
+
+targets += disk.img
 
 clean-y += uImage disk.img
 clean-subdir-y += kboot/ preload/ dts/

@@ -20,34 +20,32 @@ enum isa_vector {
     NETWORK_IRQ     = IRQ_EXTERNAL + 0x09,  // Redirected IRQ 2, Open, Network Available
 };
 
-static inline void arch_irq_disable()
+static inline void cpu_irq_disable(void)
 {
-    asm volatile(
+    asm volatile (
         "cli"
         :::"memory"
     );
 }
 
-static inline void arch_irq_enable()
+static inline void cpu_irq_enable(void)
 {
-    asm volatile(
+    asm volatile (
         "sti"
         :::"memory"
     );
 }
 
-static inline irqflags_t arch_irq_save(void)
+static inline irqflags_t cpu_irq_save(void)
 {
-    arch_irq_disable();
+    cpu_irq_disable();
     return 0;
 }
 
-static inline void arch_irq_restore(irqflags_t flags)
+static inline void cpu_irq_restore(irqflags_t flags)
 {
-    arch_irq_enable();
+    cpu_irq_enable();
 }
-
-void arch_irq_set(irqnr_t vector);
 
 #endif /* __ASSEMBLY__ */
 #endif  /* _ASM_X86_IRQ_H */

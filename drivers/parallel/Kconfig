@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: GPL-2.0-only
+menuconfig PARALLEL
+    bool "IEEE1284 device support"
+if PARALLEL
+
+config PARALLEL_I8255
+    bool "I8255 parallel support"
+
+endif

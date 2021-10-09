@@ -2,52 +2,37 @@
 #ifndef _ARCH_X86_CPUID_H_
 #define _ARCH_X86_CPUID_H_
 
-/*
- * Defines x86 CPU feature bits
- */
-#define NCAPINTS 19 /* N 32-bit words worth of info */
-#define NBUGINTS 1  /* N 32-bit bug flags */
-
-/*
- * Note: If the comment begins with a quoted string, that string is used
- * in /proc/cpuinfo instead of the macro name.  If the string is "",
- * this feature bit is not displayed in /proc/cpuinfo at all.
- *
- * When adding new features here that depend on other features,
- * please update the table in kernel/cpu/cpuid-deps.c as well.
- */
-
-/* Intel-defined CPU features, CPUID level 0x00000001 (EDX), word 0 */
-#define X86_FEATURE_FPU (0 * 32 + 0)        /* Onboard FPU                   */
-#define X86_FEATURE_VME (0 * 32 + 1)        /* Virtual Mode Extensions       */
-#define X86_FEATURE_DE (0 * 32 + 2)         /* Debugging Extensions          */
-#define X86_FEATURE_PSE (0 * 32 + 3)        /* Page Size Extensions          */
-#define X86_FEATURE_TSC (0 * 32 + 4)        /* Time Stamp Counter            */
-#define X86_FEATURE_MSR (0 * 32 + 5)        /* Model-Specific Registers      */
-#define X86_FEATURE_PAE (0 * 32 + 6)        /* Physical Address Extensions   */
-#define X86_FEATURE_MCE (0 * 32 + 7)        /* Machine Check Exception       */
-#define X86_FEATURE_CX8 (0 * 32 + 8)        /* CMPXCHG8 instruction          */
-#define X86_FEATURE_APIC (0 * 32 + 9)       /* Onboard APIC                  */
-#define X86_FEATURE_SEP (0 * 32 + 11)       /* SYSENTER/SYSEXIT              */
-#define X86_FEATURE_MTRR (0 * 32 + 12)      /* Memory Type Range Registers   */
-#define X86_FEATURE_PGE (0 * 32 + 13)       /* Page Global Enable            */
-#define X86_FEATURE_MCA (0 * 32 + 14)       /* Machine Check Architecture    */
-#define X86_FEATURE_CMOV (0 * 32 + 15)      /* CMOV instructions (plus FCMOVcc, FCOMI with FPU) */
-#define X86_FEATURE_PAT (0 * 32 + 16)       /* Page Attribute Table          */
-#define X86_FEATURE_PSE36 (0 * 32 + 17)     /* 36-bit PSEs                   */
-#define X86_FEATURE_PN (0 * 32 + 18)        /* Processor serial number       */
-#define X86_FEATURE_CLFLUSH (0 * 32 + 19)   /* CLFLUSH instruction           */
-#define X86_FEATURE_DS (0 * 32 + 21)        /* "dts" Debug Store             */
-#define X86_FEATURE_ACPI (0 * 32 + 22)      /* ACPI via MSR                  */
-#define X86_FEATURE_MMX (0 * 32 + 23)       /* Multimedia Extensions         */
-#define X86_FEATURE_FXSR (0 * 32 + 24)      /* FXSAVE/FXRSTOR, CR4.OSFXSR    */
-#define X86_FEATURE_XMM (0 * 32 + 25)       /* "sse"                         */
-#define X86_FEATURE_XMM2 (0 * 32 + 26)      /* "sse2"                        */
-#define X86_FEATURE_SELFSNOOP (0 * 32 + 27) /* "ss" CPU self snoop           */
-#define X86_FEATURE_HT (0 * 32 + 28)        /* Hyper-Threading               */
-#define X86_FEATURE_ACC (0 * 32 + 29)       /* "tm" Automatic clock control  */
-#define X86_FEATURE_IA64 (0 * 32 + 30)      /* IA-64 processor               */
-#define X86_FEATURE_PBE (0 * 32 + 31)       /* Pending Break Enable          */
+/* Intel-defined CPU features, CPUID level 0x00000001 (EDX) */
+#define X86_FEATURE_FPU         BIT(0)      /* Onboard FPU                   */
+#define X86_FEATURE_VME         BIT(1)      /* Virtual Mode Extensions       */
+#define X86_FEATURE_DE          BIT(2)      /* Debugging Extensions          */
+#define X86_FEATURE_PSE         BIT(3)      /* Page Size Extensions          */
+#define X86_FEATURE_TSC         BIT(4)      /* Time Stamp Counter            */
+#define X86_FEATURE_MSR         BIT(5)      /* Model-Specific Registers      */
+#define X86_FEATURE_PAE         BIT(6)      /* Physical Address Extensions   */
+#define X86_FEATURE_MCE         BIT(7)      /* Machine Check Exception       */
+#define X86_FEATURE_CX8         BIT(8)      /* CMPXCHG8 instruction          */
+#define X86_FEATURE_APIC        BIT(9)      /* Onboard APIC                  */
+#define X86_FEATURE_SEP         BIT(11)     /* SYSENTER/SYSEXIT              */
+#define X86_FEATURE_MTRR        BIT(12)     /* Memory Type Range Registers   */
+#define X86_FEATURE_PGE         BIT(13)     /* Page Global Enable            */
+#define X86_FEATURE_MCA         BIT(14)     /* Machine Check Architecture    */
+#define X86_FEATURE_CMOV        BIT(15)     /* CMOV instructions             */
+#define X86_FEATURE_PAT         BIT(16)     /* Page Attribute Table          */
+#define X86_FEATURE_PSE36       BIT(17)     /* 36-bit PSEs                   */
+#define X86_FEATURE_PN          BIT(18)     /* Processor serial number       */
+#define X86_FEATURE_CLFLUSH     BIT(19)     /* CLFLUSH instruction           */
+#define X86_FEATURE_DS          BIT(21)     /* "dts" Debug Store             */
+#define X86_FEATURE_ACPI        BIT(22)     /* ACPI via MSR                  */
+#define X86_FEATURE_MMX         BIT(23)     /* Multimedia Extensions         */
+#define X86_FEATURE_FXSR        BIT(24)     /* FXSAVE/FXRSTOR, CR4.OSFXSR    */
+#define X86_FEATURE_XMM         BIT(25)     /* "sse"                         */
+#define X86_FEATURE_XMM2        BIT(26)     /* "sse2"                        */
+#define X86_FEATURE_SELFSNOOP   BIT(27)     /* "ss" CPU self snoop           */
+#define X86_FEATURE_HT          BIT(28)     /* Hyper-Threading               */
+#define X86_FEATURE_ACC         BIT(29)     /* "tm" Automatic clock control  */
+#define X86_FEATURE_IA64        BIT(30)     /* IA-64 processor               */
+#define X86_FEATURE_PBE         BIT(31)     /* Pending Break Enable          */
 
 /* AMD-defined CPU features, CPUID level 0x80000001, word 1 */
 /* Don't duplicate feature flags which are redundant with Intel! */
@@ -69,18 +54,16 @@
 
 /* Other features, Linux-defined mapping, word 3 */
 /* This range is used for feature bits which conflict or are synthesized */
-#define X86_FEATURE_CXMMX (3 * 32 + 0)       /* Cyrix MMX extensions      */
-#define X86_FEATURE_K6_MTRR (3 * 32 + 1)     /* AMD K6 nonstandard MTRRs  */
-#define X86_FEATURE_CYRIX_ARR (3 * 32 + 2)   /* Cyrix ARRs (= MTRRs)      */
-#define X86_FEATURE_CENTAUR_MCR (3 * 32 + 3) /* Centaur MCRs (= MTRRs)    */
-
-/* CPU types for specific tunings: */
-#define X86_FEATURE_K8 (3 * 32 + 4)            /* "" Opteron, Athlon64 */
-#define X86_FEATURE_K7 (3 * 32 + 5)            /* "" Athlon */
-#define X86_FEATURE_P3 (3 * 32 + 6)            /* "" P3 */
-#define X86_FEATURE_P4 (3 * 32 + 7)            /* "" P4 */
-#define X86_FEATURE_CONSTANT_TSC (3 * 32 + 8)  /* TSC ticks at a constant rate */
-#define X86_FEATURE_UP (3 * 32 + 9)            /* SMP kernel running on UP */
+#define X86_FEATURE_CXMMX           BIT(0)      /* Cyrix MMX extensions      */
+#define X86_FEATURE_K6_MTRR         BIT(1)      /* AMD K6 nonstandard MTRRs  */
+#define X86_FEATURE_CYRIX_ARR       BIT(2)      /* Cyrix ARRs (= MTRRs)      */
+#define X86_FEATURE_CENTAUR_MCR     BIT(3)      /* Centaur MCRs (= MTRRs)    */
+#define X86_FEATURE_K8              BIT(4)      /* "" Opteron, Athlon64 */
+#define X86_FEATURE_K7              BIT(5)      /* "" Athlon */
+#define X86_FEATURE_P3              BIT(6)      /* "" P3 */
+#define X86_FEATURE_P4              BIT(7)      /* "" P4 */
+#define X86_FEATURE_CONSTANT_TSC            BIT(8)  /* TSC ticks at a constant rate */
+#define X86_FEATURE_UP          BIT(9)            /* SMP kernel running on UP */
 #define X86_FEATURE_ART (3 * 32 + 10)          /* Always running timer (ART) */
 #define X86_FEATURE_ARCH_PERFMON (3 * 32 + 11) /* Intel Architectural PerfMon */
 #define X86_FEATURE_PEBS (3 * 32 + 12)         /* Precise-Event Based Sampling */
@@ -105,37 +88,37 @@
 #define X86_FEATURE_TSC_KNOWN_FREQ (3 * 32 + 31) /* TSC has known frequency */
 
 /* Intel-defined CPU features, CPUID level 0x00000001 (ECX), word 4 */
-#define X86_FEATURE_XMM3 (4 * 32 + 0)                /* "pni" SSE-3 */
-#define X86_FEATURE_PCLMULQDQ (4 * 32 + 1)           /* PCLMULQDQ instruction */
-#define X86_FEATURE_DTES64 (4 * 32 + 2)              /* 64-bit Debug Store */
-#define X86_FEATURE_MWAIT (4 * 32 + 3)               /* "monitor" MONITOR/MWAIT support */
-#define X86_FEATURE_DSCPL (4 * 32 + 4)               /* "ds_cpl" CPL-qualified (filtered) Debug Store */
-#define X86_FEATURE_VMX (4 * 32 + 5)                 /* Hardware virtualization */
-#define X86_FEATURE_SMX (4 * 32 + 6)                 /* Safer Mode eXtensions */
-#define X86_FEATURE_EST (4 * 32 + 7)                 /* Enhanced SpeedStep */
-#define X86_FEATURE_TM2 (4 * 32 + 8)                 /* Thermal Monitor 2 */
-#define X86_FEATURE_SSSE3 (4 * 32 + 9)               /* Supplemental SSE-3 */
-#define X86_FEATURE_CID (4 * 32 + 10)                /* Context ID */
-#define X86_FEATURE_SDBG (4 * 32 + 11)               /* Silicon Debug */
-#define X86_FEATURE_FMA (4 * 32 + 12)                /* Fused multiply-add */
-#define X86_FEATURE_CX16 (4 * 32 + 13)               /* CMPXCHG16B instruction */
-#define X86_FEATURE_XTPR (4 * 32 + 14)               /* Send Task Priority Messages */
-#define X86_FEATURE_PDCM (4 * 32 + 15)               /* Perf/Debug Capabilities MSR */
-#define X86_FEATURE_PCID (4 * 32 + 17)               /* Process Context Identifiers */
-#define X86_FEATURE_DCA (4 * 32 + 18)                /* Direct Cache Access */
-#define X86_FEATURE_XMM4_1 (4 * 32 + 19)             /* "sse4_1" SSE-4.1 */
-#define X86_FEATURE_XMM4_2 (4 * 32 + 20)             /* "sse4_2" SSE-4.2 */
-#define X86_FEATURE_X2APIC (4 * 32 + 21)             /* X2APIC */
-#define X86_FEATURE_MOVBE (4 * 32 + 22)              /* MOVBE instruction */
-#define X86_FEATURE_POPCNT (4 * 32 + 23)             /* POPCNT instruction */
-#define X86_FEATURE_TSC_DEADLINE_TIMER (4 * 32 + 24) /* TSC deadline timer */
-#define X86_FEATURE_AES (4 * 32 + 25)                /* AES instructions */
-#define X86_FEATURE_XSAVE (4 * 32 + 26)              /* XSAVE/XRSTOR/XSETBV/XGETBV instructions */
-#define X86_FEATURE_OSXSAVE (4 * 32 + 27)            /* "" XSAVE instruction enabled in the OS */
-#define X86_FEATURE_AVX (4 * 32 + 28)                /* Advanced Vector Extensions */
-#define X86_FEATURE_F16C (4 * 32 + 29)               /* 16-bit FP conversions */
-#define X86_FEATURE_RDRAND (4 * 32 + 30)             /* RDRAND instruction */
-#define X86_FEATURE_HYPERVISOR (4 * 32 + 31)         /* Running on a hypervisor */
+#define X86_FEATURE_XMM3            BIT(0)      /* "pni" SSE-3 */
+#define X86_FEATURE_PCLMULQDQ       BIT(1)      /* PCLMULQDQ instruction */
+#define X86_FEATURE_DTES64          BIT(2)      /* 64-bit Debug Store */
+#define X86_FEATURE_MWAIT           BIT(3)      /* "monitor" MONITOR/MWAIT support */
+#define X86_FEATURE_DSCPL           BIT(4)      /* "ds_cpl" CPL-qualified (filtered) Debug Store */
+#define X86_FEATURE_VMX             BIT(5)      /* Hardware virtualization */
+#define X86_FEATURE_SMX             BIT(6)      /* Safer Mode eXtensions */
+#define X86_FEATURE_EST             BIT(7)      /* Enhanced SpeedStep */
+#define X86_FEATURE_TM2             BIT(8)      /* Thermal Monitor 2 */
+#define X86_FEATURE_SSSE3           BIT(9)      /* Supplemental SSE-3 */
+#define X86_FEATURE_CID             BIT(10)     /* Context ID */
+#define X86_FEATURE_SDBG            BIT(11)     /* Silicon Debug */
+#define X86_FEATURE_FMA             BIT(12)     /* Fused multiply-add */
+#define X86_FEATURE_CX16            BIT(13)     /* CMPXCHG16B instruction */
+#define X86_FEATURE_XTPR            BIT(14)     /* Send Task Priority Messages */
+#define X86_FEATURE_PDCM            BIT(15)     /* Perf/Debug Capabilities MSR */
+#define X86_FEATURE_PCID            BIT(17)     /* Process Context Identifiers */
+#define X86_FEATURE_DCA             BIT(18)     /* Direct Cache Access */
+#define X86_FEATURE_XMM4_1          BIT(19)     /* "sse4_1" SSE-4.1 */
+#define X86_FEATURE_XMM4_2          BIT(20)     /* "sse4_2" SSE-4.2 */
+#define X86_FEATURE_X2APIC          BIT(21)     /* X2APIC */
+#define X86_FEATURE_MOVBE           BIT(22)     /* MOVBE instruction */
+#define X86_FEATURE_POPCNT          BIT(23)     /* POPCNT instruction */
+#define X86_FEATURE_TSC_DL_TIMER    BIT(24)     /* TSC deadline timer */
+#define X86_FEATURE_AES             BIT(25)     /* AES instructions */
+#define X86_FEATURE_XSAVE           BIT(26)     /* XSAVE/XRSTOR/XSETBV/XGETBV instructions */
+#define X86_FEATURE_OSXSAVE         BIT(27)     /* "" XSAVE instruction enabled in the OS */
+#define X86_FEATURE_AVX             BIT(28)     /* Advanced Vector Extensions */
+#define X86_FEATURE_F16C            BIT(29)     /* 16-bit FP conversions */
+#define X86_FEATURE_RDRAND          BIT(30)     /* RDRAND instruction */
+#define X86_FEATURE_HYPERVISOR      BIT(31)     /* Running on a hypervisor */
 
 /* VIA/Cyrix/Centaur-defined CPU features, CPUID level 0xC0000001, word 5 */
 #define X86_FEATURE_XSTORE (5 * 32 + 2)    /* "rng" RNG present (xstore) */

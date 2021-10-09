@@ -17,17 +17,22 @@ include_path    := $(addprefix -I ,$(include_path))
 # OBJ options                          #
 ########################################
 
-a_flags     = -Wp,-MMD,$(depfile) $(asflags-y)  $(gcc-warning) $(include_path) $(include_file)
-c_flags     = -Wp,-MMD,$(depfile) $(ccflags-y)  $(gcc-warning) $(include_path) $(include_file)
-cxx_flags   = -Wp,-MMD,$(depfile) $(cxxflags-y) $(gcc-warning) $(include_path) $(include_file)
-cpp_flags   = -Wp,-MMD,$(depfile) $(cppflags-y) $(gcc-warning) $(include_path) $(include_file)
-lds_flags   = -Wp,-MMD,$(depfile) $(ldsflags-y) $(gcc-warning) $(include_path) $(include_file)
-ld_flags    = -Wp,-MMD,$(depfile) $(ldflags-y)
+acflags_y	+= $(acflags-y)
+asflags_y	+= $(asflags-y)
+ccflags_y	+= $(ccflags-y)
+cxxflags_y	+= $(cxxflags-y)
+ldsflags_y	+= $(ldsflags-y)
+ldflags_y	+= $(ldflags-y)
 
-a_flags     += $(acflags-y)
-c_flags     += $(acflags-y)
+a_flags     = $(acflags_y) $(asflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget).o-flags-y) $(gcc-warning)
+c_flags     = $(acflags_y) $(ccflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget).o-flags-y) $(gcc-warning)
+cxx_flags   = $(cxxflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget).o-flags-y) $(gcc-warning)
+cpp_flags   = $(cppflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget).o-flags-y) $(gcc-warning)
+lds_flags   = $(ldsflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget).o-flags-y) $(gcc-warning)
+ld_flags    = $(ldflags_y)
 
-export asflags-y ccflags-y cppflags-y acflags-y ldsflags-y ldflags-y
+unexport asflags-y ccflags-y cppflags-y acflags-y ldsflags-y ldflags-y
+export acflags_y asflags_y ccflags_y cxxflags_y ldsflags_y ldflags_y
 
 ########################################
 # Start rule                           #

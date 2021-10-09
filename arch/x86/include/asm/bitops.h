@@ -4,11 +4,11 @@
 
 static __always_inline int ffs(int x)
 {
-    asm volatile(
+    asm volatile (
         "bsfl   %1,%0\n"
         "jnz    1f\n"
         "movl   $-1,%0\n"
-        "1:" 
+        "1:"
         :"=r"(x) :"rm"(x)
     );
     return x;
@@ -16,12 +16,14 @@ static __always_inline int ffs(int x)
 
 static __always_inline int fls(unsigned int x)
 {
-    asm("bsrl   %1,%0\n\t"
+    asm volatile (
+        "bsrl   %1,%0\n\t"
         "jnz    1f\n\t"
         "movl   $-1,%0\n"
-        "1:" 
+        "1:"
         :"=r"(x) :"rm"(x)
     );
+
     return x;
 }
 

@@ -12,7 +12,7 @@
         compatible = "arm,realview-eb-soc", "simple-bus";
         ranges;
 
-        intc: interrupt-controller@10040000 {
+        intc: interrupt-controller@10041000 {
             compatible = "arm,pl390";
             #interrupt-cells = <3>;
             #address-cells = <1>;

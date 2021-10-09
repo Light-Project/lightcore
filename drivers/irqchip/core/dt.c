@@ -66,7 +66,7 @@ struct irqchip_channel *dt_get_irqchip_channel(struct dt_node *node, int index)
     if (!idev)
         return NULL;
 
-    return irqchip_get_channel(idev, chnr);
+    return irqchip_channel_get(idev, chnr);
 }
 
 struct irqchip_channel *dt_get_irqchip_channel_by_name(struct dt_node *node, const char *name)

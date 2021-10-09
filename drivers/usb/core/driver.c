@@ -14,20 +14,20 @@ static __always_inline bool
 usb_device_match_one(const struct usb_device_id *id,
                      const struct usb_device_descriptor *descriptor)
 {
-    return((id->idVendor == descriptor->idVendor ||
-          !(id->match_mode & USB_DEV_MATCH_VENDOR)) &&
-           (id->idProduct == descriptor->idProduct ||
-          !(id->match_mode & USB_DEV_MATCH_PRODUCT)) &&
-           (id->bDeviceClass == descriptor->bDeviceClass ||
-          !(id->match_mode & USB_DEV_MATCH_DEV_CLASS)) &&
-           (id->bDeviceSubClass == descriptor->bDeviceSubClass ||
-          !(id->match_mode & USB_DEV_MATCH_DEV_SUBCLASS)) &&
-           (id->bDeviceProtocol == descriptor->bDeviceProtocol ||
-          !(id->match_mode & USB_DEV_MATCH_DEV_PROTOCOL)) &&
-           (id->bcdDevice_lo < descriptor->bcdDevice ||
-          !(id->match_mode & USB_DEV_MATCH_DEV_LO)) &&
-           (id->bcdDevice_hi > descriptor->bcdDevice ||
-          !(id->match_mode & USB_DEV_MATCH_DEV_HI)));
+    return ((id->idVendor == descriptor->idVendor ||
+           !(id->match_mode & USB_DEV_MATCH_VENDOR)) &&
+            (id->idProduct == descriptor->idProduct ||
+           !(id->match_mode & USB_DEV_MATCH_PRODUCT)) &&
+            (id->bDeviceClass == descriptor->bDeviceClass ||
+           !(id->match_mode & USB_DEV_MATCH_DEV_CLASS)) &&
+            (id->bDeviceSubClass == descriptor->bDeviceSubClass ||
+           !(id->match_mode & USB_DEV_MATCH_DEV_SUBCLASS)) &&
+            (id->bDeviceProtocol == descriptor->bDeviceProtocol ||
+           !(id->match_mode & USB_DEV_MATCH_DEV_PROTOCOL)) &&
+            (id->bcdDevice_lo < descriptor->bcdDevice ||
+           !(id->match_mode & USB_DEV_MATCH_DEV_LO)) &&
+            (id->bcdDevice_hi > descriptor->bcdDevice ||
+           !(id->match_mode & USB_DEV_MATCH_DEV_HI)));
 }
 
 /**
@@ -37,12 +37,14 @@ static const struct usb_device_id *
 usb_bus_device_match(struct usb_driver *udrv, struct usb_device *udev)
 {
     const struct usb_device_id *pids = udrv->id_table;
-    while(pids->idVendor || pids->idProduct || pids->bDeviceClass ||
+
+    while (pids->idVendor || pids->idProduct || pids->bDeviceClass ||
           pids->bInterfaceClass) {
-        if(usb_device_match_one(pids, &udev->descriptor))
+        if (usb_device_match_one(pids, &udev->descriptor))
             return pids;
         ++pids;
     }
+
     return NULL;
 }
 
@@ -67,7 +69,7 @@ static state usb_bus_probe(struct device *dev)
     if (!pid)
         return -ENODEV;
 
-    return udrv->probe(udev, pid->driver_data);
+    return udrv->probe(udev, pid->data);
 }
 
 static state usb_bus_remove(struct device *dev)

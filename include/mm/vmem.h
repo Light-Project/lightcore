@@ -18,20 +18,16 @@ struct vm_area {
     size_t size;    /* virtual allocation size */
     struct rb_node rb_node; /* address sorted rbtree */
     struct list_head list;  /* address sorted list */
-
-    struct page **page;
-    unsigned int page_nr;
 };
 
 #define vm_rb_entry(node) \
         rb_entry(node, struct vm_area, rb_node)
 
-/* functions provided for external use */
+struct vm_area *vmem_area_find(size_t addr);
+state vmem_area_alloc(struct vm_area *va, size_t size, size_t align);
 struct vm_area *vmem_alloc_node(size_t size, size_t align, gfp_t gfp);
 struct vm_area *vmem_alloc(size_t size);
-
-state vmem_free(struct vm_area *va);
-struct vm_area *vmem_area_find(void *addr);
+void vmem_free(struct vm_area *va);
 
 void vmem_init(void);
 

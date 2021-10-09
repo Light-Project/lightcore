@@ -4,7 +4,7 @@
 
 #include <device.h>
 
-struct snd_pcm_hardware {
+struct snd_pcm_info {
 
 };
 

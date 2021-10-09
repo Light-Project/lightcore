@@ -5,24 +5,24 @@
 
 #include <mm.h>
 #include <string.h>
+#include <driver/uart/8250.h>
 #include <driver/video/vesa.h>
 #include <console.h>
 
+#include <asm/proc.h>
 #include <asm/io.h>
+
+#ifdef CONFIG_PRECON_VGA
 
 #define xres    80
 #define yres    25
 
-struct _vram_text{
-    struct{
+struct vga_text {
     uint8_t ch;
     uint8_t att;
-    } block[yres][xres];
 } __packed;
 
-#define vram_text_base  (pa_to_va(0xb8000))
-#define vram_text       ((struct _vram_text *)vram_text_base)
-
+struct vga_text vram [yres][xres];
 static unsigned char pos_x, pos_y;
 
 static inline void vga_cursor(const char pos_x, const char pos_y)
@@ -34,13 +34,20 @@ static inline void vga_cursor(const char pos_x, const char pos_y)
     outb(VESA_CRT_DC, cursor);
 }
 
+#define vram_base (pa_to_va(0xb8000))
+
+static inline void vga_sync(void)
+{
+    memcpy(vram_base, vram, sizeof(vram));
+}
+
 static inline void vga_clear(int pos_y, int len)
 {
     int pos_x;
     for(; len--; pos_y++)
     for(pos_x = 0; pos_x < xres; pos_x++) {
-        vram_text->block[pos_y][pos_x].ch = '\0';
-        vram_text->block[pos_y][pos_x].att = 0x07;
+        vram[pos_y][pos_x].ch = '\0';
+        vram[pos_y][pos_x].att = 0x07;
     }
 }
 
@@ -48,7 +55,7 @@ static inline void vga_clear(int pos_y, int len)
 
 static inline void vga_roll(void)
 {
-    memmove(&vram_text->block[0][0], &vram_text->block[1][0], roll_size);
+    memmove(&vram[0][0], &vram[1][0], roll_size);
     vga_clear(yres - 1, 1);
 }
 
@@ -68,7 +75,7 @@ static void vga_write(struct console *con, const char *str, unsigned len)
             continue;
         }
 
-        vram_text->block[pos_y][pos_x++].ch = ch;
+        vram[pos_y][pos_x++].ch = ch;
         if (pos_x >= xres) {
             pos_y++;
             pos_x = 0;
@@ -76,6 +83,8 @@ static void vga_write(struct console *con, const char *str, unsigned len)
 
         vga_cursor(pos_x, pos_y);
     }
+
+    vga_sync();
 }
 
 static struct console_ops vga_console_ops = {
@@ -83,14 +92,66 @@ static struct console_ops vga_console_ops = {
 };
 
 static struct console vga_console = {
-    .name = "prevga",
+    .name = "early-vga",
     .ops = &vga_console_ops,
     .flags = CONSOLE_BOOT | CONSOLE_ENABLED,
 };
 
 void pre_printk_init(void)
 {
-    vga_clear(0, yres);
     vga_cursor(0, 0);
+
+    vga_clear(0, yres);
+    vga_sync();
+
     pre_console_register(&vga_console);
 }
+
+#elif CONFIG_PRECON_SER
+
+#define I8250_BASE  0x3f8
+#define I8250_FREQ  115200
+
+static __always_inline void serial_putc(char ch)
+{
+    while(!(inb(I8250_BASE + UART8250_LSR) & UART8250_LSR_THRE))
+        cpu_relax();
+    outb(I8250_BASE + UART8250_THR, ch);
+}
+
+static void serial_write(struct console *con, const char *str, unsigned len)
+{
+    while (*str && len--) {
+        if (*str == '\n')
+            serial_putc('\r');
+        serial_putc(*str++);
+    }
+}
+
+static struct console_ops ser_console_ops = {
+    .write = serial_write,
+};
+
+static struct console ser_console = {
+    .name = "early-serial",
+    .ops = &ser_console_ops,
+    .flags = CONSOLE_BOOT | CONSOLE_ENABLED,
+};
+
+void pre_printk_init(void)
+{
+    uint16_t div = 115200 / I8250_FREQ;
+
+    outb(I8250_BASE + UART8250_LCR, UART8250_LCR_DLAB);
+    outb(I8250_BASE + UART8250_DLL, div);
+    outb(I8250_BASE + UART8250_DLH, div >> 8);
+
+    outb(I8250_BASE + UART8250_IER, 0x00);
+    outb(I8250_BASE + UART8250_MCR, UART8250_MCR_RTS | UART8250_MCR_DTR);
+    outb(I8250_BASE + UART8250_FCR, UART8250_FCR_FIFO_EN);
+    outb(I8250_BASE + UART8250_LCR, UART8250_LCR_WLS_8);
+
+    pre_console_register(&ser_console);
+}
+
+#endif /* CONFIG_PRECON */

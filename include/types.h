@@ -2,7 +2,7 @@
 #ifndef _TYPES_H_
 #define _TYPES_H_
 
-#include <lightcore/types.h> 
+#include <lightcore/types.h>
 
 #ifndef __ASSEMBLY__
 
@@ -11,20 +11,6 @@ typedef unsigned short  ushort_t;
 typedef unsigned int    uint_t;
 typedef unsigned long   ulong_t;
 typedef unsigned char   bool;
-
-#ifdef __CHECKER__
-#define __bitwise__ __attribute__((bitwise))
-#else
-#define __bitwise__
-#endif
-#define __bitwise __bitwise__
-
-typedef uint16_t __bitwise le16;
-typedef uint32_t __bitwise le32;
-typedef uint64_t __bitwise le64;
-typedef uint16_t __bitwise be16;
-typedef uint32_t __bitwise be32;
-typedef uint64_t __bitwise be64;
 
 /* linux */
 typedef int8_t          s8;
@@ -56,17 +42,19 @@ typedef ssize_t         ptrdiff_t;
 typedef ssize_t         intptr_t;
 typedef size_t          uintptr_t;
 
+typedef size_t          phys_addr_t;
+typedef size_t          dma_addr_t;
+typedef size_t          resource_size_t;
+
+typedef uint32_t        gfp_t;
+
 typedef short           mode_t;
 typedef unsigned short  umode_t;
-typedef long long       loff_t;
-typedef int             pid_t;
-
+typedef unsigned int    pid_t;
 typedef uint32_t        uid_t;
 typedef uint32_t        gid_t;
 
-typedef size_t          dma_addr_t;
-typedef size_t          phys_addr_t;
-typedef size_t          resource_size_t;
+typedef long long       loff_t;
 typedef uint64_t        sector_t;
 typedef uint64_t        blkcnt_t;
 

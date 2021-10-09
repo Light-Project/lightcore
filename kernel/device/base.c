@@ -3,12 +3,12 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt)	"dbase: " fmt
+#define pr_fmt(fmt)	"devbase: " fmt
 
+#include <device/bus.h>
+#include <device/driver.h>
 #include <device.h>
 #include <printk.h>
-
-#include "base.h"
 
 /**
  * @driver_probe_device - probe a device through a driver

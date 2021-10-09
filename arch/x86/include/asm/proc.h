@@ -13,9 +13,12 @@ static __always_inline void cpu_relax(void)
 	 * rep nop (PAUSE) is a good thing to
 	 * insert into busy-wait loops.
 	 */
-	asm volatile("rep; nop" ::: "memory");
+	asm volatile("rep nop" ::: "memory");
 }
 
 state arch_switch_task(struct task *prev, struct task *next);
+
+void __noreturn cpu_reset(void);
+void __noreturn cpu_halt(void);
 
 #endif /* _ASM_X86_PROC_H_ */

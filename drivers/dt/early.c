@@ -4,7 +4,7 @@
  */
 
 #include <crc.h>
-#include <init/init.h>
+#include <init.h>
 #include <mm/memblock.h>
 #include <driver/dt.h>
 #include <driver/dt/fdt.h>

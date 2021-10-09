@@ -9,33 +9,32 @@
 
 LIST_HEAD(filesystem_list);
 
-struct fs_type *filesystem_find(const char *name)
+struct filesystem_type *filesystem_find(const char *name)
 {
-    struct fs_type *fs = NULL;
+    struct filesystem_type *fs = NULL;
 
     list_for_each_entry(fs, &filesystem_list, list)
-        if (strcmp(name, fs->name))
+        if (!strcmp(name, fs->name))
             return fs;
 
     return NULL;
 }
 EXPORT_SYMBOL(filesystem_find);
 
-state filesystem_register(struct fs_type *fs)
+state filesystem_register(struct filesystem_type *fs)
 {
-    struct fs_type *ffs;
+    struct filesystem_type *already;
 
-    ffs = filesystem_find(fs->name);
-    if (ffs)
+    already = filesystem_find(fs->name);
+    if (already)
         return -EINVAL;
 
     list_add(&filesystem_list, &fs->list);
-
     return -ENOERR;
 }
 EXPORT_SYMBOL(filesystem_register);
 
-void filesystem_unregister(struct fs_type *fs)
+void filesystem_unregister(struct filesystem_type *fs)
 {
     list_del(&fs->list);
 }

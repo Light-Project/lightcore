@@ -55,7 +55,7 @@ state reset_assert(struct reset_channel *);
 state reset_deassert(struct reset_channel *);
 state reset_reset(struct reset_channel *);
 
-struct reset_channel *dt_get_reset(struct dt_node *, const char *);
+struct reset_channel *dt_get_reset_channel(struct dt_node *, unsigned int index);
 
 state reset_register(struct reset_device *);
 void reset_unregister(struct reset_device *);

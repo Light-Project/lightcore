@@ -37,11 +37,11 @@ struct uart8250_ops uart8250_isa_ops = {
     .port_out = uart8250_isa_out,
 };
 
-static state uart8250_isa_probe(struct platform_device *pdev)
+static state uart8250_isa_probe(struct platform_device *pdev, void *pdata)
 {
     struct uart8250_isa_device *isa;
 
-    isa = dev_kzalloc(&pdev->device, sizeof(*isa), GFP_KERNEL);
+    isa = dev_kzalloc(&pdev->dev, sizeof(*isa), GFP_KERNEL);
     if (!isa)
         return -ENOMEM;
     platform_set_devdata(pdev, isa);

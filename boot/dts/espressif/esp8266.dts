@@ -1,11 +1,11 @@
 /dts-v1/;
-#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/gpio.h>
 #include <dt-bindings/input/input.h>
 
 / {
     #address-cells = <1>;
     #size-cells = <1>;
-    
+
     clocks {
         dummy_apb: apb-clock {
             #clock-cells = <0>;
@@ -13,7 +13,7 @@
             clock-frequency = <52000000>;
         };
     };
-    
+
     cpus{
         cpu {
             compatible = "xtensa,lx106";
@@ -26,7 +26,7 @@
         #size-cells = <1>;
         compatible = "simple-bus";
         ranges;
-        
+
         dport: system-controller@3ff00000 {
             #interrupt-cells = <1>;
             #address-cells = <0>;
@@ -36,7 +36,7 @@
             reg = <0x3ff00000 0x8>, <0x3ff00014 0x4>;
             interrupt-controller;
         };
-        
+
         uart0@60000000 {
             compatible = "esp-uart";
             reg = <0x60000000 0x100>;
@@ -44,13 +44,13 @@
             interrupts = <5>;
             clocks = <&dummy_apb>;
         };
-        
+
         spi@60000100 {
             compatible = "esp8266-spi";
             reg = <0x60000100 0x100>;
             interrupt-parent = <&dport>;
             interrupts = <2>;
-        };        
+        };
 
         gpio0: gpio@60000300 {
             #gpio-cells = <2>;
@@ -70,32 +70,32 @@
             interrupt-parent = <&dport>;
             interrupts = <9>;
         };
-            
+
         wdt@60000900 {
             compatible = "espressif,esp8266-wdt";
             reg = <0x60000900 0x100>;
-        }; 
-        
+        };
+
         adc@60000a00 {
             compatible = "esp8266-adc";
             reg = <0x60000a00 0x100>;
-        };           
-        
+        };
+
         i2s@60000e00 {
             compatible = "esp8266-i2s";
             reg = <0x60000e00 0x100>;
             clocks = <&dummy_apb>;
         };
-        
+
         uart1@60000f00 {
             compatible = "esp-uart";
             reg = <0x60000f00 0x100>;
             interrupt-parent = <&dport>;
             interrupts = <5>;
             clocks = <&dummy_apb>;
-        };        
+        };
     };
-    
+
     leds{
         compatible = "gpio-leds";
         led0 {

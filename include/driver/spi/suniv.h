@@ -79,6 +79,9 @@ enum suniv_spi_registers {
 #define SUNIV_SPI_CCR_CDR1          (0x0f<<8)   // Clock Divide Rate 1 (SPI_CLK = AHB_CLK / 2^(n+1))
 #define SUNIV_SPI_CCR_CDR2          (0xff<<0)   // Clock Divide Rate 2 (SPI_CLK = AHB_CLK / (2*(n+1))
 
+#define SUNIV_SPI_TXD_MASK          BIT_RANGE(0, 31)
+#define SUNIV_SPI_RXD_MASK          BIT_RANGE(0, 31)
+
 #define SUNIV_SPI_FIFO_SIZE         64
 
 #endif  /* _DRIVER_SPI_SUNIV_H_ */

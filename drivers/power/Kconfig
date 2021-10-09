@@ -1,0 +1,13 @@
+menuconfig POWER
+    bool "Power support"
+if POWER
+
+config POWER_PIIX
+    bool "PIIX POWER support"
+    depends on ARCH_X86
+
+config POWER_PIIX4
+    bool "PIIX4 POWER support"
+    depends on ARCH_X86
+
+endif

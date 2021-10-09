@@ -4,6 +4,9 @@
 
 #include <types.h>
 #include <stdarg.h>
+#include <stddef.h>
+#include <limits.h>
+#include <state.h>
 
 #define KMAGIC 0x4c434747UL
 #define MSIZE (sizeof(void *))
@@ -87,17 +90,13 @@
     ((size_t)(size) + (_align - 1)) & ~(_align - 1);\
 })
 
-#define aligned(size,align) (!(size & (align - 1)))
+#define aligned(size, align) (!(size & (align - 1)))
 
 #ifndef __ASSEMBLY__
 
 int vsprintf(char *buf, const char *fmt, va_list args);
 int vsnprintf(char * buf, size_t n, const char * fmt, va_list args);
-
-void kassert(const char *expr, const char *file, int line, const char *func);
 void panic(const char* fmt, ...);
-
-#define kassert(x) ((void)((!!(x)) || (kassert(#x, __FILE__, __LINE__, __func__), 0)))
 
 #endif  /* __ASSEMBLY__ */
 #endif  /* _KERNEL_H_ */

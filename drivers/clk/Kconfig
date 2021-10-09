@@ -1,6 +1,6 @@
-menuconfig DRIVER_CLK
+menuconfig CLK
     bool "clock support"
-if DRIVER_CLK
+if CLK
 
 
 

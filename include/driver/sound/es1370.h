@@ -1,4 +1,6 @@
-
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#ifndef _DRIVER_SOUND_ES1370_H_
+#define _DRIVER_SOUND_ES1370_H_
 
 #define ES_REG_CONTROL 0x00         /* R/W: Interrupt/Chip select control register */
 #define ES_REG_STATUS 0x04          /* R/O: Interrupt/Chip select status register */
@@ -211,3 +213,5 @@
 #define ES_REG_UF_BYTEO(o) (((o)&0xff) << 0)
 #define ES_REG_UF_BYTEM (0xff << 0)
 #define ES_REG_UF_BYTEI(i) (((i) >> 0) & 0xff)
+
+#endif  /* _DRIVER_SOUND_ES1370_H_ */

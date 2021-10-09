@@ -1,0 +1,12 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/dts-v1/;
+#include "broadcom/bcm2837.dtsi"
+
+/ {
+    compatible = "raspberrypi,3-model-b";
+
+    memory@0 {
+        device_type = "memory";
+        reg = <0 0x40000000>;
+    };
+};

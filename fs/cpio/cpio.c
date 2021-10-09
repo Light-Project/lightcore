@@ -20,30 +20,28 @@ struct file_ops cpio_file_ops = {
     .read = cpio_read,
 };
 
-static struct dcache *cpio_inode_lookup(struct inode *inode,
-                                        struct dcache *dcache, unsigned int flags)
+static struct dirent *cpio_lookup(struct inode *dir, struct dirent *dirent, unsigned int flags)
 {
 
     return -ENOERR;
 }
 
 struct inode_ops cpio_inode_ops = {
-    .readdir = cpio_inode_lookup,
+    .lookup = cpio_lookup,
 };
 
-static state cpio_mount(struct fs_type *fs, struct fsdev *dev,
-                        enum mount_flag flag, struct super_block **sbp)
+static struct superblock *cpio_mount(struct fsdev *dev, enum mount_flag flags)
 {
-    struct super_block *sb;
+    struct superblock *sb;
 
-    sb = kmalloc(sizeof(*sb), GFP_KERNEL);
+    sb = kzalloc(sizeof(*sb), GFP_KERNEL);
     if (!sb)
         return -ENOERR;
 
     return -ENOERR;
 }
 
-static struct fs_type cpio_type = {
+static struct filesystem_type cpio_type = {
     .name = "cpio",
     .mount = cpio_mount,
 };

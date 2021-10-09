@@ -31,7 +31,7 @@ static inline void memblock_node_remove(struct memblock_region *region)
 
 static state memblock_insert(phys_addr_t addr, size_t size, enum memblock_type type)
 {
-    struct memblock_region *block, *new, *tmp, *last = NULL;
+    struct memblock_region *block, *next, *new, *tmp, *last = NULL;
     struct list_head *prev = NULL;
 
     if (!size)
@@ -41,7 +41,7 @@ static state memblock_insert(phys_addr_t addr, size_t size, enum memblock_type t
     if (!new)
         return -ENOMEM;
 
-    list_for_each_entry(block, &memblock_list, list) {
+    list_for_each_entry_safe(block, next, &memblock_list, list) {
         phys_addr_t end, block_end;
         end = addr + size;
         block_end = block->addr + block->size;
@@ -50,7 +50,7 @@ static state memblock_insert(phys_addr_t addr, size_t size, enum memblock_type t
             /* completely cover */
             memblock_node_remove(block);
             prev = block->list.prev;
-        } else if(addr <= block->addr && block->addr < end) {
+        } else if (addr <= block->addr && block->addr < end) {
             /* front cover */
             if (type == block->type) {
                 size += block_end - end;
@@ -74,12 +74,13 @@ static state memblock_insert(phys_addr_t addr, size_t size, enum memblock_type t
         } else if (block->addr < addr && end < block_end) {
             /* middle cover */
             if (type != block->type) {
+                tmp = memblock_node_alloc();
+                if (!tmp)
+                    goto free;
+
                 block->size = addr - block->addr;
                 prev = &block->list;
 
-                tmp = memblock_node_alloc();
-                if (!tmp)
-                    return -ENOMEM;
                 tmp->addr = end;
                 tmp->size = block_end - end;
                 tmp->type = block->type;
@@ -124,6 +125,10 @@ static state memblock_insert(phys_addr_t addr, size_t size, enum memblock_type t
     }
 
     return -ENOERR;
+
+free:
+    memblock_node_remove(new);
+    return -ENOMEM;
 }
 
 static state memblock_delete(phys_addr_t addr, size_t size)
@@ -203,7 +208,10 @@ state memblock_add(phys_addr_t addr, size_t size)
 {
     phys_addr_t end = addr + size - 1;
 
-    pr_debug("add: [%xa - %xa]\n", addr, end);
+    if (!size)
+        return -EINVAL;
+
+    pr_debug("add: [%x - %x]\n", addr, end);
     return memblock_insert(addr, size, MEMBLOCK_USABLE);
 }
 
@@ -211,7 +219,10 @@ state memblock_reserve(phys_addr_t addr, size_t size)
 {
     phys_addr_t end = addr + size - 1;
 
-    pr_debug("reserve: [%xa - %xa]\n", addr, end);
+    if (!size)
+        return -EINVAL;
+
+    pr_debug("reserve: [%x - %x]\n", addr, end);
     return memblock_insert(addr, size, MEMBLOCK_RESERVED);
 }
 
@@ -219,6 +230,9 @@ state memblock_remove(phys_addr_t addr, size_t size)
 {
     phys_addr_t end = addr + size - 1;
 
-    pr_debug("remove: [%xa - %xa]\n", addr, end);
+    if (!size)
+        return -EINVAL;
+
+    pr_debug("remove: [%x - %x]\n", addr, end);
     return memblock_delete(addr, size);
 }

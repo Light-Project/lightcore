@@ -1,5 +1,9 @@
-menu "File systems" 
-    
-    source "fs/cpio/Kconfig"
-    
-endmenu
+menuconfig FS
+    bool "File systems"
+if FS
+
+source "fs/cpio/Kconfig"
+
+source "fs/romfs/Kconfig"
+
+endif

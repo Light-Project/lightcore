@@ -18,8 +18,8 @@ struct _vram_text{
     } block[yres][xres];
 } __packed;
 
-#define vram_text_base  0xb8000
-#define vram_text       ((struct _vram_text *)vram_text_base)
+#define VRAM_BASE   0xb8000
+#define vram_text   ((struct _vram_text *)VRAM_BASE)
 
 static unsigned char pos_x, pos_y;
 

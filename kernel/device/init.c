@@ -33,7 +33,8 @@ void __init device_init(void)
     dt_init();
 #endif
 #ifdef CONFIG_ACPI
-    acpi_table_init();
+    early_acpi_scan();
+    acpi_init();
 #endif
 
     platform_bus_init();

@@ -1,0 +1,11 @@
+menuconfig FIRMWARE
+    bool "Firmware support"
+if FIRMWARE
+
+config FIRMWARE_DMI
+    bool "DMI firmware support"
+
+config FIRMWARE_QEMU
+    bool "Qemu firmware support"
+
+endif

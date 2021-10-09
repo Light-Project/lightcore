@@ -19,7 +19,7 @@ static uint32_t crc32(const uint32_t *s, int len, uint32_t crc)
     uint32_t buf;
     len /= 4;
     while (len--){
-        buf = readl_sync((void *)s++);
+        buf = readl((void *)s++);
         for(char t=0; t<4; t++){
             crc = crc32_table[(crc ^ (buf & 0xff)) & 0xff] ^ (crc >> 8);
             buf >>= 8;
@@ -38,18 +38,18 @@ static void kernel_check(void *addr)
 
     pr_boot("Check addr: 0x%x\n", addr);
 
-    size = readl_sync(&boot_head->size);
+    size = readl(&boot_head->size);
     pr_boot("Kernel size: 0x%d\n", size);
 
     for(uint8_t c = 0; c <= 4; c++)
-        cmp[c*4] = readl_sync(&boot_head->magic[c*4]);
+        cmp[c*4] = readl(&boot_head->magic[c*4]);
     cmp[17] = '\0';
     if(!strcmp((char *)&cmp, "lightcore!"))
         pr_boot("kernel magic correct\n");
     else
         panic("can't find kernel!\n");
 
-    crc32old = readl_sync(&boot_head->crc);
+    crc32old = readl(&boot_head->crc);
     crc32new = crc32((uint32_t *)(boot_head + 1), size, 0xffffffff);
     if(crc32old == crc32new)
         pr_boot("kernel crc32 correct 0x%x \n", crc32new);
@@ -62,10 +62,10 @@ static void kernel_check(void *addr)
 static void cpu_pll(char mul2)
 {
     uint32_t val;
-    val = readl_sync(ccu);
+    val = readl(ccu);
     val &= (mul2 | 0xfffffffe);
     val |= (mul2 & 0x01);
-    writel_sync(ccu, val);
+    writel(ccu, val);
     pr_boot("CPU Speed: %dMhz\n", APB_CLK_FREQ * (mul2 + 1) / 1000000);
     pr_boot("BUS Speed: %dMhz\n", APB_CLK_FREQ / 1000000);
     pr_boot("OSC Speed: %dMhz\n", OSC_FREQ / 1000000);
@@ -107,7 +107,7 @@ void main()
 
     led_set(0);
 
-    reason = readb_sync((void *)(0x60000700 + 0x14));
+    reason = readb((void *)(0x60000700 + 0x14));
     reason = min((uint8_t)ARRAY_SIZE(reset_reason), reason);
     pr_boot("Reset: %s\n", reset_reason[reason]);
 

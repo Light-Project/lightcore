@@ -4,6 +4,7 @@ if SPI
 
 config SPI_SUNIV
     bool "Allwinner F-series SPI support"
+    depends on ARCH_ARM || COMPILE_TEST
 
 endif
-    
+

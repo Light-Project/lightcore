@@ -4,22 +4,17 @@
  */
 
 #include <kernel.h>
-#include <power.h>
 #include <printk.h>
+
+#include <asm/proc.h>
 #include <asm/irq.h>
 
-void __kassert(const char *expr, const char *file,
-               int line, const char *func)
-{
-    panic("kassert: %s:%d:%s %s", file, line, func, expr);
-}
-
-void panic(const char* fmt, ...)
+void __noreturn panic(const char* fmt, ...)
 {
     char buf[256];
     va_list args;
 
-    arch_irq_disable();
+    cpu_irq_disable();
 
     va_start(args, fmt);
     vsnprintf(buf, sizeof(buf), fmt, args);
@@ -28,5 +23,5 @@ void panic(const char* fmt, ...)
     printk("Kernel panic: %s :(\n", buf);
     printk("---[ end Kernel panic ]---\n");
 
-    power_halt();
+    cpu_halt();
 }

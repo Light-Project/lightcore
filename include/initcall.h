@@ -40,6 +40,8 @@ extern initcall_entry_t _ld_initcall6_start[];
 extern initcall_entry_t _ld_initcall7_start[];
 extern initcall_entry_t _ld_initcall_end[];
 
+extern initcall_entry_t _ld_clk_initcall_start[];
+extern initcall_entry_t _ld_clk_initcall_end[];
 extern initcall_entry_t _ld_irqchip_initcall_start[];
 extern initcall_entry_t _ld_irqchip_initcall_end[];
 extern initcall_entry_t _ld_clocksource_initcall_start[];
@@ -49,6 +51,9 @@ extern initcall_entry_t _ld_console_initcall_start[];
 extern initcall_entry_t _ld_console_initcall_end[];
 extern initcall_entry_t _ld_scheduler_initcall_start[];
 extern initcall_entry_t _ld_scheduler_initcall_end[];
+
+extern initcall_entry_t _ld_kshell_initcall_start[];
+extern initcall_entry_t _ld_kshell_initcall_end[];
 
 /* Format: <modname>__<counter>_<line>_<fn> */
 #define __initcall_id(fn)                               \
@@ -111,11 +116,14 @@ extern initcall_entry_t _ld_scheduler_initcall_end[];
 #define late_initcall(fn)               __define_initcall(fn, 7)
 #define late_initcall_sync(fn)          __define_initcall(fn, 7s)
 
+#define clk_initcall(fn)                ___define_initcall(fn, clk, .clk_initcall)
 #define irqchip_initcall(fn)            ___define_initcall(fn, irq, .irqchip_initcall)
-#define clocksource_initcall(fn)        ___define_initcall(fn, clk, .clocksource_initcall)
+#define clocksource_initcall(fn)        ___define_initcall(fn, tim, .clocksource_initcall)
 
 #define console_initcall(fn)            ___define_initcall(fn, con, .console_initcall)
 #define scheduler_initcall(fn)          ___define_initcall(fn, sch, .scheduler_initcall)
+
+#define kshell_initcall(fn)             ___define_initcall(fn, ksh, .kshell_initcall)
 
 #define initcall_for_each_fn(fn, sec)                   \
     for(fn = (initcall_entry_t *)&_ld_##sec##_start;    \

@@ -7,9 +7,9 @@
 #include <klevels.h>
 
 #ifdef CONFIG_PRE_PRINTK
-void pre_printk(const char *str,...);
+int pr_early(const char *str,...);
 #else
-#define pre_printk(str,...) while(0);
+static inline int pr_early(str,...) {}
 #endif
 
 asmlinkage __printf(1, 2) __cold
@@ -135,6 +135,5 @@ int printk(const char *fmt,...);
  */
 #define pr_cont(fmt, ...) \
     printk(KERN_ONT fmt, ##__VA_ARGS__)
-
 
 #endif	/* _PRINTK_H_ */

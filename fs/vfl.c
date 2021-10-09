@@ -40,7 +40,7 @@ struct file *vfl_open(const char *name, int flags, umode_t mode)
     return file;
 }
 
-state vfl_mkdir(struct dcache *dir, struct inode *node, umode_t mode)
+state vfl_mkdir(struct dirent *dir, struct inode *node, umode_t mode)
 {
     state retval;
 
@@ -51,7 +51,7 @@ state vfl_mkdir(struct dcache *dir, struct inode *node, umode_t mode)
     return retval;
 }
 
-// state vfl_mount(struct fs_type *fs, struct fsdev *fsdev, enum mount_flag flag)
+// state vfl_mount(struct filesystem_type *fs, struct fsdev *fsdev, enum mount_flag flag)
 // {
 //     srtuct dcache *dir;
 //     fs->mount(fs, fsdev, flag, )
@@ -59,7 +59,7 @@ state vfl_mkdir(struct dcache *dir, struct inode *node, umode_t mode)
 
 // state vfl_automount(struct fsdev *fsdev, enum mount_flag flag)
 // {
-//     struct fs_type *fs;
+//     struct filesystem_type *fs;
 
 //     filesystem_for_each(fs) {
 //         if (!vfl_mount())

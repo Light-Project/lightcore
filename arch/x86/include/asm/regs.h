@@ -3,7 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#ifndef _ASM_X86_REGS_H_ 
+#ifndef _ASM_X86_REGS_H_
 #define _ASM_X86_REGS_H_
 
 #include <types.h>
@@ -140,6 +140,18 @@ static inline void cr4_set(uint32_t val)
         "movl   %0, %%cr4\n"
         ::"Na"(val):
     );
+}
+
+static inline uint64_t tsc_get(void)
+{
+    uint64_t val;
+
+    asm volatile (
+        "rdtsc\n"
+        :"=A"(val)
+    );
+
+    return val;
 }
 
 #endif /* __ASSEMBLY__ */

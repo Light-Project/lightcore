@@ -181,7 +181,7 @@ static struct rtc_ops mc146818_ops = {
     .set_alarm = mc146818_setalarm,
 };
 
-static state mc146818_probe(struct platform_device *pdev)
+static state mc146818_probe(struct platform_device *pdev, void *pdata)
 {
     struct mc146818_device *mc146818;
     struct irqchip_channel *channel;

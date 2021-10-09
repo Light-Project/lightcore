@@ -34,7 +34,7 @@ static irqreturn_t pit_handle(irqnr_t vector, void *data)
     return IRQ_RET_HANDLED;
 }
 
-static state i8253_probe(struct platform_device *pdev)
+static state i8253_probe(struct platform_device *pdev, void *pdata)
 {
     struct irqchip_channel *channel;
 
@@ -46,10 +46,10 @@ static state i8253_probe(struct platform_device *pdev)
     irq_request(I8253_IRQ, 0, pit_handle, NULL, DRIVER_NAME);
 
     pit_outb(I8253_MODE,
-        I8253_MODE_SEL_TIMER0 | I8253_MODE_ACCESS_WORD |
-        I8253_MODE_MOD_RATE   | I8253_MODE_CNT_BINARY  );
-    pit_outb(I8253_COUNTER0, PIT_LATCH(CONFIG_SYSTICK_FREQ) & 0xff);
-    pit_outb(I8253_COUNTER0, PIT_LATCH(CONFIG_SYSTICK_FREQ) >> 8);
+             I8253_MODE_SEL_TIMER0 | I8253_MODE_ACCESS_WORD |
+             I8253_MODE_MOD_RATE   | I8253_MODE_CNT_BINARY  );
+    pit_outb(I8253_COUNTER0, I8253_LATCH(CONFIG_SYSTICK_FREQ) & 0xff);
+    pit_outb(I8253_COUNTER0, I8253_LATCH(CONFIG_SYSTICK_FREQ) >> 8);
 
     return -ENOERR;
 }

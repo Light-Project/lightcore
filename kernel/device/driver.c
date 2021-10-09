@@ -5,10 +5,9 @@
 
 #define pr_fmt(fmt) "driver: " fmt
 
-#include <state.h>
 #include <string.h>
 #include <device/driver.h>
-#include "base.h"
+#include <device.h>
 #include <printk.h>
 
 /**
@@ -20,13 +19,10 @@ struct device *device_find(struct driver *drv, const void *data,
 {
     struct device *dev = NULL;
 
-    if(!drv || !match)
-        return NULL;
-
-    driver_for_each_device(dev, drv) {
+    driver_for_each_device(dev, drv)
         if(match(dev, data))
             return dev;
-    }
+
     return NULL;
 }
 
@@ -39,25 +35,27 @@ struct driver *driver_find(struct bus_type *bus, const char *name)
 {
     struct driver *drv;
 
-    bus_for_each_driver(drv, bus) {
+    bus_for_each_driver(drv, bus)
         if(!strcmp(drv->name, name))
             return drv;
-    }
 
     return NULL;
 }
 
 /**
- * driver_register - register driver form bus
- * @drv:
+ * driver_register - register driver into bus
+ * @drv: driver to register
  */
 state driver_register(struct driver *drv)
 {
     struct driver *other;
 
+    if (!drv->bus || !drv->name)
+        return -EINVAL;
+
     other = driver_find(drv->bus, drv->name);
     if (other) {
-        pr_warn("'%s' is already registered", drv->name);
+        pr_err("'%s' already registered", drv->name);
         return -EINVAL;
     }
 
@@ -67,8 +65,14 @@ state driver_register(struct driver *drv)
 
 /**
  * driver_unregister - remove driver form bus
+ * @drv: driver to register
  */
 void driver_unregister(struct driver *drv)
 {
+    struct device *dev;
+
+    driver_for_each_device(dev, drv) {
+    }
+
     bus_driver_remove(drv);
 }

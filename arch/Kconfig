@@ -1,62 +1,53 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-
 choice ARCH
-prompt "Architecture Select"
+    prompt "Architecture Select"
 
-    config ARCH_ARM
+config ARCH_ARM
     bool "ARM"
     select ARCH_32BIT
     select ARCH_HAS_MMU
     select ARCH_HAS_HIMEM
 
-    config ARCH_ARM64
+config ARCH_ARM64
     bool "ARM64"
     select ARCH_64BIT
     select ARCH_HAS_MMU
     select ARCH_HAS_HIMEM
 
-    config ARCH_ARME
-    bool "ARM-Embedded"
-    select ARCH_32BIT
-    select ARCH_HAS_NOMMU
-    select ARCH_HAS_XIP
-
-    config ARCH_CSKY
+config ARCH_CSKY
     bool "C-SKY"
     select BOOT_HAS_MAP
     select ARCH_HAS_HIMEM
     select ARCH_32BIT
     select ARCH_HAS_MMU
 
-    config ARCH_RISCV
+config ARCH_RISCV
     bool "RISC-V"
     select ARCH_HAS_MMU
 
-    config ARCH_X86
+config ARCH_X86
     bool "X86"
     select ARCH_32BIT
     select ARCH_HAS_RELOCATABLE
+    select ARCH_HAS_PMIO
     select ARCH_HAS_MMU
     select ARCH_HAS_DMA
     select ARCH_HAS_HIMEM
     select ARCH_HAS_KASLR
     select CPU_LITTLE_ENDIAN
 
-    config ARCH_XTENSA
+config ARCH_XTENSA
     bool "Xtensa"
     select ARCH_32BIT
 
 endchoice
 
 source "arch/arm/Kconfig"
-source "arch/arme/Kconfig"
 source "arch/csky/Kconfig"
 source "arch/x86/Kconfig"
 source "arch/xtensa/Kconfig"
 
-#
 # Architecture supported
-#
 
 config ARCH_HAS_RELOCATABLE
     bool
@@ -64,25 +55,33 @@ config ARCH_HAS_RELOCATABLE
 # CPU wide
 config ARCH_32BIT
     bool
+
 config ARCH_64BIT
     bool
 
 # Endianness
 config CPU_LITTLE_ENDIAN
     bool
+
 config CPU_BIG_ENDIAN
     bool
 
 # Mem manage
 config ARCH_HAS_MMU
     bool
+
+config ARCH_HAS_PMIO
+    bool
+
 config ARCH_HAS_XIP
     bool
 
 config ARCH_HAS_DMA
     bool
+
 config ARCH_HAS_DMA32
     bool
+
 config ARCH_HAS_HIMEM
     bool
 

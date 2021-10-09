@@ -4,9 +4,9 @@
 
 #include <types.h>
 #include <state.h>
+#include <driver/dt.h>
 
 struct clk_channel {
-
     struct clk_device *dev;
 };
 
@@ -15,11 +15,33 @@ struct clk_device {
 };
 
 struct clk_ops {
-    state (*enable)(struct clk_channel *);
-    state (*disable)(struct clk_channel *);
+    state (*enable)(struct clk_device *);
+    state (*disable)(struct clk_device *);
+
+    uint64_t (*get_freq)(struct clk_device *, uint64_t parent);
+    state (*set_freq)(struct clk_device *, uint64_t parent, uint64_t freq);
 };
 
-state clk_channel_enable(struct clk_channel *);
-state clk_channel_disable(struct clk_channel *);
+#ifndef CONFIG_CLK
 
+static inline state clk_register(struct clk_device *)
+{
+    return -ENOERR;
+}
+
+static inline void clk_unregister(struct clk_device *) {}
+static inline void clk_init(void) {}
+
+#else
+
+struct clk_channel *dt_get_clk_channel(struct dt_node *, unsigned int index);
+
+state clk_enable(struct clk_channel *);
+void clk_disable(struct clk_channel *);
+
+state clk_register(struct clk_device *);
+void clk_unregister(struct clk_device *);
+void clk_init(void);
+
+#endif  /* CONFIG_CLK */
 #endif  /* _DRIVER_CLK_ */

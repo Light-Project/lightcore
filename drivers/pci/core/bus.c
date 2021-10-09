@@ -26,14 +26,14 @@ void pci_bus_devices_probe(const struct pci_bus *bus)
     struct pci_device *pdev;
     struct pci_bus *bridge;
 
-    pci_bus_for_each_pci_device(pdev, bus) {
+    pci_for_each_device(pdev, bus) {
         /* Skip already-added devices */
         if (pdev->flags_added)
             continue;
         pci_bus_device_probe(pdev);
     }
 
-    pci_bus_for_each_pci_device(pdev, bus) {
+    pci_for_each_device(pdev, bus) {
         /* Skip if device attach failed */
         if (!pdev->flags_added)
             continue;

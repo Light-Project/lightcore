@@ -17,9 +17,6 @@ enum tco_registers {
     TCO_TMRV2       = 0x12, /* TCOv2 Timer Initial Value */
 };
 
-#define DRIVER_NAME "intel-tco"
-#define pr_fmt(fmt) DRIVER_NAME ": " fmt
-
 struct tco_device {
     struct watchdog_device watchdog;
     unsigned int version;

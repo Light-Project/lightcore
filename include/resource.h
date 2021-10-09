@@ -6,7 +6,7 @@
 #include <state.h>
 #include <list.h>
 
-enum resource_type{
+enum resource_type {
     RESOURCE_NONE,
     RESOURCE_PMIO,
     RESOURCE_MMIO,

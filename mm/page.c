@@ -6,8 +6,9 @@
 #define pr_fmt(fmt) "page: " fmt
 
 #include <string.h>
-#include <mm/page.h>
+#include <mm.h>
 #include <mm/region.h>
+#include <mm/page.h>
 
 static __always_inline void free_list_add(struct page_free *free, struct page *page)
 {
@@ -71,7 +72,7 @@ static inline size_t find_buddy(size_t page_nr, uint order)
 static inline bool check_buddy(struct page *page, unsigned int order,
                                struct page *buddy)
 {
-    if (!buddy->free)
+    if (buddy->type != PAGE_FREE)
         return false;
 
     if (page->region_type != buddy->region_type)
@@ -107,7 +108,7 @@ void buddy_merge(struct region *region, struct page *page, uint order)
     }
 
 finish:
-    page->free = true;
+    page->type = PAGE_FREE;
     page->order = order;
     free = &region->page_free[order];
     free_list_add(free, page);

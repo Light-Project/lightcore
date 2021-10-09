@@ -301,7 +301,7 @@ static state gx6605s_hwinit(struct platform_device *pdev)
     return -ENOERR;
 }
 
-static state gx6605s_probe(struct platform_device *pdev)
+static state gx6605s_probe(struct platform_device *pdev, void *pdata)
 {
     struct gx6605s_device *gdev;
     state ret;
@@ -319,7 +319,7 @@ static state gx6605s_probe(struct platform_device *pdev)
 
     gdev->video.mode_table = gx6605s_video_mode;
     gdev->video.cur_mode = &gx6605s_video_mode[0];
-    gdev->video.device = &pdev->device;
+    gdev->video.device = &pdev->dev;
     gdev->video.ops = &gx6605s_ops;
     return video_register(&gdev->video);
 }

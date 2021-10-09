@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _LIGHTCORE_SWAB_H_
 #define _LIGHTCORE_SWAB_H_
 

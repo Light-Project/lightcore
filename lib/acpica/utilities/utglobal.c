@@ -152,7 +152,7 @@
 #define EXPORT_ACPI_INTERFACES
 #define DEFINE_ACPI_GLOBALS
 
-#include <driver/acpi.h>
+#include <driver/acpi/acpi.h>
 #include "accommon.h"
 
 #define _COMPONENT          ACPI_UTILITIES

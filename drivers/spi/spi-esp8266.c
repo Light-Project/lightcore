@@ -3,24 +3,16 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-static struct spi_ops esp8266_spi_ops = {
-
-
-
-};
-
-static struct dt_device_id espressif_uart_dt_table[] =
-{
-    {
-        .compatible = "espressif,esp8266-spi"
-    },
-    {},
-};
-
-static state esp8266_spi_probe(struct platform_device *dev)
+static state esp8266_spi_probe(struct platform_device *dev, void *pdata)
 {
 
 }
+
+static struct dt_device_id espressif_uart_dt_table[] =
+{
+    { .compatible = "espressif,esp8266-spi" },
+    { }, /* NULL */
+};
 
 static struct platform_driver esp8266_spi_driver = {
     .driver = {

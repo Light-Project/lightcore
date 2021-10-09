@@ -11,7 +11,7 @@ struct task *kthread_create(kthread_t kthread, void *data,
 {
     struct task *task;
 
-    task = kmalloc(sizeof(*task), GFP_KERNEL);
+    task = kzalloc(sizeof(*task), GFP_KERNEL);
     if (task)
 
 

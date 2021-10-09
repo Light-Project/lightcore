@@ -9,7 +9,18 @@ config SMP
         than one CPU, say Y.
 
 config RANDOMIZE_BASE
-	bool "Randomize the address of the kernel image (KASLR)"
-	depends on RELOCATABLE
+    bool "Randomize the address of the kernel image (KASLR)"
+    depends on RELOCATABLE
 
+choice
+    prompt "Pre-console choice"
+    default PRECON_VGA
+
+config PRECON_VGA
+    bool "Use vga as pre-console"
+
+config PRECON_SER
+    bool "Use serial as pre-console"
+
+endchoice
 endmenu

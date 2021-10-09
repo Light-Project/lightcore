@@ -45,8 +45,8 @@ ehci_mask(const struct ehci_host *ehci, int reg, uint32_t clr, uint32_t set)
     ehci_write(ehci, reg, (val & ~clr) | set);
 }
 
-static state ehci_handshake(struct ehci_host *ehci, int reg, uint32_t mask,
-                            uint32_t pass, unsigned int timeout)
+static bool ehci_wait(struct ehci_host *ehci, int reg, uint32_t mask,
+                      uint32_t pass, unsigned int timeout)
 {
     uint32_t val;
 
@@ -55,28 +55,9 @@ static state ehci_handshake(struct ehci_host *ehci, int reg, uint32_t mask,
         if ((val & ~mask) == pass)
             break;
         udelay(1);
-    } if (!timeout) {
-        pr_warn("handshake timeout\n");
-        return -ETIMEDOUT;
     }
-    return -ENOERR;
-}
 
-static state ehci_halt(struct ehci_host *ehci)
-{
-    spin_lock_irq(&ehci->lock);
-
-    ehci_write(ehci, EHCI_INTR, 0);
-    ehci_mask(ehci, EHCI_CMD, EHCI_CMD_RUN | EHCI_CMD_IAAD, 0);
-
-    spin_unlock_irq(&ehci->lock);
-    return ehci_handshake(ehci, EHCI_STS, EHCI_STS_HALT, EHCI_STS_HALT, 2000);
-}
-
-static state ehci_reset(struct ehci_host *ehci)
-{
-    ehci_mask(ehci, EHCI_CMD, 0, EHCI_CMD_RESET);
-    return ehci_handshake(ehci, EHCI_CMD, EHCI_CMD_RESET, 0, 250000);
+    return !!timeout;
 }
 
 #include "ehci/ehci-queue.c"
@@ -120,6 +101,26 @@ fail:
               EHCI_CMD_ASE | EHCI_CMD_PSE, 0);
     ehci_write(ehci, EHCI_INTR, 0);
     return IRQ_RET_HANDLED;
+}
+
+static state ehci_halt(struct ehci_host *ehci)
+{
+    spin_lock_irq(&ehci->lock);
+
+    ehci_write(ehci, EHCI_INTR, 0);
+    ehci_mask(ehci, EHCI_CMD, EHCI_CMD_RUN | EHCI_CMD_IAAD, 0);
+
+    spin_unlock_irq(&ehci->lock);
+    return ehci_wait(ehci, EHCI_STS, EHCI_STS_HALT, EHCI_STS_HALT, 2000);
+}
+
+static state ehci_reset(struct ehci_host *ehci)
+{
+
+    ehci_mask(ehci, EHCI_CMD, 0, EHCI_CMD_RESET);
+    if (!ehci_wait(ehci, EHCI_CMD, EHCI_CMD_RESET, 0, 250 * 1000))
+        return -EBUSY;
+    return -ENOERR;
 }
 
 static state ehci_setup(struct usb_host *host)

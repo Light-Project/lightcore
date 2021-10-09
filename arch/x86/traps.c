@@ -5,9 +5,9 @@
 
 #include <linkage.h>
 #include <kernel.h>
-#include <power.h>
 #include <printk.h>
 
+#include <asm/proc.h>
 #include <asm/traps.h>
 #include <asm/backtrace.h>
 
@@ -15,5 +15,4 @@ asmlinkage __visible void trap_general_protection(struct regs *regs)
 {
     recall("general protection", regs);
     panic("general protection");
-    power_halt();
 }

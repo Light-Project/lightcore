@@ -4,10 +4,9 @@
  */
 
 #include <string.h>
-#include <mm/page.h>
+#include <mm.h>
 #include <mm/memmodel.h>
 #include <mm/memblock.h>
-#include <mm/region.h>
 
 #ifdef CONFIG_FLATMEM
 

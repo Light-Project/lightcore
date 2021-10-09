@@ -8,29 +8,37 @@
 
 LIST_HEAD(fsdev_list);
 
-state fsdev_read(struct fsdev *dev, void *buffer, sector_t sector, blkcnt_t len)
+state fsdev_read(struct fsdev *fsdev, unsigned long pos, void *buf, size_t len)
 {
-    struct fsdev_request *request;
+    size_t secs = fsdev->sector_size;
 
-    request = kmalloc(sizeof(*request), GFP_KERNEL);
-    if (!request)
-        return -ENOMEM;
+    if (aligned(pos, secs) && aligned(len, secs))
+        return fsdev->ops->read(fsdev, pos / len, buf, len / secs);
 
-    request->type = REQ_READ;
-    request->buffer = buffer;
-    request->sector = sector;
-    request->len = len;
-    return dev->ops->request(dev, request);
+    return -ENOERR;
 }
+
+state fsdev_write(struct fsdev *fsdev, unsigned long pos, void *buf, size_t len)
+{
+    size_t secs = fsdev->sector_size;
+
+    if (aligned(pos, secs) && aligned(len, secs))
+        return fsdev->ops->write(fsdev, pos / len, buf, len / secs);
+
+    return -ENOERR;
+};
 
 state fsdev_register(struct fsdev *fsdev)
 {
-    list_add_prev(&fsdev_list, &fsdev->list);
+    if (!fsdev->ops)
+        return -EINVAL;
+
+    list_add(&fsdev_list, &fsdev->list);
     return -ENOERR;
 }
 
 void fsdev_unregister(struct fsdev *fsdev)
 {
-
+    list_del(&fsdev->list);
 }
 

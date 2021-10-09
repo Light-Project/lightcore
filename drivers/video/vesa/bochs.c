@@ -23,8 +23,7 @@ static void bochs_set_big_endian(struct vesa_device *bochs)
 
 static state bochs_setmode(struct video_device *vdev)
 {
-    /* select video card */
-    outb(0x3c0, 0x20);
+    vesa_hwblank(vdev, false);
     return vesa_setmode(vdev);
 }
 
@@ -35,19 +34,20 @@ static struct video_ops bochs_ops = {
 static state bochs_hw_init(struct pci_device *pdev)
 {
     struct vesa_device *vesa = pci_get_devdata(pdev);
-    resource_size_t addr, size;
-    size_t mem;
-    int ret;
+    resource_size_t addr, size, ioaddr, iosize;
+    void *base;
+    size_t mem, ret;
 
     /* Mapping configuration space */
     ret = pci_resource_type(pdev, 2);
     if (ret == RESOURCE_MMIO) {
-        addr = pci_resource_start(pdev, 2);
-        size = pci_resource_size(pdev, 2);
-        vesa->mmio = dev_ioremap(&pdev->dev, addr, size);
-        if(!vesa->mmio)
+        ioaddr = pci_resource_start(pdev, 2);
+        iosize = pci_resource_size(pdev, 2);
+        base = dev_ioremap(&pdev->dev, ioaddr, iosize);
+        if(!base)
             return -ENOMEM;
-        vesa->mmio += 0x500;
+        vesa->vgabase = base + 0x400;
+        vesa->mmio = base + 0x500;
     } else if (ret != RESOURCE_PMIO)
         return -ENODEV;
 
@@ -64,7 +64,7 @@ static state bochs_hw_init(struct pci_device *pdev)
     if (!addr)
         return -ENODEV;
     if (mem != size) {
-        pr_err("Size mismatch: pci=%d, bochs=%d\n", size, mem);
+        dev_info(&pdev->dev, "Size mismatch: pci=%d, bochs=%d\n", size, mem);
         size = min(mem, size);
     }
 
@@ -73,20 +73,25 @@ static state bochs_hw_init(struct pci_device *pdev)
     if (!vesa->video.frame_buffer)
         return -ENOMEM;
 
-    pr_info("Framebuffer size %dKiB @ 0x%x\n", size / 1024, addr);
+    dev_info(&pdev->dev, "Framebuffer size %dKiB @ 0x%x\n", size / 1024, addr);
 
-    if(vesa->mmio)
-        bochs_set_endian(vesa);
+    if (vesa->mmio && pdev->revision >= 2) {
+        ret = readl(vesa->mmio + 0x100);
+        if (8 <= ret && ret < iosize) {
+            dev_info(&pdev->dev, "found ext regs, size %d\n", ret);
+            bochs_set_endian(vesa);
+        }
+    }
 
     return -ENOERR;
 }
 
-static state bochs_probe(struct pci_device *pdev, int pdata)
+static state bochs_probe(struct pci_device *pdev, void *pdata)
 {
     struct vesa_device *vesa;
     state ret;
 
-    vesa = dev_kmalloc(&pdev->dev, sizeof(*vesa), GFP_KERNEL);
+    vesa = dev_kzalloc(&pdev->dev, sizeof(*vesa), GFP_KERNEL);
     if(!vesa)
         return -ENOMEM;
     pci_set_devdata(pdev, vesa);
@@ -94,6 +99,11 @@ static state bochs_probe(struct pci_device *pdev, int pdata)
     ret = bochs_hw_init(pdev);
     if (ret)
         return ret;
+
+#if 1
+    vesa->video.cur_mode = &vesa_video_mode[1];
+    bochs_setmode(&vesa->video);
+#endif
 
     vesa->video.device = &pdev->dev;
     vesa->video.ops = &bochs_ops;

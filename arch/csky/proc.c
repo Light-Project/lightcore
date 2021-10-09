@@ -1,11 +1,11 @@
 
 
-void arch_irq_disable()
+void cpu_irq_disable()
 {
     asm volatile("psrclr ie\n":::"memory");
 }
 
-void arch_irq_enable()
+void cpu_irq_enable()
 {
     asm volatile("psrset ee, ie\n":::"memory");
 }

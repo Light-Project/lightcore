@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _BCD_H_
 #define _BCD_H_
 
@@ -5,4 +6,4 @@
 #define bin2bcd(x) ((((x) / 10) << 4) + (x) % 10)
 
 #endif /* _BCD_H_ */
-        
+

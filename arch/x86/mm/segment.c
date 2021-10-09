@@ -30,7 +30,7 @@ struct gdt_entry gdt_entry[GDT_ENTRY_MAX] = {
         .db = GDT_DB_32, .g = GDT_G_4KiB, .type = GDT_TYPE_RW,
         .basel = 0, .baseh = 0, .limitl = 0xffff, .limith = 0xf,
     },
-    
+
     [GDT_ENTRY_PNPBIOS_CS32] = {
         .p = true, .s = GDT_S_CODEDATA, .dpl  = GDT_DPL_RING0,
         .db = GDT_DB_32, .g = GDT_G_1BYTE, .type = GDT_TYPE_XR,
@@ -119,7 +119,7 @@ void gdte_sys_set(int index, char type, size_t base, uint64_t limit)
     gdt_entry[index].g      = GDT_G_1BYTE;
 }
 
-void __init arch_gdt_setup(void)
+void __init gdt_setup(void)
 {
     gdt_set(&gdt_table);
 }

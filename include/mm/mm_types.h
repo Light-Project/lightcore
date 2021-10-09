@@ -5,28 +5,38 @@
 #include <types.h>
 #include <list.h>
 
+enum page_type {
+    PAGE_UNINIT,
+    PAGE_FREE,
+    PAGE_SLOB,
+};
+
 struct slob_page {
     list_t slob_list;       /* slob page list */
     struct slob_node* node; /* slob node list head of this page */
-    int avail;              /* Free space on slob pages */
+    unsigned int avail;     /* Free space on slob pages */
 };
 
 struct page {
+    uint32_t type:4;
     uint32_t region_type:3;
     uint32_t order:4;
     uint32_t free:1;
-
 #ifdef CONFIG_SPARCEMEM
     uint32_t sparce_nr:8;
 #endif
-
     union {
         struct {
             struct list_head free_list;
         };
+#ifdef CONFIG_MM_SLOB
         struct slob_page slob;
+#endif
     };
 };
+
+#define slob_to_page(slob) \
+    container_of(slob, struct page, slob)
 
 struct page_free {
     struct list_head list;  /* free page list */

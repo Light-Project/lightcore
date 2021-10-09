@@ -74,15 +74,16 @@ static void i8250_hw_init(void)
     pic_outb(1, I8259_DATA, 0xff);
 }
 
-static state i8259_probe(struct platform_device *pdev)
+static state i8259_probe(struct platform_device *pdev, void *pdata)
 {
     struct irqchip_device *irqchip;
 
-    irqchip = dev_kzalloc(&pdev->device, sizeof(*irqchip), GFP_KERNEL);
+    irqchip = dev_kzalloc(&pdev->dev, sizeof(*irqchip), GFP_KERNEL);
     if(!irqchip)
         return -ENOMEM;
 
     i8250_hw_init();
+    irqchip->dev = &pdev->dev;
     irqchip->ops = &pic_ops;
     irqchip->dt_node = pdev->dt_node;
     return irqchip_register(irqchip);

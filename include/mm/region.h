@@ -4,8 +4,9 @@
 
 #include <list.h>
 #include <mm/gfp.h>
-#include <mm/memmodel.h>
 #include <spinlock.h>
+
+#define PAGE_ORDER_MAX  11
 
 enum region_type {
 #ifdef CONFIG_REGION_DMA

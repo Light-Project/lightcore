@@ -129,7 +129,8 @@
             compatible = "allwinner,suniv-timer";
             reg = <0x01c20c00 0x90>;
             interrupts = <13>;
-            clocks = <&osc24M>;
+            clocks = <&osc24M>, <&osc32k>;
+            clock-names = "hosc", "losc";
         };
 
         wdt: watchdog@1c20ca0 {

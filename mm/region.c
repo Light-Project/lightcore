@@ -3,8 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
+#include <mm.h>
 #include <mm/page.h>
-#include <mm/memmodel.h>
 #include <mm/memblock.h>
 #include <mm/region.h>
 

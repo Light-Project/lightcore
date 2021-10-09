@@ -15,8 +15,9 @@ arch-$(CONFIG_ARCH_ARM_V5)  = -D__ARM_ARCH__=5 $(call cc-option,-march=armv5te,-
 arch-$(CONFIG_ARCH_ARM_V4T) = -D__ARM_ARCH__=4 -march=armv4t
 arch-$(CONFIG_ARCH_ARM_V4)  = -D__ARM_ARCH__=4 -march=armv4
 
-platform-acflags-y  += -marm $(arch-y) -msoft-float 
+platform-acflags-y  += -marm $(arch-y) -msoft-float
 platform-ldflags-y  += -EL
+platform-elfflags-y += -marm $(arch-y)
 
 endif # CONFIG_ARCH_ARM
 
@@ -61,6 +62,5 @@ platform-ccflags-y  += -mtext-section-literals
 platform-acflags-y  += -pipe -mlongcalls
 endif # CONFIG_ARCH_XTENSA
 
-export platform-asflags-y platform-ccflags-y platform-acflags-y
-export platform-ldflags-y platform-ldsflags-y platform-elfflags-y
-export CROSS_COMPILE arch
+# export platform-asflags-y platform-ccflags-y platform-acflags-y
+# export platform-ldflags-y platform-ldsflags-y platform-elfflags-y

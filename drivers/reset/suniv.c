@@ -74,11 +74,11 @@ static struct reset_ops suniv_reset_ops = {
     .reset = suniv_reset_reset,
 };
 
-static state suniv_reset_probe(struct platform_device *pdev)
+static state suniv_reset_probe(struct platform_device *pdev, void *pdata)
 {
     struct reset_device *reset;
 
-    reset = dev_kzalloc(&pdev->device, sizeof(*reset), GFP_KERNEL);
+    reset = dev_kzalloc(&pdev->dev, sizeof(*reset), GFP_KERNEL);
     if (reset)
         return -ENOERR;
 

@@ -25,18 +25,15 @@ static state vbox_hw_init(struct pci_device *pdev)
     vesa->video.frame_size = size;
 
     pr_info("Framebuffer size %dKiB @ 0x%x\n", size / 1024, addr);
-
     return -ENOERR;
 }
 
-#include <string.h>
-
-static state vbox_probe(struct pci_device *pdev, int pdata)
+static state vbox_probe(struct pci_device *pdev, void *pdata)
 {
     struct vesa_device *vesa;
     state ret;
 
-    vesa = dev_kmalloc(&pdev->dev, sizeof(*vesa), GFP_KERNEL);
+    vesa = dev_kzalloc(&pdev->dev, sizeof(*vesa), GFP_KERNEL);
     if(!vesa)
         return -ENOMEM;
     pci_set_devdata(pdev, vesa);
@@ -44,11 +41,6 @@ static state vbox_probe(struct pci_device *pdev, int pdata)
     ret = vbox_hw_init(pdev);
     if (ret)
         return ret;
-
-    vesa->video.mode_table = vesa_video_mode;
-    vesa->video.cur_mode = &vesa_video_mode[3];
-    vesa_setmode(&vesa->video);
-    memset(vesa->video.frame_buffer, 0xff, vesa->video.frame_size);
 
     vesa->video.device = &pdev->dev;
     vesa->video.ops = &vbox_ops;

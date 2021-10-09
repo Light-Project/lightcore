@@ -3,18 +3,18 @@
 
 void power_halt()
 {
-    arch_irq_disable();
+    cpu_irq_disable();
     asm volatile ("waiti 0");
 }
 
 void power_reboot()
 {
-    arch_irq_disable();
+    cpu_irq_disable();
     asm volatile ("waiti 0");
 }
 
 void power_shutdown()
 {
-    arch_irq_disable();
+    cpu_irq_disable();
     asm volatile ("waiti 0");
 }

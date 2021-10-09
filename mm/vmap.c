@@ -6,8 +6,8 @@
 #define pr_fmt(fmt) "vmalloc: " fmt
 
 #include <state.h>
-#include <mm/kmem.h>
-#include <mm/vmem.h>
+#include <kmalloc.h>
+#include <vmap.h>
 #include <mm/page.h>
 
 /**
@@ -38,18 +38,27 @@ void *vmap(struct page *page, int page_nr)
 
 void *vunmap(const void *addr, int page_nr)
 {
-    int i;
+    struct vmap_arga *vmap;
+    struct vm_area *vm;
+
+    if (addr < (void *)CONFIG_HIGHMAP_OFFSET)
+        return;
 
     if(unlikely(!addr))
         return;
 
-    vmem_area_find
+    vm = vmem_area_find(addr);
+    if (!vm) {
+        pr_err("unmap not found\n");
+        return;
+    }
+
+    vmap = vm_to_vmap(vm);
 
     for (i = 0; i < area->nr_pages; i++) {
         page = va->page[count];
         page_free(page);
     }
-
 }
 
 static state kmalloc_get_page(struct vm_area *va, gfp_t gfp)
@@ -78,25 +87,37 @@ void *vmalloc_node(size_t size, size_t align, gfp_t gfp)
 {
     struct vm_area;
 
-
     vm_area = vmem_alloc(size, );
 
     kmalloc_get_page(vm_area);
 
 }
 
-static vfree_area
-
-/**
- * vmalloc - allocate virtual continuous memory.
- * @size: allocation size
- */
 void *vmalloc(size_t size)
 {
-
+    return vmalloc_node(size, MSIZE, GFP_KERNEL);
 }
 
 void vfree(void *addr)
 {
+    struct ioremap_node *node;
+    struct vm_area *va;
 
+    if (addr < (void *)CONFIG_HIGHMAP_OFFSET)
+        return;
+
+    va = vmem_area_find(addr);
+    if (!va) {
+        pr_err("unmap not found\n");
+        return;
+    }
+
+    node = vm_to_ioremap(va);
+    page_free();
+
+    if (atomic_dec_and_test(&node->count)) {
+        vmem_free(va);
+        list_del(&node->list);
+        kfree(node);
+    }
 }

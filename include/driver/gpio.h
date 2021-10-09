@@ -1,10 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-/*
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
- */
-
-#ifndef _DRIVER_GPIO_GPIO_H_
-#define _DRIVER_GPIO_GPIO_H_
+#ifndef _DRIVER_GPIO_H_
+#define _DRIVER_GPIO_H_
 
 #include <list.h>
 #include <device.h>

@@ -5,10 +5,10 @@
 
 #define pr_fmt(fmt)	"bus: " fmt
 
-#include <device.h>
-#include <device/bus.h>
-#include "base.h"
 #include <printk.h>
+#include "base.h"
+
+LIST_HEAD(bus_list);
 
 state bus_device_probe(struct device *dev)
 {
@@ -32,10 +32,8 @@ state bus_device_add(struct device *dev)
         return -EINVAL;
 
     pr_debug("%s add device %s\n", bus->name, dev->name);
-
-    device_bind(dev);
-    list_add_prev(&bus->devices_list, &dev->bus_list_device);
-    return -ENOERR;
+    list_add(&bus->devices_list, &dev->bus_list_device);
+    return device_bind(dev);
 }
 
 void bus_device_remove(struct device *dev)
@@ -55,8 +53,7 @@ state bus_driver_add(struct driver *drv)
     struct bus_type *bus = drv->bus;
 
     pr_debug("%s add driver %s\n", bus->name, drv->name);
-
-    list_add_prev(&bus->drivers_list, &drv->bus_list_driver);
+    list_add(&bus->drivers_list, &drv->bus_list_driver);
     return driver_bind(drv);
 }
 
@@ -65,18 +62,28 @@ void bus_driver_remove(struct driver *drv)
     list_del(&drv->bus_list_driver);
 }
 
+/**
+ * bus_register - register a driver bus-type
+ * @bus: bus to register
+ */
 state bus_register(struct bus_type *bus)
 {
-    pr_debug("register bus %s\n", bus->name);
+    if (!bus->match || !bus->probe)
+        return -EINVAL;
 
+    pr_debug("register %s\n", bus->name);
     list_head_init(&bus->devices_list);
     list_head_init(&bus->drivers_list);
     return -ENOERR;
 }
 
+/**
+ * bus_register - remove a driver bus-type
+ * @bus: bus to register
+ */
 void bus_unregister(struct bus_type *bus)
 {
-    pr_debug("unregister bus %s\n", bus->name);
+    pr_debug("unregister %s\n", bus->name);
 }
 
 void __init bus_init(void)

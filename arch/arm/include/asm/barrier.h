@@ -4,18 +4,18 @@
 
 #ifndef __ASSEMBLY__
 
-#if __ARM_ARCH__ >= 7
-#define isb(op)     __asm__ __volatile__ ("isb" : : : "memory")
-#define dsb(op)     __asm__ __volatile__ ("dsb" : : : "memory")
-#define dmb(op)     __asm__ __volatile__ ("dmb" : : : "memory")
-#elif __ARM_ARCH__ == 6
-#define isb(op)     __asm__ __volatile__ ("mcr p15, 0, %0, c7, c5,  4" : : "r" (0) : "memory")
-#define dsb(op)     __asm__ __volatile__ ("mcr p15, 0, %0, c7, c10, 4" : : "r" (0) : "memory")
-#define dmb(op)     __asm__ __volatile__ ("mcr p15, 0, %0, c7, c10, 5" : : "r" (0) : "memory")
+#ifdef CONFIG_ARCH_ARM_V7
+#define isb(op)     asm volatile("isb" : : : "memory")
+#define dsb(op)     asm volatile("dsb" : : : "memory")
+#define dmb(op)     asm volatile("dmb" : : : "memory")
+#elif CONFIG_ARCH_ARM_V6
+#define isb(op)     asm volatile("mcr p15, 0, %0, c7, c5,  4" : : "r" (0) : "memory")
+#define dsb(op)     asm volatile("mcr p15, 0, %0, c7, c10, 4" : : "r" (0) : "memory")
+#define dmb(op)     asm volatile("mcr p15, 0, %0, c7, c10, 5" : : "r" (0) : "memory")
 #else
-#define isb(op)     __asm__ __volatile__ ("" : : : "memory")
-#define dsb(op)     __asm__ __volatile__ ("mcr p15, 0, %0, c7, c10,  4" : : "r" (0) : "memory")
-#define dmb(op)     __asm__ __volatile__ ("" : : : "memory")
+#define isb(op)     asm volatile("" : : : "memory")
+#define dsb(op)     asm volatile("mcr p15, 0, %0, c7, c10,  4" : : "r" (0) : "memory")
+#define dmb(op)     asm volatile("" : : : "memory")
 #endif
 
 #ifdef CONFIG_SMP

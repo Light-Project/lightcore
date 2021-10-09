@@ -12,103 +12,108 @@
 
 #define E820_ENTRY_MAX  128
 
-#define printf(str)             \
-        movw $str, %si;         \
-        call Service_printf
+#define printf(str)     \
+    movw $str, %si;     \
+    call printf
 
     .code16
     .section .startup,"ax"
 GLOBAL(startup16)
-    
-    /* Disable interrupt at first */
-    cli
-    
+    cli     /* we're not safe here! */
+
     /* Normalize the memory address */
     movw    %ds, %bx
     movw    %bx, 1f
     .byte   0x66, 0xea  # ljmpl opcode
     .long   2f          # offset
 1:  .word   0x00        # segment
-2:  xorw    %ax, %ax
+2:
+
+	/* set up %ds and %ss as offset from 0 */
+    xorw    %ax, %ax
     movw    %ax, %ss
+
+	/* set up the stack */
     movl    $_ld_stack_end, %esp
     shll    $4, %ebx
     addl    %ebx, %esp
-    
+
     /* clean screen */
     movb    $0x00, %ah
     movb    $0x02, %al
     int     $0x10
-    
-    /* Disable NMI */
-    movb    $0x80, %al
-    outb    %al, $0x70  
-    call    IO_DELAY  
 
-    /* TEST A20 first */
+    /* disable NMI */
+    movb    $0x80, %al
+    outb    %al, $0x70
+    call    iodelay
+
+    /* test a20 first */
     call    a20test
     je      1f
 
-    /* Bios way to enable A20 */
+    /* bios way to enable a20 */
     printf(TXT_A20BIOS)
     movw    $0x2401, %ax
     int     $0x15
 
-    /* TEST A20 */
     call    a20test
     je      1f
 
-    /* PCH way to enable A20 */
+    /* pch way to enable a20 */
     printf(TXT_A20PCH)
     inb     $0x92, %al
     or      $(1<<1), %ax    /* Enable A20 */
     and     $(~(1<<0)), %ax /* Diable reset */
     outb    %al, $0x92
 
-    /* TEST A20 */
     call    a20test
     je      1f
     printf(TXT_A20ERROR)
     jmp     halt_16
-1:
 
+1:
     /*
-     * Before entering the protected 
-     * mode, we can detect the memory 
+     * Before entering the protected
+     * mode, we can detect the memory
      * through the BIOS
      */
+    printf(TXT_MEMDETECT)
+    // call    memdetect
 
+    .global to_protected_mode
+to_protected_mode:
     /* reset coprocessor */
     mov     $0xf0, %al
     outb    %al, $0xa1
-    call    IO_DELAY
+    call    iodelay
     mov     $0xf1, %al
     outb    %al, $0xa1
-    call    IO_DELAY
+    call    iodelay
 
     /* mask pic */
     movb    $0xff, %al
     outb    %al, $0xa1
-    call    IO_DELAY
+    call    iodelay
     movb    $0xfb, %al
     outb    %al, $0x21
-    call    IO_DELAY
-    
-    /* Load gdt table */
+    call    iodelay
+
+    /* load gdt table */
     movl    %ds, %ebx
     shll    $4, %ebx
     addl    %ebx, gdt_fix
     lgdtl   gdt_struct
-    
-    /* Load idt table */
+
+    /* load idt table */
     lidtl   idt_table
 
-    /* Enable PE mode */
+    /* enable pe mode */
     movl    %cr0, %eax
     orl     $(1<<0), %eax
     movl    %eax, %cr0
-    
-    /* Jmp to 32 */
+
+    /* jmp to 32 */
     movl    %ds, %ebx
     shll    $4, %ebx
     addl    %ebx, 1f
@@ -117,39 +122,14 @@ GLOBAL(startup16)
 1:  .long   startup32               # offset
     .word   GDT_ENTRY_BOOT_CS_BASE  # segment
 
-IO_DELAY:
+iodelay:
     outb    %al, $0x80
     ret
-    
+
 a20test:
     ret
-    
-e820_loop:
-    movw    $0xe820, %ax
-    movw    $0x14, %cx
-    movl    $0x534d4150,%edx
-    #movw    $e820_pt, %di
-    
-    int     $0x15
-    
-    /* BIOS messed up map */
-    cmpl    $0x534d4150, %eax 
-    jne     e820_over
 
-    /* e820 over */
-    cmpl    $0, %ebx
-    jne     e820_over
-    
-    #addw    $0x18, e820_pt
-    
-    popw    %cx
-    loop    e820_loop
-    ret
-e820_over:
-    popw    %cx
-    ret
-    
-Service_printf:
+printf:
     movb    $0x0e, %ah
     movb    $0x03, %bl
     jmp     printf_loop
@@ -159,20 +139,11 @@ printf_loop:
     lodsb
     cmpb    $0, %al
     jne     1b
-    ret    
-    
+    ret
+
 halt_16:
     hlt
     jmp     halt_16
-
-e820_table:
-.rept E820_ENTRY_MAX
-    .long   0   // 0x00: addr
-    .long   0
-    .long   0   // 0x08: size
-    .long   0
-    .long   0   // 0x14: type
-.endr
 
     .align 16
 gdt_table:              // GDT Table
@@ -191,11 +162,12 @@ idt_table:
     .word   0x0000      // IDT limit
     .long   0x00000000  // IDT addr
 
-TXT_A20BIOS:    .asciz "Open A20 through BIOS\n\r"
-TXT_A20PCH:     .asciz "Open A20 through PCH\n\r"
-TXT_A20ERROR:   .asciz "A20 can't open\n\r"
-
 END(startup16)
+
+TXT_A20BIOS:    .asciz "use bios to enable a20\n\r"
+TXT_A20PCH:     .asciz "use pch to enable a20\n\r"
+TXT_A20ERROR:   .asciz "fail to open a20\n\r"
+TXT_MEMDETECT:  .asciz "detect memory...\n\r"
 
 /****************************/
 /* The text section begins  */
@@ -205,25 +177,25 @@ END(startup16)
     .align 32
 ENTRY(startup32)
 
-    /* Set data selector */
-    movl    $GDT_ENTRY_BOOT_DS_BASE, %eax    
+    /* set data selector */
+    movl    $GDT_ENTRY_BOOT_DS_BASE, %eax
     movl    %eax, %ds
     movl    %eax, %es
     movl    %eax, %fs
     movl    %eax, %gs
     movl    %eax, %ss
 
-    /* Clean regs */
+    /* clean regs */
     xorl    %eax, %eax      // accumulator
     xorl    %ebx, %ebx      // base
     xorl    %ecx, %ecx      // count
     xorl    %edx, %edx      // data
-    xorl    %ebp, %ebp      // Base Pointer
     xorl    %esi, %esi      // Source Index
     xorl    %edi, %edi      // Destination Index
+    xorl    %ebp, %ebp      // Base Pointer
 
-    call    main
-    jmp     halt
+    jmp     main
+
 END(startup32)
 
 GLOBAL(kernel_start)

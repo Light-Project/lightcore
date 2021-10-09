@@ -4,11 +4,15 @@
  */
 
 #define DRIVER_NAME "suniv-spi"
+#define pr_fmt(fmt) DRIVER_NAME fmt
 
 #include <mm.h>
 #include <initcall.h>
 #include <irq.h>
 #include <driver/platform.h>
+#include <driver/reset.h>
+#include <driver/clk.h>
+#include <driver/irqchip.h>
 #include <driver/spi.h>
 #include <driver/spi/suniv.h>
 
@@ -16,8 +20,12 @@
 
 struct suniv_device {
     struct spi_host spi;
-    void *mmio;
+    struct clk_channel *clk;
+    struct irqchip_channel *irqchip;
+    struct reset_channel *reset;
+    void *base;
 
+    /* fifo pointer */
     uint8_t *tx_buf;
     uint8_t *rx_buf;
     unsigned int len;
@@ -28,15 +36,15 @@ struct suniv_device {
 
 static inline uint32_t suniv_read(struct suniv_device *sdev, int reg)
 {
-    return readl(sdev->mmio + reg);
+    return readl(sdev->base + reg);
 }
 
 static inline void suniv_write(struct suniv_device *sdev, int reg, uint32_t val)
 {
-    writel(sdev->mmio + reg, val);
+    writel(sdev->base + reg, val);
 }
 
-static void suniv_fifo_fill(struct suniv_device *sdev)
+static void suniv_spi_fifo_fill(struct suniv_device *sdev)
 {
     uint32_t count;
     uint8_t data;
@@ -53,7 +61,7 @@ static void suniv_fifo_fill(struct suniv_device *sdev)
     sdev->len -= count;
 }
 
-static void suniv_fifo_drain(struct suniv_device *sdev)
+static void suniv_spi_fifo_drain(struct suniv_device *sdev)
 {
     uint32_t count;
     uint8_t data;
@@ -68,7 +76,7 @@ static void suniv_fifo_drain(struct suniv_device *sdev)
     }
 }
 
-static irqreturn_t suniv_handler(irqnr_t vector, void *data)
+static irqreturn_t suniv_spi_handler(irqnr_t vector, void *data)
 {
     struct suniv_device *sdev = data;
     uint32_t val;
@@ -76,19 +84,19 @@ static irqreturn_t suniv_handler(irqnr_t vector, void *data)
     val = suniv_read(sdev, SUNIV_SPI_ISR);
 
     if (val & SUNIV_SPI_INT_TF_EMP) {
-        suniv_fifo_drain(sdev);
+        suniv_spi_fifo_drain(sdev);
         suniv_write(sdev, SUNIV_SPI_ISR, SUNIV_SPI_INT_TF_ERQ);
         return IRQ_RET_HANDLED;
     }
 
     if (val & SUNIV_SPI_INT_TF_ERQ) {
-        suniv_fifo_fill(sdev);
+        suniv_spi_fifo_fill(sdev);
         suniv_write(sdev, SUNIV_SPI_ISR, SUNIV_SPI_INT_TF_ERQ);
         return IRQ_RET_HANDLED;
     }
 
     if (val & SUNIV_SPI_INT_RF_RDY) {
-        suniv_fifo_drain(sdev);
+        suniv_spi_fifo_drain(sdev);
         suniv_write(sdev, SUNIV_SPI_ISR, SUNIV_SPI_INT_RF_RDY);
         return IRQ_RET_HANDLED;
     }
@@ -96,29 +104,10 @@ static irqreturn_t suniv_handler(irqnr_t vector, void *data)
     return IRQ_RET_NONE;
 }
 
-static void suniv_mode_set(struct suniv_device *sdev, enum spi_device_mode mode)
-{
-    uint32_t val;
-
-    val = suniv_read(sdev, SUNIV_SPI_TCR);
-    if (mode & SPI_CPHA)
-        val |= SUNIV_SPI_TCR_CPHA;
-    else
-        val &= ~SUNIV_SPI_TCR_CPHA;
-    if (mode & SPI_CPOL)
-        val |= SUNIV_SPI_TCR_CPOL;
-    else
-        val &= ~SUNIV_SPI_TCR_CPOL;
-    if (mode & SPI_LSBF)
-        val |= SUNIV_SPI_TCR_FBS;
-    else
-        val &= ~SUNIV_SPI_TCR_FBS;
-    suniv_write(sdev, SUNIV_SPI_TCR, val);
-}
-
-static state suniv_transmit(struct spi_host *host, struct spi_request *req)
+static state suniv_spi_transmit(struct spi_host *host, struct spi_request *req)
 {
     struct suniv_device *sdev = spi_to_suniv(host);
+    struct spi_device *spi = req->spi_device;
     uint32_t val;
 
     sdev->tx_buf = req->tx_buf;
@@ -128,29 +117,51 @@ static state suniv_transmit(struct spi_host *host, struct spi_request *req)
     /* Clear all interrupts */
     suniv_write(sdev, SUNIV_SPI_ISR, ~0U);
 
-    /* Reset fifo */
+    /* Reset Fifos */
     val = suniv_read(sdev, SUNIV_SPI_FCR);
     val |= SUNIV_SPI_FCR_TX_FIFO_RST | SUNIV_SPI_FCR_RX_FIFO_RST;
     suniv_write(sdev, SUNIV_SPI_FCR, val);
 
-    suniv_mode_set(sdev, req->spi_device->mode);
+    /* Setup the transfer mode */
+    val = suniv_read(sdev, SUNIV_SPI_TCR);
+
+    if (spi->mode & SPI_CPHA)
+        val |= SUNIV_SPI_TCR_CPHA;
+    else
+        val &= ~SUNIV_SPI_TCR_CPHA;
+    if (spi->mode & SPI_CPOL)
+        val |= SUNIV_SPI_TCR_CPOL;
+    else
+        val &= ~SUNIV_SPI_TCR_CPOL;
+    if (spi->mode & SPI_LSBF)
+        val |= SUNIV_SPI_TCR_FBS;
+    else
+        val &= ~SUNIV_SPI_TCR_FBS;
+
+    if (!req->rx_buf)
+        val |= SUNIV_SPI_TCR_DHB;
+    else
+        val &= ~SUNIV_SPI_TCR_DHB;
+
+    suniv_write(sdev, SUNIV_SPI_TCR, val);
 
     val = SUNIV_SPI_INT_TF_EMP;
     if (sdev->len > SUNIV_SPI_FIFO_SIZE)
         val |= SUNIV_SPI_INT_TF_ERQ | SUNIV_SPI_INT_RF_RDY;
     suniv_write(sdev, SUNIV_SPI_IER, val);
 
-    suniv_fifo_fill(sdev);
+    suniv_spi_fifo_fill(sdev);
 
 	/* Start the transfer */
     val = suniv_read(sdev, SUNIV_SPI_TCR);
     suniv_write(sdev, SUNIV_SPI_TCR, val | SUNIV_SPI_TCR_XCH);
 
+    /* Mask all interrupts */
     suniv_write(sdev, SUNIV_SPI_IER, 0);
     return -ENOERR;
 }
 
-static void suniv_cs_set(struct spi_host *host, struct spi_device *dev, bool enable)
+static void suniv_spi_cs_set(struct spi_host *host, struct spi_device *dev, bool enable)
 {
     struct suniv_device *sdev = spi_to_suniv(host);
     uint32_t val;
@@ -171,18 +182,18 @@ static void suniv_cs_set(struct spi_host *host, struct spi_device *dev, bool ena
     suniv_write(sdev, SUNIV_SPI_TCR, val);
 }
 
-static struct spi_ops suniv_ops = {
-    .transfer = suniv_transmit,
-    .cs_set = suniv_cs_set,
+static struct spi_ops suniv_spi_ops = {
+    .transfer = suniv_spi_transmit,
+    .cs_set = suniv_spi_cs_set,
 };
 
-static state suniv_probe(struct platform_device *pdev)
+static state suniv_spi_probe(struct platform_device *pdev, void *pdata)
 {
     struct suniv_device *sdev;
     resource_size_t addr, size;
     uint32_t val;
 
-    sdev = kzalloc(sizeof(*sdev), GFP_KERNEL);
+    sdev = dev_kzalloc(&pdev->dev, sizeof(*sdev), GFP_KERNEL);
     if (!sdev)
         return -ENOMEM;
 
@@ -192,19 +203,42 @@ static state suniv_probe(struct platform_device *pdev)
 
     addr = platform_resource_start(pdev, 0);
     size = platform_resource_size(pdev, 0);
-    sdev->mmio = dev_ioremap(&pdev->device, addr, size);
-    if (!sdev->mmio)
+    sdev->base = dev_ioremap(&pdev->dev, addr, size);
+    if (!sdev->base)
         return -ENOMEM;
 
-    irq_request(0, 0, suniv_handler, sdev, DRIVER_NAME);
+    irq_request(0, 0, suniv_spi_handler, sdev, DRIVER_NAME);
 
-    sdev->spi.ops = &suniv_ops;
+    sdev->clk = dt_get_clk_channel(pdev->dt_node, 0);
+    if (sdev->irqchip) {
+        dev_err(&pdev->dev, "unable to request clock\n");
+        return -ENODEV;
+    }
+    reset_reset(sdev->reset);
+
+    sdev->reset = dt_get_reset_channel(pdev->dt_node, 0);
+    if (sdev->irqchip) {
+        dev_err(&pdev->dev, "unable to request reset\n");
+        return -ENODEV;
+    }
+    reset_reset(sdev->reset);
+
+    sdev->irqchip = dt_get_irqchip_channel(pdev->dt_node, 0);
+    if (sdev->irqchip) {
+        dev_err(&pdev->dev, "unable to request irqchip\n");
+        return -ENODEV;
+    }
+    irqchip_pass(sdev->irqchip);
+
+    /* fill host info */
+    sdev->spi.min_freq = 3000;
+    sdev->spi.max_freq = 100000000;
+    sdev->spi.cs_num = 4;
+    sdev->spi.mode = SPI_CPHA | SPI_CPOL | SPI_LSBF | SPI_CS_HI;
+    sdev->spi.dt_node = pdev->dt_node;
+
+    sdev->spi.ops = &suniv_spi_ops;
     return spi_host_register(&sdev->spi);
-}
-
-static void suniv_remove(struct platform_device *pdev)
-{
-
 }
 
 static struct dt_device_id suniv_ids[] = {
@@ -212,17 +246,16 @@ static struct dt_device_id suniv_ids[] = {
     { }, /* NULL */
 };
 
-static struct platform_driver suniv_driver = {
+static struct platform_driver suniv_spi_driver = {
     .driver = {
         .name = DRIVER_NAME,
     },
     .dt_table = suniv_ids,
-    .probe = suniv_probe,
-    .remove = suniv_remove,
+    .probe = suniv_spi_probe,
 };
 
-static state suniv_init(void)
+static state suniv_spi_init(void)
 {
-    return platform_driver_register(&suniv_driver);
+    return platform_driver_register(&suniv_spi_driver);
 }
-driver_initcall(suniv_init);
+driver_initcall(suniv_spi_init);

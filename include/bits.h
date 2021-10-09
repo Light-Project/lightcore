@@ -7,7 +7,7 @@
 #define BIT(nr)     (1UL << (nr))
 
 #define BIT_RANGE(hi, lo)               \
-    (((~UL(0)) - (UL(1) << (l)) + 1) &  \
-	(~UL(0) >> (BITS_PER_LONG - 1 - (h))))
+    (((~UL(0)) - (UL(1) << (lo)) + 1) & \
+	(~UL(0) >> (BITS_PER_LONG - 1 - (hi))))
 
 #endif  /* _BITS_H_ */

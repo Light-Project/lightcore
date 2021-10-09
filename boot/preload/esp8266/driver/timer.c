@@ -36,14 +36,14 @@ void timer_init(void)
     uint32_t val;
 
     val = TIME_CLK_FREQ / TICK_GRAIN;
-    writel_sync((void *)TIMER_BASE + TIMER_ESP8266_LOAD, val);
-    writel_sync((void *)TIMER_BASE + TIMER_ESP8266_COUNT, val);
+    writel((void *)TIMER_BASE + TIMER_ESP8266_LOAD, val);
+    writel((void *)TIMER_BASE + TIMER_ESP8266_COUNT, val);
 
     val = TIMER_ESP8266_CTRL_EN | TIMER_ESP8266_CTRL_AUTOLOAD | TIMER_ESP8266_CTRL_DIV_256;
-    writel_sync((void *)TIMER_BASE + TIMER_ESP8266_CTRL, val);
+    writel((void *)TIMER_BASE + TIMER_ESP8266_CTRL, val);
 }
 
 void timer_stop(void)
 {
-    writel_sync((void *)TIMER_BASE + TIMER_ESP8266_CTRL, 0);
+    writel((void *)TIMER_BASE + TIMER_ESP8266_CTRL, 0);
 }

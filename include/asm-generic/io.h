@@ -40,7 +40,7 @@ static inline uint64_t raw_readq(const volatile void *addr)
 
 #ifndef raw_writeb
 #define raw_writeb raw_writeb
-static inline void raw_writeb(const volatile void *addr, uint8_t value)
+static inline void raw_writeb(volatile void *addr, uint8_t value)
 {
     *(volatile uint8_t *)addr = value;
 }
@@ -48,7 +48,7 @@ static inline void raw_writeb(const volatile void *addr, uint8_t value)
 
 #ifndef raw_writew
 #define raw_writew raw_writew
-static inline void raw_writew(const volatile void *addr, uint16_t value)
+static inline void raw_writew(volatile void *addr, uint16_t value)
 {
     *(volatile uint16_t *)addr = value;
 }
@@ -56,7 +56,7 @@ static inline void raw_writew(const volatile void *addr, uint16_t value)
 
 #ifndef raw_writel
 #define raw_writel raw_writel
-static inline void raw_writel(const volatile void *addr, uint32_t value)
+static inline void raw_writel(volatile void *addr, uint32_t value)
 {
     *(volatile uint32_t *)addr = value;
 }
@@ -65,76 +65,75 @@ static inline void raw_writel(const volatile void *addr, uint32_t value)
 #ifdef CONFIG_ARCH_64BIT
 #ifndef raw_writeq
 #define raw_writeq raw_writeq
-static inline void raw_writeq(const volatile void *addr, uint64_t value)
+static inline void raw_writeq(volatile void *addr, uint64_t value)
 {
     *(volatile uint64_t *)addr = value;
 }
 #endif
 #endif /* CONFIG_ARCH_64BIT */
 
-
-#ifndef readb
-#define readb readb
-static inline uint8_t readb(void *addr)
+#ifndef readb_relax
+#define readb_relax readb_relax
+static inline uint8_t readb_relax(const volatile void *addr)
 {
     return raw_readb(addr);
 }
 #endif
 
-#ifndef readw
-#define readw readw
-static inline uint16_t readw(void *addr)
+#ifndef readw_relax
+#define readw_relax readw_relax
+static inline uint16_t readw_relax(const volatile void *addr)
 {
     return raw_readw(addr);
 }
 #endif
 
-#ifndef readl
-#define readl readl
-static inline uint32_t readl(void *addr)
+#ifndef readl_relax
+#define readl_relax readl_relax
+static inline uint32_t readl_relax(const volatile void *addr)
 {
     return raw_readl(addr);
 }
 #endif
 
 #ifdef CONFIG_ARCH_64BIT
-#ifndef readq
-#define readq readq
-static inline uint64_t readq(void *addr)
+#ifndef readq_relax
+#define readq_relax readq_relax
+static inline uint64_t readq_relax(const volatile void *addr)
 {
     return raw_readq(addr);
 }
 #endif
 #endif /* CONFIG_ARCH_64BIT */
 
-#ifndef writeb
-#define writeb writeb
-static inline void writeb(void *addr, uint8_t value)
+#ifndef writeb_relax
+#define writeb_relax writeb_relax
+static inline void writeb_relax(volatile void *addr, uint8_t value)
 {
     raw_writeb(addr, value);
 }
 #endif
 
-#ifndef writew
-#define writew writew
-static inline void writew(void *addr, uint16_t value)
+#ifndef writew_relax
+#define writew_relax writew_relax
+static inline void writew_relax(volatile void *addr, uint16_t value)
 {
     raw_writew(addr, value);
 }
 #endif
 
-#ifndef writel
-#define writel writel
-static inline void writel(void *addr, uint32_t value)
+#ifndef writel_relax
+#define writel_relax writel_relax
+static inline void writel_relax(volatile void *addr, uint32_t value)
 {
     raw_writel(addr, value);
 }
 #endif
 
 #ifdef CONFIG_ARCH_64BIT
-#ifndef writeq
-#define writeq writeq
-static inline void writeq(void *addr, uint64_t value)
+#ifndef writeq_relax
+#define writeq_relax writeq_relax
+static inline void writeq_relax(volatile void *addr, uint64_t value)
 {
     raw_writeq(addr, value);
 }
@@ -142,9 +141,9 @@ static inline void writeq(void *addr, uint64_t value)
 #endif /* CONFIG_ARCH_64BIT */
 
 
-#ifndef readb_sync
-#define readb_sync readb_sync
-static inline uint8_t readb_sync(void *addr)
+#ifndef readb
+#define readb readb
+static inline uint8_t readb(const volatile void *addr)
 {
     uint8_t val;
     barrier();
@@ -154,9 +153,9 @@ static inline uint8_t readb_sync(void *addr)
 }
 #endif
 
-#ifndef readw_sync
-#define readw_sync readw_sync
-static inline uint16_t readw_sync(void *addr)
+#ifndef readw
+#define readw readw
+static inline uint16_t readw(const volatile void *addr)
 {
     uint16_t val;
     barrier();
@@ -166,9 +165,9 @@ static inline uint16_t readw_sync(void *addr)
 }
 #endif
 
-#ifndef readl_sync
-#define readl_sync readl_sync
-static inline uint32_t readl_sync(void *addr)
+#ifndef readl
+#define readl readl
+static inline uint32_t readl(const volatile void *addr)
 {
     uint32_t val;
     barrier();
@@ -179,9 +178,9 @@ static inline uint32_t readl_sync(void *addr)
 #endif
 
 #ifdef CONFIG_ARCH_64BIT
-#ifndef readq_sync
-#define readq_sync readq_sync
-static inline uint64_t readq_sync(void *addr)
+#ifndef readq
+#define readq readq
+static inline uint64_t readq(const volatile void *addr)
 {
     uint64_t val;
     barrier();
@@ -193,27 +192,27 @@ static inline uint64_t readq_sync(void *addr)
 #endif
 #endif /* CONFIG_ARCH_64BIT */
 
-#ifndef writeb_sync
-#define writeb_sync writeb_sync
-static inline void writeb_sync(void *addr, uint8_t val)
+#ifndef writeb
+#define writeb writeb
+static inline void writeb(volatile void *addr, uint8_t val)
 {
     wmb();
     raw_writeb(addr, val);
 }
 #endif
 
-#ifndef writew_sync
-#define writew_sync writew_sync
-static inline void writew_sync(void *addr, uint16_t val)
+#ifndef writew
+#define writew writew
+static inline void writew(volatile void *addr, uint16_t val)
 {
     wmb();
     raw_writew(addr, val);
 }
 #endif
 
-#ifndef writel_sync
-#define writel_sync writel_sync
-static inline void writel_sync(void *addr, uint32_t val)
+#ifndef writel
+#define writel writel
+static inline void writel(volatile void *addr, uint32_t val)
 {
     wmb();
     raw_writel(addr, val);
@@ -221,9 +220,9 @@ static inline void writel_sync(void *addr, uint32_t val)
 #endif
 
 #ifdef CONFIG_ARCH_64BIT
-#ifndef writeq_sync
-#define writeq_sync writeq_sync
-static inline void writeq_sync(void *addr, uint64_t val)
+#ifndef writeq
+#define writeq writeq
+static inline void writeq(volatile void *addr, uint64_t val)
 {
     wmb();
     raw_writeq(addr, val);
@@ -351,8 +350,8 @@ static inline void writesq(volatile void *addr, const void *buffer, unsigned int
 #endif
 #endif /* CONFIG_ARCH_64BIT */
 
-#ifndef PCI_IOBASE
-#define PCI_IOBASE ((void *)0)
+#ifndef CONFIG_IOBASE
+#define CONFIG_IOBASE ((void *)0)
 #endif
 
 #ifndef inb
@@ -362,7 +361,7 @@ static inline uint8_t inb(unsigned long addr)
     uint8_t val;
 
     barrier();
-    val = raw_readb((void *)PCI_IOBASE + addr);
+    val = raw_readb((void *)CONFIG_IOBASE + addr);
     rmb();
     return val;
 }
@@ -375,7 +374,7 @@ static inline uint16_t inw(unsigned long addr)
     uint16_t val;
 
     barrier();
-    val = raw_readw((void *)PCI_IOBASE + addr);
+    val = raw_readw((void *)CONFIG_IOBASE + addr);
     rmb();
     return val;
 }
@@ -388,7 +387,7 @@ static inline uint32_t inl(unsigned long addr)
     uint32_t val;
 
     barrier();
-    val = raw_readl((void *)PCI_IOBASE + addr);
+    val = raw_readl((void *)CONFIG_IOBASE + addr);
     rmb();
     return val;
 }
@@ -399,7 +398,7 @@ static inline uint32_t inl(unsigned long addr)
 static inline void outb(unsigned long addr, uint8_t value)
 {
     wmb();
-    raw_writeb((void *)PCI_IOBASE + addr, value);
+    raw_writeb((void *)CONFIG_IOBASE + addr, value);
 }
 #endif
 
@@ -408,7 +407,7 @@ static inline void outb(unsigned long addr, uint8_t value)
 static inline void outw(unsigned long addr, uint16_t value)
 {
     wmb();
-    raw_writew((void *)PCI_IOBASE + addr, value);
+    raw_writew((void *)CONFIG_IOBASE + addr, value);
 }
 #endif
 
@@ -417,7 +416,7 @@ static inline void outw(unsigned long addr, uint16_t value)
 static inline void outl(unsigned long addr, uint32_t value)
 {
     wmb();
-    raw_writel((void *)PCI_IOBASE + addr, value);
+    raw_writel((void *)CONFIG_IOBASE + addr, value);
 }
 #endif
 
@@ -425,7 +424,7 @@ static inline void outl(unsigned long addr, uint32_t value)
 #define insb insb
 static inline void insb(unsigned long addr, void *buffer, unsigned int count)
 {
-    readsb(PCI_IOBASE + addr, buffer, count);
+    readsb(CONFIG_IOBASE + addr, buffer, count);
 }
 #endif
 
@@ -433,7 +432,7 @@ static inline void insb(unsigned long addr, void *buffer, unsigned int count)
 #define insw insw
 static inline void insw(unsigned long addr, void *buffer, unsigned int count)
 {
-    readsw(PCI_IOBASE + addr, buffer, count);
+    readsw(CONFIG_IOBASE + addr, buffer, count);
 }
 #endif
 
@@ -441,7 +440,7 @@ static inline void insw(unsigned long addr, void *buffer, unsigned int count)
 #define insl insl
 static inline void insl(unsigned long addr, void *buffer, unsigned int count)
 {
-    readsl(PCI_IOBASE + addr, buffer, count);
+    readsl(CONFIG_IOBASE + addr, buffer, count);
 }
 #endif
 
@@ -449,7 +448,7 @@ static inline void insl(unsigned long addr, void *buffer, unsigned int count)
 #define outsb outsb
 static inline void outsb(unsigned long addr, const void *buffer, unsigned int count)
 {
-    writesb(PCI_IOBASE + addr, buffer, count);
+    writesb(CONFIG_IOBASE + addr, buffer, count);
 }
 #endif
 
@@ -457,7 +456,7 @@ static inline void outsb(unsigned long addr, const void *buffer, unsigned int co
 #define outsw outsw
 static inline void outsw(unsigned long addr, const void *buffer, unsigned int count)
 {
-    writesw(PCI_IOBASE + addr, buffer, count);
+    writesw(CONFIG_IOBASE + addr, buffer, count);
 }
 #endif
 
@@ -465,8 +464,68 @@ static inline void outsw(unsigned long addr, const void *buffer, unsigned int co
 #define outsl outsl
 static inline void outsl(unsigned long addr, const void *buffer, unsigned int count)
 {
-    writesl(PCI_IOBASE + addr, buffer, count);
+    writesl(CONFIG_IOBASE + addr, buffer, count);
 }
 #endif
+
+#ifndef readq
+#define readq readq
+static inline uint64_t readq(const volatile void *addr)
+{
+    uint32_t low, high;
+
+    low = readl(addr);
+    high = readl(addr);
+
+    return ((uint64_t)high << 32) | low;
+}
+#endif
+
+#ifndef writeq
+#define writeq writeq
+static inline void writeq(volatile void *addr, uint64_t val)
+{
+    writel(addr, val);
+    writel(addr + 4, val >> 32);
+}
+#endif
+
+#ifndef readq_relax
+#define readq_relax readq_relax
+static inline uint64_t readq_relax(const volatile void *addr)
+{
+    uint32_t low, high;
+
+    low = readl(addr);
+    high = readl(addr);
+
+    return ((uint64_t)high << 32) | low;
+}
+#endif
+
+#ifndef writeq_relax
+#define writeq_relax writeq_relax
+static inline void writeq_relax(volatile void *addr, uint64_t val)
+{
+    writel_relax(addr, val);
+    writel_relax(addr + 4, val >> 32);
+}
+#endif
+
+#ifndef CONFIG_ARCH_HAS_PMIO
+# define ioreadb(addr) readb(addr)
+# define ioreadw(addr) readw(addr)
+# define ioreadl(addr) readl(addr)
+# define iowriteb(addr, val) writeb(addr, val)
+# define iowritew(addr, val) writew(addr, val)
+# define iowritel(addr, val) writel(addr, val)
+#else /* !CONFIG_ARCH_HAS_PMIO */
+# define ioreadb(addr) inb((resource_size_t)addr)
+# define ioreadw(addr) inw((resource_size_t)addr)
+# define ioreadl(addr) inl((resource_size_t)addr)
+# define iowriteb(addr, val) outb((resource_size_t)addr, val)
+# define iowritew(addr, val) outw((resource_size_t)addr, val)
+# define iowritel(addr, val) outl((resource_size_t)addr, val)
+#endif  /* CONFIG_ARCH_HAS_PMIO */
 
 #endif /* _ASM_GENERIC_IO_H_ */

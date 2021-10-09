@@ -1,8 +1,4 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-/*
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
- */ 
-
 #ifndef _DRIVER_NET_CH9200_H_
 #define _DRIVER_NET_CH9200_H_
 

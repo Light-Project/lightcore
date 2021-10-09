@@ -5,67 +5,92 @@
 
 #define pr_fmt(fmt) "ioremap: " fmt
 
-#include <stddef.h>
 #include <kernel.h>
-#include <spinlock.h>
-#include <rbtree.h>
 #include <list.h>
 #include <mm.h>
-#include <mm/ioremap.h>
+#include <kmalloc.h>
+#include <ioremap.h>
+#include <mm/vmem.h>
 #include <export.h>
 #include <printk.h>
 
+#include <asm/atomic.h>
 #include <asm/pgtable.h>
 
 static LIST_HEAD(ioremap_list);
 
-struct ioremap {
-    phys_addr_t start;
-    phys_addr_t end;
+struct ioremap_node {
     struct list_head list;
-    struct vm_area *vm_area;
-    int count;
+    struct vm_area vm_area;
+    phys_addr_t start;
+    atomic_t count;
 };
 
-// static struct ioremap *ioremap_find(phys_addr_t start, phys_addr_t end)
-// {
-//     struct ioremap *tmp, *io = NULL;
-//     list_for_each_entry(tmp, &ioremap_list, list)
-//         if((tmp->start <= start) && (tmp->end >= end)) {
-//             io = tmp;
-//             break;
-//         }
-//     return io;
-// }
+#define vm_to_ioremap(vm) \
+    container_of(vm, struct ioremap_node, vm_area)
 
-static struct ioremap *ioremap_get(phys_addr_t pa, size_t size)
+static inline struct ioremap_node *
+ioremap_find(phys_addr_t start, phys_addr_t end)
 {
-    struct vm_area *vm;
-    struct ioremap *io;
+    struct ioremap_node *node;
 
-    io = kzalloc(sizeof(*io), GFP_KERNEL);
-    if (unlikely(!io))
+    list_for_each_entry (node, &ioremap_list, list) {
+        phys_addr_t vm_end = node->start + node->vm_area.size;
+        if (node->start <= start && end <= vm_end)
+            return node;
+    }
+
+    return NULL;
+}
+
+static struct ioremap_node *remap_node(phys_addr_t pa, size_t size)
+{
+    struct ioremap_node *node;
+
+    node = kzalloc(sizeof(*node), GFP_KERNEL);
+    if (unlikely(!node))
         return NULL;
 
-    vm = vmem_alloc(size);
-    if (unlikely(!vm))
-        kfree(io);
+    if (vmem_area_alloc(&node->vm_area, size, PAGE_SIZE)) {
+        kfree(node);
+        return NULL;
+    }
 
     pa = align_low(pa, PAGE_SIZE);
-    arch_page_map(pa, vm->addr, vm->size);
+    arch_page_map(pa, node->vm_area.addr, node->vm_area.size);
 
-    io->start = pa;
-    io->end = pa + size;
-    io->vm_area = vm;
+    node->start = pa;
+    list_add_prev(&ioremap_list, &node->list);
+    return node;
+}
 
-    list_add_prev(&ioremap_list, &io->list);
+static void unmap_node(size_t addr)
+{
+    struct ioremap_node *node;
+    struct vm_area *vm;
 
-    return io;
+        return;
+    if (addr < CONFIG_HIGHMAP_OFFSET)
+        return;
+
+    vm = vmem_area_find(addr);
+    if (!vm) {
+        pr_err("unmap not found\n");
+        return;
+    }
+
+    node = vm_to_ioremap(vm);
+
+    if (atomic_dec_and_test(&node->count)) {
+        vmem_free(vm);
+        list_del(&node->list);
+        kfree(node);
+    }
 }
 
 void *ioremap(phys_addr_t pa, size_t size)
 {
-    struct ioremap *io;
+    struct ioremap_node *node;
     phys_addr_t offset;
 
     if (!size)
@@ -76,41 +101,28 @@ void *ioremap(phys_addr_t pa, size_t size)
         pa < CONFIG_HIGHMEM_OFFSET)
         return pa_to_va(pa);
 
+	/* Page-align mappings */
     offset = pa & ~PAGE_MASK;
     pa &= PAGE_MASK;
     size = align_high(size, PAGE_SIZE);
 
-    // io = ioremap_find(pa, pa + size);
-    // if (io)
-    //     goto got_io;
+    node = ioremap_find(pa, pa + size);
+    if (node)
+        goto got_io;
 
-    io = ioremap_get(pa, size);
-    if (!io)
+    node = remap_node(pa, size);
+    if (!node)
         return NULL;
 
-    io->count++;
-    return (void *)(io->vm_area->addr + offset);
+got_io:
+    atomic_inc(&node->count);
+    return (void *)(node->vm_area.addr + offset);
 }
 EXPORT_SYMBOL(ioremap);
 
+
 void iounmap(void *addr)
 {
-    struct ioremap *tmp, *io;
-    struct vm_area *va;
-
-    if (addr >= (void *)CONFIG_PAGE_OFFSET &&
-        addr < (void *)CONFIG_HIGHMAP_OFFSET)
-        return;
-
-    list_for_each_entry(tmp, &ioremap_list, list) {
-        va = tmp->vm_area;
-        if((va->addr <= (size_t)addr)&&((size_t)addr <= va->addr + va->size)) {
-            io = tmp;
-            break;
-        }
-    }
-
-    if (!--io->count)
-        list_del(&io->list);
+    unmap_node((size_t)addr);
 }
 EXPORT_SYMBOL(iounmap);

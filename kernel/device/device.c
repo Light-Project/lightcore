@@ -25,5 +25,4 @@ state device_register(struct device *dev)
 void device_unregister(struct device *dev)
 {
 
-
 }

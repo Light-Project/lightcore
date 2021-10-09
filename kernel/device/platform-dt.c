@@ -13,9 +13,9 @@
 #include <printk.h>
 
 static const struct dt_device_id dt_bus_table[] = {
-    { .compatible = "simple-bus", },
-    { .compatible = "amba-bus", },
-    { .compatible = "isa-bus", },
+    { .compatible = "simple-bus", .data = (void *)RESOURCE_MMIO },
+    { .compatible = "amba-bus", .data = (void *)RESOURCE_MMIO },
+    { .compatible = "isa-bus", .data = (void *)RESOURCE_PMIO },
     { }, /* NULL */
 };
 
@@ -24,8 +24,8 @@ static const struct dt_device_id dt_skipped_table[] = {
     { }, /* NULL */
 };
 
-static inline const struct dt_device_id *dt_device_match(const struct dt_device_id *ids,
-                                                         struct dt_node *node)
+static inline const struct dt_device_id *
+dt_device_match(const struct dt_device_id *ids, struct dt_node *node)
 {
     while ((ids->name && ids->name[0]) || (ids->type && ids->type[0]) ||
           (ids->compatible && ids->compatible[0])) {
@@ -36,8 +36,8 @@ static inline const struct dt_device_id *dt_device_match(const struct dt_device_
     return NULL;
 }
 
-const struct dt_device_id *platform_dt_match(struct platform_driver *pdrv,
-                                             struct platform_device *pdev)
+const struct dt_device_id *
+platform_dt_match(struct platform_driver *pdrv, struct platform_device *pdev)
 {
     if (!pdrv->dt_table || !pdev->dt_node)
         return NULL;
@@ -56,14 +56,14 @@ static __always_inline struct platform_device *dt_alloc_node(struct dt_node *nod
 	return pdev;
 }
 
-static inline state dt_populate_resource(struct platform_device *pdev)
+static inline state dt_populate_resource(struct platform_device *pdev, int type)
 {
     struct resource *res;
     int res_nr, count;
 
     res_nr = dt_address_nr(pdev->dt_node);
 
-    res = kmalloc(sizeof(*pdev->resource) * res_nr, GFP_KERNEL);
+    res = kzalloc(sizeof(*pdev->resource) * res_nr, GFP_KERNEL);
     if (!res)
         return -ENOMEM;
 
@@ -77,14 +77,14 @@ static inline state dt_populate_resource(struct platform_device *pdev)
             break;
 
         res->size = size;
-        res->type = RESOURCE_MMIO;
+        res->type = type;
         dt_attribute_read_string_index(pdev->dt_node, "reg-names", count, &res->name);
     }
 
     return -ENOERR;
 }
 
-static state platform_dt_setup_node(struct dt_node *node)
+static state platform_dt_setup_node(struct dt_node *node, const struct dt_device_id *id)
 {
 	struct platform_device *pdev;
 
@@ -93,27 +93,35 @@ static state platform_dt_setup_node(struct dt_node *node)
         return -ENOMEM;
 
     pr_debug("New device: %s\n", node->path);
-    dt_populate_resource(pdev);
+    pdev->dev.name = node->path;
+    dt_populate_resource(pdev, (int)id->data);
 
-    return device_register(&pdev->device);
+    return device_register(&pdev->dev);
 }
 
-state platform_dt_setup_bus(struct dt_node *bus, const struct dt_device_id *matches)
+state platform_dt_setup_bus(struct dt_node *bus, const struct dt_device_id *parent,
+                            const struct dt_device_id *matches)
 {
+    const struct dt_device_id *bus_id;
     struct dt_node *node;
+    state ret;
 
-    if(!dt_attribute_get(bus, "compatible", NULL))
+    if (!dt_attribute_get(bus, "compatible", NULL))
         return -ENOERR;
 
-    if(unlikely(dt_match(dt_skipped_table, bus)))
+    if (unlikely(dt_match(dt_skipped_table, bus)))
         return -ENOERR;
 
-    if(!dt_device_match(matches, bus))
-        return platform_dt_setup_node(bus);
+    bus_id = dt_device_match(matches, bus);
+    if (!bus_id && !parent)
+        return -ENOERR;
+    else if (!bus_id)
+        return platform_dt_setup_node(bus, parent);
 
     dt_for_each_child(node, bus) {
-        if (platform_dt_setup_bus(node, matches))
-            break;
+        ret = platform_dt_setup_bus(node, bus_id, matches);
+        if (ret)
+            return ret;
     }
 
     return -ENOERR;
@@ -122,10 +130,16 @@ state platform_dt_setup_bus(struct dt_node *bus, const struct dt_device_id *matc
 void __init platform_dt_init(void)
 {
     struct dt_node *bus;
+    state ret;
 
     if (!dt_root)
         return;
 
-    dt_for_each_child(bus, dt_root)
-        platform_dt_setup_bus(bus, dt_bus_table);
+    pr_debug("populate at: %p\n", dt_root);
+
+    dt_for_each_child(bus, dt_root) {
+        ret = platform_dt_setup_bus(bus, NULL, dt_bus_table);
+        if (ret)
+            break;
+    }
 }

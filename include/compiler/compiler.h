@@ -38,6 +38,7 @@ static inline void *offset_to_ptr(const int *off)
 {
     return (void *)((unsigned long)off + *off);
 }
+
 /*
  * Force a compilation error if condition is true, but also produce a
  * result (of value 0 and type int), so the expression can be used

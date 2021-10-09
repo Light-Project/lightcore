@@ -15,10 +15,9 @@ else
         -name "Lightcore for x86"           \
         -smp 2,sockets=1,cores=2,threads=1  \
         -m 64M                              \
-        -hda $image                         \
+        -fda $image                         \
         -device usb-ehci                    \
         -device piix3-usb-uhci              \
-        -device usb-kbd                     \
         -device ES1370                      \
         -soundhw pcspk                      \
         -serial stdio

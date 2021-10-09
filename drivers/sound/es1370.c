@@ -1,4 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
 
 #define DRIVER_NAME "es1370"
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
@@ -9,14 +12,12 @@
 #include <driver/pci.h>
 #include <driver/sound.h>
 #include <driver/sound/es1370.h>
-#include <driver/sound/codec-ak4531.h>
 
 #include <asm/io.h>
 
 struct ensoniq_device {
     struct snd_device device;
-    int irq;
-    uint16_t base;
+    resource_size_t base;
 };
 
 static __always_inline uint8_t
@@ -29,6 +30,13 @@ static __always_inline void
 es1370_outb(struct ensoniq_device *ensoniq, uint16_t reg, uint8_t val)
 {
     outb(ensoniq->base + reg, val);
+}
+
+static __always_inline void
+es1370_codec_write(struct ensoniq_device *ensoniq, uint16_t reg, uint8_t val)
+{
+
+
 }
 
 static irqreturn_t es1370_handle(irqnr_t vector, void *data)
@@ -76,16 +84,11 @@ static void es1370_hwinit(struct ensoniq_device *ensoniq)
 }
 
 static const struct pci_device_id es1370_pci_tbl[] = {
-    {
-        .vendor = PCI_VENDOR_ID_ENSONIQ,
-        .device = PCI_DEVICE_ID_ENSONIQ_ES1370,
-        .subvendor = PCI_ANY_ID,
-        .subdevice = PCI_ANY_ID,
-    },
-    { }
+    { PCI_DEVICE(PCI_VENDOR_ID_ENSONIQ, PCI_DEVICE_ID_ENSONIQ_ES1370) },
+    { }, /* NULL */
 };
 
-static state es1370_probe(struct pci_device *pdev, int pdata)
+static state es1370_probe(struct pci_device *pdev, void *pdata)
 {
     struct ensoniq_device *ensoniq;
 
@@ -103,18 +106,12 @@ static state es1370_probe(struct pci_device *pdev, int pdata)
     return -ENOERR;
 }
 
-static void es1370_remove(struct pci_device *pdev)
-{
-
-}
-
 static struct pci_driver es1370_pci_driver = {
     .driver = {
         .name = DRIVER_NAME,
     },
     .id_table = es1370_pci_tbl,
     .probe = es1370_probe,
-    .remove = es1370_remove,
 };
 
 static state es1370_init(void)

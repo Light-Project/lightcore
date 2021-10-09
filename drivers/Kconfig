@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: GPL-2.0-only
-
 menu "Device Drivers"
 
 source "drivers/acpi/Kconfig"
@@ -10,15 +9,15 @@ source "drivers/block/Kconfig"
 
 source "drivers/char/Kconfig"
 
-# source "drivers/clk/Kconfig"
+source "drivers/clk/Kconfig"
 
 source "drivers/clocksource/Kconfig"
 
 # source "drivers/cpufreq/Kconfig"
 
-source "drivers/dmi/Kconfig"
-
 source "drivers/dt/Kconfig"
+
+source "drivers/firmware/Kconfig"
 
 source "drivers/floppy/Kconfig"
 
@@ -42,7 +41,13 @@ source "drivers/mtd/Kconfig"
 
 source "drivers/net/Kconfig"
 
+source "drivers/parallel/Kconfig"
+
 source "drivers/pci/Kconfig"
+
+source "drivers/power/Kconfig"
+
+source "drivers/ps2/Kconfig"
 
 source "drivers/reset/Kconfig"
 

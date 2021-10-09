@@ -1,1 +1,1 @@
-obj-y += clk.o 
+obj-y += core/

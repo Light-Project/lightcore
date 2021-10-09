@@ -12,7 +12,7 @@ typedef uint8_t irqnr_t;
 
 struct idt_data {
     irqnr_t vector;         /* Vector number */
-    void *handle;           /* */   
+    void *handle;           /* */
     uint16_t segment;
     struct idt_bits bits;
 };
@@ -31,7 +31,7 @@ __visible void func(struct regs *regs, irqnr_t vector)          \
 }                                                               \
 static noinline void handler_##func(struct regs *regs, irqnr_t vector)
 
-void arch_idt_int(int vector, void *handle);
-void arch_idt_setup(void);
+void idt_int_gate(irqnr_t nr, void *handle);
+void idt_setup(void);
 
 #endif /* _ASM_X86_IDT_H_ */

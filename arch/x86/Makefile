@@ -1,9 +1,9 @@
 obj-y += boot/ lib/ mm/
 obj-y += entry.o
 obj-y += setup.o
-obj-y += power.o
 obj-y += proc.o
 obj-y += syscall.o
+obj-y += tsc.o
 
 obj-y += irq.o
 obj-y += idt.o

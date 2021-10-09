@@ -4,6 +4,10 @@
  */
 
 #include <mm.h>
+#include <kmalloc.h>
+#include <mm/memblock.h>
+#include <mm/region.h>
+#include <mm/vmem.h>
 #include <printk.h>
 
 void __init mem_init(void)
@@ -16,7 +20,8 @@ void __init mem_init(void)
     /* initialization buddy */
     memmodel_init();
     region_init();
-
     kmem_init();
+
+    kcache_init();
     vmem_init();
 }
