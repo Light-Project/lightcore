@@ -36,9 +36,6 @@ void __noreturn init_task(void)
 
     ksh_main();
 
-    while(1)
-        cpu_relax();
-
     /* Startup failed reset the machine */
     pr_emerg("No init executable found, system will reset:");
     for (count = 6; count; count--) {

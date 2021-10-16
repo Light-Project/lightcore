@@ -1,15 +1,19 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-
 include $(srctree)/platform.mk
 
-obj-y += $(arch)/ lib/ piggy.o
+obj-$(CONFIG_ARCH_ARM)     += arm/
+obj-$(CONFIG_ARCH_CSKY)    += csky/
+obj-$(CONFIG_ARCH_X86)     += x86/
+obj-$(CONFIG_ARCH_X86)     += x86/
+
+obj-y += lib/ piggy.o
 extra-y += kboot.lds
 
 include-y += $(arch)/ lib/
 
 kboot-asflags-y  += -D__ASSEMBLY__
 kboot-ccflags-y  += -std=gnu11
-kboot-acflags-y  += -ffreestanding -nostdinc -Wall -Werror -fPIE -fno-stack-protector -fno-common
+kboot-acflags-y  += -ffreestanding -nostdinc -fPIC -fno-stack-protector -fno-common
 kboot-ldsflags-y += -D__ASSEMBLY__
 kboot-elfflags-y += -T $(obj)/kboot.lds -Wl,--cref,-Map=$@.map
 kboot-elfflags-y += -Wl,--no-dynamic-linker -nostdlib

@@ -9,8 +9,8 @@
 extern struct bus_type platform_bus;
 
 struct platform_device {
-    const char *name;               /* Match witch driver */
-    struct device dev;              /* Generic device */
+    struct device dev;      /* Generic device */
+    const char *name;       /* Match witch driver */
 
     int         id;
     bool        id_auto;
@@ -24,7 +24,7 @@ struct platform_device {
     unsigned int resources_nr;
 };
 
-#define device_to_platform_device(devp)	\
+#define device_to_platform(devp)	\
     container_of((devp), struct platform_device, dev)
 
 static inline void *platform_get_devdata(const struct platform_device *pdev)

@@ -3,10 +3,48 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
+#include <string.h>
 #include <initcall.h>
 #include <driver/serio.h>
 #include <export.h>
 #include <printk.h>
+
+static __always_inline bool
+serio_device_match_one(const struct serio_device_id *id,
+                       struct serio_device *sdev)
+{
+    return ((id->type  == SERIO_ANY_ID || id->type  == sdev->id.type) &&
+            (id->extra == SERIO_ANY_ID || id->extra == sdev->id.extra));
+}
+
+static inline const struct serio_device_id *
+serio_device_match(struct serio_device *sdev,
+                   struct serio_driver *sdrv)
+{
+    const struct serio_device_id *sids = sdrv->id_table;
+
+    while (sids->type && sids->extra) {
+        if (serio_device_match_one(sids, sdev))
+            return sids;
+        ++sids;
+    }
+
+    return NULL;
+}
+
+static state serio_match(struct device *dev, struct driver *drv)
+{
+    struct serio_device *sdev = device_to_serio_device(dev);
+    struct serio_driver *sdrv = driver_to_serio_driver(drv);
+    const struct serio_device_id *sid;
+
+    sid = serio_device_match(sdev, sdrv);
+    if (!sid)
+        return -ENODEV;
+
+    device_set_pdata(dev, sid->data);
+    return -ENOERR;
+}
 
 static state serio_probe(struct device *dev)
 {
@@ -47,6 +85,7 @@ static state serio_shutdown(struct device *dev)
 
 struct bus_type serio_bus = {
     .name = "serio",
+    .match = serio_match,
     .probe = serio_probe,
     .remove = serio_remove,
     .shutdown = serio_shutdown,

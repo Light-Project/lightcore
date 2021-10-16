@@ -7,8 +7,10 @@
 
 #include <state.h>
 #include <kmalloc.h>
-#include <vmap.h>
+#include <vmalloc.h>
 #include <mm/page.h>
+
+static struct kcache *vmalloc_cache;
 
 /**
  * vmap - mapping page arrays to contiguous virtual addresses.
@@ -85,12 +87,13 @@ fail:
 
 void *vmalloc_node(size_t size, size_t align, gfp_t gfp)
 {
-    struct vm_area;
+    struct vmalloc_area *vmalloc;
+
+    vmalloc = kcache_zalloc(vmalloc_cache, GFP_KERNEL);
 
     vm_area = vmem_alloc(size, );
 
     kmalloc_get_page(vm_area);
-
 }
 
 void *vmalloc(size_t size)
@@ -120,4 +123,10 @@ void vfree(void *addr)
         list_del(&node->list);
         kfree(node);
     }
+}
+
+void __init vmalloc_init(void)
+{
+    vmalloc_cache = kcache_create("kmalloc",
+        sizeof(struct vmalloc_area), KCACHE_PANIC);
 }

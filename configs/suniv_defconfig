@@ -1,4 +1,4 @@
-# Default configuration of suniv
+# Default configuration of allwinner suniv
 
 # arch
 CONFIG_ARCH_ARM=y

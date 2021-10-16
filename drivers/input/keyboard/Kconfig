@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig INPUT_KEYBOARD
-    bool "Input device support"
+    bool "Input keyboard support"
 if INPUT_KEYBOARD
 
 config INPUT_ATKBD
     bool "AT and PS/2 keyboard support"
+    depends on SERIO
 
 endif

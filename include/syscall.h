@@ -3,25 +3,40 @@
 #define _SYSCALL_H_
 
 #include <types.h>
-#include <linkage.h>
+#include <state.h>
+#include <initcall.h>
 
 enum syscall_number {
-    SYS_RESTART     = 0,
-    SYS_EXIT        = 1,
-    SYS_FORK        = 2,
-    SYS_READ        = 3,
-    SYS_WRITE       = 4,
-    SYS_OPEN        = 5,
-    SYS_CLOSE       = 6,
-    SYS_WAITPID     = 7,
-    SYS_CREAT       = 8,
-    SYS_LINK        = 9,
-    SYS_NR_MAX,
+    SYSCALL_NR_RESTART  = 0,
+    SYSCALL_NR_EXIT     = 1,
+    SYSCALL_NR_FORK     = 2,
+    SYSCALL_NR_READ     = 3,
+    SYSCALL_NR_WRITE    = 4,
+    SYSCALL_NR_OPEN     = 5,
+    SYSCALL_NR_CLOSE    = 6,
+    SYSCALL_NR_WAITPID  = 7,
+    SYSCALL_NR_CREAT    = 8,
+    SYSCALL_NR_LINK     = 9,
+    SYSCALL_NR_MAX      = 512,
 };
 
-asmlinkage ssize_t sys_read(unsigned int fd, char *buf, size_t count);
-asmlinkage ssize_t sys_write(unsigned int fd, const char *buf, size_t count);
-asmlinkage int sys_open(const char *filename, int flags, umode_t mode);
-asmlinkage int sys_close(unsigned int fd);
+struct syscall_entry {
+    const char *name;
+    state (*entry)(void);
+    unsigned int args;
+};
+
+state syscall_register(unsigned int call_num, struct syscall_entry *syscall);
+void syscall_unregister(unsigned int call_num);
+
+#define SYSCALL_ENTRY(call_num, fun, arg_nr)                \
+    static struct syscall_entry  entry_##fun = {            \
+        .name = __stringify(fun), .args = arg_nr,           \
+    };                                                      \
+    static state init_##fun(void)                           \
+    {                                                       \
+        return syscall_register(call_num, &entry_##fun);    \
+    }                                                       \
+    core_initcall(init_##fun)
 
 #endif  /* _SYSCALL_H_ */

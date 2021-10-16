@@ -1,2 +1,2 @@
-obj-y += startup.o 
-obj-$(CONFIG_SMP) += smpboot.o
+# SPDX-License-Identifier: GPL-2.0-or-later
+obj-y += startup.o

@@ -121,11 +121,10 @@ static void pci_bus_speed_setup(struct pci_bus *bus)
 }
 
 /**
- * pci_res_size - Conversion pci size
+ * pci_res_type - Conversion pci bar type
  * @defgroup: pci_resource_set
  */
-static __always_inline
-enum resource_type pci_res_type(uint32_t bar)
+static inline enum resource_type pci_res_type(uint32_t bar)
 {
     if ((bar & PCI_BASE_ADDRESS_SPACE) == PCI_BASE_ADDRESS_SPACE_IO)
         return RESOURCE_PMIO;
@@ -136,11 +135,11 @@ enum resource_type pci_res_type(uint32_t bar)
 }
 
 /**
- * pci_res_size - Conversion pci size
+ * pci_res_size - Conversion pci bar size
  * @defgroup: pci_resource_set
  * @base: base addr
  */
-uint64_t pci_res_size(uint64_t base, uint64_t size, uint64_t mask)
+static inline uint64_t pci_res_size(uint64_t base, uint64_t size, uint64_t mask)
 {
     u64 rsize = size & mask;
 
@@ -159,8 +158,8 @@ uint64_t pci_res_size(uint64_t base, uint64_t size, uint64_t mask)
  * pci_resource_set - Setting one resource through pci bar
  * @defgroup: pci_resource_setup
  */
-static int pci_resource_set(struct pci_device *pdev, enum pci_bar_type type,
-                            struct resource *res, unsigned int reg)
+bool pci_resource_set(struct pci_device *pdev, enum pci_bar_type type,
+                      struct resource *res, unsigned int reg)
 {
     uint32_t l, sz, mask;
     uint64_t l64, sz64, mask64;
@@ -221,7 +220,7 @@ static int pci_resource_set(struct pci_device *pdev, enum pci_bar_type type,
 error:
     res->type = RESOURCE_NONE;
 exit:
-    return (res->type == RESOURCE_MMIO64) ? 1 : 0;
+    return res->type == RESOURCE_MMIO64;
 }
 
 /**

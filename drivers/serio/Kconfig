@@ -1,0 +1,8 @@
+menuconfig SERIO
+    bool "Serio device support"
+if SERIO
+
+config SERIO_I8042
+    bool "I8042 PS2 support"
+
+endif

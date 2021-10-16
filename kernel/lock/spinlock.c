@@ -29,7 +29,6 @@ void raw_spin_lock_irq(raw_spinlock_t *lock)
 
 void raw_spin_unlock_irq(raw_spinlock_t *lock)
 {
-
     cpu_irq_enable();
 }
 

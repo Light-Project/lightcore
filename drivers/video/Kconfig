@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig VIDEO
 bool "Video device support"
 if VIDEO
@@ -9,6 +10,9 @@ config FBCON
 
 config VIDEO_GX6605S
     bool "Support Nationalchip gx6605s framebuffer"
+
+config VIDEO_I810
+    bool "Support I810 framebuffer"
 
 config VIDEO_PL11X
     bool "Support arm pl11x framebuffer"

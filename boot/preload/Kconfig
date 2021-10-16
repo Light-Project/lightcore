@@ -6,7 +6,12 @@ choice
     prompt "Chip platform selection"
 
 config CHIP_SUNIV
+    depends on ARCH_ARM
     bool "Allwinner F-series SoCs support"
+
+config CHIP_RK3399
+    depends on ARCH_ARM64
+    bool "Rockchip RK3399 support"
     
 config CHIP_X86
     depends on ARCH_X86

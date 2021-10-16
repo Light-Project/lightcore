@@ -6,7 +6,7 @@
 #include <asm/entry.h>
 #include <asm/regs.h>
 
-void generic_interrupt(irqnr_t vector)
+asmlinkage __visible void generic_interrupt(unsigned long irqnr)
 {
-    irq_handle(vector);
+    irq_handle(irqnr);
 }

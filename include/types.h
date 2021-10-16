@@ -45,14 +45,15 @@ typedef size_t          uintptr_t;
 typedef size_t          phys_addr_t;
 typedef size_t          dma_addr_t;
 typedef size_t          resource_size_t;
-
 typedef uint32_t        gfp_t;
+
 
 typedef short           mode_t;
 typedef unsigned short  umode_t;
 typedef unsigned int    pid_t;
 typedef uint32_t        uid_t;
 typedef uint32_t        gid_t;
+typedef uint64_t        time_t;
 
 typedef long long       loff_t;
 typedef uint64_t        sector_t;

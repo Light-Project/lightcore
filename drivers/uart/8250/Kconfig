@@ -5,6 +5,9 @@ if UART_8250
 config UART_8250_ISA
     bool "8250 ISA support"
 
+config UART_8250_PCI
+    bool "8250 PCI support"
+
 endif
 
 config UART_8250_CON

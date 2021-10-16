@@ -7,15 +7,15 @@ menu "General setup"
 config DEFAULT_HOSTNAME
     string "Default hostname"
     default "none"
-    
+
 config DEFAULT_INIT
     string "Default init path"
     default ""
-        
+
 config SYSVIPC
     bool "System V IPC"
     default y
-    
+
 config KSHELL
     bool "Accept kernel instructions"
     default y
@@ -23,20 +23,25 @@ config KSHELL
 config SYSTICK_FREQ
     int "System tick frequency"
     range 100 1000
-    default 300
-    
+    default 1000
+
 config EXPERT
     bool "Configure standard kernel features (expert users)"
-            
+
 config BOOT_PARAMS
     bool "Accept kernel instructions"
     default y
-    
+
 config BUILTIN_DTB
     bool "builtin dtb"
 
 config BUILTIN_DTB_PATH
     string "builtin dtb path"
     depends on BUILTIN_DTB
-    
-endmenu 
+
+config LOGO
+    bool "display logo on startup"
+    depends on VIDEO
+    default y
+
+endmenu

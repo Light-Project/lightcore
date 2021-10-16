@@ -241,7 +241,7 @@ AcpiOsCreateCache (
     UINT16                  MaxDepth,
     ACPI_CACHE_T            **ReturnCache)
 {
-    *ReturnCache = kcache_create(CacheName, ObjectSize, MSIZE);
+    *ReturnCache = kcache_create(CacheName, ObjectSize, 0);
     return *ReturnCache ? (AE_OK) : (AE_ERROR);
 }
 

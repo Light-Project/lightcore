@@ -84,7 +84,7 @@ void __init idt_setup(void)
 
     for(count = IRQ_EXTERNAL; count < IRQ_NR_MAX; ++count)
         idt_int_gate(count, (void *)((size_t)entry_generic_interrupt +
-        (0x10 * (count - IRQ_EXTERNAL))));
+        (0x20 * (count - IRQ_EXTERNAL))));
 
     idt_load(&idt_struct);
 }

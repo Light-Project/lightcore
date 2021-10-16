@@ -2,7 +2,7 @@
 #ifndef _DRIVER_FLOPPY_H_
 #define _DRIVER_FLOPPY_H_
 
-/* 
+/*
  * The 82077AA floppy disk controller has completely integrated all of the logic required for floppy disk control.
  * The 82077AA, a 24 MHz crystal, a resistor package and a device chip select implements a PC AT or PS/2
  * solution. All programmable options default to compatible values. The dual PLL data separator has better
@@ -15,50 +15,44 @@
  */
 
 enum floppy_registers {
-    FLOPPY_STATUS_REGISTER_A                = 0x00, // SRA: read-only
-    FLOPPY_STATUS_REGISTER_B                = 0x01, // SRB: read-only
-    FLOPPY_DIGITAL_OUTPUT_REGISTER          = 0x02, // DOR: read-write
-    FLOPPY_TAPE_DRIVE_REGISTER              = 0x03, // TDR: read-write
-    FLOPPY_MAIN_STATUS_REGISTER             = 0x04, // MSR: read-only
-    FLOPPY_DATARATE_SELECT_REGISTER         = 0x04, // DSR: write-only
-    FLOPPY_DATA_FIFO                        = 0x05, // DF:  read-write
-    FLOPPY_DIGITAL_INPUT_REGISTER           = 0x07, // DIR: read-only
-    FLOPPY_CONFIGURATION_CONTROL_REGISTER   = 0x07, // CCR: write-only
+    FLOPPY_SRA      = 0x00, /* (RO): STATUS REGISTER A */
+    FLOPPY_SRB      = 0x01, /* (RO): STATUS REGISTER B */
+    FLOPPY_DOR      = 0x02, /* (RW): DIGITAL OUTPUT_REGISTER */
+    FLOPPY_TDR      = 0x03, /* (RW): TAPE DRIVE REGISTER */
+    FLOPPY_MSR      = 0x04, /* (RO): MAIN STATUS REGISTER */
+    FLOPPY_DSR      = 0x04, /* (WO): DATARATE SELECT REGISTER */
+    FLOPPY_FIFO     = 0x05, /* (RW): DATA FIFO */
+    FLOPPY_DIR      = 0x07, /* (RO): DIGITAL INPUT REGISTER */
+    FLOPPY_CCR      = 0x07, /* (WO): CONFIGURATION CONTROL REGISTER */
 };
 
 enum floppy_commands {
-    FLOPPY_COMMAND_READ_TRACK           = 2,    // generates IRQ6
-    FLOPPY_COMMAND_SPECIFY              = 3,    // * set drive parameters
-    FLOPPY_COMMAND_SENSE_DRIVE_STATUS   = 4,    //
-    FLOPPY_COMMAND_WRITE_DATA           = 0xc5, // * write to the disk
-    FLOPPY_COMMAND_READ_DATA            = 0xe6, // * read from the disk
-    FLOPPY_COMMAND_RECALIBRATE          = 7,    // * seek to cylinder 0
-    FLOPPY_COMMAND_SENSE_INTERRUPT      = 8,    // * ack IRQ6, get status of last command
-    FLOPPY_COMMAND_WRITE_DELETED_DATA   = 9,    //
-    FLOPPY_COMMAND_READ_ID              = 10,   // generates IRQ6
-    FLOPPY_COMMAND_READ_DELETED_DATA    = 12,   //
-    FLOPPY_COMMAND_FORMAT_TRACK         = 13,   // *
-    FLOPPY_COMMAND_DUMPREG              = 14,   //
-    FLOPPY_COMMAND_SEEK                 = 0x0f, // * seek both heads to cylinder X
-    FLOPPY_COMMAND_VERSION              = 16,   // * used during initialization, once
-    FLOPPY_COMMAND_SCAN_EQUAL           = 17,   //
-    FLOPPY_COMMAND_PERPENDICULAR_MODE   = 18,   // * used during initialization, once, maybe
-    FLOPPY_COMMAND_CONFIGURE            = 19,   // * set controller parameters
-    FLOPPY_COMMAND_LOCK                 = 20,   // * protect controller params from a reset
-    FLOPPY_COMMAND_VERIFY               = 22,   //
-    FLOPPY_COMMAND_SCAN_LOW_OR_EQUAL    = 25,   //
-    FLOPPY_COMMAND_SCAN_HIGH_OR_EQUAL   = 29,   //
-
-    /* DMA commands */
-
-    
-    /* the following commands are new in the 82078 */
-    FLOPPY_COMMAND_PARTID               = 0x18, // part id, extended version
-
+    FLOPPY_CMD_READ_TRACK           = 2,    // generates IRQ6
+    FLOPPY_CMD_SPECIFY              = 3,    // set drive parameters
+    FLOPPY_CMD_SENSE_DRIVE_STATUS   = 4,    //
+    FLOPPY_CMD_WRITE_DATA           = 0xc5, // write to the disk
+    FLOPPY_CMD_READ_DATA            = 0xe6, // read from the disk
+    FLOPPY_CMD_RECALIBRATE          = 7,    // seek to cylinder 0
+    FLOPPY_CMD_SENSE_INTERRUPT      = 8,    // ack IRQ6, get status of last command
+    FLOPPY_CMD_WRITE_DELETED_DATA   = 9,    //
+    FLOPPY_CMD_READ_ID              = 0x4a, // generates IRQ6
+    FLOPPY_CMD_READ_DELETED_DATA    = 12,   //
+    FLOPPY_CMD_FORMAT_TRACK         = 13,   //
+    FLOPPY_CMD_DUMPREG              = 14,   //
+    FLOPPY_CMD_SEEK                 = 15,   // seek both heads to cylinder X
+    FLOPPY_CMD_VERSION              = 16,   // used during initialization, once
+    FLOPPY_CMD_SCAN_EQUAL           = 17,   //
+    FLOPPY_CMD_PERPENDICULAR_MODE   = 18,   // used during initialization, once, maybe
+    FLOPPY_CMD_CONFIGURE            = 19,   // set controller parameters
+    FLOPPY_CMD_LOCK                 = 20,   // protect controller params from a reset
+    FLOPPY_CMD_VERIFY               = 22,   //
+    FLOPPY_CMD_PARTID               = 24,   // part id, extended version
+    FLOPPY_CMD_SCAN_LOW_OR_EQUAL    = 25,   //
+    FLOPPY_CMD_SCAN_HIGH_OR_EQUAL   = 29,   //
 
 };
 
-enum floppy_version {
+enum fdc_version {
     FDC_NONE        = 0x00,
     FDC_UNKNOWN     = 0x10,
     FDC_8272A       = 0x20,     /* Intel 8272a, NEC 765 */
@@ -95,7 +89,7 @@ enum floppy_version {
 #define FLOPPY_SRB_MOT1         0x02
 #define FLOPPY_SRB_MOT0         0x01
 
-/* 
+/*
  * The Digital Output Register contains the drive select
  * and motor enable bits, a reset bit and a DMA GATE bit.
  */
@@ -105,12 +99,12 @@ enum floppy_version {
 #define FLOPPY_DOR_MOTOR_C      0x40        // Set to turn drive 2's motor ON
 #define FLOPPY_DOR_MOTOR_B      0x20        // Set to turn drive 1's motor ON
 #define FLOPPY_DOR_MOTOR_A      0x10        // Set to turn drive 0's motor ON
-#define FLOPPY_DOR_MOTOR_MASK   0xf0        
+#define FLOPPY_DOR_MOTOR_MASK   0xf0
 #define FLOPPY_DOR_IRQ          0x08        // Set to enable IRQs and DMA
 #define FLOPPY_DOR_RESET        0x04        // Clear = enter reset mode, Set = normal operation
 #define FLOPPY_DOR_DSEL_MASK    0x03        // Select drive number for next access
 
-/* 
+/*
  * This register allows the user to assign tape support
  * to a particular drive during initialization. Any future
  * references to that drive number automatically in-
@@ -132,14 +126,14 @@ enum floppy_version {
  */
 
 /* MSR bitflag definitions */
-#define FLOPPY_MSR_RQM          0x80        // Set if it's OK (or mandatory) to exchange bytes with the FIFO IO port 
-#define FLOPPY_MSR_DIO          0x40        // Set if FIFO IO port expects an IN opcode 
-#define FLOPPY_MSR_NDMA         0x20        // Set in Execution phase of PIO mode read/write commands only. 
-#define FLOPPY_MSR_CB           0x10        // Command Busy: set when command byte received, cleared at end of Result phase 
-#define FLOPPY_MSR_ACTD         0x08        // Drive 3 is seeking 
-#define FLOPPY_MSR_ACTC         0x04        // Drive 2 is seeking 
-#define FLOPPY_MSR_ACTB         0x02        // Drive 1 is seeking 
-#define FLOPPY_MSR_ACTA         0x01        // Drive 0 is seeking 
+#define FLOPPY_MSR_RQM          0x80        // Set if it's OK (or mandatory) to exchange bytes with the FIFO IO port
+#define FLOPPY_MSR_DIO          0x40        // Set if FIFO IO port expects an IN opcode
+#define FLOPPY_MSR_NDMA         0x20        // Set in Execution phase of PIO mode read/write commands only.
+#define FLOPPY_MSR_CB           0x10        // Command Busy: set when command byte received, cleared at end of Result phase
+#define FLOPPY_MSR_ACTD         0x08        // Drive 3 is seeking
+#define FLOPPY_MSR_ACTC         0x04        // Drive 2 is seeking
+#define FLOPPY_MSR_ACTB         0x02        // Drive 1 is seeking
+#define FLOPPY_MSR_ACTA         0x01        // Drive 0 is seeking
 
 /*
  * This register is included for compatibility with the
@@ -161,17 +155,18 @@ enum floppy_version {
 #define FLOPPY_DSR_COMP_166     0x10        // Precompensation Delay: 166.67 ns
 #define FLOPPY_DSR_COMP_125     0x0c        // Precompensation Delay: 125.00 ns
 #define FLOPPY_DSR_COMP_83      0x08        // Precompensation Delay: 83.34 ns
-#define FLOPPY_DSR_COMP_41      0x04        // Precompensation Delay: 41.67 ns 
+#define FLOPPY_DSR_COMP_41      0x04        // Precompensation Delay: 41.67 ns
 #define FLOPPY_DSR_COMP_DEF     0x00        // Precompensation Delay: DEFAULT
 
+#define FLOPPY_DSR_RATE_MASK    0x03
 #define FLOPPY_DSR_RATE_1M      0x03        // Data Rates: 1 Mbps
 #define FLOPPY_DSR_RATE_250K    0x02        // Data Rates: 250 Kbps
 #define FLOPPY_DSR_RATE_300K    0x01        // Data Rates: 300 Kbps
 #define FLOPPY_DSR_RATE_500K    0x00        // Data Rates: 500 Kbps
 
-/* 
- *  FIFO: The FIFO register may not have a 16byte buffer in all modes, 
- *  but this is a minor difference that does not really affect its operation. 
+/*
+ *  FIFO: The FIFO register may not have a 16byte buffer in all modes,
+ *  but this is a minor difference that does not really affect its operation.
  */
 
 /* FIFO bitflag definitions */
@@ -217,8 +212,6 @@ enum floppy_version {
 #define FLOPPY_ST2_BC           0x02
 #define FLOPPY_ST2_MAM          0x01
 
-/*************************************************************************************/
-
 #define FLOPPY_SECTOR_SIZE_128  0
 #define FLOPPY_SECTOR_SIZE_256  1
 #define FLOPPY_SECTOR_SIZE_512  2
@@ -228,13 +221,8 @@ enum floppy_version {
 #define FLOPPY_SECTOR_SIZE_8K   6
 #define FLOPPY_SECTOR_SIZE_16K  7
 
-#define FDC_NR      2
-#define DRIVE_NR    2
-
-#define FDC1_BASE   0x3f0
-#define FDC2_BASE   0x370
-
-#define FD_MAX_CMD_SIZE 16
-#define FD_MAX_REPLY_SIZE 16
+#define FD_MAX_CMD_SIZE     16
+#define FD_MAX_REPLY_SIZE   16
+#define DRIVER_PER_FDC      2
 
 #endif /* _DRIVER_FLOPPY_H_ */

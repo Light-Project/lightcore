@@ -6,6 +6,7 @@
 #include <kernel.h>
 #include <console.h>
 #include <time.h>
+#include <timer.h>
 #include <export.h>
 #include <printk.h>
 
@@ -20,11 +21,11 @@ static const char *printk_level(const char *str, enum klevel *klevel)
 {
     char kern_level;
 
-    for(*klevel = KLEVEL_DEFAULT; *str; str += 2) {
+    for (*klevel = KLEVEL_DEFAULT; *str; str += 2) {
         kern_level = printk_get_level(str);
+
         if (!kern_level)
             break;
-
         switch (kern_level) {
             case '0' ... '9':
                 *klevel = kern_level - '0';
@@ -34,14 +35,27 @@ static const char *printk_level(const char *str, enum klevel *klevel)
     return str;
 }
 
+static int printk_time(char *buffer, struct timespec *time)
+{
+    return sprintf(buffer, "[%5llu.%06lu] ",
+        time->tv_sec, time->tv_nsec / 1000);
+}
+
 static int vprintk(const char *fmt, va_list args)
 {
-    char buffer[256];
+    char buffer[256], *p = buffer;
+    struct timespec time;
     enum klevel klevel;
     int len;
 
     fmt = printk_level(fmt, &klevel);
-    len = vsnprintf(buffer, sizeof(buffer), fmt, args);
+
+    time.tv_sec  = ticktime / CONFIG_SYSTICK_FREQ;
+    time.tv_nsec = (ticktime % CONFIG_SYSTICK_FREQ) * (1000000000 / CONFIG_SYSTICK_FREQ);
+
+    p += printk_time(p, &time);
+    p += vsprintf(p, fmt, args);
+    len = p - buffer;
 
     console_write(buffer, len);
     return len;

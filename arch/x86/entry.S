@@ -33,10 +33,6 @@
 .endm
 
 SYM_CODE_START(entry_switch_stack)
-    pushl   %ebp
-    pushl   %ebp
-    pushl   %ebp
-    pushl   %ebp
 
 SYM_CODE_END(entry_switch_stack)
 
@@ -55,7 +51,7 @@ SYM_CODE_START(entry_general_protection)
 
     pushl   %esp
     call    trap_general_protection
-    subl    $4, %esp
+    addl    $4, %esp
 
     REC_REGS
     iret
@@ -63,13 +59,13 @@ SYM_CODE_END(entry_general_protection)
 
 /**
  * Arguments:
- * eax  system call number
- * ebx  arg1
- * ecx  arg2
- * edx  arg3
- * esi  arg4
- * edi  arg5
- * ebp  arg6
+ * eax: system call number
+ * ebx: arg1
+ * ecx: arg2
+ * edx: arg3
+ * esi: arg4
+ * edi: arg5
+ * ebp: arg6
  */
 SYM_CODE_START(entry_syscall_80)
     clac
@@ -77,31 +73,28 @@ SYM_CODE_START(entry_syscall_80)
 
     pushl   %esp
     call    arch_syscall_80
-    subl    $4, %esp
+    addl    $4, %esp
 
     REC_REGS
     iret
 SYM_CODE_END(entry_syscall_80)
 
 SYM_CODE_START(entry_generic_interrupt)
-    vector=IRQ_EXTERNAL
-
+    vector = IRQ_EXTERNAL
 .rept(IRQ_NR_MAX - IRQ_EXTERNAL)
-0:
-    movl    $vector, %eax
-    jmp	    1f
+1:
+    SAVE_REGS
+    pushl   $vector
+    jmp     2f
 
-	. = 0b + 0x10
-	vector = vector + 1
+    . = 1b + 0x20
+    vector = vector + 1
 .endr
 
-1:
-    cli
-    pushl   %eax
-
+2:
     call    generic_interrupt
     addl    $4, %esp
 
-    sti
+    REC_REGS
     iret
 SYM_CODE_END(entry_generic_interrupt)

@@ -107,7 +107,7 @@ uint32_t ccu_sys(uint32_t freq)
 {
     uint32_t n = clock_periph / freq;
 
-    n = clamp(n, 1U, 4U);
+    n = clamp(n, 1, 4);
 
     /*
      * AHB_CLK_SRC = PLL_PERIPH / n (AHB_PRE_DIV)

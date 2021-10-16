@@ -1,18 +1,12 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 obj-y += boot/ lib/ mm/
-obj-y += entry.o
-obj-y += setup.o
-obj-y += proc.o
-obj-y += syscall.o
-obj-y += tsc.o
-
-obj-y += irq.o
-obj-y += idt.o
-obj-y += backtrace.o
-obj-y += traps.o
+obj-y += setup.o entry.o proc.o syscall.o
+obj-y += idt.o irq.o backtrace.o traps.o
+obj-y += tsc.o pre_printk.o
 
 obj-$(CONFIG_SMP) += smp.o
-
-obj-y += pre_printk.o
+subdir-$(CONFIG_SMP) += smpboot/
+$(obj)/smp.o: $(obj)/smpboot/
 
 extra-y += kernel.lds
 clean-y += include/generated/

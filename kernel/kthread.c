@@ -3,17 +3,41 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <mm.h>
+#include <error.h>
+#include <kmalloc.h>
+#include <sched.h>
 #include <kthread.h>
 
-struct task *kthread_create(kthread_t kthread, void *data,
-                            const char *name, ...)
+static LIST_HEAD(kthread_list);
+
+staitc
+
+state kthread_entry(void *data)
 {
-    struct task *task;
+    struct kthread_worker *worker = data;
+    struct kthread_work *work;
+
+    list_for_each_entry(work, &worker->work, list) {
+
+    }
+
+}
+
+state kthread_work_enqueue()
+{
+
+}
+
+struct kthread_worker *
+kthread_worker_create(kthread_t kthread, void *data, const char *name)
+{
+    struct kthread_worker *worker;
 
     task = kzalloc(sizeof(*task), GFP_KERNEL);
     if (task)
+        return PTR_ERR(task);
 
+    list_add(&kthread_list, task->);
 
     return task;
 }

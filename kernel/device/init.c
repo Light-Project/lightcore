@@ -7,7 +7,7 @@
 #include <driver/dt/fdt.h>
 #include <driver/acpi.h>
 #include <driver/platform.h>
-#include "base.h"
+#include <device.h>
 
 #include <asm-generic/header.h>
 

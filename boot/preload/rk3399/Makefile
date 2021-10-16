@@ -1,0 +1,1 @@
+extra-y += boot.lds

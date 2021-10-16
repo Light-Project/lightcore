@@ -6,7 +6,6 @@
 #define pr_fmt(fmt) "device: " fmt
 
 #include <device.h>
-#include "base.h"
 #include <printk.h>
 
 state device_register(struct device *dev)

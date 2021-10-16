@@ -8,6 +8,8 @@
 
 #include <string.h>
 #include <initcall.h>
+#include <kmalloc.h>
+#include <ioremap.h>
 #include <driver/platform.h>
 #include <driver/video.h>
 #include <driver/video/gx6605s.h>
@@ -22,8 +24,8 @@ struct gx6605s_device {
     int byteseq;
 };
 
-#define video_to_gdev(video_device) \
-    container_of(video_device, struct gx6605s_device, video)
+#define video_to_gdev(vdev) \
+    container_of(vdev, struct gx6605s_device, video)
 
 enum gx6605s_byte_order {
     GX6605S_DCBA_HGFE   = 0,
@@ -90,19 +92,19 @@ enum gx6605s_color_fmt {
 
 static uint32_t palette_buffer[2] = {0, 0xff00ff00};
 
-static inline uint32_t
+static __always_inline uint32_t
 gx6605s_readl(struct gx6605s_device *gdev, uint16_t reg)
 {
     return readl(gdev->mmio + reg);
 }
 
-static inline void
+static __always_inline void
 gx6605s_writel(struct gx6605s_device *gdev, uint16_t reg, uint32_t val)
 {
     writel(gdev->mmio + reg, val);
 }
 
-static inline void
+static __always_inline void
 gx6605s_mask(struct gx6605s_device *gdev, uint16_t reg, uint32_t clr, uint32_t set)
 {
     uint32_t val = gx6605s_readl(gdev, reg);
@@ -203,7 +205,6 @@ static void gx6605s_format_set(struct gx6605s_device *gdev, enum gx6605s_color_f
 
 static state gx6605s_setmode(struct video_device *vdev)
 {
-
     return -ENOERR;
 }
 
@@ -233,18 +234,21 @@ static state gx6605s_hwinit(struct platform_device *pdev)
     start = platform_resource_start(pdev, 0);
     size = platform_resource_size(pdev, 0);
 
-    gdev->mmio = ioremap(start, size);
-    if (!gdev->mmio)
+    gdev->mmio = dev_ioremap(&pdev->dev, start, size);
+    if (!gdev->mmio) {
+        dev_err(&pdev->dev, "cannot remap framebuffer\n");
         return -ENOMEM;
+    }
 
-    gdev->video.frame_buffer = kzalloc(0x200000, GFP_KERNEL);
-    if (!gdev->video.frame_buffer)
+    gdev->video.frame_buffer = dev_kzalloc(&pdev->dev, 0x200000, GFP_KERNEL);
+    if (!gdev->video.frame_buffer) {
+        dev_err(&pdev->dev, "cannot alloc framebuffer\n");
         return -ENOMEM;
+    }
 
     gdev->region = kzalloc(page_align(0x1c), GFP_KERNEL);
     if (!gdev->region) {
-        iounmap(gdev->mmio);
-        kfree(gdev->video.frame_buffer);
+        dev_err(&pdev->dev, "cannot alloc framebuffer\n");
         return -ENOMEM;
     }
 
@@ -260,7 +264,7 @@ static state gx6605s_hwinit(struct platform_device *pdev)
         request_block = def_xres / 4 / 128 * 128 / 8;
     else
         request_block = def_xres * (bpp >> 3) / 4 / 128 * 128;
-    request_block = clamp(request_block, 128U, 896U);
+    request_block = clamp(request_block, 128, 896);
 
     gx6605s_mask(gdev, GX6605S_BUFF_CTRL2, GX6605S_BUFF_CTRL2_REQ_LEN,
                  request_block & GX6605S_BUFF_CTRL2_REQ_LEN);
@@ -306,16 +310,13 @@ static state gx6605s_probe(struct platform_device *pdev, void *pdata)
     struct gx6605s_device *gdev;
     state ret;
 
-    gdev = kzalloc(sizeof(*gdev), GFP_KERNEL);
+    gdev = dev_kzalloc(&pdev->dev, sizeof(*gdev), GFP_KERNEL);
     if (!gdev)
         return -ENOERR;
     platform_set_devdata(pdev, gdev);
 
-    ret = gx6605s_hwinit(pdev);
-    if (ret) {
-        kfree(gdev);
+    if ((ret = gx6605s_hwinit(pdev)))
         return ret;
-    }
 
     gdev->video.mode_table = gx6605s_video_mode;
     gdev->video.cur_mode = &gx6605s_video_mode[0];
@@ -334,8 +335,6 @@ static void gx6605s_remove(struct platform_device *pdev)
     kfree(gdev->mmio);
     kfree(gdev->video.frame_buffer);
     kfree(gdev);
-
-    return -ENOERR;
 }
 
 static struct dt_device_id gx6605s_ids[] = {

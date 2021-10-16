@@ -18,6 +18,7 @@
 static SPIN_LOCK(vm_area_lock);
 static RB_ROOT(vm_area_root);
 static LIST_HEAD(vm_free_area_list);
+static struct kcache *vmem_cache;
 
 /**
  * area_find - finding nodes by address
@@ -117,6 +118,7 @@ area_del(struct vm_area *va, struct rb_root *root)
 {
     rb_del(root, &va->rb_node);
 }
+
 /**
  * area_split - split the assigned node
  * @va: assigned node
@@ -222,12 +224,12 @@ struct vm_area *vmem_alloc_node(size_t size, size_t align, gfp_t gfp)
     if (unlikely(!size))
         return NULL;
 
-    va = kzalloc(sizeof(*va), gfp);
+    va = kcache_zalloc(vmem_cache, gfp);
     if (unlikely(!va))
         return NULL;
 
     if (vmem_area_alloc(va, size, align)) {
-        kfree(va);
+        kcache_free(vmem_cache, va);
         return NULL;
     }
 
@@ -241,19 +243,22 @@ struct vm_area *vmem_alloc(size_t size)
 
 void vmem_free(struct vm_area *va)
 {
+
 }
+
+static struct vm_area vmem_free_area = {
+    /* Reserve space for error ptr. */
+    .size = (VIRTS_SIZE - CONFIG_HIGHMAP_OFFSET) - PAGE_SIZE,
+    .addr = CONFIG_HIGHMAP_OFFSET,
+};
 
 void __init __weak vmem_init(void)
 {
-    struct vm_area *vm;
-
-    vm = kzalloc(sizeof(*vm), GFP_KERNEL);
-    if (unlikely(!vm)) {
-        panic("vmem initialization failed");
-    }
-
-    /* Reserve space for error ptr. */
-    vm->size = (VIRTS_SIZE - CONFIG_HIGHMAP_OFFSET) - PAGE_SIZE;
-    vm->addr = CONFIG_HIGHMAP_OFFSET;
-    area_insert(vm, &vm_area_root, &vm_free_area_list, true);
+    vmem_cache = kcache_create("kmalloc", sizeof(struct vm_area), KCACHE_PANIC);
+    area_insert(&vmem_free_area, &vm_area_root, &vm_free_area_list, true);
 }
+
+EXPORT_SYMBOL(vmem_alloc);
+EXPORT_SYMBOL(vmem_alloc_node);
+EXPORT_SYMBOL(vmem_area_alloc);
+EXPORT_SYMBOL(vmem_free);

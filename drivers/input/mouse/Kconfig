@@ -1,1 +1,10 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig INPUT_MOUSE
+    bool "Input mouse support"
+if INPUT_MOUSE
+
+config INPUT_PSMSE
+    bool "PS/2 mouse support"
+    depends on SERIO
+
+endif

@@ -4,25 +4,23 @@
  */
 
 #include <string.h>
-#include <mm.h>
+#include <kmalloc.h>
 #include <irq.h>
-#include <driver/irqchip.h>
 #include <printk.h>
-
 #include <asm/irq.h>
 
-struct irq irq_map[IRQ_NR_MAX];
+struct irqdesc irq_map[IRQ_NR_MAX];
 
 void irq_handle(irqnr_t vector)
 {
-    struct irq *handler = &irq_map[vector];
+    struct irqdesc *handler = &irq_map[vector];
 
     if(handler->handler)
         handler->handler(vector, handler->data);
 }
 
 state irq_request(irqnr_t vector, enum irq_flags flags,
-            irq_handler_t handler, void *data, const char *name)
+    irq_handler_t handler, void *data, const char *name)
 {
     if(irq_map[vector].handler)
         return -EINVAL;

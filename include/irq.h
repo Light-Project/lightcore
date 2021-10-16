@@ -19,7 +19,7 @@ enum irq_flags {
     IRQ_FLAG_SHARED     = 0x00000000,
 };
 
-struct irq {
+struct irqdesc {
     const char *name;
     irq_handler_t handler;
     void *data;

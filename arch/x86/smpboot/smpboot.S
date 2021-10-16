@@ -8,7 +8,7 @@
 
     .code16
     .section    .text, "ax"
-SYM_CODE_START(smp_start)
+SYM_CODE_START(_start)
     wbinvd
     cli
 
@@ -18,4 +18,9 @@ SYM_CODE_START(smp_start)
     lmsw    %ax
 
     ljmpl   $GDT_ENTRY_KERNEL_CS_BASE, $init
-SYM_FUNC_END(smp_start)
+SYM_FUNC_END(_start)
+
+SYM_CODE_START(init)
+
+
+SYM_FUNC_END(init)

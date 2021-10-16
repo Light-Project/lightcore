@@ -3,19 +3,34 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <types.h>
+#include <stddef.h>
 #include <syscall.h>
-#include <sched.h>
+#include <export.h>
 
-void *syscall_table[SYS_NR_MAX] = {
-    [SYS_RESTART] = NULL,
-    [SYS_EXIT] = NULL,
-    [SYS_FORK] = NULL,
-    [SYS_READ]  = sys_read,
-    [SYS_WRITE] = sys_write,
-    [SYS_OPEN]  = sys_read,
-    [SYS_CLOSE] = sys_close,
-    [SYS_WAITPID] = NULL,
-    [SYS_CREAT] = NULL,
-    [SYS_LINK] = NULL,
-};
+static struct syscall_entry *syscall_table[SYSCALL_NR_MAX];
+
+void syscall_handle(unsigned int call_num, ...)
+{
+
+}
+
+state syscall_register(unsigned int call_num, struct syscall_entry *syscall)
+{
+    /* Is it present? */
+    if (syscall_table[call_num])
+        return -EBUSY;
+
+    if (!syscall->entry)
+        return -EINVAL;
+
+    syscall_table[call_num] = syscall;
+    return -ENOERR;
+}
+
+void syscall_unregister(unsigned int call_num)
+{
+    syscall_table[call_num] = NULL;
+}
+
+EXPORT_SYMBOL(syscall_register);
+EXPORT_SYMBOL(syscall_unregister);

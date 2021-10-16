@@ -48,7 +48,7 @@
 
         timer@42 {
             compatible = "intel,i8253";
-            reg = <0x0042 0x04>;
+            reg = <0x0040 0x08>;
             interrupts = <0>;
             clocks = <&timclk>;
         };
@@ -56,7 +56,8 @@
         ps2@60 {
             compatible = "intel,i8042";
             reg = <0x0060 0x08>;
-            interrupts = <1>;
+            interrupt-names = "kbd", "aux";
+            interrupts = <1>, <12>;
         };
 
         rtc@71 {
@@ -90,7 +91,7 @@
         };
 
         fdc1: floppy@370 {
-            compatible = "ibm,floppy";
+            compatible = "ibm,generic-floppy";
             reg = <0x0370 0x08>;
             interrupts = <6>;
         };
@@ -107,7 +108,7 @@
         };
 
         fdc0: floppy@3f0 {
-            compatible = "ibm,floppy";
+            compatible = "ibm,generic-floppy";
             reg = <0x03f0 0x08>;
             interrupts = <6>;
         };

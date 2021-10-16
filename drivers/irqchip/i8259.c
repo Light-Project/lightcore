@@ -10,7 +10,6 @@
 #include <driver/platform.h>
 #include <driver/irqchip.h>
 #include <driver/irqchip/i8259.h>
-
 #include <asm/io.h>
 
 #define PIC1_BASE   0x20
@@ -21,12 +20,12 @@
 
 static resource_size_t pic_base[PIC_NR] = {PIC1_BASE, PIC2_BASE};
 
-static inline uint8_t pic_inb(int pic, int reg)
+static __always_inline uint8_t pic_inb(int pic, int reg)
 {
     return inb(pic_base[pic] + reg);
 }
 
-static inline void pic_outb(int pic, int reg, uint8_t val)
+static __always_inline void pic_outb(int pic, int reg, uint8_t val)
 {
     outb(pic_base[pic] + reg, val);
 }
@@ -47,14 +46,25 @@ static state pic_irq_mask(struct irqchip_device *idev, irqnr_t vector)
     return -ENOERR;
 }
 
+static state pic_irq_eoi(struct irqchip_device *idev, irqnr_t vector)
+{
+    if (vector > 8)
+        pic_outb(1, I8259_CMD, PIC_EOI);
+    pic_outb(0, I8259_CMD, PIC_EOI);
+    return -ENOERR;
+}
+
 static struct irqchip_ops pic_ops = {
     .pass = pic_irq_pass,
     .mask = pic_irq_mask,
+    .eoi = pic_irq_eoi,
 };
 
 static void i8250_hw_init(void)
 {
+    /* mask all interrupt */
     pic_outb(0, I8259_DATA, 0xff);
+    pic_outb(1, I8259_DATA, 0xff);
 
     /* starts the initialization sequence */
     pic_outb(0, I8259_CMD,  ICW1_INIT | ICW1_ICW4);
@@ -81,11 +91,13 @@ static state i8259_probe(struct platform_device *pdev, void *pdata)
     irqchip = dev_kzalloc(&pdev->dev, sizeof(*irqchip), GFP_KERNEL);
     if(!irqchip)
         return -ENOMEM;
+    platform_set_devdata(pdev, irqchip);
 
-    i8250_hw_init();
     irqchip->dev = &pdev->dev;
     irqchip->ops = &pic_ops;
     irqchip->dt_node = pdev->dt_node;
+
+    i8250_hw_init();
     return irqchip_register(irqchip);
 }
 

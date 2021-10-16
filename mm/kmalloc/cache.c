@@ -3,35 +3,45 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
+#define pr_fmt(fmt) "kcache: " fmt
+
 #include <kernel.h>
 #include <kmalloc.h>
 #include <export.h>
+#include <printk.h>
 
-struct kcache kcache_cache;
+struct kcache kcache_cache = {
+    .objsize = sizeof(kcache_cache),
+};
 
-struct kcache *kcache_create(const char *name, size_t size, size_t align)
+struct kcache *kcache_create(const char *name, size_t size, enum kcache_flags flags)
 {
     struct kcache *cache;
 
     cache = kcache_zalloc(&kcache_cache, GFP_KERNEL);
-    if (!cache)
-        return NULL;
+
+    if (!cache) {
+        if (flags & KCACHE_PANIC)
+            panic("create kcache fail");
+        else {
+            pr_err("create fail");
+            return NULL;
+        }
+    }
 
     cache->objsize = size;
-    cache->align = align;
     list_head_init(&cache->free);
     return cache;
 }
 
 void kcache_delete(struct kcache *cache)
 {
-
+    kcache_release(cache);
+    kcache_free(&kcache_cache, cache);
 }
 
 void __init kcache_init(void)
 {
-    kcache_cache.objsize = sizeof(kcache_cache);
-    kcache_cache.align = sizeof(kcache_cache);
     list_head_init(&kcache_cache.free);
 }
 

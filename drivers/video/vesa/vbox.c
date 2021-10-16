@@ -24,7 +24,7 @@ static state vbox_hw_init(struct pci_device *pdev)
     vesa->video.frame_buffer = dev_ioremap(&pdev->dev, addr, size);
     vesa->video.frame_size = size;
 
-    pr_info("Framebuffer size %dKiB @ 0x%x\n", size / 1024, addr);
+    pr_info("Framebuffer size %ldKiB @ 0x%lx\n", size / 1024, addr);
     return -ENOERR;
 }
 

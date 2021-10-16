@@ -11,7 +11,7 @@
 # are not supported by all versions of the compiler
 # ==========================================================================
 
-warning-  := $(empty)
+warning-  := -Wall
 
 warning-1 := -Wextra -Wunused -Wno-unused-parameter
 warning-1 += -Wmissing-declarations
@@ -44,5 +44,9 @@ warning-3 += $(call cc-option, -Wvla)
 gcc-warning := $(warning-$(findstring 1, $W))
 gcc-warning += $(warning-$(findstring 2, $W))
 gcc-warning += $(warning-$(findstring 3, $W))
+
+ifeq ($(gcc-warning),)
+gcc-warning := $(warning-)
+endif
 
 export gcc-warning

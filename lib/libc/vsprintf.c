@@ -1,4 +1,3 @@
-/* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <types.h>
 #include <stdarg.h>
 #include <bits.h>

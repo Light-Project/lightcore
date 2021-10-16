@@ -8,6 +8,7 @@ struct lru_head {
     struct list_head lru;
     struct list_head use;
     struct list_head free;
+    struct lru_node *table;
 };
 
 struct lru_node {

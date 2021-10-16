@@ -3,20 +3,96 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt)	"bus: " fmt
+#define pr_fmt(fmt) "bus: " fmt
 
+#include <device/bus.h>
+#include <device.h>
 #include <printk.h>
-#include "base.h"
 
 LIST_HEAD(bus_list);
 
-state bus_device_probe(struct device *dev)
+/**
+ * @bus_probe_device - probe a device through a driver
+ * @drv: device driver
+ * @dev: device to probe
+ */
+state bus_probe_device(struct driver *drv, struct device *dev)
+{
+    state ret;
+
+    pr_debug("%s probing driver %s with device %s\n",
+            drv->bus->name, drv->name, dev->name);
+
+    ret = drv->bus->probe(dev);
+
+    if (ret) {
+        devres_release_all(dev);
+        return ret;
+    }
+
+    return -ENOERR;
+}
+
+state device_match(struct device *dev)
 {
     struct bus_type *bus = dev->bus;
+    struct driver *drv;
+    state ret;
 
-    mutex_lock(&bus->mutex);
+    if (!bus->match)
+        return -ENXIO;
 
-    mutex_unlock(&bus->mutex);
+    bus_for_each_driver(drv, bus) {
+        ret = bus->match(dev, drv);
+        if(!ret)
+            break;
+    } if (ret) {
+        return -ENOERR;
+    }
+
+    dev->driver = drv;
+    return -ENOERR;
+}
+
+/**
+ * device_bind - try to bind device to a driver
+ * @dev: device to bind
+ */
+state device_bind(struct device *dev)
+{
+    state ret;
+
+    ret = device_match(dev);
+    if (ret)
+        return ret;
+
+    mutex_lock(&dev->mutex);
+
+    if (dev->driver)
+        ret = bus_probe_device(dev->driver, dev);
+
+    mutex_unlock(&dev->mutex);
+    return ret;
+}
+
+/**
+ * driver_bind - try to bind device to drivers
+ * @drv: driver
+ */
+state driver_bind(struct driver *drv)
+{
+    struct bus_type *bus = drv->bus;
+    struct device *dev;
+    state ret;
+
+    bus_for_each_device(dev, bus) {
+        ret = bus->match(dev, drv);
+        if(ret)
+            continue;
+        dev->driver = drv;
+        bus_probe_device(drv, dev);
+    }
+
     return -ENOERR;
 }
 
@@ -26,13 +102,13 @@ state bus_device_probe(struct device *dev)
  */
 state bus_device_add(struct device *dev)
 {
-    struct bus_type *bus = dev->bus;
+    struct bus_type *bus;
 
-    if (!bus)
+    if (!(bus = dev->bus))
         return -EINVAL;
 
     pr_debug("%s add device %s\n", bus->name, dev->name);
-    list_add(&bus->devices_list, &dev->bus_list_device);
+    list_add_prev(&bus->devices_list, &dev->bus_list_device);
     return device_bind(dev);
 }
 
@@ -50,10 +126,14 @@ void bus_device_remove(struct device *dev)
  */
 state bus_driver_add(struct driver *drv)
 {
-    struct bus_type *bus = drv->bus;
+    struct bus_type *bus;
+
+    if (!(bus = drv->bus))
+        return -EINVAL;
 
     pr_debug("%s add driver %s\n", bus->name, drv->name);
-    list_add(&bus->drivers_list, &drv->bus_list_driver);
+
+    list_add_prev(&bus->drivers_list, &drv->bus_list_driver);
     return driver_bind(drv);
 }
 

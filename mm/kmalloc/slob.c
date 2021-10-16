@@ -118,9 +118,9 @@ static void *slob_page_alloc(struct slob_page *slob_page,
     }
 
     node->use = true;
+    avail -= size;
 
     /* avoid generating unusable fragments */
-    avail -= size;
     if (avail > SLOB_SIZE(bsize)) {
         node->size = size;
         free = slob_node_next(node);
@@ -186,7 +186,7 @@ static void *slob_alloc_node(struct list_head *slob_list, unsigned int bsize,
     irqflags_t irq_save;
     void *block = NULL;
 
-    size = align_high(size, align);
+    size = align_high(size, max(align, MSIZE));
 
     spin_lock_irqsave(&lock, &irq_save);
 
@@ -300,7 +300,7 @@ void *kmalloc(size_t size, gfp_t gfp)
         page = kmalloc_large(size, gfp, NUMA_NONE);
         block = page_address(page);
     } else
-        block = slob_alloc(size, gfp, MSIZE, NUMA_NONE);
+        block = slob_alloc(size, gfp, 0, NUMA_NONE);
 
     return block;
 }
@@ -354,12 +354,13 @@ void kcache_free(struct kcache *cache, void *block)
 
 void kcache_release(struct kcache *cache)
 {
-    struct slob_page *slob;
+    struct slob_page *slob, *next;
     struct page *page;
 
-    list_for_each_entry(slob, &cache->free, slob_list) {
+    list_for_each_entry_safe(slob, next, &cache->free, slob_list) {
         page = slob_to_page(slob);
         page_free(page);
+        list_del(&slob->slob_list);
     }
 }
 

@@ -23,7 +23,7 @@ static void fifo_task_dequeue(struct sched_queue *queue, struct task *task)
 
 static struct sched_type fifo_sched = {
     .name = "fifo",
-    .task_setup = fifo_task_setup,
+    .task_create = fifo_task_setup,
     .task_enqueue = fifo_task_enqueue,
     .task_dequeue = fifo_task_dequeue,
 };

@@ -5,7 +5,7 @@
 
 #define pr_fmt(fmt)	"fdt: " fmt
 
-#include <mm.h>
+#include <kmalloc.h>
 #include <driver/dt.h>
 #include <driver/dt/fdt.h>
 #include <driver/dt/libfdt.h>
@@ -61,12 +61,6 @@ int __init dt_scan_subnode(unsigned long parent, int (*it)(unsigned long node,
     return 0;
 }
 
-/**
- * dt_get_subnode_by_name - get the subnode by given name
- * @node: the parent node
- * @uname: the name of subnode
- * @return offset of the subnode
- */
 int __init dt_get_subnode_by_name(unsigned long node, const char *uname)
 {
     return fdt_subnode_offset(dt_start_addr, node, uname);

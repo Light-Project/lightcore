@@ -7,8 +7,6 @@ ifdef CONFIG_ARCH_ARM
 CROSS_COMPILE       := arm-none-eabi-
 arch                := arm
 
-platform-acflags-y  += -D__ARCH_BIT32__
-
 arch-$(CONFIG_ARCH_ARM_V7)  = -D__ARM_ARCH__=7 $(call cc-option,-march=armv7-a,-march=armv5t -Wa$(comma)-march=armv7-a)
 arch-$(CONFIG_ARCH_ARM_V6)  = -D__ARM_ARCH__=6 $(call cc-option,-march=armv6,-march=armv5t -Wa$(comma)-march=armv6)
 arch-$(CONFIG_ARCH_ARM_V5)  = -D__ARM_ARCH__=5 $(call cc-option,-march=armv5te,-march=armv4t)
@@ -20,6 +18,13 @@ platform-ldflags-y  += -EL
 platform-elfflags-y += -marm $(arch-y)
 
 endif # CONFIG_ARCH_ARM
+CROSS_COMPILE       := aarch64-linux-gnu-
+arch                := arm64
+
+ifdef CONFIG_ARCH_ARM64
+
+
+endif # CONFIG_ARCH_ARM64
 
 ifdef CONFIG_ARCH_CSKY
 include arch/csky/config.mk
@@ -51,7 +56,7 @@ platform-acflags-y  += -m32
 platform-ccflags-y  += -mno-sse -mno-mmx -mno-sse2 -mno-3dnow
 platform-ccflags-y  += $(call cc-option,-mno-avx)
 platform-ldflags-y  += -m elf_i386
-platform-elfflags-y += -m32
+platform-elfflags-y += -m elf_i386
 endif # CONFIG_ARCH_X86
 
 ifdef CONFIG_ARCH_XTENSA

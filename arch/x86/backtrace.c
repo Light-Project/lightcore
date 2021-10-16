@@ -27,7 +27,7 @@ void show_stack(size_t *sp)
     for (int i = 0; i < 8; i++) {
         printk(" [%p]: ", sp);
         for (int i = 0; i < 4; i++)
-            printk("%08x ", *sp++);
+            printk("%08lx ", *sp++);
         printk("\n");
     }
 }
@@ -36,8 +36,8 @@ void back_trace(size_t *bp)
 {
     printk("Backtrace:\n");
     while (bp) {
-        printk(" [0x%x]:",   *(bp + 1));
-        printk(" (0x%08x 0x%08x)\n", *(bp + 2), *(bp + 3));
+        printk(" [0x%08lx]:", *(bp + 1));
+        printk(" (0x%08lx 0x%08lx)\n", *(bp + 2), *(bp + 3));
         bp = (size_t *)*bp;
     }
 }

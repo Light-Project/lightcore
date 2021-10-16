@@ -9,7 +9,6 @@ asmlinkage void entry_nmi(void);
 asmlinkage void entry_syscall_80(void);
 asmlinkage void entry_general_protection(void);
 asmlinkage void entry_generic_interrupt(void);
-
 asmlinkage void entry_switch_stack(void *prev, void *next);
 
 #endif /* _ASM_X86_ENTRY_H_ */

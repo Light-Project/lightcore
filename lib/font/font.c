@@ -21,18 +21,18 @@ struct font *font_find(const char *name)
 {
     struct font *font;
 
-    if(!name)
+    if (!name)
         return NULL;
 
     slist_for_each_entry(font, &font_head, list) {
-        // if(!strcmp(font->name, name))
-        //     return font;
+        if(!strcmp(font->name, name))
+            return font;
     }
 
     return NULL;
 }
 
-struct font *font_suitable(uint32_t xres, uint32_t yres, 
+struct font *font_suitable(uint32_t xres, uint32_t yres,
                         uint32_t font_w, uint32_t font_h)
 {
     struct font *font, *sui = NULL;

@@ -9,7 +9,6 @@
 #include <initcall.h>
 #include <driver/platform.h>
 #include <driver/dt.h>
-#include "base.h"
 #include <printk.h>
 
 static const struct dt_device_id dt_bus_table[] = {

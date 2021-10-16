@@ -26,6 +26,11 @@ include-y               += suniv/include/
 platform-elfflags-y     := -nostdlib -T $(src)/suniv/boot.lds
 endif
 
+ifdef CONFIG_CHIP_RK3399
+include-y               += rk3399/include/
+platform-elfflags-y     := -nostdlib -T $(src)/rk3399/boot.lds
+endif
+
 ifdef CONFIG_CHIP_ESP8266
 include-y               += esp8266/include/
 platform-elfflags-y     := -nostdlib -T $(src)/esp8266/boot.lds

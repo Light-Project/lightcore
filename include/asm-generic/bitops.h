@@ -2,6 +2,26 @@
 #ifndef _ASM_GENERIC_BITOPS_H_
 #define _ASM_GENERIC_BITOPS_H_
 
+#include <bits.h>
+#include <asm/atomic.h>
+
+#ifndef __ASSEMBLY__
+
+#ifndef bit_clr
+static __always_inline void bit_clr(unsigned long *addr, int bit)
+{
+    atomic_or((atomic_t *)addr, BIT(bit));
+}
+#endif
+
+#ifndef bit_set
+static __always_inline void bit_set(unsigned long *addr, int bit)
+{
+    atomic_and((atomic_t *)addr, ~BIT(bit));
+}
+#endif
+
+#ifndef ffs
 static inline unsigned long ffs(unsigned long value)
 {
     int shift = 0;
@@ -34,7 +54,9 @@ static inline unsigned long ffs(unsigned long value)
 
     return shift;
 }
+#endif
 
+#ifndef fls
 static inline unsigned long fls(unsigned long value)
 {
     int shift = BITS_PER_LONG - 1;
@@ -67,5 +89,7 @@ static inline unsigned long fls(unsigned long value)
 
     return shift;
 }
+#endif
 
+#endif  /* __ASSEMBLY__ */
 #endif  /* _ASM_GENERIC_BITOPS_H_ */

@@ -91,12 +91,12 @@ struct pci_device_id {
 
 #define PCI_DEVICE(Vendor, Device) \
     .vendor = (Vendor), .device = (Device), \
-    .subvendor = (PCI_ANY_ID), .subdevice = (PCI_ANY_ID)
+    .subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID
 
 #define PCI_DEVICE_CLASS(Class, Class_mask) \
     .class = (Class), .class_mask = (Class_mask),   \
-    .vendor = (PCI_ANY_ID), .device = (PCI_ANY_ID), \
-    .subvendor = (PCI_ANY_ID), .subdevice = (PCI_ANY_ID)
+    .vendor = PCI_ANY_ID, .device = PCI_ANY_ID, \
+    .subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID
 
 enum usb_match_mode {
     USB_DEV_MATCH_VENDOR        = 0x0001,
@@ -142,5 +142,16 @@ struct usb_device_id {
 
 #define USB_INT_CLASS(Class) \
     .match_mode = USB_DEV_MATCH_INT_CLASS, .bInterfaceClass = (Class)
+
+#define SERIO_ANY_ID  (~0)
+
+struct serio_device_id {
+    uint8_t type;
+    uint8_t extra;
+    void *data;
+};
+
+#define SERIO_DEVICE(Type) \
+    .type = (Type), .extra = SERIO_ANY_ID
 
 #endif /* _DEVTABLE_H_ */

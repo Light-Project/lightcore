@@ -233,7 +233,7 @@ static state atasim_enqueue(struct block_device *bdev, struct block_request *bre
     state retval = -ENOERR;
     bool needext;
 
-    if (breq->length >= (1<<8) || lba + breq->length >= (1<<8)) {
+    if (breq->length >= (1 << 8) || lba + breq->length >= (1 << 8)) {
         atacmd.sector_count2 = breq->length >> 8;
         atacmd.lba_low2 = lba >> 24;
         atacmd.lba_mid2 = lba >> 32;
@@ -307,7 +307,7 @@ static bool atasim_port_detect(struct atasim_device *atasim)
     /* reset the channel */
     atasim_reset(atasim);
 
-    pr_info("detected port%d @ 0x%x:0x%x\n", atasim->port,
+    pr_info("detected port%d @ 0x%lx:0x%lx\n", atasim->port,
             atasim->host->cmd, atasim->host->ctl);
     return true;
 }

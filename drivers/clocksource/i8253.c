@@ -5,10 +5,10 @@
 
 #define DRIVER_NAME "i8253"
 
-#include <mm.h>
+#include <kmalloc.h>
+#include <initcall.h>
 #include <irq.h>
 #include <timer.h>
-#include <initcall.h>
 #include <driver/platform.h>
 #include <driver/irqchip.h>
 #include <driver/clocksource.h>
@@ -17,39 +17,55 @@
 
 #include <asm/io.h>
 
-#define I8253_BASE  0x40
-static __always_inline uint8_t pit_inb(int reg)
+struct i8253_device {
+    struct irqchip_channel *irqchip;
+    resource_size_t base;
+};
+
+static __always_inline uint8_t
+i8253_in(struct i8253_device *idev, int reg)
 {
-    return inb(I8253_BASE + reg);
+    return inb(idev->base + reg);
 }
 
-static __always_inline void pit_outb(int reg, uint8_t value)
+static __always_inline void
+i8253_out(struct i8253_device *idev, int reg, uint8_t value)
 {
-    outb(I8253_BASE + reg, value);
+    outb(idev->base + reg, value);
 }
 
 static irqreturn_t pit_handle(irqnr_t vector, void *data)
 {
+    struct i8253_device *idev = data;
     timer_tick();
     return IRQ_RET_HANDLED;
 }
 
 static state i8253_probe(struct platform_device *pdev, void *pdata)
 {
-    struct irqchip_channel *channel;
+    struct i8253_device *idev;
 
-    channel = dt_get_irqchip_channel(pdev->dt_node, 0);
-    if (!channel)
+    if (platform_resource_type(pdev, 0) != RESOURCE_PMIO)
         return -ENODEV;
 
-    irqchip_pass(channel);
-    irq_request(I8253_IRQ, 0, pit_handle, NULL, DRIVER_NAME);
+    idev = dev_kzalloc(&pdev->dev, sizeof(*idev), GFP_KERNEL);
+    if (!idev)
+        return -ENOMEM;
+    platform_set_devdata(pdev, idev);
 
-    pit_outb(I8253_MODE,
-             I8253_MODE_SEL_TIMER0 | I8253_MODE_ACCESS_WORD |
-             I8253_MODE_MOD_RATE   | I8253_MODE_CNT_BINARY  );
-    pit_outb(I8253_COUNTER0, I8253_LATCH(CONFIG_SYSTICK_FREQ) & 0xff);
-    pit_outb(I8253_COUNTER0, I8253_LATCH(CONFIG_SYSTICK_FREQ) >> 8);
+    idev->base = platform_resource_start(pdev, 0);
+    idev->irqchip = dt_get_irqchip_channel(pdev->dt_node, 0);
+    if (!idev->irqchip) {
+        dev_err(&pdev->dev, "unable to request irq\n");
+        return -ENODEV;
+    }
+    irqchip_pass(idev->irqchip);
+    irq_request(I8253_IRQ, 0, pit_handle, idev, DRIVER_NAME);
+
+    i8253_out(idev, I8253_MODE, I8253_MODE_SEL_TIMER0 | I8253_MODE_ACCESS_WORD |
+                                I8253_MODE_MOD_RATE   | I8253_MODE_CNT_BINARY  );
+    i8253_out(idev, I8253_COUNTER0, I8253_LATCH(CONFIG_SYSTICK_FREQ) & 0xff);
+    i8253_out(idev, I8253_COUNTER0, I8253_LATCH(CONFIG_SYSTICK_FREQ) >> 8);
 
     return -ENOERR;
 }

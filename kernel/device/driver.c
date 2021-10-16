@@ -55,7 +55,7 @@ state driver_register(struct driver *drv)
 
     other = driver_find(drv->bus, drv->name);
     if (other) {
-        pr_err("'%s' already registered", drv->name);
+        pr_err("'%s' already registered\n", drv->name);
         return -EINVAL;
     }
 

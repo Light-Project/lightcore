@@ -11,5 +11,4 @@ typedef size_t irqnr_t;
 #define IRQ_NR_MAX 65536
 #endif
 
-
 #endif  /* _ASM_GENERIC_IRQ_H_ */

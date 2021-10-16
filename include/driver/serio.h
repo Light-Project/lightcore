@@ -4,19 +4,28 @@
 
 #include <state.h>
 #include <irq.h>
-#include <device.h>
 #include <spinlock.h>
+#include <device.h>
+#include <devtable.h>
+
+enum serio_type {
+    SERIO_TYPE_PS2,
+    SERIO_TYPE_PS2_XL,
+    SERIO_TYPE_SERIAL,
+};
 
 struct serio_device {
     struct device dev;
     struct serio_host *host;
+    struct serio_device_id id;
 };
 
-#define device_to_serio_device(devp)	\
+#define device_to_serio_device(devp) \
     container_of(devp, struct serio_device, dev)
 
 struct serio_driver {
     struct driver driver;
+    const struct serio_device_id *id_table;
 
     state (*probe)(struct serio_device *serio, void *pdata);
     void (*remove)(struct serio_device *serio);
@@ -30,7 +39,6 @@ struct serio_driver {
 struct serio_host {
     struct serio_device port;
     spinlock_t lock;
-
     struct device *dev;
     struct serio_ops *ops;
 };

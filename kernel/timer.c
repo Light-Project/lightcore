@@ -3,7 +3,6 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <time.h>
 #include <timer.h>
 
 volatile uint64_t ticktime;

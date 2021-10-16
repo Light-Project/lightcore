@@ -1,7 +1,5 @@
-/* SPDX-License-Identifier: GPL-2.0-or-later */
-#include <types.h>
-#include <stdarg.h>
-#include <string.h>
+#include <kernel.h>
+#include <export.h>
 
 enum flags {
     FL_ZERO             = 0x01,     /* Zero modifier */
@@ -552,7 +550,7 @@ static size_t format_float(char * q, size_t n, double val, enum flags flags, cha
     return o;
 }
 
-int vsnprintf(char * buf, size_t n, const char * fmt, va_list args)
+int vsnprintf(char *buf, size_t n, const char *fmt, va_list args)
 {
     const char * p = fmt;
     char ch;
@@ -895,3 +893,5 @@ int vsnprintf(char * buf, size_t n, const char * fmt, va_list args)
 
     return o;
 }
+
+EXPORT_SYMBOL(vsnprintf);

@@ -21,6 +21,7 @@
 
 struct mc146818_device {
     struct rtc_device rtc;
+    struct irqchip_channel *irqchip;
     resource_size_t port;
 };
 
@@ -184,7 +185,6 @@ static struct rtc_ops mc146818_ops = {
 static state mc146818_probe(struct platform_device *pdev, void *pdata)
 {
     struct mc146818_device *mc146818;
-    struct irqchip_channel *channel;
 
     if (platform_resource_type(pdev, 0) != RESOURCE_PMIO)
         return -ENODEV;
@@ -197,11 +197,10 @@ static state mc146818_probe(struct platform_device *pdev, void *pdata)
     mc146818->port = platform_resource_start(pdev, 0);
     mc146818->rtc.ops = &mc146818_ops;
 
-    channel = dt_get_irqchip_channel(pdev->dt_node, 0);
-    if (!channel)
+    mc146818->irqchip = dt_get_irqchip_channel(pdev->dt_node, 0);
+    if (!mc146818->irqchip)
         return -ENODEV;
-
-    irqchip_pass(channel);
+    irqchip_pass(mc146818->irqchip);
     irq_request(I8253_IRQ, 0, mc146818_alarm_handle, mc146818, DRIVER_NAME);
 
     return rtc_register(&mc146818->rtc);

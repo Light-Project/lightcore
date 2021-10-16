@@ -129,7 +129,7 @@ static void dmi_scan(void)
             dmi_head_check(entry))
             break;
     } if (!dmi_start_addr) {
-        pr_warn("entry not found.");
+        pr_warn("entry not found\n");
         return;
     }
 

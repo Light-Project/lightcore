@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#ifndef _ASM_ASM_H_
-#define _ASM_ASM_H_
+#ifndef _ASM_X86_ASM_H_
+#define _ASM_X86_ASM_H_
 
 #ifdef __ASSEMBLY__
 # define __ASM_FORM(x)	x
@@ -132,6 +132,6 @@
  */
 register unsigned long current_stack_pointer asm(_ASM_SP);
 #define ASM_CALL_CONSTRAINT "+r" (current_stack_pointer)
-#endif /* __ASSEMBLY__ */
 
-#endif /* _ASM_ASM_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _ASM_X86_ASM_H_ */

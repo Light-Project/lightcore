@@ -22,7 +22,7 @@ sys-include-y += arch/$(arch)/include/                  \
 sys-acflags-$(CONFIG_CC_OPTIMIZE_FOR_DEBUG)         += -O0
 sys-acflags-$(CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE)   += -O2
 sys-acflags-$(CONFIG_CC_OPTIMIZE_FOR_SIZE)          += -Os
-sys-acflags-$(CONFIG_STRICT) += -Wall -Werror
+sys-acflags-$(CONFIG_STRICT) += -Werror
 
 sys-asflags-y  += -D__ASSEMBLY__
 sys-ccflags-y  += -std=gnu11
@@ -38,9 +38,9 @@ ldflags-y  := $(strip $(sys-ldflags-y) $(platform-ldflags-y))
 ldsflags-y := $(strip $(sys-ldsflags-y) $(platform-ldsflags-y))
 include-direct-y := $(strip $(sys-include-y) $(platform-include-y))
 
-lightcore-flags-$(CONFIG_KERNEL_MAP) += -Wl,--cref,-Map=$@.map
+lightcore-flags-$(CONFIG_KERNEL_MAP) += -Map=$@.map
 lightcore-flags-y += -e boot_head -T arch/$(arch)/kernel.lds -nostdlib
-lightcore-flags-y += $(platform-elfflags-y) -Wl,--build-id=sha1 -lgcc
+lightcore-flags-y += $(platform-elfflags-y) --build-id=sha1
 
 ifdef CONFIG_KERNEL_DEBUG
 acflags-y += -g

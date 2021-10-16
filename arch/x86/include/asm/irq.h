@@ -8,16 +8,23 @@
 #ifndef __ASSEMBLY__
 
 enum isa_vector {
-    I8253_IRQ       = IRQ_EXTERNAL + 0x00,  // System Timer
-    I8042_IRQ       = IRQ_EXTERNAL + 0x01,  // Keyboard
-    PIC2_IRQ        = IRQ_EXTERNAL + 0x02,  // PIC 2
-    COM24_IRQ       = IRQ_EXTERNAL + 0x03,  // COM 2 and 4
-    COM13_IRQ       = IRQ_EXTERNAL + 0x04,  // COM 1 and 3
-    SND_IRQ         = IRQ_EXTERNAL + 0x05,  // Sound, Parallel port 2
-    FLOPPY_IRQ      = IRQ_EXTERNAL + 0x06,  // Floppy
-    PPC_IRQ         = IRQ_EXTERNAL + 0x07,  // Parallel Port 1
-    RTC_IRQ         = IRQ_EXTERNAL + 0x08,  // Real-time clock
-    NETWORK_IRQ     = IRQ_EXTERNAL + 0x09,  // Redirected IRQ 2, Open, Network Available
+    I8253_IRQ       = IRQ_EXTERNAL + 0x00,  /* System Timer                 */
+    ATKBD_IRQ       = IRQ_EXTERNAL + 0x01,  /* PS2 Keyboard                 */
+    PIC2_IRQ        = IRQ_EXTERNAL + 0x02,  /* Cascade Controller           */
+    COM24_IRQ       = IRQ_EXTERNAL + 0x03,  /* COM 2 and 4                  */
+    COM13_IRQ       = IRQ_EXTERNAL + 0x04,  /* COM 1 and 3                  */
+    SND_IRQ         = IRQ_EXTERNAL + 0x05,  /* Sound, Parallel port 2       */
+    FLOPPY_IRQ      = IRQ_EXTERNAL + 0x06,  /* Floppy                       */
+    PPC_IRQ         = IRQ_EXTERNAL + 0x07,  /* Parallel Port 1              */
+    RTC_IRQ         = IRQ_EXTERNAL + 0x08,  /* Real-time clock              */
+    NETWORK_IRQ     = IRQ_EXTERNAL + 0x09,  /* Network Available            */
+/* Open                                             */
+/* Open, SCSI, Video                                */
+    PSMSE_IRQ       = IRQ_EXTERNAL + 0x0c,  /* PS2 Mouse                    */
+/* Coprocessor                                      */
+/* Open, Primary hard drive, Hard drive controller  */
+/* Open, 2nd hard drive (secondary)                 */
+
 };
 
 static inline void cpu_irq_disable(void)

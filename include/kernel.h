@@ -3,10 +3,11 @@
 #define _KERNEL_H_
 
 #include <types.h>
+#include <state.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <limits.h>
-#include <state.h>
+#include <printk.h>
 
 #define KMAGIC 0x4c434747UL
 #define MSIZE (sizeof(void *))
@@ -18,7 +19,7 @@
  */
 #define min(a, b) ({                \
     typeof(a) _amin = (a);          \
-    typeof(b) _bmin = (b);          \
+    typeof(a) _bmin = (b);          \
     (void)(&_amin == &_bmin);       \
     _amin < _bmin ? _amin : _bmin;  \
 })
@@ -30,10 +31,18 @@
  */
 #define max(a, b) ({                \
     typeof(a) _amax = (a);          \
-    typeof(b) _bmax = (b);          \
+    typeof(a) _bmax = (b);          \
     (void)(&_amax == &_bmax);       \
     _amax > _bmax ? _amax : _bmax;  \
 })
+
+/**
+ * clamp - return a value clamped to a given range with strict typechecking
+ * @val: current value
+ * @lo: lowest allowable value
+ * @hi: highest allowable value
+ */
+#define clamp(val, lo, hi)  min(max(val, lo), hi)
 
 #define DIV_ROUND_CLOSEST(x, divisor) ({    \
     typeof(x) __x = x;                      \
@@ -44,14 +53,6 @@
         (((__x) + ((__d) / 2)) / (__d)) :   \
         (((__x) - ((__d) / 2)) / (__d));    \
 })
-
-/**
- * clamp - return a value clamped to a given range with strict typechecking
- * @val: current value
- * @lo: lowest allowable value
- * @hi: highest allowable value
- */
-#define clamp(val, lo, hi)  min((typeof(val))max(val, lo), hi)
 
 /**
  * ARRAY_SIZE - get the number of elements in array
@@ -94,9 +95,18 @@
 
 #ifndef __ASSEMBLY__
 
-int vsprintf(char *buf, const char *fmt, va_list args);
-int vsnprintf(char * buf, size_t n, const char * fmt, va_list args);
-void panic(const char* fmt, ...);
+extern __printf(2, 3) int sprintf(char *buf, const char *fmt, ...);
+extern __printf(3, 4) int snprintf(char *buf, size_t n, const char *fmt, ...);
+extern int vsprintf(char *buf, const char *fmt, va_list args);
+extern int vsnprintf(char *buf, size_t n, const char *fmt, va_list args);
+extern void panic(const char* fmt, ...);
+
+#define kassert(val) do {                               \
+    if (unlikely(val)) {                                \
+        printk("kassert %s:%d/%s\n" __stringify(val),   \
+            __FILE__, __LINE__, __func__);              \
+        panic("kassert");                               \
+    }} while (0)
 
 #endif  /* __ASSEMBLY__ */
 #endif  /* _KERNEL_H_ */

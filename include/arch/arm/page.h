@@ -13,11 +13,11 @@
 struct pde {
     union {
         struct {
-            uint32_t type:2;    // Page type (1: Coarse 2:Section 3:Fine)
-            uint32_t b:1;       // Page-level write-through
-            uint32_t c:1;       // Page-level cache enable
-            uint32_t p:1;       // Must write 1
-            uint32_t dm:4;      // Domain control bits
+            uint32_t type:2;    /* Page type (1: Coarse 2:Section 3:Fine) */
+            uint32_t b:1;       /* Page-level write-through */
+            uint32_t c:1;       /* Page-level cache enable */
+            uint32_t p:1;       /* Must write 1 */
+            uint32_t dm:4;      /* Domain control bits */
         };
         struct {                /* Fine page table */
             uint32_t res:12;

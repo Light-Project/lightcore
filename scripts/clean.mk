@@ -30,8 +30,7 @@ include $(build_home)/include/rule.mk
 ########################################
 
 clean_file      := $(filter-out %/,$(clean-y))
-clean_file      := $(addprefix $(obj)/,$(clean_file))
-clean_file      += $(wildcard $(clean-files))
+clean_file      := $(addprefix $(obj)/,$(clean_file)) $(clean-files)
 clean_cmd       := $(wildcard $(foreach f,$(clean_file),$(dir $(f)).$(notdir $(f)).cmd))
 clean_cmd       += $(wildcard $(foreach f,$(clean_file),$(dir $(f)).$(notdir $(f)).d))
 

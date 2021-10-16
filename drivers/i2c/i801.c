@@ -7,16 +7,32 @@
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
 #include <initcall.h>
-#include <driver/platform.h>
 #include <driver/pci.h>
+#include <driver/i2c/i801.h>
+#include <driver/platform.h>
 #include <printk.h>
+
+struct i801_device {
+
+    struct platform_device tco;
+    struct resource tco_res;
+};
 
 static state i801_probe(struct pci_device *pdev, void *pdata)
 {
-    struct platform_device *tco_dev;
+    struct i801_device *i801;
 
-    tco_dev = dev_kzalloc(&pdev->dev, sizeof(*tco_dev), GFP_KERNEL);
-    platform_device_register(tco_dev);
+    i801 = dev_kzalloc(&pdev->dev, sizeof(*i801), GFP_KERNEL);
+    if (!i801)
+        return -ENOMEM;
+
+    /* register tco device */
+    if (pci_config_readl(pdev, I801_TCOCTL) & I801_TCOCTL_EN) {
+        i801->tco.resource = &i801->tco_res;
+        i801->tco.resources_nr = 1;
+        pci_resource_set(pdev, pci_bar_unknown, i801->tco.resource, I801_TCOBASE);
+        platform_device_register(&i801->tco);
+    }
 
     return -ENOERR;
 }

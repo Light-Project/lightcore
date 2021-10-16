@@ -21,14 +21,10 @@ typedef signed int          int32_t;
 typedef unsigned int        uint32_t;
 typedef signed long long    int64_t;
 typedef unsigned long long  uint64_t;
+typedef signed long         ssize_t;
+typedef unsigned long       size_t;
 
-#if __BITS_PER_LONG == 32
-typedef int32_t         ssize_t;
-typedef uint32_t        size_t;
-#elif __BITS_PER_LONG == 32
-typedef int64_t         ssize_t;
-typedef uint64_t        size_t;
-#endif
+typedef signed int          state;
 
 typedef uint16_t __bitwise le16;
 typedef uint32_t __bitwise le32;
@@ -37,7 +33,5 @@ typedef uint16_t __bitwise be16;
 typedef uint32_t __bitwise be32;
 typedef uint64_t __bitwise be64;
 
-typedef ssize_t     state;
-
 #endif /* __ASSEMBLY__ */
-#endif /* _TYPES_H_ */
+#endif /* _LIGHTCORE_TYPES_H_ */

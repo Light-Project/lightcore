@@ -6,11 +6,10 @@
 #define pr_fmt(fmt) "platform: " fmt
 
 #include <string.h>
-#include <export.h>
 #include <mm.h>
-#include <driver/platform.h>
 #include <initcall.h>
-#include "base.h"
+#include <driver/platform.h>
+#include <export.h>
 #include <printk.h>
 
 static __always_inline bool
@@ -40,7 +39,7 @@ platform_device_match(struct platform_driver *pdrv,
 
 static state platform_match(struct device *dev, struct driver *drv)
 {
-    struct platform_device *pdev = device_to_platform_device(dev);
+    struct platform_device *pdev = device_to_platform(dev);
     struct platform_driver *pdrv = driver_to_platform_driver(drv);
     const struct platform_device_id *platform;
 
@@ -76,7 +75,7 @@ static state platform_match(struct device *dev, struct driver *drv)
 
 static state platform_probe(struct device *dev)
 {
-    struct platform_device *pdev = device_to_platform_device(dev);
+    struct platform_device *pdev = device_to_platform(dev);
     struct platform_driver *pdrv = driver_to_platform_driver(dev->driver);
 
     if (unlikely(!pdrv->probe)) {
@@ -89,7 +88,7 @@ static state platform_probe(struct device *dev)
 
 static state platform_remove(struct device *dev)
 {
-    struct platform_device *pdev = device_to_platform_device(dev);
+    struct platform_device *pdev = device_to_platform(dev);
     struct platform_driver *pdrv = driver_to_platform_driver(dev->driver);
 
     if (!pdrv->remove)
@@ -101,7 +100,7 @@ static state platform_remove(struct device *dev)
 
 static state platform_shutdown(struct device *dev)
 {
-    struct platform_device *pdev = device_to_platform_device(dev);
+    struct platform_device *pdev = device_to_platform(dev);
     struct platform_driver *pdrv = driver_to_platform_driver(dev->driver);
 
     if (!pdrv->shutdown)

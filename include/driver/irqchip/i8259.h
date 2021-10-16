@@ -24,7 +24,7 @@ enum i8259_registers {
 
 /* PIC1 bitdefs */
 #define PIC1_IRQ0           (1<<0)  /* System Timer                                     */
-#define PIC1_IRQ1           (1<<1)  /* Keyboard                                         */
+#define PIC1_IRQ1           (1<<1)  /* PS2 Keyboard                                     */
 #define PIC1_IRQ2           (1<<2)  /* Cascade Controller                               */
 #define PIC1_IRQ3           (1<<3)  /* COM 2 and 4                                      */
 #define PIC1_IRQ4           (1<<4)  /* COM 1 and 3                                      */
@@ -37,7 +37,7 @@ enum i8259_registers {
 #define PIC2_IRQ9           (1<<9)  /* Redirected IRQ 2, Open, Network Available        */
 #define PIC2_IRQ10          (1<<10) /* Open                                             */
 #define PIC2_IRQ11          (1<<11) /* Open, SCSI, Video                                */
-#define PIC2_IRQ12          (1<<12) /* Open, PS2                                        */
+#define PIC2_IRQ12          (1<<12) /* PS2 Mouse                                        */
 #define PIC2_IRQ13          (1<<13) /* Coprocessor                                      */
 #define PIC2_IRQ14          (1<<14) /* Open, Primary hard drive, Hard drive controller  */
 #define PIC2_IRQ15          (1<<15) /* Open, 2nd hard drive (secondary)                 */

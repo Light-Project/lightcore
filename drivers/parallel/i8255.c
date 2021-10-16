@@ -43,7 +43,7 @@ static bool i8042_wait(struct i8255_device *idev, uint8_t mask, uint8_t pass)
     int timeout = I8255_TIMEOUT;
     uint8_t val;
 
-    while (timeout--) {
+    while (--timeout) {
         val = i8255_in(idev, I8255_STATUS);
         if ((val & mask) == pass)
             break;

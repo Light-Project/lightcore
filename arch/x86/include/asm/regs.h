@@ -62,12 +62,12 @@ struct regs {
     uint32_t eflags;
 } __packed;
 
-struct cr3{
-    uint32_t RES0:3;    // Ignored
-    uint32_t pwt:1;     // Page-level write-through
-    uint32_t pcd:1;     // Page-level cache disable
-    uint32_t RES1:7;    // Ignored
-    uint32_t addr:20;   // Page directory used for linear-address translation
+struct cr3 {
+    uint32_t RES0:3;    /* Ignored */
+    uint32_t pwt:1;     /* Page-level write-through */
+    uint32_t pcd:1;     /* Page-level cache disable */
+    uint32_t RES1:7;    /* Ignored */
+    uint32_t addr:20;   /* Page directory used for linear-address translation */
 } __packed;
 
 static inline uint32_t cr0_get(void)

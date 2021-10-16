@@ -32,6 +32,7 @@ struct block_part {
     container_of(fd, struct block_part, fsdev)
 
 struct block_device {
+    struct device *dev;
     struct list_head parts;
     struct block_ops *ops;
 };

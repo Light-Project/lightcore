@@ -99,13 +99,11 @@
 #define IMAGE_SCN_RESERVED_5                0x00002000  /* spec omits this */
 #define IMAGE_SCN_RESERVED_6                0x00004000  /* spec omits this */
 #define IMAGE_SCN_GPREL                     0x00008000  /* global pointer referenced data */
-/* spec lists 0x20000 twice, I suspect they meant 0x10000 for one of them */
 #define IMAGE_SCN_MEM_PURGEABLE             0x00010000  /* reserved for "future" use */
 #define IMAGE_SCN_16BIT                     0x00020000  /* reserved for "future" use */
 #define IMAGE_SCN_LOCKED                    0x00040000  /* reserved for "future" use */
 #define IMAGE_SCN_PRELOAD                   0x00080000  /* reserved for "future" use */
-/* and here they just stuck a 1-byte integer in the middle of a bitfield */
-#define IMAGE_SCN_ALIGN_1BYTES              0x00100000 /* it does what it says on the box */
+#define IMAGE_SCN_ALIGN_1BYTES              0x00100000  /* it does what it says on the box */
 #define IMAGE_SCN_ALIGN_2BYTES              0x00200000
 #define IMAGE_SCN_ALIGN_4BYTES              0x00300000
 #define IMAGE_SCN_ALIGN_8BYTES              0x00400000
@@ -119,14 +117,14 @@
 #define IMAGE_SCN_ALIGN_2048BYTES           0x00c00000
 #define IMAGE_SCN_ALIGN_4096BYTES           0x00d00000
 #define IMAGE_SCN_ALIGN_8192BYTES           0x00e00000
-#define IMAGE_SCN_LNK_NRELOC_OVFL           0x01000000 /* extended relocations */
-#define IMAGE_SCN_MEM_DISCARDABLE           0x02000000 /* scn can be discarded */
-#define IMAGE_SCN_MEM_NOT_CACHED            0x04000000      /* cannot be cached */
-#define IMAGE_SCN_MEM_NOT_PAGED             0x08000000      /* not pageable */
-#define IMAGE_SCN_MEM_SHARED                0x10000000           /* can be shared */
-#define IMAGE_SCN_MEM_EXECUTE               0x20000000      /* can be executed as code */
-#define IMAGE_SCN_MEM_READ                  0x40000000           /* readable */
-#define IMAGE_SCN_MEM_WRITE                 0x80000000           /* writeable */
+#define IMAGE_SCN_LNK_NRELOC_OVFL           0x01000000  /* extended relocations */
+#define IMAGE_SCN_MEM_DISCARDABLE           0x02000000  /* scn can be discarded */
+#define IMAGE_SCN_MEM_NOT_CACHED            0x04000000  /* cannot be cached */
+#define IMAGE_SCN_MEM_NOT_PAGED             0x08000000  /* not pageable */
+#define IMAGE_SCN_MEM_SHARED                0x10000000  /* can be shared */
+#define IMAGE_SCN_MEM_EXECUTE               0x20000000  /* can be executed as code */
+#define IMAGE_SCN_MEM_READ                  0x40000000  /* readable */
+#define IMAGE_SCN_MEM_WRITE                 0x80000000  /* writeable */
 
 #define IMAGE_DEBUG_TYPE_CODEVIEW 2
 
@@ -161,88 +159,90 @@ struct mz_reloc {
 };
 
 struct pe_hdr {
-    uint32_t magic;             /* PE magic */
-    uint16_t machine;           /* machine type */
-    uint16_t sections;          /* number of sections */
-    uint32_t timestamp;         /* time_t */
-    uint32_t symbol_table;      /* symbol table offset */
-    uint32_t symbols;           /* number of symbols */
-    uint16_t opt_hdr_size;      /* size of optional header */
-    uint16_t flags;             /* flags */
+    uint32_t magic;                     /* PE magic */
+    uint16_t machine;                   /* machine type */
+    uint16_t sections;                  /* number of sections */
+    uint32_t timestamp;                 /* time_t */
+    uint32_t symbol_table;              /* symbol table offset */
+    uint32_t symbols;                   /* number of symbols */
+    uint16_t opt_hdr_size;              /* size of optional header */
+    uint16_t flags;                     /* flags */
 };
 
 /* the fact that pe32 isn't padded where pe32+ is 64-bit means union won't
  * work right.  vomit. */
 struct pe32_opt_hdr {
     /* "standard" header */
-    uint16_t magic;             /* file type */
-    uint8_t ld_major;           /* linker major version */
-    uint8_t ld_minor;           /* linker minor version */
-    uint32_t text_size;         /* size of text section(s) */
-    uint32_t data_size;         /* size of data section(s) */
-    uint32_t bss_size;          /* size of bss section(s) */
-    uint32_t entry_point;       /* file offset of entry point */
-    uint32_t code_base;         /* relative code addr in ram */
-    uint32_t data_base;         /* relative data addr in ram */
+    uint16_t magic;                     /* file type */
+    uint8_t ld_major;                   /* linker major version */
+    uint8_t ld_minor;                   /* linker minor version */
+    uint32_t text_size;                 /* size of text section(s) */
+    uint32_t data_size;                 /* size of data section(s) */
+    uint32_t bss_size;                  /* size of bss section(s) */
+    uint32_t entry_point;               /* file offset of entry point */
+    uint32_t code_base;                 /* relative code addr in ram */
+    uint32_t data_base;                 /* relative data addr in ram */
+
     /* "windows" header */
-    uint32_t image_base;        /* preferred load address */
-    uint32_t section_align;     /* alignment in bytes */
-    uint32_t file_align;        /* file alignment in bytes */
-    uint16_t os_major;          /* major OS version */
-    uint16_t os_minor;          /* minor OS version */
-    uint16_t image_major;       /* major image version */
-    uint16_t image_minor;       /* minor image version */
-    uint16_t subsys_major;      /* major subsystem version */
-    uint16_t subsys_minor;      /* minor subsystem version */
-    uint32_t win32_version;     /* reserved, must be 0 */
-    uint32_t image_size;        /* image size */
-    uint32_t header_size;       /* header size rounded up to file_align */
-    uint32_t csum;              /* checksum */
-    uint16_t subsys;            /* subsystem */
-    uint16_t dll_flags;         /* more flags! */
-    uint32_t stack_size_req;    /* amt of stack requested */
-    uint32_t stack_size;        /* amt of stack required */
-    uint32_t heap_size_req;     /* amt of heap requested */
-    uint32_t heap_size;         /* amt of heap required */
-    uint32_t loader_flags;      /* reserved, must be 0 */
-    uint32_t data_dirs;         /* number of data dir entries */
+    uint32_t image_base;                /* preferred load address */
+    uint32_t section_align;             /* alignment in bytes */
+    uint32_t file_align;                /* file alignment in bytes */
+    uint16_t os_major;                  /* major OS version */
+    uint16_t os_minor;                  /* minor OS version */
+    uint16_t image_major;               /* major image version */
+    uint16_t image_minor;               /* minor image version */
+    uint16_t subsys_major;              /* major subsystem version */
+    uint16_t subsys_minor;              /* minor subsystem version */
+    uint32_t win32_version;             /* reserved, must be 0 */
+    uint32_t image_size;                /* image size */
+    uint32_t header_size;               /* header size rounded up to file_align */
+    uint32_t csum;                      /* checksum */
+    uint16_t subsys;                    /* subsystem */
+    uint16_t dll_flags;                 /* more flags! */
+    uint32_t stack_size_req;            /* amt of stack requested */
+    uint32_t stack_size;                /* amt of stack required */
+    uint32_t heap_size_req;             /* amt of heap requested */
+    uint32_t heap_size;                 /* amt of heap required */
+    uint32_t loader_flags;              /* reserved, must be 0 */
+    uint32_t data_dirs;                 /* number of data dir entries */
 };
 
 struct pe32plus_opt_hdr {
-    uint16_t magic;             /* file type */
-    uint8_t ld_major;           /* linker major version */
-    uint8_t ld_minor;           /* linker minor version */
-    uint32_t text_size;         /* size of text section(s) */
-    uint32_t data_size;         /* size of data section(s) */
-    uint32_t bss_size;          /* size of bss section(s) */
-    uint32_t entry_point;       /* file offset of entry point */
-    uint32_t code_base;         /* relative code addr in ram */
+    uint16_t magic;                     /* file type */
+    uint8_t ld_major;                   /* linker major version */
+    uint8_t ld_minor;                   /* linker minor version */
+    uint32_t text_size;                 /* size of text section(s) */
+    uint32_t data_size;                 /* size of data section(s) */
+    uint32_t bss_size;                  /* size of bss section(s) */
+    uint32_t entry_point;               /* file offset of entry point */
+    uint32_t code_base;                 /* relative code addr in ram */
+
     /* "windows" header */
-    uint64_t image_base;        /* preferred load address */
-    uint32_t section_align;     /* alignment in bytes */
-    uint32_t file_align;        /* file alignment in bytes */
-    uint16_t os_major;          /* major OS version */
-    uint16_t os_minor;          /* minor OS version */
-    uint16_t image_major;       /* major image version */
-    uint16_t image_minor;       /* minor image version */
-    uint16_t subsys_major;      /* major subsystem version */
-    uint16_t subsys_minor;      /* minor subsystem version */
-    uint32_t win32_version;     /* reserved, must be 0 */
-    uint32_t image_size;        /* image size */
-    uint32_t header_size;       /* header size rounded up to file_align */
-    uint32_t csum;              /* checksum */
-    uint16_t subsys;            /* subsystem */
-    uint16_t dll_flags;         /* more flags! */
-    uint64_t stack_size_req;    /* amt of stack requested */
-    uint64_t stack_size;        /* amt of stack required */
-    uint64_t heap_size_req;     /* amt of heap requested */
-    uint64_t heap_size;         /* amt of heap required */
-    uint32_t loader_flags;      /* reserved, must be 0 */
-    uint32_t data_dirs;         /* number of data dir entries */
+    uint64_t image_base;                /* preferred load address */
+    uint32_t section_align;             /* alignment in bytes */
+    uint32_t file_align;                /* file alignment in bytes */
+    uint16_t os_major;                  /* major OS version */
+    uint16_t os_minor;                  /* minor OS version */
+    uint16_t image_major;               /* major image version */
+    uint16_t image_minor;               /* minor image version */
+    uint16_t subsys_major;              /* major subsystem version */
+    uint16_t subsys_minor;              /* minor subsystem version */
+    uint32_t win32_version;             /* reserved, must be 0 */
+    uint32_t image_size;                /* image size */
+    uint32_t header_size;               /* header size rounded up to file_align */
+    uint32_t csum;                      /* checksum */
+    uint16_t subsys;                    /* subsystem */
+    uint16_t dll_flags;                 /* more flags! */
+    uint64_t stack_size_req;            /* amt of stack requested */
+    uint64_t stack_size;                /* amt of stack required */
+    uint64_t heap_size_req;             /* amt of heap requested */
+    uint64_t heap_size;                 /* amt of heap required */
+    uint32_t loader_flags;              /* reserved, must be 0 */
+    uint32_t data_dirs;                 /* number of data dir entries */
 };
 
 struct data_dirent {
-    uint32_t virtual_address;   /* relative to load address */
+    uint32_t virtual_address;           /* relative to load address */
     uint32_t size;
 };
 

@@ -17,7 +17,8 @@ static __initdata initcall_entry_t *initcall_levels[] = {
     _ld_initcall1_start, _ld_initcall2_start,
     _ld_initcall3_start, _ld_initcall4_start,
     _ld_initcall5_start, _ld_initcall6_start,
-    _ld_initcall7_start, _ld_initcall_end,
+    _ld_initcall7_start, _ld_initcall8_start,
+    _ld_initcall_end,
 };
 
 static void __init do_one_initcall(initcall_entry_t *fn)

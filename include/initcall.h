@@ -38,6 +38,7 @@ extern initcall_entry_t _ld_initcall4_start[];
 extern initcall_entry_t _ld_initcall5_start[];
 extern initcall_entry_t _ld_initcall6_start[];
 extern initcall_entry_t _ld_initcall7_start[];
+extern initcall_entry_t _ld_initcall8_start[];
 extern initcall_entry_t _ld_initcall_end[];
 
 extern initcall_entry_t _ld_clk_initcall_start[];
@@ -100,21 +101,19 @@ extern initcall_entry_t _ld_kshell_initcall_end[];
 
 #define __define_initcall(fn, id) ___define_initcall(fn, id, .initcall_##id)
 
-#define early_initcall(fn)              __define_initcall(fn, early)
-#define pure_initcall(fn)               __define_initcall(fn, 0)
-#define core_initcall(fn)               __define_initcall(fn, 1)
-#define core_initcall_sync(fn)          __define_initcall(fn, 1s)
-#define arch_initcall(fn)               __define_initcall(fn, 2)
-#define arch_initcall_sync(fn)          __define_initcall(fn, 2s)
-#define framework_initcall(fn)          __define_initcall(fn, 3)
-#define framework_initcall_sync(fn)     __define_initcall(fn, 3s)
+#define core_initcall(fn)               __define_initcall(fn, 0)
+#define core_initcall_sync(fn)          __define_initcall(fn, 0s)
+#define arch_initcall(fn)               __define_initcall(fn, 1)
+#define arch_initcall_sync(fn)          __define_initcall(fn, 1s)
+#define framework_initcall(fn)          __define_initcall(fn, 2)
+#define framework_initcall_sync(fn)     __define_initcall(fn, 2s)
+#define driver_initcall(fn)             __define_initcall(fn, 3)
+#define driver_initcall_sync(fn)        __define_initcall(fn, 3s)
 #define fs_initcall(fn)                 __define_initcall(fn, 4)
 #define fs_initcall_sync(fn)            __define_initcall(fn, 4s)
-#define rootfs_initcall(fn)             __define_initcall(fn, 5)
-#define driver_initcall(fn)             __define_initcall(fn, 6)
-#define driver_initcall_sync(fn)        __define_initcall(fn, 6s)
-#define late_initcall(fn)               __define_initcall(fn, 7)
-#define late_initcall_sync(fn)          __define_initcall(fn, 7s)
+
+#define late_initcall(fn)               __define_initcall(fn, 8)
+#define late_initcall_sync(fn)          __define_initcall(fn, 8s)
 
 #define clk_initcall(fn)                ___define_initcall(fn, clk, .clk_initcall)
 #define irqchip_initcall(fn)            ___define_initcall(fn, irq, .irqchip_initcall)

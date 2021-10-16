@@ -25,7 +25,6 @@ enum pci_resource {
 
 	/* resources assigned to buses behind the bridge */
     PCI_BRIDGE_RESOURCES,
-
     PCI_RESOURCE_MAX,
 };
 
@@ -130,7 +129,7 @@ struct pci_driver {
 };
 
 #define driver_to_pci_driver(dpt) \
-        (container_of((dpt), struct pci_driver, driver))
+    container_of((dpt), struct pci_driver, driver)
 
 struct pci_bus {
     struct device dev;
@@ -207,6 +206,7 @@ state pci_driver_register(struct pci_driver *);
 void pci_driver_unregiste(struct pci_driver *drv);
 
 /* core.c */
+bool pci_resource_set(struct pci_device *pdev, enum pci_bar_type type, struct resource *res, unsigned int reg);
 state pci_bus_scan(struct pci_bus *bus);
 state pci_host_register(struct pci_host *host);
 state pci_host_unregister(struct pci_host *host);

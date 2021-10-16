@@ -1,1 +1,1 @@
-obj-y += logo/
+obj-$(CONFIG_LOGO) += logo/

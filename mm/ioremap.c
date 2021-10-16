@@ -69,7 +69,8 @@ static void unmap_node(size_t addr)
     struct ioremap_node *node;
     struct vm_area *vm;
 
-        return;
+    return;
+
     if (addr < CONFIG_HIGHMAP_OFFSET)
         return;
 

@@ -6,11 +6,9 @@
 #include <types.h>
 #include <linkage.h>
 
-#include <asm/regs.h> 
+#include <asm/regs.h>
 
 asmlinkage __visible void arch_syscall_80(struct regs *regs)
 {
-
-    
 
 }

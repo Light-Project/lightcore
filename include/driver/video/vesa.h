@@ -129,4 +129,4 @@ enum VESA_Registers {
 /* VGA graphics controller bit masks */
 #define VESA_GR06_GRAPHICS_MODE         0x01
 
-#endif  /* _DRIVER_GPU_VESA_H_ */
+#endif  /* _DRIVER_VIDEO_VESA_H_ */

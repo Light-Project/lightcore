@@ -132,7 +132,6 @@
 
 #define INIT_CALLS                                          \
     _ld_initcall_start = .;                                 \
-    KEEP(*(.init.initcallearly))                            \
     INIT_CALLS_LEVEL(0)                                     \
     INIT_CALLS_LEVEL(1)                                     \
     INIT_CALLS_LEVEL(2)                                     \
@@ -141,6 +140,7 @@
     INIT_CALLS_LEVEL(5)                                     \
     INIT_CALLS_LEVEL(6)                                     \
     INIT_CALLS_LEVEL(7)                                     \
+    INIT_CALLS_LEVEL(8)                                     \
     _ld_initcall_end = .;
 
 #define CONSOLE_INITCALL                                    \

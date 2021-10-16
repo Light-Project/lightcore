@@ -6,11 +6,10 @@
 #define pr_fmt(fmt) "romfs: " fmt
 
 #include <string.h>
-#include <mm.h>
+#include <kmalloc.h>
 #include <initcall.h>
 #include <fs.h>
 #include <fs/romfs.h>
-#include <lightcore/asm/byteorder.h>
 
 static inline uint32_t romfs_chechsum(const void *start, size_t size)
 {
@@ -115,19 +114,15 @@ static struct superblock_ops romfs_sb_ops = {
 
 static struct superblock *romfs_mount(struct fsdev *fsdev, enum mount_flag flags)
 {
-    struct romfs_superblock *rsb;
+    struct romfs_superblock rsb;
     struct superblock *sb;
 	unsigned long pos, size;
 	struct inode *root;
 	size_t len;
     state ret;
 
-    rsb = kzalloc(512, GFP_KERNEL);
-    if (!sb)
-        return ERR_PTR(-ENOMEM);
-
 	/* read the image superblock and check it */
-    ret = fsdev_read(fsdev, 0, rsb, 512);
+    ret = fsdev_read(fsdev, 0, &rsb, sizeof(rsb));
     if (ret < 0)
         goto error_rsb;
 
