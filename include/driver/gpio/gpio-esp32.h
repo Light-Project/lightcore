@@ -1,17 +1,5 @@
-/*
- *  SPDX-License-Identifier: GPL-2.0-or-later
- *  include/chip/esp8266/uart.h
- *  ESP8266 uart register map
- *  (C) 2020 wzl finishing
- * 
- *  Change Logs:
- *  Date            Notes
- *  2021-03-20      first version 
- * 
- */
-
-#ifndef _CHIP_GPIO_ESP32_H_
-#define _CHIP_GPIO_ESP32_H_
+#ifndef _DRIVER_GPIO_ESP32_H_
+#define _DRIVER_GPIO_ESP32_H_
 
 #include <types.h>
 

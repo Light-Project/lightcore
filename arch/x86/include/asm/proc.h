@@ -16,9 +16,9 @@ static __always_inline void cpu_relax(void)
 	asm volatile("rep nop" ::: "memory");
 }
 
-state arch_switch_task(struct task *prev, struct task *next);
+state proc_thread_switch(struct task *prev, struct task *next);
 
-void __noreturn cpu_reset(void);
-void __noreturn cpu_halt(void);
+void __noreturn proc_reset(void);
+void __noreturn proc_halt(void);
 
 #endif /* _ASM_X86_PROC_H_ */

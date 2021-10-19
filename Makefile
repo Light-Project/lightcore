@@ -34,13 +34,13 @@ sys-ldsflags-y += -D__ASSEMBLY__
 asflags-y  := $(strip $(sys-asflags-y) $(platform-asflags-y))
 ccflags-y  := $(strip $(sys-ccflags-y) $(platform-ccflags-y))
 acflags-y  := $(strip $(sys-acflags-y) $(platform-acflags-y))
-ldflags-y  := $(strip $(sys-ldflags-y) $(platform-ldflags-y))
 ldsflags-y := $(strip $(sys-ldsflags-y) $(platform-ldsflags-y))
+ldflags-y  := $(strip $(sys-ldflags-y) $(platform-ldflags-y))
 include-direct-y := $(strip $(sys-include-y) $(platform-include-y))
 
-lightcore-flags-$(CONFIG_KERNEL_MAP) += -Map=$@.map
-lightcore-flags-y += -e boot_head -T arch/$(arch)/kernel.lds -nostdlib
-lightcore-flags-y += $(platform-elfflags-y) --build-id=sha1
+lightcore-flags-$(CONFIG_KERNEL_MAP) += -Wl,--cref,-Map=$@.map
+lightcore-flags-y += -e boot_head -nostdlib -T arch/$(arch)/kernel.lds
+lightcore-flags-y += $(platform-elfflags-y) -Wl,--build-id=sha1
 
 ifdef CONFIG_KERNEL_DEBUG
 acflags-y += -g

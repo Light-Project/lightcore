@@ -34,7 +34,6 @@ config ARCH_X86
     select ARCH_HAS_DMA
     select ARCH_HAS_HIMEM
     select ARCH_HAS_KASLR
-    select CPU_LITTLE_ENDIAN
 
 config ARCH_XTENSA
     bool "Xtensa"

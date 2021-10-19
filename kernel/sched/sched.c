@@ -42,7 +42,7 @@ context_switch(struct sched_queue *queue, struct task *prev, struct task *next)
 
     }
 
-    arch_switch_task(prev, next);
+    proc_thread_switch(prev, next);
 }
 
 static inline struct task *

@@ -18,6 +18,6 @@ static inline void arm32_domain_set(uint32_t domain)
 
 #define cpu_relax() barrier()
 
-state arch_switch_task(struct task *prev, struct task *next);
+state proc_thread_switch(struct task *prev, struct task *next);
 
 #endif  /* _ASM_ARM_PROC_H_ */

@@ -4,6 +4,8 @@ obj-y += setup.o entry.o proc.o syscall.o
 obj-y += idt.o irq.o backtrace.o traps.o
 obj-y += tsc.o pre_printk.o
 
+obj-y += doublefault.o
+
 obj-$(CONFIG_SMP) += smp.o
 subdir-$(CONFIG_SMP) += smpboot/
 $(obj)/smp.o: $(obj)/smpboot/

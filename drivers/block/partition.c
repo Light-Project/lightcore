@@ -3,11 +3,26 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <export.h>
+#define pr_fmt(fmt) "part: " fmt
+
+#include <string.h>
 #include <driver/block.h>
 #include <driver/block/partition.h>
+#include <export.h>
+#include <printk.h>
 
 static SLIST_HEAD(partition_list);
+
+static struct partition_type *partition_find(const char *name)
+{
+    struct partition_type *part;
+
+    slist_for_each_entry(part, &partition_list, list)
+        if (!strcmp(part->name, name))
+            return part;
+
+    return NULL;
+}
 
 state partition_scan(struct block_device *bdev)
 {
@@ -25,17 +40,22 @@ state partition_scan(struct block_device *bdev)
 
 state partition_register(struct partition_type *part)
 {
-    if(!part)
+    if (!part->name || !part->match)
         return -EINVAL;
+
+    if (partition_find(part->name)) {
+        pr_err("part %s already registered\n", part->name);
+        return -EINVAL;
+    }
+
     slist_add(&partition_list, &part->list);
     return -ENOERR;
 }
-EXPORT_SYMBOL(partition_register);
 
 void partition_unregister(struct partition_type *part)
 {
-    if(!part)
-        return;
     slist_del(&partition_list, &part->list);
 }
+
+EXPORT_SYMBOL(partition_register);
 EXPORT_SYMBOL(partition_unregister);

@@ -32,7 +32,7 @@ enum bcm2835_mmc_registers {
 #define BCM2835_MMC_CMD_LONG_RESP       BIT(9)
 #define BCM2835_MMC_CMD_WRITE_CMD       BIT(7)
 #define BCM2835_MMC_CMD_READ_CMD        BIT(6)
-#define BCM2835_MMC_CMD_CMD_MASK        BIT_RANGE(0, 5)
+#define BCM2835_MMC_CMD_CMD_MASK        BIT_RANGE(5, 0)
 
 #define BCM2835_MMC_CDIV_MASK           0x7ff
 

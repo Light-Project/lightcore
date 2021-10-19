@@ -16,7 +16,7 @@
 #include <asm/delay.h>
 #include <asm/io.h>
 
-#define I8255_TIMEOUT   10000
+#define I8255_TIMEOUT   5000
 
 struct i8255_device {
     struct parallel_device parallel;

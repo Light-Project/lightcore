@@ -3,7 +3,7 @@
 #define _LIGHTCORE_BYTEORDER_LITTLE_ENDIAN_H_
 
 #ifndef __LITTLE_ENDIAN__
-#define __LITTLE_ENDIAN__
+#define __LITTLE_ENDIAN__ true
 #endif
 
 #include <lightcore/types.h>

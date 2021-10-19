@@ -28,7 +28,7 @@ void __noreturn power_restart(void)
 
 void __noreturn power_reset(void)
 {
-    cpu_reset();
+    proc_reset();
 }
 
 void __noreturn power_shutdown(void)

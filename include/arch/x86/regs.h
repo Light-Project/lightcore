@@ -4,6 +4,25 @@
 
 #include <bits.h>
 
+#define EFLAGS_CF       BIT(0)      /* Carry Flag */
+#define EFLAGS_FIXED    BIT(1)      /* Bit 1 - always on */
+#define EFLAGS_PF       BIT(2)      /* Parity Flag */
+#define EFLAGS_AF       BIT(4)      /* Auxiliary carry Flag */
+#define EFLAGS_ZF       BIT(6)      /* Zero Flag */
+#define EFLAGS_SF       BIT(7)      /* Sign Flag */
+#define EFLAGS_TF       BIT(8)      /* Trap Flag */
+#define EFLAGS_IF       BIT(9)      /* Interrupt Flag */
+#define EFLAGS_DF       BIT(10)     /* Direction Flag */
+#define EFLAGS_OF       BIT(11)     /* Overflow Flag */
+#define EFLAGS_IOPL     BIT(12)     /* I/O Privilege Level (2 bits) */
+#define EFLAGS_NT       BIT(14)     /* Nested Task */
+#define EFLAGS_RF       BIT(16)     /* Resume Flag */
+#define EFLAGS_VM       BIT(17)     /* Virtual Mode */
+#define EFLAGS_AC       BIT(18)     /* Alignment Check/Access Control */
+#define EFLAGS_VIF      BIT(19)     /* Virtual Interrupt Flag */
+#define EFLAGS_VIP      BIT(20)     /* Virtual Interrupt Pending */
+#define EFLAGS_ID       BIT(21)     /* CPUID detection */
+
 #define CR0_PE          BIT(0)      /* Protection Enable */
 #define CR0_MP          BIT(1)      /* Monitor Coprocessor */
 #define CR0_EM          BIT(2)      /* Emulation */

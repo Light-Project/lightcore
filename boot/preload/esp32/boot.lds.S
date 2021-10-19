@@ -2,7 +2,7 @@
 #include <romcall.lds.h>
 #include <size.h>
 
-#define stack_size (size_1KiB * 8)
+#define stack_size (SZ_1KiB * 8)
 
 OUTPUT_ARCH(xtensa)
 
@@ -20,7 +20,7 @@ MEMORY
 SECTIONS
 {
     .text :
-    {    
+    {
         KEEP(*(.startup));
         *(.literal)
         *(.literal*)
@@ -54,7 +54,7 @@ SECTIONS
         . = 0x400;
         *(.*Vector.literal)
     } > ICACHE AT > FLASH
-    
+
     .data :
     {
         . = ALIGN(4);
@@ -73,7 +73,7 @@ SECTIONS
         . = ALIGN(4);
         PROVIDE(_ld_ebss = .);
     } > DRAM
-    
+
     .stack(NOLOAD) :
     {
         . = ALIGN(4);
@@ -82,9 +82,9 @@ SECTIONS
         . = ALIGN(4);
         _ld_stack_end = .;
     } > DRAM
-    
-    DWARF_DEBUG  
-    
+
+    DWARF_DEBUG
+
     /* Sections to be discarded */
     DISCARDS
 }

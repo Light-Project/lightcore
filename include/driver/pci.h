@@ -68,6 +68,15 @@ enum pci_speed {
     PCI_SPEED_UNKNOWN           = 0xff,
 };
 
+enum pci_power {
+    PCI_POWER_D0                = 0x00,
+    PCI_POWER_D1                = 0x01,
+    PCI_POWER_D2                = 0x02,
+    PCI_POWER_D3H               = 0x03,
+    PCI_POWER_D3C               = 0x04,
+    PCI_POWER_ERR               = -1,
+};
+
 struct pci_device {
     struct device dev;              /* Generic device */
     list_t pci_bus_list_pci_device; /* Node of pci_bus->pci_device_list */
@@ -86,7 +95,13 @@ struct pci_device {
     uint8_t  irq;           /* 0x3c: Interrupt line */
     uint8_t  pin;           /* 0x3d: Interrupt pin */
 
-    /* Pci device flags */
+    /* PCI device power */
+    enum pci_power current_state;
+    uint32_t power_has_d1:1;
+    uint32_t power_has_d2:1;
+    uint32_t power_no_d1d2:1;
+
+    /* PCI device flags */
     uint32_t io_windows:1;      /* Bridge has io window */
     uint32_t pref_window:1;     /* Bridge has pref window */
     uint32_t pref64_window:1;   /* Bridge has pref64 window */
@@ -190,6 +205,7 @@ void pci_mwi_disable(struct pci_device *pdev);
 uint32_t pcix_mmrbc_get(struct pci_device *pdev);
 state pcix_mmrbc_set(struct pci_device *pdev, uint32_t mmrbc);
 
+bool pci_power_no_d1d2(struct pci_device *pdev);
 
 /* raw.c - PCI Raw operation */
 state pci_raw_config_read(unsigned int domain, unsigned int bus, unsigned int devfn, unsigned int reg, int size, uint32_t *val);
@@ -203,7 +219,7 @@ void pci_bus_devices_probe(const struct pci_bus *bus);
 
 /* driver.c */
 state pci_driver_register(struct pci_driver *);
-void pci_driver_unregiste(struct pci_driver *drv);
+void pci_driver_unregiste(struct pci_driver *);
 
 /* core.c */
 bool pci_resource_set(struct pci_device *pdev, enum pci_bar_type type, struct resource *res, unsigned int reg);

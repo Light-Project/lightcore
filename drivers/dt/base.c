@@ -13,7 +13,7 @@ struct dt_node *dt_stdout;
 
 struct dt_node *dt_for_each_all_node(struct dt_node *node)
 {
-    if(!node)
+    if (!node)
         return dt_root;
     else if (!slist_check_empty(&node->child))
         return slist_first_entry(&node->child, struct dt_node, sibling);
@@ -28,9 +28,10 @@ struct dt_node *dt_find_by_phandle(uint32_t phandle)
 {
     struct dt_node *node;
 
-    dt_for_each_all(node)
+    dt_for_each_all(node) {
         if (node->phandle == phandle)
             return node;
+    }
 
     return NULL;
 }
@@ -44,10 +45,12 @@ struct dt_attribute *dt_attribute_find(const struct dt_node *node,
                                        const char *name)
 {
     struct dt_attribute *attribute;
+
     slist_for_each_entry(attribute, &node->attribute, list) {
         if (!strcmp(attribute->name, name))
             return attribute;
     }
+
     return NULL;
 }
 
@@ -65,8 +68,10 @@ const void *dt_attribute_get(const struct dt_node *node,
     attribute = dt_attribute_find(node, name);
     if (!attribute)
         return NULL;
+
     if (len)
         *len = attribute->len;
+
     return attribute->value;
 }
 
@@ -178,7 +183,7 @@ struct dt_node *dt_search_up(struct dt_node *node,
                              const char *name, uint32_t *value)
 {
     do {
-        if (!dt_attribute_read_u32(node, DT_ADDR_CELL, value))
+        if (!dt_attribute_read_u32(node, name, value))
             return node;
     } while((node = node->parent));
 

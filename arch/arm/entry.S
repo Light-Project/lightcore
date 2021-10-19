@@ -14,9 +14,9 @@
     ldmfd   sp!, {r0 - r12}
 .endm
 
-SYM_CODE_START(arch_switch_task)
+SYM_CODE_START(proc_thread_switch)
     stmfd   sp!, {v1 - fp, lr}
-SYM_CODE_END(arch_switch_task)
+SYM_CODE_END(proc_thread_switch)
 
 SYM_CODE_START(entry_rst)
     SAVE_REGS

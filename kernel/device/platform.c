@@ -170,6 +170,7 @@ void platform_device_unregister(struct platform_device *pdev)
 {
     device_unregister(&pdev->dev);
 }
+
 state platform_driver_register(struct platform_driver *pdrv)
 {
     pdrv->driver.bus = &platform_bus;

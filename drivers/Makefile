@@ -14,6 +14,7 @@ obj-$(CONFIG_GPIO)      += gpio/
 obj-$(CONFIG_I2C)       += i2c/
 obj-$(CONFIG_INPUT)     += input/
 obj-$(CONFIG_LED)       += led/
+obj-$(CONFIG_MFD)       += mfd/
 obj-$(CONFIG_MTD)       += mtd/
 obj-$(CONFIG_PARALLEL)	+= parallel/
 obj-$(CONFIG_PCI)       += pci/

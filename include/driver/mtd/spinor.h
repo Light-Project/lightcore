@@ -2,7 +2,9 @@
 #ifndef _DRIVER_MTD_SPINOR_
 #define _DRIVER_MTD_SPINOR_
 
+#include <state.h>
 #include <bits.h>
+#include <driver/mtd.h>
 
 enum norflash_commands {
     /* Status command */
@@ -48,5 +50,19 @@ enum norflash_commands {
 #define NORFLASH_STR_TB         BIT(5)  /* Top/Bottom write protect */
 #define NORFLASH_STR_SEC        BIT(6)  /* Sector write protect */
 #define NORFLASH_STR_SRP0       BIT(7)  /* Status write protect */
+
+struct spinor_device {
+    struct mtd_device mtd;
+    struct spinor_ops *ops;
+};
+
+struct spinor_ops {
+    state (*read)(struct spinor_device *, loff_t pos, void *buf, uint64_t len);
+    state (*write)(struct spinor_device *, loff_t pos, void *buf, uint64_t len);
+    state (*erase)(struct spinor_device *, loff_t pos, uint64_t len);
+};
+
+state spinor_register(struct spinor_device *);
+void spinor_unregister(struct spinor_device *);
 
 #endif  /* _DRIVER_MTD_NORFLASH_ */

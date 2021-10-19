@@ -15,14 +15,14 @@ kboot-asflags-y  += -D__ASSEMBLY__
 kboot-ccflags-y  += -std=gnu11
 kboot-acflags-y  += -ffreestanding -nostdinc -fPIC -fno-stack-protector -fno-common
 kboot-ldsflags-y += -D__ASSEMBLY__
-kboot-elfflags-y += -T $(obj)/kboot.lds -Wl,--cref,-Map=$@.map
+kboot-elfflags-y += -T $(obj)/kboot.lds -Wl,-Map=$@.map
 kboot-elfflags-y += -Wl,--no-dynamic-linker -nostdlib
 
 asflags-y   = $(strip $(kboot-asflags-y) $(platform-asflags-y))
 ccflags-y   = $(strip $(kboot-ccflags-y) $(platform-ccflags-y))
 acflags-y   = $(strip $(kboot-acflags-y) $(platform-acflags-y))
-ldflags-y   = $(strip $(kboot-ldflags-y) $(platform-ldflags-y))
 ldsflags-y  = $(strip $(kboot-ldsflags-y) $(platform-ldsflags-y))
+ldflags-y   = $(strip $(kboot-ldflags-y) $(platform-ldflags-y))
 kboot-flags-y = $(strip $(kboot-elfflags-y) $(platform-elfflags-y))
 
 kboot-objs += built-in.o

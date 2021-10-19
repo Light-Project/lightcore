@@ -1,4 +1,4 @@
-#!bin/bash
+#!bin/sh
 
 while true; do
     sunxi-fel spl boot/preload.bin 2>/dev/null

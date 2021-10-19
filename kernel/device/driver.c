@@ -36,7 +36,7 @@ struct driver *driver_find(struct bus_type *bus, const char *name)
     struct driver *drv;
 
     bus_for_each_driver(drv, bus)
-        if(!strcmp(drv->name, name))
+        if (!strcmp(drv->name, name))
             return drv;
 
     return NULL;
@@ -50,12 +50,12 @@ state driver_register(struct driver *drv)
 {
     struct driver *other;
 
-    if (!drv->bus || !drv->name)
+    if (!drv->name || !drv->bus)
         return -EINVAL;
 
     other = driver_find(drv->bus, drv->name);
     if (other) {
-        pr_err("'%s' already registered\n", drv->name);
+        pr_err("driver %s already registered\n", drv->name);
         return -EINVAL;
     }
 

@@ -16,7 +16,7 @@ preload-asflags-y = -D__ASSEMBLY__
 preload-ccflags-y = -std=gnu11
 preload-acflags-y = -ffreestanding -nostdinc -fno-pic -fno-stack-protector
 preload-ldsflags-y = -D__ASSEMBLY__
-preload-elfflags-y = -Wl,--cref,-Map=$@.map
+preload-elfflags-y = -Wl,-Map=$@.map
 
 asflags-y   = $(strip $(preload-asflags-y) $(platform-asflags-y))
 ccflags-y   = $(strip $(preload-ccflags-y) $(platform-ccflags-y))

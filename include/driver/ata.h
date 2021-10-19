@@ -16,9 +16,9 @@ enum ata_registers {
     ATA_REG_CMD         = 0x07, /* (WO) used to send ATA commands to the device */
 
     /* control block regs */
-    ATA_REG_ASTAT       = 0x02, /* (RO) alternate status */
-    ATA_REG_DEVCTL      = 0x02, /* (WO) device control */
-    ATA_REG_DEVADR      = 0x03, /* (RO) device address */
+    ATA_REG_ASTAT       = 0x00, /* (RO) alternate status */
+    ATA_REG_DEVCTL      = 0x00, /* (WO) device control */
+    ATA_REG_DEVADR      = 0x01, /* (RO) device address */
 };
 
 #define ATA_DEVSEL_IBM      BIT(7) | BIT(5) /* 512 byte sectors & ECC  */

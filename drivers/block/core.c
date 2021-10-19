@@ -31,7 +31,7 @@ state block_device_register(struct block_device *blk)
 {
     state ret;
 
-    if (!blk || !blk->ops)
+    if (!blk->ops || !blk->dev)
         return -ENXIO;
 
     list_head_init(&blk->parts);

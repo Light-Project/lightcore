@@ -4,11 +4,11 @@
 
 #ifndef __ASSEMBLY__
 
-#ifdef CONFIG_ARCH_ARM_V7
+#if defined(CONFIG_ARCH_ARM_V7)
 #define isb(op)     asm volatile("isb" : : : "memory")
 #define dsb(op)     asm volatile("dsb" : : : "memory")
 #define dmb(op)     asm volatile("dmb" : : : "memory")
-#elif CONFIG_ARCH_ARM_V6
+#elif defined(CONFIG_ARCH_ARM_V6)
 #define isb(op)     asm volatile("mcr p15, 0, %0, c7, c5,  4" : : "r" (0) : "memory")
 #define dsb(op)     asm volatile("mcr p15, 0, %0, c7, c10, 4" : : "r" (0) : "memory")
 #define dmb(op)     asm volatile("mcr p15, 0, %0, c7, c10, 5" : : "r" (0) : "memory")

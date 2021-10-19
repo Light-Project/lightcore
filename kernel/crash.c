@@ -23,5 +23,5 @@ void __noreturn panic(const char* fmt, ...)
     printk("Kernel panic: %s :(\n", buf);
     printk("---[ end Kernel panic ]---\n");
 
-    cpu_halt();
+    proc_halt();
 }

@@ -16,7 +16,7 @@
 enum INT_VECTOR{
 /*  Mnemonic        Vector     Description                      Source                                                  */
     RST_FAULT       = 1,    /* Reset                            Power-On Reset or Local Reset                           */
-    NMI_INTERRUPT   = 2,    /* NMI                              Non-Maskable Interrupt                                  */
+    NMI_INT         = 2,    /* NMI                              Non-Maskable Interrupt                                  */
     HF_FAULT        = 3,    /* HardFault                        A fault that no other exception mechanism can handle    */
     MM_FAULT        = 4,    /* MemManage                        MemManage fault                                         */
     BUS_FAULT       = 5,    /* BusFault                         Memory related faults                                   */

@@ -2,22 +2,20 @@
 #ifndef _ASM_X86_IDT_H_
 #define _ASM_X86_IDT_H_
 
+#include <asm/irq.h>
 #include <arch/x86/segment.h>
 #include <arch/x86/interrupt.h>
 
 #define SYSCALL_TRAP 0x80
 
-typedef uint8_t irqflags_t;
-typedef uint8_t irqnr_t;
-
 struct idt_data {
-    irqnr_t vector;         /* Vector number */
-    void *handle;           /* */
+    irqnr_t vector;
+    void *handle;
     uint16_t segment;
     struct idt_bits bits;
 };
 
-static inline void idt_load(struct idt_table *idt)
+static inline void idt_set(struct idt_table *idt)
 {
     asm volatile("lidtl (%0)"::"Na"(idt));
 }

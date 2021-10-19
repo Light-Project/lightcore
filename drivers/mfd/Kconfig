@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig MFD
+    bool "Multifunction device support"
+if MFD
+
+config MFD_ICH
+    bool "Intel ICH Multifunction support"
+
+endif

@@ -13,7 +13,7 @@ $(elf_objs): $(obj)/%.o: $(src)/%.a FORCE
 	$(call if_changed,link_o_target)
 
 quiet_cmd_build_elf = $(ECHO_ELF) $@
-      cmd_build_elf = $(LD) -o $@ $(addprefix $(obj)/,$($(@F)-objs)) \
+      cmd_build_elf = $(MKELF) -o $@ $(addprefix $(obj)/,$($(@F)-objs)) \
                       $(elfflags-y) $($(@F)-flags-y)
 $(elf_file): FORCE
 	$(call if_changed,build_elf)

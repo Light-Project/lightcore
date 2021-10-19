@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <size.h>
 
-#define stack_size (size_1KiB * 8)
-#define heap_size (size_1KiB * 64)
+#define stack_size (SZ_1KiB * 8)
+#define heap_size (SZ_1KiB * 64)
 
 ENTRY(_start)
 
@@ -74,7 +74,7 @@ SECTIONS
         . = ALIGN(4);
         _ld_heap_end = .;
     }
-    
+
     /DISCARD/ : {
         *(.note*)
     }

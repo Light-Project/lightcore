@@ -8,11 +8,11 @@
 #include <mm/memmodel.h>
 #include <mm/memblock.h>
 
-#ifdef CONFIG_FLATMEM
+#if defined(CONFIG_FLATMEM)
 
 struct page page_map[PAGE_NR];
 
-#elif CONFIG_SPARCEMEM
+#elif defined(CONFIG_SPARCEMEM)
 
 struct sparce_block sparce_map[SECTIONS_NR];
 static size_t sparce_nr;

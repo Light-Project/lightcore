@@ -2,48 +2,49 @@
 #ifndef _DRIVER_IRQCHIP_8259_H_
 #define _DRIVER_IRQCHIP_8259_H_
 
+#include <bits.h>
+
 enum i8259_registers {
     I8259_CMD   = 0x00,
     I8259_DATA  = 0x01,
 };
 
-/********************************************************************/
-/*      Mnemonic            value    meaning/usage                  */
+/****************************************************************************/
+/*      Mnemonic                value       meaning/usage                   */
 
-#define ICW1_INIT	        0x10	/* Initialization - required!   */
-#define ICW1_LEVEL	        0x08	/* Level triggered (edge) mode  */
-#define ICW1_INTERVAL4	    0x04	/* Call address interval 4 (8)  */
-#define ICW1_SINGLE	        0x02	/* Single (cascade) mode        */
-#define ICW1_ICW4	        0x01	/* ICW4 needed                  */
+/**  Initialization Command Word (OCW)  **/
+#define I8259_ICW1_VEC          BIT_RANGE(7, 5) /* Vector Addr (80 85 Mode) */
+#define I8259_ICW1_INIT         BIT(4)  /* Initialization - Required!       */
+#define I8259_ICW1_LEVEL        BIT(3)  /* Level Triggered (edge) Mode      */
+#define I8259_ICW1_INTERVAL4    BIT(2)  /* Call Address Unterval 4 (8)      */
+#define I8259_ICW1_SINGLE       BIT(1)  /* Single (Cascade) Mode            */
+#define I8259_ICW1_ICW4         BIT(0)  /* ICW4 Needed                      */
 
-#define ICW4_SFNM	        0x10	/* Special fully nested (not)   */
-#define ICW4_BUF_MASTER	    0x0C	/* Buffered mode/master         */
-#define ICW4_BUF_SLAVE	    0x08	/* Buffered mode/slave          */
-#define ICW4_AUTO	        0x02	/* Auto (normal) EOI            */
-#define ICW4_8086	        0x01	/* 8086/88 (MCS-80/85) mode     */
+#define I8259_ICW2_VEC          BIT_RANGE(7, 0) /* Vector Addr (86 88 mode) */
 
-/* PIC1 bitdefs */
-#define PIC1_IRQ0           (1<<0)  /* System Timer                                     */
-#define PIC1_IRQ1           (1<<1)  /* PS2 Keyboard                                     */
-#define PIC1_IRQ2           (1<<2)  /* Cascade Controller                               */
-#define PIC1_IRQ3           (1<<3)  /* COM 2 and 4                                      */
-#define PIC1_IRQ4           (1<<4)  /* COM 1 and 3                                      */
-#define PIC1_IRQ5           (1<<5)  /* Sound, Parallel port 2                           */
-#define PIC1_IRQ6           (1<<6)  /* Floppy                                           */
-#define PIC1_IRQ7           (1<<7)  /* Parallel Port 1                                  */
+#define I8259_ICW3_SLVD         BIT_RANGE(2, 0) /* Slave Device Vector      */
 
-/* PIC2 bitdefs */
-#define PIC2_IRQ8           (1<<8)  /* Real-time clock                                  */
-#define PIC2_IRQ9           (1<<9)  /* Redirected IRQ 2, Open, Network Available        */
-#define PIC2_IRQ10          (1<<10) /* Open                                             */
-#define PIC2_IRQ11          (1<<11) /* Open, SCSI, Video                                */
-#define PIC2_IRQ12          (1<<12) /* PS2 Mouse                                        */
-#define PIC2_IRQ13          (1<<13) /* Coprocessor                                      */
-#define PIC2_IRQ14          (1<<14) /* Open, Primary hard drive, Hard drive controller  */
-#define PIC2_IRQ15          (1<<15) /* Open, 2nd hard drive (secondary)                 */
+#define I8259_ICW4_SFNM         BIT(4)  /* Special Fully Nested (not)       */
+#define I8259_ICW4_BUFF         BIT(3)  /* Buffered Mode                    */
+#define I8259_ICW4_SLAVE        BIT(2)  /* Master/Slave Mode                */
+#define I8259_ICW4_AUTO         BIT(1)  /* Auto (normal) EOI                */
+#define I8259_ICW4_8086         BIT(0)  /* 8086/88 (MCS-80/85) Mode         */
 
-#define PIC_EOI             0x20    /* End-of-interrupt command code */
-#define PIC_READ_IRR        0x0a    /* OCW3 irq ready next CMD read */
-#define PIC_READ_ISR        0x0b    /* OCW3 irq service next CMD read */
+/**  Operation Control Word (OCW)  **/
+#define I8259_OCW1_MASK         BIT_RANGE(7, 0) /* Interrupt Mask           */
+
+#define I8259_OCW2_ROTITE       BIT(7)  /* ROTITE EOI                       */
+#define I8259_OCW2_SL           BIT(6)  /* Specific EOI                     */
+#define I8259_OCW2_EOI          BIT(5)  /* EOI command                      */
+#define I8259_OCW2_VEC          BIT_RANGE(2, 0) /* Vector to EOI            */
+
+#define I8259_OCW3_ESMM         BIT(6)  /*  */
+#define I8259_OCW3_SMM          BIT(5)  /*  */
+#define I8259_OCW3_INIT         BIT(3)  /*  */
+#define I8259_OCW3_P            BIT(2)  /*  */
+#define I8259_OCW3_RR           BIT(1)  /*  */
+#define I8259_OCW3_RIS          BIT(0)  /*  */
+
+#define I8259_IRQ_NR            8
 
 #endif

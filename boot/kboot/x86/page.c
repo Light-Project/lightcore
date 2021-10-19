@@ -38,8 +38,8 @@ void kernel_map()
 {
     uint32_t val;
 
-    section_link(0x00000000, 0x00000000, (uint32_t)size_1MiB * 16);
-    section_link(CONFIG_PAGE_OFFSET, 0x00000000, size_1MiB * 768);
+    section_link(0x00000000, 0x00000000, (uint32_t)SZ_1MiB * 16);
+    section_link(CONFIG_PAGE_OFFSET, 0x00000000, SZ_1MiB * 768);
 
     val = cr4_get();
     val |= CR4_PSE;

@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#include <string.h>
 #include <kernel.h>
 #include <export.h>
 
@@ -893,5 +895,4 @@ int vsnprintf(char *buf, size_t n, const char *fmt, va_list args)
 
     return o;
 }
-
 EXPORT_SYMBOL(vsnprintf);

@@ -12,7 +12,7 @@
 #include <asm/proc.h>
 #include <asm/io.h>
 
-#ifdef CONFIG_PRECON_VGA
+#if defined(CONFIG_PRECON_VGA)
 
 #define xres    80
 #define yres    25
@@ -107,7 +107,7 @@ void pre_printk_init(void)
     pre_console_register(&vga_console);
 }
 
-#elif CONFIG_PRECON_SER
+#elif defined(CONFIG_PRECON_SER)
 
 #define I8250_BASE  0x3f8
 #define I8250_FREQ  115200

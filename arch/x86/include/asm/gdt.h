@@ -9,20 +9,23 @@
 
 static inline void gdt_set(void *addr)
 {
-    asm volatile(
+    asm volatile (
         "lgdtl   (%0)"
-        ::"Na"(addr):
+        ::"Na"(addr)
     );
 }
 
 static inline void tss_set(unsigned int seg)
 {
-    asm volatile(
+    asm volatile (
         "movl   %0, %%ecx\n"
         "ltr    %%cx\n"
-        ::"Na"(seg):);
+        ::"Na"(seg)
+    );
 }
 
+void gdte_seg_set(int index, char dpl, char type, size_t base, uint64_t limit);
+void gdte_sys_set(int index, char type, size_t base, uint64_t limit);
 void gdt_setup(void);
 
 #endif	/* __ASSEMBLY__ */

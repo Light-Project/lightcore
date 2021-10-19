@@ -20,7 +20,6 @@ static struct dt_node *dt_get_channel(struct dt_node *node, int index, uint32_t 
 {
     struct dt_node *parent;
     uint32_t int_cell;
-    // unsigned int c;
 
     /* Get the irq parent */
     parent = dt_irq_parent(node);
@@ -30,9 +29,7 @@ static struct dt_node *dt_get_channel(struct dt_node *node, int index, uint32_t 
     if (dt_attribute_read_u32(parent, "#interrupt-cells", &int_cell))
         return NULL;
 
-    // for (c = 0; c < int_cell; c++) {
-        dt_attribute_read_u32_index(node, "interrupts", index, irq_nr);
-    // }
+    dt_attribute_read_u32_index(node, "interrupts", index, irq_nr);
 
     return parent;
 }
@@ -44,6 +41,7 @@ static struct irqchip_device *dt_irqchip_find(struct dt_node *node)
     list_for_each_entry(idev, &irqchip_list, list)
         if (idev->dt_node == node)
             return idev;
+
     return NULL;
 }
 

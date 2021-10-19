@@ -4,10 +4,11 @@
 
 #include <asm-generic/bitsperlong.h>
 
-#define BIT(nr)     (1UL << ((nr) % BITS_PER_LONG))
+#define BIT(nr) (1UL << ((nr) % BITS_PER_LONG))
+#define BIT_SHIFT(val, shift) ((val) << ((shift) % BITS_PER_LONG))
 
-#define BIT_RANGE(hi, lo)               \
-    (((~UL(0)) - (UL(1) << (lo)) + 1) & \
-	(~UL(0) >> (BITS_PER_LONG - 1 - (hi))))
+#define BIT_RANGE(hi, lo) \
+    (((~0UL) - (1UL << (lo)) + 1) & \
+	(~0UL >> (BITS_PER_LONG - 1 - (hi))))
 
 #endif  /* _BITS_H_ */

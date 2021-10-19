@@ -31,7 +31,7 @@ static int reset_main(int argc, char *argv[])
         if (*para == '-' && para[1])
         switch (*++para) {
             case 'H':
-                cpu_halt();
+                proc_halt();
             case 'S':
                 power_shutdown();
             case 'r':

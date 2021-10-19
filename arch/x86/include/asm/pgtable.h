@@ -3,7 +3,6 @@
 #define _ASM_X86_PGTABLE_H_
 
 #include <arch/x86/page.h>
-
 #include <asm/page.h>
 
 extern struct pde page_dir[1024];

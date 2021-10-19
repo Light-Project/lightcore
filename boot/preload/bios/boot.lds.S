@@ -4,7 +4,7 @@
  */
 
 #include <size.h>
-#define stack_size (size_1KiB * 8)
+#define stack_size (SZ_1KiB * 8)
 
 ENTRY(_start)
 

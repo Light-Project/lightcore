@@ -201,7 +201,7 @@ static state mc146818_probe(struct platform_device *pdev, void *pdata)
     if (!mc146818->irqchip)
         return -ENODEV;
     irqchip_pass(mc146818->irqchip);
-    irq_request(I8253_IRQ, 0, mc146818_alarm_handle, mc146818, DRIVER_NAME);
+    irq_request(RTC_IRQ, 0, mc146818_alarm_handle, mc146818, DRIVER_NAME);
 
     return rtc_register(&mc146818->rtc);
 }
@@ -229,11 +229,8 @@ static struct platform_driver mc146818_driver = {
     .remove = mc146818_remove,
 };
 
-#include <printk.h>
-
 static state mc146818_init(void)
 {
     return platform_driver_register(&mc146818_driver);
 }
-
 driver_initcall(mc146818_init);

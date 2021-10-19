@@ -36,7 +36,6 @@ i8253_out(struct i8253_device *idev, int reg, uint8_t value)
 
 static irqreturn_t pit_handle(irqnr_t vector, void *data)
 {
-    struct i8253_device *idev = data;
     timer_tick();
     return IRQ_RET_HANDLED;
 }

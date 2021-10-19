@@ -91,7 +91,7 @@
     ((size_t)(size) + (_align - 1)) & ~(_align - 1);\
 })
 
-#define aligned(size, align) (!(size & (align - 1)))
+#define align_check(size, align) (!(size & (align - 1)))
 
 #ifndef __ASSEMBLY__
 
@@ -99,6 +99,8 @@ extern __printf(2, 3) int sprintf(char *buf, const char *fmt, ...);
 extern __printf(3, 4) int snprintf(char *buf, size_t n, const char *fmt, ...);
 extern int vsprintf(char *buf, const char *fmt, va_list args);
 extern int vsnprintf(char *buf, size_t n, const char *fmt, va_list args);
+
+extern char *gsize(char *buff, double size);
 extern void panic(const char* fmt, ...);
 
 #define kassert(val) do {                               \

@@ -5,100 +5,185 @@
 
 #define DRIVER_NAME "i8259"
 
-#include <mm.h>
+#include <kmalloc.h>
 #include <initcall.h>
 #include <driver/platform.h>
 #include <driver/irqchip.h>
 #include <driver/irqchip/i8259.h>
 #include <asm/io.h>
 
-#define PIC1_BASE   0x20
-#define PIC2_BASE   0xa0
-#define PIC_NR      2
-#define PIC(nr)     ((nr) / 8)
-#define IRQ(nr)     ((nr) % 8)
+struct i8259_device {
+    struct irqchip_device irqchip;
+    struct irqchip_channel *parent;
+    resource_size_t base;
+    uint8_t mask, slave;
+    spinlock_t lock;
+};
 
-static resource_size_t pic_base[PIC_NR] = {PIC1_BASE, PIC2_BASE};
+#define irqchip_to_idev(irq) \
+    container_of(irq, struct i8259_device, irqchip)
 
-static __always_inline uint8_t pic_inb(int pic, int reg)
+static __always_inline uint8_t
+i8259_in(struct i8259_device *i8259, int reg)
 {
-    return inb(pic_base[pic] + reg);
+    return inb(i8259->base + reg);
 }
 
-static __always_inline void pic_outb(int pic, int reg, uint8_t val)
+static __always_inline void
+i8259_out(struct i8259_device *i8259, int reg, uint8_t val)
 {
-    outb(pic_base[pic] + reg, val);
+    outb(i8259->base + reg, val);
 }
 
-static state pic_irq_pass(struct irqchip_device *idev, irqnr_t vector)
+static void i8259_mask(struct i8259_device *i8259, uint8_t off, uint8_t on)
 {
-    uint8_t val = pic_inb(PIC(vector), I8259_DATA);
-    val &= ~BIT(IRQ(vector));
-    pic_outb(PIC(vector), I8259_DATA, val);
+    i8259->mask = (i8259->mask & ~off) | on;
+    i8259_out(i8259, I8259_DATA, i8259->mask);
+}
+
+static state i8259_irq_pass(struct irqchip_device *idev, irqnr_t vector)
+{
+    struct i8259_device *i8259 = irqchip_to_idev(idev);
+
+    if (vector > I8259_IRQ_NR - 1)
+        return -EINVAL;
+
+    spin_lock(&i8259->lock);
+    i8259_mask(i8259, BIT(vector), 0);
+    spin_unlock(&i8259->lock);
+
     return -ENOERR;
 }
 
-static state pic_irq_mask(struct irqchip_device *idev, irqnr_t vector)
+static state i8259_irq_mask(struct irqchip_device *idev, irqnr_t vector)
 {
-    uint8_t val = pic_inb(PIC(vector), I8259_DATA);
-    val |= BIT(IRQ(vector));
-    pic_outb(PIC(vector), I8259_DATA, val);
+    struct i8259_device *i8259 = irqchip_to_idev(idev);
+
+    if (vector > I8259_IRQ_NR - 1)
+        return -EINVAL;
+
+    spin_lock(&i8259->lock);
+    i8259_mask(i8259, 0, BIT(vector));
+    spin_unlock(&i8259->lock);
+
     return -ENOERR;
 }
 
-static state pic_irq_eoi(struct irqchip_device *idev, irqnr_t vector)
+static state i8259_irq_eoi(struct irqchip_device *idev, irqnr_t vector)
 {
-    if (vector > 8)
-        pic_outb(1, I8259_CMD, PIC_EOI);
-    pic_outb(0, I8259_CMD, PIC_EOI);
+    struct i8259_device *i8259 = irqchip_to_idev(idev);
+
+    if (vector > I8259_IRQ_NR - 1)
+        return -EINVAL;
+
+    spin_lock(&i8259->lock);
+
+    /* starts the control sequence */
+    i8259_mask(i8259, 0, 0);
+    i8259_out(i8259, I8259_CMD, I8259_OCW2_SL |
+        I8259_OCW2_EOI | (I8259_OCW2_VEC & vector));
+
+    spin_unlock(&i8259->lock);
+    return -ENOERR;
+}
+
+static state i8259_slave_add(struct irqchip_device *idev, irqnr_t vector)
+{
+    struct i8259_device *i8259 = irqchip_to_idev(idev);
+
+    if (vector > I8259_IRQ_NR - 1)
+        return -EINVAL;
+
+    spin_lock(&i8259->lock);
+
+    i8259->slave |= BIT(vector);
+
+    /* starts the initialization sequence */
+    i8259_out(i8259, I8259_CMD,  I8259_ICW1_INIT | I8259_ICW1_ICW4);
+    i8259_out(i8259, I8259_DATA, IRQ_EXTERNAL);
+    i8259_out(i8259, I8259_DATA, i8259->slave);
+    i8259_out(i8259, I8259_DATA, I8259_ICW4_AUTO | I8259_ICW4_8086 | I8259_ICW4_BUFF);
+
+    i8259_irq_pass(idev, vector);
+
+    spin_unlock(&i8259->lock);
+    return -ENOERR;
+}
+
+static state i8259_slave_del(struct irqchip_device *idev, irqnr_t vector)
+{
+    struct i8259_device *i8259 = irqchip_to_idev(idev);
+
+    if (vector > I8259_IRQ_NR - 1)
+        return -EINVAL;
+
+    spin_lock(&i8259->lock);
+
+    i8259->slave &= ~BIT(vector);
+
+    /* starts the initialization sequence */
+    i8259_out(i8259, I8259_CMD,  I8259_ICW1_INIT | I8259_ICW1_ICW4);
+    i8259_out(i8259, I8259_DATA, IRQ_EXTERNAL);
+    i8259_out(i8259, I8259_DATA, i8259->slave);
+    i8259_out(i8259, I8259_DATA, I8259_ICW4_AUTO | I8259_ICW4_8086 | I8259_ICW4_BUFF);
+
+    i8259_irq_mask(idev, vector);
+
+    spin_unlock(&i8259->lock);
     return -ENOERR;
 }
 
 static struct irqchip_ops pic_ops = {
-    .pass = pic_irq_pass,
-    .mask = pic_irq_mask,
-    .eoi = pic_irq_eoi,
+    .pass = i8259_irq_pass,
+    .mask = i8259_irq_mask,
+    .eoi = i8259_irq_eoi,
+    .slave_add = i8259_slave_add,
+    .slave_del = i8259_slave_del,
 };
 
-static void i8250_hw_init(void)
+static void i8250_hw_init(struct platform_device *pdev)
 {
+    struct i8259_device *i8259 = platform_get_devdata(pdev);
+    uint32_t index;
+
     /* mask all interrupt */
-    pic_outb(0, I8259_DATA, 0xff);
-    pic_outb(1, I8259_DATA, 0xff);
+    i8259_mask(i8259, 0, 0xff);
 
     /* starts the initialization sequence */
-    pic_outb(0, I8259_CMD,  ICW1_INIT | ICW1_ICW4);
-    /* ICW2: PIC vector offset */
-    pic_outb(0, I8259_DATA, IRQ_EXTERNAL);
-    /* ICW3: tell Master PIC that there is a slave PIC at IRQ2 */
-    pic_outb(0, I8259_DATA, PIC1_IRQ2);
-    /* ICW4: Auto EOI */
-    pic_outb(0, I8259_DATA, ICW4_8086 | ICW4_AUTO);
-
-    pic_outb(1, I8259_CMD,  ICW1_INIT | ICW1_ICW4);
-    pic_outb(1, I8259_DATA, IRQ_EXTERNAL + 8);
-    pic_outb(1, I8259_DATA, 2);
-    pic_outb(1, I8259_DATA, ICW4_8086 | ICW4_AUTO);
-
-    pic_outb(0, I8259_DATA, ~PIC1_IRQ2);
-    pic_outb(1, I8259_DATA, 0xff);
+    if (!dt_attribute_read_u32(pdev->dt_node, "irq", &index)) {
+        i8259_out(i8259, I8259_CMD,  I8259_ICW1_INIT | I8259_ICW1_ICW4);
+        i8259_out(i8259, I8259_DATA, IRQ_EXTERNAL + 8);
+        i8259_out(i8259, I8259_DATA, index);
+        i8259_out(i8259, I8259_DATA, I8259_ICW4_AUTO | I8259_ICW4_8086 |
+                                     I8259_ICW4_BUFF | I8259_ICW4_SLAVE);
+    } else { /* master mode */
+        i8259_out(i8259, I8259_CMD,  I8259_ICW1_INIT | I8259_ICW1_ICW4);
+        i8259_out(i8259, I8259_DATA, IRQ_EXTERNAL);
+        i8259_out(i8259, I8259_DATA, 0);
+        i8259_out(i8259, I8259_DATA, I8259_ICW4_AUTO | I8259_ICW4_8086 |
+                                     I8259_ICW4_BUFF);
+    }
 }
 
 static state i8259_probe(struct platform_device *pdev, void *pdata)
 {
-    struct irqchip_device *irqchip;
+    struct i8259_device *idev;
 
-    irqchip = dev_kzalloc(&pdev->dev, sizeof(*irqchip), GFP_KERNEL);
-    if(!irqchip)
+    if (platform_resource_type(pdev, 0) != RESOURCE_PMIO)
+        return -EINVAL;
+
+    idev = dev_kzalloc(&pdev->dev, sizeof(*idev), GFP_KERNEL);
+    if(!idev)
         return -ENOMEM;
-    platform_set_devdata(pdev, irqchip);
+    platform_set_devdata(pdev, idev);
 
-    irqchip->dev = &pdev->dev;
-    irqchip->ops = &pic_ops;
-    irqchip->dt_node = pdev->dt_node;
+    idev->base = platform_resource_start(pdev, 0);
+    i8250_hw_init(pdev);
 
-    i8250_hw_init();
-    return irqchip_register(irqchip);
+    idev->irqchip.ops = &pic_ops;
+    idev->irqchip.dev = &pdev->dev;
+    idev->irqchip.dt_node = pdev->dt_node;
+    return irqchip_register(&idev->irqchip);
 }
 
 static struct dt_device_id i8259_id[] = {

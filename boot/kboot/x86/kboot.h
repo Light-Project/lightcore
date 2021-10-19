@@ -16,7 +16,7 @@
 #define heap_end    ((char *)ld_heap_end + (size_t)&head)
 #define heap_size   (heap_end - heap_start)
 
-#define load_addr   (size_1MiB * 16)
+#define load_addr   (SZ_1MiB * 16)
 #define page_offset ((void *)CONFIG_PAGE_OFFSET)
 #define kernel_entry (page_offset + 0x1000000)
 

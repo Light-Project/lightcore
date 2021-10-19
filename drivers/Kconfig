@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-2.0-only
+# SPDX-License-Identifier: GPL-2.0-or-later
 menu "Device Drivers"
 
 source "drivers/acpi/Kconfig"
@@ -36,6 +36,8 @@ source "drivers/irqchip/Kconfig"
 source "drivers/led/Kconfig"
 
 # source "drivers/mmc/Kconfig"
+
+source "drivers/mfd/Kconfig"
 
 source "drivers/mtd/Kconfig"
 

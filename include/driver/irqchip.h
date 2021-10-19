@@ -19,7 +19,9 @@ struct irqchip_device {
     struct irqchip_ops *ops;
     struct dt_node *dt_node;
 
-    struct list_head channel_list;
+    struct list_head channel;
+    struct list_head child;
+    struct list_head sibling;
     irqnr_t channel_max;
 };
 
@@ -28,6 +30,8 @@ struct irqchip_ops {
     state (*mask)(struct irqchip_device *, irqnr_t);
     state (*ack)(struct irqchip_device *, irqnr_t);
     state (*eoi)(struct irqchip_device *, irqnr_t);
+    state (*slave_add)(struct irqchip_device *, irqnr_t);
+    state (*slave_del)(struct irqchip_device *, irqnr_t);
 };
 
 struct irqchip_channel *dt_get_irqchip_channel(struct dt_node *node, int index);

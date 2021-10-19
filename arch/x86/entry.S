@@ -4,7 +4,7 @@
  */
 
 #include <linkage.h>
-#include <arch/x86/interrupt.h>
+#include <asm/irq.h>
 
 .macro SAVE_REGS
     pushl   %esp
@@ -37,14 +37,140 @@ SYM_CODE_START(entry_switch_stack)
 SYM_CODE_END(entry_switch_stack)
 
 SYM_CODE_START(entry_divide_error)
-    jmp .
+    SAVE_REGS
+
+    pushl   %esp
+    call    trap_general_protection
+    addl    $4, %esp
+
+    REC_REGS
     iret
 SYM_CODE_END(entry_divide_error)
 
-SYM_CODE_START(entry_nmi)
-    jmp .
+SYM_CODE_START(entry_nmi_interrupt)
+    SAVE_REGS
+
+    pushl   %esp
+    call    trap_general_protection
+    addl    $4, %esp
+
+    REC_REGS
     iret
-SYM_CODE_END(entry_nmi)
+SYM_CODE_END(entry_nmi_interrupt)
+
+SYM_CODE_START(entry_breakpoint)
+    SAVE_REGS
+
+    pushl   %esp
+    call    trap_general_protection
+    addl    $4, %esp
+
+    REC_REGS
+    iret
+SYM_CODE_END(entry_breakpoint)
+
+SYM_CODE_START(entry_bounds)
+    SAVE_REGS
+
+    pushl   %esp
+    call    trap_general_protection
+    addl    $4, %esp
+
+    REC_REGS
+    iret
+SYM_CODE_END(entry_bounds)
+
+SYM_CODE_START(entry_invalid_opcode)
+    SAVE_REGS
+
+    pushl   %esp
+    call    trap_general_protection
+    addl    $4, %esp
+
+    REC_REGS
+    iret
+SYM_CODE_END(entry_invalid_opcode)
+
+SYM_CODE_START(entry_device_not_available)
+    SAVE_REGS
+
+    pushl   %esp
+    call    trap_general_protection
+    addl    $4, %esp
+
+    REC_REGS
+    iret
+SYM_CODE_END(entry_device_not_available)
+
+SYM_CODE_START(entry_invalid_tss)
+    SAVE_REGS
+
+    pushl   %esp
+    call    trap_general_protection
+    addl    $4, %esp
+
+    REC_REGS
+    iret
+SYM_CODE_END(entry_invalid_tss)
+
+SYM_CODE_START(entry_segment_not_present)
+    SAVE_REGS
+
+    pushl   %esp
+    call    trap_general_protection
+    addl    $4, %esp
+
+    REC_REGS
+    iret
+SYM_CODE_END(entry_segment_not_present)
+
+SYM_CODE_START(entry_stack_segment)
+    SAVE_REGS
+
+    pushl   %esp
+    call    trap_general_protection
+    addl    $4, %esp
+
+    REC_REGS
+    iret
+SYM_CODE_END(entry_stack_segment)
+
+SYM_CODE_START(entry_spurious_interrupt)
+    iret
+SYM_CODE_END(entry_spurious_interrupt)
+
+SYM_CODE_START(entry_coprocessor_error)
+    SAVE_REGS
+
+    pushl   %esp
+    call    trap_general_protection
+    addl    $4, %esp
+
+    REC_REGS
+    iret
+SYM_CODE_END(entry_coprocessor_error)
+
+SYM_CODE_START(entry_alignment_check)
+    SAVE_REGS
+
+    pushl   %esp
+    call    trap_general_protection
+    addl    $4, %esp
+
+    REC_REGS
+    iret
+SYM_CODE_END(entry_alignment_check)
+
+SYM_CODE_START(entry_simd_error)
+    SAVE_REGS
+
+    pushl   %esp
+    call    trap_general_protection
+    addl    $4, %esp
+
+    REC_REGS
+    iret
+SYM_CODE_END(entry_simd_error)
 
 SYM_CODE_START(entry_general_protection)
     SAVE_REGS
@@ -56,6 +182,25 @@ SYM_CODE_START(entry_general_protection)
     REC_REGS
     iret
 SYM_CODE_END(entry_general_protection)
+
+SYM_CODE_START(entry_overflow)
+    jmp .
+    iret
+SYM_CODE_END(entry_overflow)
+
+SYM_CODE_START(entry_debug)
+    jmp .
+    iret
+SYM_CODE_END(entry_debug)
+
+SYM_CODE_START(entry_double_fault)
+    clts
+    call    trap_double_fault
+
+1:
+    rep;    hlt
+    jmp     1b
+SYM_CODE_END(entry_double_fault)
 
 /**
  * Arguments:

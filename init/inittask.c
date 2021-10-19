@@ -38,7 +38,7 @@ void __noreturn init_task(void)
 
     /* Startup failed reset the machine */
     pr_emerg("No init executable found, system will reset:");
-    for (count = 6; count; count--) {
+    for (count = 5; count; count--) {
         pr_emerg(" %d", count);
         mdelay(1000);
     }

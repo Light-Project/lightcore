@@ -1,0 +1,8 @@
+menuconfig SPINOR
+    bool "Memory Technology Device support"
+if SPINOR
+
+config SPINOR_INTEL
+    bool "intel PCH/PCU SPI flash driver support"
+
+endif

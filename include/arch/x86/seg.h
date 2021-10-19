@@ -10,7 +10,7 @@
  *  2   ->  Bootloader data segment
  *  3   ->  Bootloader task state segment
  *
- * ------start of TLS (Thread-Local Storage) segments:
+ * Start of TLS (Thread-Local Storage) segments:
  *
  *  4   ->  unused                          <=== cacheline #2
  *  5   ->  unused
@@ -18,13 +18,13 @@
  *  7   ->  TLS segment #2      [ Wine's %fs Win32 segment ]
  *  8   ->  TLS segment #3                  <=== cacheline #3
  *
- * ------start of Reserved (For later use) segments:
+ * Start of Reserved (For later use) segments:
  *
  *  9   ->  Reserved
  *  10  ->  Reserved
  *  11  ->  Reserved
  *
- * ------start of kernel segments:
+ * Start of kernel segments:
  *
  *  12  ->  Kernel code segment             <=== cacheline #4
  *  13  ->  Kernel data segment
@@ -83,10 +83,9 @@
 #define GDT_ENTRY_APMBIOS_CS16_BASE (GDT_ENTRY_APMBIOS_CS16 * 8)
 #define GDT_ENTRY_APMBIOS_DS_BASE   (GDT_ENTRY_APMBIOS_DS   * 8)
 
-#define GDT_ENTRY_DOUBLEFAULT_TSS	31
+#define GDT_ENTRY_DF_TSS            31
+#define GDT_ENTRY_DF_TSS_BASE       (GDT_ENTRY_DF_TSS * 8)
 
+#define GDT_ENTRY_MAX               64
 
-#define GDT_ENTRY_MAX               26
-#define GDT_ENTRY_MAX_BASE          (GDT_ENTRY_MAX * 8)
-
-#endif
+#endif  /* _ARCH_X86_SEG_H_ */

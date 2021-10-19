@@ -106,7 +106,6 @@ ECHO_CC        	:= \e[32mCC\e[0m
 ECHO_CXX        := \e[32mCXX\e[0m
 ECHO_AS         := \e[32mAS\e[0m
 ECHO_AR         := \e[35mAR\e[0m
-ECHO_LD         := \e[35mLD\e[0m
 ECHO_LDS        := \e[35mLDS\e[0m
 
 ECHO_DTB        := \e[36mDTB\e[0m
@@ -118,9 +117,9 @@ ECHO_HOSTCXX    := \e[33mHOSTCXX\e[0m
 ECHO_HOSTLD     := \e[35mHOSTLD\e[0m
 ECHO_HOSTLLD    := \e[35mHOSTLLD\e[0m
 
-ECHO_DUMP       := \e[36mDUMP\e[0m
-ECHO_NASM       := \e[34mNASM\e[0m
+ECHO_LD         := \e[35mLD\e[0m
 ECHO_ELF        := \e[34mMKELF\e[0m
+ECHO_DUMP       := \e[36mDUMP\e[0m
 ECHO_BIN        := \e[34mMKBIN\e[0m
 
 ECHO_RM         := \e[31mRM\e[0m
@@ -128,11 +127,7 @@ ECHO_RMDIR      := \e[31mRMDIR\e[0m
 ECHO_CLEAN      := \e[31mCLEAN\e[0m
 ECHO_CLEAN_DIR  := \e[31mCLEANDIR\e[0m
 
-ECHO_DONE       := \e[5m\e[34mDONE\e[0m
-ECHO_OUTPUT     := \e[5m\e[34mOUTPUT\e[0m
-
 ECHO_WRAP       := \e[33mWRAP\e[0m
-ECHO_CHECK      := \e[5m\e[33mCHECK\e[0m
 
 ########################################
 # Build tool define                    #

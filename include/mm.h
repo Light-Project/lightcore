@@ -23,8 +23,8 @@ extern char _ld_image_end;
 
 #define MEM_MAGIC 0xDEADBEEF
 
-#define page_align(addr) align_high(addr, PAGE_SIZE)
-#define page_aligned(addr) aligned(addr, PAGE_SIZE)
+#define page_align(addr)    align_high(addr, PAGE_SIZE)
+#define page_aligned(addr)  align_check(addr, PAGE_SIZE)
 
 #define va_to_pa(va)        ((phys_addr_t)(va) - CONFIG_PAGE_OFFSET + CONFIG_RAM_BASE)
 #define pa_to_va(pa)        ((void *)((pa) - CONFIG_RAM_BASE + CONFIG_PAGE_OFFSET))

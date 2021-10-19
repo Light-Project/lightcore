@@ -29,26 +29,25 @@
         #address-cells = <1>;
         #size-cells = <1>;
         compatible = "isa-bus";
-        interrupt-parent = <&pic>;
 
         dma0: dma-controller@0 {
             #dma-cells = <1>;
             compatible = "intel,i8237";
-            reg = <0x0000 0x10>;
+            reg = <0x0000 0x20>;
         };
 
-        pic: interrupt-controller@20 {
+        pic0: interrupt-controller@20 {
             #interrupt-cells = <1>;
             #address-cells = <0>;
             compatible = "intel,i8259";
+            reg = <0x0020 0x20>;
             interrupt-controller;
-            reg = <0x0020 0x02>,
-                  <0x00a0 0x02>;
         };
 
         timer@42 {
             compatible = "intel,i8253";
-            reg = <0x0040 0x08>;
+            reg = <0x0040 0x20>;
+            interrupt-parent = <&pic0>;
             interrupts = <0>;
             clocks = <&timclk>;
         };
@@ -57,13 +56,24 @@
             compatible = "intel,i8042";
             reg = <0x0060 0x08>;
             interrupt-names = "kbd", "aux";
-            interrupts = <1>, <12>;
+            interrupts-extended = <&pic0 1>, <&pic1 4>;
         };
 
         rtc@71 {
             compatible = "motorola,mc146818";
             reg = <0x0070 0x08>;
-            interrupts = <8>;
+            interrupt-parent = <&pic1>;
+            interrupts = <0>;
+        };
+
+        pic1: interrupt-controller@a0 {
+            #interrupt-cells = <1>;
+            #address-cells = <0>;
+            compatible = "intel,i8259";
+            reg = <0x00a0 0x20>;
+            interrupt-controller;
+            interrupt-parent = <&pic0>;
+            interrupts = <2>;
         };
 
         dma1: dma-controller@c0 {
@@ -72,33 +82,39 @@
             reg = <0x00c0 0x10>;
         };
 
-        uart1: serial@2f8 {
-            compatible = "intel,i8250";
-            reg = <0x02f8 0x08>;
-            interrupts = <3>;
+        lpt1: parallel@278 {
+            compatible = "intel,i8255";
+            reg = <0x0278 0x08>;
+            interrupt-parent = <&pic0>;
+            interrupts = <5>;
         };
 
         uart3: serial@2e8 {
             compatible = "intel,i8250";
             reg = <0x02e8 0x08>;
+            interrupt-parent = <&pic0>;
             interrupts = <3>;
         };
 
-        lpt1: parallel@278 {
-            compatible = "intel,i8255";
-            reg = <0x0278 0x08>;
-            interrupts = <5>;
+        uart1: serial@2f8 {
+            compatible = "intel,i8250";
+            reg = <0x02f8 0x08>;
+            interrupt-parent = <&pic0>;
+            interrupts = <3>;
         };
 
         fdc1: floppy@370 {
             compatible = "ibm,generic-floppy";
             reg = <0x0370 0x08>;
+            interrupt-parent = <&pic0>;
             interrupts = <6>;
+            dmas = <&dma0 2>;
         };
 
         lpt0: parallel@378 {
             compatible = "intel,i8255";
             reg = <0x0378 0x08>;
+            interrupt-parent = <&pic0>;
             interrupts = <7>;
         };
 
@@ -107,21 +123,25 @@
             reg = <0x03bc 0x08>;
         };
 
+        uart2: serial@3e8 {
+            compatible = "intel,i8250";
+            reg = <0x03e8 0x08>;
+            interrupt-parent = <&pic0>;
+            interrupts = <4>;
+        };
+
         fdc0: floppy@3f0 {
             compatible = "ibm,generic-floppy";
             reg = <0x03f0 0x08>;
+            interrupt-parent = <&pic0>;
             interrupts = <6>;
+            dmas = <&dma0 2>;
         };
 
         uart0: serial@3f8 {
             compatible = "intel,i8250";
             reg = <0x03f8 0x08>;
-            interrupts = <4>;
-        };
-
-        uart2: serial@3e8 {
-            compatible = "intel,i8250";
-            reg = <0x03f8 0x08>;
+            interrupt-parent = <&pic0>;
             interrupts = <4>;
         };
 

@@ -14,41 +14,41 @@
 static LIST_HEAD(host_list);
 
 static const enum pci_speed pcix_bus_speed[] = {
-	PCI_SPEED_UNKNOWN,
-	PCI_SPEED_66MHz_PCIX,
-	PCI_SPEED_100MHz_PCIX,
-	PCI_SPEED_133MHz_PCIX,
-	PCI_SPEED_UNKNOWN,
-	PCI_SPEED_66MHz_PCIX_ECC,
-	PCI_SPEED_100MHz_PCIX_ECC,
-	PCI_SPEED_133MHz_PCIX_ECC,
-	PCI_SPEED_UNKNOWN,
-	PCI_SPEED_66MHz_PCIX_266,
-	PCI_SPEED_100MHz_PCIX_266,
-	PCI_SPEED_133MHz_PCIX_266,
-	PCI_SPEED_UNKNOWN,
-	PCI_SPEED_66MHz_PCIX_533,
-	PCI_SPEED_100MHz_PCIX_533,
-	PCI_SPEED_133MHz_PCIX_533
+    PCI_SPEED_UNKNOWN,
+    PCI_SPEED_66MHz_PCIX,
+    PCI_SPEED_100MHz_PCIX,
+    PCI_SPEED_133MHz_PCIX,
+    PCI_SPEED_UNKNOWN,
+    PCI_SPEED_66MHz_PCIX_ECC,
+    PCI_SPEED_100MHz_PCIX_ECC,
+    PCI_SPEED_133MHz_PCIX_ECC,
+    PCI_SPEED_UNKNOWN,
+    PCI_SPEED_66MHz_PCIX_266,
+    PCI_SPEED_100MHz_PCIX_266,
+    PCI_SPEED_133MHz_PCIX_266,
+    PCI_SPEED_UNKNOWN,
+    PCI_SPEED_66MHz_PCIX_533,
+    PCI_SPEED_100MHz_PCIX_533,
+    PCI_SPEED_133MHz_PCIX_533
 };
 
 static const enum pci_speed pcie_bus_speed[] = {
-	PCI_SPEED_UNKNOWN,
-	PCIE_SPEED_2_5GT,
-	PCIE_SPEED_5_0GT,
-	PCIE_SPEED_8_0GT,
-	PCIE_SPEED_16_0GT,
-	PCIE_SPEED_32_0GT,
-	PCIE_SPEED_64_0GT,
-	PCI_SPEED_UNKNOWN,
-	PCI_SPEED_UNKNOWN,
-	PCI_SPEED_UNKNOWN,
-	PCI_SPEED_UNKNOWN,
-	PCI_SPEED_UNKNOWN,
-	PCI_SPEED_UNKNOWN,
-	PCI_SPEED_UNKNOWN,
-	PCI_SPEED_UNKNOWN,
-	PCI_SPEED_UNKNOWN,
+    PCI_SPEED_UNKNOWN,
+    PCIE_SPEED_2_5GT,
+    PCIE_SPEED_5_0GT,
+    PCIE_SPEED_8_0GT,
+    PCIE_SPEED_16_0GT,
+    PCIE_SPEED_32_0GT,
+    PCIE_SPEED_64_0GT,
+    PCI_SPEED_UNKNOWN,
+    PCI_SPEED_UNKNOWN,
+    PCI_SPEED_UNKNOWN,
+    PCI_SPEED_UNKNOWN,
+    PCI_SPEED_UNKNOWN,
+    PCI_SPEED_UNKNOWN,
+    PCI_SPEED_UNKNOWN,
+    PCI_SPEED_UNKNOWN,
+    PCI_SPEED_UNKNOWN,
 };
 
 static inline enum pci_speed agp_speed(uint32_t status)
@@ -341,15 +341,19 @@ static state pci_device_setup(struct pci_device *pdev)
 
     pdev->dev.bus = &pci_bus_type;
 
+    /* Setup Header type */
+    val = pci_config_readb(pdev, PCI_HEADER_TYPE);
+    pdev->head = val & PCI_HEADER_TYPE_MASK;
+    pdev->multifunction = !!(val & 0x80);
+
     /* Setup revision and class code */
     val = pci_config_readl(pdev, PCI_CLASS_REVISION);
     pdev->revision = val & 0xff;
     pdev->class = val >> 8;
 
-    /* Setup Header type */
-    val = pci_config_readb(pdev, PCI_HEADER_TYPE);
-    pdev->head = val & PCI_HEADER_TYPE_MASK;
-    pdev->multifunction = !!(val & 0x80);
+    pr_info("setup device: %02d:%02d:%d %06x %04x:%04x\n",
+            pdev->bus->bus_nr, PCI_SLOT(pdev->devfn), PCI_FUNC(pdev->devfn),
+            pdev->class, pdev->vendor, pdev->device);
 
     /* Setup resource form bar */
     if (pdev->head == PCI_HEADER_TYPE_NORMAL){
@@ -370,10 +374,11 @@ static state pci_device_setup(struct pci_device *pdev)
         pci_bridge_windows_setup(pdev);
     } else {
         pr_err("unknown head type %x\n", pdev->head);
-        return -EINVAL;
+        return -EIO;
     }
 
     return -ENOERR;
+
 eclass:
     pci_err(pdev, "bad class %08x, header type %02x\n",
             pdev->class, pdev->head);
@@ -428,8 +433,10 @@ static struct pci_bus *pci_bus_add(struct pci_bus *parent, struct pci_device *pd
         return NULL;
 
     child->bridge = pdev;
+
     pci_bus_speed_setup(child);
     list_add(&parent->child, &child->sibling);
+
     return child;
 }
 
@@ -468,16 +475,42 @@ static state pci_scan_device(struct pci_bus *bus, uint32_t devfn,
     return -ENOERR;
 }
 
-static __always_inline
-void pci_device_add(struct pci_bus *bus, struct pci_device *dev)
+static void pci_pm_init(struct pci_device *pdev)
 {
-    pr_debug("New device: %02d:%02d:%d %06x %04x:%04x\n",
-        dev->bus->bus_nr, PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn),
-        dev->class, dev->vendor, dev->device);
+    uint16_t val;
+    uint8_t pos;
+
+    pos = pci_capability_find(pdev, PCI_CAP_ID_PM);
+    if (!pos)
+        return;
+
+    val = pci_config_readw(pdev, pos + PCI_PM_PMC);
+
+    if (!pci_power_no_d1d2(pdev)) {
+        if (val & PCI_PM_CAP_D1)
+            pdev->power_has_d1 = true;
+        if (val & PCI_PM_CAP_D2)
+            pdev->power_has_d2 = true;
+        if (pdev->power_has_d1 || pdev->power_has_d2)
+            dev_info(&pdev->dev, "power supports: %s%s\n",
+                pdev->power_has_d1 ? "D1" : "",
+                pdev->power_has_d2 ? "D2" : "");
+    }
+
+}
+
+static void pci_capabilities_init(struct pci_device *pdev)
+{
+    pci_pm_init(pdev);
+}
+
+static void pci_device_add(struct pci_bus *bus, struct pci_device *pdev)
+{
+    pci_capabilities_init(pdev);
 
     /* Add pci device to pci bus list */
-    list_add(&bus->pci_device_list, &dev->pci_bus_list_pci_device);
-    device_register(&dev->dev);
+    list_add(&bus->pci_device_list, &pdev->pci_bus_list_pci_device);
+    device_register(&pdev->dev);
 }
 
 /**
@@ -548,6 +581,8 @@ static state pci_scan_bridge(struct pci_bus *bus, struct pci_device *pdev)
     if ((secondary || subordinate) &&
         pdev->head != PCI_HEADER_TYPE_CARDBUS) {
         child = pci_bus_add(bus, pdev);
+        if (!child)
+            return -ENOMEM;
         child->primary = primary;
         pci_bus_scan(child);
     }

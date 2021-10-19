@@ -107,11 +107,10 @@ extern initcall_entry_t _ld_kshell_initcall_end[];
 #define arch_initcall_sync(fn)          __define_initcall(fn, 1s)
 #define framework_initcall(fn)          __define_initcall(fn, 2)
 #define framework_initcall_sync(fn)     __define_initcall(fn, 2s)
-#define driver_initcall(fn)             __define_initcall(fn, 3)
-#define driver_initcall_sync(fn)        __define_initcall(fn, 3s)
-#define fs_initcall(fn)                 __define_initcall(fn, 4)
-#define fs_initcall_sync(fn)            __define_initcall(fn, 4s)
-
+#define fs_initcall(fn)                 __define_initcall(fn, 3)
+#define fs_initcall_sync(fn)            __define_initcall(fn, 3s)
+#define driver_initcall(fn)             __define_initcall(fn, 7)
+#define driver_initcall_sync(fn)        __define_initcall(fn, 7s)
 #define late_initcall(fn)               __define_initcall(fn, 8)
 #define late_initcall_sync(fn)          __define_initcall(fn, 8s)
 

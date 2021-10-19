@@ -16,3 +16,9 @@ asmlinkage __visible void trap_general_protection(struct regs *regs)
     recall("general protection", regs);
     panic("general protection");
 }
+
+asmlinkage __visible void trap_double_fault(struct regs *regs)
+{
+    panic("double fault irreparable");
+}
+

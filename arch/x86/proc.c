@@ -4,23 +4,39 @@
  */
 
 #include <kernel.h>
+#include <export.h>
+
+#include <asm/regs.h>
+#include <asm/gdt.h>
 #include <asm/idt.h>
 #include <asm/irq.h>
 #include <asm/proc.h>
 
-state arch_switch_task(struct task *prev, struct task *next)
+state proc_thread_switch(struct task *prev, struct task *next)
 {
     return -ENOERR;
 }
 
-void __noreturn cpu_halt(void)
+void proc_thread_setup(struct regs *regs, size_t ip, size_t sp)
+{
+    regs->eip    = ip;
+    regs->esp    = sp;
+    regs->cs     = GDT_ENTRY_KERNEL_CS_BASE;
+    regs->ds     = GDT_ENTRY_KERNEL_DS_BASE;
+    regs->es     = GDT_ENTRY_KERNEL_DS_BASE;
+    regs->ss     = GDT_ENTRY_KERNEL_DS_BASE;
+    regs->fs     = 0;
+    regs->eflags = EFLAGS_IF;
+}
+
+void __noreturn proc_halt(void)
 {
     cpu_irq_disable();
     for (;;)
     asm volatile("rep; hlt");
 }
 
-void __noreturn cpu_reset(void)
+void __noreturn proc_reset(void)
 {
     cpu_irq_disable();
     idt_int_gate(PF_FAULT, NULL);
@@ -29,3 +45,6 @@ void __noreturn cpu_reset(void)
     for (;;) /* Trigger triple fault */
     asm volatile("int $14");
 }
+
+EXPORT_SYMBOL(proc_halt);
+EXPORT_SYMBOL(proc_reset);

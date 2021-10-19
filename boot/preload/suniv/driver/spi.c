@@ -24,7 +24,7 @@ void spi_transmit(uint8_t *txbuf, uint8_t *rxbuf, uint32_t len)
 {
     uint32_t xfer, count, val;
 
-    for (xfer = min(len, 64U); len; len -= xfer) {
+    for (; (xfer = min(len, 64)); len -= xfer) {
         writel(SPI_BASE + SUNIV_SPI_MBC, xfer);
         writel(SPI_BASE + SUNIV_SPI_MTC, xfer);
         writel(SPI_BASE + SUNIV_SPI_BCC, xfer);

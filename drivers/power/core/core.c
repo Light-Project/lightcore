@@ -19,7 +19,7 @@ void __noreturn power_restart(void)
             pdev->ops->restart(pdev);
     }
 
-    cpu_reset();
+    proc_reset();
 }
 
 void __noreturn power_reset(void)
@@ -31,7 +31,7 @@ void __noreturn power_reset(void)
             pdev->ops->reset(pdev);
     }
 
-    cpu_reset();
+    proc_reset();
 }
 
 void __noreturn power_shutdown(void)
@@ -43,7 +43,7 @@ void __noreturn power_shutdown(void)
             pdev->ops->shutdown(pdev);
     }
 
-    cpu_halt();
+    proc_halt();
 }
 
 state power_register(struct power_device *pdev)

@@ -1,7 +1,7 @@
 menuconfig MTD
-    bool "Memory Technology Device (MTD) support"
+    bool "Memory technology device support"
 if MTD
 
-
+source "drivers/mtd/spinor/Kconfig"
 
 endif

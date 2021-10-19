@@ -25,11 +25,11 @@ enum i8255_registers {
 #define I8255_STATUS_ERROR      BIT(3)  /* Error pin status */
 #define I8255_STATUS_IRQ        BIT(2)  /* Interrupt status */
 
-#define I8255_CTRL_BIDI         BIT(5)  /*  Value */
-#define I8255_CTRL_IRQACK       BIT(4)  /*  Value */
+#define I8255_CTRL_BIDI         BIT(5)  /* Value */
+#define I8255_CTRL_IRQACK       BIT(4)  /* Value */
 #define I8255_CTRL_SELECT       BIT(3)  /* Select-pt Value */
 #define I8255_CTRL_INIT         BIT(2)  /* Init pin Value */
 #define I8255_CTRL_AUTOLF       BIT(1)  /* Autof Value */
-#define I8255_CTRL_STROBE       BIT(0)  /*  Value */
+#define I8255_CTRL_STROBE       BIT(0)  /* Value */
 
 #endif  /* _DRIVER_PARALLEL_I8255_H_ */

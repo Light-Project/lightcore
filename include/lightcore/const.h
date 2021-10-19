@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /* const.h: Macros for dealing with constants.  */
 
 #ifndef _UAPI_CONST_H
