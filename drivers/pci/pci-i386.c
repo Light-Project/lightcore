@@ -5,7 +5,7 @@
 
 #define DRIVER_NAME "i386-pci"
 
-#include <mm.h>
+#include <kmalloc.h>
 #include <initcall.h>
 #include <driver/platform.h>
 #include <driver/pci.h>

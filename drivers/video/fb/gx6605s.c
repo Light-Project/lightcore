@@ -312,7 +312,7 @@ static state gx6605s_probe(struct platform_device *pdev, void *pdata)
 
     gdev = dev_kzalloc(&pdev->dev, sizeof(*gdev), GFP_KERNEL);
     if (!gdev)
-        return -ENOERR;
+        return -ENOMEM;
     platform_set_devdata(pdev, gdev);
 
     if ((ret = gx6605s_hwinit(pdev)))

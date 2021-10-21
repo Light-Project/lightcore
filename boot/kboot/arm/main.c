@@ -13,10 +13,10 @@ void main(size_t mem_start, size_t dtb_start)
     heap_init(heap_start, heap_size);
 
     kernel_map();
-    extract_kernel(kernel_entry, piggy_start, piggy_size);
+    extract_kernel(pa_to_va(NORMAL_OFFSET), piggy_start, piggy_size);
 
     head = kernel_entry;
     head->dtb = CONFIG_PAGE_OFFSET + dtb_start;
 
-    kernel_start(kernel_entry);
+    kernel_start(pa_to_va(NORMAL_OFFSET));
 }

@@ -207,7 +207,7 @@ static state i810_probe(struct pci_device *pdev, void *pdata)
 
     idev = dev_kzalloc(&pdev->dev, sizeof(*idev), GFP_KERNEL);
     if (!idev)
-        return -ENOERR;
+        return -ENOMEM;
     pci_set_devdata(pdev, idev);
 
     if ((ret = i810_hwinit(pdev)))

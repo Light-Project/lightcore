@@ -365,9 +365,9 @@ static i8042_aux_create(struct platform_device *pdev, unsigned int nr)
     struct serio_host *aux;
     unsigned int count;
 
-    aux = dev_kmalloc(&pdev->dev, sizeof(*idev->aux) * nr, GFP_KERNEL);
+    aux = dev_kzalloc(&pdev->dev, sizeof(*idev->aux) * nr, GFP_KERNEL);
     if (!aux)
-        return -ENOERR;
+        return -ENOMEM;
 
     while (nr--) {
         idev->aux[nr]->port.name = PSMSE_MATCH_ID;

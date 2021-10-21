@@ -5,7 +5,7 @@
 
 #define pr_fmt(fmt) "blk: " fmt
 
-#include <mm.h>
+#include <kmalloc.h>
 #include <driver/block.h>
 #include <driver/block/partition.h>
 #include <printk.h>

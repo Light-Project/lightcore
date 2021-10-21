@@ -20,19 +20,19 @@ struct i801_device {
 
 static state i801_probe(struct pci_device *pdev, void *pdata)
 {
-    struct i801_device *i801;
+    // struct i801_device *i801;
 
-    i801 = dev_kzalloc(&pdev->dev, sizeof(*i801), GFP_KERNEL);
-    if (!i801)
-        return -ENOMEM;
+    // i801 = dev_kzalloc(&pdev->dev, sizeof(*i801), GFP_KERNEL);
+    // if (!i801)
+    //     return -ENOMEM;
 
-    /* register tco device */
-    if (pci_config_readl(pdev, I801_TCOCTL) & I801_TCOCTL_EN) {
-        i801->tco.resource = &i801->tco_res;
-        i801->tco.resources_nr = 1;
-        pci_resource_set(pdev, pci_bar_unknown, i801->tco.resource, I801_TCOBASE);
-        platform_device_register(&i801->tco);
-    }
+    // /* register tco device */
+    // if (pci_config_readl(pdev, I801_TCOCTL) & I801_TCOCTL_EN) {
+    //     i801->tco.resource = &i801->tco_res;
+    //     i801->tco.resources_nr = 1;
+    //     pci_resource_set(pdev, pci_bar_unknown, i801->tco.resource, I801_TCOBASE);
+    //     platform_device_register(&i801->tco);
+    // }
 
     return -ENOERR;
 }

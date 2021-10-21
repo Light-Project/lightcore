@@ -4,8 +4,7 @@
  */
 
 #include <string.h>
-#include <mm.h>
-#include <mm.h>
+#include <kmalloc.h>
 #include <driver/usb.h>
 #include <lightcore/asm/byteorder.h>
 

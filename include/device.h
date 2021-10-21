@@ -35,14 +35,14 @@ struct device {
     struct device   *parent;    /* device parent */
     list_t bus_list_device;     /* list node by device bus */
     list_t driver_list_device;  /* list node by device driver */
-    struct list_head dev_res;
+    struct list_head devres;
 
     struct mutex mutex;
     void *pdata;                /* device private data */
 };
 
 #define device_for_each_res(res, dev) \
-    list_for_each_entry(res, &dev->dev_res, list)
+    list_for_each_entry(res, &dev->devres, list)
 
 static inline void *device_get_pdata(const struct device *dev)
 {

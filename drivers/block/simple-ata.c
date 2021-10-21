@@ -322,8 +322,9 @@ static bool atasim_port_detect(struct atasim_device *atasim)
     /* reset the channel */
     atasim_reset(atasim);
 
-    pr_info("detected port%d @ 0x%lx:0x%lx\n", atasim->port,
-            atasim->host->cmd, atasim->host->ctl);
+    pr_info("detected port%d @ 0x%lx:0x%lx\n",
+        atasim->port, atasim->host->cmd, atasim->host->ctl);
+
     return true;
 }
 
@@ -396,7 +397,7 @@ static state atasim_probe(struct pci_device *pdev, void *pdata)
 
         host = dev_kzalloc(&pdev->dev, sizeof(*host), GFP_KERNEL);
         if (!host)
-            return -ENOERR;
+            return -ENOMEM;
 
         host->cmd = pci_resource_start(pdev, bar);
         host->ctl = pci_resource_start(pdev, bar + 1);

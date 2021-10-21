@@ -5,6 +5,7 @@
 
 #include <string.h>
 #include <mm.h>
+#include <kmalloc.h>
 #include <asm/tlb.h>
 #include <asm/regs.h>
 #include <asm/pgtable.h>

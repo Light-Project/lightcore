@@ -34,12 +34,12 @@ static void section_link(uint32_t va, uint32_t pa, uint32_t size)
     }
 }
 
-void kernel_map()
+void kernel_map(void)
 {
     uint32_t val;
 
-    section_link(0x00000000, 0x00000000, (uint32_t)SZ_1MiB * 16);
-    section_link(CONFIG_PAGE_OFFSET, 0x00000000, SZ_1MiB * 768);
+    section_link(0x00000000, 0x00000000, SZ_1MiB * 16);
+    section_link(CONFIG_PAGE_OFFSET, CONFIG_RAM_BASE, CONFIG_HIGHMEM_OFFSET);
 
     val = cr4_get();
     val |= CR4_PSE;

@@ -6,6 +6,24 @@
 #include <linkage.h>
 #include <asm/irq.h>
 
+.macro SWITCH_TO_KERNEL
+    pushl   %eax
+    movl    %cr3, %eax
+    test    $PAGE_SIZE, %eax
+    jz      1b
+    andl    $(~PAGE_SIZE), %eax
+    movl    %eax, %cr3
+1:  popl    %eax
+.endm
+
+.macro SWITCH_TO_USER
+    pushl   %eax
+    movl    %cr3, %eax
+    orl     $(PAGE_SIZE), %eax
+    movl    %eax, %cr3
+    popl    %eax
+.endm
+
 .macro SAVE_REGS
     pushl   %esp
     pushl   %ss
@@ -24,12 +42,6 @@
     popw    %ds
     popl    %ss
     popl    %esp
-.endm
-
-.macro SWITCH_TO_KERNEL
-.endm
-
-.macro SWITCH_TO_USER
 .endm
 
 SYM_CODE_START(entry_switch_stack)

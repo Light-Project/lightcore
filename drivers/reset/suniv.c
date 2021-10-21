@@ -80,7 +80,7 @@ static state suniv_reset_probe(struct platform_device *pdev, void *pdata)
 
     reset = dev_kzalloc(&pdev->dev, sizeof(*reset), GFP_KERNEL);
     if (reset)
-        return -ENOERR;
+        return -ENOMEM;
 
     reset->dt = pdev->dt_node;
     reset->ops = &suniv_reset_ops;

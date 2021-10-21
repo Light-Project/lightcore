@@ -16,9 +16,6 @@
 #define heap_end    ((char *)ld_heap_end)
 #define heap_size   (heap_end - heap_start)
 
-#define page_offset  ((void *)CONFIG_PAGE_OFFSET)
-#define kernel_entry (page_offset + CONFIG_RAM_PAD)
-
 /* startup.S */
 void head(void);
 void kernel_start(void *addr);

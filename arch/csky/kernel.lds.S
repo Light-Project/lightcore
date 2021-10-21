@@ -1,8 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-/*
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
- */
-
+#include <mm.h>
 #include <asm-generic/kernel.lds.h>
 #include <asm/page.h>
 #include <asm/cache.h>
@@ -12,7 +9,7 @@ ENTRY(boot_head)
 
 SECTIONS
 {
-    . = CONFIG_PAGE_OFFSET + CONFIG_RAM_PAD;
+    . = pa_to_va(NORMAL_OFFSET);
 
     STARTUP_SECTION
 

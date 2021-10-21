@@ -55,8 +55,8 @@ config DMA_SIZE
     depends on REGION_DMA
 
 config REGION_DMA32
-        bool "DMA32 region"
-        depends on ARCH_HAS_DMA32
+    bool "DMA32 region"
+    depends on ARCH_HAS_DMA32
 
 config DMA32_SIZE
     hex "DMA32 region size"

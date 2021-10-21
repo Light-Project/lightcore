@@ -5,7 +5,7 @@
 
 #define pr_fmt(fmt) "pci: " fmt
 
-#include <mm.h>
+#include <kmalloc.h>
 #include <initcall.h>
 #include <driver/pci.h>
 #include <printk.h>

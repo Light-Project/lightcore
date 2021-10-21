@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#include <mm.h>
-#include <export.h>
-#include <ctype.h>
 #include <string.h>
+#include <kmalloc.h>
+#include <ctype.h>
+#include <export.h>
 
 /*
  * String manipulation

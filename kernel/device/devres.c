@@ -20,7 +20,7 @@
  */
 static inline void devres_add(struct device *dev, struct devres *devres)
 {
-    list_add_prev(&dev->dev_res, &devres->list);
+    list_add_prev(&dev->devres, &devres->list);
 }
 
 /**
@@ -60,7 +60,7 @@ void devres_release_all(struct device *dev)
 {
     struct devres *devres, *next;
 
-    list_for_each_entry_safe(devres, next, &dev->dev_res, list) {
+    list_for_each_entry_safe(devres, next, &dev->devres, list) {
         devres_del(devres);
         devres_release(devres);
     }
@@ -77,7 +77,7 @@ static struct devres *devres_find(struct device *dev, void *addr)
 
     device_for_each_res(devres, dev) {
         void *end = devres->addr + devres->size;
-        if (devres->addr <= addr && addr <= end)
+        if (devres->addr <= addr && addr < end)
             return devres;
     }
 

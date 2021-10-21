@@ -6,7 +6,7 @@
 #define pr_fmt(fmt) "platform: " fmt
 
 #include <string.h>
-#include <mm.h>
+#include <kmalloc.h>
 #include <initcall.h>
 #include <driver/platform.h>
 #include <export.h>

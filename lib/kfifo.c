@@ -5,7 +5,7 @@
 
 #include <kernel.h>
 #include <string.h>
-#include <mm.h>
+#include <kmalloc.h>
 #include <kfifo.h>
 #include <spinlock.h>
 #include <export.h>

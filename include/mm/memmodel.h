@@ -60,7 +60,7 @@ sparce_nr_page(const struct sparce_block *sparce, unsigned long pnr)
     sparce_nr_page(&sparce_map[(__page_nr) >> SECTIONS_PFN_SHIFT], __page_nr);  \
 })
 
-#endif
+#endif  /* CONFIG_SPARCEMEM */
 
 void memmodel_init(void);
 

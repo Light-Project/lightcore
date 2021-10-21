@@ -3,8 +3,9 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <kboot.h>
+#include <mm.h>
 #include <size.h>
+#include <kboot.h>
 
 void main(void)
 {
@@ -25,9 +26,9 @@ void main(void)
     /* Initialization MMU */
     kernel_map();
 
-    extract_kernel(kernel_entry, piggy_start, piggy_size);
+    extract_kernel(pa_to_va(NORMAL_OFFSET), piggy_start, piggy_size);
     pr_boot("Boot to kernel...");
 
     /* jmp to kernel */
-    kernel_start(kernel_entry);
+    kernel_start(pa_to_va(NORMAL_OFFSET));
 }

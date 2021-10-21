@@ -78,18 +78,18 @@ struct floppy_cmd {
 static SPIN_LOCK(floppy_lock);
 static struct fdc_device *current_fdc;
 
-static struct floppy_info floppy_type[] = {{
-    },{ /* 1 - 360KB PC */
-        .size =  720, .cylinder = 40, .head = 2, .sector =  9,
-        .rate = FLOPPY_DSR_RATE_300K,
-    },{ /* 2 - 1.2MB AT */
-        .size = 2400, .cylinder = 80, .head = 2, .sector = 15,
-        .rate = FLOPPY_DSR_RATE_500K,
-    },{ /* 3 - 360KB SS */
-        .size =  720, .cylinder = 80, .head = 1, .sector =  9,
-        .rate = FLOPPY_DSR_RATE_250K,
-    },
-};
+// static struct floppy_info floppy_type[] = {{
+//     },{ /* 1 - 360KB PC */
+//         .size =  720, .cylinder = 40, .head = 2, .sector =  9,
+//         .rate = FLOPPY_DSR_RATE_300K,
+//     },{ /* 2 - 1.2MB AT */
+//         .size = 2400, .cylinder = 80, .head = 2, .sector = 15,
+//         .rate = FLOPPY_DSR_RATE_500K,
+//     },{ /* 3 - 360KB SS */
+//         .size =  720, .cylinder = 80, .head = 1, .sector =  9,
+//         .rate = FLOPPY_DSR_RATE_250K,
+//     },
+// };
 
 static __always_inline uint8_t
 fdc_in(struct fdc_device *fdc, int reg)
@@ -108,6 +108,7 @@ dor_mask(struct fdc_device *fdc, uint8_t off, uint8_t on)
 {
     fdc->dor = (fdc->dor & ~off) | on;
     fdc_out(fdc, FLOPPY_DOR, fdc->dor);
+    return fdc->dor;
 }
 
 static inline state fdc_wait_ready(struct fdc_device *fdc)
@@ -147,7 +148,7 @@ static state floppy_wait_irq(struct fdc_device *fdc)
     return -ENOERR;
 }
 
-static state fdc_enable(struct fdc_device *fdc)
+static inline state fdc_enable(struct fdc_device *fdc)
 {
     state ret;
 
@@ -175,7 +176,7 @@ static void fdc_reset(struct fdc_device *fdc)
     }
 }
 
-static inline void driver_select(struct fdd_device *fdd)
+static void driver_select(struct fdd_device *fdd)
 {
     struct fdc_device *fdc = fdd->host;
     dor_mask(fdc, FLOPPY_DOR_DSEL_MASK, fdd->port);
@@ -410,7 +411,6 @@ static state fdd_detect(struct fdd_device *fdd)
 {
     struct fdc_device *fdc = fdd->host;
     struct floppy_cmd cmd;
-    state ret;
 
     cmd.fdd = fdd;
     cmd.type = CMD_DIRVER | CMD_WAIT_IRQ;
@@ -454,10 +454,11 @@ static state fdd_detect(struct fdd_device *fdd)
 
 static state floppy_enqueue(struct block_device *blk, struct block_request *req)
 {
-    struct fdd_device *fdd = block_to_fdd(blk);
-    struct floppy_cmd cmd;
+    // struct fdd_device *fdd = block_to_fdd(blk);
 
     spin_lock(&floppy_lock);
+
+
 
     spin_unlock(&floppy_lock);
     return -ENOERR;
@@ -467,42 +468,11 @@ static struct block_ops floppy_ops = {
     .enqueue = floppy_enqueue,
 };
 
-static state pio_read(struct fdc_device *fdc)
-{
-    struct floppy_cmd cmd = {};
-    uint16_t cyl = 0, head = 0, sector = 1;
-    char buffer[512] = {};
-
-    cmd.txlen = 9;
-    cmd.txcmd[0] = FLOPPY_CMD_READ_DATA;    /* 0 head number << 2 | drive number */
-    cmd.txcmd[1] = (head << 2) | 0;       /* 1 head number << 2 | drive number */
-    cmd.txcmd[2] = cyl;                     /* 2 cylinder number */
-    cmd.txcmd[3] = head;                    /* 3 head number */
-    cmd.txcmd[4] = sector;                  /* 4 starting sector number */
-    cmd.txcmd[5] = FLOPPY_SECTOR_SIZE_512;  /* 5 all floppy drives use 512bytes per sector */
-
-    cmd.buffersize = 512;
-    cmd.buffer = buffer;
-    cmd.fdd = &fdc->fdd[0];
-
-    cmd.type = CMD_WAIT_IRQ | CMD_DIRVER | CMD_PIO;
-
-    floppy_transmit(fdc, &cmd);
-
-    printk("0x%x ", buffer[0]);
-    printk("0x%x ", buffer[1]);
-    printk("0x%x ", buffer[2]);
-    printk("0x%x\n", buffer[3]);
-
-    return -ENOERR;
-}
-
 static state floppy_probe(struct platform_device *pdev, void *pdata)
 {
     struct fdc_device *fdc;
     struct fdd_device *fdd;
     unsigned int count, offline;
-    state ret;
 
     if (platform_resource_type(pdev, 0) != RESOURCE_PMIO)
         return -ENODEV;
@@ -527,24 +497,24 @@ static state floppy_probe(struct platform_device *pdev, void *pdata)
     irqchip_pass(fdc->irqchip);
     irq_request(FLOPPY_IRQ, 0, floppy_interrupt, NULL, DRIVER_NAME);
 
-    // for (count = 0; count < DRIVER_PER_FDC; ++count) {
-    //     fdd = &fdc->fdd[count];
+    for (count = 0; count < DRIVER_PER_FDC; ++count) {
+        fdd = &fdc->fdd[count];
 
-    //     fdd->host = fdc;
-    //     fdd->port = count;
-    //     fdd->block.ops = &floppy_ops;
+        fdd->host = fdc;
+        fdd->port = count;
+        fdd->block.ops = &floppy_ops;
 
-    //     if (fdd_detect(fdd)) {
-    //         offline++;
-    //         continue;
-    //     }
+        if (fdd_detect(fdd)) {
+            offline++;
+            continue;
+        }
 
-    //     dev_debug(&pdev->dev, "detected port %d\n", count);
-    //     block_device_register(&fdd->block);
-    // } if (offline == DRIVER_PER_FDC) {
-    //     dev_info(&pdev->dev, "no floppy disk driver found");
-    //     goto error;
-    // }
+        dev_debug(&pdev->dev, "detected port %d\n", count);
+        block_device_register(&fdd->block);
+    } if (offline == DRIVER_PER_FDC) {
+        dev_info(&pdev->dev, "no floppy disk driver found");
+        goto error;
+    }
 
     return -ENOERR;
 

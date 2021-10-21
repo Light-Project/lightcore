@@ -20,7 +20,9 @@ struct watchdog_ops {
     state (*start)(struct watchdog_device *);
     state (*stop)(struct watchdog_device *);
     state (*feed)(struct watchdog_device *);
-    state (*timeout_set)(struct watchdog_device *, unsigned int);
+    state (*timeleft_get)(struct watchdog_device *, unsigned int *secs);
+    state (*timeout_get)(struct watchdog_device *, unsigned int *secs);
+    state (*timeout_set)(struct watchdog_device *, unsigned int secs);
 };
 
 state watchdog_start(struct watchdog_device *);

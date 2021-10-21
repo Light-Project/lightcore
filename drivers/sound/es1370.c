@@ -6,9 +6,9 @@
 #define DRIVER_NAME "es1370"
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
-#include <mm.h>
-#include <irq.h>
+#include <kmalloc.h>
 #include <initcall.h>
+#include <irq.h>
 #include <driver/pci.h>
 #include <driver/sound.h>
 #include <driver/sound/es1370.h>

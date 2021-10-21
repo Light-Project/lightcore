@@ -3,7 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <mm.h>
+#include <kmalloc.h>
 #include <initcall.h>
 #include <sched.h>
 

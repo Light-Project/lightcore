@@ -211,7 +211,7 @@ state memblock_add(phys_addr_t addr, size_t size)
     if (!size)
         return -EINVAL;
 
-    pr_debug("add: [%lx - %lx]\n", addr, end);
+    pr_info("add: [%lx - %lx]\n", addr, end);
     return memblock_insert(addr, size, MEMBLOCK_USABLE);
 }
 
@@ -222,7 +222,7 @@ state memblock_reserve(phys_addr_t addr, size_t size)
     if (!size)
         return -EINVAL;
 
-    pr_debug("reserve: [%lx - %lx]\n", addr, end);
+    pr_info("reserve: [%lx - %lx]\n", addr, end);
     return memblock_insert(addr, size, MEMBLOCK_RESERVED);
 }
 
@@ -233,6 +233,6 @@ state memblock_remove(phys_addr_t addr, size_t size)
     if (!size)
         return -EINVAL;
 
-    pr_debug("remove: [%lx - %lx]\n", addr, end);
+    pr_info("remove: [%lx - %lx]\n", addr, end);
     return memblock_delete(addr, size);
 }

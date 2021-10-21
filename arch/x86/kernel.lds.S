@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
+#include <mm.h>
 #include <asm-generic/kernel.lds.h>
 #include <asm/page.h>
 
@@ -7,12 +8,7 @@ ENTRY(startup_head)
 
 SECTIONS
 {
-#ifdef CONFIG_MMU
-    . = CONFIG_PAGE_OFFSET;
-#endif
-#ifdef CONFIG_REGION_DMA
-    . += CONFIG_DMA_SIZE;
-#endif
+    . = pa_to_va(NORMAL_OFFSET);
 
     STARTUP_SECTION
 

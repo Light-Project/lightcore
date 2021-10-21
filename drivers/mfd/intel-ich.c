@@ -8,13 +8,15 @@
 
 #include <string.h>
 #include <initcall.h>
+#include <driver/platform.h>
 #include <driver/pci.h>
+#include <driver/mfd/intel-ich.h>
 #include <driver/gpio/ich.h>
 #include <driver/mtd/intel.h>
 #include <driver/watchdog/tco.h>
 #include <printk.h>
 
-struct ich_device {
+struct ich_chipinfo {
     const char *name;
     const char *itco_version;
     const char *gpio_version;
@@ -27,333 +29,421 @@ const char ich_tco_v3[] = TCO_MATCH_ID(3);
 const char ich_tco_v4[] = TCO_MATCH_ID(4);
 const char ich_tco_v5[] = TCO_MATCH_ID(5);
 
+const char ich_gpio_i3100[] = INTEL_GPIO_I3100;
+const char ich_gpio_v5[]    = INTEL_GPIO_V5;
+const char ich_gpio_v6[]    = INTEL_GPIO_V6;
+const char ich_gpio_v7[]    = INTEL_GPIO_V7;
+const char ich_gpio_v9[]    = INTEL_GPIO_V9;
+const char ich_gpio_v10cp[] = INTEL_GPIO_V10CP;
+const char ich_gpio_v10cs[] = INTEL_GPIO_V10CS;
+const char ich_gpio_avn[]   = INTEL_GPIO_V10CS;
+
 const char ich_spi_byt[] = INTEL_SPI_BYT_MATCH_ID;
 const char ich_spi_lpt[] = INTEL_SPI_LPT_MATCH_ID;
 const char ich_spi_bxt[] = INTEL_SPI_BXT_MATCH_ID;
 const char ich_spi_cnl[] = INTEL_SPI_CNL_MATCH_ID;
 
-static struct ich_device lpc_baytrail = {
-    .name = "",
-    .itco_version = ich_tco_v1,
-};
-
-static struct ich_device lpc_cpt = {
-    .name = "",
-    .itco_version = ich_tco_v1,
-};
-
-static struct ich_device lpc_cptd = {
-    .name = "",
-    .itco_version = ich_tco_v1,
-};
-
-static struct ich_device lpc_cptm = {
-    .name = "",
-    .itco_version = ich_tco_v1,
-};
-
-static struct ich_device lpc_pbg = {
-    .name = "",
-    .itco_version = ich_tco_v1,
-};
-
-static struct ich_device lpc_ppt = {
-    .name = "",
-    .itco_version = ich_tco_v1,
-};
-
-static struct ich_device lpc_avn = {
-    .name = "",
-    .itco_version = ich_tco_v1,
-};
-
-static struct ich_device lpc_braswell = {
-    .name = "",
-    .itco_version = ich_tco_v1,
-};
-
-static struct ich_device lpc_dh89xxcc = {
-    .name = "",
-    .itco_version = ich_tco_v1,
-};
-
-static struct ich_device lpc_coleto = {
-    .name = "",
-    .itco_version = ich_tco_v1,
-};
-
-static struct ich_device lpc_cich = {
-    .name = "",
-    .itco_version = ich_tco_v1,
-};
-
-static struct ich_device lpc_6300esb = {
-    .name = "",
-    .itco_version = ich_tco_v1,
-};
-
-static struct ich_device lpc_ich = {
+static struct ich_chipinfo lpc_ich = {
     .name = "ICH",
     .itco_version = ich_tco_v1,
 };
 
-static struct ich_device lpc_ich0 = {
+static struct ich_chipinfo lpc_ich0 = {
     .name = "ICH0",
     .itco_version = ich_tco_v1,
 };
 
-static struct ich_device lpc_ich2 = {
+static struct ich_chipinfo lpc_ich2 = {
     .name = "ICH2",
     .itco_version = ich_tco_v1,
 };
 
-static struct ich_device lpc_ich2m = {
+static struct ich_chipinfo lpc_ich2m = {
     .name = "ICH2-M",
     .itco_version = ich_tco_v1,
 };
 
-static struct ich_device lpc_ich3 = {
+static struct ich_chipinfo lpc_ich3 = {
     .name = "ICH3",
     .itco_version = ich_tco_v1,
 };
 
-static struct ich_device lpc_ich3m = {
+static struct ich_chipinfo lpc_ich3m = {
     .name = "ICH3-M",
     .itco_version = ich_tco_v1,
 };
 
-static struct ich_device lpc_ich4 = {
+static struct ich_chipinfo lpc_ich4 = {
     .name = "ICH4",
     .itco_version = ich_tco_v1,
 };
 
-static struct ich_device lpc_ich4m = {
+static struct ich_chipinfo lpc_ich4m = {
     .name = "ICH4-M",
     .itco_version = ich_tco_v1,
 };
 
-static struct ich_device lpc_ich5 = {
-    .name = "ICH5",
+static struct ich_chipinfo lpc_cich = {
+    .name = "C-ICH",
     .itco_version = ich_tco_v1,
 };
 
-static struct ich_device lpc_ich6 = {
+static struct ich_chipinfo lpc_ich5 = {
+    .name = "ICH5/ICH5R",
+    .itco_version = ich_tco_v1,
+};
+
+static struct ich_chipinfo lpc_6300esb = {
+    .name = "6300ESB",
+    .itco_version = ich_tco_v1,
+};
+
+static struct ich_chipinfo lpc_ich6 = {
     .name = "ICH6",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v6,
 };
 
-static struct ich_device lpc_ich6m = {
+static struct ich_chipinfo lpc_ich6m = {
     .name = "ICH6-M",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v6,
 };
 
-static struct ich_device lpc_ich6w = {
+static struct ich_chipinfo lpc_ich6w = {
     .name = "ICH6-W",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v6,
 };
 
-static struct ich_device lpc_631xesb = {
-    .name = "",
+static struct ich_chipinfo lpc_631xesb = {
+    .name = "631xESB/632xESB",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v6,
 };
 
-static struct ich_device lpc_ich7 = {
+static struct ich_chipinfo lpc_ich7 = {
     .name = "ICH7",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v7,
 };
 
-static struct ich_device lpc_ich7dh = {
+static struct ich_chipinfo lpc_ich7dh = {
     .name = "ICH7-DH",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v7,
 };
 
-static struct ich_device lpc_ich7m = {
+static struct ich_chipinfo lpc_ich7m = {
     .name = "ICH7-M",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v7,
 };
 
-static struct ich_device lpc_nm10 = {
+static struct ich_chipinfo lpc_nm10 = {
     .name = "NM10",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v7,
 };
 
-static struct ich_device lpc_ich7mdh = {
+static struct ich_chipinfo lpc_ich7mdh = {
     .name = "ICH7DH",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v7,
 };
 
-static struct ich_device lpc_ich8 = {
+static struct ich_chipinfo lpc_ich8 = {
     .name = "ICH8",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v7,
 };
 
-static struct ich_device lpc_ich8me = {
+static struct ich_chipinfo lpc_ich8me = {
     .name = "ICH8-ME",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v7,
 };
 
-static struct ich_device lpc_ich8dh = {
+static struct ich_chipinfo lpc_ich8dh = {
     .name = "ICH8-DH",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v7,
 };
 
-static struct ich_device lpc_ich8do = {
+static struct ich_chipinfo lpc_ich8do = {
     .name = "ICH8-DO",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v7,
 };
 
-static struct ich_device lpc_ich8m = {
+static struct ich_chipinfo lpc_ich8m = {
     .name = "ICH8-M",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v7,
 };
 
-static struct ich_device lpc_ich9 = {
+static struct ich_chipinfo lpc_ich9 = {
     .name = "ICH9",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v9,
 };
 
-static struct ich_device lpc_ich9r = {
+static struct ich_chipinfo lpc_ich9r = {
     .name = "ICH9-R",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v9,
 };
 
-static struct ich_device lpc_ich9dh = {
+static struct ich_chipinfo lpc_ich9dh = {
     .name = "ICH9-DH",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v9,
 };
 
-static struct ich_device lpc_ich9do = {
+static struct ich_chipinfo lpc_ich9do = {
     .name = "ICH9-DO",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v9,
 };
 
-static struct ich_device lpc_ich9m = {
+static struct ich_chipinfo lpc_ich9m = {
     .name = "ICH9-M",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v9,
 };
 
-static struct ich_device lpc_ich9me = {
+static struct ich_chipinfo lpc_ich9me = {
     .name = "ICH9-ME",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v9,
 };
 
-static struct ich_device lpc_ich10 = {
+static struct ich_chipinfo lpc_ich10 = {
     .name = "ICH10",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v10cs,
 };
 
-static struct ich_device lpc_ich10r = {
+static struct ich_chipinfo lpc_ich10r = {
     .name = "ICH10-R",
     .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v10cs,
 };
 
-static struct ich_device lpc_ich10do = {
+static struct ich_chipinfo lpc_ich10d = {
+    .name = "ICH10-D",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v10cp,
+};
+
+static struct ich_chipinfo lpc_ich10do = {
     .name = "ICH10-DO",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v10cp,
+};
+
+static struct ich_chipinfo lpc_pch = {
+    .name = "PCH Desktop Full Featured",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
+};
+
+static struct ich_chipinfo lpc_pchm = {
+    .name = "PCH Mobile Full Featured",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
+};
+
+static struct ich_chipinfo lpc_p55 = {
+    .name = "P55",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
+};
+
+static struct ich_chipinfo lpc_pm55 = {
+    .name = "PM55",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
+};
+
+static struct ich_chipinfo lpc_h55 = {
+    .name = "H55",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
+};
+
+static struct ich_chipinfo lpc_hm55 = {
+    .name = "HM55",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
+};
+
+static struct ich_chipinfo lpc_h57 = {
+    .name = "H57",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
+};
+
+static struct ich_chipinfo lpc_hm57 = {
+    .name = "HM57",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
+};
+
+static struct ich_chipinfo lpc_q57 = {
+    .name = "Q57",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
+};
+
+static struct ich_chipinfo lpc_qm57 = {
+    .name = "QM57",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
+};
+static struct ich_chipinfo lpc_pchmsff = {
+    .name = "PCH Mobile SFF Full Featured",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
+};
+
+static struct ich_chipinfo lpc_qs57 = {
+    .name = "QS57",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
+};
+
+static struct ich_chipinfo lpc_3400 = {
+    .name = "3400",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
+};
+
+static struct ich_chipinfo lpc_3420 = {
+    .name = "3420",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
+};
+
+static struct ich_chipinfo lpc_3450 = {
+    .name = "3450",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
+};
+
+static struct ich_chipinfo lpc_ep80579 = {
+    .name = "EP80579",
     .itco_version = ich_tco_v2,
 };
 
-static struct ich_device lpc_glk = {
-
+static struct ich_chipinfo lpc_cpt = {
+    .name = "Cougar Point",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
 };
 
-static struct ich_device lpc_cougarmountain = {
-
+static struct ich_chipinfo lpc_cptd = {
+    .name = "Cougar Point Desktop",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
 };
 
-static struct ich_device lpc_ich10d = {
-
+static struct ich_chipinfo lpc_cptm = {
+    .name = "Cougar Point Mobile",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
 };
 
-static struct ich_device lpc_pch = {
-
+static struct ich_chipinfo lpc_pbg = {
+    .name = "Patsburg",
+    .itco_version = ich_tco_v2,
 };
 
-static struct ich_device lpc_pchm = {
-
+static struct ich_chipinfo lpc_dh89xxcc = {
+    .name = "DH89xxCC",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
 };
 
-static struct ich_device lpc_p55 = {
-
+static struct ich_chipinfo lpc_ppt = {
+    .name = "Panther Point",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
 };
 
-static struct ich_device lpc_pm55 = {
-
+static struct ich_chipinfo lpc_lpt = {
+    .name = "Lynx Point",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
+    .spi_version = ich_spi_lpt,
 };
 
-static struct ich_device lpc_h55 = {
-
+static struct ich_chipinfo lpc_lpt_lp = {
+    .name = "Lynx Point-LP",
+    .itco_version = ich_tco_v2,
+    .spi_version = ich_spi_lpt,
 };
 
-static struct ich_device lpc_qm57 = {
-
+static struct ich_chipinfo lpc_wbg = {
+    .name = "Wellsburg",
+    .itco_version = ich_tco_v2,
 };
 
-static struct ich_device lpc_h57 = {
-
+static struct ich_chipinfo lpc_avn = {
+    .name = "Avoton SoC",
+    .itco_version = ich_tco_v3,
+    .gpio_version = ich_gpio_avn,
+    .spi_version = ich_spi_bxt,
 };
 
-static struct ich_device lpc_hm55 = {
-
+static struct ich_chipinfo lpc_baytrail = {
+    .name = "Bay Trail SoC",
+    .itco_version = ich_tco_v3,
+    .spi_version = ich_spi_byt,
 };
 
-static struct ich_device lpc_q57 = {
-
+static struct ich_chipinfo lpc_coleto = {
+    .name = "Coleto Creek",
+    .itco_version = ich_tco_v2,
 };
 
-static struct ich_device lpc_hm57 = {
-
+static struct ich_chipinfo lpc_wpt_lp = {
+    .name = "Wildcat Point_LP",
+    .itco_version = ich_tco_v2,
+    .spi_version = ich_spi_lpt,
 };
 
-static struct ich_device lpc_pchmsff = {
-
+static struct ich_chipinfo lpc_braswell = {
+    .name = "Braswell SoC",
+    .itco_version = ich_tco_v3,
+    .spi_version = ich_spi_byt,
 };
 
-static struct ich_device lpc_qs57 = {
-
+static struct ich_chipinfo lpc_lewisburg = {
+    .name = "Lewisburg",
+    .itco_version = ich_tco_v2,
 };
 
-static struct ich_device lpc_3400 = {
-
+static struct ich_chipinfo lpc_9s = {
+    .name = "9 Series",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v5,
 };
 
-static struct ich_device lpc_3420 = {
-
+static struct ich_chipinfo lpc_apl = {
+    .name = "Apollo Lake SoC",
+    .itco_version = ich_tco_v5,
+    .spi_version = ich_spi_bxt,
 };
 
-static struct ich_device lpc_3450 = {
-
+static struct ich_chipinfo lpc_glk = {
+    .name = "Gemini Lake SoC",
+    .spi_version = ich_spi_bxt,
 };
 
-static struct ich_device lpc_ep80579 = {
-
-};
-
-static struct ich_device lpc_apl = {
-
-};
-
-static struct ich_device lpc_lpt = {
-
-};
-
-static struct ich_device lpc_9s = {
-
-};
-
-static struct ich_device lpc_wbg = {
-
-};
-
-static struct ich_device lpc_lpt_lp = {
-
-};
-
-static struct ich_device lpc_wpt_lp = {
-
-};
-
-static struct ich_device lpc_lewisburg = {
-
+static struct ich_chipinfo lpc_cougarmountain = {
+    .name = "Cougar Mountain SoC",
+    .itco_version = ich_tco_v3,
 };
 
 static const struct pci_device_id intel_ich_ids[] = {
@@ -595,11 +685,127 @@ static const struct pci_device_id intel_ich_ids[] = {
     { }, /* NULL */
 };
 
+struct ich_device {
+    struct platform_device tco;
+    struct resource tco_res[3];
+    struct platform_device gpio;
+    struct resource gpio_res[2];
+    struct platform_device spi;
+    struct resource spi_res[1];
+};
+
+static state intel_ich_tco_setup(struct pci_device *pdev, struct ich_chipinfo *info)
+{
+    struct ich_device *idev = pci_get_devdata(pdev);
+    uint32_t val, base;
+
+    val = pci_config_readl(pdev, INTEL_ICH_APCI);
+    base = val & 0xff80;
+    if (!base) {
+        dev_warn(&pdev->dev, "ACPI I/O uninitialized\n");
+        return -ENODEV;
+    }
+
+    idev->tco_res[TCO_RES_TCO].start = base + INTEL_ICH_ACPI_TCO;
+    idev->tco_res[TCO_RES_TCO].size  = INTEL_ICH_ACPI_TCO_SZ;
+    idev->tco_res[TCO_RES_TCO].type  = RESOURCE_PMIO;
+
+    idev->tco_res[TCO_RES_SMI].start = base + INTEL_ICH_ACPI_SMI;
+    idev->tco_res[TCO_RES_SMI].size  = INTEL_ICH_ACPI_SMI_SZ;
+    idev->tco_res[TCO_RES_SMI].type  = RESOURCE_PMIO;
+
+    if (info->itco_version == ich_tco_v2) {
+        val = pci_config_readl(pdev, INTEL_ICH_RCBA);
+        base = val & 0xffffc000;
+        if (!(val & 0x01)) {
+            dev_notice(&pdev->dev, "RCBA is disabled by hardware/BIOS\n");
+            return -ENODEV;
+        }
+        idev->tco_res[TCO_RES_MEM].start = base + INTEL_ICH_RCBA_GCS;
+        idev->tco_res[TCO_RES_MEM].size  = INTEL_ICH_RCBA_GCS_SZ;
+        idev->tco_res[TCO_RES_MEM].type  = RESOURCE_MMIO;
+    } else if (info->itco_version == ich_tco_v3) {
+        /* enable pcm space */
+        val = pci_config_readl(pdev, INTEL_ICH_PMC);
+        pci_config_writel(pdev, INTEL_ICH_PMC, val | 0x2);
+
+        val = pci_config_readl(pdev, INTEL_ICH_PMC);
+        base = val & 0xfffffe00;
+        idev->tco_res[TCO_RES_MEM].start = base + INTEL_ICH_PMC_BASE;
+        idev->tco_res[TCO_RES_MEM].size  = INTEL_ICH_PMC_SZ;
+        idev->tco_res[TCO_RES_MEM].type  = RESOURCE_MMIO;
+    } else {
+        dev_warn(&pdev->dev, "unkown tco type\n");
+        return -EINVAL;
+    }
+
+    idev->tco.name = info->itco_version;
+    idev->tco.resource = idev->tco_res;
+    idev->tco.resources_nr = ARRAY_SIZE(idev->tco_res);
+    return platform_device_register(&idev->tco);
+}
+
+static state intel_ich_spi_setup(struct pci_device *pdev, struct ich_chipinfo *info)
+{
+    struct ich_device *idev = pci_get_devdata(pdev);
+    uint32_t val, base;
+
+    if (info->spi_version == ich_spi_byt) {
+        val = pci_config_readl(pdev, INTEL_ICH_BYT);
+        base = val & (INTEL_ICH_BYT_SZ - 1);
+        if (!(val & 0x01)) {
+            dev_notice(&pdev->dev, "BYT is disabled by hardware/BIOS\n");
+            return -ENODEV;
+        }
+        idev->spi_res[0].start = base;
+        idev->spi_res[0].size  = INTEL_ICH_BYT_SZ;
+        idev->spi_res[0].type  = RESOURCE_MMIO;
+    } else if (info->spi_version == ich_spi_lpt) {
+        val = pci_config_readl(pdev, INTEL_ICH_RCBA);
+        base = val & 0xffffc000;
+        if (!(val & 0x01)) {
+            dev_notice(&pdev->dev, "RCBA is disabled by hardware/BIOS\n");
+            return -ENODEV;
+        }
+        idev->spi_res[0].start = base + INTEL_ICH_RCBA_LPT;
+        idev->spi_res[0].size  = INTEL_ICH_RCBA_LPT_SZ;
+        idev->spi_res[0].type  = RESOURCE_MMIO;
+    } else if (info->spi_version == ich_spi_bxt) {
+        pci_bus_config_writeb(pdev->bus, PCI_DEVFN(13, 0), 0xe1, 0);
+        val = pci_bus_config_readl(pdev->bus, PCI_DEVFN(13, 0), PCI_BASE_ADDRESS_0);
+        base = val & 0xfffffff0;
+        if (val == ~0)
+            return -EIO;
+        idev->spi_res[0].start = base;
+        idev->spi_res[0].size  = INTEL_ICH_APL_SZ;
+        idev->spi_res[0].type  = RESOURCE_MMIO;
+    } else {
+        dev_warn(&pdev->dev, "unkown spi type\n");
+        return -EINVAL;
+    }
+
+    idev->spi.name = info->spi_version;
+    idev->spi.resource = idev->spi_res;
+    idev->spi.resources_nr = ARRAY_SIZE(idev->spi_res);
+    return platform_device_register(&idev->tco);
+}
+
 static state intel_ich_probe(struct pci_device *pdev, void *pdata)
 {
-    struct ich_device *ich = pdata;
+    struct ich_device *idev;
+    struct ich_chipinfo *info = pdata;
 
-    dev_info(&pdev->dev, "%s\n", ich->name);
+    idev = dev_kzalloc(&pdev->dev, sizeof(*idev), GFP_KERNEL);
+    if (!pdev)
+        return -ENOMEM;
+    pci_set_devdata(pdev, idev);
+
+    dev_info(&pdev->dev, "%s\n", info->name);
+
+    if (info->itco_version)
+        intel_ich_tco_setup(pdev, info);
+    if (info->spi_version)
+        intel_ich_spi_setup(pdev, info);
 
     return -ENOERR;
 }

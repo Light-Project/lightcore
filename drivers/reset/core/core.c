@@ -95,7 +95,7 @@ reset_channel_get(struct reset_device *reset, unsigned int chnr)
 state reset_register(struct reset_device *reset)
 {
     if (!reset && !reset->ops)
-        return -ENOERR;
+        return -EINVAL;
 
     list_head_init(&reset->channel_list);
     list_add(&reset_list, &reset->list);

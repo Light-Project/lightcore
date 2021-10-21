@@ -36,7 +36,7 @@ static struct superblock *cpio_mount(struct fsdev *dev, enum mount_flag flags)
 
     sb = kzalloc(sizeof(*sb), GFP_KERNEL);
     if (!sb)
-        return -ENOERR;
+        return -ENOMEM;
 
     return -ENOERR;
 }

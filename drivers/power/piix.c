@@ -5,7 +5,7 @@
 
 #define DRIVER_NAME "piix-power"
 
-#include <mm.h>
+#include <kmalloc.h>
 #include <initcall.h>
 #include <driver/platform.h>
 #include <driver/power.h>

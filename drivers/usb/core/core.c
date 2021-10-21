@@ -5,7 +5,7 @@
 
 #define pr_fmt(fmt) "usb: " fmt
 
-#include <mm.h>
+#include <kmalloc.h>
 #include <driver/usb.h>
 #include <printk.h>
 

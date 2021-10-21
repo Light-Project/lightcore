@@ -14,6 +14,7 @@ void pci_bus_device_probe(struct pci_device *pdev)
 {
     /* Now we can bind device to the driver */
     device_bind(&pdev->dev);
+
     pdev->flags_added = true;
 }
 

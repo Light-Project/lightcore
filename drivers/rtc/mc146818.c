@@ -5,17 +5,17 @@
 
 #define DRIVER_NAME "rtc-mc146818"
 
-#include <mm.h>
 #include <bcd.h>
-#include <irq.h>
+#include <kmalloc.h>
 #include <initcall.h>
+#include <irq.h>
 #include <driver/platform.h>
 #include <driver/irqchip.h>
 #include <driver/rtc.h>
 #include <driver/rtc/mc146818.h>
 
-#include <asm/io.h>
 #include <asm/proc.h>
+#include <asm/io.h>
 
 #define MC146818_YEARS_OFFS 2000
 

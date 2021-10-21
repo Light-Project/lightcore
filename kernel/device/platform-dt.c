@@ -5,7 +5,7 @@
 
 #define pr_fmt(fmt)	"pdt: " fmt
 
-#include <mm.h>
+#include <kmalloc.h>
 #include <initcall.h>
 #include <driver/platform.h>
 #include <driver/dt.h>

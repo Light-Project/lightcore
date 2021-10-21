@@ -2,10 +2,27 @@
 #ifndef _MM_H_
 #define _MM_H_
 
-#include <kernel.h>
+#if defined(CONFIG_REGION_DMA) && defined(CONFIG_REGION_DMA32)
+# define NORMAL_OFFSET CONFIG_RAM_BASE + CONFIG_RAM_PAD + \
+         CONFIG_DMA_SIZE + CONFIG_DMA32_SIZE
+#elif defined(CONFIG_REGION_DMA)
+# define NORMAL_OFFSET CONFIG_RAM_BASE + CONFIG_RAM_PAD + \
+         CONFIG_DMA_SIZE
+#else
+# define NORMAL_OFFSET CONFIG_RAM_BASE + CONFIG_RAM_PAD
+#endif
+
+#ifdef __ASSEMBLY__
+# define va_to_pa(va) ((va) - CONFIG_PAGE_OFFSET + CONFIG_RAM_BASE)
+# define pa_to_va(pa) ((pa) - CONFIG_RAM_BASE + CONFIG_PAGE_OFFSET)
+#else
+# define va_to_pa(va) ((phys_addr_t)(va) - CONFIG_PAGE_OFFSET + CONFIG_RAM_BASE)
+# define pa_to_va(pa) ((void *)((pa) - CONFIG_RAM_BASE + CONFIG_PAGE_OFFSET))
+#endif
+
+#ifndef __ASSEMBLY__
+
 #include <mm/memmodel.h>
-#include <kmalloc.h>
-#include <mm/vmem.h>
 
 extern char _ld_startup_start;
 extern char _ld_startup_end;
@@ -21,13 +38,13 @@ extern char _ld_init_dtb_start;
 extern char _ld_init_dtb_end;
 extern char _ld_image_end;
 
-#define MEM_MAGIC 0xDEADBEEF
+#define MEM_MAGIC   0xdeadbeef
 
 #define page_align(addr)    align_high(addr, PAGE_SIZE)
 #define page_aligned(addr)  align_check(addr, PAGE_SIZE)
 
-#define va_to_pa(va)        ((phys_addr_t)(va) - CONFIG_PAGE_OFFSET + CONFIG_RAM_BASE)
-#define pa_to_va(pa)        ((void *)((pa) - CONFIG_RAM_BASE + CONFIG_PAGE_OFFSET))
+#define va_to_pa(va) ((phys_addr_t)(va) - CONFIG_PAGE_OFFSET + CONFIG_RAM_BASE)
+#define pa_to_va(pa) ((void *)((pa) - CONFIG_RAM_BASE + CONFIG_PAGE_OFFSET))
 
 #define page_to_pa(page)    (page_to_nr(page) << PAGE_SHIFT)
 #define pa_to_page(pa)      (nr_to_page(pa >> PAGE_SHIFT))
@@ -37,4 +54,5 @@ extern char _ld_image_end;
 
 void mem_init(void);
 
+#endif /* __ASSEMBLY__ */
 #endif /* _MM_H_ */
