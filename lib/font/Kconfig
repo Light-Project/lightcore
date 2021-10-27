@@ -1,18 +1,20 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig FONT
     bool "Font library"
+    default y
 if FONT
-    
+
 config FONT_6X8
     bool "6x8 font"
     default y
 
 config FONT_6X10
     bool "6x10 font"
-    default n
+    default y
 
 config FONT_6X11
     bool "6x11 font"
-    default n
+    default y
 
 config FONT_7X14
     bool "7x14 font"
@@ -20,14 +22,14 @@ config FONT_7X14
 
 config FONT_8X8
     bool "8x8 font"
-    default n
+    default y
 
 config FONT_8X16
     bool "8x16 font"
-    default n
+    default y
 
 config FONT_10X18
     bool "10x18 font"
     default y
-    
+
 endif

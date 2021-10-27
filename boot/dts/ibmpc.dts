@@ -34,6 +34,8 @@
             #dma-cells = <1>;
             compatible = "intel,i8237";
             reg = <0x0000 0x20>;
+            page = <0x0087>, <0x0083>,
+                   <0x0081>, <0x0082>;
         };
 
         pic0: interrupt-controller@20 {
@@ -80,6 +82,8 @@
             #dma-cells = <1>;
             compatible = "intel,i8237";
             reg = <0x00c0 0x10>;
+            page = <0x008f>, <0x008b>,
+                   <0x0089>, <0x008a>;
         };
 
         lpt1: parallel@278 {

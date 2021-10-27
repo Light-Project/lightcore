@@ -97,10 +97,10 @@ state driver_bind(struct driver *drv)
 }
 
 /**
- * bus_device_add - add a device into bus
+ * bus_add_device - add a device into bus
  * @dev: driver
  */
-state bus_device_add(struct device *dev)
+state bus_add_device(struct device *dev)
 {
     struct bus_type *bus;
 
@@ -112,7 +112,7 @@ state bus_device_add(struct device *dev)
     return device_bind(dev);
 }
 
-void bus_device_remove(struct device *dev)
+void bus_remove_device(struct device *dev)
 {
     struct bus_type *bus = dev->bus;
 
@@ -121,10 +121,10 @@ void bus_device_remove(struct device *dev)
 }
 
 /**
- * bus_driver_add - add a driver into bus
+ * bus_add_driver - add a driver into bus
  * @drv: driver
  */
-state bus_driver_add(struct driver *drv)
+state bus_add_driver(struct driver *drv)
 {
     struct bus_type *bus;
 
@@ -137,7 +137,7 @@ state bus_driver_add(struct driver *drv)
     return driver_bind(drv);
 }
 
-void bus_driver_remove(struct driver *drv)
+void bus_remove_driver(struct driver *drv)
 {
     list_del(&drv->bus_list_driver);
 }

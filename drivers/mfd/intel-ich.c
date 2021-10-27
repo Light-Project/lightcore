@@ -795,12 +795,12 @@ static state intel_ich_probe(struct pci_device *pdev, void *pdata)
     struct ich_device *idev;
     struct ich_chipinfo *info = pdata;
 
+    dev_info(&pdev->dev, "chipset %s detect\n", info->name);
+
     idev = dev_kzalloc(&pdev->dev, sizeof(*idev), GFP_KERNEL);
     if (!pdev)
         return -ENOMEM;
     pci_set_devdata(pdev, idev);
-
-    dev_info(&pdev->dev, "%s\n", info->name);
 
     if (info->itco_version)
         intel_ich_tco_setup(pdev, info);

@@ -15,8 +15,8 @@
 #include <driver/video/gx6605s.h>
 #include <printk.h>
 
-#include <asm/io.h>
 #include <asm/cache.h>
+#include <asm/io.h>
 
 struct gx6605s_device {
     struct video_device video;
@@ -236,7 +236,7 @@ static state gx6605s_hwinit(struct platform_device *pdev)
 
     gdev->mmio = dev_ioremap(&pdev->dev, start, size);
     if (!gdev->mmio) {
-        dev_err(&pdev->dev, "cannot remap framebuffer\n");
+        dev_err(&pdev->dev, "cannot remap mmio\n");
         return -ENOMEM;
     }
 
@@ -246,9 +246,9 @@ static state gx6605s_hwinit(struct platform_device *pdev)
         return -ENOMEM;
     }
 
-    gdev->region = kzalloc(page_align(0x1c), GFP_KERNEL);
+    gdev->region = dev_kzalloc(&pdev->dev, page_align(0x1c), GFP_KERNEL);
     if (!gdev->region) {
-        dev_err(&pdev->dev, "cannot alloc framebuffer\n");
+        dev_err(&pdev->dev, "cannot alloc region\n");
         return -ENOMEM;
     }
 
@@ -269,6 +269,7 @@ static state gx6605s_hwinit(struct platform_device *pdev)
     gx6605s_mask(gdev, GX6605S_BUFF_CTRL2, GX6605S_BUFF_CTRL2_REQ_LEN,
                  request_block & GX6605S_BUFF_CTRL2_REQ_LEN);
 
+    /* we only need one layer to display. */
     gx6605s_region_mask(gdev, GX6605S_OSDR_WIDTH, GX6605S_OSDR_WIDTH_LEFT, 0);
     gx6605s_region_mask(gdev, GX6605S_OSDR_WIDTH, GX6605S_OSDR_WIDTH_RIGHT, (def_xres - 1) << 16);
     gx6605s_region_mask(gdev, GX6605S_OSDR_HIGHT, GX6605S_OSDR_HIGHT_TOP, 0);
@@ -286,6 +287,7 @@ static state gx6605s_hwinit(struct platform_device *pdev)
         gx6605s_format_set(gdev, GX6605S_COLOR_RGB565);
     }
 
+    /* configure the address of the layer frame buffer. */
     gx6605s_region_set(gdev, GX6605S_OSDR_FBADDR, va_to_pa(gdev->video.frame_buffer));
     gx6605s_region_set(gdev, GX6605S_OSDR_NEXT_PTR, va_to_pa(gdev->region));
 
@@ -297,6 +299,7 @@ static state gx6605s_hwinit(struct platform_device *pdev)
     gx6605s_writel(gdev, GX6605S_OSD_VIEW_SIZE, (def_yres << 16) | def_xres);
     gx6605s_writel(gdev, GX6605S_OSD_ZOOM, 0x10001000);
 
+    /* set the first child of the layer list. */
     gx6605s_writel(gdev, GX6605S_OSD_FIRST_HEAD_PTR, va_to_pa(gdev->region));
 
     gx6605s_enable(gdev, true);

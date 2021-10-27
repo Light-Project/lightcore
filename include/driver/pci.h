@@ -213,6 +213,7 @@ state pci_raw_config_write(unsigned int domain, unsigned int bus, unsigned int d
 
 /* find.c */
 struct pci_bus *pci_find_bus(unsigned int domain, unsigned int bus);
+struct pci_device *pci_find_device(struct pci_device_id *id, struct pci_device *form);
 
 /* bus.c */
 void pci_bus_devices_probe(const struct pci_bus *bus);

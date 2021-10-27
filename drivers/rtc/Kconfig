@@ -1,8 +1,8 @@
 menuconfig RTC
-    bool "Rtc support"
+    bool "RTC support"
 if RTC 
 
 config RTC_MC146818
-    bool "Mc146818"
+    tristate "MC146818 RTC support"
 
 endif

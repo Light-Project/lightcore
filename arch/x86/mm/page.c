@@ -14,7 +14,7 @@
 #define himem_index     (CONFIG_HIGHMAP_OFFSET >> PGDIR_SHIFT)
 #define himem_pts       ((VIRTS_SIZE - CONFIG_HIGHMAP_OFFSET) >> PGDIR_SHIFT)
 
-struct pde page_dir[PTRS_PER_PGD] __aligned(0x1000);
+struct pgd page_dir[PTRS_PER_PGD] __aligned(0x1000);
 struct pte pt_himem[himem_pts][PTRS_PER_PTE] __aligned(0x1000);
 
 /*
@@ -56,39 +56,39 @@ static void pde_set(int index, bool huge, phys_addr_t pa_pte, bool user)
  */
 static void pte_set(size_t va, struct pte *val)
 {
-    struct pde *pde;
+    struct pgd *pgd;
     struct pte *pte;
     size_t index;
 
     index = pde_index(va);
-    pde = &page_dir[index];
+    pgd = &page_dir[index];
 
     /* Without PTE. */
-    if ((!pde->p) || pde->ps)
+    if ((!pgd->p) || pgd->ps)
         return;
 
-    pte = pa_to_va((pde->addr << PAGE_SHIFT));
+    pte = pa_to_va((pgd->addr << PAGE_SHIFT));
 
     index = pte_index(va);
     pte[index] = *val;
 }
 
-state arch_page_map(size_t pa, size_t va, size_t size)
+state arch_page_map(phys_addr_t phys_addr, size_t addr, size_t size)
 {
     struct pte pte;
 
-    if (!(page_aligned(va) && page_aligned(size)))
+    if (!(page_aligned(addr) && page_aligned(size)))
         return -EINVAL;
 
     for (size >>= PAGE_SHIFT; size; --size) {
         pte.val = 0x1;
         pte.us = 0;
-        pte.addr = pa >> PAGE_SHIFT;
+        pte.addr = phys_addr >> PAGE_SHIFT;
 
-        pte_set(va, &pte);
+        pte_set(addr, &pte);
 
-        va += PAGE_SIZE;
-        pa += PAGE_SIZE;
+        addr += PAGE_SIZE;
+        phys_addr += PAGE_SIZE;
     }
 
     tlb_inval_all();
@@ -109,8 +109,8 @@ void *arch_page_alloc_user(void)
 void arch_page_switch(void *ptd_p, void *ptd_n)
 {
     if(ptd_p)
-        memcpy(page_dir, ptd_p, sizeof(struct pde) * kernel_index);
-    memcpy(ptd_n, page_dir, sizeof(struct pde) * kernel_index);
+        memcpy(page_dir, ptd_p, sizeof(struct pgd) * kernel_index);
+    memcpy(ptd_n, page_dir, sizeof(struct pgd) * kernel_index);
 }
 
 void __init arch_page_setup(void)

@@ -60,7 +60,7 @@ state driver_register(struct driver *drv)
     }
 
     list_head_init(&drv->devices_list);
-    return bus_driver_add(drv);
+    return bus_add_driver(drv);
 }
 
 /**
@@ -74,5 +74,5 @@ void driver_unregister(struct driver *drv)
     driver_for_each_device(dev, drv) {
     }
 
-    bus_driver_remove(drv);
+    bus_remove_driver(drv);
 }

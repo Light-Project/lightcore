@@ -27,7 +27,4 @@
 
 #define SPARCE_SHIFT    24
 
-#ifndef __ASSEMBLY__
-
-#endif  /* __ASSEMBLY__ */
 #endif  /* _ASM_X86_PAGE_H_ */

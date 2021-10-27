@@ -79,8 +79,10 @@ state msdos_match(struct block_device *bdev)
     if (!msdos)
         return -ENOMEM;
 
-    if ((ret = block_device_read(bdev, msdos, 0, 1)))
+    if ((ret = block_device_read(bdev, msdos, 0, 1))) {
+        ret = -ENODATA;
         goto err_magic;
+    }
 
     if (MSDOS_MAGIC != cpu_to_be16(msdos->magic)) {
         ret = -EINVAL;
@@ -112,7 +114,7 @@ state msdos_match(struct block_device *bdev)
         }
     }
 
-    return true;
+    return -ENOERR;
 
 err_scan:
     list_for_each_entry_safe(entry, next, &bdev->parts, list) {

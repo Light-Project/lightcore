@@ -27,19 +27,19 @@ enum floppy_registers {
 };
 
 enum floppy_commands {
-    FLOPPY_CMD_READ_TRACK           = 2,    // generates IRQ6
-    FLOPPY_CMD_SPECIFY              = 3,    // set drive parameters
-    FLOPPY_CMD_SENSE_DRIVE_STATUS   = 4,    //
+    FLOPPY_CMD_READ_TRACK           = 0x02, // generates IRQ6
+    FLOPPY_CMD_SPECIFY              = 0x03, // set drive parameters
+    FLOPPY_CMD_SENSE_DRIVE_STATUS   = 0x04, //
     FLOPPY_CMD_WRITE_DATA           = 0xc5, // write to the disk
     FLOPPY_CMD_READ_DATA            = 0xe6, // read from the disk
-    FLOPPY_CMD_RECALIBRATE          = 7,    // seek to cylinder 0
-    FLOPPY_CMD_SENSE_INTERRUPT      = 8,    // ack IRQ6, get status of last command
-    FLOPPY_CMD_WRITE_DELETED_DATA   = 9,    //
+    FLOPPY_CMD_RECALIBRATE          = 0x07, // seek to cylinder 0
+    FLOPPY_CMD_SENSE_INTERRUPT      = 0x08, // ack IRQ6, get status of last command
+    FLOPPY_CMD_WRITE_DELETED_DATA   = 0x09, //
     FLOPPY_CMD_READ_ID              = 0x4a, // generates IRQ6
     FLOPPY_CMD_READ_DELETED_DATA    = 12,   //
-    FLOPPY_CMD_FORMAT_TRACK         = 13,   //
+    FLOPPY_CMD_FORMAT_TRACK         = 0x4d, //
     FLOPPY_CMD_DUMPREG              = 14,   //
-    FLOPPY_CMD_SEEK                 = 15,   // seek both heads to cylinder X
+    FLOPPY_CMD_SEEK                 = 0x0f, // seek both heads to cylinder X
     FLOPPY_CMD_VERSION              = 16,   // used during initialization, once
     FLOPPY_CMD_SCAN_EQUAL           = 17,   //
     FLOPPY_CMD_PERPENDICULAR_MODE   = 18,   // used during initialization, once, maybe
@@ -220,9 +220,5 @@ enum fdc_version {
 #define FLOPPY_SECTOR_SIZE_4K   5
 #define FLOPPY_SECTOR_SIZE_8K   6
 #define FLOPPY_SECTOR_SIZE_16K  7
-
-#define FD_MAX_CMD_SIZE     16
-#define FD_MAX_REPLY_SIZE   16
-#define DRIVER_PER_FDC      2
 
 #endif /* _DRIVER_FLOPPY_H_ */

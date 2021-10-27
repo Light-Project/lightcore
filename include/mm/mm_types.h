@@ -4,6 +4,8 @@
 
 #include <types.h>
 #include <list.h>
+#include <rbtree.h>
+#include <asm/pgtable.h>
 
 enum page_type {
     PAGE_UNINIT,
@@ -47,6 +49,10 @@ struct uvm_area {
     size_t addr;    /* virtual start address */
     size_t size;    /* virtual allocation size */
     struct list_head list;
+};
+
+struct memory {
+    struct pgd_t *pgdir;
 };
 
 #endif  /* _MM_PAGE_DEF_H_ */

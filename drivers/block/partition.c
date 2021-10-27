@@ -31,11 +31,12 @@ state partition_scan(struct block_device *bdev)
 
     slist_for_each_entry(part, &partition_list, list) {
         ret = part->match(bdev);
-        if (ret)
-            return ret;
+        if (ret == -ENODATA)
+            continue;
+        return ret;
     }
 
-    return -ENOERR;
+    return -ENODATA;
 }
 
 state partition_register(struct partition_type *part)

@@ -25,7 +25,7 @@ sys-acflags-$(CONFIG_CC_OPTIMIZE_FOR_SIZE)          += -Os
 sys-acflags-$(CONFIG_STRICT) += -Werror
 
 sys-asflags-y  += -D__ASSEMBLY__
-sys-ccflags-y  += -std=gnu11
+sys-ccflags-y  += -std=gnu17
 sys-acflags-y  += -ffreestanding -nostdinc -fno-builtin -static
 sys-acflags-y  += -fno-PIE -fno-common
 sys-acflags-y  += -fno-stack-protector
@@ -87,7 +87,7 @@ obj-y += doc/
 obj-y += drivers/
 obj-y += fs/
 obj-y += init/
-obj-y += ipc/
+# obj-y += ipc/
 obj-y += kernel/
 obj-y += lib/
 obj-y += mm/

@@ -8,10 +8,10 @@
 
 #else  /* !CONFIG_SMP */
 
-#define for_each_cpu(cpu) for(cpu = 0; cpu < 1; ++cpu)
-#define for_each_online_cpu(cpu) for_each_cpu(cpu)
-#define for_each_present_cpu(cpu) for_each_cpu(cpu)
-#define for_each_possible_cpu(cpu) for_each_cpu(cpu)
+#define cpu_for_each(cpu) for(cpu = 0; cpu < 1; ++cpu)
+#define cpu_for_each_online(cpu) for_each_cpu(cpu)
+#define cpu_for_each_present(cpu) for_each_cpu(cpu)
+#define cpu_for_each_possible(cpu) for_each_cpu(cpu)
 
 #endif  /* CONFIG_SMP */
 #endif  /* _CPU_H_ */

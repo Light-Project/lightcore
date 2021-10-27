@@ -4,12 +4,14 @@
  */
 
 #include <timer.h>
+#include <sched.h>
 
 volatile uint64_t ticktime;
 
 void timer_update(unsigned long ticks)
 {
     ticktime += ticks;
+    sched_tick();
 }
 
 void timer_tick(void)

@@ -1,52 +1,52 @@
 menu "Compile config"
-    
-    choice
+
+choice
     prompt "Compiler optimization level"
     default CC_OPTIMIZE_FOR_DEBUG
-            
-        config CC_OPTIMIZE_FOR_DEBUG
-        bool "Optimize for debug (-O0)"
-                
-        config CC_OPTIMIZE_FOR_PERFORMANCE
-        bool "Optimize for performance (-O2)"
-                
-        config CC_OPTIMIZE_FOR_SIZE
-        bool "Optimize for size (-Os)"
-        
-    endchoice
-        
-    config STRICT
-    bool "Compiling kernel with strict mode"
-    default y    
-    help 
-        Use -Wall and -Werror, To ensure kernel 
-        security, please keep it open in the mainline
-        
-    config KERNEL_DEBUG
+
+config CC_OPTIMIZE_FOR_DEBUG
+    bool "Optimize for debug (-O0)"
+
+config CC_OPTIMIZE_FOR_PERFORMANCE
+    bool "Optimize for performance (-O2)"
+
+config CC_OPTIMIZE_FOR_SIZE
+    bool "Optimize for size (-Os)"
+
+endchoice
+
+config KERNEL_DEBUG
     bool "Kernel generate debug file"
+    depends on CC_OPTIMIZE_FOR_DEBUG
     default y
-    
-    config KERNEL_MAP
+
+config STRICT
+    bool "Compiling kernel with strict mode"
+    default y
+    help
+        Use -Wall and -Werror, To ensure kernel
+        security, please keep it open in the mainline
+
+config KERNEL_MAP
     bool "Kernel generate map file"
     default y
-        
-    config RELOCATABLE
+
+config RELOCATABLE
     bool "Build a relocatable kernel"
     depends on ARCH_HAS_RELOCATABLE
     default y
     help
         This compiles a kernel that retains relocation information
-        
-    config KASLR
+
+config KASLR
     bool "Kernel address space layout randomization (KASLR)"
     depends on RELOCATABLE && ARCH_HAS_KASLR
     default y
     help
         This randomizes the kernel load address and the mapping address.
-        
-    config LD_DEAD_CODE_DATA_ELIMINATION
+
+config LD_DEAD_CODE_DATA_ELIMINATION
     bool "Dead code and data elimination (EXPERIMENTAL)"
+    depends on EXPERT
 
 endmenu
-
- 

@@ -5,7 +5,6 @@
 
 #include <kernel.h>
 #include <export.h>
-
 #include <asm/regs.h>
 #include <asm/gdt.h>
 #include <asm/idt.h>

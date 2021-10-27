@@ -37,20 +37,25 @@ static inline unsigned long ffs(unsigned long value)
         shift += 16;
         value >>= 16;
     }
+
     if ((value & 0xff) == 0) {
         shift += 8;
         value >>= 8;
     }
+
     if ((value & 0xf) == 0) {
         shift += 4;
         value >>= 4;
     }
+
     if ((value & 0x3) == 0) {
         shift += 2;
         value >>= 2;
     }
-    if ((value & 0x1) == 0)
+
+    if ((value & 0x1) == 0) {
         shift += 1;
+    }
 
     return shift;
 }

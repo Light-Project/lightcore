@@ -124,16 +124,4 @@ int printk(const char *fmt,...);
 #define pr_debug(fmt, ...)  while(0);
 #endif
 
-/**
- * pr_cont - Continues a previous log message in the same line.
- * @fmt: format string
- * @...: arguments for the format string
- *
- * This macro expands to a printk with KERN_CONT loglevel. It should only be
- * used when continuing a log message with no newline ('\n') enclosed. Otherwise
- * it defaults back to KERN_DEFAULT loglevel.
- */
-#define pr_cont(fmt, ...) \
-    printk(KERN_ONT fmt, ##__VA_ARGS__)
-
 #endif	/* _PRINTK_H_ */

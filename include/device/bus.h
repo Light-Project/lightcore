@@ -37,11 +37,11 @@ struct bus_type {
 /* Bus highlevel API */
 state bus_device_match(struct device *dev);
 state bus_device_probe(struct device *dev);
-state bus_device_add(struct device *drv);
-void bus_device_remove(struct device *drv);
+state bus_add_device(struct device *drv);
+void bus_remove_device(struct device *drv);
 
-state bus_driver_add(struct driver *drv);
-void bus_driver_remove(struct driver *dev);
+state bus_add_driver(struct driver *drv);
+void bus_remove_driver(struct driver *dev);
 
 state bus_bind_device(struct bus_type *bus, struct device *dev);
 state bus_register(struct bus_type *);

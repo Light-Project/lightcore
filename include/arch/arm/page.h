@@ -10,7 +10,7 @@
 
 #ifndef __ASSEMBLY__
 
-struct pde {
+struct pgd {
     union {
         struct {
             uint32_t type:2;    /* Page type (1: Coarse 2:Section 3:Fine) */

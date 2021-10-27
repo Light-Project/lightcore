@@ -10,11 +10,11 @@
 
 #ifndef __ASSEMBLY__
 
-struct pde{
+struct pgd {
     phys_addr_t pte;
 } __packed;
 
-struct pte{
+struct pte {
     union {
         struct {
             uint32_t res:6;

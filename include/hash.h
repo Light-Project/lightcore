@@ -2,14 +2,16 @@
 #ifndef _HASH_H_
 #define _HASH_H_
 
-static unsigned long strhash(const char *str)
+#include <types.h>
+
+static __always_inline unsigned long strhash(const char *str)
 {
-    uint32_t hash = 5320;
-    if(str == NULL)
-        return 0;
-    while(*str != '\0')
-        hash = (hash << 2) + hash + (*str++);
+    uint32_t hash = 5381;
+
+    while (*str)
+        hash = (hash << 5) + hash ^ *str++;
+
     return hash;
 }
 
-#endif /*  */
+#endif  /* _HASH_H_ */

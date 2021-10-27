@@ -24,6 +24,7 @@
 struct slob_node {
     uint32_t size:PAGE_SHIFT;  /* node offset of page */
     uint32_t use:1;
+    char data[0];
 } __packed;
 
 #define SLOB_SIZE(size) (sizeof(struct slob_node) + (size))
@@ -112,7 +113,7 @@ static void *slob_page_alloc(struct slob_page *slob_page,
         if ((avail >= size) && (!node->use))
             break;
 
-        /* It's the last node. There's no memory available */
+        /* It's the last node. There's no memory available. */
         if (slob_node_last(node))
             return NULL;
     }
@@ -145,15 +146,15 @@ static bool slob_page_free(struct slob_page *slob_page, const void *block)
         next = slob_node_next(node);
 
         /* find node */
-        if (((void *)node < block) && (block < (void *)next))
+        if (node->data == block)
             break;
 
         /* Not this node, save prev node */
         prev = node;
 
-        /* It's the last node. There's no block found */
-        if (unlikely(slob_node_last(node))) {
-            pr_err("release %p error\n", block);
+        /* It's the bad node. There's no block found. */
+        if (unlikely(block < (void *)slob_page->node || slob_node_last(node))) {
+            pr_crit("release %p error\n", block);
             return false;
         }
     }

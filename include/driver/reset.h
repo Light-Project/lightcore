@@ -25,7 +25,6 @@ struct reset_ops {
 };
 
 extern struct list_head reset_list;
-struct reset_channel *reset_channel_get(struct reset_device *, unsigned int);
 
 #ifndef CONFIG_RESET
 
@@ -50,15 +49,19 @@ static inline state reset_reset(struct reset_channel *rst)
 }
 
 #else
+
 state reset_status(struct reset_channel *);
 state reset_assert(struct reset_channel *);
 state reset_deassert(struct reset_channel *);
 state reset_reset(struct reset_channel *);
 
-struct reset_channel *dt_get_reset_channel(struct dt_node *, unsigned int index);
+extern struct reset_channel *dt_get_reset_channel(struct dt_node *, unsigned int index);
+extern struct reset_channel *dt_get_reset_channel_by_name(struct dt_node *node, const char *name);
 
-state reset_register(struct reset_device *);
-void reset_unregister(struct reset_device *);
+extern struct reset_channel *reset_channel_get(struct reset_device *, unsigned int);
+extern void reset_channel_release(struct reset_channel *);
+extern state reset_register(struct reset_device *);
+extern void reset_unregister(struct reset_device *);
 
 #endif  /* CONFIG_RESET */
 #endif  /* _DRIVER_RESET_ */

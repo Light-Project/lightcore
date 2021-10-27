@@ -10,7 +10,7 @@
 #include <asm/regs.h>
 #include <asm/mmu.h>
 
-struct pde page_dir[4096] __aligned(0x4000);
+struct pgd page_dir[4096] __aligned(0x4000);
 
 static void pde_huge_set(int index, phys_addr_t pa)
 {

@@ -92,6 +92,12 @@ reset_channel_get(struct reset_device *reset, unsigned int chnr)
     return reset_channel_alloc(reset, chnr);
 }
 
+void reset_channel_release(struct reset_channel *channel)
+{
+    reset_deassert(channel);
+    list_del(&channel->list);
+}
+
 state reset_register(struct reset_device *reset)
 {
     if (!reset && !reset->ops)

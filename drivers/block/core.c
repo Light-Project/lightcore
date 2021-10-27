@@ -6,6 +6,7 @@
 #define pr_fmt(fmt) "blk: " fmt
 
 #include <kmalloc.h>
+#include <device.h>
 #include <driver/block.h>
 #include <driver/block/partition.h>
 #include <printk.h>
@@ -36,10 +37,9 @@ state block_device_register(struct block_device *blk)
 
     list_head_init(&blk->parts);
 
-    ret = partition_scan(blk);
-    if (ret != true) {
-        pr_debug("Partition table not found on\n");
-        return -ENODATA;
+    if ((ret = partition_scan(blk))) {
+        dev_debug(blk->dev, "partition table not found\n");
+        return ret;
     }
 
     block_add_fsdev(blk);

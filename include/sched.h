@@ -4,55 +4,86 @@
 
 #include <types.h>
 #include <state.h>
+#include <error.h>
+#include <bits.h>
 #include <list.h>
 #include <time.h>
+#include <asm/regs.h>
 #include <asm/sched.h>
 
-enum task_flags {
-    TASK_NONE,
+enum sched_prio {
+    SCHED_PRIO_DEADLINE = 5,
+    SCHED_PRIO_RR       = 15,
+    SCHED_PRIO_FAIR     = 20,
+    SCHED_PRIO_IDLE     = 31,
+    SCHED_PRIO_MAX,
 };
 
 struct task {
     struct task *parent;        /* parent of this task */
     struct list_head child;     /* children of this task */
     struct list_head sibling;   /* children list */
-    struct task_mm *mm;
-    void *stack;
 
     struct sched_type *sched_type;
+    struct task_mm *mm;
+    struct regs *stack;
 
-    pid_t   pid;
-    int8_t  priority;
+    char priority;
+    pid_t pid;
 
     struct timespec utime;
 
 #ifdef CONFIG_SMP
-    unsigned int cpu_nr;
+    struct sched_queue *queue;
 #endif
 
-    uint64_t    kernel_task:1;
+    uint64_t    idle:1;
+    uint64_t    kthread:1;
 };
 
 struct sched_queue {
+    struct list_head list;
     struct task *current;
-};
 
-#define SCHED_IDLE_PRIO 127
+    void *priv[SCHED_PRIO_MAX];
+};
 
 struct sched_type {
     const char *name;
     struct list_head list;
-    char priority;
+    unsigned char priority;
 
-    struct task *(*task_create)(enum task_flags);
-    struct task *(*task_next)(struct sched_queue *);
-    void (*task_enqueue)(struct sched_queue *, struct task *);
-    void (*task_dequeue)(struct sched_queue *, struct task *);
+    state (*queue_create)(struct sched_queue *);
+    void (*queue_destroy)(struct sched_queue *);
+
+    struct task *(*task_create)(int flags);
+    void (*task_destroy)(struct task *);
+
+    void (*task_enqueue)(struct sched_queue *, struct task *, int flags);
+    void (*task_dequeue)(struct sched_queue *, struct task *, int flags);
+
+    void (*task_tick)(struct sched_queue *, struct task *);
+    void (*task_next)(struct sched_queue *, struct task *);
+    void (*task_prev)(struct sched_queue *, struct task *);
+    struct task *(*task_pick)(struct sched_queue *);
+
+#ifdef CONFIG_SMP
+
+#endif
 };
 
-void sched_relax(void);
-state sched_register(struct sched_type *sched);
-void sched_unregister(struct sched_type *sched);
-void sched_init(void);
+extern struct sched_type *default_sched;
+
+extern void sched_relax(void);
+extern void sched_tick(void);
+
+extern state sched_task_start(struct task *task);
+struct task *sched_task_create(const char *schedn, int flags);
+extern void sched_task_destroy(struct task *task);
+
+extern state sched_register(struct sched_type *sched);
+extern void sched_unregister(struct sched_type *sched);
+extern void __init sched_init(void);
+extern void __init fork_init(void);
 
 #endif /* _KERNEL_SCHED_H_ */

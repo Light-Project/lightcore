@@ -5,7 +5,6 @@
 
 #define pr_fmt(fmt) "vmalloc: " fmt
 
-#include <state.h>
 #include <kmalloc.h>
 #include <vmalloc.h>
 #include <mm/page.h>
@@ -63,7 +62,7 @@ void *vunmap(const void *addr, int page_nr)
     }
 }
 
-static state kmalloc_get_page(struct vm_area *va, gfp_t gfp)
+static state vmalloc_get_page(struct vmalloc_area *va, gfp_t gfp)
 {
     unsigned int count;
     struct page *page;
@@ -81,7 +80,6 @@ static state kmalloc_get_page(struct vm_area *va, gfp_t gfp)
 
 fail:
     pr_err("page allocation failure\n");
-
     return -ENOMEM;
 }
 

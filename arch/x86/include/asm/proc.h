@@ -4,18 +4,20 @@
 
 #include <types.h>
 #include <state.h>
+#include <asm/regs.h>
 
 struct task;
 
 static __always_inline void cpu_relax(void)
 {
-	/*
-	 * rep nop (PAUSE) is a good thing to
-	 * insert into busy-wait loops.
-	 */
-	asm volatile("rep nop" ::: "memory");
+    /*
+     * rep nop (PAUSE) is a good thing to
+     * insert into busy-wait loops.
+     */
+    asm volatile("rep nop" ::: "memory");
 }
 
+void proc_thread_setup(struct regs *regs, size_t ip, size_t sp);
 state proc_thread_switch(struct task *prev, struct task *next);
 
 void __noreturn proc_reset(void);

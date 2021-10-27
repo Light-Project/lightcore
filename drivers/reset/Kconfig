@@ -1,5 +1,5 @@
 menuconfig RESET
-    bool "reset support"
+    bool "Reset support"
 if RESET
 
 config RESET_SUNIV

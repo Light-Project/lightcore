@@ -219,30 +219,20 @@ static state i810_probe(struct pci_device *pdev, void *pdata)
 }
 
 static const struct pci_device_id i810_ids[] = {
-    {
-        PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810_IG1),
-        .data = "Intel 82810 (i810 GMCH) SVGA controller"
-    }, {
-        PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810_IG3),
-        .data = "Intel 82810-DC100 (i810-DC100 GMCH) SVGA controller",
-    }, {
-        PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810E_IG),
-        .data = "Intel 82810E (i810E GMCH) SVGA controller"
-    }, {
-        PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82815_100),
-    }, {
-        PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82815_NOAGP),
-    }, {
-        PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82815_CGC),
-        .data = "Intel 82815 (i815 GMCH) SVGA controller",
-    }, {
-        PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x2a42),
-        .data = "Intel GM45 SVGA controller"
-    }, {
-        PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x2e32),
-        .data = "Intel G41 SVGA controller"
-    },
-
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810_IG1),
+      .data = "Intel 82810 (i810 GMCH) SVGA controller" },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810_IG3),
+      .data = "Intel 82810-DC100 (i810-DC100 GMCH) SVGA controller", },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810E_IG),
+      .data = "Intel 82810E (i810E GMCH) SVGA controller" },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82815_100) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82815_NOAGP) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82815_CGC),
+      .data = "Intel 82815 (i815 GMCH) SVGA controller" },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x2a42),
+      .data = "Intel GM45 SVGA controller" },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x2e32),
+      .data = "Intel G41 SVGA controller" },
     { }, /* NULL */
 };
 

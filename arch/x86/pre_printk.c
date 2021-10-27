@@ -22,8 +22,11 @@ struct vga_text {
     uint8_t att;
 } __packed;
 
-struct vga_text vram [yres][xres];
+struct vga_text buff [yres][xres];
 static unsigned char pos_x, pos_y;
+
+#define vram_base (pa_to_va(0xb8000))
+#define roll_size (2 * xres * (yres - 1))
 
 static inline void vga_cursor(const char pos_x, const char pos_y)
 {
@@ -34,11 +37,9 @@ static inline void vga_cursor(const char pos_x, const char pos_y)
     outb(VESA_CRT_DC, cursor);
 }
 
-#define vram_base (pa_to_va(0xb8000))
-
-static inline void vga_sync(void)
+static inline void vga_flush(void)
 {
-    memcpy(vram_base, vram, sizeof(vram));
+    memcpy(vram_base, buff, sizeof(buff));
 }
 
 static inline void vga_clear(int pos_y, int len)
@@ -46,16 +47,14 @@ static inline void vga_clear(int pos_y, int len)
     int pos_x;
     for(; len--; pos_y++)
     for(pos_x = 0; pos_x < xres; pos_x++) {
-        vram[pos_y][pos_x].ch = '\0';
-        vram[pos_y][pos_x].att = 0x07;
+        buff[pos_y][pos_x].ch = '\0';
+        buff[pos_y][pos_x].att = 0x07;
     }
 }
 
-#define roll_size (2 * xres * (yres - 1))
-
 static inline void vga_roll(void)
 {
-    memmove(&vram[0][0], &vram[1][0], roll_size);
+    memmove(&buff[0][0], &buff[1][0], roll_size);
     vga_clear(yres - 1, 1);
 }
 
@@ -75,7 +74,7 @@ static void vga_write(struct console *con, const char *str, unsigned len)
             continue;
         }
 
-        vram[pos_y][pos_x++].ch = ch;
+        buff[pos_y][pos_x++].ch = ch;
         if (pos_x >= xres) {
             pos_y++;
             pos_x = 0;
@@ -84,7 +83,7 @@ static void vga_write(struct console *con, const char *str, unsigned len)
         vga_cursor(pos_x, pos_y);
     }
 
-    vga_sync();
+    vga_flush();
 }
 
 static struct console_ops vga_console_ops = {
@@ -102,7 +101,7 @@ void pre_printk_init(void)
     vga_cursor(0, 0);
 
     vga_clear(0, yres);
-    vga_sync();
+    vga_flush();
 
     pre_console_register(&vga_console);
 }

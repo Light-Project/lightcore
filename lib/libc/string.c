@@ -483,12 +483,30 @@ __weak int memcmp(const void *s1, const void *s2, size_t n)
 }
 EXPORT_SYMBOL(memcmp);
 
+int memcount(const void *addr, int c, size_t size)
+{
+    const char *p = addr;
+    int count;
 
+    while (size--)
+        if (c == *p++)
+            count++;
 
+    return count;
+}
+EXPORT_SYMBOL(memcount);
 
+char *skip_spaces(const char *str)
+{
+	while (isspace(*str))
+		++str;
+	return (char *)str;
+}
+EXPORT_SYMBOL(skip_spaces);
 
-
-
-
-
-
+char *basename(const char *path)
+{
+    const char *c = strrchr(path, '/');
+    return (char *)(c ? c + 1 : path);
+}
+EXPORT_SYMBOL(basename);

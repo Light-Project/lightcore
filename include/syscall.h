@@ -17,6 +17,10 @@ enum syscall_number {
     SYSCALL_NR_WAITPID  = 7,
     SYSCALL_NR_CREAT    = 8,
     SYSCALL_NR_LINK     = 9,
+    SYSCALL_NR_MSGGET   = 399,
+    SYSCALL_NR_MSGSND   = 400,
+    SYSCALL_NR_MSGRCV   = 401,
+    SYSCALL_NR_MSGCTL   = 402,
     SYSCALL_NR_MAX      = 512,
 };
 

@@ -9,30 +9,47 @@
 #include <kmalloc.h>
 #include <export.h>
 
-// static struct kcache *fork_cache;
+static struct task *task_alloc()
+{
+    struct task *task;
 
-// static struct task *task_copy()
-// {
-//     struct task *task;
+    task = sched_task_create(NULL, 0);
+    if (task)
+        return NULL;
 
-//     return task;
-// }
+    if ()
+        vmallo
 
-// pid_t kernel_fork()
-// {
-//     struct task *task;
+    task->stack =
 
-// }
+}
+
+static struct task *task_copy()
+{
+    struct task *task;
+
+    task = task_alloc();
+    if (!task)
+        return NULL;
+
+    return task;
+}
+
+pid_t task_fork()
+{
+    struct task *task;
+
+}
 
 // long syscall_fork(void)
 // {
 //     return 0;
 // }
 
-// void __init fork_init(void)
-// {
-
-// }
-
 // SYSCALL_ENTRY(SYSCALL_NR_FORK, syscall_fork, 0);
 // EXPORT_SYMBOL(kernel_fork);
+
+void __init fork_init(void)
+{
+    task_cache = kcache_create("task", sizeof(struct task), KCACHE_PANIC);
+}

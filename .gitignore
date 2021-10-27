@@ -1,15 +1,31 @@
-# Prohibit git submission
+# SPDX-License-Identifier: GPL-2.0-or-later
+.*
+*.a
+*.o
+*.o.*
+*.lex.c
+*.tab.[ch]
+*.map
+*.patch
+*.gz
+*.tar
+*.xz
+*.zst
+*.dtb
+*.dtbo
+*.dtb.S
+*.lds
+*.elf
+*.bin
+*.img
 
-/.vscode/
 
 /.config
 /.config.old
-/bochsout.txt
-
 /include/config/
 /include/generated/
+/arch/*/include/generated/
+/lightcore
 
-*.o
-*.o.d
-*.cmd
-*.map
+/.vscode/
+/bochsout.txt

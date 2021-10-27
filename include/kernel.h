@@ -103,12 +103,12 @@ extern int vsnprintf(char *buf, size_t n, const char *fmt, va_list args);
 extern char *gsize(char *buff, double size);
 extern void panic(const char* fmt, ...);
 
-#define kassert(val) do {                               \
+#define kassert(val)                                    \
     if (unlikely(val)) {                                \
         printk("kassert %s:%d/%s\n" __stringify(val),   \
             __FILE__, __LINE__, __func__);              \
         panic("kassert");                               \
-    }} while (0)
+    }
 
 #endif  /* __ASSEMBLY__ */
 #endif  /* _KERNEL_H_ */

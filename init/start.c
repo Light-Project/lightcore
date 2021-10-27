@@ -74,6 +74,7 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
     cpu_irq_enable();
 
     console_init();
+    fork_init();
 
     /* late init */
     vfl_init();

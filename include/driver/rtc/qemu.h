@@ -1,0 +1,29 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#ifndef _DRIVER_RTC_QEMU_H_
+#define _DRIVER_RTC_QEMU_H_
+
+#include <driver/rtc/mc146818.h>
+
+enum qemu_rtc_registers {
+    MC146818_FLOPPY_DRIVE_TYPE   = 0x10,
+    MC146818_DISK_DATA           = 0x12,
+    MC146818_EQUIPMENT_INFO      = 0x14,
+    MC146818_DISK_DRIVE1_TYPE    = 0x19,
+    MC146818_DISK_DRIVE2_TYPE    = 0x1a,
+    MC146818_DISK_DRIVE1_CYL     = 0x1b,
+    MC146818_DISK_DRIVE2_CYL     = 0x24,
+    MC146818_MEM_EXTMEM_LOW      = 0x30,
+    MC146818_MEM_EXTMEM_HIGH     = 0x31,
+    MC146818_CENTURY             = 0x32,
+    MC146818_MEM_EXTMEM2_LOW     = 0x34,
+    MC146818_MEM_EXTMEM2_HIGH    = 0x35,
+    MC146818_BIOS_BOOTFLAG1      = 0x38,
+    MC146818_BIOS_DISKTRANSFLAG  = 0x39,
+    MC146818_BIOS_BOOTFLAG2      = 0x3d,
+    MC146818_MEM_HIGHMEM_LOW     = 0x5b,
+    MC146818_MEM_HIGHMEM_MID     = 0x5c,
+    MC146818_MEM_HIGHMEM_HIGH    = 0x5d,
+    MC146818_BIOS_SMP_COUNT      = 0x5f,
+};
+
+#endif  /* _DRIVER_RTC_QEMU_H_ */

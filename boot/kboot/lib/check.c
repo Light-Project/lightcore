@@ -21,8 +21,8 @@ void kernel_check(void *addr)
     uint32_t size = boot_head->size;
 
     pr_boot("verification info:\n");
-    pr_boot("    start: 0x%p\n", addr);
-    pr_boot("    ksize: %ld\n", size);
+    pr_boot("    start: %p\n", addr);
+    pr_boot("     size: %#x\n", size);
 
     if (strcmp((char *)&boot_head->magic, "lightcore!"))
         panic("can't find kernel!\n");

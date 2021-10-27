@@ -5,9 +5,11 @@
 #include <kernel.h>
 #include <mm/vmem.h>
 
+struct page;
+
 struct vmalloc_area {
     struct vm_area vmem;
-    struct page *page;
+    struct page **page;
 };
 
 #define vm_to_vmap(vmp) \

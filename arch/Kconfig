@@ -35,6 +35,16 @@ config ARCH_X86
     select ARCH_HAS_HIMEM
     select ARCH_HAS_KASLR
 
+config ARCH_X86_64
+    bool "X86_64"
+    select ARCH_64BIT
+    select ARCH_HAS_RELOCATABLE
+    select ARCH_HAS_PMIO
+    select ARCH_HAS_MMU
+    select ARCH_HAS_DMA
+    select ARCH_HAS_HIMEM
+    select ARCH_HAS_KASLR
+
 config ARCH_XTENSA
     bool "Xtensa"
     select ARCH_32BIT

@@ -1,4 +1,5 @@
-obj-y += font.o 
+# SPDX-License-Identifier: GPL-2.0-or-later
+obj-y += font.o
 
 obj-$(CONFIG_FONT_6X8) += font_6x8.o
 obj-$(CONFIG_FONT_6X10) += font_6x10.o

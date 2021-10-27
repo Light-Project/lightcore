@@ -6,18 +6,17 @@ menu "General setup"
 
 config DEFAULT_HOSTNAME
     string "Default hostname"
-    default "none"
+    default "lightcore"
 
 config DEFAULT_INIT
     string "Default init path"
-    default ""
+    default "init"
+
+config EXPERT
+    bool "Configure standard kernel features (expert users)"
 
 config SYSVIPC
     bool "System V IPC"
-    default y
-
-config KSHELL
-    bool "Accept kernel instructions"
     default y
 
 config SYSTICK_FREQ
@@ -25,23 +24,21 @@ config SYSTICK_FREQ
     range 100 1000
     default 1000
 
-config EXPERT
-    bool "Configure standard kernel features (expert users)"
-
 config BOOT_PARAMS
     bool "Accept kernel instructions"
     default y
 
 config BUILTIN_DTB
-    bool "builtin dtb"
+    bool "Builtin DTB"
 
 config BUILTIN_DTB_PATH
-    string "builtin dtb path"
+    string "Builtin DTB path"
     depends on BUILTIN_DTB
 
-config LOGO
-    bool "display logo on startup"
-    depends on VIDEO
+config KSHELL
+    bool "Accept kernel instructions"
     default y
 
 endmenu
+
+source "kernel/sched/Kconfig"

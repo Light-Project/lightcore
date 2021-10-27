@@ -51,22 +51,21 @@ state vfl_mkdir(struct dirent *dir, struct inode *node, umode_t mode)
     return retval;
 }
 
-// state vfl_mount(struct filesystem_type *fs, struct fsdev *fsdev, enum mount_flag flag)
-// {
-//     srtuct dcache *dir;
-//     fs->mount(fs, fsdev, flag, )
-// }
+struct superblock *vfl_mount(struct filesystem_type *fs, struct fsdev *fsdev, enum mount_flag flag)
+{
+    return fs->mount(fsdev, flag);
+}
 
-// state vfl_automount(struct fsdev *fsdev, enum mount_flag flag)
-// {
-//     struct filesystem_type *fs;
+state vfl_automount(struct fsdev *fsdev, enum mount_flag flags)
+{
+    struct filesystem_type *fs;
 
-//     filesystem_for_each(fs) {
-//         if (!vfl_mount())
-//             return -ENOERR;
-//     }
-//     return -ENXIO;
-// }
+    filesystem_for_each(fs) {
+        if (!vfl_mount(fs, fsdev, flags))
+            return -ENOERR;
+    }
+    return -ENXIO;
+}
 
 void __init vfl_init(void)
 {

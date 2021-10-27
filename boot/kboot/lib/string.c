@@ -56,16 +56,16 @@ __weak char *strrchr(const char *s, int c)
  * Memory manipulation
  */
 __weak void *memcpy(void *dest, const void* src, size_t len)
-{   
+{
     uint8_t *ndest = (uint8_t *)dest;
     uint8_t *nsrc = (uint8_t *)src;
 
     if(ndest==NULL || nsrc==NULL || len==0)
         return NULL;
-    
+
     while(len--)
         *ndest++ = *nsrc++;
-    
+
     return dest;
 }
 

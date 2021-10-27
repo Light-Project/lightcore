@@ -10,7 +10,7 @@
 #include <arch/x86/page.h>
 #include <asm/regs.h>
 
-struct pde page_dir[1024] __aligned(0x1000);
+struct pgd page_dir[1024] __aligned(0x1000);
 
 static void pde_huge_set(int index, phys_addr_t pa, bool user)
 {

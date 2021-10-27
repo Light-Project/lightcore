@@ -13,7 +13,7 @@
 #define himem_index     (CONFIG_HIGHMAP_OFFSET >> PGDIR_SHIFT)
 #define himem_pts       ((VIRTS_SIZE - CONFIG_HIGHMAP_OFFSET) >> PGDIR_SHIFT)
 
-struct pde page_dir[4096] __aligned(0x4000);
+struct pgd page_dir[4096] __aligned(0x4000);
 struct pte pt_himem[himem_pts][PTRS_PER_PTE] __aligned(0x400);
 
 /*
@@ -46,14 +46,14 @@ static void pde_set(int index, bool huge, phys_addr_t pa_pte, bool user)
 
 static void pte_set(size_t va, struct pte *val)
 {
-    struct pde *pde;
+    struct pgd *pgd;
     struct pte *pte;
     size_t index;
 
     index = pde_index(va);
-    pde = &page_dir[index];
+    pgd = &page_dir[index];
 
-    pte = pa_to_va((pde->coarse << PGDIR_COARSE_SHIFT));
+    pte = pa_to_va((pgd->coarse << PGDIR_COARSE_SHIFT));
 
     index = pte_index(va);
     pte[index] = *val;

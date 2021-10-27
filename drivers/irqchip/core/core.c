@@ -142,7 +142,7 @@ void irqchip_unregister(struct irqchip_device *idev)
         return;
 
     list_for_each_entry(child, &idev->child, sibling) {
-        bus_device_remove(child->dev);
+        bus_remove_device(child->dev);
     }
 
     list_del(&idev->list);

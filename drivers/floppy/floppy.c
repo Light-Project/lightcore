@@ -22,12 +22,17 @@
 #include <asm/proc.h>
 #include <asm/io.h>
 
+#define FD_MAX_CMD_SIZE     16
+#define FD_MAX_REPLY_SIZE   16
+#define DRIVER_PER_FDC      2
+#define FD_RESIDUE          5
+
 struct floppy_info {
     unsigned int size;      /* nr of sectors total  */
     unsigned int cylinder;  /* nr of cylinder       */
     unsigned int head;      /* head per cylinder    */
     unsigned int sector;    /* sectors per cylinder */
-
+    unsigned char gap1_size;
     unsigned char track;
     unsigned char rate;
 };
@@ -60,36 +65,72 @@ struct fdc_device {
 #define CMD_DMA         BIT(3)
 
 struct floppy_cmd {
-    uint8_t type;               /* Transmit type    */
-    unsigned char txlen;        /* Length to send   */
-    unsigned char rxlen;        /* Length to reply  */
-    unsigned char replen;       /* Actual reply     */
-    unsigned char retry;        /* Retry count      */
+    uint8_t type;               /* transmit type    */
+    unsigned char txlen;        /* length to send   */
+    unsigned char rxlen;        /* length to reply  */
+    unsigned char replen;       /* actual reply     */
+    unsigned char retry;        /* retry count      */
     uint8_t txcmd[FD_MAX_CMD_SIZE];
     uint8_t rxcmd[FD_MAX_REPLY_SIZE];
 
     /* transmit ignored */
-    struct fdd_device *fdd;     /* Which device     */
-    bool write;                 /* Read or write    */
-    char *buffer;               /* Buffer pointer   */
-    size_t buffersize;          /* Buffer len       */
+    struct fdd_device *fdd;     /* which device     */
+    bool write;                 /* read or write    */
+    char *buffer;               /* buffer pointer   */
+    size_t buffersize;          /* buffer len       */
 };
 
 static SPIN_LOCK(floppy_lock);
 static struct fdc_device *current_fdc;
 
-// static struct floppy_info floppy_type[] = {{
-//     },{ /* 1 - 360KB PC */
-//         .size =  720, .cylinder = 40, .head = 2, .sector =  9,
-//         .rate = FLOPPY_DSR_RATE_300K,
-//     },{ /* 2 - 1.2MB AT */
-//         .size = 2400, .cylinder = 80, .head = 2, .sector = 15,
-//         .rate = FLOPPY_DSR_RATE_500K,
-//     },{ /* 3 - 360KB SS */
-//         .size =  720, .cylinder = 80, .head = 1, .sector =  9,
-//         .rate = FLOPPY_DSR_RATE_250K,
-//     },
-// };
+static struct floppy_info floppy_type[] = {{
+    },{ /* 1 - 360KB PC */
+        .size =  720, .cylinder = 40, .head = 2, .sector =  9,
+        .rate = FLOPPY_DSR_RATE_300K, .gap1_size = 0x2a,
+    },{ /* 2 - 1.2MB AT */
+        .size = 2400, .cylinder = 80, .head = 2, .sector = 15,
+        .rate = FLOPPY_DSR_RATE_500K, .gap1_size = 0x1b,
+    },{ /* 3 - 720KB AT */
+        .size =  1440, .cylinder = 80, .head = 2, .sector =  9,
+        .rate = FLOPPY_DSR_RATE_250K, .gap1_size = 0x23,
+    },{ /* 4 - 1.44MB 3.5 */
+        .size =  2880, .cylinder = 80, .head = 2, .sector =  18,
+        .rate = FLOPPY_DSR_RATE_500K, .gap1_size = 0x1b,
+    },{ /* 5 - 2.88MB 3.5 */
+        .size =  5760, .cylinder = 80, .head = 2, .sector =  36,
+        .rate = FLOPPY_DSR_RATE_1M, .gap1_size = 0x1b,
+    },{ /* 6 - 160KB AT */
+        .size =  720, .cylinder = 40, .head = 2, .sector =  9,
+        .rate = FLOPPY_DSR_RATE_250K, .gap1_size = 0x1b,
+    },{ /* 7 - 180KB AT */
+        .size =  360, .cylinder = 40, .head = 2, .sector =  9,
+        .rate = FLOPPY_DSR_RATE_300K, .gap1_size = 0x1b,
+    },{ /* 8 - 320KB AT */
+        .size =  640, .cylinder = 40, .head = 1, .sector =  9,
+        .rate = FLOPPY_DSR_RATE_250K, .gap1_size = 0x1b,
+    },
+};
+
+#ifdef CONFIG_ARCH_X86
+
+#include <driver/rtc/qemu.h>
+#define RTC_BASE  0x70
+
+static void qemu_fdd_type(struct fdd_device *fdd)
+{
+    unsigned char index;
+
+    outb(RTC_BASE, MC146818_FLOPPY_DRIVE_TYPE);
+    index = inb(RTC_BASE + 1);
+    index = (index >> (fdd->port ? 4 : 0)) & 0x0f;
+
+    if (!index || index > ARRAY_SIZE(floppy_type))
+        return;
+
+    fdd->type = &floppy_type[index];
+}
+
+#endif  /* CONFIG_ARCH_X86 */
 
 static __always_inline uint8_t
 fdc_in(struct fdc_device *fdc, int reg)
@@ -125,6 +166,18 @@ static inline state fdc_wait_ready(struct fdc_device *fdc)
     return timeout ? val : -EBUSY;
 }
 
+static void fdc_reset(struct fdc_device *fdc)
+{
+    if (fdc->version >= FDC_82072A) {
+        fdc_out(fdc, FLOPPY_DSR, (fdc->dtr &
+                     FLOPPY_DSR_RATE_MASK) | FLOPPY_DSR_SWRST);
+    } else {
+        dor_mask(fdc, FLOPPY_DOR_RESET, 0);
+        udelay(20);
+        dor_mask(fdc, 0, FLOPPY_DOR_RESET);
+    }
+}
+
 static irqreturn_t floppy_interrupt(irqnr_t intnr, void *fdc)
 {
     if (!current_fdc)
@@ -146,34 +199,6 @@ static state floppy_wait_irq(struct fdc_device *fdc)
 
     fdc->irq_occur = false;
     return -ENOERR;
-}
-
-static inline state fdc_enable(struct fdc_device *fdc)
-{
-    state ret;
-
-    dor_mask(fdc, FLOPPY_DOR_RESET, FLOPPY_DOR_IRQ);
-    udelay(20);
-    dor_mask(fdc, 0, FLOPPY_DOR_RESET | FLOPPY_DOR_IRQ);
-
-    if ((ret = floppy_wait_irq(fdc))) {
-        dev_err(fdc->dev, "fail to enable\n");
-        return ret;
-    }
-
-    return -ENOERR;
-}
-
-static void fdc_reset(struct fdc_device *fdc)
-{
-    if (fdc->version >= FDC_82072A) {
-        fdc_out(fdc, FLOPPY_DSR, (fdc->dtr &
-                     FLOPPY_DSR_RATE_MASK) | FLOPPY_DSR_SWRST);
-    } else {
-        dor_mask(fdc, FLOPPY_DOR_RESET, 0);
-        udelay(20);
-        dor_mask(fdc, 0, FLOPPY_DOR_RESET);
-    }
 }
 
 static void driver_select(struct fdd_device *fdd)
@@ -200,13 +225,18 @@ static void motor_power(struct fdd_device *fdd, bool enable)
 static state floppy_transmit(struct fdc_device *fdc, struct floppy_cmd *cmd)
 {
     unsigned int timeout, count;
-    uint8_t val, residue = 5;
+    uint8_t val, residue = FD_RESIDUE;
     state ret = -ENOERR;
     cmd->retry = -1;
 
 retry:
-    if (!residue--)
+    if (residue-- != FD_RESIDUE)
+        fdc_reset(fdc);
+
+    if (!residue) {
+        dev_notice(fdc->dev, "abort transmit after five attempts\n");
         return -EBUSY;
+    }
 
     cmd->retry++;
 
@@ -230,28 +260,29 @@ retry:
                 break;
             mdelay(1);
         } if (!timeout) {
-            dev_debug(fdc->dev, "wait timeout while send data\n");
-            fdc_reset(fdc);
+            dev_notice(fdc->dev, "timeout while send data\n");
             goto retry;
         }
 
         fdc_out(fdc, FLOPPY_FIFO, cmd->txcmd[count]);
     }
 
-    if (cmd->type & CMD_PIO)
+    if (cmd->type & CMD_PIO) /* not a pio command */
         if (!(fdc_in(fdc, FLOPPY_MSR) & FLOPPY_MSR_NDMA))
             goto out;
 
 wait:
+    /* wait for command to complete */
     if (cmd->type & CMD_WAIT_IRQ) {
         if ((ret = floppy_wait_irq(fdc))) {
-            dev_warn(fdc->dev, "timeout while wait handle\n");
-            fdc_reset(fdc);
+            dev_notice(fdc->dev, "timeout while wait handle\n");
             goto retry;
         }
     }
 
-    if (cmd->type & CMD_PIO) {
+    if (cmd->type & CMD_DMA) {
+
+    } else if (cmd->type & CMD_PIO) {
         timeout = 50;
 
         while (--timeout) {
@@ -261,8 +292,7 @@ wait:
                 break;
             mdelay(1);
         } if (!timeout) {
-            dev_warn(fdc->dev, "wait timeout while transfer data\n");
-            fdc_reset(fdc);
+            dev_notice(fdc->dev, "timeout while transfer data\n");
             goto retry;
         }
 
@@ -284,7 +314,7 @@ wait:
     }
 
 out:
-    /* gets the response from the fdc */
+    /* get response from the fdc */
     while (cmd->rxlen != cmd->replen) {
         timeout = 50;
 
@@ -296,7 +326,6 @@ out:
             mdelay(1);
         } if (!timeout) {
             dev_warn(fdc->dev, "wait timeout while receive cmd\n");
-            fdc_reset(fdc);
             goto retry;
         }
 
@@ -305,20 +334,54 @@ out:
 
         if (val == (FLOPPY_MSR_RQM | FLOPPY_MSR_DIO | FLOPPY_MSR_CB))
             cmd->rxcmd[cmd->replen++] = fdc_in(fdc, FLOPPY_FIFO);
-        else {
-            fdc_reset(fdc);
+        else
             goto retry;
-        }
     }
 
     val = fdc_in(fdc, FLOPPY_MSR) & (FLOPPY_MSR_RQM |
         FLOPPY_MSR_DIO | FLOPPY_MSR_NDMA | FLOPPY_MSR_CB);
-    if (FLOPPY_MSR_RQM != val) {
-        fdc_reset(fdc);
+    if (FLOPPY_MSR_RQM != val)
         goto retry;
-    }
 
     return ret;
+}
+
+static inline state fdc_enable(struct fdc_device *fdc)
+{
+    unsigned int count = 4;
+    struct floppy_cmd cmd;
+    state ret;
+
+    dev_info(fdc->dev, "enable controller\n");
+
+    dor_mask(fdc, FLOPPY_DOR_RESET, FLOPPY_DOR_IRQ);
+    udelay(20);
+    dor_mask(fdc, 0, FLOPPY_DOR_RESET | FLOPPY_DOR_IRQ);
+
+    /*
+     * After the interrupt is received, send 4 SENSE INTERRUPT commands to
+     * clear the interrupt status for each of the four logical drives,
+     * supported by the controller.
+     * See section 7.4 - "Drive Polling" of the Intel 82077AA datasheet for
+     * a more detailed description of why this voodoo needs to be done.
+     * Without this, initialization fails on real controllers (but still works
+     * in QEMU)
+     */
+
+    memset(&cmd, 0, sizeof(cmd));
+    cmd.txlen = 1;
+    cmd.rxlen = FD_MAX_REPLY_SIZE;
+    cmd.txcmd[0] = FLOPPY_CMD_SENSE_INTERRUPT;
+
+    while (count--) {
+        ret = floppy_transmit(fdc, &cmd);
+        if (ret) {
+            dev_err(fdc->dev, "failed to enable controller\n");
+            return ret;
+        }
+    }
+
+    return -ENOERR;
 }
 
 static enum fdc_version fdc_version(struct fdc_device *fdc)
@@ -328,7 +391,7 @@ static enum fdc_version fdc_version(struct fdc_device *fdc)
 
     memset(&cmd, 0, sizeof(cmd));
     cmd.txlen = 1;
-    cmd.rxlen = 16;
+    cmd.rxlen = FD_MAX_REPLY_SIZE;
     cmd.txcmd[0] = FLOPPY_CMD_DUMPREG;
     ret = floppy_transmit(fdc, &cmd);
 
@@ -341,13 +404,13 @@ static enum fdc_version fdc_version(struct fdc_device *fdc)
     }
 
     if (cmd.replen != 10) {
-        dev_info(fdc->dev, "DUMPREGS: return of %d bytes.\n", cmd.replen);
+        dev_info(fdc->dev, "dumpregs: return of %d bytes.\n", cmd.replen);
         return FDC_UNKNOWN;
     }
 
     memset(&cmd, 0, sizeof(cmd));
     cmd.txlen = 1;
-    cmd.rxlen = 16;
+    cmd.rxlen = FD_MAX_REPLY_SIZE;
     cmd.txcmd[0] = FLOPPY_CMD_PERPENDICULAR_MODE;
     ret = floppy_transmit(fdc, &cmd);
 
@@ -358,7 +421,7 @@ static enum fdc_version fdc_version(struct fdc_device *fdc)
 
     memset(&cmd, 0, sizeof(cmd));
     cmd.txlen = 1;
-    cmd.rxlen = 16;
+    cmd.rxlen = FD_MAX_REPLY_SIZE;
     cmd.txcmd[0] = FLOPPY_CMD_LOCK;
     ret = floppy_transmit(fdc, &cmd);
 
@@ -368,18 +431,18 @@ static enum fdc_version fdc_version(struct fdc_device *fdc)
     }
 
     if ((cmd.replen != 1) && (cmd.rxcmd[0] != 0x00)) {
-        dev_info(fdc->dev, "UNLOCK: return of %d bytes.\n", cmd.replen);
+        dev_info(fdc->dev, "unlock: return of %d bytes.\n", cmd.replen);
         return FDC_UNKNOWN;
     }
 
     memset(&cmd, 0, sizeof(cmd));
     cmd.txlen = 1;
-    cmd.rxlen = 16;
+    cmd.rxlen = FD_MAX_REPLY_SIZE;
     cmd.txcmd[0] = FLOPPY_CMD_PARTID;
     ret = floppy_transmit(fdc, &cmd);
 
     if (cmd.replen != 1) {
-        dev_info(fdc->dev, "PARTID: return of %d bytes.\n", cmd.replen);
+        dev_info(fdc->dev, "partid: return of %d bytes.\n", cmd.replen);
         return FDC_UNKNOWN;
     }
 
@@ -411,14 +474,22 @@ static state fdd_detect(struct fdd_device *fdd)
 {
     struct fdc_device *fdc = fdd->host;
     struct floppy_cmd cmd;
+    state ret;
 
-    cmd.fdd = fdd;
+    memset(&cmd, 0, sizeof(cmd));
     cmd.type = CMD_DIRVER | CMD_WAIT_IRQ;
+    cmd.fdd = fdd;
+    cmd.txlen = 2;
+    cmd.rxlen = FD_MAX_REPLY_SIZE;
     cmd.txcmd[0] = FLOPPY_CMD_READ_ID;
     cmd.txcmd[1] = fdd->port;
 
     fdc_out(fdc, FLOPPY_DIR, FLOPPY_DSR_RATE_250K);
-    return floppy_transmit(fdc, &cmd);
+    ret = floppy_transmit(fdc, &cmd);
+    if (ret)
+        return ret;
+
+    return -ENOERR;
 }
 
 // static state pio_read(int fdc, int dev, void *buffer, unsigned int lba , unsigned int len)
@@ -454,11 +525,42 @@ static state fdd_detect(struct fdd_device *fdd)
 
 static state floppy_enqueue(struct block_device *blk, struct block_request *req)
 {
-    // struct fdd_device *fdd = block_to_fdd(blk);
+    struct fdd_device *fdd = block_to_fdd(blk);
+    struct fdc_device *fdc = fdd->host;
+    unsigned int mcylinder, mhead, msector;
+    unsigned int cylinder, head, sector;
+    struct floppy_cmd cmd = { };
+
+    if (fdd->type == &floppy_type[0])
+        return -ENOMEDIUM;
+
+    msector   = fdd->type->sector;
+    mhead     = fdd->type->head;
+    mcylinder = fdd->type->cylinder;
+
+    sector    = (req->sector % msector) + 1;
+    head      = (req->sector / msector) % (mhead + 1);
+    cylinder  = ((req->sector / msector) / (mhead + 1)) % (mcylinder + 1);
+
+    cmd.type     = CMD_PIO | CMD_DIRVER | CMD_WAIT_IRQ;
+    cmd.fdd      = fdd;
+    cmd.txlen    = 9;
+    cmd.rxlen    = FD_MAX_REPLY_SIZE;
+    cmd.txcmd[0] = FLOPPY_CMD_READ_DATA;
+    cmd.txcmd[5] = FLOPPY_SECTOR_SIZE_512;
+    cmd.txcmd[6] = fdd->type->gap1_size;
+    cmd.txcmd[7] = 0xff;
 
     spin_lock(&floppy_lock);
 
-
+    cmd.txcmd[1] = (head << 2) | fdd->port;
+    cmd.txcmd[2] = cylinder;
+    cmd.txcmd[3] = head;
+    cmd.txcmd[4] = sector;
+    cmd.txcmd[6] = sector + req->length;
+    cmd.buffer = req->buffer;
+    cmd.buffersize = req->length * 512;
+    floppy_transmit(fdc, &cmd);
 
     spin_unlock(&floppy_lock);
     return -ENOERR;
@@ -473,6 +575,7 @@ static state floppy_probe(struct platform_device *pdev, void *pdata)
     struct fdc_device *fdc;
     struct fdd_device *fdd;
     unsigned int count, offline;
+    state ret;
 
     if (platform_resource_type(pdev, 0) != RESOURCE_PMIO)
         return -ENODEV;
@@ -497,19 +600,26 @@ static state floppy_probe(struct platform_device *pdev, void *pdata)
     irqchip_pass(fdc->irqchip);
     irq_request(FLOPPY_IRQ, 0, floppy_interrupt, NULL, DRIVER_NAME);
 
+    if ((ret = fdc_enable(fdc)))
+        goto error;
+
     for (count = 0; count < DRIVER_PER_FDC; ++count) {
         fdd = &fdc->fdd[count];
 
         fdd->host = fdc;
         fdd->port = count;
-        fdd->block.ops = &floppy_ops;
+        fdd->type = &floppy_type[0];
 
         if (fdd_detect(fdd)) {
             offline++;
             continue;
         }
 
+        qemu_fdd_type(fdd);
+
         dev_debug(&pdev->dev, "detected port %d\n", count);
+        fdd->block.dev = &pdev->dev;
+        fdd->block.ops = &floppy_ops;
         block_device_register(&fdd->block);
     } if (offline == DRIVER_PER_FDC) {
         dev_info(&pdev->dev, "no floppy disk driver found");

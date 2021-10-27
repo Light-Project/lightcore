@@ -1,15 +1,4 @@
-/*
- *  SPDX-License-Identifier: GPL-2.0-or-later
- *  include/chip/x86/rtc.h
- *  x86 rtc register map
- *  (C) 2020 wzl finishing
- *
- *  Change Logs:
- *  Date            Notes
- *  2021-03-14      first version
- *
- */
-
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _DRIVER_RTC_MC146818_H_
 #define _DRIVER_RTC_MC146818_H_
 

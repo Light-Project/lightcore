@@ -21,7 +21,7 @@ struct dap_table {
 static inline void disk_copy(uint32_t *dest, uint32_t *src, size_t len)
 {
     len >>= 2;
-    while(len--)
+    while (len--)
         ext_writel(dest++, *src++);
 }
 
@@ -55,7 +55,7 @@ static state legacy_read(char dev, uint8_t *buf, uint32_t lba, int count)
     ir.bx = (uint16_t)(uint32_t)&bound;
     ir.dl = dev;
 
-    while(count--) {
+    while (count--) {
 
         /* Unit conversion */
         sector = (lba % msector) + 1;
@@ -67,7 +67,7 @@ static state legacy_read(char dev, uint8_t *buf, uint32_t lba, int count)
         ir.dh = (uint8_t)head;
 
         bios_int(0x13, &ir, &or);
-        if(or.ah) {
+        if (or.ah) {
             pr_boot("CHS read error: 0x%x\n", or.ah);
             return -EIO;
         }
@@ -90,12 +90,12 @@ static state lba_read(char dev, uint8_t *buf, uint32_t lba, int count)
     memset(&regs, 0, sizeof(regs));
     regs.ax = 0x41 << 8 ;
     bios_int(0x13, &regs, &regs);
-    if(regs.ah != 0x01) {
+    if (regs.ah != 0x01) {
         pr_boot("LBA not supported: %d\n", regs.ah);
         return -EIO;
     }
 
-    while(count--) {
+    while (count--) {
         /* Then we prepare the data table for LBA transmission */
         memset(&dap, 0, sizeof(dap));
         dap.size = sizeof(dap),
@@ -114,7 +114,7 @@ static state lba_read(char dev, uint8_t *buf, uint32_t lba, int count)
 
         /* Finally, LBA read transmission is initiated through int 13/42 */
         bios_int(0x13, &regs, &regs);
-        if(regs.ah) {
+        if (regs.ah) {
             pr_boot("LBA read error: 0x%x\n", regs.ah);
             return -EIO;
         }
@@ -129,7 +129,7 @@ static state lba_read(char dev, uint8_t *buf, uint32_t lba, int count)
 
 void biosdisk_read(uint8_t dev, uint8_t *buf, uint32_t lba, int count)
 {
-    if((dev < 0x80 || lba_read(dev, buf, lba, count))
+    if ((dev < 0x80 || lba_read(dev, buf, lba, count))
         && legacy_read(dev, buf, lba, count))
         panic("Biosdisk read error");
 }

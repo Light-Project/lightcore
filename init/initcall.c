@@ -27,10 +27,9 @@ static void __init do_one_initcall(initcall_entry_t *fn)
     state ret;
 
     call = initcall_from_entry(fn);
-    ret = call();
 
-    if (ret)
-        pr_err("%s error code [%d]\n", fn->name, ret);
+    if ((ret = call()))
+        pr_err("%s init failed, error code [%d]\n", fn->name, ret);
 }
 
 static void __init initcall_level(int level)
@@ -40,14 +39,15 @@ static void __init initcall_level(int level)
     pr_info("call level%d\n", level);
 
     for (fn = initcall_levels[level];
-         fn < initcall_levels[level+1]; fn++) {
+         fn < initcall_levels[level + 1];
+         fn++) {
         do_one_initcall(fn);
     }
 }
 
 void __init initcalls(void)
 {
-    int level;
+    unsigned int level;
 
     for (level = 0;
          level < ARRAY_SIZE(initcall_levels) - 1;

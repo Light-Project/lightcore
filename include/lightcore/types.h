@@ -2,9 +2,10 @@
 #ifndef _LIGHTCORE_TYPES_H_
 #define _LIGHTCORE_TYPES_H_
 
-#include <lightcore/asm/bitsperlong.h>
-
 #ifndef __ASSEMBLY__
+
+#include <lightcore/asm/types.h>
+#include <lightcore/posix.h>
 
 #ifdef __CHECKER__
 #define __bitwise__ __attribute__((bitwise))
@@ -13,25 +14,14 @@
 #endif
 #define __bitwise __bitwise__
 
-typedef signed char         int8_t;
-typedef unsigned char       uint8_t;
-typedef signed short        int16_t;
-typedef unsigned short      uint16_t;
-typedef signed int          int32_t;
-typedef unsigned int        uint32_t;
-typedef signed long long    int64_t;
-typedef unsigned long long  uint64_t;
-typedef signed long         ssize_t;
-typedef unsigned long       size_t;
+typedef __u16 __bitwise __le16;
+typedef __u32 __bitwise __le32;
+typedef __u64 __bitwise __le64;
+typedef __u16 __bitwise __be16;
+typedef __u32 __bitwise __be32;
+typedef __u64 __bitwise __be64;
 
-typedef signed int          state;
-
-typedef uint16_t __bitwise le16;
-typedef uint32_t __bitwise le32;
-typedef uint64_t __bitwise le64;
-typedef uint16_t __bitwise be16;
-typedef uint32_t __bitwise be32;
-typedef uint64_t __bitwise be64;
+typedef __signed__ int  __state;
 
 #endif /* __ASSEMBLY__ */
 #endif /* _LIGHTCORE_TYPES_H_ */

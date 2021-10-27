@@ -1,9 +1,25 @@
-menu "sched setup"
+menu "Scheduler config"
 
 config SCHED_FIFO
-    bool "FIFO scheduler support"
+    bool "FIFO Scheduler support"
 
 config SCHED_DEADLINE
-    bool "Deadline scheduler support"
+    bool "Deadline Scheduler support"
 
+choice
+    prompt "Default Scheduler choice"
+    default SCHED_DEF_RR
+
+config SCHED_DEF_RR
+    bool "Use RR as Default Scheduler"
+
+config SCHED_DEF_FIFO
+    bool "Use FIFO as Default Scheduler"
+    depends on SCHED_FIFO
+
+config SCHED_DEF_DEADLINE
+    bool "Use Deadline as Default Scheduler"
+    depends on SCHED_DEADLINE
+
+endchoice
 endmenu

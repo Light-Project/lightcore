@@ -16,8 +16,7 @@ include $(build_home)/include/define.mk
 redundant := $(filter $(mandatory-y) $(generated-y), $(generic-y))
 redundant += $(foreach f, $(generic-y), $(if $(wildcard $(obj)/$(f)),$(f)))
 redundant := $(sort $(redundant))
-$(if $(redundant),\
-	$(warning redundant generic-y found in $(obj)/Kbuild: $(redundant)))
+$(if $(redundant), $(warning redundant generic-y found in $(obj)/Kbuild: $(redundant)))
 
 # If arch does not implement mandatory headers, fallback to asm-generic ones.
 mandatory-y := $(filter-out $(generated-y), $(mandatory-y))
@@ -28,12 +27,14 @@ generated-y := $(addprefix $(obj)/, $(generated-y))
 
 unwanted    := $(filter-out $(generic-y) $(generated-y),$(old-headers))
 
+path        := $(patsubst include/%,%,$(generic))
+
 ########################################
 # Start Make                           #
 ########################################
 
 quiet_cmd_wrap = $(ECHO_WRAP) $@
-      cmd_wrap = echo "\#include <asm-generic/$*.h>" > $@
+      cmd_wrap = echo "\#include <$(path)/$*.h>" > $@
 $(obj)/%.h:
 	$(call cmd,wrap)
 

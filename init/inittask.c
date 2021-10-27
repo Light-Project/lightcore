@@ -10,7 +10,7 @@
 #include <printk.h>
 
 static const char *init_argv[] = {
-    "init", NULL
+    NULL, "init", NULL
 };
 
 static const char *init_envp[] = {
@@ -21,7 +21,17 @@ void __weak ksh_main(void) {}
 
 static bool init_run(const char *file)
 {
-    pr_info("Run %s as init process\n", file);
+	const char *const *arg;
+
+    init_argv[0] = file;
+    pr_info("run %s as init task\n", file);
+	pr_debug("  with arguments:\n");
+	for (arg = init_argv; *arg; arg++)
+		pr_debug("    %s\n", *arg);
+	pr_debug("  with environment:\n");
+	for (arg = init_envp; *arg; arg++)
+		pr_debug("    %s\n", *arg);
+
     return kernel_execve(file, init_argv, init_envp);
 }
 
@@ -29,14 +39,13 @@ void __noreturn init_task(void)
 {
     unsigned int count;
 
+    init_run(CONFIG_DEFAULT_INIT);
     init_run("/bin/init");
     init_run("/sbin/init");
     init_run("/usr/bin/init");
     init_run("/usr/sbin/init");
 
     ksh_main();
-
-    for(;;);
 
     /* Startup failed reset the machine */
     pr_emerg("No init executable found, system will reset:");

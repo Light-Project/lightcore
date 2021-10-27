@@ -6,14 +6,20 @@
 #include <initcall.h>
 #include <sched.h>
 
-void idle_task()
+static void idle_loop(void)
 {
 
 }
 
+void __noreturn idle_task_entry(void)
+{
+    for (;;)
+    idle_loop();
+}
+
 static struct sched_type idle_sched = {
     .name = "idle",
-    .priority = SCHED_IDLE_PRIO,
+    .priority = SCHED_PRIO_IDLE,
 };
 
 static state idle_sched_init(void)

@@ -22,13 +22,13 @@ enum intel_spi_resisters {
 /*      Mnemonic                        value               meaning/usage                   */
 
 #define INTEL_SPI_HSCTL_FDBC            BIT_RANGE(29, 24)   /* Flash Data Byte Count */
-#define INTEL_SPI_HSCTL_RDSD            BIT_SHIFT(8, 17)    /* FLASH Cycle: Read status */
-#define INTEL_SPI_HSCTL_WRSR            BIT_SHIFT(7, 17)    /* FLASH Cycle: Write status */
-#define INTEL_SPI_HSCTL_RDID            BIT_SHIFT(6, 17)    /* FLASH Cycle: Read JEDEC ID */
-#define INTEL_SPI_HSCTL_ERASE_64K       BIT_SHIFT(4, 17)    /* FLASH Cycle: 64k Sector erase */
-#define INTEL_SPI_HSCTL_ERASE           BIT_SHIFT(3, 17)    /* FLASH Cycle: 4k Block Erase */
-#define INTEL_SPI_HSCTL_WRITE           BIT_SHIFT(2, 17)    /* FLASH Cycle: Write (1 up to 64 bytes by setting FDBC) */
-#define INTEL_SPI_HSCTL_READ            BIT_SHIFT(0, 17)    /* FLASH Cycle: Read (1 up to 64 bytes by setting FDBC) */
+#define INTEL_SPI_HSCTL_RDSD            BIT_SHIFT(17, 8)    /* FLASH Cycle: Read status */
+#define INTEL_SPI_HSCTL_WRSR            BIT_SHIFT(17, 7)    /* FLASH Cycle: Write status */
+#define INTEL_SPI_HSCTL_RDID            BIT_SHIFT(17, 6)    /* FLASH Cycle: Read JEDEC ID */
+#define INTEL_SPI_HSCTL_ERASE_64K       BIT_SHIFT(17, 4)    /* FLASH Cycle: 64k Sector erase */
+#define INTEL_SPI_HSCTL_ERASE           BIT_SHIFT(17, 3)    /* FLASH Cycle: 4k Block Erase */
+#define INTEL_SPI_HSCTL_WRITE           BIT_SHIFT(17, 2)    /* FLASH Cycle: Write (1 up to 64 bytes by setting FDBC) */
+#define INTEL_SPI_HSCTL_READ            BIT_SHIFT(17, 0)    /* FLASH Cycle: Read (1 up to 64 bytes by setting FDBC) */
 #define INTEL_SPI_HSCTL_FCYCLE          BIT_RANGE(20, 17)   /* FLASH Cycle Mask */
 #define INTEL_SPI_HSCTL_FGO             BIT(16)             /* Flash Cycle Go */
 #define INTEL_SPI_HSCTL_FLOCKDN         BIT(15)             /* Flash Configuration Lock-Down */
