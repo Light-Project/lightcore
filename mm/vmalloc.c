@@ -6,17 +6,22 @@
 #define pr_fmt(fmt) "vmalloc: " fmt
 
 #include <kmalloc.h>
+#include <mm/vmap.h>
 #include <vmalloc.h>
-#include <mm/page.h>
 
 static struct kcache *vmalloc_cache;
 
+void *vmalloc_vmem(struct page *page, int page_nr)
+{
+
+}
+
 /**
- * vmap - mapping page arrays to contiguous virtual addresses.
+ * vmalloc_page - mapping page arrays to contiguous virtual addresses.
  * @page: page array pointer
- * @page_nr:
+ * @page_nr: number of pages to map
  */
-void *vmap(struct page *page, int page_nr)
+void *vmalloc_page(struct page *page, int page_nr)
 {
     struct vm_area *va;
     size_t size;
@@ -37,7 +42,7 @@ void *vmap(struct page *page, int page_nr)
     return va->addr;
 }
 
-void *vunmap(const void *addr, int page_nr)
+void *vfree_page(const void *addr, int page_nr)
 {
     struct vmap_arga *vmap;
     struct vm_area *vm;
@@ -45,7 +50,7 @@ void *vunmap(const void *addr, int page_nr)
     if (addr < (void *)CONFIG_HIGHMAP_OFFSET)
         return;
 
-    if(unlikely(!addr))
+    if (unlikely(!addr))
         return;
 
     vm = vmem_area_find(addr);

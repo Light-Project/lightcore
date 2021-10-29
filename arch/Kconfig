@@ -6,44 +6,37 @@ config ARCH_ARM
     bool "ARM"
     select ARCH_32BIT
     select ARCH_HAS_MMU
-    select ARCH_HAS_HIMEM
 
 config ARCH_ARM64
     bool "ARM64"
     select ARCH_64BIT
     select ARCH_HAS_MMU
-    select ARCH_HAS_HIMEM
 
 config ARCH_CSKY
     bool "C-SKY"
-    select BOOT_HAS_MAP
-    select ARCH_HAS_HIMEM
     select ARCH_32BIT
     select ARCH_HAS_MMU
 
 config ARCH_RISCV
     bool "RISC-V"
+    select ARCH_32BIT
     select ARCH_HAS_MMU
 
 config ARCH_X86
     bool "X86"
     select ARCH_32BIT
-    select ARCH_HAS_RELOCATABLE
-    select ARCH_HAS_PMIO
     select ARCH_HAS_MMU
-    select ARCH_HAS_DMA
-    select ARCH_HAS_HIMEM
+    select ARCH_HAS_RELOCATABLE
     select ARCH_HAS_KASLR
+    select ARCH_HAS_PMIO
 
 config ARCH_X86_64
     bool "X86_64"
     select ARCH_64BIT
-    select ARCH_HAS_RELOCATABLE
-    select ARCH_HAS_PMIO
     select ARCH_HAS_MMU
-    select ARCH_HAS_DMA
-    select ARCH_HAS_HIMEM
+    select ARCH_HAS_RELOCATABLE
     select ARCH_HAS_KASLR
+    select ARCH_HAS_PMIO
 
 config ARCH_XTENSA
     bool "Xtensa"
@@ -80,18 +73,6 @@ config ARCH_HAS_MMU
     bool
 
 config ARCH_HAS_PMIO
-    bool
-
-config ARCH_HAS_XIP
-    bool
-
-config ARCH_HAS_DMA
-    bool
-
-config ARCH_HAS_DMA32
-    bool
-
-config ARCH_HAS_HIMEM
     bool
 
 # Security configuration

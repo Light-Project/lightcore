@@ -19,6 +19,7 @@
     .code16
     .section .startup,"ax"
 GLOBAL(startup16)
+    cld
     cli     /* we're not safe here! */
 
     /* Normalize the memory address */
@@ -29,11 +30,11 @@ GLOBAL(startup16)
 1:  .word   0x00        # segment
 2:
 
-	/* set up %ds and %ss as offset from 0 */
+    /* set up %ds and %ss as offset from 0 */
     xorw    %ax, %ax
     movw    %ax, %ss
 
-	/* set up the stack */
+    /* set up the stack */
     movl    $_ld_stack_end, %esp
     shll    $4, %ebx
     addl    %ebx, %esp
@@ -146,16 +147,19 @@ halt_16:
     jmp     halt_16
 
     .align 16
-gdt_table:              // GDT Table
+SYM_DATA_START_LOCAL(gdt)
     .long   0x00000000  // 0x00: NULL ENTR
     .long   0x00000000  // 0x04: NULL
     .long   0x0000ffff  // 0x08: CS ENTRY
     .long   0x00cf9b00  // 0x0c: code, read/exe, 4GB, base=0
     .long   0x0000ffff  // 0x10: DS ENTRY
     .long   0x00cf9300  // 0x14: data, read/write, 4GB, base=0
-gdt_struct:
-            .word   0x0018      // GDT limit
-gdt_fix:    .long   gdt_table   // GDT addr
+SYM_DATA_END_LABEL(gdt, SYM_L_LOCAL, gdt_end)
+
+SYM_DATA_START_LOCAL(gdt_struct)
+    .word   0x0018  // GDT limit
+gdt_fix: .long gdt  // GDT addr
+
 
     .align 16
 idt_table:
@@ -211,3 +215,11 @@ GLOBAL(halt)
     cli
     hlt
 END(halt)
+
+ENTRY(startup64)
+    cld
+    cli
+
+
+
+END(startup64)

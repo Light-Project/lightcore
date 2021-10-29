@@ -21,7 +21,7 @@ struct slob_page {
 
 struct page {
     uint32_t type:4;
-    uint32_t region_type:3;
+    uint32_t region_type:2;
     uint32_t order:4;
     uint32_t free:1;
 #ifdef CONFIG_SPARCEMEM

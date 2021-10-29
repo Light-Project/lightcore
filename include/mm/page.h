@@ -6,8 +6,8 @@
 #include <mm/mm_types.h>
 #include <mm/region.h>
 
-#include <asm/page.h>
 #include <asm/bitops.h>
+#include <asm/page.h>
 
 static inline int to_order(size_t size)
 {
