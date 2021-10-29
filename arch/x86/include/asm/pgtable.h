@@ -23,160 +23,160 @@ typedef struct p4d p4d_t;
 extern struct pgd page_dir[1024];
 
 #define pte_index(va) (((va) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
-#define pde_index(va) ((va) >> PGDIR_SHIFT)
+#define pgd_index(va) ((va) >> PGDIR_SHIFT)
 
-static inline bool pgtable_pte_get_dirty(pte_t *pte)
+static inline bool pte_get_dirty(pte_t *pte)
 {
     return pte->d;
 }
 
-static inline void pgtable_pte_set_dirty(pte_t *pte, bool dirty)
+static inline void pte_set_dirty(pte_t *pte, bool dirty)
 {
     pte->d = dirty;
 }
 
-static inline bool pgtable_pte_get_accessed(pte_t *pte)
+static inline bool pte_get_accessed(pte_t *pte)
 {
     return pte->a;
 }
 
-static inline void pgtable_pte_set_accessed(pte_t *pte, bool accessed)
+static inline void pte_set_accessed(pte_t *pte, bool accessed)
 {
     pte->a = accessed;
 }
 
-static inline bool pgtable_pte_get_wrprotect(pte_t *pte)
+static inline bool pte_get_wrprotect(pte_t *pte)
 {
     return pte->rw;
 }
 
-static inline void pgtable_pte_set_wrprotect(pte_t *pte, bool wrprotect)
+static inline void pte_set_wrprotect(pte_t *pte, bool wrprotect)
 {
     pte->rw = wrprotect;
 }
 
 #if CONFIG_PAGE_LEVEL > 2
-static inline bool pgtable_pmd_get_dirty(pmd_t *pmd)
+static inline bool pmd_get_dirty(pmd_t *pmd)
 {
     return pmd->d;
 }
 
-static inline void pgtable_pmd_set_dirty(pmd_t *pmd, bool dirty)
+static inline void pmd_set_dirty(pmd_t *pmd, bool dirty)
 {
     pmd->d = dirty;
 }
 
-static inline bool pgtable_pmd_get_accessed(pmd_t *pmd)
+static inline bool pmd_get_accessed(pmd_t *pmd)
 {
     return pmd->a;
 }
 
-static inline void pgtable_pmd_set_accessed(pmd_t *pmd, bool accessed)
+static inline void pmd_set_accessed(pmd_t *pmd, bool accessed)
 {
     pmd->a = accessed;
 }
 
-static inline bool pgtable_pmd_get_wrprotect(pmd_t *pmd)
+static inline bool pmd_get_wrprotect(pmd_t *pmd)
 {
     return pmd->rw;
 }
 
-static inline void pgtable_pmd_set_wrprotect(pmd_t *pmd, bool wrprotect)
+static inline void pmd_set_wrprotect(pmd_t *pmd, bool wrprotect)
 {
     pmd->rw = wrprotect;
 }
 #endif
 
 #if CONFIG_PAGE_LEVEL > 3
-static inline bool pgtable_pud_get_dirty(pud_t *pud)
+static inline bool pud_get_dirty(pud_t *pud)
 {
     return pud->d;
 }
 
-static inline void pgtable_pud_set_dirty(pud_t *pud, bool dirty)
+static inline void pud_set_dirty(pud_t *pud, bool dirty)
 {
     pud->d = dirty;
 }
 
-static inline bool pgtable_pud_get_accessed(pud_t *pud)
+static inline bool pud_get_accessed(pud_t *pud)
 {
     return pud->a;
 }
 
-static inline void pgtable_pud_set_accessed(pud_t *pud, bool accessed)
+static inline void pud_set_accessed(pud_t *pud, bool accessed)
 {
     pud->a = accessed;
 }
 
-static inline bool pgtable_pud_get_wrprotect(pud_t *pud)
+static inline bool pud_get_wrprotect(pud_t *pud)
 {
     return pud->rw;
 }
 
-static inline void pgtable_pud_set_wrprotect(pud_t *pud, bool wrprotect)
+static inline void pud_set_wrprotect(pud_t *pud, bool wrprotect)
 {
     pud->rw = wrprotect;
 }
 #endif
 
 #if CONFIG_PAGE_LEVEL > 4
-static inline bool pgtable_p4d_get_dirty(p4d_t *p4d)
+static inline bool p4d_get_dirty(p4d_t *p4d)
 {
     return p4d->d;
 }
 
-static inline void pgtable_p4d_set_dirty(p4d_t *p4d, bool dirty)
+static inline void p4d_set_dirty(p4d_t *p4d, bool dirty)
 {
     p4d->d = dirty;
 }
 
-static inline bool pgtable_p4d_get_accessed(p4d_t *p4d)
+static inline bool p4d_get_accessed(p4d_t *p4d)
 {
     return p4d->a;
 }
 
-static inline void pgtable_p4d_set_accessed(p4d_t *p4d, bool accessed)
+static inline void p4d_set_accessed(p4d_t *p4d, bool accessed)
 {
     p4d->a = accessed;
 }
 
-static inline bool pgtable_p4d_get_wrprotect(p4d_t *p4d)
+static inline bool p4d_get_wrprotect(p4d_t *p4d)
 {
     return p4d->rw;
 }
 
-static inline void pgtable_p4d_set_wrprotect(p4d_t *p4d, bool wrprotect)
+static inline void p4d_set_wrprotect(p4d_t *p4d, bool wrprotect)
 {
     p4d->rw = wrprotect;
 }
 #endif
 
-static inline bool pgtable_pde_get_dirty(pgd_t *pgd)
+static inline bool pgd_get_dirty(pgd_t *pgd)
 {
     return pgd->d;
 }
 
-static inline void pgtable_pde_set_dirty(pgd_t *pgd, bool dirty)
+static inline void pgd_set_dirty(pgd_t *pgd, bool dirty)
 {
     pgd->d = dirty;
 }
 
-static inline bool pgtable_pde_get_accessed(pgd_t *pgd)
+static inline bool pgd_get_accessed(pgd_t *pgd)
 {
     return pgd->a;
 }
 
-static inline void pgtable_pde_set_accessed(pgd_t *pgd, bool accessed)
+static inline void pgd_set_accessed(pgd_t *pgd, bool accessed)
 {
     pgd->a = accessed;
 }
 
-static inline bool pgtable_pde_get_wrprotect(pgd_t *pgd)
+static inline bool pgd_get_wrprotect(pgd_t *pgd)
 {
     return pgd->rw;
 }
 
-static inline void pgtable_pde_set_wrprotect(pgd_t *pgd, bool wrprotect)
+static inline void pgd_set_wrprotect(pgd_t *pgd, bool wrprotect)
 {
     pgd->rw = wrprotect;
 }

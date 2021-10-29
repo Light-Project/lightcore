@@ -25,8 +25,8 @@ struct task {
     struct list_head sibling;   /* children list */
 
     struct sched_type *sched_type;
-    struct task_mm *mm;
-    struct regs *stack;
+    struct vmem_area *vmem;
+    void *stack;
 
     char priority;
     pid_t pid;

@@ -2,40 +2,40 @@
 #ifndef _ASM_X86_ATOMIC_H
 #define _ASM_X86_ATOMIC_H
 
-#include <atomic.h>
+#include <types.h>
 #include <asm/asm.h>
 #include <asm/rwonce.h>
 #include <asm/alternative.h>
 #include <asm/rmwcc.h>
 
 #define atomic_read atomic_read
-static __always_inline int atomic_read(const atomic_t *atomic)
+static __always_inline atomic_t atomic_read(const atomic_t *atomic)
 {
-    return READ_ONCE(atomic->counter);
+    return READ_ONCE(*atomic);
 }
 
 #define atomic_write atomic_write
-static __always_inline void atomic_write(atomic_t *atomic, int val)
+static __always_inline void atomic_write(atomic_t *atomic, atomic_t val)
 {
-    WRITE_ONCE(atomic->counter, val);
+    WRITE_ONCE(*atomic, val);
 }
 
 #define atomic_add atomic_add
-static __always_inline void atomic_add(atomic_t *atomic, int val)
+static __always_inline void atomic_add(atomic_t *atomic, atomic_t val)
 {
     asm volatile (
         LOCK_PREFIX "addl %1,%0"
-        :"+m" (atomic->counter)
+        :"+m" (atomic)
         :"ir" (val) :"memory"
     );
 }
 
 #define atomic_sub atomic_sub
-static __always_inline void atomic_sub(atomic_t *atomic, int val)
+static __always_inline void atomic_sub(atomic_t *atomic, atomic_t val)
 {
     asm volatile (
         LOCK_PREFIX "subl %1,%0"
-        :"+m" (atomic->counter)
+        :"+m" (atomic)
         :"ir"(val) :"memory"
     );
 }
@@ -45,7 +45,7 @@ static __always_inline void atomic_inc(atomic_t *atomic)
 {
     asm volatile (
         LOCK_PREFIX "incl %0"
-        :"+m" (atomic->counter) ::"memory"
+        :"+m" (atomic) ::"memory"
     );
 }
 
@@ -54,36 +54,36 @@ static __always_inline void atomic_dec(atomic_t *atomic)
 {
     asm volatile (
         LOCK_PREFIX "decl %0"
-        :"+m" (atomic->counter) ::"memory"
+        :"+m" (atomic) ::"memory"
     );
 }
 
 #define atomic_and atomic_and
-static __always_inline void atomic_and(int i, atomic_t *v)
+static __always_inline void atomic_and(atomic_t *atomic, atomic_t val)
 {
     asm volatile (
         LOCK_PREFIX "andl %1,%0"
-        :"+m" (v->counter)
-        :"ir" (i) :"memory"
+        :"+m" (atomic)
+        :"ir" (val) :"memory"
     );
 }
 
 #define atomic_or atomic_or
-static __always_inline void atomic_or(atomic_t *atomic, int val)
+static __always_inline void atomic_or(atomic_t *atomic, atomic_t val)
 {
     asm volatile (
         LOCK_PREFIX "orl %1,%0"
-        :"+m"(atomic->counter)
+        :"+m"(atomic)
         :"ir"(val) :"memory"
     );
 }
 
 #define atomic_xor atomic_xor
-static __always_inline void atomic_xor(atomic_t *atomic, int val)
+static __always_inline void atomic_xor(atomic_t *atomic, atomic_t val)
 {
     asm volatile (
         LOCK_PREFIX "xorl %1,%0"
-        :"+m" (atomic->counter)
+        :"+m" (atomic)
         :"ir"(val) :"memory"
     );
 }
@@ -151,10 +151,10 @@ static __always_inline void atomic_xor(atomic_t *atomic, int val)
  * true if the result is zero, or false for all
  * other cases.
  */
-#define atomic_sub_and_test atomic_sub_and_test
-static __always_inline bool atomic_sub_and_test(int i, atomic_t *v)
+#define atomic_sub_test atomic_sub_test
+static __always_inline bool atomic_sub_test(atomic_t *atomic, atomic_t nr)
 {
-    return GEN_BINARY_RMWcc(LOCK_PREFIX "subl", v->counter, e, "er", i);
+    return GEN_BINARY_RMWcc(LOCK_PREFIX "subl", atomic, e, "er", nr);
 }
 
 /**
@@ -165,10 +165,10 @@ static __always_inline bool atomic_sub_and_test(int i, atomic_t *v)
  * and returns true if the result is zero, or false for all
  * other cases.
  */
-#define atomic_inc_and_test atomic_inc_and_test
-static __always_inline bool atomic_inc_and_test(atomic_t *v)
+#define atomic_inc_test atomic_inc_test
+static __always_inline bool atomic_inc_test(atomic_t *atomic)
 {
-    return GEN_UNARY_RMWcc(LOCK_PREFIX "incl", v->counter, e);
+    return GEN_UNARY_RMWcc(LOCK_PREFIX "incl", atomic, e);
 }
 
 /**
@@ -179,26 +179,26 @@ static __always_inline bool atomic_inc_and_test(atomic_t *v)
  * returns true if the result is zero, or false for all other
  * cases.
  */
-#define atomic_dec_and_test atomic_dec_and_test
-static __always_inline bool atomic_dec_and_test(atomic_t *v)
+#define atomic_dec_test atomic_dec_test
+static __always_inline bool atomic_dec_test(atomic_t *atomic)
 {
-    return GEN_UNARY_RMWcc(LOCK_PREFIX "decl", v->counter, e);
+    return GEN_UNARY_RMWcc(LOCK_PREFIX "decl", atomic, e);
 }
 
-/**
- * atomic_add_negative - add and test if negative
- * @i: integer value to add
- * @v: pointer of type atomic_t
- *
- * Atomically adds @i to @v and returns true
- * if the result is negative, or false when
- * result is greater than or equal to zero.
- */
-#define atomic_add_negative atomic_add_negative
-static __always_inline bool atomic_add_negative(int i, atomic_t *v)
-{
-    return GEN_BINARY_RMWcc(LOCK_PREFIX "addl", v->counter, s, "er", i);
-}
+// /**
+//  * atomic_add_negative - add and test if negative
+//  * @i: integer value to add
+//  * @v: pointer of type atomic_t
+//  *
+//  * Atomically adds @i to @v and returns true
+//  * if the result is negative, or false when
+//  * result is greater than or equal to zero.
+//  */
+// #define atomic_add_negative atomic_add_negative
+// static __always_inline bool atomic_add_negative(int i, atomic_t *atomic)
+// {
+//     return GEN_BINARY_RMWcc(LOCK_PREFIX "addl", atomic, s, "er", i);
+// }
 
 // /**
 //  * atomic_add_return - add integer and return

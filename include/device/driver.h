@@ -5,7 +5,7 @@
 #include <types.h>
 #include <state.h>
 #include <device.h>
-#include <kernel/pm.h>
+#include <pm.h>
 
 struct driver {
     const char *name;

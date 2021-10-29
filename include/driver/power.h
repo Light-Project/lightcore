@@ -23,17 +23,17 @@ struct power_ops {
 
 void __noreturn power_restart(void)
 {
-    cpu_res();
+    proc_reset();
 }
 
 void __noreturn power_reset(void)
 {
-    proc_reset();
+    power_restart();
 }
 
 void __noreturn power_shutdown(void)
 {
-    cpu_shutdown();
+    proc_halt();
 }
 
 #else /* !CONFIG_POWER */

@@ -60,7 +60,7 @@ static void pte_set(size_t va, struct pte *val)
     struct pte *pte;
     size_t index;
 
-    index = pde_index(va);
+    index = pgd_index(va);
     pgd = &page_dir[index];
 
     /* Without PTE. */

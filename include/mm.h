@@ -38,8 +38,6 @@ extern char _ld_init_dtb_start;
 extern char _ld_init_dtb_end;
 extern char _ld_image_end;
 
-#define MEM_MAGIC   0xdeadbeef
-
 #define page_align(addr)    align_high(addr, PAGE_SIZE)
 #define page_aligned(addr)  align_check(addr, PAGE_SIZE)
 

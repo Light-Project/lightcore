@@ -61,6 +61,7 @@ typedef size_t          phys_addr_t;
 typedef size_t          dma_addr_t;
 typedef size_t          resource_size_t;
 
+typedef ssize_t         atomic_t;
 typedef uint64_t        sector_t;
 typedef uint64_t        blkcnt_t;
 
@@ -79,6 +80,7 @@ typedef __gid_t         gid_t;
 
 typedef __off_t         off_t;
 typedef __loff_t        loff_t;
+
 
 #endif /* __ASSEMBLY__ */
 #endif /* _TYPES_H_ */

@@ -4,7 +4,6 @@
 
 #include <types.h>
 #include <spinlock.h>
-#include <atomic.h>
 #include <list.h>
 
 struct mutex{

@@ -201,7 +201,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <sched.h>
-#include <atomic.h>
 #include <kmalloc.h>
 #include <spinlock_type.h>
 #include <export.h>

@@ -3,6 +3,11 @@
 #define _NAMESPACE_H_
 
 #include <types.h>
+#include <kmalloc.h>
+
+struct namespace_pid {
+    struct kcache *cache;
+};
 
 struct namespace_ipc {
 

@@ -11,11 +11,9 @@
 #include <kmalloc.h>
 #include <ioremap.h>
 #include <mm/vmem.h>
+#include <mm/vmap.h>
 #include <export.h>
 #include <printk.h>
-
-#include <asm/atomic.h>
-#include <asm/pgtable.h>
 
 static LIST_HEAD(ioremap_list);
 
@@ -23,7 +21,7 @@ struct ioremap_node {
     struct list_head list;
     struct vm_area vm_area;
     phys_addr_t start;
-    atomic_t count;
+    refcount_t count;
 };
 
 #define vm_to_ioremap(vm) \
@@ -82,7 +80,7 @@ static void unmap_node(size_t addr)
 
     node = vm_to_ioremap(vm);
 
-    if (atomic_dec_and_test(&node->count)) {
+    if (atomic_dec_test(&node->count)) {
         vmem_free(vm);
         list_del(&node->list);
         kfree(node);

@@ -1,4 +1,4 @@
-
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _KERNEL_PM_H_
 #define _KERNEL_PM_H_
 

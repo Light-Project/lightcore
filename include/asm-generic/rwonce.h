@@ -2,8 +2,8 @@
 #ifndef _ASM_GENERIC_RWONCE_H_
 #define _ASM_GENERIC_RWONCE_H_
 
-#define READ_ONCE(x) ({             \
-    *(volatile typeof(x) *)&(x);    \
+#define READ_ONCE(x) ({                     \
+    *(volatile typeof(x) *)&(x);            \
 })
 
 #define WRITE_ONCE(x, val) ({               \

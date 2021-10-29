@@ -4,7 +4,7 @@
 
 #include <mutex.h>
 #include <kobject.h>
-#include <kernel/pm.h>
+#include <pm.h>
 #include <device/bus.h>
 #include <device/driver.h>
 #include <device/devres.h>

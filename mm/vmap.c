@@ -10,25 +10,45 @@
 
 static inline pte_t *vmap_pte_get(p4d_t *pgd, size_t addr)
 {
+    if (unlikely(p4d_none(pgd))) {
+        if (unlikely(p4d_alloc(pgd, addr)))
+            return NULL;
+    }
 
+    return p4d_offset(pgd, addr);
 }
 
 static inline pmd_t *vmap_pmd_get(pud_t *pgd, size_t addr)
 {
+    if (unlikely(pmd_none(pgd))) {
+        if (unlikely(pmd_alloc(pgd, addr)))
+            return NULL;
+    }
 
+    return pmd_offset(pgd, addr);
 }
 
 static inline pud_t *vmap_pud_get(p4d_t *pgd, size_t addr)
 {
+    if (unlikely(pud_none(pgd))) {
+        if (unlikely(pud_alloc(pgd, addr)))
+            return NULL;
+    }
 
+    return pud_offset(pgd, addr);
 }
 
 static inline p4d_t *vmap_p4d_get(pgd_t *pgd, size_t addr)
 {
+    if (unlikely(p4d_none(pgd))) {
+        if (unlikely(p4d_alloc(pgd, addr)))
+            return NULL;
+    }
 
+    return p4d_offset(pgd, addr);
 }
 
-static state vmap_pte_range(struct pmd_t *pmd, phys_addr_t phys, size_t addr, size_t size)
+static state vmap_pte_range(struct pmd_t *pmd, phys_addr_t phys, size_t addr, size_t size, int flags)
 {
     pte_t *pte;
     size_t bound;
@@ -40,6 +60,8 @@ static state vmap_pte_range(struct pmd_t *pmd, phys_addr_t phys, size_t addr, si
 
     for (; size; phys += bound, addr += bound, size -= bound) {
         bound = pmd_bound_size(addr, size);
+
+
 
     }
 
@@ -60,7 +82,7 @@ static bool vmap_huge_pmd(struct pmd_t *pmd, phys_addr_t phys, size_t addr, size
     return true;
 }
 
-static state vmap_pmd_range(struct pud_t *pud, phys_addr_t phys, size_t addr, size_t size)
+static state vmap_pmd_range(struct pud_t *pud, phys_addr_t phys, size_t addr, size_t size, int flags)
 {
     pmd_t *pmd;
     size_t bound;
@@ -78,7 +100,7 @@ static state vmap_pmd_range(struct pud_t *pud, phys_addr_t phys, size_t addr, si
             continue;
         }
 
-        ret = vmap_pmd_range(pmd, phys, addr, size);
+        ret = vmap_pmd_range(pmd, phys, addr, size, flags);
         if (ret)
             return ret;
 
@@ -102,7 +124,7 @@ static bool vmap_huge_pud(struct pud_t *pud, phys_addr_t phys, size_t addr, size
     return true;
 }
 
-static state vmap_pud_range(struct p4d_t *p4d, phys_addr_t phys, size_t addr, size_t size)
+static state vmap_pud_range(struct p4d_t *p4d, phys_addr_t phys, size_t addr, size_t size, int flags)
 {
     pud_t *pud;
     size_t bound;
@@ -120,7 +142,7 @@ static state vmap_pud_range(struct p4d_t *p4d, phys_addr_t phys, size_t addr, si
             continue;
         }
 
-        ret = vmap_pud_range(pud, phys, addr, size);
+        ret = vmap_pud_range(pud, phys, addr, size, flags);
         if (ret)
             return ret;
 
@@ -144,7 +166,7 @@ static bool vmap_huge_p4d(struct p4d_t *p4d, phys_addr_t phys, size_t addr, size
     return true;
 }
 
-static state vmap_p4d_range(struct pgd_t *pgd, phys_addr_t phys, size_t addr, size_t size)
+static state vmap_p4d_range(struct pgd_t *pgd, phys_addr_t phys, size_t addr, size_t size, int flags)
 {
     p4d_t *p4d;
     size_t bound;
@@ -162,7 +184,7 @@ static state vmap_p4d_range(struct pgd_t *pgd, phys_addr_t phys, size_t addr, si
             continue;
         }
 
-        ret = vmap_pud_range(p4d, phys, addr, size);
+        ret = vmap_pud_range(p4d, phys, addr, size, flags);
         if (ret)
             return ret;
 
