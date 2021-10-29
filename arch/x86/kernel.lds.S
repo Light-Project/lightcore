@@ -3,11 +3,17 @@
 #include <asm-generic/kernel.lds.h>
 #include <asm/page.h>
 
+#if defined(CONFIG_ARCH_X86)
 OUTPUT_ARCH(i386)
+#elif defined(CONFIG_ARCH_X86_64)
+OUTPUT_ARCH(i386:x86-64)
+#else
+# error "unknown instruction set"
+#endif
+
 ENTRY(startup_head)
 
-SECTIONS
-{
+SECTIONS {
     . = pa_to_va(NORMAL_OFFSET);
 
     STARTUP_SECTION
@@ -33,4 +39,5 @@ SECTIONS
     /* Sections to be discarded */
     DISCARDS
 }
+
 PROVIDE(_ld_image_size = _ld_image_end - _ld_startup_start);

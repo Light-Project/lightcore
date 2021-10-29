@@ -4,8 +4,7 @@
 
 #include <kernel.h>
 #include <mm/vmem.h>
-
-struct page;
+#include <mm/page.h>
 
 struct vmalloc_area {
     struct vm_area vmem;
@@ -15,7 +14,11 @@ struct vmalloc_area {
 #define vm_to_vmap(vmp) \
     container_of(vmp, struct vmap_area, vmem)
 
+
+void __malloc *vmalloc_page(struct page *page, int page_nr);
 void __malloc *vmalloc(size_t size);
 void vfree(void *block);
+
+static inline void *vzalloc
 
 #endif  /* _MM_VMAP_H_ */

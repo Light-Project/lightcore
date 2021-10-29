@@ -51,18 +51,17 @@ static inline p4d_t *vmap_p4d_get(pgd_t *pgd, size_t addr)
 static state vmap_pte_range(struct pmd_t *pmd, phys_addr_t phys, size_t addr, size_t size, int flags)
 {
     pte_t *pte;
-    size_t bound;
+    size_t pfn;
     state ret;
 
     pte = vmap_pte_get(pmd, addr);
     if (!pte)
         return -ENOMEM;
 
-    for (; size; phys += bound, addr += bound, size -= bound) {
-        bound = pmd_bound_size(addr, size);
+    pfn = phys >> PAGE_SHIFT;
 
-
-
+    for (; size; pfn++, addr += PAGE_SIZE, size -= PAGE_SIZE) {
+        pte_set(pte, );
     }
 
     return -ENOERR;

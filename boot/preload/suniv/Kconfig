@@ -1,40 +1,40 @@
 if CHIP_SUNIV
-comment "Suniv bootloader config"
+    comment "Suniv Bootloader Config"
 
 config PRELOAD_CPU_CLK
-    int "cpu clock speed"
+    int "CPU Clock Speed"
     range 200 800
     default 480
     help
         Too high frequency will make the FEL unavailable
 
 config PRELOAD_BUS_CLK
-    int "bus clock speed"
+    int "Bus Clock Speed"
     range 150 300
     default 200
     help
         Too low a frequency will make bus unavailable
 
 config PRELOAD_DRAM_CLK
-    int "dram clock speed"
+    int "DRAM Clock Speed"
     range 24 480
     default 312
 
 config PRELOAD_SPI_CLK
-    int "norflash clock speed"
+    int "Norflash Clock Speed"
     default 20
 
 config PRELOAD_MMC
-    bool "Support boot from mmc (JTAG not available)"
+    bool "Support Boot From MMC (JTAG not available)"
     default y
-    
+
 config PRELOAD_MMC_CLK
-    int "mmc clock speed"
+    int "MMC Clock Speed"
     depends on PRELOAD_MMC
     default 20
-    
+
 config PRELOAD_UART_CLK
-    int "serial clock speed"
+    int "Serial Clock Speed"
     default 115200
 
 endif

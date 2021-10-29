@@ -8,16 +8,22 @@
 typedef struct pte pte_t;
 typedef struct pgd pgd_t;
 
-#if CONFIG_PAGE_LEVEL > 2
+#if CONFIG_PGTABLE_LEVEL > 2
 typedef struct pmd pmd_t;
+#else
+# include <asm-generic/pgtable-pmd.h>
 #endif
 
-#if CONFIG_PAGE_LEVEL > 3
+#if CONFIG_PGTABLE_LEVEL > 3
 typedef struct pud pud_t;
+#else
+# include <asm-generic/pgtable-pud.h>
 #endif
 
-#if CONFIG_PAGE_LEVEL > 4
+#if CONFIG_PGTABLE_LEVEL > 4
 typedef struct p4d p4d_t;
+#else
+# include <asm-generic/pgtable-p4d.h>
 #endif
 
 extern struct pgd page_dir[1024];
@@ -183,9 +189,5 @@ static inline void pgd_set_wrprotect(pgd_t *pgd, bool wrprotect)
 
 state arch_page_map(phys_addr_t phys_addr, size_t addr, size_t size);
 void arch_page_setup(void);
-
-#include <asm-generic/pgtable-pmd.h>
-#include <asm-generic/pgtable-pud.h>
-#include <asm-generic/pgtable-p4d.h>
 
 #endif  /* _ASM_X86_PGTABLE_H_ */
