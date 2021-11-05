@@ -27,8 +27,8 @@ void main(void)
     kernel_map();
 
     extract_kernel(pa_to_va(NORMAL_OFFSET), piggy_start, piggy_size);
-    pr_boot("Boot to kernel...");
 
     /* jmp to kernel */
+    pr_boot("boot to kernel...\n");
     kernel_start(pa_to_va(NORMAL_OFFSET));
 }

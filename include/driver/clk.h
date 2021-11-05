@@ -24,12 +24,12 @@ struct clk_ops {
 
 #ifndef CONFIG_CLK
 
-static inline state clk_register(struct clk_device *)
+static inline state clk_register(struct clk_device *clk)
 {
     return -ENOERR;
 }
 
-static inline void clk_unregister(struct clk_device *) {}
+static inline void clk_unregister(struct clk_device *clk) {}
 static inline void clk_init(void) {}
 
 #else

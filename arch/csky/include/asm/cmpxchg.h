@@ -31,6 +31,6 @@
 #define cmpxchg_relaxed(ptr, o, n)      \
         __cmpxchg_relaxed()
 
-#include <asm-gerenic/cmpxchg.h>
+#include <asm-generic/cmpxchg.h>
 
 #endif

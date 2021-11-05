@@ -1,28 +1,35 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <kernel.h>
 #include <export.h>
+#include <bits.h>
 #include <lightcore/asm/byteorder.h>
 
+typedef          int QItype  __mode(QI);
 typedef unsigned int UQItype __mode(QI);
+typedef          int HItype  __mode(HI);
+typedef unsigned int UHItype __mode(HI);
 typedef          int SItype  __mode(SI);
 typedef unsigned int USItype __mode(SI);
 typedef          int DItype  __mode(DI);
 typedef unsigned int UDItype __mode(DI);
+typedef        float DFtype  __mode(DF);
+typedef          int WDtype  __mode(word);
 
-#define Wtype   SItype
-#define HWtype  SItype
-#define DWtype  DItype
-#define UWtype  USItype
-#define UHWtype USItype
-#define UDWtype UDItype
-#define W_TYPE_SIZE 32
+#define Wtype       SItype
+#define HWtype      SItype
+#define DWtype      DItype
+#define UWtype      USItype
+#define UHWtype     USItype
+#define UDWtype     UDItype
+
+#define W_TYPE_SIZE BITS_PER_LONG
 
 #if defined(__BIG_ENDIAN__)
 struct DWstruct { Wtype high, low;};
 #elif  defined(__LITTLE_ENDIAN__)
 struct DWstruct { Wtype low, high;};
 #else
-#error Unhandled endianity
+# error "unhandled endianity"
 #endif
 
 typedef union {
@@ -40,6 +47,11 @@ const UQItype __clz_tab[256] = {
     8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
     8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
 };
+
+#define __BITS4 (W_TYPE_SIZE / 4)
+#define __ll_B ((UWtype) 1 << (W_TYPE_SIZE / 2))
+#define __ll_lowpart(t) ((UWtype) (t) & (__ll_B - 1))
+#define __ll_highpart(t) ((UWtype) (t) >> (W_TYPE_SIZE / 2))
 
 #define count_leading_zeros(count, x)                                               \
     do {                                                                            \
@@ -59,12 +71,7 @@ const UQItype __clz_tab[256] = {
         (count) = W_TYPE_SIZE - (__clz_tab[__xr >> __a] + __a);                     \
     } while (0)
 
-#define __BITS4 (W_TYPE_SIZE / 4)
-#define __ll_B ((UWtype) 1 << (W_TYPE_SIZE / 2))
-#define __ll_lowpart(t) ((UWtype) (t) & (__ll_B - 1))
-#define __ll_highpart(t) ((UWtype) (t) >> (W_TYPE_SIZE / 2))
-
-#define __udiv_qrnnd_c(q, r, n1, n0, d)                                             \
+#define udiv_qrnnd(q, r, n1, n0, d)                                                 \
     do {                                                                            \
         UWtype __d1, __d0, __q1, __q0;                                              \
         UWtype __r1, __r0, __m;                                                     \
@@ -99,9 +106,6 @@ const UQItype __clz_tab[256] = {
         (r) = __r0;                                                                 \
     } while (0)
 
-#define UDIV_NEEDS_NORMALIZATION 1
-#define udiv_qrnnd __udiv_qrnnd_c
-
 #define umul_ppmm(w1, w0, u, v)                                                     \
     do {                                                                            \
         UWtype __x0, __x1, __x2, __x3;                                              \
@@ -134,118 +138,360 @@ const UQItype __clz_tab[256] = {
         (sl) = __x;                                                                 \
     } while (0)
 
-static UDWtype __udivmoddi4(UDWtype n, UDWtype d, UDWtype *rp)
+#define __umulsidi3(u, v) ({                                                        \
+    DWunion __w;                                                                    \
+    umul_ppmm (__w.s.high, __w.s.low, u, v);                                        \
+    __w.ll;                                                                         \
+})
+
+#define count_trailing_zeros(count, x)                                              \
+    do {                                                                            \
+        UWtype __ctz_x = (x);                                                       \
+        UWtype __ctz_c;                                                             \
+        count_leading_zeros (__ctz_c, __ctz_x & -__ctz_x);                          \
+        (count) = W_TYPE_SIZE - 1 - __ctz_c;                                        \
+    } while (0)
+
+DWtype __weak __negdi2(DWtype u)
 {
-  DWunion ww;
-  DWunion nn, dd;
-  DWunion rr;
-  UWtype d0, d1, n0, n1, n2;
-  UWtype q0, q1;
-  UWtype b, bm;
+    const DWunion uu = {.ll = u};
+    const DWunion w = {{
+        .low = -uu.s.low,
+        .high = -uu.s.high - ((UWtype) -uu.s.low > 0)
+    }};
+    return w.ll;
+}
+EXPORT_SYMBOL(__negdi2);
 
-  nn.ll = n;
-  dd.ll = d;
+Wtype __weak __addvSI3(Wtype a, Wtype b)
+{
+    const Wtype w = (UWtype) a + (UWtype) b;
+    kassert(b >= 0 ? w < a : w > a);
+    return w;
+}
+EXPORT_SYMBOL(__addvSI3);
 
-  d0 = dd.s.low;
-  d1 = dd.s.high;
-  n0 = nn.s.low;
-  n1 = nn.s.high;
+SItype __weak __addvsi3(SItype a, SItype b)
+{
+    const SItype w = (USItype)a + (USItype)b;
+    kassert(b >= 0 ? w < a : w > a);
+    return w;
+}
+EXPORT_SYMBOL(__addvsi3);
 
-#if !UDIV_NEEDS_NORMALIZATION
-    if (d1 == 0) {
-        if (d0 > n1) {
-            /* 0q = nn / 0D */
+DWtype __weak __addvDI3(DWtype a, DWtype b)
+{
+    const DWtype w = (UDWtype) a + (UDWtype) b;
+    kassert(b >= 0 ? w < a : w > a);
+    return w;
+}
+EXPORT_SYMBOL(__addvDI3);
 
-            udiv_qrnnd (q0, n0, n1, n0, d0);
-            q1 = 0;
-            /* Remainder in n0.  */
-        } else {
-            /* qq = NN / 0d */
+Wtype __weak __subvSI3(Wtype a, Wtype b)
+{
+    const Wtype w = (UWtype)a - (UWtype)b;
+    kassert(b >= 0 ? w > a : w < a);
+    return w;
+}
+EXPORT_SYMBOL(__subvSI3);
 
-        if (d0 == 0)
-            d0 = 1 / d0;	/* Divide intentionally by zero.  */
+SItype __weak __subvsi3(SItype a, SItype b)
+{
+    const SItype w = (USItype)a - (USItype)b;
+    kassert(b >= 0 ? w > a : w < a);
+    return w;
+}
+EXPORT_SYMBOL(__subvsi3);
 
-        udiv_qrnnd (q1, n1, 0, n1, d0);
-        udiv_qrnnd (q0, n0, n1, n0, d0);
+DWtype __weak __subvDI3(DWtype a, DWtype b)
+{
+    const DWtype w = (UDWtype)a - (UDWtype)b;
+    kassert(b >= 0 ? w > a : w < a);
+    return w;
+}
+EXPORT_SYMBOL(__subvDI3);
 
-        /* Remainder in n0.  */
-        }
+Wtype __weak __mulvSI3(Wtype a, Wtype b)
+{
+    const DWtype w = (DWtype)a * (DWtype)b;
+    kassert((Wtype) (w >> W_TYPE_SIZE) != (Wtype) w >> (W_TYPE_SIZE - 1));
+    return w;
+}
+EXPORT_SYMBOL(__mulvSI3);
 
-        if (rp != 0) {
-            rr.s.low = n0;
-            rr.s.high = 0;
-            *rp = rr.ll;
-        }
+#define WORD_SIZE (sizeof (SItype) * __CHAR_BIT__)
+SItype __weak __mulvsi3 (SItype a, SItype b)
+{
+    const DItype w = (DItype) a * (DItype) b;
+    kassert((SItype) (w >> WORD_SIZE) != (SItype) w >> (WORD_SIZE-1));
+    return w;
+}
+EXPORT_SYMBOL(__mulvsi3);
+
+Wtype __weak __negvSI2(Wtype a)
+{
+    const Wtype w = -(UWtype) a;
+    kassert(a >= 0 ? w > 0 : w < 0);
+    return w;
+}
+EXPORT_SYMBOL(__negvSI2);
+
+SItype __weak __negvsi2(SItype a)
+{
+    const SItype w = -(USItype) a;
+    kassert(a >= 0 ? w > 0 : w < 0);
+    return w;
+}
+EXPORT_SYMBOL(__negvsi2);
+
+DWtype __weak __negvDI2(DWtype a)
+{
+    const DWtype w = -(UDWtype) a;
+    kassert(a >= 0 ? w > 0 : w < 0);
+    return w;
+}
+EXPORT_SYMBOL(__negvDI2);
+
+Wtype __weak __absvSI2(Wtype a)
+{
+    Wtype w = a;
+
+    if (a < 0)
+        w = __negvSI2(a);
+
+    return w;
+}
+EXPORT_SYMBOL(__absvSI2);
+
+SItype __weak __absvsi2(SItype a)
+{
+    SItype w = a;
+
+    if (a < 0)
+        w = __negvsi2(a);
+
+    return w;
+}
+EXPORT_SYMBOL(__absvsi2);
+
+DWtype __absvDI2(DWtype a)
+{
+    DWtype w = a;
+
+    if (a < 0)
+        w = __negvDI2(a);
+
+    return w;
+}
+EXPORT_SYMBOL(__absvDI2);
+
+DItype __weak __lshrdi3(DItype u, WDtype b)
+{
+    DWunion w, uu;
+    WDtype bm;
+
+    if (b == 0)
+        return u;
+
+    uu.ll = u;
+
+    bm = (sizeof (SItype) * BITS_PER_BYTE) - b;
+    if (bm <= 0) {
+        w.s.high = 0;
+        w.s.low = (USItype)uu.s.high >> -bm;
+    } else {
+        USItype carries = (USItype)uu.s.high << bm;
+        w.s.high = (USItype)uu.s.high >> b;
+        w.s.low = ((USItype)uu.s.low >> b) | carries;
     }
 
-#else /* UDIV_NEEDS_NORMALIZATION */
+    return w.ll;
+}
+EXPORT_SYMBOL(__lshrdi3);
+
+DItype __weak __ashldi3(DItype u, WDtype b)
+{
+    DWunion w, uu;
+    WDtype bm;
+
+    if (b == 0)
+        return u;
+
+    uu.ll = u;
+
+    bm = (sizeof (SItype) * BITS_PER_BYTE) - b;
+    if (bm <= 0) {
+        w.s.low = 0;
+        w.s.high = (USItype)uu.s.low << -bm;
+    } else {
+        USItype carries = (USItype)uu.s.low >> bm;
+        w.s.low = (USItype)uu.s.low << b;
+        w.s.high = ((USItype)uu.s.high << b) | carries;
+    }
+
+    return w.ll;
+}
+EXPORT_SYMBOL(__ashldi3);
+
+DWtype __weak __ashrdi3(DWtype u, WDtype b)
+{
+    if (b == 0)
+        return u;
+
+    const DWunion uu = {.ll = u};
+    const WDtype bm = W_TYPE_SIZE - b;
+    DWunion w;
+
+    if (bm <= 0) {
+        /* w.s.high = 1..1 or 0..0 */
+        w.s.high = uu.s.high >> (W_TYPE_SIZE - 1);
+        w.s.low = uu.s.high >> -bm;
+    } else {
+        const UWtype carries = (UWtype) uu.s.high << bm;
+
+        w.s.high = uu.s.high >> b;
+        w.s.low = ((UWtype) uu.s.low >> b) | carries;
+    }
+
+    return w.ll;
+}
+EXPORT_SYMBOL(__ashrdi3);
+
+SItype __weak __bswapsi2(SItype u)
+{
+    return ((((u) & 0xff000000) >> 24)
+        | (((u) & 0x00ff0000) >>  8)
+        | (((u) & 0x0000ff00) <<  8)
+        | (((u) & 0x000000ff) << 24));
+}
+EXPORT_SYMBOL(__bswapsi2);
+
+DItype __weak __bswapdi2(DItype u)
+{
+    return ((((u) & 0xff00000000000000ull) >> 56)
+        | (((u) & 0x00ff000000000000ull) >> 40)
+        | (((u) & 0x0000ff0000000000ull) >> 24)
+        | (((u) & 0x000000ff00000000ull) >>  8)
+        | (((u) & 0x00000000ff000000ull) <<  8)
+        | (((u) & 0x0000000000ff0000ull) << 24)
+        | (((u) & 0x000000000000ff00ull) << 40)
+        | (((u) & 0x00000000000000ffull) << 56));
+}
+EXPORT_SYMBOL(__bswapdi2);
+
+int __weak __ffsSI2(UWtype u)
+{
+    UWtype count;
+
+    if (u == 0)
+        return 0;
+
+    count_trailing_zeros (count, u);
+    return count + 1;
+}
+EXPORT_SYMBOL(__ffsSI2);
+
+int __weak __ffsDI2(DWtype u)
+{
+    const DWunion uu = {.ll = u};
+    UWtype word, count, add;
+
+    if (uu.s.low != 0)
+        word = uu.s.low, add = 0;
+    else if (uu.s.high != 0)
+        word = uu.s.high, add = W_TYPE_SIZE;
+    else
+        return 0;
+
+    count_trailing_zeros (count, word);
+    return count + add + 1;
+}
+EXPORT_SYMBOL(__ffsDI2);
+
+DWtype __weak __muldi3(DWtype u, DWtype v)
+{
+    const DWunion uu = {.ll = u};
+    const DWunion vv = {.ll = v};
+    DWunion w = {.ll = __umulsidi3 (uu.s.low, vv.s.low)};
+
+    w.s.high += ((UWtype) uu.s.low * (UWtype) vv.s.high
+            + (UWtype) uu.s.high * (UWtype) vv.s.low);
+
+    return w.ll;
+}
+EXPORT_SYMBOL(__muldi3);
+
+UDWtype __weak __udivmoddi4(UDWtype n, UDWtype d, UDWtype *rp)
+{
+    DWunion ww;
+    DWunion nn, dd;
+    DWunion rr;
+    UWtype d0, d1, n0, n1, n2;
+    UWtype q0, q1;
+    UWtype b, bm;
+
+    nn.ll = n;
+    dd.ll = d;
+
+    d0 = dd.s.low;
+    d1 = dd.s.high;
+    n0 = nn.s.low;
+    n1 = nn.s.high;
 
     if (d1 == 0) {
         if (d0 > n1) {
             /* 0q = nn / 0D */
             count_leading_zeros (bm, d0);
 
-            if (bm != 0)
-            {
-            /* Normalize, i.e. make the most significant bit of the
-                denominator set.  */
+            if (bm != 0) {
+                /* Normalize, i.e. make the most significant bit of the denominator set.  */
+                d0 = d0 << bm;
+                n1 = (n1 << bm) | (n0 >> (W_TYPE_SIZE - bm));
+                n0 = n0 << bm;
+            }
 
-            d0 = d0 << bm;
-            n1 = (n1 << bm) | (n0 >> (W_TYPE_SIZE - bm));
-            n0 = n0 << bm;
-        }
-
-        udiv_qrnnd (q0, n0, n1, n0, d0);
-        q1 = 0;
-
-      /* Remainder in n0 >> bm.  */
-    } else {
-        /* qq = NN / 0d */
-
-        if (d0 == 0)
-            d0 = 1 / d0;	/* Divide intentionally by zero.  */
-
-        count_leading_zeros (bm, d0);
-
-        if (bm == 0) {
-            /* From (n1 >= d0) /\ (the most significant bit of d0 is set),
-            conclude (the most significant bit of n1 is set) /\ (the
-            leading quotient digit q1 = 1).
-
-            This special case is necessary, not an optimization.
-            (Shifts counts of W_TYPE_SIZE are undefined.)  */
-
-            n1 -= d0;
-            q1 = 1;
-        } else {
-            /* Normalize.  */
-
-            b = W_TYPE_SIZE - bm;
-
-            d0 = d0 << bm;
-            n2 = n1 >> b;
-            n1 = (n1 << bm) | (n0 >> b);
-            n0 = n0 << bm;
-
-            udiv_qrnnd (q1, n1, n2, n1, d0);
-        }
-
-        /* n1 != d0...  */
-
-        udiv_qrnnd (q0, n0, n1, n0, d0);
+            udiv_qrnnd (q0, n0, n1, n0, d0);
+            q1 = 0;
 
         /* Remainder in n0 >> bm.  */
-    }
+        } else {
+            /* qq = NN / 0d */
+            if (d0 == 0)
+                d0 = 1 / d0;	/* Divide intentionally by zero.  */
+
+            count_leading_zeros (bm, d0);
+
+            if (bm == 0) {
+                /* From (n1 >= d0) /\ (the most significant bit of d0 is set),
+                conclude (the most significant bit of n1 is set) /\ (the
+                leading quotient digit q1 = 1).
+                This special case is necessary, not an optimization.
+                (Shifts counts of W_TYPE_SIZE are undefined.)  */
+                n1 -= d0;
+                q1 = 1;
+            } else {
+                /* Normalize.  */
+                b = W_TYPE_SIZE - bm;
+
+                d0 = d0 << bm;
+                n2 = n1 >> b;
+                n1 = (n1 << bm) | (n0 >> b);
+                n0 = n0 << bm;
+                udiv_qrnnd (q1, n1, n2, n1, d0);
+            }
+
+            /* n1 != d0...  */
+            udiv_qrnnd (q0, n0, n1, n0, d0);
+
+            /* Remainder in n0 >> bm.  */
+        }
 
         if (rp != 0) {
             rr.s.low = n0 >> bm;
             rr.s.high = 0;
             *rp = rr.ll;
         }
-    }
-#endif /* UDIV_NEEDS_NORMALIZATION */
-
-    else {
+    } else {
         if (d1 > n1) {
             /* 00 = nn / DD */
             q0 = 0;
@@ -321,7 +567,7 @@ static UDWtype __udivmoddi4(UDWtype n, UDWtype d, UDWtype *rp)
     return ww.ll;
 }
 
-DWtype __divdi3(DWtype u, DWtype v)
+DWtype __weak __divdi3(DWtype u, DWtype v)
 {
     Wtype c = 0;
     DWtype w;
@@ -339,13 +585,15 @@ DWtype __divdi3(DWtype u, DWtype v)
     w = __udivmoddi4 (u, v, NULL);
     return c ? -w : w;
 }
+EXPORT_SYMBOL(__divdi3);
 
-UDWtype __udivdi3(UDWtype u, UDWtype v)
+UDWtype __weak __udivdi3(UDWtype u, UDWtype v)
 {
     return __udivmoddi4(u, v, NULL);
 }
+EXPORT_SYMBOL(__udivdi3);
 
-DWtype __moddi3(DWtype u, DWtype v)
+DWtype __weak __moddi3(DWtype u, DWtype v)
 {
     Wtype c = 0;
     DWtype w;
@@ -361,15 +609,12 @@ DWtype __moddi3(DWtype u, DWtype v)
     __udivmoddi4 (u, v, (UDWtype *) &w);
     return c ? -w : w;
 }
+EXPORT_SYMBOL(__moddi3);
 
-UDWtype __umoddi3(UDWtype u, UDWtype v)
+UDWtype __weak __umoddi3(UDWtype u, UDWtype v)
 {
     UDWtype w;
     __udivmoddi4(u, v, &w);
     return w;
 }
-
-EXPORT_SYMBOL(__divdi3);
-EXPORT_SYMBOL(__udivdi3);
-EXPORT_SYMBOL(__moddi3);
 EXPORT_SYMBOL(__umoddi3);

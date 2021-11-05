@@ -14,6 +14,7 @@ enum memblock_type {
 };
 
 struct memblock_region {
+    const char *name;
     phys_addr_t addr;
     phys_addr_t size;
     uint8_t use:1;
@@ -21,10 +22,10 @@ struct memblock_region {
     struct list_head list;
 };
 
-state memblock_add(phys_addr_t addr, phys_addr_t size);
-state memblock_reserve(phys_addr_t addr, phys_addr_t size);
-state memblock_remove(phys_addr_t addr, size_t size);
-phys_addr_t memblock_alloc(size_t size, size_t align, phys_addr_t min_addr, phys_addr_t max_addr);
-void memblock_takeover(enum memblock_type type, bool (*fn)(struct memblock_region *));
+extern state memblock_add(const char *name, phys_addr_t addr, phys_addr_t size);
+extern state memblock_reserve(const char *name, phys_addr_t addr, phys_addr_t size);
+extern state memblock_remove(phys_addr_t addr, size_t size);
+extern phys_addr_t memblock_alloc(size_t size, size_t align, phys_addr_t min_addr, phys_addr_t max_addr);
+extern void memblock_takeover(enum memblock_type type, bool (*fn)(struct memblock_region *));
 
 #endif /* _MM_MEMBLOCK_H_ */

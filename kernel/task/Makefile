@@ -1,1 +1,2 @@
-obj-y += clone.o exec.o exit.o fork.o sleep.o waitpid.o
+obj-y += pid.o fork.o exit.o
+obj-y += exec.o sleep.o waitpid.o

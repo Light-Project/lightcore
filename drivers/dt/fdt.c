@@ -164,28 +164,28 @@ static inline struct dt_node * __init populate_bus(const void *blob, struct dt_n
     return bus;
 }
 
-struct dt_node * __init dt_populate_table(const void *table, struct dt_node *parent)
-{
+// struct dt_node * __init dt_populate_table(const void *table, struct dt_node *parent)
+// {
 
-    if (!table) {
-        pr_warn("device tree pointer NULL\n");
-        return NULL;
-    }
+//     if (!table) {
+//         pr_warn("device tree pointer NULL\n");
+//         return NULL;
+//     }
 
-    if (fdt_check_header(table)) {
-        pr_err("device tree format error\n");
-        return NULL;
-    }
+//     if (fdt_check_header(table)) {
+//         pr_err("device tree format error\n");
+//         return NULL;
+//     }
 
-    pr_info("Device tree info:\n");
-    pr_info("magic: 0x%08x\n",   fdt_magic(table));
-    pr_info("size: 0x%08x\n",    fdt_totalsize(table));
-    pr_info("version: 0x%08x\n", fdt_version(table));
+//     pr_info("Device tree info:\n");
+//     pr_info("magic: 0x%08x\n",   fdt_magic(table));
+//     pr_info("size: 0x%08x\n",    fdt_totalsize(table));
+//     pr_info("version: 0x%08x\n", fdt_version(table));
 
-    return populate_bus(table, parent);
-}
+//     return populate_bus(table, parent);
+// }
 
 void __init dt_init(void)
 {
-    dt_root = dt_populate_table(dt_start_addr, NULL);
+    dt_root = populate_bus(dt_start_addr, NULL);
 }

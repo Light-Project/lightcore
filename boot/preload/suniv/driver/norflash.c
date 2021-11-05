@@ -17,9 +17,9 @@ bool norflash_id(void)
     spi_transmit(cmd, cmd, ARRAY_SIZE(cmd));
     spi_sel(false);
 
-    pr_boot("Norflash Manufacturer: 0x%x\n", cmd[1]);
-    pr_boot("Norflash Memory Type: 0x%x\n", cmd[2]);
-    pr_boot("Norflash Capacity: 0x%x\n", cmd[3]);
+    pr_boot("norflash manufacturer: 0x%x\n", cmd[1]);
+    pr_boot("norflash memory type: 0x%x\n", cmd[2]);
+    pr_boot("norflash capacity: 0x%x\n", cmd[3]);
 
     return (cmd[1] == 0x00 && cmd[2] == 0x00 && cmd[3] == 0x00) ||
            (cmd[1] == 0xff && cmd[2] == 0xff && cmd[3] == 0xff);

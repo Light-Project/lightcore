@@ -10,10 +10,6 @@ ifdef CONFIG_CPU_HAS_TEE
 TEEEXT = t
 endif
 
-ifdef CONFIG_CPU_CK610
-CPUTYPE	= ck610
-CSKYABI	= abiv1
-endif
 
 ifdef CONFIG_CPU_CK810
 CPUTYPE = ck810
@@ -35,7 +31,7 @@ MCPU_STR = $(CPUTYPE)$(FPUEXT)$(VDSPEXT)$(TEEEXT)
 acflags-y += -mcpu=$(CPUTYPE) -Wa,-mcpu=$(MCPU_STR)
 acflags-y += -DCSKYCPU_DEF_NAME=\"$(MCPU_STR)\"
 acflags-y += -msoft-float -mdiv
-acflags-y += -fno-tree-vectorize
+acflags-y += -fno-tree-vectorize -pipe
 endif
 
 acflags-y += -pipe

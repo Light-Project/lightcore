@@ -8,17 +8,17 @@
     .section .startup,"ax"
 GLOBAL(_start)
     lrw     r1, _ld_stack_end
-    mov     r0, r1
-    
-    jmpi    main
-    jmpi    halt
+    mov     sp, r1
+
+    bsr     main
+    br      halt
 END(_start)
-  
+
 GLOBAL(kernel_start)
-    jmp     a1
+    jmp     a0
 END(kernel_start)
 
 GLOBAL(halt)
     stop
-    jmpi    halt
+    br      halt
 END(halt)

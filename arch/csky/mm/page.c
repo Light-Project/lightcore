@@ -76,9 +76,9 @@ void __init arch_page_setup(void)
 
     /* Mapping kernel space directly */
     mmu_msa0_set(CONFIG_RAM_BASE |
-                    MSA_CACHE | MSA_DIRTY | MSA_VAILD);
+                 MSA_CACHE | MSA_DIRTY | MSA_VAILD);
     mmu_msa1_set((CONFIG_RAM_BASE + 0x20000000) |
-                    MSA_CACHE | MSA_DIRTY | MSA_VAILD);
+                 MSA_CACHE | MSA_DIRTY | MSA_VAILD);
 
     /* Loading himem pte */
     for(int index = himem_index; index < PTRS_PER_PGD; ++index) {

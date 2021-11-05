@@ -341,7 +341,7 @@ static void gx6605s_remove(struct platform_device *pdev)
 }
 
 static struct dt_device_id gx6605s_ids[] = {
-    { .compatible = "csky,gx6605s-vpu" },
+    { .compatible = "nationalchip,gx6605s-vpu" },
     { }, /* NULL */
 };
 

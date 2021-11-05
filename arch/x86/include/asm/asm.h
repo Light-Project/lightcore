@@ -7,18 +7,15 @@
 # define __ASM_FORM_RAW(x)     x
 # define __ASM_FORM_COMMA(x) x,
 #else
-
 # define __ASM_FORM(x)	" " __stringify(x) " "
 # define __ASM_FORM_RAW(x)     __stringify(x)
 # define __ASM_FORM_COMMA(x) " " __stringify(x) ","
 #endif
 
-# define __ASM_SEL(a,b) __ASM_FORM(a)
-# define __ASM_SEL_RAW(a,b) __ASM_FORM_RAW(a)
-
-#define __ASM_SIZE(inst, ...)	__ASM_SEL(inst##l##__VA_ARGS__, \
-					  inst##q##__VA_ARGS__)
-#define __ASM_REG(reg)         __ASM_SEL_RAW(e##reg, r##reg)
+#define __ASM_SEL(a,b) __ASM_FORM(a)
+#define __ASM_SEL_RAW(a,b) __ASM_FORM_RAW(a)
+#define __ASM_SIZE(inst, ...) __ASM_SEL(inst##l##__VA_ARGS__, inst##q##__VA_ARGS__)
+#define __ASM_REG(reg) __ASM_SEL_RAW(e##reg, r##reg)
 
 #define _ASM_PTR	__ASM_SEL(.long, .quad)
 #define _ASM_ALIGN	__ASM_SEL(.balign 4, .balign 8)

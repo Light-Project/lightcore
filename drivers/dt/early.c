@@ -3,8 +3,11 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
+#define pr_fmt(fmt)	"efdt: " fmt
+
 #include <crc.h>
 #include <init.h>
+#include <mm.h>
 #include <mm/memblock.h>
 #include <driver/dt.h>
 #include <driver/dt/fdt.h>
@@ -44,7 +47,7 @@ static state __init dt_scan_root(unsigned long node, const char *uname, int dept
 {
     const be32 *prop;
 
-    if (depth)
+    if (depth != 0)
         return -EINVAL;
 
     prop = dt_get_prop(node, "#size-cells", NULL);
@@ -80,28 +83,43 @@ static state __init dt_scan_memory(unsigned long node, const char *uname, int de
         size = dt_read(reg, dt_root_size_cells);
         reg += dt_root_size_cells;
 
-        if (!size)
+        if (unlikely(!size))
             continue;
-        memblock_add(addr, size);
 
+        memblock_add("fdt-memory", addr, size);
         len -= (dt_root_addr_cells + dt_root_size_cells) * sizeof(be32);
     }
 
     return -ENOERR;
 }
 
-state __init early_dt_scan(void *dt_start)
+state __init early_dt_scan(void *addr)
 {
-    if (!dt_start)
-        return -EINVAL;
+    uint32_t magic, size, version;
 
-    /* Check device tree validity */
-    if (fdt_check_header(dt_start))
+    if (!addr) {
+        pr_warn("device tree pointer null\n");
         return -EINVAL;
+    }
 
-    /* Setup flat device-tree pointer */
-    dt_start_addr = dt_start;
+    if (fdt_check_header(addr)) {
+        pr_err("device tree format error %#p\n", addr);
+        return -ENODATA;
+    }
+
+    dt_start_addr = addr;
     dt_crc32 = crc32(dt_start_addr, fdt_totalsize(dt_start_addr), ~0);
+
+    magic   = fdt_magic(dt_start_addr);
+    size    = fdt_totalsize(dt_start_addr);
+    version = fdt_version(dt_start_addr);
+
+    pr_info("device tree info:\n");
+    pr_info("    magic: 0x%08x\n",   magic);
+    pr_info("     size: 0x%08x\n",    size);
+    pr_info("  version: 0x%08x\n", version);
+
+    memblock_reserve("dts", va_to_pa(addr), size);
 
     dt_scan_node(dt_scan_chosen, boot_args);
     dt_scan_node(dt_scan_root, NULL);

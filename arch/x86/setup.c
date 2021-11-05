@@ -20,11 +20,10 @@ void arch_setup(void)
     idt_setup();
     gdt_setup();
     arch_page_setup();
-
     doublefault_init();
 
     tsc_init();
 
-    memblock_reserve(0xa0000, 0x60000);
-    memblock_reserve(0xf00000, 0x100000);
+    memblock_reserve("bios", 0xa0000, 0x60000);
+    memblock_reserve("isa-hole", 0xf00000, 0x100000);
 }

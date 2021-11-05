@@ -12,7 +12,6 @@
 #include <mm/vmem.h>
 #include <export.h>
 #include <printk.h>
-
 #include <asm/page.h>
 
 static SPIN_LOCK(vm_area_lock);
@@ -33,9 +32,9 @@ struct vm_area *vmem_area_find(size_t addr)
     while (rb_node) {
         va = rb_entry(rb_node, struct vm_area, rb_node);
 
-        if ((size_t)addr < va->addr)
+        if (addr < va->addr)
             rb_node = rb_node->left;
-        else if ((size_t)addr > va->addr + va->size)
+        else if (addr > va->addr + va->size)
             rb_node = rb_node->right;
         else
             return va;
@@ -90,7 +89,7 @@ area_insert(struct vm_area *va, struct rb_root *root,
     struct rb_node *parent, **link;
 
     link = area_parent(va, root, &parent);
-    if(unlikely(!link))
+    if (unlikely(!link))
         return -EFAULT;
 
     if (likely(parent)) {
@@ -216,6 +215,11 @@ state vmem_area_alloc(struct vm_area *va, size_t size, size_t align)
     return -ENOERR;
 }
 
+void vmem_area_free(struct vm_area *va)
+{
+
+}
+
 struct vm_area *vmem_alloc_node(size_t size, size_t align, gfp_t gfp)
 {
     struct vm_area *va;
@@ -258,7 +262,8 @@ void __init __weak vmem_init(void)
     area_insert(&vmem_free_area, &vm_area_root, &vm_free_area_list, true);
 }
 
-EXPORT_SYMBOL(vmem_alloc);
-EXPORT_SYMBOL(vmem_alloc_node);
 EXPORT_SYMBOL(vmem_area_alloc);
+EXPORT_SYMBOL(vmem_area_free);
+EXPORT_SYMBOL(vmem_alloc_node);
+EXPORT_SYMBOL(vmem_alloc);
 EXPORT_SYMBOL(vmem_free);

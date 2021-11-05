@@ -117,7 +117,7 @@ void irqchip_channel_release(struct irqchip_channel *channel)
     struct irqchip_device *idev = channel->irqchip;
 
     if (irqchip_mask(channel))
-        dev_err(idev->dev, "channel%d release", channel->index);
+        dev_err(idev->dev, "channel%ld release", channel->index);
 
     list_del(&channel->list);
     dev_kfree(idev->dev, channel);

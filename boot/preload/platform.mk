@@ -17,7 +17,7 @@ ifdef CONFIG_ARCH_X86
 include-y               += bios/include/
 platform-acflags-y      := -m16
 platform-ldflags-y      := -m elf_i386
-platform-elfflags-y     := -Wl,-m elf_i386 -Wl,-T $(src)/bios/boot.lds -nostdlib
+platform-elfflags-y     := -Wl,-m elf_i386 -Wl,-T $(src)/bios/boot.lds
 endif
 
 ifdef CONFIG_CHIP_SUNIV
@@ -38,4 +38,11 @@ endif
 ifdef CONFIG_CHIP_ESP32
 include-y               += esp32/include/
 platform-elfflags-y     := -T $(src)/esp32/boot.lds
+endif
+
+ifdef CONFIG_CHIP_GX6605S
+include-y               += gx6605s/include/
+platform-acflags-y      := -mlittle-endian -mcpu=ck610 -Os
+platform-ldflags-y      := -EL
+platform-elfflags-y     := -T $(src)/gx6605s/boot.lds
 endif

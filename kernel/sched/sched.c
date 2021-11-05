@@ -5,18 +5,20 @@
 
 #define pr_fmt(fmt) "sched: " fmt
 
+#include <sched.h>
 #include <string.h>
 #include <initcall.h>
 #include <cpu.h>
 #include <sort.h>
-#include <sched.h>
 #include <export.h>
 #include <printk.h>
+
+#include <asm/percpu.h>
 #include <asm/proc.h>
 
 static LIST_HEAD(sched_list);
-static DEFINE_PERCPU(struct sched_queue, queues);
 struct sched_type *default_sched;
+DEFINE_PERCPU(struct sched_queue, queues);
 
 static int sched_sort(struct list_head *a, struct list_head *b, void *data)
 {
@@ -72,7 +74,7 @@ void sched_dispatch(void)
     struct task *curr, *next;
 
     queue = thiscpu_ptr(&queues);
-    curr = queue->current;
+    curr = queue->curr;
 
     next = sched_task_get(queue, curr);
     context_switch(NULL, curr, next);
@@ -91,7 +93,7 @@ void sched_relax(void)
 void sched_tick(void)
 {
     struct sched_queue *queue = thiscpu_ptr(&queues);
-    struct task *task = queue->current;
+    struct task *task = queue->curr;
 
     return;
     task->sched_type->task_tick(queue, task);
@@ -126,6 +128,12 @@ struct task *sched_task_create(const char *schedn, int flags)
         return task;
 
     return task;
+}
+
+void sched_task_destroy(struct task *task)
+{
+    struct sched_type *sched = task->sched_type;
+    sched->task_destroy(task);
 }
 
 void __noreturn sched_task_exit(void)

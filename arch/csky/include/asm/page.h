@@ -29,7 +29,4 @@
 
 #define SPARCE_SHIFT    24
 
-#ifndef __ASSEMBLY__
-
-#endif	/* __ASSEMBLY__ */
 #endif  /* _ASM_CSKY_PAGE_H_ */

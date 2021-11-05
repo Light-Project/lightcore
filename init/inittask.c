@@ -35,7 +35,7 @@ static bool init_run(const char *file)
     return kernel_execve(file, init_argv, init_envp);
 }
 
-void __noreturn init_task(void)
+void __noreturn user_init(void)
 {
     unsigned int count;
 

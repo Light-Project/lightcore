@@ -10,7 +10,7 @@
 #include <asm/io.h>
 #include <asm/proc.h>
 
-uint32_t pll_get_factors(uint32_t freq, uint32_t *k, uint32_t *m, uint32_t *n)
+static uint32_t pll_get_factors(uint32_t freq, uint32_t *k, uint32_t *m, uint32_t *n)
 {
     uint32_t mul, div, pll;
 

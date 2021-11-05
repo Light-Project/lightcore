@@ -40,6 +40,18 @@ cmd_disk = $(DD) if=$(obj)/preload/preload.bin of=$(obj)/disk.img bs=512 conv=no
            $(DD) if=$(obj)/kboot/boot.bin of=$(obj)/disk.img bs=512 seek=63 conv=notrunc
 endif
 
+ifneq ($(CONFIG_CHIP_GX6605S),)
+cmd_disk = $(DD) if=$(obj)/preload/preload.bin of=$(obj)/disk.img bs=512 conv=notrunc; \
+           $(DD) if=$(obj)/uImage of=$(obj)/disk.img bs=512 seek=16 conv=notrunc
+endif
+
+ifneq ($(CONFIG_CHIP_SUNIV),)
+cmd_disk = $(MAKE) $(build)=tools/sunxi/;                                       \
+           tools/sunxi/mksunxiboot $(obj)/preload.bin;                          \
+           $(DD) if=$(obj)/preload.bin of=$(obj)/disk.img bs=512 conv=notrunc;  \
+           $(DD) if=$(obj)/uImage of=$(obj)/disk.img bs=512 seek=64 conv=notrunc
+endif
+
 ifneq ($(CONFIG_CHIP_ESP8266),)
 	$(Q)tools/esp/esptool.py -c esp8266 elf2image -o $(obj)preload- $(obj)preload/preload
 	$(Q)tools/esp/esptool.py -c esp8266 image_info $(obj)preload-0x00000.bin
@@ -55,14 +67,7 @@ ifneq ($(CONFIG_CHIP_ESP32),)
 	$(Q)$(DD) if=$(obj)kernel.bin of=$(obj)disk.img bs=512 seek=64 conv=notrunc
 endif
 
-ifneq ($(CONFIG_CHIP_SUNIV),)
-cmd_disk = $(MAKE) $(build)=tools/sunxi/;                                       \
-           tools/sunxi/mksunxiboot $(obj)/preload.bin;                          \
-           $(DD) if=$(obj)/preload.bin of=$(obj)/disk.img bs=512 conv=notrunc;  \
-           $(DD) if=$(obj)/uImage of=$(obj)/disk.img bs=512 seek=64 conv=notrunc
-endif
-
-$(obj)/disk.img: $(obj)/preload/preload.bin $(obj)/kboot/boot.bin FORCE
+$(obj)/disk.img: uboot $(obj)/kboot/boot.bin FORCE
 	$(call if_changed,disk)
 disk: $(obj)/disk.img
 

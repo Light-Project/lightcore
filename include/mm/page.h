@@ -15,7 +15,7 @@ static inline int to_order(size_t size)
     }
 
     size -= 1;
-	size >>= PAGE_SHIFT;
+    size >>= PAGE_SHIFT;
 
 #if BITS_PER_LONG == 32
     return fls(size);
@@ -24,10 +24,9 @@ static inline int to_order(size_t size)
 #endif
 }
 
-
 void *page_address(const struct page *page);
-void page_add(struct region *region, struct page *page, uint order, uint order_nr);
 struct page *page_alloc(uint order, gfp_t gfp);
 void page_free(struct page *page);
+void page_add(struct region *region, struct page *page, uint order, uint order_nr);
 
 #endif  /* _MM_PAGE_H_ */

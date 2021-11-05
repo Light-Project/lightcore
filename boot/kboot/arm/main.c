@@ -16,7 +16,7 @@ void main(size_t mem_start, size_t dtb_start)
     extract_kernel(pa_to_va(NORMAL_OFFSET), piggy_start, piggy_size);
 
     head = kernel_entry;
-    head->dtb = CONFIG_PAGE_OFFSET + dtb_start;
+    head->dtb = dtb_start ? CONFIG_PAGE_OFFSET + dtb_start : 0;
 
     kernel_start(pa_to_va(NORMAL_OFFSET));
 }

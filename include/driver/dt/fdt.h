@@ -24,6 +24,6 @@ const void *dt_get_prop(unsigned long node, const char *name, int *size);
 void dt_init(void);
 
 /* early.c */
-state early_dt_scan(void *dt_start);
+state early_dt_scan(void *addr);
 
 #endif  /* _DRIVER_DT_LIBFDT_H_ */

@@ -5,13 +5,8 @@
 
 #include <linkage.h>
 #include <printk.h>
-
 #include <asm/proc.h>
-#include <asm/traps.h>
-#include <asm/recall.h>
 
-asmlinkage __visible void trap_general_protection(struct regs *regs)
+asmlinkage __visible void trap_misaligned(struct regs *regs)
 {
-    recall("general protection", regs);
-    panic("general protection");
 }

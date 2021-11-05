@@ -55,4 +55,6 @@ struct memory {
     struct pgd_t *pgdir;
 };
 
+extern struct memory init_mm;
+
 #endif  /* _MM_PAGE_DEF_H_ */

@@ -1,24 +1,18 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#ifndef _MM_VMAP_H_
-#define _MM_VMAP_H_
+#ifndef _VMALLOC_H_
+#define _VMALLOC_H_
 
 #include <kernel.h>
 #include <mm/vmem.h>
-#include <mm/page.h>
 
-struct vmalloc_area {
-    struct vm_area vmem;
-    struct page **page;
-};
+struct page;
 
-#define vm_to_vmap(vmp) \
-    container_of(vmp, struct vmap_area, vmem)
+extern void __malloc *vmalloc_page(struct page *page);
+extern void __malloc *vmalloc_node(size_t size, size_t align, gfp_t flags, int numa);
+extern void __malloc *vmalloc(size_t size);
+extern void __malloc *vzalloc(size_t size);
+extern void __nonnull(1) vfree(void *block);
 
-
-void __malloc *vmalloc_page(struct page *page, int page_nr);
-void __malloc *vmalloc(size_t size);
-void vfree(void *block);
-
-static inline void *vzalloc
+extern void __init vmalloc_init(void);
 
 #endif  /* _MM_VMAP_H_ */

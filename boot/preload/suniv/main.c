@@ -137,7 +137,7 @@ void main(void)
     uart_init(clock_uart);
     pr_init(uart_print);
 
-    pr_boot("System clock setting:\n");
+    pr_boot("system clock setting:\n");
     pr_boot("    cpu clk:    %dMhz\n", clock_cpu / MHZ);
     pr_boot("    dram clk:   %dMhz\n", clock_dram / MHZ);
     pr_boot("    periph clk: %dMhz\n", clock_periph / MHZ);

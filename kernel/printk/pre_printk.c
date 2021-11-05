@@ -3,14 +3,18 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
+#include <mm.h>
+#include <kernel.h>
 #include <printk.h>
 #include <console.h>
+#include <initcall.h>
+#include <asm-generic/header.h>
 
 static struct console *pre_console;
 
 void pre_console_write(const char *str, unsigned int len)
 {
-    if(!pre_console)
+    if (!pre_console)
         return;
     pre_console->ops->write(pre_console, str, len);
 }
@@ -37,4 +41,11 @@ void pre_console_register(struct console *con)
 
 void __weak pre_printk_init(void)
 {
+    initcall_entry_t *fn;
+    initcall_t call;
+
+    initcall_for_each_fn(fn, pconsole_initcall) {
+        call = initcall_from_entry(fn);
+        call();
+    }
 }

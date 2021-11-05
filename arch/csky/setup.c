@@ -8,6 +8,6 @@
 
 void arch_setup(void)
 {
-    arch_page_setup();
+    // arch_page_setup();
     arch_irq_init();
 }

@@ -1,26 +1,28 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
 
+#include <asm/proc.h>
+#include <asm/irq.h>
+#include <export.h>
 
-void cpu_irq_disable()
+state proc_thread_switch(struct task *prev, struct task *next)
 {
-    asm volatile("psrclr ie\n":::"memory");
+    return -ENOERR;
 }
 
-void cpu_irq_enable()
+void __noreturn proc_halt(void)
 {
-    asm volatile("psrset ee, ie\n":::"memory");
+    cpu_irq_disable();
+    for (;;)
+    asm volatile ("wait");
 }
 
-void arch_cpu_idle()
+void __noreturn proc_reset(void)
 {
-#ifdef CONFIG_CPU_PM_WAIT
-    asm volatile("wait\n");
-#endif
-
-#ifdef CONFIG_CPU_PM_DOZE
-    asm volatile("doze\n");
-#endif
-
-#ifdef CONFIG_CPU_PM_STOP
-    asm volatile("stop\n");
-#endif
+    proc_halt();
 }
+
+EXPORT_SYMBOL(proc_halt);
+EXPORT_SYMBOL(proc_reset);

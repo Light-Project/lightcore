@@ -14,9 +14,9 @@ struct rtc_device {
 };
 
 struct rtc_ops {
-    state (*read_time)(struct rtc_device *, struct rtc_time *);
+    state (*get_time)(struct rtc_device *, struct rtc_time *);
     state (*set_time)(struct rtc_device *, struct rtc_time *);
-    state (*read_alarm)(struct rtc_device *, struct rtc_alarm *);
+    state (*get_alarm)(struct rtc_device *, struct rtc_alarm *);
     state (*set_alarm)(struct rtc_device *, struct rtc_alarm *);
 };
 

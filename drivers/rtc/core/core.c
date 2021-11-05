@@ -15,11 +15,11 @@ state rtc_read_time(struct rtc_device *rtc, struct rtc_time *time)
 
     if (!rtc->ops)
         return -ENODEV;
-    if (!rtc->ops->read_time)
+    if (!rtc->ops->get_time)
         return -EINVAL;
 
     memset(time, 0, sizeof(*time));
-    retval = rtc->ops->read_time(rtc, time);
+    retval = rtc->ops->get_time(rtc, time);
     if (retval < 0) {
         pr_warn("read fail %d\n", retval);
     }

@@ -23,13 +23,13 @@ ccflags_y	+= $(ccflags-y)
 cxxflags_y	+= $(cxxflags-y)
 ldsflags_y	+= $(ldsflags-y)
 
-a_flags     = $(acflags_y) $(asflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget).o-flags-y) $(gcc-warning)
-c_flags     = $(acflags_y) $(ccflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget).o-flags-y) $(gcc-warning)
-cxx_flags   = $(cxxflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget).o-flags-y) $(gcc-warning)
-cpp_flags   = $(cppflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget).o-flags-y) $(gcc-warning)
-lds_flags   = $(ldsflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget).o-flags-y) $(gcc-warning)
+a_flags     = $(acflags_y) $(asflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y) $(gcc-warning)
+c_flags     = $(acflags_y) $(ccflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y) $(gcc-warning)
+cxx_flags   = $(cxxflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y) $(gcc-warning)
+cpp_flags   = $(cppflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y) $(gcc-warning)
+lds_flags   = $(ldsflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y) $(gcc-warning)
 
-unexport asflags-y ccflags-y cppflags-y acflags-y ldsflags-y ldflags-y
+unexport asflags-y ccflags-y cppflags-y acflags-y ldsflags-y ldflags-y gcc-warning
 export acflags_y asflags_y ccflags_y cxxflags_y ldsflags_y
 
 ########################################

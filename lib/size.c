@@ -11,16 +11,17 @@ const char *unit[] = {
     "TiB", "PiB", "EiB",
 };
 
-char *gsize(char *buff, double size)
+char *gsize(char *buff, size_t size)
 {
-    int count = 0;
+    unsigned int count = 0;
+    size_t prev;
 
     while ((size > 1024) && (count < ARRAY_SIZE(unit))) {
-        size /= 1024;
+        size = (prev = size) / 1024;
         count++;
     }
 
-    sprintf(buff, "%.2f%s", size, unit[count]);
+    sprintf(buff, "%d.%02d%s", prev, unit[count]);
     return buff;
 }
 

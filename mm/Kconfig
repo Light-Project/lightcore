@@ -54,7 +54,7 @@ config DMA32_SIZE
 
 config REGION_HIMEM
     bool "HIMEM Region"
-    depends on ARCH_HAS_HIMEM && MMU
+    depends on MMU
     help
         If direct mapping cannot access all memory, turn on
         the high-end memory option

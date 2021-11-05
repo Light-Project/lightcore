@@ -9,4 +9,5 @@
 void kernel_map(void)
 {
     mmu_msa0_set(CONFIG_RAM_BASE | MSA_CACHE | MSA_DIRTY | MSA_VAILD);
+    mmu_msa1_set(CONFIG_RAM_BASE | MSA_DIRTY | MSA_VAILD);
 }

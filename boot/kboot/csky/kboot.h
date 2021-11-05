@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-
 #ifndef _KBOOT_H_
 #define _KBOOT_H_
 
+#include <mm.h>
 #include <lib.h>
 
 #define bss_start   ((char *)ld_bss_start)
@@ -17,8 +17,7 @@
 #define heap_end    ((char *)ld_heap_end)
 #define heap_size   (heap_end - heap_start)
 
-#define page_offset  ((void *)CONFIG_PAGE_OFFSET)
-#define kernel_entry (page_offset)
+#define kernel_entry (pa_to_va(NORMAL_OFFSET))
 
 /* startup.S */
 void head(void);

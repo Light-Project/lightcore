@@ -6,13 +6,11 @@
 #define DRIVER_NAME "intel-tco"
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
-#include <mm.h>
 #include <initcall.h>
 #include <driver/platform.h>
 #include <driver/watchdog.h>
 #include <driver/watchdog/tco.h>
 #include <printk.h>
-
 #include <asm/io.h>
 
 struct tco_device {

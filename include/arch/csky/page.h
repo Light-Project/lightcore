@@ -26,7 +26,7 @@ struct pte {
         };
         uint32_t val;
     };
-};
+} __packed;
 
 #define PAGE_CACHE      0x03
 #define PAGE_UNCACHE    0x02

@@ -1,7 +1,3 @@
-/*
- * libc/crypto/sha1.c
- */
-
 #include <types.h>
 #include <string.h>
 #include <sha1.h>

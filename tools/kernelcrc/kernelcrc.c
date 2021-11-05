@@ -49,8 +49,11 @@ int main(int argc, char *argv[])
     if (boot_head == MAP_FAILED)
         error("mmap error");
 
-    if (strcmp("lightcore!", (char *)boot_head->magic))
-        error("Magic error");
+    if (strcmp("lightcore!", (char *)boot_head->magic)) {
+        close(fd);
+        remove(argv[1]);
+        error("magic error");
+    }
 
     boot_head->size = stat.st_size - sizeof(struct boot_head);
     old_crc = boot_head->crc;
@@ -59,7 +62,7 @@ int main(int argc, char *argv[])
         boot_head->crc = new_crc;
         printf("kernel crc has been fixed: 0x%x\n", boot_head->crc);
     } else
-        printf("The kernel CRC already exists");
+        printf("the kernel crc already exists");
 
     boot_head->hsize = sizeof(struct boot_head);
     old_crc = boot_head->hcrc;
@@ -70,7 +73,7 @@ int main(int argc, char *argv[])
         printf("header crc has been fixed: 0x%x\n", boot_head->hcrc);
     } else {
         boot_head->hcrc = old_crc;
-        printf("The header CRC already exists");
+        printf("the header crc already exists");
     }
 
     close(fd);

@@ -4,7 +4,8 @@
 
 #include <types.h>
 
-void *ioremap(phys_addr_t pa, size_t size);
-void iounmap(void *addr);
+extern void __malloc *ioremap(phys_addr_t pa, size_t size);
+extern void __nonnull(1) iounmap(void *addr);
+extern void __init ioremap_init(void);
 
 #endif  /* _MM_IOREMAP_H_ */

@@ -10,18 +10,6 @@
 #include <driver/usb.h>
 #include <driver/uart/ch340.h>
 
-// static __always_inline state
-// ch340_control_in(struct usb_device *udev, uint8_t req)
-// {
-
-// }
-
-// static __always_inline state
-// ch340_control_out(struct usb_device *udev, uint8_t req)
-// {
-
-// }
-
 static struct usb_device_id ch340_id_table[] = {
     { .idVendor = 0x1a86, .idProduct = 0x5512 },
     { .idVendor = 0x1a86, .idProduct = 0x5523 },
@@ -34,12 +22,11 @@ static struct usb_device_id ch340_id_table[] = {
 
 static state ch340_probe(struct usb_device *udev, int id)
 {
-
     return -ENOERR;
 }
+
 static state ch340_remove(struct usb_device *udev)
 {
-
     return -ENOERR;
 }
 

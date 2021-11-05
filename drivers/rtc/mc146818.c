@@ -176,9 +176,9 @@ static irqreturn_t mc146818_alarm_handle(irqnr_t vector, void *data)
 }
 
 static struct rtc_ops mc146818_ops = {
-    .read_time = mc146818_gettime,
+    .get_time = mc146818_gettime,
     .set_time = mc146818_settime,
-    .read_alarm = mc146818_getalarm,
+    .get_alarm = mc146818_getalarm,
     .set_alarm = mc146818_setalarm,
 };
 

@@ -28,13 +28,9 @@ struct region {
     struct page_free page_free[PAGE_ORDER_MAX + 1];
 };
 
-extern struct region region_map[];
-
-#define for_each_region(region) \
-        list_for_each_entry(region, &region_list, list)
-
-struct region *gfp_to_region(gfp_t gfp);
-struct region *pa_to_region(phys_addr_t pa);
-void region_init(void);
+extern struct region region_map[REGION_NR_MAX];
+extern struct region *gfp_to_region(gfp_t gfp);
+extern struct region *pa_to_region(phys_addr_t pa);
+extern void region_init(void);
 
 #endif /* _MM_REGION_H_ */

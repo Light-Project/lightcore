@@ -9,19 +9,17 @@
 ENTRY(_start)
 
 /* Declare storage space */
-MEMORY
-{
-  MBR       (rx)    : ORIGIN = 0x7c00,  LENGTH = 0x01be
-  DPT       (rw)    : ORIGIN = 0x7dbe,  LENGTH = 0x0040
-  SIG       (rw)    : ORIGIN = 0x7dfe,  LENGTH = 0x0002
+MEMORY {
+    MBR (rx) : ORIGIN = 0x7c00,  LENGTH = 0x01be
+    DPT (rw) : ORIGIN = 0x7dbe,  LENGTH = 0x0040
+    SIG (rw) : ORIGIN = 0x7dfe,  LENGTH = 0x0002
 
-  /* mem:  0x10000 - 0x7e00 = 0x8200 */
-  /* disk:         512 * 62 = 0x7C00 */
-  RAM       (rwx)   : ORIGIN = 0x7e00,  LENGTH = 0x7C00
+    /* mem:  0x10000 - 0x7e00 = 0x8200 */
+    /* disk:         512 * 62 = 0x7C00 */
+    RAM (rwx) : ORIGIN = 0x7e00,  LENGTH = 0x7C00
 }
 
-SECTIONS
-{
+SECTIONS {
     .setup : {
         PROVIDE(_ld_setup_start = .);
         KEEP(*(.setup))

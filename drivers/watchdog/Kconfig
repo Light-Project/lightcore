@@ -4,7 +4,10 @@ menuconfig WATCHDOG
 if WATCHDOG
 
 config WATCHDOG_ESP8266
-    bool "esp8266 watchdog support"
+    bool "ESP8266 watchdog support"
+
+config WATCHDOG_GX6605S
+    bool "GX6605S watchdog support"
 
 config WATCHDOG_TCO
     bool "Intel tco watchdog support"

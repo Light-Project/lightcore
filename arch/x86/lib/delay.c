@@ -1,8 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
+#include <types.h>
+#include <export.h>
 #include <asm/delay.h>
 #include <asm/tsc.h>
 
-static noinline void do_loop(unsigned long loops)
+void cpu_do_loop(unsigned long loops)
 {
     asm volatile (
         "test   %0, %0  \n"
@@ -20,9 +22,9 @@ static noinline void do_loop(unsigned long loops)
     );
 }
 
-noinline void cpu_const_delay(unsigned long loops)
+void cpu_const_delay(unsigned long loops)
 {
-	int d0;
+    int d0;
 
     loops *= 4;
 
@@ -32,7 +34,7 @@ noinline void cpu_const_delay(unsigned long loops)
         :"1"(loops), "0"(tsc_khz * (1000 / 4))
     );
 
-    do_loop(++loops);
+    cpu_do_loop(++loops);
 }
 
 void cpu_ndelay(unsigned long nsecs)
@@ -44,3 +46,8 @@ void cpu_udelay(unsigned long usecs)
 {
     cpu_const_delay(usecs * 4295);
 }
+
+EXPORT_SYMBOL(cpu_do_loop);
+EXPORT_SYMBOL(cpu_const_delay);
+EXPORT_SYMBOL(cpu_ndelay);
+EXPORT_SYMBOL(cpu_udelay);

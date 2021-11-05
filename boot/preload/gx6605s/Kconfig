@@ -1,0 +1,32 @@
+if CHIP_GX6605S
+    comment "GX6605S Bootloader Config"
+
+config PRELOAD_CPU_CLK
+    int "CPU Clock Speed"
+    default 540
+
+config PRELOAD_AXI_CLK
+    int "AXI Clock Speed"
+    default 270
+
+config PRELOAD_AHB_CLK
+    int "AHB Clock Speed"
+    default 135
+
+config PRELOAD_APB_CLK
+    int "APB Clock Speed"
+    default 54
+
+config PRELOAD_DRAM_CLK
+    int "DRAM Clock Speed"
+    default 400
+
+config PRELOAD_UART_CLK
+    int "Serial Clock Speed"
+    default 115200
+
+config PRELOAD_WDT
+    bool "Reboot when Panic (WDT)"
+    default n
+
+endif

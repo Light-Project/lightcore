@@ -21,6 +21,8 @@ extern void *ld_bss_end;
 extern void *ld_heap_start;
 extern void *ld_heap_end;
 
+extern void (*stdout)(const char *);
+
 size_t strlen(const char *s);
 size_t strnlen(const char *s, size_t n);
 int strcmp(const char *s1, const char *s2);

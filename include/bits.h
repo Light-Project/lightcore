@@ -17,6 +17,6 @@
 
 #define BIT_RANGE(hi, lo) \
     (((~0UL) - (1UL << (lo)) + 1) & \
-	(~0UL >> (BITS_PER_LONG - 1 - (hi))))
+    (~0UL >> (BITS_PER_LONG - 1 - (hi))))
 
 #endif  /* _BITS_H_ */

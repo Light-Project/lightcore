@@ -41,7 +41,7 @@ static state gx6605s_probe(struct platform_device *pdev, void *pdata)
 }
 
 static const struct dt_device_id gx6605_device_id[] = {
-    { .compatible = "csky,gx6605s-timer" },
+    { .compatible = "nationalchip,gx6605s-timer" },
     { }, /* NULL */
 };
 

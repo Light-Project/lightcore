@@ -1,7 +1,3 @@
-/*
- * libc/crypto/sha256.c
- */
-
 #include <types.h>
 #include <string.h>
 #include <sha256.h>

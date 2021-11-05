@@ -7,6 +7,7 @@
 
 #include <mm/memblock.h>
 #include <mm/memmodel.h>
+#include <error.h>
 #include <printk.h>
 
 #define MEMBLOCK_REGIONS 256
@@ -29,17 +30,18 @@ static inline void memblock_node_remove(struct memblock_region *region)
     region->use = false;
 }
 
-static state memblock_insert(phys_addr_t addr, size_t size, enum memblock_type type)
+static struct memblock_region *memblock_insert(phys_addr_t addr,
+                            size_t size, enum memblock_type type)
 {
     struct memblock_region *block, *next, *new, *tmp, *last = NULL;
     struct list_head *prev = NULL;
 
     if (!size)
-        return -EINVAL;
+        return ERR_PTR(-EINVAL);
 
     new = memblock_node_alloc();
     if (!new)
-        return -ENOMEM;
+        return ERR_PTR(-ENOMEM);
 
     list_for_each_entry_safe(block, next, &memblock_list, list) {
         phys_addr_t end, block_end;
@@ -124,11 +126,11 @@ static state memblock_insert(phys_addr_t addr, size_t size, enum memblock_type t
         list_del(&tmp->list);
     }
 
-    return -ENOERR;
+    return new;
 
 free:
     memblock_node_remove(new);
-    return -ENOMEM;
+    return ERR_PTR(-ENOMEM);
 }
 
 static state memblock_delete(phys_addr_t addr, size_t size)
@@ -162,8 +164,7 @@ static state memblock_delete(phys_addr_t addr, size_t size)
 }
 
 phys_addr_t memblock_alloc(size_t size, size_t align,
-                           phys_addr_t min_addr,
-                           phys_addr_t max_addr)
+            phys_addr_t min_addr, phys_addr_t max_addr)
 {
     struct memblock_region *tmp, *block = NULL;
     phys_addr_t align_start;
@@ -186,7 +187,7 @@ phys_addr_t memblock_alloc(size_t size, size_t align,
             block = tmp;
             break;
         }
-    } if (!block) {
+    } if (unlikely(!block)) {
         return 0;
     }
 
@@ -204,26 +205,40 @@ void memblock_takeover(enum memblock_type type, bool (*fn)(struct memblock_regio
     }
 }
 
-state memblock_add(phys_addr_t addr, size_t size)
+state memblock_add(const char *name, phys_addr_t addr, size_t size)
 {
     phys_addr_t end = addr + size - 1;
+    struct memblock_region *node;
 
     if (!size)
         return -EINVAL;
 
-    pr_info("add: [%lx - %lx]\n", addr, end);
-    return memblock_insert(addr, size, MEMBLOCK_USABLE);
+    pr_info("usable [%lx - %lx]: %s\n", addr, end, name);
+    node = memblock_insert(addr, size, MEMBLOCK_USABLE);
+
+    if (PTR_ERR(node))
+        return PTR_ERR(node);
+
+    node->name = name;
+    return -ENOERR;
 }
 
-state memblock_reserve(phys_addr_t addr, size_t size)
+state memblock_reserve(const char *name, phys_addr_t addr, size_t size)
 {
     phys_addr_t end = addr + size - 1;
+    struct memblock_region *node;
 
     if (!size)
         return -EINVAL;
 
-    pr_info("reserve: [%lx - %lx]\n", addr, end);
-    return memblock_insert(addr, size, MEMBLOCK_RESERVED);
+    pr_info("reserve [%lx - %lx]: %s\n", addr, end, name);
+    node = memblock_insert(addr, size, MEMBLOCK_RESERVED);
+
+    if (PTR_ERR(node))
+        return PTR_ERR(node);
+
+    node->name = name;
+    return -ENOERR;
 }
 
 state memblock_remove(phys_addr_t addr, size_t size)
@@ -233,6 +248,6 @@ state memblock_remove(phys_addr_t addr, size_t size)
     if (!size)
         return -EINVAL;
 
-    pr_info("remove: [%lx - %lx]\n", addr, end);
+    pr_info("remove [%lx - %lx]\n", addr, end);
     return memblock_delete(addr, size);
 }

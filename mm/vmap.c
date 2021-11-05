@@ -4,43 +4,43 @@
  */
 
 #include <mm.h>
-
+#include <mm/vmap.h>
 #include <asm/pgtable.h>
 #include <asm/tlb.h>
 
-static inline pte_t *vmap_pte_get(p4d_t *pgd, size_t addr)
+static inline pte_t *vmap_pte_get(pmd_t *pmd, size_t addr)
 {
-    if (unlikely(p4d_none(pgd))) {
-        if (unlikely(p4d_alloc(pgd, addr)))
+    if (unlikely(pmd_get_present(pmd))) {
+        if (unlikely(p4d_alloc(pmd, addr)))
             return NULL;
     }
 
-    return p4d_offset(pgd, addr);
+    return NULL;
 }
 
-static inline pmd_t *vmap_pmd_get(pud_t *pgd, size_t addr)
+static inline pmd_t *vmap_pmd_get(pud_t *pud, size_t addr)
 {
-    if (unlikely(pmd_none(pgd))) {
-        if (unlikely(pmd_alloc(pgd, addr)))
+    if (unlikely(pud_get_present(pud))) {
+        if (unlikely(pmd_alloc(pud, addr)))
             return NULL;
     }
 
-    return pmd_offset(pgd, addr);
+    return pmd_offset(pud, addr);
 }
 
-static inline pud_t *vmap_pud_get(p4d_t *pgd, size_t addr)
+static inline pud_t *vmap_pud_get(p4d_t *p4d, size_t addr)
 {
-    if (unlikely(pud_none(pgd))) {
-        if (unlikely(pud_alloc(pgd, addr)))
+    if (unlikely(p4d_get_present(p4d))) {
+        if (unlikely(pud_alloc(p4d, addr)))
             return NULL;
     }
 
-    return pud_offset(pgd, addr);
+    return pud_offset(p4d, addr);
 }
 
 static inline p4d_t *vmap_p4d_get(pgd_t *pgd, size_t addr)
 {
-    if (unlikely(p4d_none(pgd))) {
+    if (unlikely(pgd_get_present(pgd))) {
         if (unlikely(p4d_alloc(pgd, addr)))
             return NULL;
     }
@@ -48,7 +48,8 @@ static inline p4d_t *vmap_p4d_get(pgd_t *pgd, size_t addr)
     return p4d_offset(pgd, addr);
 }
 
-static state vmap_pte_range(struct pmd_t *pmd, phys_addr_t phys, size_t addr, size_t size, int flags)
+static state vmap_pte_range(pmd_t *pmd, phys_addr_t phys, size_t addr,
+                            size_t size, enum vmap_flags flags)
 {
     pte_t *pte;
     size_t pfn;
@@ -61,13 +62,12 @@ static state vmap_pte_range(struct pmd_t *pmd, phys_addr_t phys, size_t addr, si
     pfn = phys >> PAGE_SHIFT;
 
     for (; size; pfn++, addr += PAGE_SIZE, size -= PAGE_SIZE) {
-        pte_set(pte, );
     }
 
     return -ENOERR;
 }
 
-static bool vmap_huge_pmd(struct pmd_t *pmd, phys_addr_t phys, size_t addr, size_t size)
+static bool vmap_huge_pmd(pmd_t *pmd, phys_addr_t phys, size_t addr, size_t size)
 {
     if (!align_check(phys, PMD_SIZE))
         return false;
@@ -78,10 +78,14 @@ static bool vmap_huge_pmd(struct pmd_t *pmd, phys_addr_t phys, size_t addr, size
     if (size != PMD_SIZE)
         return false;
 
+    if (pmd_get_present(pmd))
+        return false;
+
     return true;
 }
 
-static state vmap_pmd_range(struct pud_t *pud, phys_addr_t phys, size_t addr, size_t size, int flags)
+static state vmap_pmd_range(pud_t *pud, phys_addr_t phys, size_t addr,
+                            size_t size, enum vmap_flags flags)
 {
     pmd_t *pmd;
     size_t bound;
@@ -109,7 +113,7 @@ static state vmap_pmd_range(struct pud_t *pud, phys_addr_t phys, size_t addr, si
     return -ENOERR;
 }
 
-static bool vmap_huge_pud(struct pud_t *pud, phys_addr_t phys, size_t addr, size_t size)
+static bool vmap_huge_pud(pud_t *pud, phys_addr_t phys, size_t addr, size_t size)
 {
     if (!align_check(phys, PUD_SIZE))
         return false;
@@ -120,10 +124,14 @@ static bool vmap_huge_pud(struct pud_t *pud, phys_addr_t phys, size_t addr, size
     if (size != PMD_SIZE)
         return false;
 
+    if (pud_get_present(pud))
+        return false;
+
     return true;
 }
 
-static state vmap_pud_range(struct p4d_t *p4d, phys_addr_t phys, size_t addr, size_t size, int flags)
+static state vmap_pud_range(p4d_t *p4d, phys_addr_t phys, size_t addr,
+                            size_t size, enum vmap_flags flags)
 {
     pud_t *pud;
     size_t bound;
@@ -141,7 +149,7 @@ static state vmap_pud_range(struct p4d_t *p4d, phys_addr_t phys, size_t addr, si
             continue;
         }
 
-        ret = vmap_pud_range(pud, phys, addr, size, flags);
+        ret = vmap_pmd_range(pud, phys, addr, size, flags);
         if (ret)
             return ret;
 
@@ -151,7 +159,7 @@ static state vmap_pud_range(struct p4d_t *p4d, phys_addr_t phys, size_t addr, si
     return -ENOERR;
 }
 
-static bool vmap_huge_p4d(struct p4d_t *p4d, phys_addr_t phys, size_t addr, size_t size)
+static bool vmap_huge_p4d(p4d_t *p4d, phys_addr_t phys, size_t addr, size_t size)
 {
     if (!align_check(phys, P4D_SIZE))
         return false;
@@ -162,16 +170,20 @@ static bool vmap_huge_p4d(struct p4d_t *p4d, phys_addr_t phys, size_t addr, size
     if (size != PMD_SIZE)
         return false;
 
+    if (p4d_get_present(p4d))
+        return false;
+
     return true;
 }
 
-static state vmap_p4d_range(struct pgd_t *pgd, phys_addr_t phys, size_t addr, size_t size, int flags)
+static state vmap_p4d_range(pgd_t *pgd, phys_addr_t phys, size_t addr,
+                            size_t size, enum vmap_flags flags)
 {
     p4d_t *p4d;
     size_t bound;
     state ret;
 
-    p4d = vmap_pgd_get(pgd, addr);
+    p4d = vmap_p4d_get(pgd, addr);
     if (!p4d)
         return -ENOMEM;
 
@@ -200,7 +212,29 @@ static state vmap_pgd_range(phys_addr_t phys, size_t addr, size_t size)
     return -ENOERR;
 }
 
-state vmap_page_range(struct memory *mm, phys_addr_t phys, size_t addr, size_t size)
+state vmap_range(struct memory *mm, phys_addr_t phys,
+                 size_t addr, size_t size, enum vmap_flags flags)
 {
+    return -ENOERR;
+}
 
+state vmap_pages(struct memory *mm, struct page **page,
+                 unsigned long pnr, size_t addr, enum vmap_flags flags)
+{
+    phys_addr_t start, size;
+    unsigned long count;
+    state ret;
+
+    for (count; count < pnr; ++count) {
+        start = page_to_pa(page[count]);
+        size = page_to_pa(page[count]);
+
+        ret = vmap_range(mm, start, addr, size, flags);
+        if (ret)
+            break;
+
+        addr += size;
+    }
+
+    return ret;
 }

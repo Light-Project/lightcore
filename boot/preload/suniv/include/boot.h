@@ -65,7 +65,7 @@ struct mmc_data {
 static inline void mdelay(uint32_t ms)
 {
     uint32_t loop = 4000 * ms;
-	asm volatile (
+    asm volatile (
         "1: subs %0, %1, #1\n"
         "bne 1b"
         :"=r" (loop)

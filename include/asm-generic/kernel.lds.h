@@ -144,8 +144,9 @@
     _ld_initcall_end = .;
 
 #define CONSOLE_INITCALL                                    \
-    _ld_pre_console_initcall_start = .;                     \
-    KEEP(*(.init.pre_console_initcall))                     \
+    _ld_pconsole_initcall_start = .;                        \
+    KEEP(*(.init.pconsole_initcall))                        \
+    _ld_pconsole_initcall_end = .;                          \
     _ld_console_initcall_start = .;                         \
     KEEP(*(.init.console_initcall))                         \
     _ld_console_initcall_end = .;

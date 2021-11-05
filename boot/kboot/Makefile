@@ -12,11 +12,17 @@ extra-y += kboot.lds
 include-y += $(arch)/ lib/
 
 kboot-asflags-y  += -D__ASSEMBLY__
-kboot-ccflags-y  += -std=gnu11
-kboot-acflags-y  += -ffreestanding -nostdinc -fPIC -fno-stack-protector -fno-common
+kboot-ccflags-y  += -std=gnu11  -Wall -Werror
+kboot-acflags-y  += -ffreestanding -nostdinc
+kboot-acflags-y  += -fPIC -fno-stack-protector -fno-common
 kboot-ldsflags-y += -D__ASSEMBLY__
 kboot-elfflags-y += -T $(obj)/kboot.lds -Wl,-Map=$@.map
 kboot-elfflags-y += -Wl,--no-dynamic-linker -nostdlib
+
+ifdef CONFIG_KERNEL_DEBUG
+kboot-acflags-y  += -g
+kboot-elfflags-y += -g
+endif
 
 asflags-y   = $(strip $(kboot-asflags-y) $(platform-asflags-y))
 ccflags-y   = $(strip $(kboot-ccflags-y) $(platform-ccflags-y))

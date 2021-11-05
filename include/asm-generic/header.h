@@ -32,7 +32,8 @@ struct boot_head {
     uint32_t    size;               /* 0x28: kernel size    */
     uint32_t    crc;                /* 0x2c: kernel crc     */
     uint64_t    para;               /* 0x30: boot parameter */
-    uint64_t    dtb;                /* 0x40: dtb pointer    */
+    uint64_t    dtb;                /* 0x38: dtb pointer    */
+    uint64_t    stdout;             /* 0x40: stdout pointer */
 } __attribute__((__packed__));
 
 extern struct boot_head boot_head;
@@ -48,7 +49,8 @@ extern struct boot_head boot_head;
     .long   _ld_image_size          /* 0x28: Kernel size    */
     .long   0                       /* 0x2c: Head crc32     */
     .long   0, 0                    /* 0x30: boot parameter */
-    .long   0, 0                    /* 0x30: dtb pointer    */
+    .long   0, 0                    /* 0x38: dtb pointer    */
+    .long   0, 0                    /* 0x40: stdout pointer */
 .endm
 
 #endif  /* __ASSEMBLY__ */

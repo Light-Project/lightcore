@@ -6,6 +6,19 @@
 #include <state.h>
 #include <arch/csky/page.h>
 
+typedef struct pte pte_t;
+typedef struct pgd pgd_t;
+
+#define SSEG0_BASE  0x80000000
+#define SSEG1_BASE  0xa0000000
+
+#include <asm-generic/pgtable-pmd.h>
+
+static inline bool pmd_get_present(pmd_t *pmd)
+{
+    return !!pmd->pte;
+}
+
 #define pte_index(va) (((va) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
 #define pde_index(va) ((va) >> PGDIR_SHIFT)
 

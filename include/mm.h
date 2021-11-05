@@ -2,6 +2,8 @@
 #ifndef _MM_H_
 #define _MM_H_
 
+#include <asm/page.h>
+
 #if defined(CONFIG_REGION_DMA) && defined(CONFIG_REGION_DMA32)
 # define NORMAL_OFFSET CONFIG_RAM_BASE + CONFIG_RAM_PAD + \
          CONFIG_DMA_SIZE + CONFIG_DMA32_SIZE
@@ -49,6 +51,8 @@ extern char _ld_image_end;
 
 #define page_to_va(page)    (pa_to_va(page_to_pa(page)))
 #define va_to_page(address) (pa_to_page(va_to_pa(address)))
+
+#define page_to_size(page)  (PAGE_SIZE << (page)->order)
 
 void mem_init(void);
 

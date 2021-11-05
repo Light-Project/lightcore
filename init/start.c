@@ -31,7 +31,11 @@
 #include <asm/proc.h>
 #include <asm/irq.h>
 
-void __noreturn init_task(void);
+struct task init_task = {
+
+};
+
+void __noreturn user_init(void);
 
 static void __init command_setup(void)
 {
@@ -59,8 +63,8 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
     /* arch init */
     arch_setup();
 
-    pr_early("Kernel version: "CONFIG_VERSION"\n");
-    pr_early("Kernel command: %s\n", boot_args);
+    pr_info("Kernel version: "CONFIG_VERSION"\n");
+    pr_info("Kernel command: %s\n", boot_args);
 
     /* kernel init */
     mem_init();
@@ -82,5 +86,5 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
 
     /* init task */
     mount_rootfs();
-    init_task();
+    user_init();
 }

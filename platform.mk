@@ -26,9 +26,20 @@ ifdef CONFIG_ARCH_ARM64
 endif # CONFIG_ARCH_ARM64
 
 ifdef CONFIG_ARCH_CSKY
-include arch/csky/config.mk
-CROSS_COMPILE       := csky-linux-
+CROSS_COMPILE       := csky-elf-
 arch                := csky
+
+ifdef CONFIG_CPU_CK610
+CPUTYPE             := ck610
+CSKYABI             := abiv1
+endif
+
+CSKY_STR            := $(CPUTYPE)$(FPUEXT)$(VDSPEXT)$(TEEEXT)
+platform-acflags-y  += -mcpu=$(CPUTYPE) -Wa,-mcpu=$(CSKY_STR)
+platform-acflags-y  += -msoft-float -mdiv
+platform-acflags-y  += -fno-tree-vectorize
+platform-ldflags-y  += -EL
+platform-elfflags-y +=
 endif # CONFIG_ARCH_CSKY
 
 ifdef CONFIG_ARCH_RISCV

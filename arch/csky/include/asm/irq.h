@@ -25,8 +25,7 @@ static inline void cpu_irq_enable()
 
 static inline irqflags_t cpu_irq_save(void)
 {
-    irqflags_t flags;
-    flags = mfcr("psr");
+    irqflags_t flags = mfcr("psr");
     cpu_irq_disable();
     return flags;
 }

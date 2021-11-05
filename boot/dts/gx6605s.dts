@@ -8,13 +8,14 @@
 / {
     #address-cells = <1>;
     #size-cells = <1>;
-    model = "C-SKY gx6605s";
+    model = "NationalChip,gx6605s";
 
     clocks {
-        dummy_apb: apb-clock {
+        osc27M: clk-27M {
             #clock-cells = <0>;
             compatible = "fixed-clock";
             clock-frequency = <27000000>;
+            clock-output-names = "osc27M";
         };
     };
 
@@ -29,11 +30,36 @@
         compatible = "amba-bus";
         interrupt-parent = <&intc>;
 
+        cir@204000 {
+            compatible = "nationalchip,gx6605s-irr";
+            reg = <0x00204000 0x400>;
+        };
+
+        i2c0: i2c@205000 {
+            compatible = "nationalchip,gx6605s-i2c";
+            reg = <0x00205000 0x400>;
+        };
+
+        rtc@209000 {
+            compatible = "nationalchip,gx6605s-rtc";
+            reg = <0x00209000 0x400>;
+        };
+
         timer@20a000 {
-            compatible = "csky,gx6605s-timer";
+            compatible = "nationalchip,gx6605s-timer";
             reg = <0x0020a000 0x400>;
-            clocks = <&dummy_apb>;
             interrupts = <10>;
+        };
+
+        wdt: watchdog@20b000 {
+            compatible = "nationalchip,gx6605s-wdt";
+            reg = <0x0020b000 0x400>;
+            clocks = <&osc27M>;
+        };
+
+        spi0: spi@302000 {
+            compatible = "nationalchip,gx6605s-spi";
+            reg = <0x00302000 0x400>;
         };
 
         gpio0: gpio@305000 {
@@ -55,10 +81,15 @@
             reg-io-width = <1>;
         };
 
+        gctl: chip-config@40a000 {
+            compatible = "nationalchip,gx6605s-gctl";
+            reg = <0x0040a000 0x400>;
+        };
+
         intc: interrupt-controller@500000 {
             #interrupt-cells = <1>;
             #address-cells = <0>;
-            compatible = "csky,gx6605s-intc";
+            compatible = "nationalchip,gx6605s-intc";
             reg = <0x00500000 0x400>;
             interrupt-controller;
         };
@@ -81,9 +112,34 @@
             interrupts = <57>;
         };
 
+        ccu@f80000 {
+            compatible = "nationalchip,gx6605s-ccu";
+            reg = <0x00f80000 0x400>;
+        };
+
+        jpeg@4400000 {
+            compatible = "nationalchip,gx6605s-vpu";
+            reg = <0x04400000 0x1000>;
+        };
+
         vpu@4800000 {
-            compatible = "csky,gx6605s-vpu";
+            compatible = "nationalchip,gx6605s-vpu";
             reg = <0x04800000 0x1000>;
+        };
+
+        vout@4804000 {
+            compatible = "nationalchip,gx6605s-vout";
+            reg = <0x04804000 0x1000>;
+        };
+
+        svpu@4900000 {
+            compatible = "nationalchip,gx6605s-svpu";
+            reg = <0x04900000 0x1000>;
+        };
+
+        svout@4904000 {
+            compatible = "nationalchip,gx6605s-svout";
+            reg = <0x04904000 0x1000>;
         };
     };
 

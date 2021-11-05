@@ -1,13 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 include-y += include/
-
+obj-y += dispatcher/ events/ executer/
+obj-y += hardware/ namespace/ parser/
+obj-y += resources/ tables/ utilities/
 obj-$(CONFIG_ACPI_DEBUG) += debugger/
-obj-y += dispatcher/
-obj-y += events/
-obj-y += executer/
-obj-y += hardware/
-obj-y += namespace/
-obj-y += parser/
-obj-y += resources/
-obj-y += tables/
-obj-y += utilities/
 obj-y += osd.o

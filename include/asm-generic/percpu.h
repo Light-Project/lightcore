@@ -3,30 +3,31 @@
 #define _ASM_GENERIC_PERCPU_H_
 
 #ifdef CONFIG_SMP
-#define PER_CPU_SECTION(__sec) ".percpu" #__sec
+# define PER_CPU_SECTION(__sec) ".percpu" #__sec
 #else
-#define PER_CPU_SECTION(__sec) ".data"
+# define PER_CPU_SECTION(__sec) ".data"
 #endif
 
 #define DEFINE_PERCPU(type, name)   \
     __section(PER_CPU_SECTION(""))  \
     __used typeof(type) name
 
-#define DECLARE_PERCPU(type, name) \
-    extern DEFINE_PERCPU(type, name)
+#define DECLARE_PERCPU(type, name)  \
+    __section(PER_CPU_SECTION(""))  \
+    extern typeof(type) name
 
 #ifdef CONFIG_SMP
-#define
+# define
 #else
-#define percpu_ptr(cpu, ptr) ({ (void)(cpu); (typeof(*(ptr))*) (ptr);})
+# define percpu_ptr(cpu, ptr) ({ (void)(cpu); (typeof(*(ptr))*) (ptr);})
 #endif
 
 #define percpu(cpu, name)  (*percpu_ptr(cpu, &(name)))
 
 #ifdef CONFIG_SMP
-#define
+# define
 #else
-#define thiscpu_ptr(name) percpu_ptr(0, name)
+# define thiscpu_ptr(name) percpu_ptr(0, name)
 #endif
 
 #define thiscpu(name) percpu(0, name)

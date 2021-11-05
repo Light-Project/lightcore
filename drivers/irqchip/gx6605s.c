@@ -7,15 +7,13 @@
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
 #include <string.h>
-#include <mm.h>
 #include <initcall.h>
 #include <driver/platform.h>
 #include <driver/irqchip.h>
 #include <driver/irqchip/gx6605s.h>
 #include <printk.h>
-
-#include <asm/io.h>
 #include <asm/irq.h>
+#include <asm/io.h>
 
 struct gx6605s_device {
     struct irqchip_device irq;
@@ -35,7 +33,6 @@ static void gx6605s_write(struct gx6605s_device *gdev, int reg, uint32_t val)
 {
     writel(gdev->mmio + reg, val);
 }
-
 
 #define irq_channel_val(irq, magic) (irq | (irq << 8) | (irq << 16) | (irq << 24) | magic)
 static void gx6605s_setup_irqs(struct gx6605s_device *gdev, uint32_t magic)
@@ -57,22 +54,20 @@ static state gx6605s_probe(struct platform_device *pdev, void *pdata)
     start = platform_resource_start(pdev, 0);
     size = platform_resource_size(pdev, 0);
 
-    gdev = kzalloc(sizeof(*gdev), GFP_KERNEL);
+    gdev = dev_kzalloc(&pdev->dev, sizeof(*gdev), GFP_KERNEL);
     if (!gdev)
         return -ENOMEM;
     platform_set_devdata(pdev, gdev);
 
-    gdev->mmio = ioremap(start, size);
-    if (!gdev->mmio) {
-        kfree(gdev);
+    gdev->mmio = dev_ioremap(&pdev->dev, start, size);
+    if (!gdev->mmio)
         return -ENOMEM;
-    }
 
-    /* Initial enable reg to disable all interrupts */
+    /* initial enable reg to disable all interrupts */
     gx6605s_write(gdev, GX6605S_INTC_NEN31_00, 0);
     gx6605s_write(gdev, GX6605S_INTC_NEN63_32, 0);
 
-    /* Initial mask reg with all unmasked, because we only use enalbe reg */
+    /* initial mask reg with all unmasked, because we only use enalbe reg */
     gx6605s_write(gdev, GX6605S_INTC_NMASK31_00, 0);
     gx6605s_write(gdev, GX6605S_INTC_NMASK63_32, 0);
 
@@ -84,16 +79,12 @@ static state gx6605s_probe(struct platform_device *pdev, void *pdata)
 static void gx6605s_remove(struct platform_device *pdev)
 {
     struct gx6605s_device *gdev = platform_get_devdata(pdev);
-
     gx6605s_write(gdev, GX6605S_INTC_NEN31_00, 0);
     gx6605s_write(gdev, GX6605S_INTC_NEN63_32, 0);
-
-    iounmap(gdev->mmio);
-    kfree(gdev);
 }
 
 static struct dt_device_id gx6605s_id[] = {
-    { .compatible = "csky,gx6605s-intc" },
+    { .compatible = "nationalchip,gx6605s-intc" },
     { }, /* NULL */
 };
 

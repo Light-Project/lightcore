@@ -10,7 +10,7 @@ extern struct list_head irqchip_list;
 struct irqchip_channel {
     struct irqchip_device *irqchip;
     struct list_head list;
-    irqnr_t index;
+    unsigned long index;
 };
 
 struct irqchip_device {

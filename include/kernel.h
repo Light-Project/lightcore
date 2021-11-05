@@ -5,12 +5,11 @@
 #include <types.h>
 #include <state.h>
 #include <stdarg.h>
-#include <stddef.h>
 #include <limits.h>
-#include <printk.h>
+#include <stddef.h>
 
-#define KMAGIC 0x4c434747UL
-#define MSIZE (sizeof(void *))
+#define KMAGIC  0x4c434747
+#define MSIZE   (sizeof(void *))
 
 /**
  * min - return minimum of two values of the same or compatible types
@@ -95,12 +94,14 @@
 
 #ifndef __ASSEMBLY__
 
+#include <printk.h>
+
 extern __printf(2, 3) int sprintf(char *buf, const char *fmt, ...);
 extern __printf(3, 4) int snprintf(char *buf, size_t n, const char *fmt, ...);
 extern int vsprintf(char *buf, const char *fmt, va_list args);
 extern int vsnprintf(char *buf, size_t n, const char *fmt, va_list args);
 
-extern char *gsize(char *buff, double size);
+extern char *gsize(char *buff, size_t size);
 extern void panic(const char* fmt, ...);
 
 #define kassert(val)                                    \

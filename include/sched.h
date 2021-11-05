@@ -7,9 +7,10 @@
 #include <error.h>
 #include <bits.h>
 #include <list.h>
+#include <pid.h>
 #include <time.h>
-#include <asm/regs.h>
-#include <asm/sched.h>
+
+struct namespace;
 
 enum sched_prio {
     SCHED_PRIO_DEADLINE = 5,
@@ -28,8 +29,9 @@ struct task {
     struct vmem_area *vmem;
     void *stack;
 
+    struct namespace *ns;
+    struct pid pid;
     char priority;
-    pid_t pid;
 
     struct timespec utime;
 
@@ -43,7 +45,7 @@ struct task {
 
 struct sched_queue {
     struct list_head list;
-    struct task *current;
+    struct task *curr;
 
     void *priv[SCHED_PRIO_MAX];
 };

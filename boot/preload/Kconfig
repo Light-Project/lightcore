@@ -1,18 +1,22 @@
 menuconfig PRELOAD
-    bool "Builtin preload(Replace bootloader)"
+    bool "Builtin Preload(Replace Bootloader)"
 if PRELOAD
 
+config PRELOAD_DEBUG
+    bool "Preoad Generate Debug File"
+    default y
+
 choice
-    prompt "Chip platform selection"
+    prompt "Chip Platform Selection"
 
 config CHIP_SUNIV
     depends on ARCH_ARM
-    bool "Allwinner F-series SoCs support"
+    bool "Allwinner F-series SoCs Support"
 
 config CHIP_RK3399
     depends on ARCH_ARM64
-    bool "Rockchip RK3399 support"
-    
+    bool "Rockchip RK3399 Support"
+
 config CHIP_X86
     depends on ARCH_X86
     bool "X86"
@@ -20,14 +24,19 @@ config CHIP_X86
 config CHIP_ESP32
     depends on ARCH_XTENSA
     bool "esp32"
-            
+
 config CHIP_ESP8266
     depends on ARCH_XTENSA
     bool "esp8266"
-            
+
+config CHIP_GX6605S
+    depends on ARCH_CSKY
+    bool "NationalChip GX6605s Support"
+
 endchoice
 
-source "boot/preload/suniv/Kconfig"    
+source "boot/preload/suniv/Kconfig"
+source "boot/preload/gx6605s/Kconfig"
 source "boot/preload/bios/Kconfig"
 
 endif

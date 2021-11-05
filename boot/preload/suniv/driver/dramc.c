@@ -409,7 +409,7 @@ void dramc_init(uint32_t freq)
         val &= ~(0x01 << 16);
     writel(PIO_BASE + SUNIV_GPIO_SDR_PUL, val);
 
-    pr_boot("Dram type: %s\n", para.dram_type ? "ddr" : "sdram");
+    pr_boot("dram type: %s\n", para.dram_type ? "ddr" : "sdram");
 
     /* Get memory size */
     dram_autorefresh(&para, freq);
@@ -417,9 +417,9 @@ void dramc_init(uint32_t freq)
     dram_para_setup(&para);
     val = dram_autoset(&para, freq);
 
-    pr_boot("Dram size: %dMiB\n", val);
+    pr_boot("dram size: %dMiB\n", val);
     if ((val >= 64 && memtest_fast(DRAM_BASE + (63 * SZ_1MiB), SZ_1KiB)) ||
         (val >= 32 && memtest_fast(DRAM_BASE + (31 * SZ_1MiB), SZ_1KiB)) ||
         (val >= 16 && memtest_fast(DRAM_BASE + (15 * SZ_1MiB), SZ_1KiB)))
-        pr_boot("Dram init error\n");
+        pr_boot("dram init error\n");
 }

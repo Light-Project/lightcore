@@ -21,17 +21,19 @@ struct power_ops {
 
 #ifndef CONFIG_POWER
 
-void __noreturn power_restart(void)
+#include <asm/proc.h>
+
+static inline void __noreturn power_restart(void)
 {
     proc_reset();
 }
 
-void __noreturn power_reset(void)
+static inline void __noreturn power_reset(void)
 {
     power_restart();
 }
 
-void __noreturn power_shutdown(void)
+static inline void __noreturn power_shutdown(void)
 {
     proc_halt();
 }

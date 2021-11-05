@@ -5,7 +5,6 @@
 #include <state.h>
 #include <list.h>
 #include <rbtree.h>
-
 #include <mm/gfp.h>
 
 enum vm_flags {
@@ -21,14 +20,15 @@ struct vm_area {
 };
 
 #define vm_rb_entry(node) \
-        rb_entry(node, struct vm_area, rb_node)
+    rb_entry(node, struct vm_area, rb_node)
 
-struct vm_area *vmem_area_find(size_t addr);
-state vmem_area_alloc(struct vm_area *va, size_t size, size_t align);
-struct vm_area *vmem_alloc_node(size_t size, size_t align, gfp_t gfp);
-struct vm_area *vmem_alloc(size_t size);
-void vmem_free(struct vm_area *va);
+extern struct vm_area *vmem_area_find(size_t addr);
+extern state vmem_area_alloc(struct vm_area *va, size_t size, size_t align);
+extern void vmem_area_free(struct vm_area *va);
+extern struct vm_area *vmem_alloc_node(size_t size, size_t align, gfp_t gfp);
+extern struct vm_area *vmem_alloc(size_t size);
+extern void vmem_free(struct vm_area *va);
 
-void vmem_init(void);
+extern void __init vmem_init(void);
 
 #endif  /* _MM_VMEM_H_ */

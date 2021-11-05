@@ -1,24 +1,14 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-#include <types.h>
-#include <state.h>
-#include <kernel.h>
-#include <asm/io.h>
-#include <console.h>
-#include <mm.h>
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
+#include <kmalloc.h>
 #include <initcall.h>
 #include <driver/platform.h>
-#include <driver/dt.h>
 #include <driver/uart.h>
-#include <spinlock.h>
-
 #include <driver/uart/uart-esp.h>
-
-#define ESP_UART_NAME   "ttySAC"
-
-struct esp_uart_port{
-    struct uart_port    port;
-    struct driver       *drv;
-};
+#include <asm/io.h>
 
 #define ESP_UART_MAX    3
 
@@ -115,21 +105,6 @@ static struct uart_ops esp_uart_ops = {
     .sent_char = esp_uart_putc,
 };
 
-static struct uart_driver esp_uart_driver = {
-
-};
-
-static struct dt_device_id espressif_uart_dt_table[] =
-{
-    {
-        .compatible = "espressif,esp8266-uart"
-    },
-    {
-        .compatible = "espressif,esp32-uart"
-    },
-    {},
-};
-
 static state espressif_uart_probe(struct platform_device *device, void *pdata)
 {
     struct esp_uart_port *esp_port;
@@ -155,6 +130,12 @@ static void espressif_uart_remove(struct platform_device *device)
 
     return -ENOERR;
 }
+
+static struct dt_device_id espressif_uart_dt_table[] = {
+    { .compatible = "espressif,esp8266-uart" },
+    { .compatible = "espressif,esp32-uart" },
+    { }, /* NULL */
+};
 
 static struct platform_driver espressif_uart_driver = {
     .driver = {

@@ -3,13 +3,15 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
+#include <sched.h>
 #include <string.h>
 #include <initcall.h>
 #include <syscall.h>
-#include <sched.h>
 #include <kmalloc.h>
 #include <vmalloc.h>
 #include <export.h>
+
+#include <asm/sched.h>
 #include <asm/page.h>
 
 void task_stack_magic(struct task *task)
@@ -56,7 +58,7 @@ static struct task *task_copy()
 {
     struct task *task;
 
-    task = task_alloc();
+    task = task_alloc(current);
     if (!task)
         return NULL;
 
@@ -65,20 +67,26 @@ static struct task *task_copy()
 
 pid_t task_fork()
 {
-    struct task *task;
+    struct namespace *ns = current->ns;
+    struct task *new;
+    struct pid *pid;
 
+    new = task_copy();
 
+    pid_alloc_node(ns->pid, &new->pid);
+
+    return new->pid.pid;
 }
 
-// long syscall_fork(void)
-// {
-//     return 0;
-// }
-
-// SYSCALL_ENTRY(SYSCALL_NR_FORK, syscall_fork, 0);
-// EXPORT_SYMBOL(kernel_fork);
+long syscall_fork(void)
+{
+    return 0;
+}
 
 void __init fork_init(void)
 {
-    task_cache = kcache_create("task", sizeof(struct task), KCACHE_PANIC);
+
 }
+
+SYSCALL_ENTRY(SYSCALL_NR_FORK, syscall_fork, 0);
+EXPORT_SYMBOL(task_fork);

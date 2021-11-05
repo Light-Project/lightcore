@@ -1,3 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
 #include <asm-generic/kernel.lds.h>
 #include <romcall.ld>
 #include <size.h>
@@ -9,18 +14,15 @@ OUTPUT_ARCH(xtensa)
 /* Entry Point */
 ENTRY(_start)
 
-MEMORY
-{
+MEMORY {
     FLASH (rx)  : ORIGIN = 0x40200000, LENGTH = CONFIG_XIP_BASE - 0x40200000
     IRAM  (rwx) : ORIGIN = 0x40100000, LENGTH = 32k
     DRAM0 (rw)  : ORIGIN = 0x3FFE8000, LENGTH = 64K
     DRAM1 (rw)  : ORIGIN = 0x3FFF8000, LENGTH = 32K
 }
-/* Define output sections */
-SECTIONS
-{
-    .text :
-    {
+
+SECTIONS {
+    .text : {
         /* Boot head */
         . = 0x00;
         KEEP(*(.startup));
@@ -48,8 +50,7 @@ SECTIONS
         *(.ksymtab)
     } > IRAM AT > FLASH
 
-    .data :
-    {
+    .data : {
         . = ALIGN(4);
         *(.rodata)
         *(.rodata*)
@@ -58,8 +59,7 @@ SECTIONS
         . = ALIGN(4);
     } > DRAM0 AT > FLASH
 
-    .bss (NOLOAD) :
-    {
+    .bss (NOLOAD) : {
         . = ALIGN(4);
         PROVIDE(_ld_sbss = .);
         *(.bss)
@@ -68,8 +68,7 @@ SECTIONS
         PROVIDE(_ld_ebss = .);
     } > DRAM0
 
-    .stack(NOLOAD) :
-    {
+    .stack(NOLOAD) : {
         . = ALIGN(4);
         _ld_stack_start = .;
         . = _ld_stack_start + stack_size;
@@ -77,8 +76,7 @@ SECTIONS
         _ld_stack_end = .;
     } > DRAM0
 
-    .dts :
-    {
+    .dts : {
         . = ALIGN(4);
         PROVIDE(_ld_dts_start = .);
         KEEP(*(.dts))

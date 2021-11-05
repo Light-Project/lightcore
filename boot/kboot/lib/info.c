@@ -15,15 +15,15 @@ int printf(const char *str, ...)
     char strbuf[128];
     va_list para;
     int len;
-    
+
     if(!stdout)
         return 0;
-    
+
     va_start(para,str);
     len = vsprintf(strbuf, str, para);
     va_end(para);
     stdout(strbuf);
-    
+
     return len;
 }
 
@@ -32,16 +32,16 @@ int pr_boot(const char *str, ...)
     char strbuf[128];
     va_list para;
     int len;
-    
-    if(!stdout)
+
+    if (!stdout)
         return 0;
-    
-    stdout("[kboot]: ");    
+
+    stdout("[kboot]: ");
     va_start(para,str);
     len = vsprintf(strbuf, str, para);
     va_end(para);
     stdout(strbuf);
-    
+
     return len;
 }
 
@@ -49,24 +49,25 @@ void panic(const char *str, ...)
 {
     char strbuf[128];
     va_list para;
-    
-    if(!stdout)
+
+    if (!stdout)
         goto out;
-    
-    stdout("[panic]: ");    
+
+    stdout("[panic]: ");
     va_start(para,str);
     vsprintf(strbuf, str, para);
     va_end(para);
     stdout(strbuf);
-    
+
 out:
     halt();
-} 
+}
 
 void pr_init(void (*fun)(const char *))
 {
     stdout = fun;
+    stdout("                 \n");
     stdout("-----------------\n");
-    stdout("Lightcore kboot!\n");
+    stdout("Lightcore kboot! \n");
     stdout("-----------------\n");
 }

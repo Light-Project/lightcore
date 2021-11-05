@@ -1,8 +1,9 @@
 #include <printk.h>
 #include <init.h>
 
-void terminal_logo(void)
+void __init terminal_logo(void)
 {
+    pr_early("                                                    \n");
     pr_early("----------------------------------------------------\n");
     pr_early(" _     _       _     _    ____                      \n");
     pr_early("| |   (_) __ _| |__ | |_ / ___|___  _ __ ___        \n");

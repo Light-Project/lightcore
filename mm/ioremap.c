@@ -5,16 +5,18 @@
 
 #define pr_fmt(fmt) "ioremap: " fmt
 
+#include <ioremap.h>
 #include <kernel.h>
 #include <list.h>
+#include <refcount.h>
 #include <mm.h>
 #include <kmalloc.h>
-#include <ioremap.h>
 #include <mm/vmem.h>
 #include <mm/vmap.h>
 #include <export.h>
 #include <printk.h>
 
+static struct kcache *ioremap_cache;
 static LIST_HEAD(ioremap_list);
 
 struct ioremap_node {
@@ -41,7 +43,7 @@ ioremap_find(phys_addr_t start, phys_addr_t end)
     return NULL;
 }
 
-static struct ioremap_node *remap_node(phys_addr_t pa, size_t size)
+static struct ioremap_node *ioremap_alloc(phys_addr_t pa, size_t size)
 {
     struct ioremap_node *node;
 
@@ -55,36 +57,11 @@ static struct ioremap_node *remap_node(phys_addr_t pa, size_t size)
     }
 
     pa = align_low(pa, PAGE_SIZE);
-    arch_page_map(pa, node->vm_area.addr, node->vm_area.size);
+    vmap_range(&init_mm, pa, node->vm_area.addr, node->vm_area.size, 0);
 
     node->start = pa;
     list_add_prev(&ioremap_list, &node->list);
     return node;
-}
-
-static void unmap_node(size_t addr)
-{
-    struct ioremap_node *node;
-    struct vm_area *vm;
-
-    return;
-
-    if (addr < CONFIG_HIGHMAP_OFFSET)
-        return;
-
-    vm = vmem_area_find(addr);
-    if (!vm) {
-        pr_err("unmap not found\n");
-        return;
-    }
-
-    node = vm_to_ioremap(vm);
-
-    if (atomic_dec_test(&node->count)) {
-        vmem_free(vm);
-        list_del(&node->list);
-        kfree(node);
-    }
 }
 
 void *ioremap(phys_addr_t pa, size_t size)
@@ -109,19 +86,44 @@ void *ioremap(phys_addr_t pa, size_t size)
     if (node)
         goto got_io;
 
-    node = remap_node(pa, size);
-    if (!node)
+    node = ioremap_alloc(pa, size);
+    if (unlikely(!node))
         return NULL;
 
 got_io:
-    atomic_inc(&node->count);
+    refcount_inc(&node->count);
     return (void *)(node->vm_area.addr + offset);
 }
-EXPORT_SYMBOL(ioremap);
 
-
-void iounmap(void *addr)
+void iounmap(void *block)
 {
-    unmap_node((size_t)addr);
+    size_t addr = (size_t)block;
+    struct ioremap_node *node;
+    struct vm_area *vm;
+
+    if (addr < CONFIG_HIGHMAP_OFFSET)
+        return;
+
+    vm = vmem_area_find(addr);
+    if (!vm) {
+        pr_crit("unmap not found\n");
+        return;
+    }
+
+    node = vm_to_ioremap(vm);
+    if (!refcount_dec_test(&node->count))
+        return;
+
+    vmem_free(vm);
+    list_del(&node->list);
+    kfree(node);
 }
+
+void __init ioremap_init(void)
+{
+    ioremap_cache = kcache_create("ioremap",
+        sizeof(struct ioremap_node), KCACHE_PANIC);
+}
+
+EXPORT_SYMBOL(ioremap);
 EXPORT_SYMBOL(iounmap);

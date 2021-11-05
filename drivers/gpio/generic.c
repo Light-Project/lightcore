@@ -6,11 +6,9 @@
 #define DRIVER_NAME "generic-gpio"
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
-#include <mm.h>
 #include <initcall.h>
 #include <driver/platform.h>
 #include <driver/gpio.h>
-
 #include <asm/io.h>
 
 struct ggpio_device {
@@ -58,21 +56,31 @@ static struct gpio_ops ggpio_ops = {
 static state ggpio_probe(struct platform_device *pdev, void *pdata)
 {
     struct ggpio_device *ggdev;
-    // struct resource *res;
+    struct resource *res;
 
-    ggdev = kzalloc(sizeof(*ggdev), GFP_KERNEL);
+    ggdev = dev_kzalloc(&pdev->dev, sizeof(*ggdev), GFP_KERNEL);
     if (!ggdev)
         return -ENOMEM;
 
-    // res = platform_name_resource(pdev, "dat");
-    // ggdev->dat = dev_ioremap(res->start, res_size(res));
-    // if (!ggdev->dat)
-    //     return -ENOMEM;
+    res = platform_name_resource(pdev, "dat");
+    ggdev->dat = dev_ioremap(&pdev->dev, res->start, res->size);
+    if (!ggdev->dat)
+        return -ENOMEM;
 
-    // res = platform_name_resource(pdev, "dirout");
-    // ggdev->dirout = dev_ioremap(res->start, res_size(res));
-    // if (!ggdev->dirout)
-    //     return -ENOMEM;
+    res = platform_name_resource(pdev, "dirout");
+    ggdev->dirout = dev_ioremap(&pdev->dev, res->start, res->size);
+    if (!ggdev->dirout)
+        return -ENOMEM;
+
+    res = platform_name_resource(pdev, "set");
+    ggdev->dirout = dev_ioremap(&pdev->dev, res->start, res->size);
+    if (!ggdev->dirout)
+        return -ENOMEM;
+
+    res = platform_name_resource(pdev, "clr");
+    ggdev->dirout = dev_ioremap(&pdev->dev, res->start, res->size);
+    if (!ggdev->dirout)
+        return -ENOMEM;
 
     ggdev->gpio.ops = &ggpio_ops;
     return gpio_register(&ggdev->gpio);

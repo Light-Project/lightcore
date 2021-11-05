@@ -82,5 +82,5 @@ typedef __off_t         off_t;
 typedef __loff_t        loff_t;
 
 
-#endif /* __ASSEMBLY__ */
-#endif /* _TYPES_H_ */
+#endif  /* __ASSEMBLY__ */
+#endif  /* _TYPES_H_ */

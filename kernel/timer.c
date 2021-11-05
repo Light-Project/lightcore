@@ -7,6 +7,7 @@
 #include <sched.h>
 
 volatile uint64_t ticktime;
+volatile unsigned long tick_loops;
 
 void timer_update(unsigned long ticks)
 {

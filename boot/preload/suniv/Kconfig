@@ -9,7 +9,7 @@ config PRELOAD_CPU_CLK
         Too high frequency will make the FEL unavailable
 
 config PRELOAD_BUS_CLK
-    int "Bus Clock Speed"
+    int "AHB Clock Speed"
     range 150 300
     default 200
     help

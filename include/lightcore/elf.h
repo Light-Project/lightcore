@@ -4,20 +4,20 @@
 
 #include <lightcore/types.h>
 
-typedef uint32_t    Elf32_Addr;
-typedef uint16_t    Elf32_Half;
-typedef uint32_t    Elf32_Off;
-typedef int32_t     Elf32_Sword;
-typedef uint32_t    Elf32_Word;
+typedef __u32       Elf32_Addr;
+typedef __u16       Elf32_Half;
+typedef __u32       Elf32_Off;
+typedef __s32       Elf32_Sword;
+typedef __u32       Elf32_Word;
 
-typedef uint64_t    Elf64_Addr;
-typedef uint16_t    Elf64_Half;
-typedef int16_t     Elf64_SHalf;
-typedef uint64_t    Elf64_Off;
-typedef int32_t     Elf64_Sword;
-typedef uint32_t    Elf64_Word;
-typedef uint64_t    Elf64_Xword;
-typedef int64_t     Elf64_Sxword;
+typedef __u64       Elf64_Addr;
+typedef __u16       Elf64_Half;
+typedef __s16       Elf64_SHalf;
+typedef __u64       Elf64_Off;
+typedef __s32       Elf64_Sword;
+typedef __u32       Elf64_Word;
+typedef __u64       Elf64_Xword;
+typedef __s64       Elf64_Sxword;
 
 enum elf_machine {
     ELF_MACHINE_NONE            = 0,

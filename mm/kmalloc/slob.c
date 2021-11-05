@@ -14,16 +14,15 @@
 #include <printk.h>
 #include <asm/page.h>
 
-#if ((PAGE_SHIFT < 15) && CONFIG_ARCH_X86)
+#if (PAGE_SHIFT < 15)
 #define slobidx_t   uint16_t
 #else
 #define slobidx_t   uint32_t
 #endif
 
-/* A slob unit head */
 struct slob_node {
-    uint32_t size:PAGE_SHIFT;  /* node offset of page */
-    uint32_t use:1;
+    slobidx_t size:PAGE_SHIFT;
+    slobidx_t use:1;
     char data[0];
 } __packed;
 
@@ -32,11 +31,9 @@ struct slob_node {
 
 #define SLOB_BREAK1 256
 #define SLOB_BREAK2 1024
-
 static LIST_HEAD(slob_free_small);
 static LIST_HEAD(slob_free_medium);
 static LIST_HEAD(slob_free_large);
-
 static struct spinlock lock;
 
 static __always_inline
@@ -130,7 +127,7 @@ static void *slob_page_alloc(struct slob_page *slob_page,
     }
 
     slob_page->avail -= SLOB_SIZE(node->size);
-    return node + 1;
+    return node->data;
 }
 
 /**
@@ -313,7 +310,7 @@ void kfree(const void *block)
     irqflags_t irq_save;
     bool empty;
 
-    if (!block || page->type != PAGE_SLOB)
+    if (page->type != PAGE_SLOB)
         return;
 
     spin_lock_irqsave(&lock, &irq_save);
