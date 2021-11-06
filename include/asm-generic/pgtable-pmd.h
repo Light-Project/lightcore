@@ -2,7 +2,6 @@
 #ifndef _ASM_GENERIC_PGTABLE_PMD_H_
 #define _ASM_GENERIC_PGTABLE_PMD_H_
 
-#include <stddef.h>
 #include <asm-generic/pgtable-pud.h>
 
 typedef pud_t pmd_t;
@@ -32,16 +31,15 @@ static inline pmd_t *pmd_offset(pud_t *pud, size_t addr)
     return (pmd_t *)pud;
 }
 
+#define pmd_bound_size pmd_bound_size
 static inline size_t pmd_bound_size(size_t addr, size_t size)
 {
     return size;
 }
 
-#ifndef pmd_set_huge
 static inline state pmd_set_huge(pmd_t *pmd, phys_addr_t addr)
 {
     return 0;
 }
-#endif
 
 #endif  /* _ASM_GENERIC_PGTABLE_PMD_H_ */

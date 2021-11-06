@@ -29,7 +29,7 @@ static void free_pages(struct page **page_area, unsigned long page_nr)
     unsigned long count;
     struct page *page;
 
-    for (count; count < page_nr; ++count) {
+    for (count = 0; count < page_nr; ++count) {
         page = page_area[count];
         page_free(page);
     }
@@ -142,7 +142,6 @@ void vfree(void *addr)
 {
     struct vmalloc_area *vmalloc;
     struct vm_area *vmem;
-    unsigned long count;
 
     if ((size_t)addr < CONFIG_HIGHMAP_OFFSET)
         return;
@@ -152,6 +151,8 @@ void vfree(void *addr)
         pr_err("unmap not found\n");
         return;
     }
+
+    vmalloc = vmem_to_vmalloc(vmem);
 
     free_pages(vmalloc->page, vmalloc->page_nr);
     vmem_free(&vmalloc->vmem);

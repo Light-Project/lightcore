@@ -27,8 +27,8 @@ enum gx6605s_spi_registers {
 #define GX6605S_SPI_CTRL_SPIE           BIT(13)
 #define GX6605S_SPI_CTRL_SPGO           BIT(12)
 #define GX6605S_SPI_CTRL_CS_SEL         BIT(10)
-#define GX6605S_SPI_CTRL_CPOL_H         BIT(9)
-#define GX6605S_SPI_CTRL_CPHA_H         BIT(8)
+#define GX6605S_SPI_CTRL_CPOL           BIT(9)
+#define GX6605S_SPI_CTRL_CPHA           BIT(8)
 #define GX6605S_SPI_CTRL_CSDL           BIT_RANGE(7, 5)
 #define GX6605S_SPI_CTRL_SPBR           BIT_RANGE(4, 0)
 

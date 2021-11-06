@@ -10,15 +10,14 @@
 #ifdef CONFIG_CSKY_ABIV1
 
 struct regs {
-    uint32_t    psr, sp;
-    uint32_t    lr, pc;
-
-    uint32_t    r1, r2, r3;
-    uint32_t    r4, r5, r6;
-    uint32_t    r7, r8, r9;
-    uint32_t    r10, r11, r12;
-    uint32_t    r13, r14;
-};
+    uint32_t psr, pc;
+    uint32_t sp, r1;
+    uint32_t a0, a1, a2;
+    uint32_t a3, a4, a5;
+    uint32_t l0, l1, l2;
+    uint32_t l3, l4, l5;
+    uint32_t gb, lr;
+} __packed;
 
 #define cprcr(reg) ({       \
     unsigned int tmp;       \

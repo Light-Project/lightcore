@@ -29,7 +29,7 @@ cxx_flags   = $(cxxflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $
 cpp_flags   = $(cppflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y) $(gcc-warning)
 lds_flags   = $(ldsflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y) $(gcc-warning)
 
-unexport asflags-y ccflags-y cppflags-y acflags-y ldsflags-y ldflags-y gcc-warning
+unexport asflags-y ccflags-y cppflags-y acflags-y ldsflags-y ldflags-y
 export acflags_y asflags_y ccflags_y cxxflags_y ldsflags_y
 
 ########################################

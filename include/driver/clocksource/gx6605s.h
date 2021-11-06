@@ -3,22 +3,24 @@
 
 #include <bits.h>
 
-enum timer_registers
-{
-    GX6605S_TIM_STATUS  = 0x00,
-    GX6605S_TIM_VALUE   = 0x04,
-    GX6605S_TIM_CONTRL  = 0x10,
-    GX6605S_TIM_CONFIG  = 0x20,
-    GX6605S_TIM_DIV     = 0x24,
-    GX6605S_TIM_INI     = 0x28,
+enum gx6605s_timer_registers {
+    GX6605S_TIM_STATUS      = 0x00,
+    GX6605S_TIM_VALUE       = 0x04,
+    GX6605S_TIM_CONTRL      = 0x10,
+    GX6605S_TIM_CONFIG      = 0x20,
+    GX6605S_TIM_CLKDIV      = 0x24,
+    GX6605S_TIM_INT         = 0x28,
 };
 
-#define TIMER_STATUS_CLR        BIT(0)
+/*************************************************************************************/
+/*      Mnemonic                    value     meaning/usage                          */
 
-#define TIMER_CONTRL_RST        BIT(0)
-#define TIMER_CONTRL_START      BIT(1)
+#define GX6605S_TIM_STATUS_CLR      BIT(0)
 
-#define TIMER_CONFIG_EN         BIT(0)
-#define TIMER_CONFIG_IRQ_EN     BIT(1)
+#define GX6605S_TIM_CONTRL_START    BIT(1)
+#define GX6605S_TIM_CONTRL_RST      BIT(0)
+
+#define GX6605S_TIM_CONFIG_IRQ_EN   BIT(1)
+#define GX6605S_TIM_CONFIG_EN       BIT(0)
 
 #endif  /* _DRIVER_CLOCKSOURCT_GX6605S_H_ */

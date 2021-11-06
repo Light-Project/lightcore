@@ -2,9 +2,13 @@ menuconfig SPI
     bool "SPI support"
 if SPI
 
+config SPI_GX6605S
+    bool "GX6605S SPI support"
+    depends on ARCH_CSKY
+
 config SPI_SUNIV
     bool "Allwinner F-series SPI support"
-    depends on ARCH_ARM || COMPILE_TEST
+    depends on ARCH_ARM
 
 endif
 

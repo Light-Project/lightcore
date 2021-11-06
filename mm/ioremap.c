@@ -75,7 +75,7 @@ void *ioremap(phys_addr_t pa, size_t size)
     /* Get mmio form ram pad */
     if (pa >= CONFIG_RAM_BASE &&
         pa < CONFIG_HIGHMEM_OFFSET)
-        return pa_to_va(pa);
+        return pa_to_io(pa);
 
 	/* Page-align mappings */
     offset = pa & ~PAGE_MASK;

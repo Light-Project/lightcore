@@ -112,8 +112,8 @@
             interrupts = <57>;
         };
 
-        ccu@f80000 {
-            compatible = "nationalchip,gx6605s-ccu";
+        otp@f80000 {
+            compatible = "nationalchip,gx6605s-otp";
             reg = <0x00f80000 0x400>;
         };
 

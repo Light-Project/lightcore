@@ -161,7 +161,7 @@ static state suniv_spi_transmit(struct spi_host *host, struct spi_request *req)
     return -ENOERR;
 }
 
-static void suniv_spi_cs_set(struct spi_host *host, struct spi_device *dev, bool enable)
+static state suniv_spi_devsel(struct spi_host *host, struct spi_device *dev, bool sel)
 {
     struct suniv_device *sdev = spi_to_suniv(host);
     uint32_t val;
@@ -170,11 +170,11 @@ static void suniv_spi_cs_set(struct spi_host *host, struct spi_device *dev, bool
     val &= ~SUNIV_SPI_TCR_SS_SEL;
     val |= (dev->dev_nr << 4) & SUNIV_SPI_TCR_SS_SEL;
 
-    if (enable && (dev->mode & SPI_CS_HI))
+    if (sel && (dev->mode & SPI_CS_HI))
         val |= SUNIV_SPI_TCR_SS_VAL;
-    else if (enable && !(dev->mode & SPI_CS_HI))
+    else if (sel && !(dev->mode & SPI_CS_HI))
         val &= SUNIV_SPI_TCR_SS_VAL;
-    else if (!enable && (dev->mode & SPI_CS_HI))
+    else if (!sel && (dev->mode & SPI_CS_HI))
         val &= SUNIV_SPI_TCR_SS_VAL;
     else
         val |= SUNIV_SPI_TCR_SS_VAL;
@@ -184,7 +184,7 @@ static void suniv_spi_cs_set(struct spi_host *host, struct spi_device *dev, bool
 
 static struct spi_ops suniv_spi_ops = {
     .transfer = suniv_spi_transmit,
-    .cs_set = suniv_spi_cs_set,
+    .devsel = suniv_spi_devsel,
 };
 
 static state suniv_spi_probe(struct platform_device *pdev, void *pdata)

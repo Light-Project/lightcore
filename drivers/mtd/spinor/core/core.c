@@ -9,6 +9,8 @@
 #include <driver/mtd.h>
 #include <driver/mtd/spinor.h>
 
+static LIST_HEAD(spinor_types);
+
 state spinor_register(struct spinor_device *sdev)
 {
     if (!sdev->ops)
@@ -20,4 +22,14 @@ state spinor_register(struct spinor_device *sdev)
 void spinor_unregister(struct spinor_device *sdev)
 {
 
+}
+
+state spinor_type_register(struct spinor_type *stype)
+{
+    list_add(&spinor_types, &stype->list);
+}
+
+void spinor_type_register(struct spinor_type *stype)
+{
+    list_del(&stype->list);
 }

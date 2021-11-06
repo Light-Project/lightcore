@@ -9,13 +9,13 @@
 #include <asm/entry.h>
 #include <asm/regs.h>
 
-static void *irq_table[IRQ_NR_MAX] __aligned(1024) = {
+static void (*irq_table[IRQ_NR_MAX])(void) __aligned(1024) = {
     [VEC_RESET]         = entry_generic_interrupt,
-    [VEC_ALIGN]         = entry_generic_interrupt,
-    [VEC_ACCESS]        = entry_generic_interrupt,
-    [VEC_ZERODIV]       = entry_generic_interrupt,
-    [VEC_ILLEGAL]       = entry_generic_interrupt,
-    [VEC_PRIV]          = entry_generic_interrupt,
+    [VEC_ALIGN]         = entry_misaligned,
+    [VEC_ACCESS]        = entry_buserr,
+    [VEC_ZERODIV]       = entry_zerodiv,
+    [VEC_ILLEGAL]       = entry_illinsn,
+    [VEC_PRIV]          = entry_priv,
     [VEC_TRACE]         = entry_generic_interrupt,
     [VEC_BREAKPOINT]    = entry_generic_interrupt,
     [VEC_SOFTRESET]     = entry_generic_interrupt,
@@ -23,16 +23,18 @@ static void *irq_table[IRQ_NR_MAX] __aligned(1024) = {
     [VEC_FAUTOVEC]      = entry_generic_interrupt,
     [VEC_HWACCEL]       = entry_generic_interrupt,
     [VEC_TLBMISS]       = entry_generic_interrupt,
-    [VEC_TLBMODIFIED]   = entry_page_fault,
-    [VEC_TRAP0]         = NULL,
-    [VEC_TRAP2]         = NULL,
-    [VEC_TRAP3]         = NULL,
-    [VEC_TLBINVALIDL]   = entry_page_fault,
-    [VEC_TLBINVALIDS]   = entry_page_fault,
+    [VEC_TLBMODIFIED]   = entry_pagefault,
+    [VEC_TRAP0]         = entry_syscall,
+    [VEC_TRAP1]         = entry_syscall,
+    [VEC_TRAP2]         = entry_syscall,
+    [VEC_TRAP3]         = entry_syscall,
+    [VEC_TLBINVALIDL]   = entry_pagefault,
+    [VEC_TLBINVALIDS]   = entry_pagefault,
 };
 
 asmlinkage void generic_interrupt(irqnr_t vector)
 {
+    panic("generic interrupt");
     irq_handle(vector);
 }
 

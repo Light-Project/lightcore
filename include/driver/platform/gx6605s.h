@@ -17,18 +17,18 @@ enum gx6605s_gctl_registers {
     GX6605S_MPEG_CLK_INHIBIT_SET    = 0x1c,
     GX6605S_MPEG_CLK_INHIBIT_CLR    = 0x20,
 
-    GX6605S_DTO1_CONFIG	            = 0x28,
-    GX6605S_DTO2_CONFIG	            = 0x2C,
-    GX6605S_DTO3_CONFIG	            = 0x30,
-    GX6605S_DTO4_CONFIG	            = 0x34,
-    GX6605S_DTO5_CONFIG	            = 0x38,
-    GX6605S_DTO6_CONFIG	            = 0x3C,
-    GX6605S_DTO7_CONFIG	            = 0x40,
-    GX6605S_DTO8_CONFIG	            = 0x44,
-    GX6605S_DTO9_CONFIG	            = 0x48,
-    GX6605S_DTO10_CONFIG            = 0x4C,
-    GX6605S_DTO11_CONFIG            = 0x50,
-    GX6605S_DTO12_CONFIG            = 0x54,
+    GX6605S_DTO1_CONFIG	            = 0x28,     /* Audio I2S        */
+    GX6605S_DTO2_CONFIG	            = 0x2C,     /* Audio Spdif      */
+    GX6605S_DTO3_CONFIG	            = 0x30,     /* Video            */
+    GX6605S_DTO4_CONFIG	            = 0x34,     /* JPEG             */
+    GX6605S_DTO5_CONFIG	            = 0x38,     /* PP               */
+    GX6605S_DTO6_CONFIG	            = 0x3C,     /* Audio Decoder    */
+    GX6605S_DTO7_CONFIG	            = 0x40,     /* GA               */
+    GX6605S_DTO8_CONFIG	            = 0x44,     /* DemuxSys         */
+    GX6605S_DTO9_CONFIG	            = 0x48,     /* DemuxStc         */
+    GX6605S_DTO10_CONFIG            = 0x4C,     /* APB2_0 IR Other  */
+    GX6605S_DTO11_CONFIG            = 0x50,     /* APB2_2 UART      */
+    GX6605S_DTO12_CONFIG            = 0x54,     /* CPU              */
     GX6605S_DTO13_CONFIG            = 0x58,
     GX6605S_DTO14_CONFIG            = 0x5C,
     GX6605S_DTO15_CONFIG            = 0x60,
@@ -90,29 +90,20 @@ enum gx6605s_gctl_registers {
     GX6605S_CPU_32BIT_ANLIGN        = 0x600,
 };
 
-enum gx6605s_rcc_registers {
-    GX6605S_RCC_CTRL_REG            = 0x00,
-    GX6605S_RCC_STA_REG             = 0x04,
-    GX6605S_RCC_INTERVAL            = 0x08,
-    GX6605S_RCC_START_ADDR0         = 0x10,
-    GX6605S_RCC_SIZE0               = 0x14,
-    GX6605S_RCC_START_ADDR1         = 0x18,
-    GX6605S_RCC_SIZE1               = 0x1c,
-    GX6605S_RCC_START_ADDR2         = 0x20,
-    GX6605S_RCC_SIZE2               = 0x24,
-    GX6605S_RCC_START_ADDR3         = 0x28,
-    GX6605S_RCC_SIZE3               = 0x2c,
-    GX6605S_HASH_START_ADDR         = 0x40,
-    GX6605S_HASH_SIZE               = 0x44,
-    GX6605S_RCC_HASH_A              = 0x50,
-    GX6605S_RCC_HASH_B              = 0x54,
-    GX6605S_RCC_HASH_C              = 0x58,
-    GX6605S_RCC_HASH_D              = 0x5c,
-    GX6605S_RCC_HASH_E              = 0x60,
-    GX6605S_RCC_HASH_F              = 0x64,
-    GX6605S_RCC_HASH_G              = 0x68,
-    GX6605S_RCC_HASH_H              = 0x6c,
-};
+#define GX6605S_SOURCE_SEL1_ADC         BIT(31)
+#define GX6605S_SOURCE_SEL1_DAC         BIT(27)
+#define GX6605S_SOURCE_SEL1_DRAMC       BIT(25)
+#define GX6605S_SOURCE_SEL1_CPU         BIT(24)
+#define GX6605S_SOURCE_SEL1_UART        BIT(20)
+#define GX6605S_SOURCE_SEL1_IR          BIT(19)
+#define GX6605S_SOURCE_SEL1_DEMUXSTC    BIT(18)
+#define GX6605S_SOURCE_SEL1_DEMUXSYS    BIT(17)
+#define GX6605S_SOURCE_SEL1_GA          BIT(16)
+#define GX6605S_SOURCE_SEL1_PP          BIT(14)
+#define GX6605S_SOURCE_SEL1_JPEG        BIT(13)
+#define GX6605S_SOURCE_SEL1_VIDEO       BIT(12)
+#define GX6605S_SOURCE_SEL1_SVPU        BIT(6)
+#define GX6605S_SOURCE_SEL1_AUDIO       BIT(0)
 
 #define GX6605S_DRAM_CTRL0_DM_OCD       BIT_RANGE(26, 24)
 #define GX6605S_DRAM_CTRL0_DQ_PD        BIT_RANGE(23, 20)

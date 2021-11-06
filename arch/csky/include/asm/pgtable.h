@@ -5,6 +5,7 @@
 #include <types.h>
 #include <state.h>
 #include <arch/csky/page.h>
+#include <asm/page.h>
 
 typedef struct pte pte_t;
 typedef struct pgd pgd_t;

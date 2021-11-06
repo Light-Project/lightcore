@@ -76,6 +76,10 @@ config XIP_BASE
 config PAGE_OFFSET
     hex "Kernel Offset"
 
+config IOREMAP_OFFSET
+    hex "I/O Remap Offset"
+    depends on ARCH_HAS_IOMAP
+
 config HIGHMAP_OFFSET
     hex "Hige Memory Offset"
     depends on REGION_HIMEM

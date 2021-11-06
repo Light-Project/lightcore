@@ -4,7 +4,6 @@
 
 #include <types.h>
 #include <state.h>
-#include <stdarg.h>
 #include <limits.h>
 #include <stddef.h>
 
@@ -94,6 +93,7 @@
 
 #ifndef __ASSEMBLY__
 
+#include <stdarg.h>
 #include <printk.h>
 
 extern __printf(2, 3) int sprintf(char *buf, const char *fmt, ...);

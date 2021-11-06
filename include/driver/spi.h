@@ -43,10 +43,7 @@ struct spi_driver {
 	void (*shutdown)(struct spi_device *spi);
 };
 
-struct spi_request {
-    struct spi_device *spi_device;
-    struct list_head list;
-
+struct spi_transfer {
     unsigned int len;
     void *tx_buf;
     void *rx_buf;
@@ -55,6 +52,14 @@ struct spi_request {
     uint8_t tx_lines:2;
     uint8_t rx_lines:2;
     uint32_t freq;
+
+    struct list_head list;
+};
+
+struct spi_request {
+    struct spi_device *spi_device;
+    struct list_head list;
+    struct list_head transfer;
 };
 
 struct spi_host {
@@ -71,8 +76,11 @@ struct spi_host {
 };
 
 struct spi_ops {
-    state (*transfer)(struct spi_host *, struct spi_request *);
-    void (*cs_set)(struct spi_host *, struct spi_device *, bool);
+    state (*startup)(struct spi_host *);
+    void  (*shutdown)(struct spi_host *);
+    state (*transfer)(struct spi_host *, struct spi_device *, struct spi_transfer *);
+    state (*enqueue)(struct spi_host *, struct spi_request *);
+    state (*devsel)(struct spi_host *, struct spi_device *, bool);
 };
 
 state spi_driver_register(struct spi_driver *);

@@ -86,12 +86,12 @@ uint32_t ccu_ahb(uint32_t cpu, uint32_t freq)
 
     val = readl(GCTL_BASE + GX6605S_SOURCE_SEL2);
     val &= ~(0x0f << 28);
-    val |= (7 & 0x0f) << 28;
+    val |= ((div + 2) & 0x0f) << 28;
     writel(GCTL_BASE + GX6605S_SOURCE_SEL2, val);
 
     /* Selcect the CPU clock to from xtal to PLL */
     val = readl(GCTL_BASE + GX6605S_SOURCE_SEL1);
-    val |= BIT(24);
+    val |= GX6605S_SOURCE_SEL1_CPU;
     writel(GCTL_BASE + GX6605S_SOURCE_SEL1, val);
 
     return cpu / div;
@@ -108,12 +108,12 @@ uint32_t ccu_apb(uint32_t dto, uint32_t freq)
 
     ret = dto_freq_set(10, dto, freq); /* APB ir and other*/
     val = readl(GCTL_BASE + GX6605S_SOURCE_SEL1);
-    val |= BIT(19);
+    val |= GX6605S_SOURCE_SEL1_IR;
     writel(GCTL_BASE + GX6605S_SOURCE_SEL1, val);
 
     dto_freq_set(11, dto, freq); /* APB uart */
     val = readl(GCTL_BASE + GX6605S_SOURCE_SEL1);
-    val |= BIT(20);
+    val |= GX6605S_SOURCE_SEL1_UART;
     writel(GCTL_BASE + GX6605S_SOURCE_SEL1, val);
 
     return ret;
@@ -136,7 +136,7 @@ uint32_t ccu_dram(uint32_t freq)
 
     /* this is for dramc, phy and port clock */
     val = readl(GCTL_BASE + GX6605S_SOURCE_SEL1);
-    val |= BIT(25);
+    val |= GX6605S_SOURCE_SEL1_DRAMC;
     writel(GCTL_BASE + GX6605S_SOURCE_SEL1, val);
 
     return ret;

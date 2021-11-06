@@ -16,74 +16,105 @@
 #include <asm/io.h>
 
 struct gx6605s_device {
-    struct irqchip_device irq;
+    struct irqchip_device irqchip;
     void *mmio;
 };
 
-#define irq_to_gdev(irq_device) \
-    container_of(irq_device, struct gx6605s_device, irq)
+#define irqchip_to_gdev(irq_device) \
+    container_of(irq_device, struct gx6605s_device, irqchip)
 
-static inline uint32_t
+#define irq_source_val(count, magic) \
+    (((count) << 24) | ((count) << 16) | ((count) << 8) | (count) | (magic))
+
+static __always_inline uint32_t
 gx6605s_read(struct gx6605s_device *gdev, uint16_t reg)
 {
     return readl(gdev->mmio + reg);
 }
 
-static void gx6605s_write(struct gx6605s_device *gdev, int reg, uint32_t val)
+static __always_inline void
+gx6605s_write(struct gx6605s_device *gdev, int reg, uint32_t val)
 {
     writel(gdev->mmio + reg, val);
 }
 
-#define irq_channel_val(irq, magic) (irq | (irq << 8) | (irq << 16) | (irq << 24) | magic)
+static state gx6605s_irq_pass(struct irqchip_device *idev, irqnr_t vector)
+{
+    struct gx6605s_device *gdev = irqchip_to_gdev(idev);
+
+    if (vector < 32)
+        gx6605s_write(gdev, GX6605S_INTC_GATESET0, BIT(vector));
+    else
+        gx6605s_write(gdev, GX6605S_INTC_GATESET1, BIT(vector - 32));
+
+    return -ENOERR;
+}
+
+static state gx6605s_irq_mask(struct irqchip_device *idev, irqnr_t vector)
+{
+    struct gx6605s_device *gdev = irqchip_to_gdev(idev);
+
+    if (vector < 8)
+        gx6605s_write(gdev, GX6605S_INTC_GATECLR0, BIT(vector));
+    else
+        gx6605s_write(gdev, GX6605S_INTC_GATECLR1, BIT(vector - 32));
+
+    return -ENOERR;
+}
+
+static struct irqchip_ops gx6605s_irq_ops = {
+    .pass = gx6605s_irq_pass,
+    .mask = gx6605s_irq_mask,
+};
+
 static void gx6605s_setup_irqs(struct gx6605s_device *gdev, uint32_t magic)
 {
-    for (int count = 0; count < GX6605S_IRQS; count += 4)
-        gx6605s_write(gdev, GX6605S_INTC_SOURCE + count, irq_channel_val(count, magic));
+    unsigned int count;
+    for (count = 0; count < GX6605S_INTC_SOURCE_NR; count += 4)
+        gx6605s_write(gdev, GX6605S_INTC_SOURCE0 + count, irq_source_val(count, magic));
 }
 
 static state gx6605s_probe(struct platform_device *pdev, void *pdata)
 {
     struct gx6605s_device *gdev;
     resource_size_t start, size;
-    int val;
 
-    val = platform_resource_type(pdev, 0);
-    if (val != RESOURCE_MMIO)
-        return -ENODEV;
-
-    start = platform_resource_start(pdev, 0);
-    size = platform_resource_size(pdev, 0);
+    if (platform_resource_type(pdev, 0) != RESOURCE_MMIO)
+        return -EINVAL;
 
     gdev = dev_kzalloc(&pdev->dev, sizeof(*gdev), GFP_KERNEL);
     if (!gdev)
         return -ENOMEM;
     platform_set_devdata(pdev, gdev);
 
+    start = platform_resource_start(pdev, 0);
+    size = platform_resource_size(pdev, 0);
+
     gdev->mmio = dev_ioremap(&pdev->dev, start, size);
     if (!gdev->mmio)
         return -ENOMEM;
 
-    /* initial enable reg to disable all interrupts */
-    gx6605s_write(gdev, GX6605S_INTC_NEN31_00, 0);
-    gx6605s_write(gdev, GX6605S_INTC_NEN63_32, 0);
+    /* disable all interrupt gate */
+    gx6605s_write(gdev, GX6605S_INTC_GATE0, 0);
+    gx6605s_write(gdev, GX6605S_INTC_GATE1, 0);
 
-    /* initial mask reg with all unmasked, because we only use enalbe reg */
-    gx6605s_write(gdev, GX6605S_INTC_NMASK31_00, 0);
-    gx6605s_write(gdev, GX6605S_INTC_NMASK63_32, 0);
+    /* disable all mask, because we only use gate */
+    gx6605s_write(gdev, GX6605S_INTC_MASK0, 0);
+    gx6605s_write(gdev, GX6605S_INTC_MASK1, 0);
+
+    /* mask all fiq, because we don't handle fiq */
+    gx6605s_write(gdev, GX6605S_FIQC_MASK0, 0xffffffff);
+    gx6605s_write(gdev, GX6605S_FIQC_MASK1, 0xffffffff);
 
     gx6605s_setup_irqs(gdev, 0x03020100);
 
-    return -ENOERR;
+    gdev->irqchip.dev = &pdev->dev;
+    gdev->irqchip.ops = &gx6605s_irq_ops;
+    gdev->irqchip.dt_node = pdev->dt_node;
+    return irqchip_register(&gdev->irqchip);
 }
 
-static void gx6605s_remove(struct platform_device *pdev)
-{
-    struct gx6605s_device *gdev = platform_get_devdata(pdev);
-    gx6605s_write(gdev, GX6605S_INTC_NEN31_00, 0);
-    gx6605s_write(gdev, GX6605S_INTC_NEN63_32, 0);
-}
-
-static struct dt_device_id gx6605s_id[] = {
+static struct dt_device_id gx6605s_intc_ids[] = {
     { .compatible = "nationalchip,gx6605s-intc" },
     { }, /* NULL */
 };
@@ -92,9 +123,8 @@ static struct platform_driver gx6605s_driver = {
     .driver = {
         .name = DRIVER_NAME,
     },
-    .dt_table = gx6605s_id,
+    .dt_table = gx6605s_intc_ids,
     .probe = gx6605s_probe,
-    .remove = gx6605s_remove,
 };
 
 static state gx6605s_init(void)

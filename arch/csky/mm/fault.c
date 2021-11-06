@@ -18,7 +18,7 @@ static void himem_fault(struct regs *regs, size_t addr)
     tlb_refresh(addr);
 }
 
-asmlinkage void arch_page_fault(struct regs *regs)
+asmlinkage void arch_pagefault(struct regs *regs)
 {
     size_t addr = mmu_entryhi_get() & PAGE_MASK;
 

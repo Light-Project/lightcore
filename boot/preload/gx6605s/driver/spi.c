@@ -6,6 +6,7 @@
 #include <boot.h>
 #include <kernel.h>
 #include <driver/spi/gx6605s.h>
+#include <asm/proc.h>
 #include <asm/io.h>
 
 void spi_sel(bool sel)
@@ -47,7 +48,9 @@ void spi_transmit(uint8_t *txbuf, uint8_t *rxbuf, uint32_t len)
         val |= GX6605S_SPI_CTRL_SPGO;
         writel(SPI_BASE + GX6605S_SPI_CTRL, val);
 
-        while (!(readl(SPI_BASE + GX6605S_SPI_STAT) & GX6605S_SPI_STAT_OPE_RDY));
+        while (!(readl(SPI_BASE + GX6605S_SPI_STAT) & GX6605S_SPI_STAT_OPE_RDY))
+            cpu_relax();
+
         val = readl(SPI_BASE + GX6605S_SPI_CTRL);
         val &= ~GX6605S_SPI_CTRL_SPGO;
         writel(SPI_BASE + GX6605S_SPI_CTRL, val);
@@ -60,5 +63,5 @@ void spi_transmit(uint8_t *txbuf, uint8_t *rxbuf, uint32_t len)
 
 void spi_init(void)
 {
-    writel(SPI_BASE + GX6605S_SPI_CTRL, 0x8420c002);
+    writel(SPI_BASE + GX6605S_SPI_CTRL, 0x8420c000);
 }

@@ -52,14 +52,34 @@ enum norflash_commands {
 #define NORFLASH_STR_SRP0       BIT(7)  /* Status write protect */
 
 struct spinor_device {
+    struct device *parent;
     struct mtd_device mtd;
     struct spinor_ops *ops;
+
+    uint8_t addr_width;
+    uint8_t read_op;
+    uint8_t write_op;
+    uint8_t erase_op;
 };
 
 struct spinor_ops {
-    state (*read)(struct spinor_device *, loff_t pos, void *buf, uint64_t len);
-    state (*write)(struct spinor_device *, loff_t pos, void *buf, uint64_t len);
+    state (*reg_read)(struct spinor_device *, uint8_t op, uint8_t *buf, uint8_t len);
+    state (*reg_write)(struct spinor_device *, uint8_t op, uint8_t *buf, uint8_t len);
+    state (*read)(struct spinor_device *, loff_t pos, uint8_t *buf, uint64_t len);
+    state (*write)(struct spinor_device *, loff_t pos, uint8_t *buf, uint64_t len);
     state (*erase)(struct spinor_device *, loff_t pos, uint64_t len);
+};
+
+struct spinor_type {
+    const char *name;
+    uint32_t jedec;
+    uint32_t extid;
+
+    uint32_t sector_size;
+    uint16_t sector_nr;
+    uint16_t page_size;
+
+    struct list_head list;
 };
 
 state spinor_register(struct spinor_device *);

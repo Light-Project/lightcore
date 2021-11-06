@@ -16,6 +16,7 @@ config ARCH_CSKY
     bool "C-SKY"
     select ARCH_32BIT
     select ARCH_HAS_MMU
+    select ARCH_HAS_IOMAP
 
 config ARCH_RISCV
     bool "RISC-V"
@@ -73,6 +74,9 @@ config ARCH_HAS_MMU
     bool
 
 config ARCH_HAS_PMIO
+    bool
+
+config ARCH_HAS_IOMAP
     bool
 
 # Security configuration

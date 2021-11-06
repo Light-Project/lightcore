@@ -69,7 +69,6 @@ pid_t task_fork()
 {
     struct namespace *ns = current->ns;
     struct task *new;
-    struct pid *pid;
 
     new = task_copy();
 

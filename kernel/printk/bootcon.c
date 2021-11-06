@@ -26,5 +26,6 @@ static state boot_console_init(void)
 {
     if (boot_head.stdout)
         pre_console_register(&boot_console);
+    return -ENOERR;
 }
 pconsole_initcall(boot_console_init);

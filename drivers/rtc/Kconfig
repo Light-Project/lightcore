@@ -1,6 +1,9 @@
 menuconfig RTC
     bool "RTC support"
-if RTC 
+if RTC
+
+config RTC_GX6605S
+    tristate "GX6605S RTC support"
 
 config RTC_MC146818
     tristate "MC146818 RTC support"

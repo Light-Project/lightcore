@@ -14,17 +14,19 @@
 #include <printk.h>
 #include <asm/page.h>
 
-#if (PAGE_SHIFT < 15)
-#define slobidx_t   uint16_t
-#else
+// #if (PAGE_SHIFT < 15)
+// #define slobidx_t   uint16_t
+// #else
+// #define slobidx_t   uint32_t
+// #endif
+
 #define slobidx_t   uint32_t
-#endif
 
 struct slob_node {
-    slobidx_t size:PAGE_SHIFT;
+    slobidx_t size:31;
     slobidx_t use:1;
     char data[0];
-} __packed;
+};
 
 #define SLOB_SIZE(size) (sizeof(struct slob_node) + (size))
 #define SLOB_PAGEUSE    NULL

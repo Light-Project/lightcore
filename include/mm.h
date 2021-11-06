@@ -46,6 +46,14 @@ extern char _ld_image_end;
 #define va_to_pa(va) ((phys_addr_t)(va) - CONFIG_PAGE_OFFSET + CONFIG_RAM_BASE)
 #define pa_to_va(pa) ((void *)((pa) - CONFIG_RAM_BASE + CONFIG_PAGE_OFFSET))
 
+#ifdef CONFIG_ARCH_HAS_IOMAP
+#define io_to_pa(va) ((phys_addr_t)(va) - CONFIG_IOREMAP_OFFSET + CONFIG_RAM_BASE)
+#define pa_to_io(pa) ((void *)((pa) - CONFIG_RAM_BASE + CONFIG_IOREMAP_OFFSET))
+#else
+#define io_to_pa(va) va_to_pa(va)
+#define pa_to_io(pa) pa_to_va(pa)
+#endif
+
 #define page_to_pa(page)    (page_to_nr(page) << PAGE_SHIFT)
 #define pa_to_page(pa)      (nr_to_page(pa >> PAGE_SHIFT))
 

@@ -2,8 +2,7 @@
 #ifndef _ASM_GENERIC_PGTABLE_P4D_H_
 #define _ASM_GENERIC_PGTABLE_P4D_H_
 
-#include <stddef.h>
-#include <asm/pgtable.h>
+#include <asm-generic/pgtable.h>
 
 typedef pgd_t p4d_t;
 
@@ -32,16 +31,15 @@ static inline p4d_t *p4d_offset(pgd_t *pgd, size_t addr)
     return (p4d_t *)pgd;
 }
 
+#define p4d_bound_size p4d_bound_size
 static inline size_t p4d_bound_size(size_t addr, size_t size)
 {
     return size;
 }
 
-#ifndef p4d_set_huge
 static inline state p4d_set_huge(p4d_t *p4d, phys_addr_t addr)
 {
     return 0;
 }
-#endif
 
 #endif  /* _ASM_GENERIC_PGTABLE_P4D_H_ */

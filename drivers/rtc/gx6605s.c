@@ -5,8 +5,6 @@
 
 #define DRIVER_NAME "gx6605s-rtc"
 
-#include <bcd.h>
-#include <kmalloc.h>
 #include <initcall.h>
 #include <driver/platform.h>
 #include <driver/rtc.h>
@@ -65,34 +63,41 @@ static state gx6605s_rtc_settime(struct rtc_device *rtc, struct rtc_time *time)
     return -ENOERR;
 }
 
-static state gx6605s_rtc_getalarm(struct rtc_device *rtc, struct rtc_time *time)
+static state gx6605s_rtc_getalarm(struct rtc_device *rtc, struct rtc_alarm *alarm)
 {
     struct gx6605s_device *gdev = rtc_to_gx6605s(rtc);
 
-    time->tm_us   = gx6605s_read(gdev, GX6605S_RTC_ALM1_US);
-    time->tm_ms   = gx6605s_read(gdev, GX6605S_RTC_ALM1_MS);
-    time->tm_sec  = gx6605s_read(gdev, GX6605S_RTC_ALM1_SEC);
-    time->tm_min  = gx6605s_read(gdev, GX6605S_RTC_ALM1_MIN);
-    time->tm_hour = gx6605s_read(gdev, GX6605S_RTC_ALM1_HOUR);
-    time->tm_mday = gx6605s_read(gdev, GX6605S_RTC_ALM1_DAY);
-    time->tm_mon  = gx6605s_read(gdev, GX6605S_RTC_ALM1_MONTH);
-    time->tm_year = gx6605s_read(gdev, GX6605S_RTC_ALM1_YEAR);
+    alarm->time.tm_us   = gx6605s_read(gdev, GX6605S_RTC_ALM1_US);
+    alarm->time.tm_ms   = gx6605s_read(gdev, GX6605S_RTC_ALM1_MS);
+    alarm->time.tm_sec  = gx6605s_read(gdev, GX6605S_RTC_ALM1_SEC);
+    alarm->time.tm_min  = gx6605s_read(gdev, GX6605S_RTC_ALM1_MIN);
+    alarm->time.tm_hour = gx6605s_read(gdev, GX6605S_RTC_ALM1_HOUR);
+    alarm->time.tm_mday = gx6605s_read(gdev, GX6605S_RTC_ALM1_DAY);
+    alarm->time.tm_mon  = gx6605s_read(gdev, GX6605S_RTC_ALM1_MONTH);
+    alarm->time.tm_year = gx6605s_read(gdev, GX6605S_RTC_ALM1_YEAR);
+    alarm->enable = !!(gx6605s_read(gdev, GX6605S_RTC_CTL) & GX6605S_RTC_CTL_ALM1);
 
     return -ENOERR;
 }
 
-static state gx6605s_rtc_setalarm(struct rtc_device *rtc, struct rtc_time *time)
+static state gx6605s_rtc_setalarm(struct rtc_device *rtc, struct rtc_alarm *alarm)
 {
     struct gx6605s_device *gdev = rtc_to_gx6605s(rtc);
+    uint32_t val;
 
-    gx6605s_write(gdev, GX6605S_RTC_ALM1_US, time->tm_us);
-    gx6605s_write(gdev, GX6605S_RTC_ALM1_MS, time->tm_ms);
-    gx6605s_write(gdev, GX6605S_RTC_ALM1_SEC, time->tm_sec);
-    gx6605s_write(gdev, GX6605S_RTC_ALM1_MIN, time->tm_min);
-    gx6605s_write(gdev, GX6605S_RTC_ALM1_HOUR, time->tm_hour);
-    gx6605s_write(gdev, GX6605S_RTC_ALM1_DAY, time->tm_mday);
-    gx6605s_write(gdev, GX6605S_RTC_ALM1_MONTH, time->tm_mon);
-    gx6605s_write(gdev, GX6605S_RTC_ALM1_YEAR, time->tm_year);
+    gx6605s_write(gdev, GX6605S_RTC_ALM1_US,    alarm->time.tm_us);
+    gx6605s_write(gdev, GX6605S_RTC_ALM1_MS,    alarm->time.tm_ms);
+    gx6605s_write(gdev, GX6605S_RTC_ALM1_SEC,   alarm->time.tm_sec);
+    gx6605s_write(gdev, GX6605S_RTC_ALM1_MIN,   alarm->time.tm_min);
+    gx6605s_write(gdev, GX6605S_RTC_ALM1_HOUR,  alarm->time.tm_hour);
+    gx6605s_write(gdev, GX6605S_RTC_ALM1_DAY,   alarm->time.tm_mday);
+    gx6605s_write(gdev, GX6605S_RTC_ALM1_MONTH, alarm->time.tm_mon);
+    gx6605s_write(gdev, GX6605S_RTC_ALM1_YEAR,  alarm->time.tm_year);
+
+    val = gx6605s_read(gdev, GX6605S_RTC_CTL);
+    val &= ~GX6605S_RTC_CTL_ALM1;
+    val |= !!alarm->enable << 2;
+    gx6605s_write(gdev, GX6605S_RTC_CTL, val);
 
     return -ENOERR;
 }
@@ -107,10 +112,11 @@ static struct rtc_ops gx6605s_rtc_ops = {
 static void gx6605s_rtc_hwinit(struct gx6605s_device *gdev)
 {
     struct rtc_time time = { };
+    struct rtc_alarm alarm = { };
     uint32_t val;
 
-    gx6605s_rtc_settime(gdev->rtc, &time);
-    gx6605s_rtc_setalarm(gdev->rtc, &time);
+    gx6605s_rtc_settime(&gdev->rtc, &time);
+    gx6605s_rtc_setalarm(&gdev->rtc, &alarm);
 
     val = gx6605s_read(gdev, GX6605S_RTC_CTL);
     val |= GX6605S_RTC_CTL_TIME;
@@ -136,10 +142,10 @@ static state gx6605s_rtc_probe(struct platform_device *pdev, void *pdata)
     if (!gdev->base)
         return -ENOMEM;
 
-    gx6605s_rtc_hwinit(pdev);
+    gx6605s_rtc_hwinit(gdev);
 
     gdev->rtc.ops = &gx6605s_rtc_ops;
-    return rtc_register(&mc146818->rtc);
+    return rtc_register(&gdev->rtc);
 }
 
 static struct dt_device_id gx6605s_rtc_ids[] = {

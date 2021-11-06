@@ -53,7 +53,6 @@ static state vmap_pte_range(pmd_t *pmd, phys_addr_t phys, size_t addr,
 {
     pte_t *pte;
     size_t pfn;
-    state ret;
 
     pte = vmap_pte_get(pmd, addr);
     if (!pte)
@@ -103,7 +102,7 @@ static state vmap_pmd_range(pud_t *pud, phys_addr_t phys, size_t addr,
             continue;
         }
 
-        ret = vmap_pmd_range(pmd, phys, addr, size, flags);
+        ret = vmap_pte_range(pmd, phys, addr, size, flags);
         if (ret)
             return ret;
 
@@ -205,16 +204,23 @@ static state vmap_p4d_range(pgd_t *pgd, phys_addr_t phys, size_t addr,
     return -ENOERR;
 }
 
-static state vmap_pgd_range(phys_addr_t phys, size_t addr, size_t size)
-{
-    pgd_t *pgd;
-
-    return -ENOERR;
-}
-
 state vmap_range(struct memory *mm, phys_addr_t phys,
                  size_t addr, size_t size, enum vmap_flags flags)
 {
+    pgd_t *pgd;
+    size_t bound;
+    state ret;
+
+    for (; size; phys += bound, addr += bound, size -= bound) {
+        bound = pgd_bound_size(addr, size);
+
+        ret = vmap_p4d_range(pgd, phys, addr, size, flags);
+        if (ret)
+            return ret;
+
+        pgd++;
+    }
+
     return -ENOERR;
 }
 
@@ -225,7 +231,7 @@ state vmap_pages(struct memory *mm, struct page **page,
     unsigned long count;
     state ret;
 
-    for (count; count < pnr; ++count) {
+    for (count = 0; count < pnr; ++count) {
         start = page_to_pa(page[count]);
         size = page_to_pa(page[count]);
 

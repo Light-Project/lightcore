@@ -103,7 +103,7 @@ state __init early_dt_scan(void *addr)
     }
 
     if (fdt_check_header(addr)) {
-        pr_err("device tree format error %#p\n", addr);
+        pr_err("device tree format error %p\n", addr);
         return -ENODATA;
     }
 

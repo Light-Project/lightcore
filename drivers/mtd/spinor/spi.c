@@ -11,20 +11,82 @@
 #include <driver/mtd.h>
 #include <driver/mtd/spinor.h>
 
-static state spinor_read(struct mtd_info *mtd, loff_t pos, void *buf, size_t len)
-{
+struct spinor_transfer {
+    struct {
+        uint8_t len;
+        uint16_t opcode;
+    } cmd;
 
-}
+    struct {
+        uint8_t len;
+        uint64_t addr;
+    } addr;
 
-static state spinor_write(struct mtd_info *mtd, loff_t pos, void *buf, size_t len)
-{
+    struct {
+        uint8_t len;
 
-}
+    } dummy;
 
-static struct mtd_ops spinor_ops = {
-    .read = spinor_read,
-    .write = spinor_write,
+    struct {
+        uint8_t len;
+        void *buffer;
+    } data;
 };
+
+static state spinor_spi_transfer(struct spi_device *spi, struct spinor_transfer *tran)
+{
+
+}
+
+static state spinor_spi_regread(struct spinor_device *nor, loff_t pos, uint8_t *buf, uint8_t len)
+{
+    return -ENOERR;
+}
+
+static state spinor_spi_regwrite(struct spinor_device *nor, loff_t pos, uint8_t *buf, uint8_t len)
+{
+    return -ENOERR;
+}
+
+static state spinor_spi_read(struct spinor_device *nor, loff_t pos, uint8_t *buf, uint64_t len)
+{
+    return -ENOERR;
+}
+
+static state spinor_spi_write(struct spinor_device *nor, loff_t pos, uint8_t *buf, uint64_t len)
+{
+    return -ENOERR;
+}
+
+static state spinor_spi_erase(struct spinor_device *nor, loff_t pos, uint64_t len)
+{
+    struct spinor_spi  = {
+        .tx_buf = (uint8_t []) {
+            [0] = nor->erase_op,
+            [1] = pos>>
+            [1] = pos>>
+        },
+    };
+
+    return -ENOERR;
+}
+
+static struct spinor_ops spinor_ops = {
+    .reg_read = spinor_spi_regread,
+    .reg_write = spinor_spi_regwrite,
+    .read = spinor_spi_read,
+    .write = spinor_spi_write,
+    .erase = spinor_spi_erase,
+};
+
+static state spinor_spi_probe(struct *)
+{
+    struct spinor_device *sdev;
+
+    kmall
+
+    return spinor_register();
+}
 
 static struct dt_device_id spinor_ids[] = {
     { .compatible = "jedec,spi-nor" },
@@ -38,7 +100,7 @@ static struct spi_driver spinor_driver = {
     .dt_table = spinor_ids,
 };
 
-static state spinor_initcall(void)
+static state spinor_spi_initcall(void)
 {
     spi_driver_register(&spinor_driver);
 }
