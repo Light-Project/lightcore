@@ -1,13 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- *  SPDX-License-Identifier: GPL-2.0-or-later
- *  lightcore/chip/sunxif1/resource/ccu_cpu.c
- *  Sunxif1 Series ccu
- *  (C) 2020 wzl
- * 
- *  Change Logs:
- *  Date            Notes
- *  2021-01-14      first version 
- * 
- */ 
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
 
 #include <driver/cpufreq/cpufreq.h>

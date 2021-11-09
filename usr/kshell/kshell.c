@@ -11,7 +11,7 @@ LIST_HEAD(kshell_list);
 
 state kshell_register(struct kshell_command *cmd)
 {
-    if (!cmd->entry || !cmd->name)
+    if (!cmd->exec || !cmd->name)
         return -EINVAL;
 
     list_add(&kshell_list, &cmd->list);

@@ -1,8 +1,9 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig SND
-    bool "Sound card support"
-if SND 
+    bool "Sound Card Device Support"
+if SND
 
 config SND_ES1370
-    bool "es1370"
+    bool "ES1370 SND Support"
 
 endif

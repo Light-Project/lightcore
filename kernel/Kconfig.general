@@ -2,7 +2,7 @@ config VERSION
     string
     default $(KERNELVERSION)
 
-menu "General setup"
+menu "General Setup"
 
 config DEFAULT_HOSTNAME
     string "Default hostname"

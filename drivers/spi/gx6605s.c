@@ -10,6 +10,7 @@
 #include <driver/platform.h>
 #include <driver/spi.h>
 #include <driver/spi/gx6605s.h>
+#include <asm/delay.h>
 #include <asm/proc.h>
 #include <asm/io.h>
 
@@ -34,12 +35,60 @@ gx6605s_write(struct gx6605s_device *gdev, unsigned int reg, uint32_t val)
     writel(gdev->base + reg, val);
 }
 
+static inline void spi_transfer_len(struct gx6605s_device *gdev, int len)
+{
+    uint32_t val;
+
+    val = gx6605s_read(gdev, GX6605S_SPI_CTRL);
+    val &= ~GX6605S_SPI_CTRL_ICNT_MASK;
+    val |= ((len - 1) << 14) & GX6605S_SPI_CTRL_ICNT_MASK;
+    gx6605s_write(gdev, GX6605S_SPI_CTRL, val);
+}
+
+static state spi_transfer_trigger(struct gx6605s_device *gdev, uint32_t trigger, uint32_t *read, uint32_t write)
+{
+    unsigned int timeout = 100;
+    uint32_t val;
+
+    gx6605s_write(gdev, GX6605S_SPI_TX_FIFO, write);
+    val = gx6605s_read(gdev, GX6605S_SPI_CTRL);
+    val |= trigger;
+    gx6605s_write(gdev, GX6605S_SPI_CTRL, val);
+
+    while (--timeout) {
+        if (gx6605s_read(gdev, GX6605S_SPI_STAT) & GX6605S_SPI_STAT_OPE_RDY)
+            break;
+        udelay(10);
+    }
+
+    val = gx6605s_read(gdev, GX6605S_SPI_CTRL);
+    val &= ~trigger;
+    gx6605s_write(gdev, GX6605S_SPI_CTRL, val);
+    *read = gx6605s_read(gdev, GX6605S_SPI_RX_FIFO);
+
+    return timeout ? -ENOERR : -EBUSY;
+}
+
+static state gx6605s_spi_startup(struct spi_host *host)
+{
+    struct gx6605s_device *gdev = host_to_gx6605s(host);
+    gx6605s_write(gdev, GX6605S_SPI_CTRL, 0x8420c000);
+    return -ENOERR;
+}
+
+static void gx6605s_spi_shutdown(struct spi_host *host)
+{
+    struct gx6605s_device *gdev = host_to_gx6605s(host);
+    gx6605s_write(gdev, GX6605S_SPI_CTRL, 0x00000000);
+}
+
 static state gx6605s_spi_transfer(struct spi_host *host, struct spi_device *spi, struct spi_transfer *tran)
 {
     struct gx6605s_device *gdev = host_to_gx6605s(host);
     uint32_t val, xfer, count, len = tran->len;
     uint8_t *txbuf = tran->tx_buf, *rxbuf = tran->rx_buf;
-    uint32_t trigger_bits = GX6605S_SPI_CTRL_SPGO;
+    uint32_t trigger = GX6605S_SPI_CTRL_SPGO;
+    state ret;
 
     spin_lock(&gdev->lock);
 
@@ -61,44 +110,50 @@ static state gx6605s_spi_transfer(struct spi_host *host, struct spi_device *spi,
 
     gx6605s_write(gdev, GX6605S_SPI_CTRL, val);
 
-    if (tran->rx_lines == 2)
-        trigger_bits |= GX6605S_SPI_CTRL_DUAL_READ;
+    /*
+     * Dual read has two dummy clocks,
+     * So we deal with it in advance.
+     */
+    if (tran->rx_lines == 2) {
+        trigger |= GX6605S_SPI_CTRL_DUAL_READ;
 
-    /* Start the transfer */
+        spi_transfer_len(gdev, 4);
+        ret = spi_transfer_trigger(gdev, trigger, &val, 0);
+        if (ret)
+            goto exit;
+
+        *rxbuf++ = val >> 8;
+        *rxbuf++ = val >> 0;
+
+        len -= 2;
+    }
+
+    /* Start normal transmission */
     for (; (xfer = min(len, 4)); len -= xfer) {
-        /* set transmit len */
-        val = gx6605s_read(gdev, GX6605S_SPI_CTRL);
-        val &= ~GX6605S_SPI_CTRL_ICNT_MASK;
-        val |= ((xfer - 1) << 14) & GX6605S_SPI_CTRL_ICNT_MASK;
-        gx6605s_write(gdev, GX6605S_SPI_CTRL, val);
+        spi_transfer_len(gdev, xfer);
 
-        for (val = 0, count = xfer; count; --count) {
+        for (val = 0, count = xfer;
+             tran->rx_lines != 2 && count;
+             --count)
+        {
             if (txbuf)
                 val |= *txbuf++ << ((count - 1) * 8);
             else
                 val |= 0xff << ((count - 1) * 8);
         }
 
-        /* start to transfer data */
-        gx6605s_write(gdev, GX6605S_SPI_TX_FIFO, val);
-        val = gx6605s_read(gdev, GX6605S_SPI_CTRL);
-        val |= trigger_bits;
-        gx6605s_write(gdev, GX6605S_SPI_CTRL, val);
-
-        while (!(gx6605s_read(gdev, GX6605S_SPI_STAT) & GX6605S_SPI_STAT_OPE_RDY))
-            cpu_relax();
-
-        val = gx6605s_read(gdev, GX6605S_SPI_CTRL);
-        val &= ~trigger_bits;
-        gx6605s_write(gdev, GX6605S_SPI_CTRL, val);
-        val = gx6605s_read(gdev, GX6605S_SPI_RX_FIFO);
+        ret = spi_transfer_trigger(gdev, trigger, &val, val);
+        if (ret)
+            goto exit;
 
         for (count = xfer; count; --count)
             *rxbuf++ = val >> ((count - 1) * 8);
     }
 
+exit:
+    gx6605s_spi_startup(host);
     spin_unlock(&gdev->lock);
-    return -ENOERR;
+    return ret;
 }
 
 static state gx6605s_spi_devsel(struct spi_host *host, struct spi_device *dev, bool sel)
@@ -120,19 +175,6 @@ static state gx6605s_spi_devsel(struct spi_host *host, struct spi_device *dev, b
     gx6605s_write(gdev, GX6605S_SPI_CTRL, val);
     spin_unlock(&gdev->lock);
     return -ENOERR;
-}
-
-static state gx6605s_spi_startup(struct spi_host *host)
-{
-    struct gx6605s_device *gdev = host_to_gx6605s(host);
-    gx6605s_write(gdev, GX6605S_SPI_CTRL, 0x8420c002);
-    return -ENOERR;
-}
-
-static void gx6605s_spi_shutdown(struct spi_host *host)
-{
-    struct gx6605s_device *gdev = host_to_gx6605s(host);
-    gx6605s_write(gdev, GX6605S_SPI_CTRL, 0x00000000);
 }
 
 static struct spi_ops gx6605s_spi_ops = {

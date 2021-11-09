@@ -1,5 +1,5 @@
-menu "Processor type and features"
-depends on ARCH_ARM
+menu "Processor Type and Features"
+    depends on ARCH_ARM
 
 menu "Multiple platform selection"
 

@@ -163,8 +163,8 @@ static state i810_hwinit(struct pci_device *pdev)
     struct i810_device *idev = pci_get_devdata(pdev);
     resource_size_t start;// phys, size;
 
-    if (pci_resource_type(pdev, 0) != RESOURCE_MMIO64 ||
-        pci_resource_type(pdev, 2) != RESOURCE_MMIO64) {
+    if (pci_resource_type(pdev, 0) != RESOURCE_MMIO ||
+        pci_resource_type(pdev, 2) != RESOURCE_MMIO) {
         dev_err(&pdev->dev, "unknow resource type\n");
         return -ENODEV;
     }

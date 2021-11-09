@@ -1,5 +1,4 @@
-menu "Security options"
-
-
+# SPDX-License-Identifier: GPL-2.0-or-later
+menu "Security Options"
 
 endmenu

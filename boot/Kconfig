@@ -1,4 +1,5 @@
-menu "Boot options"
+# SPDX-License-Identifier: GPL-2.0-or-later
+menu "Boot Options"
 
 config LOGO
     bool "Display logo on Startup"

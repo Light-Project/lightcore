@@ -1,6 +1,8 @@
-menu "Memory Management options"
+# SPDX-License-Identifier: GPL-2.0-or-later
+menu "Memory Management Options"
+
 comment "Architecture has no MMU"
-depends on !ARCH_HAS_MMU
+    depends on !ARCH_HAS_MMU
 
 config MMU
     bool "MMU-based Paged Memory Management Support"
@@ -88,7 +90,7 @@ config HIGHMAP_OFFSET
         will be mapped
 
 choice
-    prompt "Kmem allocator select"
+    prompt "Kmem Allocator Select"
     default MM_SLOB
 
 config MM_SLAB

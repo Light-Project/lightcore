@@ -60,12 +60,14 @@ static state spinor_spi_write(struct spinor_device *nor, loff_t pos, uint8_t *bu
 
 static state spinor_spi_erase(struct spinor_device *nor, loff_t pos, uint64_t len)
 {
-    struct spinor_spi  = {
-        .tx_buf = (uint8_t []) {
-            [0] = nor->erase_op,
-            [1] = pos>>
-            [1] = pos>>
+    struct spinor_transfer transfer = {
+        .cmd = {
+            .opcode = nor->erase_op,
         },
+        .addr = {
+
+        }
+
     };
 
     return -ENOERR;

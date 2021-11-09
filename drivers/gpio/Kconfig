@@ -1,8 +1,8 @@
 menuconfig GPIO
-    bool "Gpio support"
+    bool "General Purpose Input/Output (GPIO) Support"
 if GPIO
 
 config GPIO_GENERIC
-    bool ""
+    bool "Generic GPIO Support"
 
 endif

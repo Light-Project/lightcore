@@ -14,7 +14,7 @@ static void wdt_init(uint32_t clk)
     val = readl(WDT_BASE + GX6605S_WDT_MATCH);
     val &= ~GX6605S_WDT_MATCH_CLKDIV;
     val |= (osc_freq / clk - 1) << 16;
-    writel(WDT_BASE + GX6605S_WDT_CTRL, val);
+    writel(WDT_BASE + GX6605S_WDT_MATCH, val);
 }
 
 static void wdt_timeout_set(uint32_t ms)
@@ -24,7 +24,7 @@ static void wdt_timeout_set(uint32_t ms)
     val = readl(WDT_BASE + GX6605S_WDT_MATCH);
     val &= ~GX6605S_WDT_MATCH_TIMEOUT;
     val |= (0x10000 - ms) << 0;
-    writel(WDT_BASE + GX6605S_WDT_CTRL, val);
+    writel(WDT_BASE + GX6605S_WDT_MATCH, val);
 }
 
 static void wdt_start(void)

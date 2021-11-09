@@ -1,12 +1,7 @@
-#
-# Cryptographic API Configuration
-#
+# SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig CRYPTO
-	tristate "Cryptographic API"
-	help
-	  This option provides the core Cryptographic API.
+	bool "Cryptographic Support"
 
 if CRYPTO
 
-    
 endif

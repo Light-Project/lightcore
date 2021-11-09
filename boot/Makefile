@@ -67,7 +67,7 @@ ifneq ($(CONFIG_CHIP_ESP32),)
 	$(Q)$(DD) if=$(obj)kernel.bin of=$(obj)disk.img bs=512 seek=64 conv=notrunc
 endif
 
-$(obj)/disk.img: uboot $(obj)/kboot/boot.bin FORCE
+$(obj)/disk.img: $(obj)/uImage $(obj)/kboot/boot.bin FORCE
 	$(call if_changed,disk)
 disk: $(obj)/disk.img
 

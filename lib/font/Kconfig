@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig FONT
-    bool "Font library"
+    bool "Font Library"
     default y
 if FONT
 

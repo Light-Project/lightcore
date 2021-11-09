@@ -53,30 +53,6 @@ struct platform_driver {
 #define driver_to_platform_driver(drv) \
     container_of(drv, struct platform_driver, driver)
 
-static inline resource_size_t
-platform_resource_start(struct platform_device *pdev, unsigned int index)
-{
-    if (index > pdev->resources_nr)
-        return 0;
-    return pdev->resource[index].start;
-}
-
-static inline resource_size_t
-platform_resource_size(struct platform_device *pdev, unsigned int index)
-{
-    if (index > pdev->resources_nr)
-        return 0;
-    return pdev->resource[index].size;
-}
-
-static inline enum resource_type
-platform_resource_type(struct platform_device *pdev, unsigned int index)
-{
-    if (index > pdev->resources_nr)
-        return RESOURCE_NONE;
-    return pdev->resource[index].type;
-}
-
 #ifdef CONFIG_DT
 const struct dt_device_id *platform_dt_match(struct platform_driver *pdrv, struct platform_device *pdev);
 #endif
@@ -85,15 +61,21 @@ const struct dt_device_id *platform_dt_match(struct platform_driver *pdrv, struc
 const struct acpi_device_id *platform_acpi_match(struct platform_driver *pdrv, struct platform_device *pdev);
 #endif
 
-struct platform_device *platform_device_alloc(const char *name, int id);
-struct resource *platform_name_resource(struct platform_device *pdev, const char *name);
+extern resource_size_t platform_resource_start(struct platform_device *pdev, unsigned int index);
+extern resource_size_t platform_resource_size(struct platform_device *pdev, unsigned int index);
+extern resource_size_t platform_resource_end(struct platform_device *pdev, unsigned int index);
 
+extern enum resource_type platform_resource_type(struct platform_device *pdev, unsigned int index);
+extern struct resource *platform_get_resource(struct platform_device *pdev, unsigned int index, enum resource_type type);
+extern struct resource *platform_name_resource(struct platform_device *pdev, const char *name);
+
+extern struct platform_device *platform_device_alloc(const char *name, int id);
 extern state platform_device_register(struct platform_device *);
 extern void platform_device_unregister(struct platform_device *);
 extern state platform_driver_register(struct platform_driver *);
 extern void platform_driver_unregister(struct platform_driver *);
 
-void __init platform_dt_init(void);
-void __init platform_bus_init(void);
+extern void __init platform_dt_init(void);
+extern void __init platform_bus_init(void);
 
 #endif  /* _DEVICE_PLATFORM_H_ */

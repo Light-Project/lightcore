@@ -1,7 +1,6 @@
-menuconfig DRIVER_BUZZER
-    bool "buzzer support"
-if DRIVER_BUZZER
-
-
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig CHAR
+    bool "Char Device Support"
+if CHAR
 
 endif

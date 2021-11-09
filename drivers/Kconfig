@@ -13,7 +13,7 @@ source "drivers/clk/Kconfig"
 
 source "drivers/clocksource/Kconfig"
 
-# source "drivers/cpufreq/Kconfig"
+source "drivers/cpufreq/Kconfig"
 
 source "drivers/dt/Kconfig"
 
@@ -23,9 +23,7 @@ source "drivers/floppy/Kconfig"
 
 source "drivers/gpio/Kconfig"
 
-# source "drivers/gpu/Kconfig"
-
-# source "drivers/hid/Kconfig"
+source "drivers/hid/Kconfig"
 
 source "drivers/i2c/Kconfig"
 
@@ -35,7 +33,7 @@ source "drivers/irqchip/Kconfig"
 
 source "drivers/led/Kconfig"
 
-# source "drivers/mmc/Kconfig"
+source "drivers/mmc/Kconfig"
 
 source "drivers/mfd/Kconfig"
 

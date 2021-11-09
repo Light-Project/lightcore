@@ -1,8 +1,9 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig I2C
-    bool "I2C support"
+    bool "Inter Integrated Circuit (I2C) Support"
 if I2C
 
 config I2C_I801
-    bool "Intel 82801 support"
+    bool "Intel 82801 Support"
 
 endif

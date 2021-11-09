@@ -1,5 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig MTD
-    bool "Memory technology device support"
+    bool "Memory Technology Device (MTD) Support"
 if MTD
 
 source "drivers/mtd/spinor/Kconfig"

@@ -1,5 +1,6 @@
-menu "Library routines" 
-    
-    source "lib/font/Kconfig"
-    
+# SPDX-License-Identifier: GPL-2.0-or-later
+menu "Library Routines"
+
+source "lib/font/Kconfig"
+
 endmenu

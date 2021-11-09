@@ -49,9 +49,9 @@ static int reset_main(int argc, char *argv[])
 }
 
 static struct kshell_command reset_cmd = {
-    .entry = reset_main,
     .name = "reboot",
-    .help = "Reboot the system"
+    .desc = "Reboot the system",
+    .exec = reset_main,
 };
 
 static state reset_init(void)

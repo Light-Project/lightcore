@@ -1,12 +1,12 @@
-menu "Processor type and features"
+menu "Processor Type and Features"
     depends on ARCH_CSKY
 
 config CSKY_ABIV1
-bool 
+bool
 
 config CSKY_ABIV2
-bool 
-    
+bool
+
 choice
     prompt "CPU MODEL"
     default CPU_CK610
@@ -36,7 +36,7 @@ choice
         select CPU_HAS_CACHEV2
         select CPU_HAS_LDSTEX
         select CPU_HAS_FPUV2
-        
+
 endchoice
 
 choice
@@ -149,5 +149,5 @@ config HOTPLUG_CPU
     controlled through /sys/devices/system/cpu/cpu1/hotplug/target.
 
     Say N if you want to disable CPU hotplug.
-    
+
 endmenu

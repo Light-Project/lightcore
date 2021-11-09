@@ -5,34 +5,44 @@
 
 #include <driver/dt.h>
 #include <driver/dt/fdt.h>
+#include <export.h>
 
-state dt_address(const struct dt_node *node, int index,
+state dt_address(const struct dt_node *node, unsigned int index,
                  resource_size_t *addr, resource_size_t *size)
 {
     const be32 *prop;
-    int len, acell, scell;
+    uint32_t acell, scell, cell;
+    int len;
 
     acell = dt_addr_cell(node);
     scell = dt_size_cell(node);
+    cell = acell + scell;
 
     prop = dt_attribute_get(node, "reg", &len);
-    if (!prop || len < (index * (acell + scell)))
+    len /= 4;
+
+    if (!prop || len < ((index + 1) * cell))
         return -ENODATA;
 
-    *addr = dt_read(prop, acell);
-    *size = dt_read(prop + acell, scell);
+    *addr = (resource_size_t)dt_read(prop + (index * cell), acell);
+    *size = (resource_size_t)dt_read(prop + (index * cell) + acell, scell);
+
     return -ENOERR;
 }
+EXPORT_SYMBOL(dt_address);
 
-int dt_address_nr(const struct dt_node *node)
+unsigned int dt_address_nr(const struct dt_node *node)
 {
-    int len, asize, sszie;
+    uint32_t acell, scell, cell;
+    int len;
 
-    asize = dt_addr_cell(node) * 4;
-    sszie = dt_size_cell(node) * 4;
+    acell = dt_addr_cell(node) * 4;
+    scell = dt_size_cell(node) * 4;
+    cell = acell + scell;
 
     if (!dt_attribute_get(node, "reg", &len))
         return -ENODATA;
 
-    return len / (asize + sszie);
+    return len / cell;
 }
+EXPORT_SYMBOL(dt_address_nr);

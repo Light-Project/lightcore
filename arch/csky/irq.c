@@ -32,14 +32,12 @@ static void (*irq_table[IRQ_NR_MAX])(void) __aligned(1024) = {
     [VEC_TLBINVALIDS]   = entry_pagefault,
 };
 
-asmlinkage void generic_interrupt(irqnr_t vector)
+asmlinkage void __weak generic_interrupt(struct regs *regs)
 {
-    panic("generic interrupt");
-    irq_handle(vector);
+    panic("no interrupt controller defined");
 }
 
 void __init arch_irq_init(void)
 {
     mtcr("vbr", irq_table);
 }
-

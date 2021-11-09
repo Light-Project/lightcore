@@ -39,9 +39,12 @@ gx6605s_write(struct gx6605s_device *gdev, int reg, uint32_t val)
 irqreturn_t gx6605s_clksrc_handle(irqnr_t vector, void *data)
 {
     struct gx6605s_device *gdev = data;
+    uint32_t val;
 
-    gx6605s_write(gdev, GX6605S_TIM_STATUS, GX6605S_TIM_STATUS_CLR);
-    gx6605s_write(gdev, GX6605S_TIM_INT, 0);
+    /* clear interrupt flags */
+    val = gx6605s_read(gdev, GX6605S_TIM_STATUS);
+    val |= GX6605S_TIM_STATUS_CLR;
+    gx6605s_write(gdev, GX6605S_TIM_STATUS, val);
 
     timer_tick();
     return IRQ_RET_HANDLED;
@@ -49,10 +52,16 @@ irqreturn_t gx6605s_clksrc_handle(irqnr_t vector, void *data)
 
 static inline void gx6605s_clksrc_hw_init(struct gx6605s_device *gdev)
 {
-    gx6605s_write(gdev, GX6605S_TIM_CLKDIV, 0);
-    gx6605s_write(gdev, GX6605S_TIM_INT, 0);
+    gx6605s_write(gdev, GX6605S_TIM_VALUE,  0);
 
+    /* reset the timer at first */
     gx6605s_write(gdev, GX6605S_TIM_CONTRL, GX6605S_TIM_CONTRL_RST);
+    gx6605s_write(gdev, GX6605S_TIM_CONTRL, 0);
+
+    gx6605s_write(gdev, GX6605S_TIM_CLKDIV, GX6605S_TIM_LATCH(24, 1000));
+    gx6605s_write(gdev, GX6605S_TIM_RELOAD, 0xffffffff - CONFIG_SYSTICK_FREQ + 1);
+
+    /* start the timer */
     gx6605s_write(gdev, GX6605S_TIM_CONFIG, GX6605S_TIM_CONFIG_IRQ_EN | GX6605S_TIM_CONFIG_EN);
     gx6605s_write(gdev, GX6605S_TIM_CONTRL, GX6605S_TIM_CONTRL_START);
 }
@@ -61,7 +70,6 @@ static inline void gx6605s_clksrc_hw_deinit(struct gx6605s_device *gdev)
 {
     gx6605s_write(gdev, GX6605S_TIM_CONTRL, 0);
     gx6605s_write(gdev, GX6605S_TIM_CONFIG, 0);
-    gx6605s_write(gdev, GX6605S_TIM_CLKDIV, 0);
 }
 
 static state gx6605s_clksrc_probe(struct platform_device *pdev, void *pdata)

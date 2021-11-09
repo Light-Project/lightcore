@@ -1,7 +1,5 @@
 menuconfig ACPI
-    bool "ACPI support"
+    bool "Advanced Configuration Power Interface (ACPI) Support"
 if ACPI
-
-
 
 endif

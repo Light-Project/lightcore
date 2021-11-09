@@ -1,9 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig ATA
-bool "ATA support"
-depends on BLOCK
-
+    bool "Advanced Technology Attachment (ATA) Support"
 if ATA
-
-
 
 endif

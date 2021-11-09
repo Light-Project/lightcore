@@ -1,13 +1,14 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig POWER
-    bool "Power support"
+    bool "Power Device Support"
 if POWER
 
 config POWER_PIIX
-    bool "PIIX POWER support"
+    bool "PIIX Power Support"
     depends on ARCH_X86
 
 config POWER_PIIX4
-    bool "PIIX4 POWER support"
+    bool "PIIX4 Power Support"
     depends on ARCH_X86
 
 endif

@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig KUSR
-    bool "Kernel application support"
+    bool "Kernel Application Config"
     default y
 if KUSR
-    
+
 config KSH
     bool "Kernel shell support"
     default y

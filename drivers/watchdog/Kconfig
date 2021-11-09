@@ -1,16 +1,17 @@
 # SPDX-License-Identifier: GPL-2.0-only
 menuconfig WATCHDOG
-    bool "Watchdog support"
+    bool "Watchdog Device Support"
 if WATCHDOG
 
 config WATCHDOG_ESP8266
-    bool "ESP8266 watchdog support"
+    bool "ESP8266 Watchdog Support"
 
 config WATCHDOG_GX6605S
-    bool "GX6605S watchdog support"
+    bool "GX6605S Watchdog Support"
+    select POWER
 
 config WATCHDOG_TCO
-    bool "Intel tco watchdog support"
+    bool "Intel TCO Watchdog Support"
 
 endif
 

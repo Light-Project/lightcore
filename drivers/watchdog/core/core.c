@@ -7,20 +7,23 @@
 #include <driver/platform.h>
 #include <driver/watchdog.h>
 
-LIST_HEAD(watchdog_list);
+static LIST_HEAD(watchdog_list);
 
 state watchdog_register(struct watchdog_device *wdev)
 {
-    if (!wdev->ops->start &&
-        !wdev->ops->feed)
+    if (!wdev->ops->feed)
         return -EINVAL;
 
     return -ENOERR;
 }
 
+void watchdog_unregister(struct watchdog_device *wdev)
+{
+
+}
+
 static __init state watchdog_init(void)
 {
-    // kthread_create(watchdog_daemon, 0, "watchdogd");
     return -ENOERR;
 }
 framework_initcall(watchdog_init);

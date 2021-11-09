@@ -47,8 +47,8 @@ static struct irqchip_device *dt_irqchip_find(struct dt_node *node)
 
 /**
  * dt_get_irq - Get interrupt number form device tree
- * @node:
- * @index:
+ * @node: device tree node
+ * @index: irq number index
  */
 struct irqchip_channel *dt_get_irqchip_channel(struct dt_node *node, int index)
 {
@@ -67,6 +67,11 @@ struct irqchip_channel *dt_get_irqchip_channel(struct dt_node *node, int index)
     return irqchip_channel_get(idev, chnr);
 }
 
+/**
+ * dt_get_irq - Get interrupt number form device tree
+ * @node: device tree node
+ * @name: irq number name
+ */
 struct irqchip_channel *dt_get_irqchip_channel_by_name(struct dt_node *node, const char *name)
 {
     int index;

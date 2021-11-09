@@ -1,13 +1,14 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig SPI
-    bool "SPI support"
+    bool "Serial Peripheral Interface (SPI) Support"
 if SPI
 
 config SPI_GX6605S
-    bool "GX6605S SPI support"
+    bool "GX6605S SPI Support"
     depends on ARCH_CSKY
 
 config SPI_SUNIV
-    bool "Allwinner F-series SPI support"
+    bool "Allwinner F-series SPI Support"
     depends on ARCH_ARM
 
 endif

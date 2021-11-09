@@ -5,25 +5,36 @@
 #include <types.h>
 #include <state.h>
 #include <list.h>
+#include <bits.h>
 
 enum resource_type {
-    RESOURCE_NONE,
-    RESOURCE_PMIO,
-    RESOURCE_MMIO,
-    RESOURCE_MMIO64,
-    RESOURCE_IRQ,
-    RESOURCE_DMA,
+    RESOURCE_NONE       = BIT_SHIFT(0, 0),
+    RESOURCE_PMIO       = BIT_SHIFT(0, 1),
+    RESOURCE_MMIO       = BIT_SHIFT(0, 2),
+    RESOURCE_IRQ        = BIT_SHIFT(0, 3),
+    RESOURCE_DMA        = BIT_SHIFT(0, 4),
+    RESOURCE_TYPE       = BIT_RANGE(7, 0),
+
+    RESOURCE_MEM64      = BIT_SHIFT(8, 1),
 };
 
 struct resource {
-    const char *name;   /* Resource name */
+    const char *name;
+    struct list_head list;
+
     resource_size_t start;
     resource_size_t size;
-    uint8_t type;
-    struct list_head list;
+    enum resource_type type;
 };
 
-#define res_size(resource) \
-    (resource->end - resource->start)
+static inline resource_size_t resource_end(struct resource *resource)
+{
+    return (resource->start + resource->size) - 1;
+}
+
+static inline enum resource_type resource_type(struct resource *resource)
+{
+    return resource->type & RESOURCE_TYPE;
+}
 
 #endif  /* _RESOURCE_H_ */

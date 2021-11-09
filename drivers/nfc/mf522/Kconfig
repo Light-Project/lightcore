@@ -1,4 +1,9 @@
-config Drivers_mf522
-	bool "Support spi mf522"
-	default n
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig NFC
+    bool "Near Field Communication (NFC) Support"
+if NFC
 
+config NFC_MFC522
+	bool "MF522 Support"
+
+endif

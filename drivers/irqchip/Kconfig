@@ -1,4 +1,5 @@
-menu "irq support"
+# SPDX-License-Identifier: GPL-2.0-or-later
+menu "IRQ Chip Device Support"
 
     config IRQCHIP_8259
     bool "I8259 Interrupt Controller"
@@ -7,7 +8,7 @@ menu "irq support"
     config IRQCHIP_GX6605S
     bool "GX6605s Interrupt Controller"
     depends on ARCH_CSKY
-    
+
     config IRQCHIP_SUNIV
     bool "Suniv Interrupt Controller"
     depends on ARCH_ARM

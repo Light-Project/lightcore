@@ -47,6 +47,8 @@ void __noreturn user_init(void)
 
     ksh_main();
 
+    while (1);
+
     /* Startup failed reset the machine */
     pr_emerg("No init executable found, system will reset:");
     for (count = 5; count; count--) {

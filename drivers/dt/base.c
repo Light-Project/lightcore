@@ -6,6 +6,7 @@
 #include <driver/dt.h>
 #include <driver/dt/libfdt.h>
 #include <string.h>
+#include <export.h>
 
 struct dt_node *dt_root;
 struct dt_node *dt_chosen;
@@ -23,6 +24,7 @@ struct dt_node *dt_for_each_all_node(struct dt_node *node)
         return slist_next_entry_or_null(node, sibling);
     }
 }
+EXPORT_SYMBOL(dt_for_each_all_node);
 
 struct dt_node *dt_find_by_phandle(uint32_t phandle)
 {
@@ -35,6 +37,7 @@ struct dt_node *dt_find_by_phandle(uint32_t phandle)
 
     return NULL;
 }
+EXPORT_SYMBOL(dt_find_by_phandle);
 
 /**
  * dt_attribute_get - find a attribute form device node.
@@ -53,6 +56,7 @@ struct dt_attribute *dt_attribute_find(const struct dt_node *node,
 
     return NULL;
 }
+EXPORT_SYMBOL(dt_attribute_find);
 
 /**
  * dt_attribute_get - find and get value from attribute.
@@ -74,6 +78,7 @@ const void *dt_attribute_get(const struct dt_node *node,
 
     return attribute->value;
 }
+EXPORT_SYMBOL(dt_attribute_get);
 
 /**
  * dt_attribute_read_bool - find and check exist from attribute.
@@ -88,6 +93,7 @@ bool dt_attribute_read_bool(const struct dt_node *node, const char *name)
     attribute = dt_attribute_find(node, name);
     return !!attribute;
 }
+EXPORT_SYMBOL(dt_attribute_read_bool);
 
 /**
  * dt_attribute_read_u32_index - find and read a uint32_t from attribute.
@@ -107,6 +113,7 @@ state dt_attribute_read_u32_index(const struct dt_node *node, const char *name,
     *value = be32_to_cpup(attribute + index);
     return -ENOERR;
 }
+EXPORT_SYMBOL(dt_attribute_read_u32_index);
 
 /**
  * dt_attribute_read_u64_index - find and read a uint64_t from attribute.
@@ -126,6 +133,7 @@ state dt_attribute_read_u64_index(const struct dt_node *node, const char *name,
     *value = be64_to_cpup(attribute + index);
     return -ENOERR;
 }
+EXPORT_SYMBOL(dt_attribute_read_u64_index);
 
 /**
  * dt_attribute_read_string_index - find and read a string from attribute.
@@ -151,9 +159,10 @@ state dt_attribute_read_string_index(const struct dt_node *node, const char *nam
     *str = attribute;
     return -ENOERR;
 }
+EXPORT_SYMBOL(dt_attribute_read_string_index);
 
 /**
- * dt_attribute_read_string_index - find and read string index from attribute.
+ * dt_attribute_string_index - find and read string index from attribute.
  * @node: device node to read the attribute string index
  * @name: name of the attribute to be searched
  * @str: string to read index
@@ -178,6 +187,7 @@ state dt_attribute_string_index(const struct dt_node *node,
 
     return -ENODATA;
 }
+EXPORT_SYMBOL(dt_attribute_string_index);
 
 struct dt_node *dt_search_up(struct dt_node *node,
                              const char *name, uint32_t *value)
@@ -189,6 +199,7 @@ struct dt_node *dt_search_up(struct dt_node *node,
 
     return NULL;
 }
+EXPORT_SYMBOL(dt_search_up);
 
 /**
  * dt_addr_cell - read the address cell of the node
@@ -205,6 +216,7 @@ uint32_t dt_addr_cell(const struct dt_node *node)
 
     return DT_ROOT_ADDR_CELLS_DEFAULT;
 }
+EXPORT_SYMBOL(dt_addr_cell);
 
 /**
  * dt_size_cell - read the size cell of the node
@@ -221,6 +233,7 @@ uint32_t dt_size_cell(const struct dt_node *node)
 
     return DT_ROOT_ADDR_CELLS_DEFAULT;
 }
+EXPORT_SYMBOL(dt_size_cell);
 
 /*** Function for matching ***/
 
@@ -231,6 +244,7 @@ bool dt_attribute_match(const struct dt_node *node,
     attribute = dt_attribute_find(node, atname);
     return attribute && !strcmp(attribute->value, val);
 }
+EXPORT_SYMBOL(dt_attribute_match);
 
 bool dt_match_name(const struct dt_node *node, const char *name)
 {
@@ -242,6 +256,7 @@ bool dt_match_name(const struct dt_node *node, const char *name)
 	return (strlen(node_name) == len) &&
            (!strncmp(node_name, name, len));
 }
+EXPORT_SYMBOL(dt_match_name);
 
 bool dt_match(const struct dt_device_id *id, const struct dt_node *node)
 {
@@ -253,3 +268,4 @@ bool dt_match(const struct dt_device_id *id, const struct dt_node *node)
         return true;
     return false;
 }
+EXPORT_SYMBOL(dt_match);

@@ -1,2 +1,6 @@
-config FLOPPY
-    bool "Normal floppy disk support"
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig FLOPPY
+    bool "Floppy Disk Device Support"
+if FLOPPY
+
+endif

@@ -1,0 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig MMC
+    bool "MMC/SD Card Device Support"
+if MMC
+
+endif

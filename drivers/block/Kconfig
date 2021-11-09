@@ -1,9 +1,10 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig BLOCK
-    bool "block support"
+    bool "Block Device Support"
 if BLOCK
 
 config BLK_ATASIM
-    bool "Simple ATA controller support"
+    bool "Simple ATA Controller Support"
 
 config BLK_ATASIM32
     bool "Simple ATA 32bit PIO"

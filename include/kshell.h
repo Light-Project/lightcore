@@ -7,9 +7,9 @@
 
 struct kshell_command {
     const char *name;
-    const char *help;
+    const char *desc;
     struct list_head list;
-    int (*entry)(int argc, char *argv[]);
+    int (*exec)(int argc, char *argv[]);
 };
 
 state kshell_register(struct kshell_command *);

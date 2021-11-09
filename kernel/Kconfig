@@ -1,4 +1,5 @@
-menu "Executable file formats"
+# SPDX-License-Identifier: GPL-2.0-or-later
+menu "Executable File Formats"
 
 
 endmenu

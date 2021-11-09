@@ -130,6 +130,7 @@ state irqchip_register(struct irqchip_device *idev)
 
     list_head_init(&idev->child);
     list_head_init(&idev->channel);
+
     list_add(&irqchip_list, &idev->list);
     return -ENOERR;
 }

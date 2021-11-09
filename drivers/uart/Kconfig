@@ -1,5 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig UART
-    bool "UART support"
+    bool "Universal Asynchronous Receiver Transmitter (UART) Support"
 if UART
 
 source "drivers/uart/8250/Kconfig"

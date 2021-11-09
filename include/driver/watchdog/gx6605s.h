@@ -20,4 +20,7 @@ enum gx6605s_wdt_regsiters {
 #define GX6605S_WDT_MATCH_CLKDIV    BIT_RANGE(31, 16)
 #define GX6605S_WDT_MATCH_TIMEOUT   BIT_RANGE(15, 0)
 
+#define GX6605S_WDT_WSR_MASK2       0xaaaa
+#define GX6605S_WDT_WSR_MASK1       0x5555
+
 #endif  /* _DRIVER_WATCHDOG_GX6605S_H_ */

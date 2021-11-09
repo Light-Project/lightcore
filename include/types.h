@@ -61,6 +61,9 @@ typedef size_t          phys_addr_t;
 typedef size_t          dma_addr_t;
 typedef size_t          resource_size_t;
 
+typedef size_t          irqflags_t;
+typedef size_t          irqnr_t;
+
 typedef ssize_t         atomic_t;
 typedef uint64_t        sector_t;
 typedef uint64_t        blkcnt_t;

@@ -1,13 +1,13 @@
-menu "Scheduler config"
+menu "Scheduler Config"
 
 config SCHED_FIFO
-    bool "FIFO Scheduler support"
+    bool "FIFO Scheduler Support"
 
 config SCHED_DEADLINE
-    bool "Deadline Scheduler support"
+    bool "Deadline Scheduler Support"
 
 choice
-    prompt "Default Scheduler choice"
+    prompt "Default Scheduler Choice"
     default SCHED_DEF_RR
 
 config SCHED_DEF_RR
@@ -22,4 +22,5 @@ config SCHED_DEF_DEADLINE
     depends on SCHED_DEADLINE
 
 endchoice
+
 endmenu

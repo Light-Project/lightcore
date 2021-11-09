@@ -1,52 +1,53 @@
-menu "Compile config"
+# SPDX-License-Identifier: GPL-2.0-or-later
+menu "Compile Config"
 
 choice
-    prompt "Compiler optimization level"
+    prompt "Compiler Optimization Level"
     default CC_OPTIMIZE_FOR_DEBUG
 
 config CC_OPTIMIZE_FOR_DEBUG
-    bool "Optimize for debug (-O0)"
+    bool "Optimize for Debug (-O0)"
 
 config CC_OPTIMIZE_FOR_PERFORMANCE
-    bool "Optimize for performance (-O2)"
+    bool "Optimize for Performance (-O2)"
 
 config CC_OPTIMIZE_FOR_SIZE
-    bool "Optimize for size (-Os)"
+    bool "Optimize for Size (-Os)"
 
 endchoice
 
 config KERNEL_DEBUG
-    bool "Kernel generate debug file"
+    bool "Kernel Generate Debug File"
     depends on CC_OPTIMIZE_FOR_DEBUG
     default y
 
 config STRICT
-    bool "Compiling kernel with strict mode"
+    bool "Compiling Kernel with Strict mode"
     default y
     help
         Use -Wall and -Werror, To ensure kernel
         security, please keep it open in the mainline
 
 config KERNEL_MAP
-    bool "Kernel generate map file"
+    bool "Kernel Generate Map File"
     default y
 
 config RELOCATABLE
-    bool "Build a relocatable kernel"
+    bool "Build a Relocatable Kernel"
     depends on ARCH_HAS_RELOCATABLE
     default y
     help
         This compiles a kernel that retains relocation information
 
 config KASLR
-    bool "Kernel address space layout randomization (KASLR)"
+    bool "Kernel Address Space Layout Randomization (KASLR)"
     depends on RELOCATABLE && ARCH_HAS_KASLR
     default y
     help
         This randomizes the kernel load address and the mapping address.
 
 config LD_DEAD_CODE_DATA_ELIMINATION
-    bool "Dead code and data elimination (EXPERIMENTAL)"
+    bool "Dead Code and Data Elimination"
     depends on EXPERT
 
 endmenu

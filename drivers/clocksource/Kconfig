@@ -1,4 +1,5 @@
-menu "Clock Source drivers"
+# SPDX-License-Identifier: GPL-2.0-or-later
+menu "Clock Source Device Support"
 
 config CLKSRC_GX6605S
     bool "Gx6605s timer support"

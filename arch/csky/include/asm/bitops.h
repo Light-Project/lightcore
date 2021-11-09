@@ -2,7 +2,7 @@
 #ifndef _ASM_CSKY_BITOPS_H_
 #define _ASM_CSKY_BITOPS_H_
 
-static inline int ffs(int x)
+static inline unsigned long ffs(unsigned long x)
 {
     if (!x)
         return 0;
@@ -17,14 +17,14 @@ static inline int ffs(int x)
     return x;
 }
 
-static inline int fls(unsigned int x)
+static inline unsigned long fls(unsigned long x)
 {
     asm volatile (
         "ff1    %0\n"
         :"=&r"(x): "0"(x)
     );
 
-    return (32 - x);
+    return (32 - x) - 1;
 }
 
 #endif  /* _ASM_CSKY_BITOPS_H_ */

@@ -56,10 +56,10 @@ const void *dt_attribute_get(const struct dt_node *node, const char *name, int *
     slist_for_each_entry(_child, &bus->child, sibling)
 
 bool  dt_attribute_read_bool(const struct dt_node *node, const char *name);
+state dt_attribute_string_index(const struct dt_node *node, const char *name, const char *str);
 state dt_attribute_read_u32_index(const struct dt_node *node, const char *name, int index, uint32_t *value);
 state dt_attribute_read_u64_index(const struct dt_node *node, const char *name, int index, uint64_t *value);
 state dt_attribute_read_string_index(const struct dt_node *node, const char *name, int index, const char **str);
-state dt_attribute_string_index(const struct dt_node *node, const char *name, const char *str);
 
 #define dt_attribute_read_u32(node, name, val) \
     dt_attribute_read_u32_index(node, name, 0, val)
@@ -77,7 +77,11 @@ bool dt_match_name(const struct dt_node *node, const char *name);
 bool dt_match(const struct dt_device_id *id, const struct dt_node *node);
 
 /* bus.c */
-state dt_address(const struct dt_node *node, int index, resource_size_t *addr, resource_size_t *size);
-int dt_address_nr(const struct dt_node *node);
+state dt_address(const struct dt_node *node, unsigned int index, resource_size_t *addr, resource_size_t *size);
+unsigned int dt_address_nr(const struct dt_node *node);
+
+/* irq.c */
+state dt_irq(const struct dt_node *node, unsigned int index, resource_size_t *irq);
+unsigned int dt_irq_nr(const struct dt_node *node);
 
 #endif

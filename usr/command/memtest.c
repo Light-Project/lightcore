@@ -460,9 +460,9 @@ static int bench_main(int argc, char *argv[])
 }
 
 static struct kshell_command memtest_cmd = {
-    .entry = bench_main,
     .name = "memtest",
-    .help = "utility to test for faulty memory"
+    .desc = "Utility to test for faulty memory"
+    .exec = bench_main,
 };
 
 static state memtest_init(void)

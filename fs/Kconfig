@@ -1,5 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig FS
-    bool "File systems"
+    bool "File Systems"
 if FS
 
 source "fs/cpio/Kconfig"

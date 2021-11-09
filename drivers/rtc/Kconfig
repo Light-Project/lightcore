@@ -1,11 +1,12 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig RTC
-    bool "RTC support"
+    bool "Real Time Clock (RTC) Support"
 if RTC
 
 config RTC_GX6605S
-    tristate "GX6605S RTC support"
+    tristate "GX6605S RTC Support"
 
 config RTC_MC146818
-    tristate "MC146818 RTC support"
+    tristate "MC146818 RTC Support"
 
 endif

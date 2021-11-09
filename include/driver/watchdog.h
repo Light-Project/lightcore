@@ -30,6 +30,6 @@ state watchdog_stop(struct watchdog_device *);
 state watchdog_feed(struct watchdog_device *);
 
 state watchdog_register(struct watchdog_device *);
-state watchdog_unregister(struct watchdog_device *);
+void watchdog_unregister(struct watchdog_device *);
 
 #endif /* _DRIVER_WATCHDOG_H_ */

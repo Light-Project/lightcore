@@ -1,9 +1,10 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig RESET
-    bool "Reset support"
+    bool "Reset Device Support"
 if RESET
 
 config RESET_SUNIV
-    bool "Suniv Reset Controller"
+    bool "Suniv Reset Support"
     depends on ARCH_ARM
 
 endif

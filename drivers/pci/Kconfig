@@ -1,12 +1,13 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig PCI
-    bool "PCI support"
+    bool "Peripheral Component Interconnect (PCI) Support"
 if PCI
 
 config PCI_GENERIC
-    bool "Generic PCI support"
+    bool "Generic PCI Support"
 
 config PCI_I386
-    bool "i386 PCI support"
+    bool "I386 PCI Support"
     depends on ARCH_X86
 
 endif

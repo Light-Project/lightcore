@@ -1,34 +1,34 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig VIDEO
-bool "Video device support"
+    bool "Video Device Support"
 if VIDEO
 
 config FBCON
-    bool "frame buffer console driver"
+    bool "FrameBuffer Console Support"
     select FONT
     select FONT_6X8
 
 config VIDEO_GX6605S
-    bool "Support Nationalchip gx6605s framebuffer"
+    bool "Nationalchip gx6605s FrameBuffer Support"
 
 config VIDEO_I810
-    bool "Support I810 framebuffer"
+    bool "I810 FrameBuffer Support"
 
 config VIDEO_PL11X
-    bool "Support arm pl11x framebuffer"
+    bool "PL11x FrameBuffer Support"
 
 config VIDEO_SIMPLE
-    bool "Simple framebuffer support"
+    bool "Simple FrameBuffer Support"
 
 config VIDEO_VESA
-    bool "Support vesa device"
+    bool "Vesa Device Support"
 
 config VIDEO_BOCHS
-    bool "Support for bochs dispi vga interface (qemu stdvga)"
+    bool "Bochs Dispi VGA Interface Support"
     depends on VIDEO_VESA
 
 config VIDEO_VBOX
-    bool "Support for vbox dispi vga interface"
+    bool "VBOX Dispi VGA Interface Support"
     depends on VIDEO_VESA
 
 endif

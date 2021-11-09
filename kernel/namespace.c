@@ -24,5 +24,5 @@ struct namespace *namespace_create(struct task *task)
 
 void __init namespace_init(void)
 {
-    ns_cache = kcache_create("namespace", sizeof(root_ns), KCACHE_PANIC);
+    ns_cache = ("namespace", sizeof(root_ns), KCACHE_PANIC);
 }

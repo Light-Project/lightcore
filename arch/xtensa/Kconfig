@@ -1,23 +1,25 @@
-menu "Arch config"
-depends on ARCH_XTENSA
-    
-    choice
+menu "Processor Type and Features"
+    depends on ARCH_XTENSA
+
+choice
     prompt "Processor Configuration"
-        config XTENSA_VARIANT_LX106
-        bool "LX106"
-        select ARCH_HAS_NOMMU
-        select ARCH_HAS_XIP
-        select ARCH_HAS_PRE_PRINTK
-        
-        config XTENSA_VARIANT_ESP32
-        bool "ESP32"
-        select ARCH_HAS_NOMMU
-        select ARCH_HAS_XIP
-        select ARCH_HAS_PRE_PRINTK
-        
-    endchoice
-    
-    source "arch/xtensa/variants/lx106/Kconfig"
-    source "arch/xtensa/variants/esp32/Kconfig"
-endmenu 
+
+config XTENSA_VARIANT_LX106
+    bool "LX106"
+    select ARCH_HAS_NOMMU
+    select ARCH_HAS_XIP
+    select ARCH_HAS_PRE_PRINTK
+
+config XTENSA_VARIANT_ESP32
+    bool "ESP32"
+    select ARCH_HAS_NOMMU
+    select ARCH_HAS_XIP
+    select ARCH_HAS_PRE_PRINTK
+
+endchoice
+
+source "arch/xtensa/variants/lx106/Kconfig"
+source "arch/xtensa/variants/esp32/Kconfig"
+
+endmenu
 

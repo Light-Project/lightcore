@@ -13,23 +13,32 @@
 #include <resource.h>
 #include <printk.h>
 
-/**
- * devres_release - add resource to device
- * @dev: device to add
- * @devres: added resource
- */
 static inline void devres_add(struct device *dev, struct devres *devres)
 {
     list_add_prev(&dev->devres, &devres->list);
 }
 
-/**
- * devres_release - del resource to device
- * @devres: resources to del
- */
 static inline void devres_del(struct devres *devres)
 {
     list_del(&devres->list);
+}
+
+/**
+ * devres_find - find device resources by address
+ * @dev: device to find
+ * @addr: resources addr
+ */
+static struct devres *devres_find(struct device *dev, void *addr)
+{
+    struct devres *devres;
+
+    device_for_each_res(devres, dev) {
+        void *end = devres->addr + devres->size;
+        if (devres->addr <= addr && addr < end)
+            return devres;
+    }
+
+    return NULL;
 }
 
 /**
@@ -53,7 +62,7 @@ void devres_release(struct devres *devres)
 }
 
 /**
- * devres_release - release all resource from device
+ * devres_release_all - release all resource from device
  * @dev: device to release
  */
 void devres_release_all(struct device *dev)
@@ -64,24 +73,6 @@ void devres_release_all(struct device *dev)
         devres_del(devres);
         devres_release(devres);
     }
-}
-
-/**
- * devres_find - find device resources by address
- * @dev: device to find
- * @addr: resources addr
- */
-static struct devres *devres_find(struct device *dev, void *addr)
-{
-    struct devres *devres;
-
-    device_for_each_res(devres, dev) {
-        void *end = devres->addr + devres->size;
-        if (devres->addr <= addr && addr < end)
-            return devres;
-    }
-
-    return NULL;
 }
 
 void *dev_kmalloc(struct device *dev, size_t size, gfp_t gfp)

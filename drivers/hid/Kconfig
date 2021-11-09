@@ -1,0 +1,5 @@
+menuconfig HID
+    bool "Human Interface Device (HID) Support"
+if HID
+
+endif
