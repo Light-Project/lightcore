@@ -1,8 +1,4 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#include <mm.h>
-#include <types.h>
-#include <stddef.h>
-#include <printk.h>
 #include <rbtree.h>
 #include <export.h>
 
@@ -22,8 +18,7 @@ rotate_set(struct rb_node *old, struct rb_node *new,
 static __always_inline void
 left_rotate(struct rb_node *node, int color, struct rb_root *root)
 {
-    struct rb_node *parent;
-    parent = node->right;
+    struct rb_node *parent = node->right;
 
     node->right = parent->left;
     parent->left = node;
@@ -33,8 +28,7 @@ left_rotate(struct rb_node *node, int color, struct rb_root *root)
 static __always_inline void
 right_rotate(struct rb_node *node, int color, struct rb_root *root)
 {
-    struct rb_node *parent;
-    parent = node->left;
+    struct rb_node *parent = node->left;
 
     node->left = parent->right;
     parent->right = node;
@@ -43,13 +37,12 @@ right_rotate(struct rb_node *node, int color, struct rb_root *root)
 
 /**
  * rb_insert/delete - Addition and deletion of red black tree
- *
  */
 void rb_fixup(struct rb_root *root, struct rb_node *node)
 {
     struct rb_node *parent, *gparent, *tmp;
 
-    while(root && node) {
+    while (root && node) {
         parent = node->parent;
 
         /* If node is root */
@@ -141,7 +134,7 @@ void rb_fixup(struct rb_root *root, struct rb_node *node)
             }
 
             tmp = parent->left;
-            if (node == tmp){
+            if (node == tmp) {
                 /* Case 2 - right rotate at parent */
                 tmp = node->right;
                 if (tmp)
@@ -153,7 +146,7 @@ void rb_fixup(struct rb_root *root, struct rb_node *node)
             }
 
             /* Case 3 - left rotate at gparent */
-            if(tmp)
+            if (tmp)
                 tmp->color = RB_BLACK;
             left_rotate(gparent, RB_RED, root);
             return;
@@ -219,7 +212,6 @@ struct rb_node *right_deep(const struct rb_node *node)
 
 /**
  * rb_first/last/prev/next - Middle iteration (Sequential)
- *
  */
 struct rb_node *rb_first(const struct rb_root *root)
 {
@@ -237,7 +229,7 @@ struct rb_node *rb_last(const struct rb_root *root)
 {
     struct rb_node *node = root->rb_node;
 
-    if(!root || !node)
+    if (!root || !node)
         return NULL;
 
     /* Get the rightmost node */
@@ -265,7 +257,7 @@ struct rb_node *rb_prev(const struct rb_node *node)
      * No left-hand node, go up till we find an
      *
      */
-    while((parent = node->parent) && node == parent->left)
+    while ((parent = node->parent) && node == parent->left)
         node = parent;
 
     return parent;
@@ -273,7 +265,6 @@ struct rb_node *rb_prev(const struct rb_node *node)
 
 /**
  * rb_pre_first/next - Preorder iteration (Tree)
- *
  */
 struct rb_node *rb_pre_first(const struct rb_root *root)
 {
@@ -310,7 +301,7 @@ struct rb_node *rb_next(const struct rb_node *node)
 {
     struct rb_node *parent;
 
-    if(!node)
+    if (!node)
         return NULL;
 
     /*
@@ -334,8 +325,6 @@ struct rb_node *rb_next(const struct rb_node *node)
 
 /**
  * rb_post_first/next - Postorder iteration (Depth-first)
- *
- * It's depth first, we can use it delete all nodes.
  */
 struct rb_node *rb_post_first(const struct rb_root *root)
 {
