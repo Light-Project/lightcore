@@ -1,9 +1,12 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
 #include <boot.h>
-#include <stdarg.h>
-#include <stddef.h>
 
 void (*stdout)(const char *) = NULL;
-void __weak panic_reboot(void) {while(1);}
+void __weak __noreturn panic_reboot(void) {while(1);}
 
 int printf(const char *str, ...)
 {
@@ -40,13 +43,13 @@ int pr_boot(const char *str, ...)
     return len;
 }
 
-void panic(const char *str, ...)
+void __noreturn panic(const char *str, ...)
 {
     char strbuf[128];
     va_list para;
 
     if (!stdout)
-        return;
+        goto exit;
 
     stdout("[panic]: ");
     va_start(para,str);
@@ -54,6 +57,7 @@ void panic(const char *str, ...)
     va_end(para);
     stdout(strbuf);
 
+exit:
     panic_reboot();
 }
 

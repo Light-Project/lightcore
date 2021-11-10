@@ -17,6 +17,7 @@
 #define dram_freq   (CONFIG_PRELOAD_DRAM_CLK * MHZ)
 #define clock_uart  (CONFIG_PRELOAD_UART_CLK)
 
+#define TIM_BASE    ((void *)(SSEG1_BASE + 0x0020a000))
 #define WDT_BASE    ((void *)(SSEG1_BASE + 0x0020b000))
 #define SPI_BASE    ((void *)(SSEG1_BASE + 0x00302000))
 #define GCTL_BASE   ((void *)(SSEG1_BASE + 0x0030a000))
@@ -26,30 +27,34 @@
 
 #define head_addr   0x2000
 
-void kboot_start(void *jump);
-void halt(void);
+void __noreturn kboot_start(void *jump);
+void __noreturn halt(void);
 
-uint32_t ccu_init(void);
-uint32_t ccu_cpu(uint32_t dto, uint32_t freq);
-uint32_t ccu_axi(uint32_t cpu, uint32_t freq);
-uint32_t ccu_ahb(uint32_t cpu, uint32_t freq);
-uint32_t ccu_apb(uint32_t dto, uint32_t freq);
-uint32_t ccu_dram(uint32_t freq);
+extern uint32_t ccu_init(void);
+extern uint32_t ccu_cpu(uint32_t dto, uint32_t freq);
+extern uint32_t ccu_axi(uint32_t cpu, uint32_t freq);
+extern uint32_t ccu_ahb(uint32_t cpu, uint32_t freq);
+extern uint32_t ccu_apb(uint32_t dto, uint32_t freq);
+extern uint32_t ccu_dram(uint32_t freq);
 
-void dramc_init(void);
+extern void dramc_init(void);
 
-void uart_print(const char *str);
-void uart_sync(void);
-void uart_init(uint32_t apb, uint32_t freq);
+extern uint32_t time_read(void);
+extern void mdelay(uint32_t ms);
+extern void timer_init(uint32_t freq);
 
-void spi_sel(bool sel);
-void spi_transmit(uint8_t *txbuf, uint8_t *rxbuf, uint32_t len);
-void spi_init(void);
-void spi_deinit(void);
+extern void uart_print(const char *str);
+extern void uart_sync(void);
+extern void uart_init(uint32_t apb, uint32_t freq);
 
-bool norflash_id(void);
-void norflash_read(uint8_t *buff, size_t addr, uint32_t len);
+extern void spi_sel(bool sel);
+extern void spi_transmit(uint8_t *txbuf, uint8_t *rxbuf, uint32_t len);
+extern void spi_init(void);
+extern void spi_deinit(void);
 
-void __noreturn wdt_reboot(void);
+extern bool norflash_id(void);
+extern void norflash_read(uint8_t *buff, size_t addr, uint32_t len);
+
+extern void __noreturn panic_reboot(void);
 
 #endif

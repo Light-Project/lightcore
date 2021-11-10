@@ -223,7 +223,6 @@ static bool dramc_wait_ready(void)
 
 void dramc_init(void)
 {
-    *(volatile uint32_t *)(GCTL_BASE + GX6605S_SOURCE_SEL1) |=  (1<<25);
     *(volatile uint32_t *)(GCTL_BASE + GX6605S_MPEG_CLK_INHIBIT_DAT) &= ~((1 << 27)|(1 << 28));
     *(volatile uint32_t *)(GCTL_BASE + GX6605S_DENALI_CONFIG0) = 0xffffffff;
     *(volatile uint32_t *)(GCTL_BASE + GX6605S_MPEG_CLD_RST1_DAT) |= (0x1);
@@ -246,14 +245,9 @@ void dramc_init(void)
     *((volatile uint32_t *)(GCTL_BASE + GX6605S_DRAM_CTRL0)) &= ~(0x0f << 11);      // POWER DOWN
     *((volatile uint32_t *)(GCTL_BASE + GX6605S_DRAM_CTRL0)) &= ~(0x01 << 15);      // for pad_oe_e.low power
 
-    *((volatile uint32_t *)(GCTL_BASE + GX6605S_DRAM_CTRL0)) |= DDR_PULL << 16;     // ODC PU
-    *((volatile uint32_t *)(GCTL_BASE + GX6605S_DRAM_CTRL0)) |= DDR_PULL << 20;     // ODC PU
-    *((volatile uint32_t *)(GCTL_BASE + GX6605S_DRAM_CTRL1)) |= DDR_PULL << 3;      // dqs PU
-    *((volatile uint32_t *)(GCTL_BASE + GX6605S_DRAM_CTRL1)) |= DDR_PULL << 7;      // dqs PU
-    *((volatile uint32_t *)(GCTL_BASE + GX6605S_DRAM_CTRL1)) |= DDR_PULL << 14;     // clk PU
-    *((volatile uint32_t *)(GCTL_BASE + GX6605S_DRAM_CTRL1)) |= DDR_PULL << 18;     // clk PU
-    *((volatile uint32_t *)(GCTL_BASE + GX6605S_DRAM_CTRL2)) |= DDR_PULL << 3;      // address PU
-    *((volatile uint32_t *)(GCTL_BASE + GX6605S_DRAM_CTRL2)) |= DDR_PULL << 7;      // address PU
+    *((volatile uint32_t *)(GCTL_BASE + GX6605S_DRAM_CTRL0)) |= (DDR_PULL << 16)|(DDR_PULL << 20);
+    *((volatile uint32_t *)(GCTL_BASE + GX6605S_DRAM_CTRL1)) |= (DDR_PULL <<  3)|(DDR_PULL <<  7)|(DDR_PULL << 14)|(DDR_PULL << 18);
+    *((volatile uint32_t *)(GCTL_BASE + GX6605S_DRAM_CTRL2)) |= (DDR_PULL <<  3)|(DDR_PULL <<  7);
 
     *((volatile uint32_t *)(GCTL_BASE + GX6605S_DRAM_CTRL0)) |= (DDR_DRIVER << 3)|(DDR_DRIVER << 6)|(DDR_DRIVER << 24);
     *((volatile uint32_t *)(GCTL_BASE + GX6605S_DRAM_CTRL1)) |= (DDR_DRIVER << 0)|(DDR_DRIVER << 11);
