@@ -24,7 +24,7 @@ DEFINE_PERCPU(struct doublefault_stack, doublefault_stack) = {
         .es = GDT_ENTRY_KERNEL_DS_BASE,
         .ss = GDT_ENTRY_KERNEL_DS_BASE,
         .eflags = EFLAGS_FIXED,
-        .cr3 = va_to_pa(page_dir),
+        // .cr3 = va_to_pa(page_dir),
     },
 };
 

@@ -72,6 +72,7 @@ quiet_cmd_mkincbin = MKINCBIN $@
       cmd_mkincbin = $(objtree)/tools/mkincbin/mkincbin .piggydata $< > $@
 $(obj)/piggy.S: $(obj)/kernel.bin$(suffix-y) FORCE
 	$(call if_changed,mkincbin)
+
 targets += piggy.S kernel.bin$(suffix-y)
 
 clean-suffix += .gz .bz2 .lzma .xz .lzo .lz4 .zst

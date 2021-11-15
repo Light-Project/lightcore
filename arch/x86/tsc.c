@@ -4,9 +4,8 @@
  */
 
 #include <kernel.h>
-#include <driver/clocksource/i8253.h>
 #include <printk.h>
-
+#include <driver/clocksource/i8253.h>
 #include <asm/delay.h>
 #include <asm/regs.h>
 #include <asm/io.h>
@@ -72,6 +71,6 @@ void __init tsc_init(void)
     }
 
     tsc_khz = tscmin;
-    pr_early("TSC Detected %lu.%03lu Mhz\n",
+    pr_info("tsc detected %lu.%03lu Mhz\n",
              tsc_khz / 1000, tsc_khz % 1000);
 }

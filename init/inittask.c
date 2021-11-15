@@ -4,10 +4,9 @@
  */
 
 #include <fs.h>
-#include <driver/power.h>
-#include <asm/delay.h>
-#include <asm/proc.h>
+#include <power.h>
 #include <printk.h>
+#include <asm/delay.h>
 
 static const char *init_argv[] = {
     NULL, "init", NULL
@@ -47,8 +46,6 @@ void __noreturn user_init(void)
 
     ksh_main();
 
-    while (1);
-
     /* Startup failed reset the machine */
     pr_emerg("No init executable found, system will reset:");
     for (count = 5; count; count--) {
@@ -57,6 +54,5 @@ void __noreturn user_init(void)
     }
     pr_emerg("\n");
 
-    power_reset();
-    power_restart();
+    kernel_restart();
 }

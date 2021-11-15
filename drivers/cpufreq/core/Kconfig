@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+
+config CPUFREQ_SCHED_ONDEMAND
+    bool "Ondemand Scheduler Support"
+
+config CPUFREQ_SCHED_PERFORMANCE
+    bool "Performance Scheduler Support"
+
+config CPUFREQ_SCHED_POWERSAVE
+    bool "Powersave Scheduler Support"
+
+choice
+    prompt "Default CPUFreq Scheduler"
+
+config CPUFREQ_SCHED_DEF_ONDEMAND
+    bool "Ondemand"
+    select CPUFREQ_SCHED_ONDEMAND
+
+config CPUFREQ_SCHED_DEF_PERFORMANCE
+    bool "Performance"
+    select CPUFREQ_SCHED_PERFORMANCE
+
+config CPUFREQ_SCHED_DEF_POWERSAVE
+    bool "Powersave"
+    select CPUFREQ_SCHED_POWERSAVE
+
+endchoice

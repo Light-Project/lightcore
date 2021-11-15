@@ -41,7 +41,7 @@ unsigned int dt_address_nr(const struct dt_node *node)
     cell = acell + scell;
 
     if (!dt_attribute_get(node, "reg", &len))
-        return -ENODATA;
+        return 0;
 
     return len / cell;
 }

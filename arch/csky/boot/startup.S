@@ -31,6 +31,7 @@ Bss_loop:
     lrw     r1, init_thread_union + THREAD_SIZE
     mov     sp, r1
 
+    movi    l0, 0
     jsri    kernel_start
     br      halt
 END(init)

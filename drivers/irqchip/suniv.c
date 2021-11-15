@@ -60,7 +60,6 @@ static state suniv_probe(struct platform_device *pdev, void *pdata)
     if (!sdev->mmio)
         return -ENOMEM;
 
-
     arch_irq_set(suniv_handle);
     return irqchip_register(&sdev->irq);
 }

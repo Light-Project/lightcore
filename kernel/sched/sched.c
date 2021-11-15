@@ -183,7 +183,7 @@ static void sched_initcall(void)
     initcall_for_each_fn(fn, scheduler_initcall) {
         call = initcall_from_entry(fn);
         if ((ret = call()))
-            pr_crit("%s init failed, error code [%d]", fn->name, ret);
+            pr_crit("%s init failed, error code [%d]\n", fn->name, ret);
     }
 }
 

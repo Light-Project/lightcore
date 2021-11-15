@@ -6,8 +6,6 @@
 
 #define IRQ_EXTERNAL    0x20
 #define IRQ_NR_MAX      256
-#define irqflags_t      uint8_t
-#define irqnr_t         uint8_t
 
 #ifndef __ASSEMBLY__
 
@@ -57,7 +55,7 @@ static inline void cpu_irq_restore(irqflags_t flags)
     cpu_irq_enable();
 }
 
-#endif /* __ASSEMBLY__ */
+#endif  /* __ASSEMBLY__ */
 
 #include <asm-generic/irq.h>
 

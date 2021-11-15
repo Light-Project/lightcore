@@ -6,11 +6,10 @@
 #define pr_fmt(fmt) "power: " fmt
 
 #include <driver/power.h>
-#include <asm/proc.h>
 
 static LIST_HEAD(power_list);
 
-void __noreturn power_restart(void)
+void power_restart(void)
 {
     struct power_device *pdev;
 
@@ -18,11 +17,9 @@ void __noreturn power_restart(void)
         if (pdev->ops->restart)
             pdev->ops->restart(pdev);
     }
-
-    proc_reset();
 }
 
-void __noreturn power_reset(void)
+void power_reset(void)
 {
     struct power_device *pdev;
 
@@ -30,11 +27,9 @@ void __noreturn power_reset(void)
         if (pdev->ops->reset)
             pdev->ops->reset(pdev);
     }
-
-    proc_reset();
 }
 
-void __noreturn power_shutdown(void)
+void power_shutdown(void)
 {
     struct power_device *pdev;
 
@@ -42,8 +37,6 @@ void __noreturn power_shutdown(void)
         if (pdev->ops->shutdown)
             pdev->ops->shutdown(pdev);
     }
-
-    proc_halt();
 }
 
 state power_register(struct power_device *pdev)

@@ -27,5 +27,6 @@ extern state memblock_reserve(const char *name, phys_addr_t addr, phys_addr_t si
 extern state memblock_remove(phys_addr_t addr, size_t size);
 extern phys_addr_t memblock_alloc(size_t size, size_t align, phys_addr_t min_addr, phys_addr_t max_addr);
 extern void memblock_takeover(enum memblock_type type, bool (*fn)(struct memblock_region *));
+extern void memblock_dump(void);
 
 #endif /* _MM_MEMBLOCK_H_ */

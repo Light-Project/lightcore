@@ -38,22 +38,22 @@ static state spinor_spi_transfer(struct spi_device *spi, struct spinor_transfer 
 
 }
 
-static state spinor_spi_regread(struct spinor_device *nor, loff_t pos, uint8_t *buf, uint8_t len)
+static state spinor_spi_regread(struct spinor_device *nor, loff_t pos, void *buf, uint8_t len)
 {
     return -ENOERR;
 }
 
-static state spinor_spi_regwrite(struct spinor_device *nor, loff_t pos, uint8_t *buf, uint8_t len)
+static state spinor_spi_regwrite(struct spinor_device *nor, loff_t pos, void *buf, uint8_t len)
 {
     return -ENOERR;
 }
 
-static state spinor_spi_read(struct spinor_device *nor, loff_t pos, uint8_t *buf, uint64_t len)
+static state spinor_spi_read(struct spinor_device *nor, loff_t pos, void *buf, uint64_t len)
 {
     return -ENOERR;
 }
 
-static state spinor_spi_write(struct spinor_device *nor, loff_t pos, uint8_t *buf, uint64_t len)
+static state spinor_spi_write(struct spinor_device *nor, loff_t pos, void *buf, uint64_t len)
 {
     return -ENOERR;
 }

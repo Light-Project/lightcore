@@ -4,7 +4,7 @@
 
 #include <types.h>
 #include <state.h>
-#include <mm/mm_types.h>
+#include <mm/types.h>
 
 struct fsdev {
     struct list_head list;

@@ -6,16 +6,6 @@
 #include <driver/dt.h>
 #include <driver/irqchip.h>
 
-static struct dt_node *dt_irq_parent(struct dt_node *node)
-{
-    uint32_t phandle;
-
-    if (!dt_search_up(node, "interrupt-parent", &phandle))
-        return NULL;
-
-    return dt_find_by_phandle(phandle);
-}
-
 static struct dt_node *dt_get_channel(struct dt_node *node, int index, uint32_t *irq_nr)
 {
     struct dt_node *parent;

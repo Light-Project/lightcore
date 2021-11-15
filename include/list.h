@@ -102,6 +102,17 @@ typedef struct list_head{
          pos = list_next_entry(pos, member))
 
 /**
+ * list_for_each_entry_reverse - iterate backwards over list of given type.
+ * @pos:	the type * to use as a loop cursor.
+ * @head:	the head for your list.
+ * @member:	the name of the list_head within the struct.
+ */
+#define list_for_each_entry_reverse(pos, head, member)          \
+    for (pos = list_last_entry(head, typeof(*pos), member);     \
+         !list_entry_is_head(pos, head, member);                \
+         pos = list_prev_entry(pos, member))
+
+/**
  * list_for_each_entry_safe - iterate over list of given type safe against removal of list entry
  * @pos:	the type * to use as a loop cursor.
  * @n:		another type * to use as temporary storage
@@ -114,6 +125,34 @@ typedef struct list_head{
          !list_entry_is_head(pos, head, member);                \
          pos = n, n = list_next_entry(n, member))
 
+/**
+ * list_for_each_entry_continue - continue iteration over list of given type
+ * @pos:	the type * to use as a loop cursor.
+ * @head:	the head for your list.
+ * @member:	the name of the list_head within the struct.
+ *
+ * Continue to iterate over list of given type, continuing after
+ * the current position.
+ */
+#define list_for_each_entry_continue(pos, head, member)         \
+    for (pos = list_next_entry(pos, member);                    \
+         !list_entry_is_head(pos, head, member);                \
+         pos = list_next_entry(pos, member))
+
+/**
+ * list_for_each_entry_continue_reverse - iterate backwards from the given point
+ * @pos:	the type * to use as a loop cursor.
+ * @head:	the head for your list.
+ * @member:	the name of the list_head within the struct.
+ *
+ * Start to iterate over list of given type backwards, continuing after
+ * the current position.
+ */
+#define list_for_each_entry_continue_reverse(pos, head, member) \
+    for (pos = list_prev_entry(pos, member);                    \
+         !list_entry_is_head(pos, head, member);                \
+         pos = list_prev_entry(pos, member))
+
 void list_head_init(struct list_head *list);
 void list_insert(struct list_head *prev, struct list_head *next, struct list_head *new);
 void list_add(struct list_head *head, struct list_head *new);
@@ -121,6 +160,7 @@ void list_add_prev(struct list_head *node, struct list_head *new);
 void list_add_next(struct list_head *node,struct list_head *new);
 void list_del(struct list_head *node);
 void list_replace(struct list_head *old, struct list_head *new);
+void list_move_front(struct list_head *head, struct list_head *node);
 void list_move_tail(struct list_head *head, struct list_head *node);
 
 bool list_check_first(struct list_head *head, struct list_head *node);

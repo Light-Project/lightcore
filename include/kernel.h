@@ -3,23 +3,42 @@
 #define _KERNEL_H_
 
 #include <types.h>
+#include <stddef.h>
+#include <stdarg.h>
 #include <state.h>
 #include <limits.h>
-#include <stddef.h>
+#include <panic.h>
+#include <printk.h>
 
 #define KMAGIC  0x4c434747
 #define MSIZE   (sizeof(void *))
+
+/**
+ * ARRAY_SIZE - get the number of elements in array
+ * @arr: array to be sized
+ */
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+
+/**
+ * swap - swap two variable
+ * @a: first variable
+ * @b: second variable
+ */
+#define swap(a, b) ({                       \
+    typeof(a) tmp = (a);                    \
+    (b) = tmp; (a) = (b);                   \
+})
 
 /**
  * min - return minimum of two values of the same or compatible types
  * @x: first value
  * @y: second value
  */
-#define min(a, b) ({                \
-    typeof(a) _amin = (a);          \
-    typeof(a) _bmin = (b);          \
-    (void)(&_amin == &_bmin);       \
-    _amin < _bmin ? _amin : _bmin;  \
+#define min(a, b) ({                        \
+    typeof(a) _amin = (a);                  \
+    typeof(a) _bmin = (b);                  \
+    (void)(&_amin == &_bmin);               \
+    _amin < _bmin ? _amin : _bmin;          \
 })
 
 /**
@@ -27,11 +46,11 @@
  * @x: first value
  * @y: second value
  */
-#define max(a, b) ({                \
-    typeof(a) _amax = (a);          \
-    typeof(a) _bmax = (b);          \
-    (void)(&_amax == &_bmax);       \
-    _amax > _bmax ? _amax : _bmax;  \
+#define max(a, b) ({                        \
+    typeof(a) _amax = (a);                  \
+    typeof(a) _bmax = (b);                  \
+    (void)(&_amax == &_bmax);               \
+    _amax > _bmax ? _amax : _bmax;          \
 })
 
 /**
@@ -50,18 +69,6 @@
      (((__x) > 0) == ((__d) > 0))) ?        \
         (((__x) + ((__d) / 2)) / (__d)) :   \
         (((__x) - ((__d) / 2)) / (__d));    \
-})
-
-/**
- * ARRAY_SIZE - get the number of elements in array
- * @arr: array to be sized
- */
-#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
-
-#define swap(a, b) ({   \
-    typeof(a) tmp = a;  \
-    b = tmp;            \
-    a = b;              \
 })
 
 /**
@@ -91,26 +98,18 @@
 
 #define align_check(size, align) (!(size & (align - 1)))
 
-#ifndef __ASSEMBLY__
-
-#include <stdarg.h>
-#include <printk.h>
-
 extern __printf(2, 3) int sprintf(char *buf, const char *fmt, ...);
 extern __printf(3, 4) int snprintf(char *buf, size_t n, const char *fmt, ...);
 extern int vsprintf(char *buf, const char *fmt, va_list args);
 extern int vsnprintf(char *buf, size_t n, const char *fmt, va_list args);
-
 extern char *gsize(char *buff, size_t size);
-extern void panic(const char* fmt, ...);
 
 #define kassert(val)                                    \
-    if (unlikely(val)) {                                \
+    if (unlikely(!(val))) {                             \
         printk("kassert %s:%d/%s\n" __stringify(val),   \
             __FILE__, __LINE__, __func__);              \
         panic("kassert");                               \
     }
 
-#endif  /* __ASSEMBLY__ */
 #endif  /* _KERNEL_H_ */
 

@@ -7,6 +7,17 @@
 #include <driver/dt/fdt.h>
 #include <export.h>
 
+struct dt_node *dt_irq_parent(const struct dt_node *node)
+{
+    uint32_t phandle;
+
+    if (!dt_search_up(node, "interrupt-parent", &phandle))
+        return NULL;
+
+    return dt_find_by_phandle(phandle);
+}
+EXPORT_SYMBOL(dt_irq_parent);
+
 state dt_irq(const struct dt_node *node, unsigned int index,
              resource_size_t *irq)
 {
@@ -17,14 +28,20 @@ EXPORT_SYMBOL(dt_irq);
 
 unsigned int dt_irq_nr(const struct dt_node *node)
 {
-    int len, asize, sszie;
+    struct dt_node *parent;
+    uint32_t cell;
+    int len;
 
-    asize = dt_addr_cell(node) * 4;
-    sszie = dt_size_cell(node) * 4;
+    parent = dt_irq_parent(node);
+    if (!parent)
+        return 0;
+
+    if (dt_attribute_read_u32(parent, "#interrupt-cells", &cell))
+        return 0;
 
     if (!dt_attribute_get(node, "irq", &len))
-        return -ENODATA;
+        return 0;
 
-    return len / (asize + sszie);
+    return len / cell;
 }
 EXPORT_SYMBOL(dt_irq_nr);

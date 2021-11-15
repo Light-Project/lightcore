@@ -19,7 +19,7 @@ void arch_setup(void)
 {
     idt_setup();
     gdt_setup();
-    arch_page_setup();
+    // arch_page_setup();
     doublefault_init();
 
     tsc_init();

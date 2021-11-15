@@ -42,11 +42,12 @@ static const struct spinor_type winbond_types[] = {
     { .name = "w25q64jwm",      .jedec = 0xef8017, .page_size = 256, .sector_size = 64 * SZ_1KiB, .sector_nr =  128 },
     { .name = "w25q128jwm",     .jedec = 0xef8018, .page_size = 256, .sector_size = 64 * SZ_1KiB, .sector_nr =  256 },
     { .name = "w25q256jwm",     .jedec = 0xef8019, .page_size = 256, .sector_size = 64 * SZ_1KiB, .sector_nr =  512 },
-    { },
+    { }, /* NULL */
 };
 
 static state winbond_init(void)
 {
     spinor_type_register(winbond_types);
+    return -ENOERR;
 }
 driver_initcall(winbond_init);

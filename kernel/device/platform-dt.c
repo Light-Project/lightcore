@@ -27,7 +27,7 @@ static inline const struct dt_device_id *
 dt_device_match(const struct dt_device_id *ids, struct dt_node *node)
 {
     while ((ids->name && ids->name[0]) || (ids->type && ids->type[0]) ||
-          (ids->compatible && ids->compatible[0]))
+           (ids->compatible && ids->compatible[0]))
     {
         if(dt_match(ids, node))
             return ids;
@@ -51,9 +51,13 @@ static inline state dt_populate_resource(struct platform_device *pdev, int type)
     unsigned int addr_nr, irq_nr, count;
     resource_size_t start, size;
     const char *name;
+    state ret;
 
     addr_nr = dt_address_nr(pdev->dt_node);
     irq_nr = dt_irq_nr(pdev->dt_node);
+
+    if (!addr_nr && !irq_nr)
+        return -ENOERR;
 
     res = kzalloc(sizeof(*pdev->resource) * (addr_nr + irq_nr), GFP_KERNEL);
     if (!res)
@@ -63,8 +67,9 @@ static inline state dt_populate_resource(struct platform_device *pdev, int type)
     pdev->resources_nr = addr_nr + irq_nr;
 
     for (count = 0; count < addr_nr; ++count, ++res) {
-        if (dt_address(pdev->dt_node, count, &start, &size))
-            break;
+        ret = dt_address(pdev->dt_node, count, &start, &size);
+        if (ret)
+            goto error;
 
         dt_attribute_read_string_index(pdev->dt_node, "reg-names", count, &name);
 
@@ -74,19 +79,24 @@ static inline state dt_populate_resource(struct platform_device *pdev, int type)
         res->type  = type;
     }
 
-    for (count = 0; count < irq_nr; ++count, ++res) {
-        if (dt_irq(pdev->dt_node, count, &start))
-            break;
+    // for (count = 0; count < irq_nr; ++count, ++res) {
+    //     ret = dt_irq(pdev->dt_node, count, &start);
+    //     if (ret)
+    //         goto error;
 
-        dt_attribute_read_string_index(pdev->dt_node, "irq-names", count, &name);
+    //     dt_attribute_read_string_index(pdev->dt_node, "irq-names", count, &name);
 
-        res->start = start;
-        res->size  = size;
-        res->name  = name ? name : pdev->dt_node->name;
-        res->type  = RESOURCE_IRQ;
-    }
+    //     res->start = start;
+    //     res->size  = size;
+    //     res->name  = name ? name : pdev->dt_node->name;
+    //     res->type  = RESOURCE_IRQ;
+    // }
 
     return -ENOERR;
+
+error:
+    kfree(res);
+    return ret;
 }
 
 static __always_inline struct platform_device *dt_alloc_node(struct dt_node *node)

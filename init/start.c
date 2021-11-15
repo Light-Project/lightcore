@@ -15,6 +15,7 @@
 
 #include <mm.h>
 #include <memtest.h>
+#include <mm/memblock.h>
 
 #include <fs.h>
 
@@ -62,9 +63,10 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
 
     /* arch init */
     arch_setup();
+    memblock_dump();
 
-    pr_info("Kernel version: "CONFIG_VERSION"\n");
-    pr_info("Kernel command: %s\n", boot_args);
+    pr_info("kernel version: "CONFIG_VERSION"\n");
+    pr_info("kernel command: %s\n", boot_args);
 
     /* kernel init */
     mem_init();

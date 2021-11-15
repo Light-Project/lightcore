@@ -8,6 +8,13 @@
 
 struct task;
 
+void proc_thread_setup(struct regs *regs, size_t ip, size_t sp);
+state proc_thread_switch(struct task *prev, struct task *next);
+
+void __noreturn proc_reset(void);
+void __noreturn proc_halt(void);
+void __noreturn proc_poweroff(void);
+
 static __always_inline void cpu_relax(void)
 {
     /*
@@ -16,11 +23,5 @@ static __always_inline void cpu_relax(void)
      */
     asm volatile("rep nop" ::: "memory");
 }
-
-void proc_thread_setup(struct regs *regs, size_t ip, size_t sp);
-state proc_thread_switch(struct task *prev, struct task *next);
-
-void __noreturn proc_reset(void);
-void __noreturn proc_halt(void);
 
 #endif /* _ASM_X86_PROC_H_ */

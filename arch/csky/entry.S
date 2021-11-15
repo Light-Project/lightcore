@@ -77,7 +77,7 @@
     addi    sp, 0x0c
     ldm     r1-r15, (sp)
 
-    addi    sp, 0x18
+    addi    sp, 0x1c
     addi    sp, 0x20
 
     bt      2f
@@ -87,10 +87,7 @@
 
 ENTRY(exception_return)
     psrclr  ie
-    ldw     r1, (sp, 0x00)
-    btsti   r1, 31
-    bt      1f
-1:
+
     REC_REGS
     rte
 END(exception_return)
@@ -166,6 +163,5 @@ SYM_CODE_START(entry_generic_interrupt)
     mov     a0, sp
     jbsr    generic_interrupt
 
-    REC_REGS
-    rfi
+    br      exception_return
 SYM_CODE_END(entry_generic_interrupt)

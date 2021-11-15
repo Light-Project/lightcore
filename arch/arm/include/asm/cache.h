@@ -6,14 +6,15 @@
 #include <kernel.h>
 #include <asm/barrier.h>
 
+/* bytes per L1 cache line */
 #ifdef CONFIG_CPU_V7
 #define CACHE_LINE_SHIFT 6
 #else
 #define CACHE_LINE_SHIFT 5
 #endif
 
-#define CACHE_LINE_SIZE  (1 << CACHE_LINE_SHIFT)
-#define CACHE_LINE_MASK  (~(CACHE_LINE_SIZE - 1))
+#define CACHE_LINE_SIZE (1 << CACHE_LINE_SHIFT)
+#define CACHE_LINE_MASK (~(CACHE_LINE_SIZE - 1))
 
 #ifndef __ASSEMBLY__
 

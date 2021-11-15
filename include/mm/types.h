@@ -14,7 +14,7 @@ enum page_type {
 };
 
 struct slob_page {
-    list_t slob_list;       /* slob page list */
+    struct list_head list;  /* slob page list */
     struct slob_node* node; /* slob node list head of this page */
     unsigned int avail;     /* Free space on slob pages */
 };

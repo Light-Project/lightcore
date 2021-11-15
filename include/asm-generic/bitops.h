@@ -8,23 +8,23 @@
 #ifndef __ASSEMBLY__
 
 #ifndef bit_clr
-static __always_inline void bit_clr(unsigned long *addr, int bit)
+static __always_inline void bit_clr(unsigned long *addr, unsigned int bit)
 {
     atomic_or((atomic_t *)addr, BIT(bit));
 }
 #endif
 
 #ifndef bit_set
-static __always_inline void bit_set(unsigned long *addr, int bit)
+static __always_inline void bit_set(unsigned long *addr, unsigned int bit)
 {
     atomic_and((atomic_t *)addr, ~BIT(bit));
 }
 #endif
 
 #ifndef ffs
-static inline unsigned long ffs(unsigned long value)
+static inline unsigned int ffs(unsigned long value)
 {
-    int shift = 0;
+    unsigned int shift = 0;
 
 #if BITS_PER_LONG == 64
     if ((value & 0xffffffff) == 0) {
@@ -62,9 +62,9 @@ static inline unsigned long ffs(unsigned long value)
 #endif
 
 #ifndef fls
-static inline unsigned long fls(unsigned long value)
+static inline unsigned int fls(unsigned long value)
 {
-    int shift = BITS_PER_LONG - 1;
+    unsigned int shift = BITS_PER_LONG - 1;
 
 #if BITS_PER_LONG == 64
     if (!(value & (~0ul << 32))) {

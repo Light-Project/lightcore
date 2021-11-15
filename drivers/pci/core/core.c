@@ -129,7 +129,7 @@ static inline enum resource_type pci_res_type(uint32_t bar)
     if ((bar & PCI_BASE_ADDRESS_SPACE) == PCI_BASE_ADDRESS_SPACE_IO)
         return RESOURCE_PMIO;
     else if ((bar & PCI_BASE_ADDRESS_MEM_TYPE_MASK) == PCI_BASE_ADDRESS_MEM_TYPE_64)
-        return RESOURCE_MMIO64;
+        return RESOURCE_MMIO | RESOURCE_MEM64;
     else
         return RESOURCE_MMIO;
 }
@@ -195,7 +195,7 @@ bool pci_resource_set(struct pci_device *pdev, enum pci_bar_type type,
         mask64 = PCI_ROM_ADDRESS_MASK;
     }
 
-    if (res->type == RESOURCE_MMIO64) {
+    if (res->type & RESOURCE_MEM64) {
         l = pci_config_readl(pdev, reg + 4);
         pci_config_writel(pdev, reg + 4, l | mask);
         sz = pci_config_readl(pdev, reg + 4);
@@ -220,7 +220,7 @@ bool pci_resource_set(struct pci_device *pdev, enum pci_bar_type type,
 error:
     res->type = RESOURCE_NONE;
 exit:
-    return res->type == RESOURCE_MMIO64;
+    return res->type & RESOURCE_MEM64;
 }
 
 /**

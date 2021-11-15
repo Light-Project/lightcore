@@ -3,27 +3,23 @@
 #define _ASM_CSKY_CACHE_H_
 
 /* bytes per L1 cache line */
-#ifdef CONFIG_CPU_CK610
-    #define CACHE_LINE_SHIFT 4
-#endif /* CPU_CK610 */
-#ifdef CONFIG_CPU_CK807
-    #define CACHE_LINE_SHIFT 5
-#endif /* CPU_CK807 */
-#ifdef CONFIG_CPU_CK810
-    #define CACHE_LINE_SHIFT 5
-#endif /* CPU_CK810 */
-#ifdef CONFIG_CPU_CK860
-    #define CACHE_LINE_SHIFT 6
-#endif /* CPU_CK860 */
+#if defined(CONFIG_CPU_CK610)
+# define CACHE_LINE_SHIFT 4
+#elif defined(CONFIG_CPU_CK807)
+# define CACHE_LINE_SHIFT 5
+#elif defined(CONFIG_CPU_CK810)
+# define CACHE_LINE_SHIFT 5
+#elif defined(CONFIG_CPU_CK860)
+# define CACHE_LINE_SHIFT 6
+#endif
 
 #define CACHE_LINE_SIZE	(1 << CACHE_LINE_SHIFT)
-
-#define ARCH_DMA_MINALIGN	CACHE_LINE_SIZE
+#define CACHE_LINE_MASK (~(CACHE_LINE_SIZE - 1))
 
 #ifndef __ASSEMBLY__
 
 void icache_inval_all(void);
 void dcache_writeback_all(void);
 
-#endif
+#endif  /* __ASSEMBLY__ */
 #endif  /* __ASM_CSKY_CACHE_H */

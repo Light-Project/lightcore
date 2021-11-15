@@ -6,10 +6,10 @@ _clean:
 
 src := $(obj)
 
-clean-y 		:=
-clean-files 	:=
-clean-subdir-y	:=
-clean-subdirs	:=
+clean-y         :=
+clean-files     :=
+clean-subdir-y  :=
+clean-subdirs   :=
 
 # Read auto.conf if it exists, otherwise ignore
 -include $(srctree)/include/config/auto.conf
@@ -49,7 +49,7 @@ clean_dirs      := $(wildcard $(clean_dirs))
 clean_subdir    := $(clean-subdir-y)
 clean_subdir    := $(strip $(sort $(clean_subdir)))
 clean_subdir    := $(filter %/, $(clean_subdir))
-clean_subdir   	:= $(patsubst %/,%,$(clean_subdir))
+clean_subdir    := $(patsubst %/,%,$(clean_subdir))
 clean_subdir    := $(addprefix $(obj)/,$(clean_subdir))
 clean_subdir    += $(clean-subdirs)
 

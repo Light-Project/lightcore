@@ -72,13 +72,26 @@ static struct irqchip_ops gx6605s_irq_ops = {
 
 asmlinkage void generic_interrupt(struct regs *regs)
 {
-    unsigned long nr;
+    unsigned int timeout, nr;
+    uint32_t val;
 
-    while ((nr = fls(gx6605s_read(root, GX6605S_INTC_STAT1))))
+    timeout = 33;
+    while ((val = gx6605s_read(root, GX6605S_INTC_STAT1)) && --timeout) {
+        nr = fls(val);
         irq_handle(nr + 32);
+    } if (!timeout) {
+        gx6605s_write(root, GX6605S_INTC_GATECLR1, val);
+        pr_alert("interrupt 32-63 (%u) timeout, forced mask\n", nr);
+    }
 
-    while ((nr = fls(gx6605s_read(root, GX6605S_INTC_STAT0))))
+    timeout = 33;
+    while ((val = gx6605s_read(root, GX6605S_INTC_STAT0)) && --timeout) {
+        nr = fls(val);
         irq_handle(nr);
+    } if (!timeout) {
+        gx6605s_write(root, GX6605S_INTC_GATECLR0, val);
+        pr_alert("interrupt 0-31 (%u) timeout, forced mask\n", nr);
+    }
 }
 
 static void gx6605s_setup_irqs(struct gx6605s_device *gdev, uint32_t magic)

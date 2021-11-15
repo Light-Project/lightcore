@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig CPUFREQ
-    bool "CPU Freq Device Support"
+    bool "CPUFreq Device Support"
 if CPUFREQ
+
+source "drivers/cpufreq/core/Kconfig"
 
 endif

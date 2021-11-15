@@ -1,12 +1,8 @@
-config VERSION
-    string
-    default $(KERNELVERSION)
-
 menu "General Setup"
 
 config DEFAULT_HOSTNAME
     string "Default hostname"
-    default "lightcore"
+    default "Lightcore"
 
 config DEFAULT_INIT
     string "Default init path"
@@ -15,17 +11,24 @@ config DEFAULT_INIT
 config EXPERT
     bool "Configure standard kernel features (expert users)"
 
+config SMP
+    bool "Symmetric Multi Processing Support"
+
 config SYSVIPC
     bool "System V IPC"
     default y
 
 config SYSTICK_FREQ
-    int "System tick frequency"
+    int "System Tick Frequency"
     range 100 1000
     default 1000
 
 config BOOT_PARAMS
-    bool "Accept kernel instructions"
+    bool "Accept Kernel Instructions"
+    default y
+
+config KSHELL
+    bool "Kernel Shell Support"
     default y
 
 config BUILTIN_DTB
@@ -35,10 +38,8 @@ config BUILTIN_DTB_PATH
     string "Builtin DTB path"
     depends on BUILTIN_DTB
 
-config KSHELL
-    bool "Accept kernel instructions"
-    default y
-
 endmenu
 
-source "kernel/sched/Kconfig"
+config VERSION
+    string
+    default $(KERNELVERSION)

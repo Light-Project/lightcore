@@ -3,3 +3,5 @@ menu "Executable File Formats"
 
 
 endmenu
+
+source "kernel/sched/Kconfig"

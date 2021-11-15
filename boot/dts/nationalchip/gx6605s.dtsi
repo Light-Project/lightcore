@@ -1,0 +1,150 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
+/dts-v1/;
+
+/ {
+    #address-cells = <1>;
+    #size-cells = <1>;
+    model = "NationalChip,gx6605s";
+
+    chosen { };
+
+    clocks {
+        osc27M: clk-27M {
+            #clock-cells = <0>;
+            compatible = "fixed-clock";
+            clock-frequency = <27000000>;
+            clock-output-names = "osc27M";
+        };
+    };
+
+    memory@10000000 {
+        device_type = "memory";
+        reg = <0x10000000 0x04000000>;
+    };
+
+    soc {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        compatible = "amba-bus";
+        interrupt-parent = <&intc>;
+
+        cir@204000 {
+            compatible = "nationalchip,gx6605s-irr";
+            reg = <0x00204000 0x400>;
+        };
+
+        i2c0: i2c@205000 {
+            compatible = "nationalchip,gx6605s-i2c";
+            reg = <0x00205000 0x400>;
+        };
+
+        rtc@209000 {
+            compatible = "nationalchip,gx6605s-rtc";
+            reg = <0x00209000 0x400>;
+            clocks = <&osc27M>;
+        };
+
+        timer@20a000 {
+            compatible = "nationalchip,gx6605s-timer";
+            reg = <0x0020a000 0x400>;
+            interrupts = <10>;
+        };
+
+        wdt: watchdog@20b000 {
+            compatible = "nationalchip,gx6605s-wdt";
+            reg = <0x0020b000 0x400>;
+            clocks = <&osc27M>;
+        };
+
+        spi0: spi@302000 {
+            compatible = "nationalchip,gx6605s-spi";
+            reg = <0x00302000 0x400>;
+        };
+
+        gpio0: gpio@305000 {
+            #gpio-cells = <2>;
+            compatible = "wd,mbl-gpio";
+            reg-names = "dirout", "dat", "set", "clr";
+            reg = <0x305000 4>, <0x305004 4>, <0x305008 4>, <0x30500c 4>;
+            gpio-base = <0>;
+            gpio-controller;
+        };
+
+        serial@403000 {
+            compatible = "ns16550a";
+            reg = <0x00403000 0x400>;
+            interrupts = <15>;
+            clock-frequency = <29491200>;
+            baud = <115200>;
+            reg-shift = <2>;
+            reg-io-width = <1>;
+        };
+
+        gctl: chip-config@40a000 {
+            #clock-cells = <1>;
+            compatible = "nationalchip,gx6605s-gctl";
+            reg = <0x0040a000 0x400>;
+            clocks = <&osc27M>;
+        };
+
+        intc: interrupt-controller@500000 {
+            #interrupt-cells = <1>;
+            #address-cells = <0>;
+            compatible = "nationalchip,gx6605s-intc";
+            reg = <0x00500000 0x400>;
+            interrupt-controller;
+        };
+
+        ehci-hcd@900000 {
+            compatible = "generic-ehci";
+            reg = <0x00900000 0x400>;
+            interrupts = <59>;
+        };
+
+        ohci-hcd0@a00000 {
+            compatible = "generic-ohci";
+            reg = <0x00a00000 0x400>;
+            interrupts = <58>;
+        };
+
+        ohci-hcd1@b00000 {
+            compatible = "generic-ohci";
+            reg = <0x00b00000 0x400>;
+            interrupts = <57>;
+        };
+
+        otp@f80000 {
+            compatible = "nationalchip,gx6605s-otp";
+            reg = <0x00f80000 0x400>;
+        };
+
+        jpeg@4400000 {
+            compatible = "nationalchip,gx6605s-vpu";
+            reg = <0x04400000 0x1000>;
+        };
+
+        vpu@4800000 {
+            compatible = "nationalchip,gx6605s-vpu";
+            reg = <0x04800000 0x1000>;
+        };
+
+        vout@4804000 {
+            compatible = "nationalchip,gx6605s-vout";
+            reg = <0x04804000 0x1000>;
+        };
+
+        svpu@4900000 {
+            compatible = "nationalchip,gx6605s-svpu";
+            reg = <0x04900000 0x1000>;
+        };
+
+        svout@4904000 {
+            compatible = "nationalchip,gx6605s-svout";
+            reg = <0x04904000 0x1000>;
+        };
+    };
+};

@@ -12,14 +12,30 @@ state proc_thread_switch(struct task *prev, struct task *next)
     return -ENOERR;
 }
 
+void proc_idle(void)
+{
+#if defined(CONFIG_CPU_PM_WAIT)
+    asm volatile ("wait");
+#elif defined(CONFIG_CPU_PM_DOZE)
+    asm volatile ("doze");
+#elif defined(CONFIG_CPU_PM_STOP)
+    asm volatile ("stop");
+#endif
+}
+
 void __noreturn proc_halt(void)
 {
     cpu_irq_disable();
     for (;;)
-    asm volatile ("wait");
+    proc_idle();
 }
 
 void __noreturn proc_reset(void)
+{
+    proc_halt();
+}
+
+void __noreturn proc_poweroff(void)
 {
     proc_halt();
 }

@@ -2,7 +2,7 @@
 #ifndef _MM_MEMMODEL_H_
 #define _MM_MEMMODEL_H_
 
-#include <mm/mm_types.h>
+#include <mm/types.h>
 #include <asm/page.h>
 
 /* Flat Memory model */

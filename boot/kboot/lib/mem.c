@@ -36,37 +36,36 @@ static inline uint8_t heap_setup(void *heap_addr,size_t heap_size)
 {
     kmem_heap_t *heap = (kmem_heap_t *) heap_addr;
     kmem_heap_node_t *node;
-    
+
     heap->addr      = heap_addr;
     heap->end       = heap_addr + heap_size;
     heap->total     = heap_size;
-    
-    heap->available = heap->total - 
-                    (sizeof(kmem_heap_t) + 
+
+    heap->available = heap->total -
+                    (sizeof(kmem_heap_t) +
                     sizeof(kmem_heap_node_t));
-    
+
     list_head_init(&heap->phy_head);
     list_head_init(&heap->free_head);
-    
+
     /* setup first free node */
     node            = (kmem_heap_node_t *)
-                      heap + sizeof(kmem_heap_node_t); 
+                      heap + sizeof(kmem_heap_node_t);
 
     node->used      = false;
     node->size      = heap->available - sizeof(kmem_heap_node_t);
-    
+
     list_add(&heap->phy_head, &node->phy_list);
     list_add(&heap->free_head, &node->free_list);
-    
-    return true;
 
-}   
+    return true;
+}
 
 static kmem_heap_node_t *heap_sort(list_t *head, size_t size)
 {
     kmem_heap_node_t *node = NULL;
     kmem_heap_node_t *sort = NULL;
-    
+
     list_for_each_entry(sort,head,free_list)
     {
         if(sort->size >= size)
@@ -92,13 +91,13 @@ static inline void *heap_alloc(void *heap_addr, size_t size)
 {
     kmem_heap_t *heap = heap_addr;
     kmem_heap_node_t *node = NULL;
-    
+
     if(size > heap->available)
         return NULL;
 
     /* get the best free mem block */
     node = heap_sort(&heap->free_head, size);
-    
+
     /* if no suitable memory is found, exit */
     if(node == NULL)
     {
@@ -111,12 +110,12 @@ static inline void *heap_alloc(void *heap_addr, size_t size)
     else if(node->size > size)
     {
         kmem_heap_node_t *free = (kmem_heap_node_t *)NULL;
-        
+
         /* allocation free block */
         free = (kmem_heap_node_t *)
                ((uint8_t *)node + sizeof(kmem_heap_node_t) + size);
 
-        heap->available -= sizeof(kmem_heap_node_t); 
+        heap->available -= sizeof(kmem_heap_node_t);
 
         /* setup the new free block */
         free->size = node->size - size - sizeof(kmem_heap_node_t);
@@ -132,11 +131,11 @@ static inline void *heap_alloc(void *heap_addr, size_t size)
 
 change:
     list_del(&node->free_list);
-    
+
     /* Adjust heap available size */
     heap->available -= size;
 
-    /* set used node */ 
+    /* set used node */
     node->size = size;
     node->used = true;
 
@@ -154,13 +153,13 @@ static inline void heap_free(void *heap_addr,void *mem)
     /* If can't find node, return */
     if(node == NULL)
         return;
-    
+
     node->used = false;
     list_add(&heap->free_head, &node->free_list);
 
     /* Merge previous idle node */
     if (list_prev_entry(node, phy_list)->used == false) {
-        kmem_heap_node_t *prev = 
+        kmem_heap_node_t *prev =
             list_prev_entry(node, phy_list);
 
         /* Scale forward */
@@ -177,16 +176,16 @@ static inline void heap_free(void *heap_addr,void *mem)
 
     /* Merge next idle node */
     if (list_next_entry(node, phy_list)->used == false) {
-        kmem_heap_node_t *next = 
+        kmem_heap_node_t *next =
             list_next_entry(node, phy_list);
 
         /* Scale back */
-        node->size += sizeof(kmem_heap_node_t) + next->size; 
+        node->size += sizeof(kmem_heap_node_t) + next->size;
 
         /* Remove node from free list */
-        list_del(&next->free_list); 
+        list_del(&next->free_list);
         /* Remove node from free list */
-        list_del(&next->phy_list);   
+        list_del(&next->phy_list);
     }
 }
 
@@ -205,7 +204,7 @@ void free(void *mem)
 }
 
 void heap_init(void *heap_start,size_t heap_size)
-{    
+{
     if(!heap_start|| !heap_size)
         panic("Heap initialization error");
     mem_heap_addr = heap_start;

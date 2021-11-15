@@ -3,4 +3,9 @@ menuconfig CLK
     bool "Clock Device Support"
 if CLK
 
+config CLK_GX6605S
+    bool "GX6605S Clock Support"
+    depends on ARCH_CSKY
+    select RESET
+
 endif

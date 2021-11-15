@@ -35,6 +35,11 @@ void __noreturn proc_halt(void)
     asm volatile("rep; hlt");
 }
 
+void __noreturn proc_poweroff(void)
+{
+    proc_halt();
+}
+
 void __noreturn proc_reset(void)
 {
     cpu_irq_disable();

@@ -15,6 +15,7 @@ static inline int pr_early(str,...) {}
 asmlinkage __printf(1, 2) __cold
 int printk(const char *fmt,...);
 
+
 /**
  * pr_fmt - used by the pr_*() macros to generate the printk format string
  * @fmt: format string passed from a pr_*() macro
@@ -31,6 +32,16 @@ int printk(const char *fmt,...);
 #ifndef pr_fmt
 #define pr_fmt(fmt) fmt
 #endif
+
+/*
+ * Dummy printk for disabled debugging statements to use whilst maintaining
+ * gcc's format checking.
+ */
+#define pr_none(fmt, ...) ({            \
+    if (0)                              \
+        printk(fmt, ##__VA_ARGS__);     \
+    0;                                  \
+})
 
 /**
  * pr_emerg - Print an emergency-level message

@@ -37,7 +37,7 @@ endif
 CSKY_STR            := $(CPUTYPE)$(FPUEXT)$(VDSPEXT)$(TEEEXT)
 platform-acflags-y  += -mcpu=$(CPUTYPE) -Wa,-mcpu=$(CSKY_STR)
 platform-acflags-y  += -msoft-float -mdiv -fno-tree-vectorize
-platform-acflags-y  += -mbacktrace
+platform-acflags-y  += -mlittle-endian -mbacktrace
 platform-ldflags-y  += -EL
 platform-elfflags-y +=
 endif # CONFIG_ARCH_CSKY

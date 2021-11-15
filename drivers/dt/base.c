@@ -189,12 +189,12 @@ state dt_attribute_string_index(const struct dt_node *node,
 }
 EXPORT_SYMBOL(dt_attribute_string_index);
 
-struct dt_node *dt_search_up(struct dt_node *node,
+struct dt_node *dt_search_up(const struct dt_node *node,
                              const char *name, uint32_t *value)
 {
     do {
         if (!dt_attribute_read_u32(node, name, value))
-            return node;
+            return (struct dt_node *)node;
     } while((node = node->parent));
 
     return NULL;

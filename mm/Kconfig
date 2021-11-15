@@ -69,7 +69,6 @@ endmenu
 
 config XIP
     bool "Execute-In-Place from ROM"
-    depends on ARCH_HAS_XIP
 
 config XIP_BASE
     hex "Xip PHYSADDR(ROM)"
@@ -130,7 +129,7 @@ config PGTABLE_LEVEL3
 
 config PGTABLE_LEVEL
     int
-    default 5 if X86_5LEVEL
-    default 4 if X86_64
-    default 3 if X86_PAE
+    default 5 if PGTABLE_LEVEL5
+    default 4 if PGTABLE_LEVEL4
+    default 3 if PGTABLE_LEVEL3
     default 2

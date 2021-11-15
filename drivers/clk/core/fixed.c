@@ -3,9 +3,9 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <kmalloc.h>
+#define DRIVER_NAME "fixed-clock"
+
 #include <initcall.h>
-#include <driver/dt.h>
 #include <driver/platform.h>
 #include <driver/clk.h>
 
@@ -17,13 +17,18 @@ struct fixed_clk_device {
 #define clk_to_fixed(cdev) \
     container_of(cdev, struct fixed_clk_device, clk)
 
-static uint64_t fixed_clk_get_freq(struct clk_device *clk, uint64_t parent)
+static state fixed_clk_get_freq(struct clk_device *cdev, unsigned int channel,
+                                uint64_t parent, uint64_t *rate)
 {
-    return clk_to_fixed(clk)->freq;
+    if (channel)
+        return -EIO;
+
+    *rate = clk_to_fixed(cdev)->freq;
+    return -ENOERR;
 }
 
 static struct clk_ops fixed_clk_ops = {
-    .get_freq = fixed_clk_get_freq,
+    .rate_get = fixed_clk_get_freq,
 };
 
 static state fixed_clk_probe(struct platform_device *pdev, void *pdata)
@@ -34,7 +39,7 @@ static state fixed_clk_probe(struct platform_device *pdev, void *pdata)
     if (dt_attribute_read_u32(pdev->dt_node, "clock-frequency", &freq))
         return -ENODEV;
 
-    fixed = kzalloc(sizeof(*fixed), GFP_KERNEL);
+    fixed = dev_kzalloc(&pdev->dev, sizeof(*fixed), GFP_KERNEL);
     if (!fixed)
         return -ENOMEM;
     platform_set_devdata(pdev, fixed);
@@ -51,7 +56,7 @@ static struct dt_device_id fixed_clk_ids[] = {
 
 static struct platform_driver fixed_clk_driver = {
     .driver = {
-        .name = "fixed-clock"
+        .name = DRIVER_NAME,
     },
     .dt_table = fixed_clk_ids,
     .probe = fixed_clk_probe,

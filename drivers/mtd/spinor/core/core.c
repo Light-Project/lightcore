@@ -11,6 +11,22 @@
 
 static LIST_HEAD(spinor_types);
 
+void spinor_type_register(struct spinor_type *stype)
+{
+    while (stype->jedec && stype->name) {
+        list_add(&spinor_types, &stype->list);
+        ++stype;
+    }
+}
+
+void spinor_type_unregister(struct spinor_type *stype)
+{
+    while (stype->jedec && stype->name) {
+        list_del(&stype->list);
+        ++stype;
+    }
+}
+
 state spinor_register(struct spinor_device *sdev)
 {
     if (!sdev->ops)
@@ -22,14 +38,4 @@ state spinor_register(struct spinor_device *sdev)
 void spinor_unregister(struct spinor_device *sdev)
 {
 
-}
-
-state spinor_type_register(struct spinor_type *stype)
-{
-    list_add(&spinor_types, &stype->list);
-}
-
-void spinor_type_register(struct spinor_type *stype)
-{
-    list_del(&stype->list);
 }

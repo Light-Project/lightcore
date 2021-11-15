@@ -157,7 +157,10 @@ void rb_fixup(struct rb_root *root, struct rb_node *node)
 void rb_del(const struct rb_root *root, struct rb_node *node)
 {
 
+    while (root && node) {
 
+
+    }
 }
 
 /**

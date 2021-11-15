@@ -61,7 +61,11 @@ static inline void pte_set_wrprotect(pte_t *pte, bool wrprotect)
     pte->rw = wrprotect;
 }
 
-#if CONFIG_PAGE_LEVEL > 2
+static inline bool pmd_get_present(pmd_t *pmd)
+{
+    return pmd->p;
+}
+
 static inline bool pmd_get_dirty(pmd_t *pmd)
 {
     return pmd->d;
@@ -91,9 +95,8 @@ static inline void pmd_set_wrprotect(pmd_t *pmd, bool wrprotect)
 {
     pmd->rw = wrprotect;
 }
-#endif
 
-#if CONFIG_PAGE_LEVEL > 3
+#if CONFIG_PAGE_LEVEL > 2
 static inline bool pud_get_dirty(pud_t *pud)
 {
     return pud->d;
@@ -125,7 +128,7 @@ static inline void pud_set_wrprotect(pud_t *pud, bool wrprotect)
 }
 #endif
 
-#if CONFIG_PAGE_LEVEL > 4
+#if CONFIG_PAGE_LEVEL > 3
 static inline bool p4d_get_dirty(p4d_t *p4d)
 {
     return p4d->d;
@@ -157,6 +160,7 @@ static inline void p4d_set_wrprotect(p4d_t *p4d, bool wrprotect)
 }
 #endif
 
+#if CONFIG_PAGE_LEVEL > 4
 static inline bool pgd_get_dirty(pgd_t *pgd)
 {
     return pgd->d;
@@ -186,6 +190,8 @@ static inline void pgd_set_wrprotect(pgd_t *pgd, bool wrprotect)
 {
     pgd->rw = wrprotect;
 }
+
+#endif
 
 state arch_page_map(phys_addr_t phys_addr, size_t addr, size_t size);
 void arch_page_setup(void);

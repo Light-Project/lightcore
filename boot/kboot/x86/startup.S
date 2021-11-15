@@ -9,8 +9,10 @@
 #define A20_ADDR    (4*0x80)
 #define A20_FAST    (0x000100)
 #define A20_FULL    (0x200000)
-
 #define E820_ENTRY_MAX  128
+
+#define IO_DELAY        \
+    outb    %al, $0x80
 
 #define printf(str)     \
     movw $str, %si;     \
@@ -47,7 +49,7 @@ GLOBAL(startup16)
     /* disable NMI */
     movb    $0x80, %al
     outb    %al, $0x70
-    call    iodelay
+    IO_DELAY
 
     /* test a20 first */
     call    a20test
@@ -87,18 +89,18 @@ to_protected_mode:
     /* reset coprocessor */
     mov     $0xf0, %al
     outb    %al, $0xa1
-    call    iodelay
+    IO_DELAY
     mov     $0xf1, %al
     outb    %al, $0xa1
-    call    iodelay
+    IO_DELAY
 
     /* mask pic */
     movb    $0xff, %al
     outb    %al, $0xa1
-    call    iodelay
+    IO_DELAY
     movb    $0xfb, %al
     outb    %al, $0x21
-    call    iodelay
+    IO_DELAY
 
     /* load gdt table */
     movl    %ds, %ebx
@@ -122,10 +124,6 @@ to_protected_mode:
     .byte   0x66, 0xea              # ljmpl opcode
 1:  .long   startup32               # offset
     .word   GDT_ENTRY_BOOT_CS_BASE  # segment
-
-iodelay:
-    outb    %al, $0x80
-    ret
 
 a20test:
     ret
@@ -159,7 +157,6 @@ SYM_DATA_END_LABEL(gdt, SYM_L_LOCAL, gdt_end)
 SYM_DATA_START_LOCAL(gdt_struct)
     .word   0x0018  // GDT limit
 gdt_fix: .long gdt  // GDT addr
-
 
     .align 16
 idt_table:

@@ -1,11 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-
 #ifndef _ASM_CSKY_BARRIER_H_
 #define _ASM_CSKY_BARRIER_H_
 
 #ifndef __ASSEMBLY__
 
-#define nop()	asm volatile ("nop\n":::"memory")
+#define nop()   asm volatile("nop\n":::"memory")
 
 /*
  * bar.brwarws: ordering barrier for all load/store instructions
@@ -61,9 +60,9 @@
  * sync.i:      inherit from sync, but also flush cpu pipeline
  * sync.is:     the same with sync.i + sync.s
  */
-#define mb()    asm volatile ("sync\n":::"memory")
+#define mb()    asm volatile("sync\n":::"memory")
 
 #include <asm-generic/barrier.h>
 
-#endif /* __ASSEMBLY__ */
-#endif /* _ASM_CSKY_BARRIER_H_ */
+#endif  /* __ASSEMBLY__ */
+#endif  /* _ASM_CSKY_BARRIER_H_ */

@@ -36,30 +36,33 @@ gx6605s_write(struct gx6605s_device *gdev, int reg, uint32_t val)
     writel(gdev->mmio + reg, val);
 }
 
+static void gx6605s_clksrc_clear(struct gx6605s_device *gdev)
+{
+    gx6605s_write(gdev, GX6605S_TIM_STATUS, GX6605S_TIM_STATUS_CLR);
+}
+
 irqreturn_t gx6605s_clksrc_handle(irqnr_t vector, void *data)
 {
     struct gx6605s_device *gdev = data;
-    uint32_t val;
 
-    /* clear interrupt flags */
-    val = gx6605s_read(gdev, GX6605S_TIM_STATUS);
-    val |= GX6605S_TIM_STATUS_CLR;
-    gx6605s_write(gdev, GX6605S_TIM_STATUS, val);
-
+    gx6605s_clksrc_clear(gdev);
     timer_tick();
+
     return IRQ_RET_HANDLED;
 }
 
 static inline void gx6605s_clksrc_hw_init(struct gx6605s_device *gdev)
 {
-    gx6605s_write(gdev, GX6605S_TIM_VALUE,  0);
+    uint32_t val;
 
     /* reset the timer at first */
     gx6605s_write(gdev, GX6605S_TIM_CONTRL, GX6605S_TIM_CONTRL_RST);
     gx6605s_write(gdev, GX6605S_TIM_CONTRL, 0);
 
-    gx6605s_write(gdev, GX6605S_TIM_CLKDIV, GX6605S_TIM_LATCH(24, 1000));
-    gx6605s_write(gdev, GX6605S_TIM_RELOAD, 0xffffffff - CONFIG_SYSTICK_FREQ + 1);
+    gx6605s_write(gdev, GX6605S_TIM_CLKDIV, 53);
+
+    val = UINT32_MAX - (1000000 / CONFIG_SYSTICK_FREQ) + 1;
+    gx6605s_write(gdev, GX6605S_TIM_RELOAD, val);
 
     /* start the timer */
     gx6605s_write(gdev, GX6605S_TIM_CONFIG, GX6605S_TIM_CONFIG_IRQ_EN | GX6605S_TIM_CONFIG_EN);
@@ -98,6 +101,8 @@ static state gx6605s_clksrc_probe(struct platform_device *pdev, void *pdata)
         return -ENODEV;
     }
     irqchip_pass(gdev->irqchip);
+
+    irq_request(10, 0, gx6605s_clksrc_handle, gdev, DRIVER_NAME);
 
     gx6605s_clksrc_hw_init(gdev);
     return -ENOERR;

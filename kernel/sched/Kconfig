@@ -1,25 +1,36 @@
 menu "Scheduler Config"
 
-config SCHED_FIFO
-    bool "FIFO Scheduler Support"
+config SCHED_RR
+    bool "Round Robin (RR) Scheduler Support"
 
-config SCHED_DEADLINE
-    bool "Deadline Scheduler Support"
+config SCHED_FIFO
+    bool "First In First Out (FIFO) Scheduler Support"
+
+config SCHED_DL
+    bool "Dead Line (DL) Scheduler Support"
+
+config SCHED_FAIR
+    bool "Fair Scheduler Support"
 
 choice
     prompt "Default Scheduler Choice"
     default SCHED_DEF_RR
 
 config SCHED_DEF_RR
-    bool "Use RR as Default Scheduler"
+    bool "Round Robin"
+    select SCHED_RR
 
 config SCHED_DEF_FIFO
-    bool "Use FIFO as Default Scheduler"
-    depends on SCHED_FIFO
+    bool "First In First Out"
+    select SCHED_FIFO
 
-config SCHED_DEF_DEADLINE
-    bool "Use Deadline as Default Scheduler"
-    depends on SCHED_DEADLINE
+config SCHED_DEF_DL
+    bool "Dead Line"
+    select SCHED_DL
+
+config SCHED_DEF_FAIR
+    bool "Fair"
+    select SCHED_FAIR
 
 endchoice
 
