@@ -3,36 +3,32 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <types.h>
-#include <stddef.h>
-#include <state.h>
-#include <asm/io.h>
-#include <driver/uart/uart-esp.h>
-
 #include <boot.h>
-
-#define UART_BASE 0x60000000
-#define UART_BAUD 115200
+#include <driver/uart/esp8266.h>
+#include <asm/proc.h>
+#include <asm/io.h>
 
 void uart_putc(char byte)
 {
-    uint32_t status;
+    uint32_t val;
 
-    for(;;) {
-        status = readl((void *)UART_BASE + UART_ESP_STATUS);
-        if(((status >> 16) & 0xff) == 0)
+    for (;;) {
+        val = readl(UART_BASE + ESP8266_UART_STATUS);
+        if (((val >> 16) & 0xff) == 0)
             break;
+        cpu_relax();
     }
 
-    writel((void *)UART_BASE + UART_ESP_FIFO, byte);
+    writel(UART_BASE + ESP8266_UART_FIFO, byte);
 }
 
 void uart_print(const char *str)
 {
-    if(str == NULL)
-        return;
-    while(*str != '\0')
+    while (*str) {
+        if (*str == '\n')
+            uart_putc('\r');
         uart_putc(*str++);
+    }
 }
 
 void uart_init(void)
@@ -41,32 +37,30 @@ void uart_init(void)
 
     uart_deinit();
 
-    /* 8n1 */
-    val = UART_ESP_CONF0_STB_1 | UART_ESP_CONF0_WSL_8;
-    writel((void *)UART_BASE + UART_ESP_CONF0, val);
+    val = ESP8266_UART_CONF0_STB_1 | ESP8266_UART_CONF0_WSL_8;
+    writel(UART_BASE + ESP8266_UART_CONF0, val);
 
-    /* set baudrate */
-    val = (UART_CLK_FREQ / UART_BAUD) & UART_ESP_CLKDIV_DIV;
-    writel((void *)UART_BASE + UART_ESP_CLKDIV, val);
+    val = (APB_FREQ / UART_BAUD) & ESP8266_UART_CLKDIV_DIV;
+    writel(UART_BASE + ESP8266_UART_CLKDIV, val);
 
-    val = readl((void *)UART_BASE + UART_ESP_CONF0);
-    val |= UART_ESP_CONF0_TXFIFO_RST;
-    writel((void *)UART_BASE + UART_ESP_CONF0, val);
+    val = readl(UART_BASE + ESP8266_UART_CONF0);
+    val |= ESP8266_UART_CONF0_TXFIFO_RST;
+    writel(UART_BASE + ESP8266_UART_CONF0, val);
 
-    val = readl((void *)UART_BASE + UART_ESP_CONF0);
-    val &= ~UART_ESP_CONF0_TXFIFO_RST;
-    writel((void *)UART_BASE + UART_ESP_CONF0, val);
+    val = readl(UART_BASE + ESP8266_UART_CONF0);
+    val &= ~ESP8266_UART_CONF0_TXFIFO_RST;
+    writel(UART_BASE + ESP8266_UART_CONF0, val);
 
 }
 
 void uart_deinit(void)
 {
-    writel((void *)UART_BASE + UART_ESP_CLKDIV, UART_ESP_CLKDIV_DEFAULT);
-    writel((void *)UART_BASE + UART_ESP_INT_ENA, UART_ESP_INT_ENA_DEFAULT);
-    writel((void *)UART_BASE + UART_ESP_AUTOBAUD, UART_ESP_AUTOBAUD_DEFAULT);
-    writel((void *)UART_BASE + UART_ESP_CONF0, UART_ESP_CONF0_DEFAULT);
-    writel((void *)UART_BASE + UART_ESP_CONF1, UART_ESP_CONF1_DEFAULT);
-    writel((void *)UART_BASE + UART_ESP_LOWPULSE, UART_ESP_LOWPULSE_DEFAULT);
-    writel((void *)UART_BASE + UART_ESP_HIGHPULSE, UART_ESP_HIGHPULSE_DEFAULT);
-    writel((void *)UART_BASE + UART_ESP_RXDCNT, UART_ESP_RXDCNT_DEFAULT);
+    writel(UART_BASE + ESP8266_UART_CLKDIV, ESP8266_UART_CLKDIV_DEFAULT);
+    writel(UART_BASE + ESP8266_UART_INT_ENA, ESP8266_UART_INT_ENA_DEFAULT);
+    writel(UART_BASE + ESP8266_UART_AUTOBAUD, ESP8266_UART_AUTOBAUD_DEFAULT);
+    writel(UART_BASE + ESP8266_UART_CONF0, ESP8266_UART_CONF0_DEFAULT);
+    writel(UART_BASE + ESP8266_UART_CONF1, ESP8266_UART_CONF1_DEFAULT);
+    writel(UART_BASE + ESP8266_UART_LOWPULSE, ESP8266_UART_LOWPULSE_DEFAULT);
+    writel(UART_BASE + ESP8266_UART_HIGHPULSE, ESP8266_UART_HIGHPULSE_DEFAULT);
+    writel(UART_BASE + ESP8266_UART_RXDCNT, ESP8266_UART_RXDCNT_DEFAULT);
 }

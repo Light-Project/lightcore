@@ -43,7 +43,7 @@ static inline __noreturn void spiflash_boot(void)
 
     newcrc = crc32((void *)load, size, ~0);
     if (oldcrc != newcrc)
-        panic("crc error %#x->0x%x\n", oldcrc, newcrc);
+        panic("crc error 0x%x->0x%x\n", oldcrc, newcrc);
 
     pr_boot("boot form norflash...\n");
     pr_boot("total boot time: %ums\n", time_read());

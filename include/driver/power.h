@@ -23,30 +23,19 @@ struct power_ops {
 
 #include <asm/proc.h>
 
-static inline void __noreturn power_restart(void)
-{
-    proc_reset();
-}
-
-static inline void __noreturn power_reset(void)
-{
-    power_restart();
-}
-
-static inline void __noreturn power_shutdown(void)
-{
-    proc_halt();
-}
+static inline void power_restart(void) { }
+static inline void power_reset(void) { }
+static inline void power_shutdown(void) { }
 
 #else /* !CONFIG_POWER */
 
-void __noreturn power_reset(void);
-void __noreturn power_restart(void);
-void __noreturn power_shutdown(void);
+extern void power_reset(void);
+extern void power_restart(void);
+extern void power_shutdown(void);
 
 #endif /* CONFIG_POWER */
 
-state power_register(struct power_device *);
-void power_unregister(struct power_device *);
+extern state power_register(struct power_device *);
+extern void power_unregister(struct power_device *);
 
 #endif  /* _DEVICE_POWER_H_ */

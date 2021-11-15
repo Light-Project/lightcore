@@ -123,8 +123,8 @@ enum suniv_dramc {
 };
 
 #define SUNIV_DRAMC_SCON_ACCELL     BIT(15)     // Dram Accell Mode (0: interleave mode 1: sequence mode)
-#define SUNIV_DRAMC_SCON_CS_DOUBLE  BIT(4)      //
-#define SUNIV_DRAMC_SCON_BANK_SIZE  BIT(3)      //
+#define SUNIV_DRAMC_SCON_CS_DOUBLE  BIT(4)      // Double Chip Mode
+#define SUNIV_DRAMC_SCON_BANK_SIZE  BIT(3)      // DDR Bank Size
 #define SUNIV_DRAMC_SCON_DDR_REMAP  BIT(0)      // DDR Data Width (0: normal  1: 8bits)
 
 #define SUNIV_DRAMC_STMG0_RC        (0x0b<<28)

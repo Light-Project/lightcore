@@ -28,8 +28,6 @@ $(obj)/uImage: $(obj)/kboot/boot.bin FORCE
 	$(call if_changed,uimage)
 uboot: $(obj)/uImage
 
-targets += uImage
-
 # ---------------------------------------------------------------------------
 # Disk
 
@@ -46,32 +44,31 @@ cmd_disk = $(DD) if=$(obj)/preload/preload.bin of=$(obj)/disk.img bs=512 conv=no
 endif
 
 ifneq ($(CONFIG_CHIP_SUNIV),)
-cmd_disk = $(MAKE) $(build)=tools/sunxi/;                                       \
-           tools/sunxi/mksunxiboot $(obj)/preload.bin;                          \
-           $(DD) if=$(obj)/preload.bin of=$(obj)/disk.img bs=512 conv=notrunc;  \
+cmd_disk = $(MAKE) $(build)=tools/sunxi/; \
+           tools/sunxi/mksunxiboot $(obj)/preload.bin; \
+           $(DD) if=$(obj)/preload.bin of=$(obj)/disk.img bs=512 conv=notrunc; \
            $(DD) if=$(obj)/uImage of=$(obj)/disk.img bs=512 seek=64 conv=notrunc
 endif
 
 ifneq ($(CONFIG_CHIP_ESP8266),)
-	$(Q)tools/esp/esptool.py -c esp8266 elf2image -o $(obj)preload- $(obj)preload/preload
-	$(Q)tools/esp/esptool.py -c esp8266 image_info $(obj)preload-0x00000.bin
-	$(Q)$(DD) if=$(obj)preload-0x00000.bin of=$(obj)disk.img bs=512 conv=notrunc
-	$(Q)$(DD) if=$(obj)kernel.bin of=$(obj)disk.img bs=512 seek=64 conv=notrunc
+cmd_disk = tools/esp/esptool.py -c esp8266 elf2image -o $(obj)/preload- $(obj)/preload/preload; \
+           tools/esp/esptool.py -c esp8266 image_info $(obj)/preload-0x00000.bin; \
+           $(DD) if=$(obj)/preload-0x00000.bin of=$(obj)/disk.img bs=512 conv=notrunc; \
+           $(DD) if=$(obj)/kernel.bin of=$(obj)/disk.img bs=512 seek=64 conv=notrunc;
 endif
 
 ifneq ($(CONFIG_CHIP_ESP32),)
-	$(Q)tools/esp/esptool.py -c esp32 elf2image -fm dio -o $(obj)preload.bin $(obj)preload/preload
-	$(Q)tools/esp/esptool.py -c esp32 image_info $(obj)preload.bin
-	$(Q)$(DD) if=/dev/zero of=$(obj)disk.img bs=512 count=8 conv=notrunc
-	$(Q)$(DD) if=$(obj)preload.bin of=$(obj)disk.img bs=512 seek=8 conv=notrunc
-	$(Q)$(DD) if=$(obj)kernel.bin of=$(obj)disk.img bs=512 seek=64 conv=notrunc
+cmd_disk = tools/esp/esptool.py -c esp32 elf2image -fm dio -o $(obj)/preload.bin $(obj)/preload/preload; \
+           tools/esp/esptool.py -c esp32 image_info $(obj)/preload.bin; \
+           $(DD) if=/dev/zero of=$(obj)/disk.img bs=512 count=8 conv=notrunc; \
+           $(DD) if=$(obj)/preload.bin of=$(obj)/disk.img bs=512 seek=8 conv=notrunc; \
+           $(DD) if=$(obj)/kernel.bin of=$(obj)/disk.img bs=512 seek=64 conv=notrunc;
 endif
 
-$(obj)/disk.img: $(obj)/uImage $(obj)/kboot/boot.bin FORCE
+$(obj)/disk.img: $(obj)/preload/preload.bin $(obj)/uImage FORCE
 	$(call if_changed,disk)
 disk: $(obj)/disk.img
 
-targets += disk.img
-
+targets += kboot/boot.bin preload/preload.bin uImage disk.img
 clean-y += uImage disk.img
 clean-subdir-y += kboot/ preload/ dts/

@@ -30,6 +30,7 @@ struct irqchip_ops {
     state (*mask)(struct irqchip_device *, irqnr_t);
     state (*ack)(struct irqchip_device *, irqnr_t);
     state (*eoi)(struct irqchip_device *, irqnr_t);
+
     state (*slave_add)(struct irqchip_device *, irqnr_t);
     state (*slave_del)(struct irqchip_device *, irqnr_t);
 };

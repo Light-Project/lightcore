@@ -32,6 +32,8 @@ endif
 
 ifdef CONFIG_CHIP_ESP8266
 include-y               += esp8266/include/
+platform-ccflags-y      += -mtext-section-literals
+platform-acflags-y      += -pipe -mlongcalls
 platform-elfflags-y     := -T $(src)/esp8266/boot.lds
 endif
 

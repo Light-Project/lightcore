@@ -63,10 +63,10 @@ struct spinor_device {
 };
 
 struct spinor_ops {
-    state (*reg_read)(struct spinor_device *, uint8_t op, uint8_t *buf, uint8_t len);
-    state (*reg_write)(struct spinor_device *, uint8_t op, uint8_t *buf, uint8_t len);
-    state (*read)(struct spinor_device *, loff_t pos, uint8_t *buf, uint64_t len);
-    state (*write)(struct spinor_device *, loff_t pos, uint8_t *buf, uint64_t len);
+    state (*reg_read)(struct spinor_device *, uint8_t op, void *buf, uint8_t len);
+    state (*reg_write)(struct spinor_device *, uint8_t op, void *buf, uint8_t len);
+    state (*read)(struct spinor_device *, loff_t pos, void *buf, uint64_t len);
+    state (*write)(struct spinor_device *, loff_t pos, void *buf, uint64_t len);
     state (*erase)(struct spinor_device *, loff_t pos, uint64_t len);
 };
 
@@ -82,7 +82,10 @@ struct spinor_type {
     struct list_head list;
 };
 
-state spinor_register(struct spinor_device *);
-void spinor_unregister(struct spinor_device *);
+extern void spinor_type_register(struct spinor_type *stype);
+extern void spinor_type_unregister(struct spinor_type *stype);
+
+extern state spinor_register(struct spinor_device *);
+extern void spinor_unregister(struct spinor_device *);
 
 #endif  /* _DRIVER_MTD_NORFLASH_ */

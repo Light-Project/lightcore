@@ -68,7 +68,7 @@ state dt_attribute_read_string_index(const struct dt_node *node, const char *nam
 #define dt_attribute_read_struct(node, name, val) \
     dt_attribute_read_string_index(node, name, 0, val)
 
-struct dt_node *dt_search_up(struct dt_node *node, const char *name, uint32_t *value);
+struct dt_node *dt_search_up(const struct dt_node *node, const char *name, uint32_t *value);
 uint32_t dt_addr_cell(const struct dt_node *node);
 uint32_t dt_size_cell(const struct dt_node *node);
 
@@ -81,6 +81,7 @@ state dt_address(const struct dt_node *node, unsigned int index, resource_size_t
 unsigned int dt_address_nr(const struct dt_node *node);
 
 /* irq.c */
+struct dt_node *dt_irq_parent(const struct dt_node *node);
 state dt_irq(const struct dt_node *node, unsigned int index, resource_size_t *irq);
 unsigned int dt_irq_nr(const struct dt_node *node);
 
