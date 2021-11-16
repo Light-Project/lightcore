@@ -12,11 +12,14 @@ void main(size_t mem_start, size_t dtb_start)
     memset(bss_start, 0, bss_size);
     heap_init(heap_start, heap_size);
 
+    /* Init Memory */
     kernel_map();
-    extract_kernel(pa_to_va(NORMAL_OFFSET), piggy_start, piggy_size);
 
+    /* extract kernel */
+    extract_kernel(pa_to_va(NORMAL_OFFSET), piggy_start, piggy_size);
     head = kernel_entry;
     head->dtb = dtb_start ? CONFIG_PAGE_OFFSET + dtb_start : 0;
 
+    pr_boot("boot to kernel...\n");
     kernel_start(pa_to_va(NORMAL_OFFSET));
 }

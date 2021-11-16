@@ -19,7 +19,6 @@ elif [ $bochs ];then
 else 
     qemu-system-x86_64                      \
         -name "Lightcore for x86"           \
-        -M q35 -accel tcg                   \
         -smp 2,sockets=1,cores=2,threads=1  \
         -m 64M -fda $image                  \
         -device usb-ehci                    \

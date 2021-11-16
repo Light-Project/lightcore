@@ -6,6 +6,7 @@
 *.lex.c
 *.tab.[ch]
 *.map
+*.dump
 *.patch
 *.gz
 *.tar

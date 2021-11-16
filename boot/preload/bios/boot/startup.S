@@ -224,26 +224,21 @@ GLOBAL(kboot_start)
     movw    %ax, %ds
     movw    %ax, %es
 
-    .byte   0x66, 0xea  # ljmpl opcode
-    .long   0x200       # address
-1:  .word   0x00        # offset
+    .byte   0x66, 0xea  // ljmpl opcode
+    .long   0x200       // address
+1:  .word   0x00        // offset
 END(kboot_start)
 
 GLOBAL(bios_int)
-
-    /* Save env */
     pushl   %ebp
     movl    %esp, %ebp
+
     pushfl
     pushw   %fs
     pushw   %gs
     pushw   %ds
     pushw   %es
     pushal
-
-    movl    $1, %eax
-    movl    $2, %ebx
-    addl    %eax, %ebx
 
     /* arg0: call number */
     movl    8(%ebp), %eax
@@ -286,13 +281,13 @@ intnr:  .byte   0
     movl    save_sp, %esp
     addl    $0x4, %esp
 
-    /* Recovery env */
     popal
     popw    %es
     popw    %ds
     popw    %gs
     popw    %fs
     popfl
+
     leavel
     ret
 

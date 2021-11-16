@@ -18,8 +18,8 @@
 # define va_to_pa(va) ((va) - CONFIG_PAGE_OFFSET + CONFIG_RAM_BASE)
 # define pa_to_va(pa) ((pa) - CONFIG_RAM_BASE + CONFIG_PAGE_OFFSET)
 #else
-# define va_to_pa(va) ((phys_addr_t)(va) - CONFIG_PAGE_OFFSET + CONFIG_RAM_BASE)
-# define pa_to_va(pa) ((void *)((pa) - CONFIG_RAM_BASE + CONFIG_PAGE_OFFSET))
+# define va_to_pa(va) ((phys_addr_t)((void *)(va) - CONFIG_PAGE_OFFSET + CONFIG_RAM_BASE))
+# define pa_to_va(pa) ((void *)((phys_addr_t)(pa) - CONFIG_RAM_BASE + CONFIG_PAGE_OFFSET))
 #endif
 
 #ifndef __ASSEMBLY__
@@ -40,19 +40,16 @@ extern char _ld_init_dtb_start;
 extern char _ld_init_dtb_end;
 extern char _ld_image_end;
 
+#ifndef CONFIG_ARCH_HAS_IOMAP
+# define io_to_pa(va) va_to_pa(va)
+# define pa_to_io(pa) pa_to_va(pa)
+#else
+# define io_to_pa(va) ((phys_addr_t)(va) - CONFIG_IOREMAP_OFFSET + CONFIG_RAM_BASE)
+# define pa_to_io(pa) ((void *)((pa) - CONFIG_RAM_BASE + CONFIG_IOREMAP_OFFSET))
+#endif
+
 #define page_align(addr)    align_high(addr, PAGE_SIZE)
 #define page_aligned(addr)  align_check(addr, PAGE_SIZE)
-
-#define va_to_pa(va) ((phys_addr_t)(va) - CONFIG_PAGE_OFFSET + CONFIG_RAM_BASE)
-#define pa_to_va(pa) ((void *)((pa) - CONFIG_RAM_BASE + CONFIG_PAGE_OFFSET))
-
-#ifdef CONFIG_ARCH_HAS_IOMAP
-#define io_to_pa(va) ((phys_addr_t)(va) - CONFIG_IOREMAP_OFFSET + CONFIG_RAM_BASE)
-#define pa_to_io(pa) ((void *)((pa) - CONFIG_RAM_BASE + CONFIG_IOREMAP_OFFSET))
-#else
-#define io_to_pa(va) va_to_pa(va)
-#define pa_to_io(pa) pa_to_va(pa)
-#endif
 
 #define page_to_pa(page)    (page_to_nr(page) << PAGE_SHIFT)
 #define pa_to_page(pa)      (nr_to_page(pa >> PAGE_SHIFT))

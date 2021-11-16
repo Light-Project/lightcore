@@ -4,4 +4,4 @@
 
 #include <lightcore/const.h>
 
-#endif
+#endif  /* _CONST_H_ */

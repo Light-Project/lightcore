@@ -40,7 +40,7 @@ void __noreturn user_init(void);
 
 static void __init command_setup(void)
 {
-    const char *args = (void *)(size_t)boot_head.para;
+    const char *args = (void *)(size_t)boot_head.cmd;
     if(!args)
         return;
     strlcpy(boot_args, args, boot_args_size);

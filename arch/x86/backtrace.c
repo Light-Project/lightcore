@@ -9,7 +9,7 @@
 
 void show_regs(struct regs *regs)
 {
-    printk("Regs:\n");
+    printk("regs:\n");
     printk(" EIP: %08x EFLAGS: %08x\n", regs->eip, regs->eflags);
     printk(" EAX: %08x EBX: %08x ECX: %08x EDX: %08x\n",
             regs->eax, regs->ebx, regs->ecx, regs->edx);
@@ -23,7 +23,7 @@ void show_regs(struct regs *regs)
 
 void show_stack(size_t *sp)
 {
-    printk("Stack:\n");
+    printk("stack:\n");
     for (int i = 0; i < 8; i++) {
         printk(" [%p]: ", sp);
         for (int i = 0; i < 4; i++)
@@ -34,7 +34,7 @@ void show_stack(size_t *sp)
 
 void back_trace(size_t *bp)
 {
-    printk("Backtrace:\n");
+    printk("backtrace:\n");
     while (bp) {
         printk(" [0x%08lx]:", *(bp + 1));
         printk(" (0x%08lx 0x%08lx)\n", *(bp + 2), *(bp + 3));

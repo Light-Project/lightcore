@@ -1,4 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
 #include <size.h>
 
 #define stack_size (SZ_1KiB * 8)
@@ -6,8 +10,7 @@
 
 ENTRY(_start)
 
-SECTIONS
-{
+SECTIONS {
     . = CONFIG_LOAD_ADDR;
     head_start = .;
 
@@ -51,7 +54,7 @@ SECTIONS
 
     _ld_end = .;
 
-    .bss(NOLOAD) : {
+    .bss (NOLOAD) : {
         . = ALIGN(4);
         _ld_bss_start = .;
         *(.bss)
@@ -60,14 +63,14 @@ SECTIONS
         _ld_bss_end = .;
     }
 
-    .stack(NOLOAD) : {
+    .stack (NOLOAD) : {
         . = ALIGN(4);
         _ld_stack_start = .;
         . = _ld_stack_start + stack_size;
         _ld_stack_end = .;
     }
 
-    .heap(NOLOAD) : {
+    .heap (NOLOAD) : {
         . = ALIGN(4);
         _ld_heap_start = .;
         . = _ld_heap_start + heap_size;

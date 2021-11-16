@@ -8,7 +8,7 @@
 #include <stdarg.h>
 
 void (*stdout)(const char *);
-void __weak halt(void){}
+void __weak __noreturn halt(void) {while(1);}
 
 int printf(const char *str, ...)
 {

@@ -1,19 +1,21 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#ifndef _ASM_X86_E820_H_ 
+#ifndef _ASM_X86_E820_H_
 #define _ASM_X86_E820_H_
 
 #include <types.h>
 
+#define E820_MAX_ENTRIES 128
+
 enum e820_type {
-    E820_TYPE_RAM           = 1,
-    E820_TYPE_RESERVED      = 2,
-    E820_TYPE_ACPI          = 3,
-    E820_TYPE_NVS           = 4,
-    E820_TYPE_UNUSABLE      = 5,
-    E820_TYPE_PMEM          = 7,
-    E820_TYPE_PRAM          = 12,
-    E820_TYPE_RESERVED_KERN = 128,
-    E820_TYPE_SOFT_RESERVED	= 0xefffffff,
+    E820_TYPE_RAM               = 1,
+    E820_TYPE_RESERVED          = 2,
+    E820_TYPE_ACPI              = 3,
+    E820_TYPE_NVS               = 4,
+    E820_TYPE_UNUSABLE          = 5,
+    E820_TYPE_PMEM              = 7,
+    E820_TYPE_PRAM              = 12,
+    E820_TYPE_RESERVED_KERN     = 128,
+    E820_TYPE_SOFT_RESERVED	    = 0xefffffff,
 };
 
 struct e820_entry {
@@ -21,5 +23,12 @@ struct e820_entry {
     uint64_t size;
     uint32_t type;
 } __packed;
- 
+
+struct e820_table {
+    uint32_t entry_nr;
+    struct e820_entry entry[E820_MAX_ENTRIES];
+} __packed;
+
+extern void e820_init(struct e820_table *);
+
 #endif  /* _ASM_X86_E820_H_ */

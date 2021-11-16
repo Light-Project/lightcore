@@ -264,18 +264,12 @@ state memblock_remove(phys_addr_t addr, size_t size)
 void memblock_dump(void)
 {
     struct memblock_region *node;
-    phys_addr_t addr, size, end;
-    enum memblock_type type;
 
     pr_info("memoryblock layout:\n");
 
     list_for_each_entry(node, &memblock_list, list) {
-        type = node->type;
-        addr = node->addr;
-        size = node->size;
-        end  = addr + size - 1;
-
-        pr_info("  %s [%#lx-%#lx], %ld bytes type: %d\n",
-                node->name, addr, end, size, type);
+        phys_addr_t end = node->addr + node->size - 1;
+        pr_info("  [%#018lx-%#018lx] %s type: %d\n",
+                node->addr, end, node->name, node->type);
     }
 }

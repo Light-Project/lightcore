@@ -37,7 +37,7 @@ static int decompress(unsigned char *buf, long len,
     }
 
     if (!out_buf) {
-        pr_boot("Out of memory while allocating output buffer");
+        pr_boot("out of memory while allocating output buffer\n");
         goto gunzip_nomem1;
     }
 
@@ -49,13 +49,13 @@ static int decompress(unsigned char *buf, long len,
     }
 
     if (!zbuf) {
-        pr_boot("Out of memory while allocating input buffer");
+        pr_boot("out of memory while allocating input buffer\n");
         goto gunzip_nomem2;
     }
 
     strm = malloc(sizeof(*strm));
     if (strm == NULL) {
-        pr_boot("Out of memory while allocating z_stream");
+        pr_boot("out of memory while allocating z_stream\n");
         goto gunzip_nomem3;
     }
 
@@ -67,7 +67,7 @@ static int decompress(unsigned char *buf, long len,
                 sizeof(struct inflate_state));
 #endif
     if (strm->workspace == NULL) {
-        pr_boot("Out of memory while allocating workspace");
+        pr_boot("out of memory while allocating workspace\n");
         goto gunzip_nomem4;
     }
 
@@ -82,7 +82,7 @@ static int decompress(unsigned char *buf, long len,
     zbuf[0] != 0x1f || zbuf[1] != 0x8b || zbuf[2] != 0x08) {
         if (pos)
             *pos = 0;
-        pr_boot("Not a gzip file");
+        pr_boot("not a gzip file\n");
         goto gunzip_5;
     }
 
@@ -100,7 +100,7 @@ static int decompress(unsigned char *buf, long len,
              * to read more data.
              */
             if (strm->avail_in == 0) {
-                pr_boot("header error");
+                pr_boot("header error\n");
                 goto gunzip_5;
             }
             --strm->avail_in;
@@ -127,7 +127,7 @@ static int decompress(unsigned char *buf, long len,
             len = fill(zbuf, GZIP_IOBUF_SIZE);
             if (len < 0) {
                 rc = -1;
-                pr_boot("read error");
+                pr_boot("read error\n");
                 break;
             }
             strm->next_in = zbuf;
@@ -140,7 +140,7 @@ static int decompress(unsigned char *buf, long len,
             long l = strm->next_out - out_buf;
             if (l != flush(out_buf, l)) {
                 rc = -1;
-                pr_boot("write error");
+                pr_boot("write error\n");
                 break;
             }
             strm->next_out = out_buf;
@@ -152,7 +152,7 @@ static int decompress(unsigned char *buf, long len,
             rc = 0;
             break;
         } else if (rc != Z_OK) {
-            pr_boot("uncompression error");
+            pr_boot("uncompression error\n");
             rc = -1;
         }
     }
