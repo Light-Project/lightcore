@@ -592,13 +592,15 @@ static state floppy_probe(struct platform_device *pdev, void *pdata)
     if (!fdc->version)
         return -ENODEV;
 
+    /* request irq handle */
+    irq_request(FLOPPY_IRQ, 0, floppy_interrupt, NULL, DRIVER_NAME);
+
     fdc->irqchip = dt_get_irqchip_channel(pdev->dt_node, 0);
     if (!fdc->irqchip) {
         dev_err(&pdev->dev, "unable to request irq\n");
         return -EINVAL;
     }
     irqchip_pass(fdc->irqchip);
-    irq_request(FLOPPY_IRQ, 0, floppy_interrupt, NULL, DRIVER_NAME);
 
     if ((ret = fdc_enable(fdc)))
         goto error;

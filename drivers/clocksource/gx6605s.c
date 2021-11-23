@@ -95,14 +95,15 @@ static state gx6605s_clksrc_probe(struct platform_device *pdev, void *pdata)
     if (!gdev->mmio)
         return -ENOMEM;
 
+    /* request irq handle */
+    irq_request(10, 0, gx6605s_clksrc_handle, gdev, DRIVER_NAME);
+
     gdev->irqchip = dt_get_irqchip_channel(pdev->dt_node, 0);
     if (!gdev->irqchip) {
         dev_err(&pdev->dev, "unable to request irq\n");
         return -ENODEV;
     }
     irqchip_pass(gdev->irqchip);
-
-    irq_request(10, 0, gx6605s_clksrc_handle, gdev, DRIVER_NAME);
 
     gx6605s_clksrc_hw_init(gdev);
     return -ENOERR;

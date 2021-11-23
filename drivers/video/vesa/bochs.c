@@ -36,7 +36,6 @@ static state bochs_hw_init(struct pci_device *pdev)
     struct vesa_device *vesa = pci_get_devdata(pdev);
     resource_size_t addr, size, ioaddr, iosize;
     size_t mem, ret;
-    char buff[20];
     void *base;
 
     /* Mapping configuration space */
@@ -74,7 +73,7 @@ static state bochs_hw_init(struct pci_device *pdev)
     if (!vesa->video.frame_buffer)
         return -ENOMEM;
 
-    dev_info(&pdev->dev, "framebuffer size %s @ 0x%lx\n", gsize(buff, size), addr);
+    dev_info(&pdev->dev, "framebuffer size 0x%#lx @ 0x%lx\n", size, addr);
 
     if (vesa->mmio && pdev->revision >= 2) {
         ret = readl(vesa->mmio + 0x100);

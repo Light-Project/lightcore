@@ -207,6 +207,7 @@ static state suniv_spi_probe(struct platform_device *pdev, void *pdata)
     if (!sdev->base)
         return -ENOMEM;
 
+    /* request irq handle */
     irq_request(0, 0, suniv_spi_handler, sdev, DRIVER_NAME);
 
     sdev->clk = dt_get_clk_channel(pdev->dt_node, 0);

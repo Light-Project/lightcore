@@ -10,6 +10,7 @@
 #include <driver/platform.h>
 #include <driver/irqchip.h>
 #include <driver/irqchip/i8259.h>
+#include <asm/delay.h>
 #include <asm/io.h>
 
 struct i8259_device {
@@ -23,16 +24,32 @@ struct i8259_device {
 #define irqchip_to_idev(irq) \
     container_of(irq, struct i8259_device, irqchip)
 
+#define I8259_IRQ_NR 8
+
 static __always_inline uint8_t
 i8259_in(struct i8259_device *i8259, int reg)
 {
-    return inb(i8259->base + reg);
+    uint8_t val = inb(i8259->base + reg);
+
+    /*
+     * delay for some accesses to PIC on motherboard or
+     * in chipset must be at least one microsecond.
+     */
+    udelay(2);
+
+    return val;
 }
 
 static __always_inline void
 i8259_out(struct i8259_device *i8259, int reg, uint8_t val)
 {
     outb(i8259->base + reg, val);
+
+    /*
+     * delay for some accesses to PIC on motherboard or
+     * in chipset must be at least one microsecond.
+     */
+    udelay(2);
 }
 
 static void i8259_mask(struct i8259_device *i8259, uint8_t off, uint8_t on)
@@ -102,7 +119,7 @@ static state i8259_slave_add(struct irqchip_device *idev, irqnr_t vector)
     i8259_out(i8259, I8259_CMD,  I8259_ICW1_INIT | I8259_ICW1_ICW4);
     i8259_out(i8259, I8259_DATA, IRQ_EXTERNAL);
     i8259_out(i8259, I8259_DATA, i8259->slave);
-    i8259_out(i8259, I8259_DATA, I8259_ICW4_AUTO | I8259_ICW4_8086 | I8259_ICW4_BUFF);
+    i8259_out(i8259, I8259_DATA, I8259_ICW4_AUTO | I8259_ICW4_8086);
 
     i8259_irq_pass(idev, vector);
 
@@ -125,7 +142,7 @@ static state i8259_slave_del(struct irqchip_device *idev, irqnr_t vector)
     i8259_out(i8259, I8259_CMD,  I8259_ICW1_INIT | I8259_ICW1_ICW4);
     i8259_out(i8259, I8259_DATA, IRQ_EXTERNAL);
     i8259_out(i8259, I8259_DATA, i8259->slave);
-    i8259_out(i8259, I8259_DATA, I8259_ICW4_AUTO | I8259_ICW4_8086 | I8259_ICW4_BUFF);
+    i8259_out(i8259, I8259_DATA, I8259_ICW4_AUTO | I8259_ICW4_8086);
 
     i8259_irq_mask(idev, vector);
 
@@ -153,15 +170,13 @@ static void i8250_hw_init(struct platform_device *pdev)
     if (!dt_attribute_read_u32(pdev->dt_node, "irq", &index)) {
         i8259_out(i8259, I8259_CMD,  I8259_ICW1_INIT | I8259_ICW1_ICW4);
         i8259_out(i8259, I8259_DATA, IRQ_EXTERNAL + 8);
-        i8259_out(i8259, I8259_DATA, index);
-        i8259_out(i8259, I8259_DATA, I8259_ICW4_AUTO | I8259_ICW4_8086 |
-                                     I8259_ICW4_BUFF | I8259_ICW4_SLAVE);
+        i8259_out(i8259, I8259_DATA, index & I8259_ICW3_SLVD);
+        i8259_out(i8259, I8259_DATA, I8259_ICW4_SLAVE | I8259_ICW4_8086);
     } else { /* master mode */
         i8259_out(i8259, I8259_CMD,  I8259_ICW1_INIT | I8259_ICW1_ICW4);
         i8259_out(i8259, I8259_DATA, IRQ_EXTERNAL);
-        i8259_out(i8259, I8259_DATA, 0);
-        i8259_out(i8259, I8259_DATA, I8259_ICW4_AUTO | I8259_ICW4_8086 |
-                                     I8259_ICW4_BUFF);
+        i8259_out(i8259, I8259_DATA, 0x00 & I8259_ICW3_SLVD);
+        i8259_out(i8259, I8259_DATA, I8259_ICW4_AUTO | I8259_ICW4_8086);
     }
 }
 

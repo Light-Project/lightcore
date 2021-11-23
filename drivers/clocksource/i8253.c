@@ -52,6 +52,9 @@ static state i8253_probe(struct platform_device *pdev, void *pdata)
         return -ENOMEM;
     platform_set_devdata(pdev, idev);
 
+    /* request irq handle */
+    irq_request(I8253_IRQ, 0, pit_handle, idev, DRIVER_NAME);
+
     idev->base = platform_resource_start(pdev, 0);
     idev->irqchip = dt_get_irqchip_channel(pdev->dt_node, 0);
     if (!idev->irqchip) {
@@ -59,7 +62,6 @@ static state i8253_probe(struct platform_device *pdev, void *pdata)
         return -ENODEV;
     }
     irqchip_pass(idev->irqchip);
-    irq_request(I8253_IRQ, 0, pit_handle, idev, DRIVER_NAME);
 
     i8253_out(idev, I8253_MODE, I8253_MODE_SEL_TIMER0 | I8253_MODE_ACCESS_WORD |
                                 I8253_MODE_MOD_RATE   | I8253_MODE_CNT_BINARY  );

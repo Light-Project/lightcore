@@ -338,7 +338,9 @@ static state i8042_kbd_setup(struct platform_device *pdev)
     struct irqchip_channel *irqchip;
     state ret;
 
-    /* Request irq channel */
+    /* request irq handle */
+    irq_request(ATKBD_IRQ, 0, i8042_handle, idev, DRIVER_NAME);
+
     irqchip = dt_get_irqchip_channel_by_name(pdev->dt_node, "kbd");
     if (!irqchip) {
         dev_err(&pdev->dev, "unable to request irq\n");
@@ -347,7 +349,6 @@ static state i8042_kbd_setup(struct platform_device *pdev)
 
     idev->kbdirq = irqchip;
     irqchip_pass(irqchip);
-    irq_request(ATKBD_IRQ, 0, i8042_handle, idev, DRIVER_NAME);
 
     if ((ret = i8042_kbd_port_enable(idev)))
         return ret;
@@ -394,7 +395,9 @@ static state i8042_aux_setup(struct platform_device *pdev)
     struct irqchip_channel *irqchip;
     state ret;
 
-    /* Request irq channel */
+    /* request irq handle */
+    irq_request(ATKBD_IRQ, 0, i8042_handle, idev, DRIVER_NAME);
+
     irqchip = dt_get_irqchip_channel_by_name(pdev->dt_node, "aux");
     if (!irqchip) {
         dev_err(&pdev->dev, "unable to request irq\n");
@@ -403,7 +406,6 @@ static state i8042_aux_setup(struct platform_device *pdev)
 
     idev->auxirq = irqchip;
     irqchip_pass(irqchip);
-    irq_request(ATKBD_IRQ, 0, i8042_handle, idev, DRIVER_NAME);
 
     if (i8042_mux_detect(idev)) {
         if ((ret = i8042_aux_port_enable(idev)))

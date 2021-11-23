@@ -48,17 +48,17 @@ static state mc146818_gettime(struct rtc_device *rtc, struct rtc_time *time)
     unsigned int year, mon, day, hour, min, sec;
 
     /* waiting time update */
-    while (mc146818_read(mc146818, MC146818_Register_A) & MC146818_Register_A_UIP)
+    while (mc146818_read(mc146818, MC146818_REGISTER_A) & MC146818_REGISTER_A_UIP)
         cpu_relax();
 
-    sec  = mc146818_read(mc146818, MC146818_Seconds);
-    min  = mc146818_read(mc146818, MC146818_Minutes);
-    hour = mc146818_read(mc146818, MC146818_Hours);
-    day  = mc146818_read(mc146818, MC146818_Day_of_Month);
-    mon  = mc146818_read(mc146818, MC146818_Month);
-    year = mc146818_read(mc146818, MC146818_Year);
+    sec  = mc146818_read(mc146818, MC146818_SECONDS);
+    min  = mc146818_read(mc146818, MC146818_MINUTES);
+    hour = mc146818_read(mc146818, MC146818_HOURS);
+    day  = mc146818_read(mc146818, MC146818_DAY_OF_MONTH);
+    mon  = mc146818_read(mc146818, MC146818_MONTH);
+    year = mc146818_read(mc146818, MC146818_YEAR);
 
-    if (!(mc146818_read(mc146818, MC146818_Register_B) & MC146818_Register_B_DM)) {
+    if (!(mc146818_read(mc146818, MC146818_REGISTER_B) & MC146818_REGISTER_B_DM)) {
         sec  = bcd2bin(sec);
         min  = bcd2bin(min);
         hour = bcd2bin(hour);
@@ -91,7 +91,7 @@ static state mc146818_settime(struct rtc_device *rtc, struct rtc_time *time)
     mon  = time->tm_mon;
     year = time->tm_year;
 
-    if (!(mc146818_read(mc146818, MC146818_Register_B) & MC146818_Register_B_DM)) {
+    if (!(mc146818_read(mc146818, MC146818_REGISTER_B) & MC146818_REGISTER_B_DM)) {
         sec = bcd2bin(sec);
         min = bcd2bin(min);
         hour = bcd2bin(hour);
@@ -102,12 +102,12 @@ static state mc146818_settime(struct rtc_device *rtc, struct rtc_time *time)
 
     year -= MC146818_YEARS_OFFS;
 
-    mc146818_write(mc146818, MC146818_Seconds, sec);
-    mc146818_write(mc146818, MC146818_Minutes, min);
-    mc146818_write(mc146818, MC146818_Hours, hour);
-    mc146818_write(mc146818, MC146818_Day_of_Month, mon);
-    mc146818_write(mc146818, MC146818_Month, year);
-    mc146818_write(mc146818, MC146818_Year, year);
+    mc146818_write(mc146818, MC146818_SECONDS, sec);
+    mc146818_write(mc146818, MC146818_MINUTES, min);
+    mc146818_write(mc146818, MC146818_HOURS, hour);
+    mc146818_write(mc146818, MC146818_DAY_OF_MONTH, mon);
+    mc146818_write(mc146818, MC146818_MONTH, year);
+    mc146818_write(mc146818, MC146818_YEAR, year);
 
     return -ENOERR;
 }
@@ -117,12 +117,12 @@ static state mc146818_getalarm(struct rtc_device *rtc, struct rtc_alarm *alarm)
     struct mc146818_device *mc146818 = rtc_to_mc146818(rtc);
     unsigned int hour, min, sec, aie;
 
-    sec  = mc146818_read(mc146818, MC146818_Seconds_Alarm);
-    min  = mc146818_read(mc146818, MC146818_Minutes_Alarm);
-    hour = mc146818_read(mc146818, MC146818_Hours_Alarm);
-    aie  = mc146818_read(mc146818, MC146818_Register_B) & MC146818_Register_B_AIE;
+    sec  = mc146818_read(mc146818, MC146818_SECONDS_ALARM);
+    min  = mc146818_read(mc146818, MC146818_MINUTES_ALARM);
+    hour = mc146818_read(mc146818, MC146818_HOURS_ALARM);
+    aie  = mc146818_read(mc146818, MC146818_REGISTER_B) & MC146818_REGISTER_B_AIE;
 
-    if (!(mc146818_read(mc146818, MC146818_Register_B) & MC146818_Register_B_DM)) {
+    if (!(mc146818_read(mc146818, MC146818_REGISTER_B) & MC146818_REGISTER_B_DM)) {
         sec  = bcd2bin(sec);
         min  = bcd2bin(min);
         hour = bcd2bin(hour);
@@ -146,33 +146,23 @@ static state mc146818_setalarm(struct rtc_device *rtc, struct rtc_alarm *alarm)
     min  = alarm->time.tm_min;
     hour = alarm->time.tm_hour;
 
-    if (!(mc146818_read(mc146818, MC146818_Register_B) & MC146818_Register_B_DM)) {
+    if (!(mc146818_read(mc146818, MC146818_REGISTER_B) & MC146818_REGISTER_B_DM)) {
         sec = bcd2bin(sec);
         min = bcd2bin(min);
         hour = bcd2bin(hour);
     }
 
-    mc146818_write(mc146818, MC146818_Seconds_Alarm, sec);
-    mc146818_write(mc146818, MC146818_Minutes_Alarm, min);
-    mc146818_write(mc146818, MC146818_Hours_Alarm, hour);
+    mc146818_write(mc146818, MC146818_SECONDS_ALARM, sec);
+    mc146818_write(mc146818, MC146818_MINUTES_ALARM, min);
+    mc146818_write(mc146818, MC146818_HOURS_ALARM, hour);
 
     if (alarm->enable) {
-        val = mc146818_read(mc146818, MC146818_Register_B);
-        val |= MC146818_Register_B_AIE;
-        mc146818_write(mc146818, MC146818_Register_B, val);
+        val = mc146818_read(mc146818, MC146818_REGISTER_B);
+        val |= MC146818_REGISTER_B_AIE;
+        mc146818_write(mc146818, MC146818_REGISTER_B, val);
     }
 
     return -ENOERR;
-}
-
-static irqreturn_t mc146818_alarm_handle(irqnr_t vector, void *data)
-{
-    struct mc146818_device *mc146818 = data;
-
-    if (!(mc146818_read(mc146818, MC146818_Register_C) & MC146818_Register_C_IRQF))
-        return IRQ_RET_NONE;
-
-    return IRQ_RET_HANDLED;
 }
 
 static struct rtc_ops mc146818_ops = {
@@ -181,6 +171,26 @@ static struct rtc_ops mc146818_ops = {
     .get_alarm = mc146818_getalarm,
     .set_alarm = mc146818_setalarm,
 };
+
+static irqreturn_t mc146818_alarm_handle(irqnr_t vector, void *data)
+{
+    struct mc146818_device *mc146818 = data;
+
+    if (!(mc146818_read(mc146818, MC146818_REGISTER_C) & MC146818_REGISTER_C_IRQF))
+        return IRQ_RET_NONE;
+
+    return IRQ_RET_HANDLED;
+}
+
+static void mc146818_hw_init(struct mc146818_device *mc146818)
+{
+    uint8_t val;
+
+    val = mc146818_read(mc146818, MC146818_REGISTER_B);
+    val |= MC146818_REGISTER_B_PIE;
+    val |= MC146818_REGISTER_B_AIE;
+    mc146818_write(mc146818, MC146818_REGISTER_B, val);
+}
 
 static state mc146818_probe(struct platform_device *pdev, void *pdata)
 {
@@ -192,17 +202,20 @@ static state mc146818_probe(struct platform_device *pdev, void *pdata)
     mc146818 = kzalloc(sizeof(*mc146818), GFP_KERNEL);
     if (!mc146818)
         return -ENOMEM;
-
     platform_set_devdata(pdev, mc146818);
+
     mc146818->port = platform_resource_start(pdev, 0);
     mc146818->rtc.ops = &mc146818_ops;
+
+    /* request irq handle */
+    irq_request(RTC_IRQ, 0, mc146818_alarm_handle, mc146818, DRIVER_NAME);
 
     mc146818->irqchip = dt_get_irqchip_channel(pdev->dt_node, 0);
     if (!mc146818->irqchip)
         return -ENODEV;
     irqchip_pass(mc146818->irqchip);
-    irq_request(RTC_IRQ, 0, mc146818_alarm_handle, mc146818, DRIVER_NAME);
 
+    mc146818_hw_init(mc146818);
     return rtc_register(&mc146818->rtc);
 }
 
