@@ -5,18 +5,18 @@
 
 MKIMAGE := scripts/tools/mkuboot.sh
 
-ifdef LOADADDR
-UIMAGE_LOADADDR = $(LOADADDR)
-else
-UIMAGE_LOADADDR = $(CONFIG_LOAD_ADDR)
+ifdef CONFIG_CHIP_X86
+UIMAGE_LOADADDR     := 0x10000
+UIMAGE_ENTRYADDR    := 0x10200
 endif
 
-UIMAGE_ARCH         = sandbox
-UIMAGE_COMPRESSION  = none
-UIMAGE_OPTS-y       =
-UIMAGE_TYPE         = kernel
-UIMAGE_ENTRYADDR    = $(UIMAGE_LOADADDR)
-UIMAGE_NAME         = 'Lightcore-$(KERNELVERSION)'
+UIMAGE_ARCH         ?= sandbox
+UIMAGE_COMPRESSION  ?= none
+UIMAGE_OPTS-y       ?=
+UIMAGE_TYPE         ?= kernel
+UIMAGE_LOADADDR     ?= $(CONFIG_LOAD_ADDR)
+UIMAGE_ENTRYADDR    ?= $(UIMAGE_LOADADDR)
+UIMAGE_NAME         ?= 'Lightcore-$(KERNELVERSION)'
 
 quiet_cmd_uimage = UIMAGE $@
       cmd_uimage = $(BASH) $(MKIMAGE) -A $(UIMAGE_ARCH) -O invalid      \
@@ -35,7 +35,7 @@ quiet_cmd_disk = MKDISK $@
 
 ifneq ($(CONFIG_CHIP_X86),)
 cmd_disk = $(DD) if=$(obj)/preload/preload.bin of=$(obj)/disk.img bs=512 conv=notrunc; \
-           $(DD) if=$(obj)/kboot/boot.bin of=$(obj)/disk.img bs=512 seek=63 conv=notrunc
+           $(DD) if=$(obj)/uImage of=$(obj)/disk.img bs=512 seek=63 conv=notrunc
 endif
 
 ifneq ($(CONFIG_CHIP_GX6605S),)

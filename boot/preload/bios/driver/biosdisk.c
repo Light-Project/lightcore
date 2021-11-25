@@ -124,12 +124,13 @@ static state lba_read(char dev, uint8_t *buf, uint32_t lba, int count)
         buf += 512;
         ++lba;
     }
+
     return -ENOERR;
 }
 
-void biosdisk_read(uint8_t dev, uint8_t *buf, uint32_t lba, int count)
+void biosdisk_read(uint8_t dev, void *buff, uint32_t lba, int count)
 {
-    if ((dev < 0x80 || lba_read(dev, buf, lba, count))
-        && legacy_read(dev, buf, lba, count))
+    if ((dev < 0x80 || lba_read(dev, buff, lba, count))
+        && legacy_read(dev, buff, lba, count))
         panic("Biosdisk read error");
 }

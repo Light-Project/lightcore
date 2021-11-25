@@ -4,33 +4,44 @@
  */
 
 #include <boot.h>
-#include <asm/io.h>
+#include <linkage.h>
+#include <crc_table.h>
+#include <lightcore/asm/byteorder.h>
+#include <asm-generic/header.h>
 
-#define load_seek   63
-#define load_addr   ((void *)0x10000)
-
-extern void *_ld_dts_start;
-
-void main(void)
+static inline uint32_t crc32(const uint8_t *src, int len, uint32_t crc)
 {
-    uint32_t val;
+    uint32_t tmp = crc;
+    while (len--)
+        tmp = (tmp >> 8) ^ crc32_table[(tmp & 0xff) ^ *src++];
+    return tmp ^ crc;
+}
 
-    video_clear();
-    pr_init(video_print);
+static inline __noreturn void biosdisk_boot(void)
+{
+    struct uboot_head *head = (void *)(uint8_t [512]){};
+    uint32_t size, load, entry;
 
-    pr_boot("Boot device ID = 0x%02x\n", BOOT_DEV);
-    biosdisk_read(BOOT_DEV, load_addr, load_seek, 1);
+    biosdisk_read(BOOT_DEV, head, load_seek, 512 >> 9);
+    if (be32_to_cpu(head->magic) != UBOOT_MAGIC)
+        panic("biosdisk bad image\n");
 
-    /* Judge whether the image exists through magic */
-    val = ext_readw(load_addr + 0x1fe);
-    if(val != 0xaa55)
-        panic("can't find Image: 0x%02x\n", val);
+    size = be32_to_cpu(head->size);
+    load = be32_to_cpu(head->load);
+    entry = be32_to_cpu(head->ep);
 
-    /* Read the number of blocks in the image */
-    val = ext_readl(load_addr + 0x1f4);
-    pr_boot("Image size: %d blocks\n", val);
-    biosdisk_read(BOOT_DEV, load_addr, load_seek, val);
+    pr_boot("data size: %d\n", size);
+    pr_boot("load address: %#x\n", load);
+    pr_boot("entry point: %#x\n", entry);
+    biosdisk_read(BOOT_DEV, (void *)load - sizeof(*head), load_seek, size >> 9);
 
     pr_boot("start kboot...\n");
-    kboot_start(((uint32_t)load_addr) >> 4);
+    kboot_start((entry & ~0xffff) >> 4, entry & 0xffff);
+}
+
+asmlinkage void __noreturn main(void)
+{
+    video_clear();
+    pr_init(video_print);
+    biosdisk_boot();
 }

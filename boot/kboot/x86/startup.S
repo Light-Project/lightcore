@@ -3,9 +3,9 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <mm.h>
-#include <arch/x86/seg.h>
 #include <linkage.h>
+#include <arch/x86/seg.h>
+#include <asm/page.h>
 
 #define IO_DELAY        \
     outb    %al, $0x80
@@ -139,7 +139,7 @@ printf_loop:
 
     .align  16
 gdt_table:
-    .long   0x00000000      // 0x00: NULL ENTR
+    .long   0x00000000      // 0x00: NULL ENTRY
     .long   0x00000000      // 0x04: NULL
     .long   0x0000ffff      // 0x08: CS ENTRY
     .long   0x00cf9b00      // 0x0c: code, read/exe, 4GB, base=0

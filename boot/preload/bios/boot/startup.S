@@ -1,33 +1,26 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- *  SPDX-License-Identifier: GPL-2.0-or-later
- *  boot/preload/bios/boot/startup.S
- *  x86 preload entry
- *  (C) 2020 wzl
- *
- *  Change Logs:
- *  Date            Notes
- *  2021-01-18      first version
- *
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
 #include <linkage.h>
 #include <arch/x86/seg.h>
 
-#define printf(str)             \
-        movw $str, %si;         \
-        call Service_printf
+#define IO_DELAY \
+    outb    %al, $0x80
 
-#define disk_check(dev)         \
-        movb dev, %dl;          \
-        call Service_diskcheck
+#define printf(str)     \
+    movw $str, %si;     \
+    call Service_printf
+
+#define disk_check(dev) \
+    movb dev, %dl;      \
+    call Service_diskcheck
 
 #define chs_read(dev, bufferoffset, buffer, count, sector, cylinder, head)  \
-        movb dev, %dl;                                                      \
-        movw $bufferoffset, %ax; movw %ax, %es;                             \
-        movw $buffer, %bx;                                                  \
-        movb $count, %al;                                                   \
-        movb $sector, %cl; movb $cylinder, %ch; movb $head, %dh;            \
-        call Service_chsdisk
+    movb dev, %dl; movw $bufferoffset, %ax; movw %ax, %es;                  \
+    movw $buffer, %bx; movb $count, %al; movb $sector, %cl;                 \
+    movb $cylinder, %ch; movb $head, %dh; call Service_chsdisk
 
 /****************************/
 /* The MBR section begins   */
@@ -36,11 +29,10 @@
     .code16
     .section .setup,"ax"
 GLOBAL(_start)
-
-    /* Disable interrupt */
+    cld
     cli
 
-    /* Normalize the memory address */
+    /* normalize memory address */
     ljmpl   $0x00, $1f
 1:  xorl    %eax, %eax
     movl    %eax, %ds
@@ -50,7 +42,7 @@ GLOBAL(_start)
     /* setup stack */
     movl    $_ld_setup_start, %esp
 
-    /* Save device number */
+    /* save device number */
     movw    %dx, BOOT_DEV
 
     /* clean screen */
@@ -58,21 +50,18 @@ GLOBAL(_start)
     movb    $0x02, %al
     int     $0x10
 
+    /* load full code */
     printf(TXT_MBR_BOOT)
-
-    /* Load full code */
     chs_read(BOOT_DEV, 0, _ld_text_start, _ld_block_num, 2, 0, 0)
     jmp     init
-
 END(_start)
 
 /*
- * Print string to screen
- *
- * String pointer:  %si
+ * Screen Print Service:
+ *  String Pointer: %SI
  */
 Service_printf:
-    movb    $0x0e, %ah      // Service number
+    movb    $0x0e, %ah
     movb    $0x03, %bl
     jmp     printf_loop
 1:
@@ -84,9 +73,8 @@ printf_loop:
     ret
 
 /*
- * Hard disk check service:
- *
- * Disk number:     %dl
+ * Disk Check Service:
+ *  Disk Number:    %DL
  */
 Service_diskcheck:
     movb    $0x01, %ah
@@ -96,16 +84,15 @@ Service_diskcheck:
     ret
 
 /*
- * disk chs reading service:
- *
- * Service number:  %AH
- * Sector length:   %AL
- * Buffer addr:     %BX
- * Cylinder:        %CH
- * Sector:          %CL
- * Head number:     %DH
- * Dev number:      %DL
- * Buffer offset:   %ES
+ * Disk CHS Reading Service:
+ *  Service Number: %AH
+ *  Sector Length:  %AL
+ *  Buffer Addr:    %BX
+ *  Cylinder:       %CH
+ *  Sector:         %CL
+ *  Head Number:    %DH
+ *  Dev Number:     %DL
+ *  Buffer Offset:  %ES
  */
 Service_chsdisk:
     mov     $0x02, %ah
@@ -127,74 +114,73 @@ GLOBAL(halt)
     jmp     halt
 END(halt)
 
-    .globl BOOT_DEV
-BOOT_DEV:
-    .byte 0x00  // Startup device number
+GLOBAL(BOOT_DEV)
+    .byte 0x00
+END(BOOT_DEV)
 
-    .align 4
-TXT_MBR_BOOT:       .asciz "\n\rMBR booting\n\r"
-TXT_INT13_1_ERR:    .asciz "INT13/1 ERR!\n\r"
-TXT_INT13_2_ERR:    .asciz "INT13/2 ERR!\n\r"
+TXT_MBR_BOOT: .asciz "\n\rMBR booting\n\r"
+TXT_INT13_1_ERR: .asciz "INT13/1 ERR!\n\r"
+TXT_INT13_2_ERR: .asciz "INT13/2 ERR!\n\r"
 
 /****************************/
 /* The text section begins  */
 /****************************/
 
     .section .text,"ax"
-init:
-    /* TEST A20 first */
-    call    Service_A20TEST
+ENTRY(init)
+    /* test a20 first */
+    call    a20_test
     je      1f
 
-    /* Bios way to enable A20 */
+    /* bios enable a20 */
     printf(TXT_A20BIOS)
     movw    $0x2401, %ax
     int     $0x15
-
-    /* TEST A20 */
-    call    Service_A20TEST
+    call    a20_test
     je      1f
 
-    /* PCH way to enable A20 */
+    /* pch enable a20 */
     printf(TXT_A20PCH)
     inb     $0x92, %al
-    or      $(1<<1), %ax    /* Enable A20 */
-    and     $(~(1<<0)), %ax /* Diable reset */
+    or      $(1<<1), %ax
+    and     $(~(1<<0)), %ax
     outb    %al, $0x92
-
-    /* TEST A20 */
-    call    Service_A20TEST
+    call    a20_test
     je      1f
+
     printf(TXT_A20ERROR)
     jmp     halt
 1:
     /**
      * TODO: setfs doesn't work
      */
-    jmp     Bss_segment_Init
+    jmp     env
 
 /*
  * We need access 4GiB in real mode
  */
 setfs:
-    /* Load gdt table */
+    /* load gdt table */
     lgdtl   gdt_struct
 
-    /* Enable PE mode */
+    /* load idt table */
+    lidtl   idt_table
+
+    /* enable pe mode */
     movl    %cr0, %eax
     orl     $(1<<0), %eax
     movl    %eax, %cr0
 
-    .byte   0x66, 0xea  # ljmpl opcodeq
-    .long   1f          # offset
-    .word   0x08        # segment
+    .byte   0x66, 0xea              // ljmpl opcode
+    .long   1f                      // offset
+    .word   GDT_ENTRY_BOOT_CS_BASE  // segment
 
     .code32
 1:
-    movw    $0x10, %ax
+    movw    $GDT_ENTRY_BOOT_DS, %ax
     movw    %ax, %fs
 
-    /* Disable PE mode */
+    /* disable pe mode */
     movl    %cr0, %eax
     xorl    $(1<<0), %eax
     movl    %eax, %cr0
@@ -205,9 +191,8 @@ setfs:
     .word   0x00
 
     .code16
-1:
-
-Bss_segment_Init:
+env:
+    /* clear the bss region */
     movl    $_ld_bss_start, %edi
     movl    $_ld_bss_end, %ecx
     subl    %edi, %ecx
@@ -217,16 +202,31 @@ Bss_segment_Init:
 
     xorl    %ebp, %ebp
     jmp     main
+END(init)
+
+ENTRY(a20_test)
+    pusha
+
+    pushl   0x80 * 4
+    IO_DELAY
+    popl    0x80 * 4
+
+    popa
+    ret
+END(a20_test)
 
 GLOBAL(kboot_start)
-    movl    4(%esp), %eax
-    movw    %ax, 1f
+    movl    8(%esp), %ebx
+    movw    4(%esp), %ax
+
+    movl    %ebx, 1f
+    movw    %ax, 2f
     movw    %ax, %ds
     movw    %ax, %es
 
     .byte   0x66, 0xea  // ljmpl opcode
-    .long   0x200       // address
-1:  .word   0x00        // offset
+1:  .long   0x00        // address
+2:  .word   0x00        // offset
 END(kboot_start)
 
 GLOBAL(bios_int)
@@ -353,17 +353,15 @@ GLOBAL(ext_rw)
     ret
 END(ext_rw)
 
-ENTRY(delayus)
+GLOBAL(delayus)
     pushl   %ebp
     movl    %esp, %ebp
     pushal
 
     movl    8(%ebp), %eax
-
     movw    %ax, %dx
     shrl    $16, %eax
     movw    %ax, %cx
-
     movb    $0x86, %ah
     int     $0x15
 
@@ -372,29 +370,9 @@ ENTRY(delayus)
     ret
 END(delayus)
 
-ENTRY(Service_A20TEST)
-    pusha
-    pushl   0x80 * 4
-
-    call    io_delay
-
-    popl    0x80 * 4
-    popa
-    ret
-END(Service_A20TEST)
-
-ENTRY(io_delay)
-    outw    %ax, $0x80
-    ret
-END(io_delay)
-
-TXT_A20BIOS:    .asciz "Open A20 through BIOS\n\r"
-TXT_A20PCH:     .asciz "Open A20 through PCH\n\r"
-TXT_A20ERROR:   .asciz "A20 can't open\n\r"
-
     .align 16
-gdt_table:              // GDT Table
-    .long   0x00000000  // 0x00: NULL ENTR
+gdt_table:
+    .long   0x00000000  // 0x00: NULL ENTRY
     .long   0x00000000  // 0x04: NULL
     .long   0x0000ffff  // 0x08: CS ENTRY
     .long   0x00cf9b00  // 0x0c: code, read/exe, 4GB, base=0
@@ -403,3 +381,12 @@ gdt_table:              // GDT Table
 gdt_struct:
     .word   0x0018      // GDT limit
     .long   gdt_table   // GDT addr
+
+    .align  16
+idt_table:
+    .word   0x0000      // IDT limit
+    .long   0x00000000  // IDT addr
+
+TXT_A20BIOS: .asciz "Open A20 through BIOS\n\r"
+TXT_A20PCH: .asciz "Open A20 through PCH\n\r"
+TXT_A20ERROR: .asciz "A20 can't open\n\r"
