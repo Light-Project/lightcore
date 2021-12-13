@@ -29,7 +29,7 @@ static void uhci_pci_reset(struct uhci_host *uhci, struct pci_device *pdev)
 static state uhci_pci_setup(struct usb_host *host)
 {
     struct uhci_host *uhci = host_to_uhci(host);
-    struct pci_device *pdev = device_to_pci_device(uhci->device);
+    struct pci_device *pdev = device_to_pci(uhci->device);
     uint16_t val;
 
     val = pci_config_readw(pdev, UHCI_PCI_LEGSUP);
@@ -68,7 +68,7 @@ static struct pci_device_id uhci_pci_ids[] = {
     { }, /* NULL */
 };
 
-static state uhci_pci_probe(struct pci_device *pdev, void *pdata)
+static state uhci_pci_probe(struct pci_device *pdev, const void *pdata)
 {
     struct uhci_host *uhci;
     int val;

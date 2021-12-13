@@ -33,7 +33,7 @@ extern void __nonnull(1) kcache_delete(struct kcache *);
  * @size: alloc memory size.
  * @flags: the type of memory to allocate.
  */
-static __always_inline __malloc void *
+static inline __malloc void *
 kzalloc(size_t size, gfp_t flags)
 {
     return kmalloc(size, flags | GFP_ZERO);

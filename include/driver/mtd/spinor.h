@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#ifndef _DRIVER_MTD_SPINOR_
-#define _DRIVER_MTD_SPINOR_
+#ifndef _DRIVER_MTD_SPINOR_H_
+#define _DRIVER_MTD_SPINOR_H_
 
 #include <state.h>
 #include <bits.h>
@@ -52,7 +52,7 @@ enum norflash_commands {
 #define NORFLASH_STR_SRP0       BIT(7)  /* Status write protect */
 
 struct spinor_device {
-    struct device *parent;
+    struct device *device;
     struct mtd_device mtd;
     struct spinor_ops *ops;
 
@@ -88,4 +88,4 @@ extern void spinor_type_unregister(struct spinor_type *stype);
 extern state spinor_register(struct spinor_device *);
 extern void spinor_unregister(struct spinor_device *);
 
-#endif  /* _DRIVER_MTD_NORFLASH_ */
+#endif  /* _DRIVER_MTD_SPINOR_H_ */

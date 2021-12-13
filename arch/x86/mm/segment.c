@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-
-#include <mm/vmem.h>
-#include <size.h>
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
 
 #include <asm/page.h>
-#include <asm/gdt.h>
+#include <asm/segment.h>
 
 static struct gdt_entry gdt_entry[GDT_ENTRY_MAX] = {
     [GDT_ENTRY_KERNEL_CS] = {

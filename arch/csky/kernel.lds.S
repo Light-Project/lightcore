@@ -1,8 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#include <mm.h>
 #include <asm-generic/kernel.lds.h>
-#include <asm/page.h>
 #include <asm/cache.h>
+#include <asm/page.h>
 
 OUTPUT_ARCH(csky)
 ENTRY(boot_head)

@@ -9,7 +9,6 @@
 #include <string.h>
 #include <initcall.h>
 #include <cpu.h>
-#include <sort.h>
 #include <export.h>
 #include <printk.h>
 
@@ -138,7 +137,6 @@ void sched_task_destroy(struct task *task)
 
 void __noreturn sched_task_exit(void)
 {
-
     for (;;)
     cpu_relax();
 }
@@ -159,7 +157,7 @@ state sched_register(struct sched_type *sched)
     pr_info("register scheduler %s\n", sched->name);
 
     list_add(&sched_list, &sched->list);
-    sort_list(&sched_list, sched_sort, NULL);
+    list_sort(&sched_list, sched_sort, NULL);
     return -ENOERR;
 }
 

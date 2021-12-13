@@ -137,7 +137,7 @@ static void gx6605s_wdt_hw_init(struct platform_device *pdev, unsigned int freq)
     gx6605s_write(gdev, GX6605S_WDT_MATCH, div << 16);
 }
 
-static state gx6605s_wdt_probe(struct platform_device *pdev, void *pdata)
+static state gx6605s_wdt_probe(struct platform_device *pdev, const void *pdata)
 {
     struct gx6605s_device *gdev;
     resource_size_t start, size;

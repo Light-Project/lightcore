@@ -1,5 +1,4 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#include <mm.h>
 #include <asm-generic/kernel.lds.h>
 #include <asm/page.h>
 

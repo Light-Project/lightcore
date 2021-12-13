@@ -69,7 +69,7 @@ static struct clk_ops gx6605s_clk_ops = {
     .rate_get = ,
 };
 
-static state gx6605s_clk_probe(struct platform_device *pdev, void *pdata)
+static state gx6605s_clk_probe(struct platform_device *pdev, const void *pdata)
 {
 
 

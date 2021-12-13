@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#include <sort.h>
+#include <list.h>
 
 static __always_inline struct list_head *
 list_merge(list_cmp_t cmp, void *data,
@@ -70,7 +70,7 @@ list_finish(list_cmp_t cmp, void *data, struct list_head *head,
     head->prev = tail;
 }
 
-void sort_list(struct list_head *head, list_cmp_t cmp, void *data)
+void list_sort(struct list_head *head, list_cmp_t cmp, void *data)
 {
     struct list_head *pending = NULL, *node = head->next;
     unsigned int count = 0;

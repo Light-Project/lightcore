@@ -7,18 +7,18 @@
 #include <arch/x86/seg.h>
 #include <asm/page.h>
 
-#define IO_DELAY        \
-    outb    %al, $0x80
+#define IO_DELAY \
+    outb %al, $0x80
 
-#define printf(str)     \
-    movw $str, %si;     \
-    call printf
+#define printf(str) \
+    movw $str, %si; \
+    call Service_printf
 
     .code16
     .section    .head,"ax"
 GLOBAL(startup16)
     cld
-    cli     /* we're not safe here! */
+    cli
 
     /* Normalize the memory address */
     movw    %ds, %bx
@@ -117,49 +117,31 @@ GLOBAL(startup16)
     .byte   0x66, 0xea              // ljmpl opcode
 1:  .long   startup32               // offset
     .word   GDT_ENTRY_BOOT_CS_BASE  // segment
+END(startup16)
 
 halt_16:
+    cli
     rep;    hlt
     jmp     halt_16
 
 a20test:
     ret
 
-printf:
+/*
+ * Screen Print Service:
+ *  String Pointer: %SI
+ */
+Service_printf:
     movb    $0x0e, %ah
     movb    $0x03, %bl
     jmp     printf_loop
 1:
     int     $0x10
 printf_loop:
-    lodsb
+    lodsb   %es:(%si), %al
     cmpb    $0, %al
     jne     1b
     ret
-
-    .align  16
-gdt_table:
-    .long   0x00000000      // 0x00: NULL ENTRY
-    .long   0x00000000      // 0x04: NULL
-    .long   0x0000ffff      // 0x08: CS ENTRY
-    .long   0x00cf9b00      // 0x0c: code, read/exe, 4GB, base=0
-    .long   0x0000ffff      // 0x10: DS ENTRY
-    .long   0x00cf9300      // 0x14: data, read/write, 4GB, base=0
-gdt_struct:
-    .word   0x0018          // GDT limit
-gdt_fix: .long gdt_table    // GDT addr
-
-    .align  16
-idt_table:
-    .word   0x0000          // IDT limit
-    .long   0x00000000      // IDT addr
-
-TXT_A20BIOS: .asciz "use bios to enable a20\n\r"
-TXT_A20PCH: .asciz "use pch to enable a20\n\r"
-TXT_A20ERROR: .asciz "fail to open a20\n\r"
-TXT_MEMDETECT: .asciz "detect memory...\n\r"
-
-END(startup16)
 
 GLOBAL(bios_int)
     pushl   %ebp
@@ -224,8 +206,30 @@ intnr:  .byte   0
     ret
 
 save_sp: .long  0x00
-
 END(bios_int)
+
+    .align  16
+gdt_table:
+    .long   0x00000000      // 0x00: NULL ENTRY
+    .long   0x00000000      // 0x04: NULL
+    .long   0x0000ffff      // 0x08: CS ENTRY
+    .long   0x00cf9b00      // 0x0c: code, read/exe, 4GB, base=0
+    .long   0x0000ffff      // 0x10: DS ENTRY
+    .long   0x00cf9300      // 0x14: data, read/write, 4GB, base=0
+gdt_struct:
+    .word   0x0018          // GDT limit
+gdt_fix: .long gdt_table    // GDT addr
+
+    .align  16
+idt_table:
+    .word   0x0000          // IDT limit
+    .long   0x00000000      // IDT addr
+
+    .align  4
+TXT_A20BIOS: .asciz "use bios to enable a20\n\r"
+TXT_A20PCH: .asciz "use pch to enable a20\n\r"
+TXT_A20ERROR: .asciz "fail to open a20\n\r"
+TXT_MEMDETECT: .asciz "detect memory...\n\r"
 
 /****************************/
 /* The text section begins  */

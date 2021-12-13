@@ -1,17 +1,17 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#ifndef _DRIVER_MTD_INTEL_
-#define _DRIVER_MTD_INTEL_
+#ifndef _DRIVER_MTD_INTEL_H_
+#define _DRIVER_MTD_INTEL_H_
 
 #include <bits.h>
 
 enum intel_spi_resisters {
-    INTEL_SPI_BF        = 0x00, /* SPI BIOS MMIO PRI */
-    INTEL_SPI_HSCTL     = 0x04, /* Hardware Sequencing Flash Status and Control */
-    INTEL_SPI_ADDR      = 0x08, /* Flash Address */
-    INTEL_SPI_DLOCK     = 0x0c, /* Discrete Lock Bits */
-    INTEL_SPI_DATA      = 0x10, /* Flash Data */
-    INTEL_SPI_RACC      = 0x50, /* Flash Region Access Permissions */
-    INTEL_SPI_FREG      = 0x54, /* Flash Region */
+    INTEL_SPI_BF        = 0x00,     /* SPI BIOS MMIO PRI */
+    INTEL_SPI_HSCTL     = 0x04,     /* Hardware Sequencing Flash Status and Control */
+    INTEL_SPI_ADDR      = 0x08,     /* Flash Address */
+    INTEL_SPI_DLOCK     = 0x0c,     /* Discrete Lock Bits */
+    INTEL_SPI_DATA      = 0x10,     /* Flash Data */
+    INTEL_SPI_RACC      = 0x50,     /* Flash Region Access Permissions */
+    INTEL_SPI_FREG      = 0x54,     /* Flash Region */
 };
 
 #define INTEL_SPI_DATA(index)   ((index) * 4)

@@ -44,7 +44,7 @@ static state bochs_hw_init(struct pci_device *pdev)
         ioaddr = pci_resource_start(pdev, 2);
         iosize = pci_resource_size(pdev, 2);
         base = dev_ioremap(&pdev->dev, ioaddr, iosize);
-        if(!base)
+        if (!base)
             return -ENOMEM;
         vesa->vgabase = base + 0x400;
         vesa->mmio = base + 0x500;
@@ -86,7 +86,7 @@ static state bochs_hw_init(struct pci_device *pdev)
     return -ENOERR;
 }
 
-static state bochs_probe(struct pci_device *pdev, void *pdata)
+static state bochs_probe(struct pci_device *pdev, const void *pdata)
 {
     struct vesa_device *vesa;
     state ret;

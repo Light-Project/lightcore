@@ -11,8 +11,9 @@ include scripts/top.mk
 include $(srctree)/platform.mk
 
 sys-include-y += include/ include/generated/autoconf.h  \
-                 include/compiler/compiler_attributes.h \
-                 include/compiler/compiler_type.h       \
+                 include/compiler/compiler-attributes.h \
+                 include/compiler/compiler-type.h       \
+                 include/compiler/compiler-gcc.h		\
                  include/compiler/compiler.h            \
                  include/compiler/sections.h            \
                  include/compiler/stringify.h

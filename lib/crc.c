@@ -17,6 +17,7 @@ uint8_t crc4(uint8_t *src, int len, uint8_t crc)
 
     return tmp ^ crc;
 }
+EXPORT_SYMBOL(crc4);
 
 uint8_t crc8(uint8_t *src, int len, uint8_t crc)
 {
@@ -27,6 +28,7 @@ uint8_t crc8(uint8_t *src, int len, uint8_t crc)
 
     return tmp ^ crc;
 }
+EXPORT_SYMBOL(crc8);
 
 uint16_t crc16(uint8_t *src, int len, uint16_t crc)
 {
@@ -37,6 +39,7 @@ uint16_t crc16(uint8_t *src, int len, uint16_t crc)
 
     return tmp ^ crc;
 }
+EXPORT_SYMBOL(crc16);
 
 uint32_t crc32(const uint8_t *src, int len, uint32_t crc)
 {
@@ -47,8 +50,4 @@ uint32_t crc32(const uint8_t *src, int len, uint32_t crc)
 
     return tmp ^ crc;
 }
-
-EXPORT_SYMBOL(crc4);
-EXPORT_SYMBOL(crc8);
-EXPORT_SYMBOL(crc16);
 EXPORT_SYMBOL(crc32);

@@ -166,7 +166,7 @@ EXPORT_SYMBOL(__negdi2);
 Wtype __weak __addvSI3(Wtype a, Wtype b)
 {
     const Wtype w = (UWtype) a + (UWtype) b;
-    kassert(b >= 0 ? w < a : w > a);
+    BUG_ON(!(b >= 0 ? w < a : w > a));
     return w;
 }
 EXPORT_SYMBOL(__addvSI3);
@@ -174,7 +174,7 @@ EXPORT_SYMBOL(__addvSI3);
 SItype __weak __addvsi3(SItype a, SItype b)
 {
     const SItype w = (USItype)a + (USItype)b;
-    kassert(b >= 0 ? w < a : w > a);
+    BUG_ON(!(b >= 0 ? w < a : w > a));
     return w;
 }
 EXPORT_SYMBOL(__addvsi3);
@@ -182,7 +182,7 @@ EXPORT_SYMBOL(__addvsi3);
 DWtype __weak __addvDI3(DWtype a, DWtype b)
 {
     const DWtype w = (UDWtype) a + (UDWtype) b;
-    kassert(b >= 0 ? w < a : w > a);
+    BUG_ON(!(b >= 0 ? w < a : w > a));
     return w;
 }
 EXPORT_SYMBOL(__addvDI3);
@@ -190,7 +190,7 @@ EXPORT_SYMBOL(__addvDI3);
 Wtype __weak __subvSI3(Wtype a, Wtype b)
 {
     const Wtype w = (UWtype)a - (UWtype)b;
-    kassert(b >= 0 ? w > a : w < a);
+    BUG_ON(!(b >= 0 ? w > a : w < a));
     return w;
 }
 EXPORT_SYMBOL(__subvSI3);
@@ -198,7 +198,7 @@ EXPORT_SYMBOL(__subvSI3);
 SItype __weak __subvsi3(SItype a, SItype b)
 {
     const SItype w = (USItype)a - (USItype)b;
-    kassert(b >= 0 ? w > a : w < a);
+    BUG_ON(!(b >= 0 ? w > a : w < a));
     return w;
 }
 EXPORT_SYMBOL(__subvsi3);
@@ -206,7 +206,7 @@ EXPORT_SYMBOL(__subvsi3);
 DWtype __weak __subvDI3(DWtype a, DWtype b)
 {
     const DWtype w = (UDWtype)a - (UDWtype)b;
-    kassert(b >= 0 ? w > a : w < a);
+    BUG_ON(!(b >= 0 ? w > a : w < a));
     return w;
 }
 EXPORT_SYMBOL(__subvDI3);
@@ -214,7 +214,7 @@ EXPORT_SYMBOL(__subvDI3);
 Wtype __weak __mulvSI3(Wtype a, Wtype b)
 {
     const DWtype w = (DWtype)a * (DWtype)b;
-    kassert((Wtype) (w >> W_TYPE_SIZE) != (Wtype) w >> (W_TYPE_SIZE - 1));
+    BUG_ON(!((Wtype) (w >> W_TYPE_SIZE) != (Wtype) w >> (W_TYPE_SIZE - 1)));
     return w;
 }
 EXPORT_SYMBOL(__mulvSI3);
@@ -223,7 +223,7 @@ EXPORT_SYMBOL(__mulvSI3);
 SItype __weak __mulvsi3 (SItype a, SItype b)
 {
     const DItype w = (DItype) a * (DItype) b;
-    kassert((SItype) (w >> WORD_SIZE) != (SItype) w >> (WORD_SIZE-1));
+    BUG_ON(!((SItype) (w >> WORD_SIZE) != (SItype) w >> (WORD_SIZE-1)));
     return w;
 }
 EXPORT_SYMBOL(__mulvsi3);
@@ -231,7 +231,7 @@ EXPORT_SYMBOL(__mulvsi3);
 Wtype __weak __negvSI2(Wtype a)
 {
     const Wtype w = -(UWtype) a;
-    kassert(a >= 0 ? w > 0 : w < 0);
+    BUG_ON(!(a >= 0 ? w > 0 : w < 0));
     return w;
 }
 EXPORT_SYMBOL(__negvSI2);
@@ -239,7 +239,7 @@ EXPORT_SYMBOL(__negvSI2);
 SItype __weak __negvsi2(SItype a)
 {
     const SItype w = -(USItype) a;
-    kassert(a >= 0 ? w > 0 : w < 0);
+    BUG_ON(!(a >= 0 ? w > 0 : w < 0));
     return w;
 }
 EXPORT_SYMBOL(__negvsi2);
@@ -247,7 +247,7 @@ EXPORT_SYMBOL(__negvsi2);
 DWtype __weak __negvDI2(DWtype a)
 {
     const DWtype w = -(UDWtype) a;
-    kassert(a >= 0 ? w > 0 : w < 0);
+    BUG_ON(!(a >= 0 ? w > 0 : w < 0));
     return w;
 }
 EXPORT_SYMBOL(__negvDI2);

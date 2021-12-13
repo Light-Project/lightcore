@@ -21,7 +21,7 @@ char *gsize(char *buff, size_t size)
         count++;
     }
 
-    sprintf(buff, "%ld.%02ld%s", size, prev, unit[count]);
+    sprintf(buff, "%ld.%02ld%s", size, prev % 1024, unit[count]);
     return buff;
 }
 

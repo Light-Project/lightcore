@@ -1,6 +1,0 @@
-#ifndef _LIGHTCORE_ASM_BITSPERLONG_H_
-#define _LIGHTCORE_ASM_BITSPERLONG_H_
-
-#define __BITS_PER_LONG 64
-
-#endif 

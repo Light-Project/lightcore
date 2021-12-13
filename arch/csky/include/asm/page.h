@@ -29,4 +29,6 @@
 
 #define SPARCE_SHIFT    24
 
+#include <asm-generic/page.h>
+
 #endif  /* _ASM_CSKY_PAGE_H_ */

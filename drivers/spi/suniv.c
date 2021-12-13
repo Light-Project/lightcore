@@ -187,7 +187,7 @@ static struct spi_ops suniv_spi_ops = {
     .devsel = suniv_spi_devsel,
 };
 
-static state suniv_spi_probe(struct platform_device *pdev, void *pdata)
+static state suniv_spi_probe(struct platform_device *pdev, const void *pdata)
 {
     struct suniv_device *sdev;
     resource_size_t addr, size;

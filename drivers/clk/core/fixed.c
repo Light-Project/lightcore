@@ -31,7 +31,7 @@ static struct clk_ops fixed_clk_ops = {
     .rate_get = fixed_clk_get_freq,
 };
 
-static state fixed_clk_probe(struct platform_device *pdev, void *pdata)
+static state fixed_clk_probe(struct platform_device *pdev, const void *pdata)
 {
     struct fixed_clk_device *fixed;
     uint32_t freq;

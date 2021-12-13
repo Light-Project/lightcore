@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#ifndef _ASM_X86_IRQ_H
-#define _ASM_X86_IRQ_H
+#ifndef _ASM_X86_IRQ_H_
+#define _ASM_X86_IRQ_H_
 
 #include <types.h>
 
@@ -59,4 +59,4 @@ static inline void cpu_irq_restore(irqflags_t flags)
 
 #include <asm-generic/irq.h>
 
-#endif  /* _ASM_X86_IRQ_H */
+#endif  /* _ASM_X86_IRQ_H_ */

@@ -139,11 +139,11 @@ struct dmi_node {
     struct slist_head list;
 };
 
-char *dmi_string_index(const struct dmi_header *dmi, int index);
-void dmi_region_byte(struct dmi_header *dmi, int index, enum dmi_region_type region);
-void dmi_region_word(struct dmi_header *dmi, int index, enum dmi_region_type region);
-void dmi_region_string(struct dmi_header *dmi, int index, enum dmi_region_type region);
-bool dmi_match_one(enum dmi_region_type type, const char *name);
-void *dmi_match(struct dmi_deivce_id *dmi);
+extern char *dmi_string_index(const struct dmi_header *dmi, int index);
+extern void dmi_region_byte(struct dmi_header *dmi, int index, enum dmi_region_type region);
+extern void dmi_region_word(struct dmi_header *dmi, int index, enum dmi_region_type region);
+extern void dmi_region_string(struct dmi_header *dmi, int index, enum dmi_region_type region);
+extern bool dmi_match_one(enum dmi_region_type type, const char *name);
+extern const void *dmi_match(struct dmi_deivce_id *dmi);
 
 #endif  /* _DRIVER_DMI_H_ */

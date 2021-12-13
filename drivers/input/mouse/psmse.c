@@ -10,13 +10,13 @@
 #include <driver/serio.h>
 #include <driver/input/psmse.h>
 
-static irqreturn_t psmse_interrupt(struct serio_device *sdev, uint32_t data, void *pdata)
+static irqreturn_t psmse_interrupt(struct serio_device *sdev, uint32_t data, const void *pdata)
 {
     printk("%d\n", data);
     return IRQ_RET_HANDLED;
 }
 
-static state psmse_probe(struct serio_device *sdev, void *pdata)
+static state psmse_probe(struct serio_device *sdev, const void *pdata)
 {
 
     return -ENOERR;

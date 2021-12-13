@@ -115,8 +115,8 @@ state __init early_dt_scan(void *addr)
     version = fdt_version(dt_start_addr);
 
     pr_info("device tree info:\n");
-    pr_info("    magic: 0x%08x\n",   magic);
-    pr_info("     size: 0x%08x\n",    size);
+    pr_info("  magic: 0x%08x\n", magic);
+    pr_info("  size: 0x%08x\n", size);
     pr_info("  version: 0x%08x\n", version);
 
     memblock_reserve("dts", va_to_pa(addr), size);

@@ -27,10 +27,10 @@ struct serio_driver {
     struct driver driver;
     const struct serio_device_id *id_table;
 
-    state (*probe)(struct serio_device *serio, void *pdata);
+    state (*probe)(struct serio_device *serio, const void *pdata);
     void (*remove)(struct serio_device *serio);
     void (*shutdown)(struct serio_device *serio);
-    irqreturn_t (*interrupt)(struct serio_device *, uint32_t data, void *pdata);
+    irqreturn_t (*interrupt)(struct serio_device *, uint32_t data, const void *pdata);
 };
 
 #define driver_to_serio_driver(drv) \
@@ -52,7 +52,7 @@ struct serio_ops {
 state serio_driver_register(struct serio_driver *);
 void serio_driver_unregister(struct serio_driver *);
 
-irqreturn_t serio_interrupt(struct serio_host *, uint32_t data, void *pdata);
+irqreturn_t serio_interrupt(struct serio_host *, uint32_t data, const void *pdata);
 state serio_host_register(struct serio_host *);
 void serio_host_unregister(struct serio_host *);
 

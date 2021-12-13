@@ -34,7 +34,7 @@ struct sparce_block {
 extern struct sparce_block sparce_map[];
 
 #define sparce_base(sp) \
-    ((unsigned long)((sp) - sparce_map) << SECTIONS_PFN_SHIFT)
+    ((size_t)((sp) - sparce_map) << SECTIONS_PFN_SHIFT)
 
 static inline unsigned long
 sparce_page_nr(const struct sparce_block *sparce, const struct page *page)
@@ -45,14 +45,14 @@ sparce_page_nr(const struct sparce_block *sparce, const struct page *page)
 static inline struct page *
 sparce_nr_page(const struct sparce_block *sparce, unsigned long pnr)
 {
-    if(!sparce->present)
+    if (unlikely(!sparce->present))
         return NULL;
     return &sparce->page_map[pnr - sparce_base(sparce)];
 }
 
-#define page_to_nr(pg) ({                                   \
-    const struct page *__page = (pg);                       \
-    sparce_page_nr(&sparce_map[__page->sparce_nr], __page); \
+#define page_to_nr(pg) ({                                                       \
+    const struct page *__page = (pg);                                           \
+    sparce_page_nr(&sparce_map[__page->sparce_nr], __page);                     \
 })
 
 #define nr_to_page(pnr) ({                                                      \
@@ -61,6 +61,12 @@ sparce_nr_page(const struct sparce_block *sparce, unsigned long pnr)
 })
 
 #endif  /* CONFIG_SPARCEMEM */
+
+#define page_to_pa(page)    (page_to_nr(page) << PAGE_SHIFT)
+#define pa_to_page(pa)      (nr_to_page(pa >> PAGE_SHIFT))
+
+#define page_to_va(page)    (pa_to_va(page_to_pa(page)))
+#define va_to_page(address) (pa_to_page(va_to_pa(address)))
 
 void memmodel_init(void);
 

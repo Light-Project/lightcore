@@ -235,7 +235,7 @@ static struct watchdog_ops tco_ops = {
     .timeout_set = tco_timeout_set,
 };
 
-static state tco_probe(struct platform_device *pdev, void *pdata)
+static state tco_probe(struct platform_device *pdev, const void *pdata)
 {
     struct tco_device *tco;
     resource_size_t base, size;

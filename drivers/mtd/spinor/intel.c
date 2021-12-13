@@ -19,7 +19,7 @@
 
 struct intel_spec {
     unsigned int pr_base, pr_num;
-    unsigned int ss_base;
+    unsigned int ss_base, fr_num;
     unsigned int freg_num;
     bool erase_64k;
 };
@@ -127,36 +127,21 @@ static inline void intel_spi_unprotect(struct intel_device *idev,
     intel_pr_write(idev, index - 1, 0);
 }
 
-static state intel_spi_receive(struct intel_device *idev, void *buf, uint32_t len)
-{
-    uint32_t xfer;
-    int index;
-
-    if (len > INTEL_SPI_BUFFER_SIZE)
-        return -EINVAL;
-
-    for (index = 0 ; (xfer = min(len, 4)); --len, ++index) {
-        memcpy(buf, idev->base + INTEL_SPI_DATA(index), index);
-        buf += xfer;
-    }
-
-    return -ENOERR;
-}
-
 static state intel_spi_read(struct spinor_device *nor, loff_t pos, void *buf, uint64_t len)
 {
     struct intel_device *idev = spinor_to_idev(nor);
     uint32_t xfer, count, val;
-    state ret;
 
-    for (; ; len -= xfer, count += xfer, buf += xfer) {
+    for (count = 0; len; len -= xfer, count += xfer, buf += xfer) {
         xfer = min(len, INTEL_SPI_BUFFER_SIZE);
+
+        intel_write(idev, INTEL_SPI_ADDR, pos);
 
         val = intel_read(idev, INTEL_SPI_HSCTL);
         val &= ~(INTEL_SPI_HSCTL_FDBC | INTEL_SPI_HSCTL_FCYCLE);
+        val |= INTEL_SPI_HSCTL_AEL | INTEL_SPI_HSCTL_FCERR | INTEL_SPI_HSCTL_FDONE;
         val |= ((xfer - 1) << 24) | INTEL_SPI_HSCTL_READ | INTEL_SPI_HSCTL_FGO;
         intel_write(idev, INTEL_SPI_HSCTL, val);
-        intel_write(idev, INTEL_SPI_ADDR, pos);
 
         if (!intel_spi_wait_busy(idev))
             return -EBUSY;
@@ -167,31 +152,26 @@ static state intel_spi_read(struct spinor_device *nor, loff_t pos, void *buf, ui
         else if (val & INTEL_SPI_HSCTL_AEL)
             return -EACCES;
 
-        if ((ret = intel_spi_receive(idev, buf, xfer)))
-            return ret;
+        memcpy(buf, idev->base + INTEL_SPI_DATA, xfer);
     }
 
     return count;
 }
 
-// static state intel_spi_write(struct spinor_device *nor)
-// {
-//     struct intel_device *idev = spinor_to_idev(nor);
+static state intel_spi_write(struct spinor_device *nor, loff_t pos, void *buf, uint64_t len)
+{
+    return -ENOERR;
+}
 
-//     return -ENOERR;
-// }
-
-// static state intel_spi_erase(struct spinor_device *nor)
-// {
-//     struct intel_device *idev = spinor_to_idev(nor);
-
-//     return -ENOERR;
-// }
+static state intel_spi_erase(struct spinor_device *nor, loff_t pos, uint64_t len)
+{
+    return -ENOERR;
+}
 
 static struct spinor_ops intel_spi_ops = {
     .read = intel_spi_read,
-    // .write = intel_spi_write,
-    // .erase = intel_spi_erase,
+    .write = intel_spi_write,
+    .erase = intel_spi_erase,
 };
 
 static state intel_spi_probe(struct intel_device *idev)
@@ -207,7 +187,7 @@ static state intel_spi_probe(struct intel_device *idev)
     return spinor_register(&idev->spinor);
 }
 
-static state intel_spi_platform_probe(struct platform_device *pdev, void *pdata)
+static state intel_spi_platform_probe(struct platform_device *pdev, const void *pdata)
 {
     struct intel_device *idev;
     resource_size_t base, size;
@@ -224,14 +204,14 @@ static state intel_spi_platform_probe(struct platform_device *pdev, void *pdata)
     size = platform_resource_size(pdev, 0);
 
     idev->base = dev_ioremap(&pdev->dev, base, size);
-    if (idev->base)
+    if (!idev->base)
         return -ENOMEM;
 
     idev->spec = pdata;
     return intel_spi_probe(idev);
 }
 
-static state intel_spi_pci_probe(struct pci_device *pdev, void *pdata)
+static state intel_spi_pci_probe(struct pci_device *pdev, const void *pdata)
 {
     struct intel_device *idev;
     resource_size_t base, size;
@@ -257,25 +237,25 @@ static state intel_spi_pci_probe(struct pci_device *pdev, void *pdata)
 
 static struct intel_spec intel_spi_byt = {
     .pr_base = 0x74, .pr_num = 5,
-    .ss_base = 0x90,
+    .ss_base = 0x90, .fr_num = 5,
     .erase_64k = false,
 };
 
 static struct intel_spec intel_spi_lpt = {
     .pr_base = 0x74, .pr_num = 5,
-    .ss_base = 0xa0,
+    .ss_base = 0xa0, .fr_num = 5,
     .erase_64k = false,
 };
 
 static struct intel_spec intel_spi_bxt = {
     .pr_base = 0x84, .pr_num = 6,
-    .ss_base = 0xa0,
+    .ss_base = 0xa0, .fr_num = 12,
     .erase_64k = true,
 };
 
 static struct intel_spec intel_spi_cnl = {
     .pr_base = 0x84, .pr_num = 5,
-    .ss_base = 0,
+    .ss_base = 0x00, .fr_num = 6,
     .erase_64k = false,
 };
 

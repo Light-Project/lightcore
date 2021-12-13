@@ -23,7 +23,7 @@ struct gdt_entry {
 #endif
 } __packed;
 
-struct gdt_table{
+struct gdt_table {
     uint16_t limit;         /* GDT_ENTRY limit (byte) */
     struct gdt_entry *gdt;  /* Point to GDT_ENTRY */
 } __packed;

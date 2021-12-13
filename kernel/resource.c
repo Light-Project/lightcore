@@ -12,7 +12,7 @@ static LIST_HEAD(resource_list);
 
 state resource_register(struct resource *resource)
 {
-    if(!resource)
+    if (!resource)
         return -EINVAL;
 
     list_add_prev(&resource_list, &resource->list);

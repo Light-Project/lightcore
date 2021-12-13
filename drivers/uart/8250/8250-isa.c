@@ -37,7 +37,7 @@ struct uart8250_ops uart8250_isa_ops = {
     .port_out = uart8250_isa_out,
 };
 
-static state uart8250_isa_probe(struct platform_device *pdev, void *pdata)
+static state uart8250_isa_probe(struct platform_device *pdev, const void *pdata)
 {
     struct uart8250_isa_device *isa;
 

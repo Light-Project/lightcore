@@ -167,20 +167,23 @@ static void i8250_hw_init(struct platform_device *pdev)
     i8259_mask(i8259, 0, 0xff);
 
     /* starts the initialization sequence */
-    if (!dt_attribute_read_u32(pdev->dt_node, "irq", &index)) {
+    if (!dt_attribute_read_u32(pdev->dt_node, "interrupts", &index)) {
         i8259_out(i8259, I8259_CMD,  I8259_ICW1_INIT | I8259_ICW1_ICW4);
         i8259_out(i8259, I8259_DATA, IRQ_EXTERNAL + 8);
         i8259_out(i8259, I8259_DATA, index & I8259_ICW3_SLVD);
-        i8259_out(i8259, I8259_DATA, I8259_ICW4_SLAVE | I8259_ICW4_8086);
+        i8259_out(i8259, I8259_DATA, I8259_ICW4_AUTO | I8259_ICW4_8086);
     } else { /* master mode */
         i8259_out(i8259, I8259_CMD,  I8259_ICW1_INIT | I8259_ICW1_ICW4);
         i8259_out(i8259, I8259_DATA, IRQ_EXTERNAL);
-        i8259_out(i8259, I8259_DATA, 0x00 & I8259_ICW3_SLVD);
+        i8259_out(i8259, I8259_DATA, BIT(2) & I8259_ICW3_SLVD);
         i8259_out(i8259, I8259_DATA, I8259_ICW4_AUTO | I8259_ICW4_8086);
     }
+
+    /* mask all interrupt again */
+    i8259_mask(i8259, 0, 0xff);
 }
 
-static state i8259_probe(struct platform_device *pdev, void *pdata)
+static state i8259_probe(struct platform_device *pdev, const void *pdata)
 {
     struct i8259_device *idev;
 

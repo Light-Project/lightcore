@@ -14,8 +14,6 @@ enum e820_type {
     E820_TYPE_UNUSABLE          = 5,
     E820_TYPE_PMEM              = 7,
     E820_TYPE_PRAM              = 12,
-    E820_TYPE_RESERVED_KERN     = 128,
-    E820_TYPE_SOFT_RESERVED	    = 0xefffffff,
 };
 
 struct e820_entry {

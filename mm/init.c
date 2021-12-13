@@ -6,6 +6,7 @@
 #include <mm.h>
 #include <mm/memblock.h>
 #include <mm/region.h>
+#include <mm/pgtable.h>
 #include <mm/vmem.h>
 #include <kmalloc.h>
 #include <vmalloc.h>
@@ -13,18 +14,19 @@
 #include <printk.h>
 
 struct memory init_mm = {
+    .pgdir = page_dir,
 };
 
 void __init mem_init(void)
 {
     /* keep unavailable memory areas */
-    memblock_reserve("ram-pad", 0, CONFIG_RAM_BASE + CONFIG_RAM_PAD);
-    memblock_reserve("kernel", va_to_pa(&_ld_startup_start),
-                       &_ld_image_end - &_ld_startup_start);
+    memblock_reserve("ram-pad", CONFIG_RAM_BASE, CONFIG_RAM_PAD);
+    memblock_reserve("kernel", NORMAL_OFFSET, IMAGE_SIZE);
 
     memmodel_init();
-    region_init();
+    memblock_dump();
 
+    region_init();
     kmem_init();
     kcache_init();
 

@@ -7,10 +7,10 @@
 #include <arch/x86/seg.h>
 
 #define IO_DELAY \
-    outb    %al, $0x80
+    outb %al, $0x80
 
-#define printf(str)     \
-    movw $str, %si;     \
+#define printf(str) \
+    movw $str, %si; \
     call Service_printf
 
 #define disk_check(dev) \
@@ -39,11 +39,8 @@ GLOBAL(_start)
     movl    %eax, %es
     movl    %eax, %ss
 
-    /* setup stack */
-    movl    $_ld_setup_start, %esp
-
     /* save device number */
-    movw    %dx, BOOT_DEV
+    movw    %dx, boot_dev
 
     /* clean screen */
     movb    $0x00, %ah
@@ -52,7 +49,7 @@ GLOBAL(_start)
 
     /* load full code */
     printf(TXT_MBR_BOOT)
-    chs_read(BOOT_DEV, 0, _ld_text_start, _ld_block_num, 2, 0, 0)
+    chs_read(boot_dev, 0, _ld_text_start, _ld_block_num, 2, 0, 0)
     jmp     init
 END(_start)
 
@@ -67,7 +64,7 @@ Service_printf:
 1:
     int     $0x10
 printf_loop:
-    lodsb
+    lodsb   %es:(%si), %al
     cmpb    $0, %al
     jne     1b
     ret
@@ -104,6 +101,7 @@ Service_chsdisk:
 INT13_1_ERR:
     printf(TXT_INT13_1_ERR)
     jmp     halt
+
 INT13_2_ERR:
     printf(TXT_INT13_2_ERR)
     jmp     halt
@@ -114,11 +112,12 @@ GLOBAL(halt)
     jmp     halt
 END(halt)
 
-GLOBAL(BOOT_DEV)
+GLOBAL(boot_dev)
     .byte 0x00
-END(BOOT_DEV)
+END(boot_dev)
 
-TXT_MBR_BOOT: .asciz "\n\rMBR booting\n\r"
+    .align  4
+TXT_MBR_BOOT: .asciz "MBR booting\n\r"
 TXT_INT13_1_ERR: .asciz "INT13/1 ERR!\n\r"
 TXT_INT13_2_ERR: .asciz "INT13/2 ERR!\n\r"
 
@@ -130,14 +129,14 @@ TXT_INT13_2_ERR: .asciz "INT13/2 ERR!\n\r"
 ENTRY(init)
     /* test a20 first */
     call    a20_test
-    je      1f
+    je      big_unreal_mode
 
     /* bios enable a20 */
     printf(TXT_A20BIOS)
     movw    $0x2401, %ax
     int     $0x15
     call    a20_test
-    je      1f
+    je      big_unreal_mode
 
     /* pch enable a20 */
     printf(TXT_A20PCH)
@@ -146,52 +145,43 @@ ENTRY(init)
     and     $(~(1<<0)), %ax
     outb    %al, $0x92
     call    a20_test
-    je      1f
+    je      big_unreal_mode
 
+    /* unable to enable a20 */
     printf(TXT_A20ERROR)
     jmp     halt
-1:
-    /**
-     * TODO: setfs doesn't work
-     */
-    jmp     env
 
-/*
- * We need access 4GiB in real mode
- */
-setfs:
-    /* load gdt table */
+big_unreal_mode:
+    /* load gdt and idt table */
     lgdtl   gdt_struct
-
-    /* load idt table */
-    lidtl   idt_table
 
     /* enable pe mode */
     movl    %cr0, %eax
     orl     $(1<<0), %eax
     movl    %eax, %cr0
 
-    .byte   0x66, 0xea              // ljmpl opcode
-    .long   1f                      // offset
-    .word   GDT_ENTRY_BOOT_CS_BASE  // segment
+    /* tell 386/486 not crash */
+    jmp     1f
 
-    .code32
 1:
-    movw    $GDT_ENTRY_BOOT_DS, %ax
-    movw    %ax, %fs
+    /* select descriptor */
+    movw    $0x08, %ax
+    movw    %ax, %ds
+    movw    %ax, %es
+    movw    %ax, %ss
 
     /* disable pe mode */
     movl    %cr0, %eax
     xorl    $(1<<0), %eax
     movl    %eax, %cr0
 
-1:
-    .byte   0xea
-    .word   1f - 1b
-    .word   0x00
-
-    .code16
 env:
+    /* set segment register */
+    xorw    %ax, %ax
+    movw    %ax, %ds
+    movw    %ax, %es
+    movw    %ax, %ss
+
     /* clear the bss region */
     movl    $_ld_bss_start, %edi
     movl    $_ld_bss_end, %ecx
@@ -200,7 +190,10 @@ env:
     xorl    %eax, %eax
     rep;    stosl %eax, %es:(%edi)
 
+    /* setup stack */
+    movl    $_ld_stack_end, %esp
     xorl    %ebp, %ebp
+
     jmp     main
 END(init)
 
@@ -294,99 +287,17 @@ intnr:  .byte   0
 save_sp: .long  0x00
 END(bios_int)
 
-GLOBAL(ext_rw)
-    pushl   %ebp
-    movl    %esp, %ebp
-    pushl   %ebx
-    pushl   %ecx
-    pushl   %edx
-
-    /* arg0 flags - %esi */
-    movl    8(%ebp), %esi
-
-    /* arg1 addr - %bx */
-    movl    12(%ebp), %ecx
-    movw    %cx, %bx
-    shrl    $4, %ecx
-    andw    $0xf000, %cx
-    movw    %cx, %es
-
-    /* arg2 data - %edx */
-    movl    16(%ebp), %edx
-
-    xorl    %eax, %eax
-
-    cmpl    $1, %esi
-    jne     1f
-    movb    %es:(%bx), %al
-    jmp     2f
-1:
-    cmpl    $2, %esi
-    jne     1f
-    movw    %es:(%bx), %ax
-    jmp     2f
-1:
-    cmpl    $3, %esi
-    jne     1f
-    movl    %es:(%bx), %eax
-    jmp     2f
-1:
-    cmpl    $4, %esi
-    jne     1f
-    movb    %dl, %es:(%bx)
-    jmp     2f
-1:
-    cmpl    $5, %esi
-    jne     1f
-    movw    %dx, %es:(%bx)
-    jmp     2f
-1:
-    cmpl    $6, %esi
-    jne     2f
-    movl    %edx, %es:(%bx)
-
-2:
-    popl    %edx
-    popl    %ecx
-    popl    %ebx
-    leavel
-    ret
-END(ext_rw)
-
-GLOBAL(delayus)
-    pushl   %ebp
-    movl    %esp, %ebp
-    pushal
-
-    movl    8(%ebp), %eax
-    movw    %ax, %dx
-    shrl    $16, %eax
-    movw    %ax, %cx
-    movb    $0x86, %ah
-    int     $0x15
-
-    popal
-    leavel
-    ret
-END(delayus)
-
     .align 16
 gdt_table:
     .long   0x00000000  // 0x00: NULL ENTRY
     .long   0x00000000  // 0x04: NULL
-    .long   0x0000ffff  // 0x08: CS ENTRY
-    .long   0x00cf9b00  // 0x0c: code, read/exe, 4GB, base=0
-    .long   0x0000ffff  // 0x10: FS ENTRY
-    .long   0x00cf9300  // 0x14: data, read/write, 4GB, base=0
+    .long   0x0000ffff  // 0x08: 32BIT FS ENTRY
+    .long   0x00cf9300  // 0x0c: data, read/write, 4GB, base=0
 gdt_struct:
-    .word   0x0018      // GDT limit
+    .word   0x0010      // GDT limit
     .long   gdt_table   // GDT addr
 
-    .align  16
-idt_table:
-    .word   0x0000      // IDT limit
-    .long   0x00000000  // IDT addr
-
+    .align  4
 TXT_A20BIOS: .asciz "Open A20 through BIOS\n\r"
 TXT_A20PCH: .asciz "Open A20 through PCH\n\r"
 TXT_A20ERROR: .asciz "A20 can't open\n\r"

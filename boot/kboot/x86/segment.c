@@ -4,7 +4,7 @@
  */
 
 #include <kboot.h>
-#include <asm/gdt.h>
+#include <asm/segment.h>
 
 #define GDT_SET(Table, Num, Base, Limit, Type,      \
                 S, Dpl, Db , G)                     \

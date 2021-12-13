@@ -4,7 +4,6 @@
  */
 
 #include <string.h>
-#include <mm.h>
 #include <mm/memmodel.h>
 #include <mm/memblock.h>
 
@@ -28,8 +27,7 @@ static bool sparce_present(struct memblock_region *reg)
     while (count--) {
         if (sparce->present)
             continue;
-        sparce->present = true;
-        sparce++;
+        sparce++->present = true;
         sparce_nr++;
     }
 
@@ -39,10 +37,8 @@ static bool sparce_present(struct memblock_region *reg)
 static void sparce_page_setup(struct page *page, unsigned int snr)
 {
     unsigned int count;
-
-    for (count = 0; count < PAGES_PER_SECTION; ++count) {
+    for (count = 0; count < PAGES_PER_SECTION; ++count)
         page++->sparce_nr = snr;
-    }
 }
 
 static void sparce_alloc(void)
@@ -52,8 +48,7 @@ static void sparce_alloc(void)
     size_t size;
 
     size = sparce_nr * PAGES_PER_SECTION * sizeof(*page);
-    page = pa_to_va(memblock_alloc(size, MSIZE,
-                    NORMAL_OFFSET, CONFIG_HIGHMEM_OFFSET));
+    page = pa_to_va(memblock_alloc(size, MSIZE, NORMAL_OFFSET, CONFIG_HIGHMEM_OFFSET));
     memset(page, 0, size);
 
     for (count = 0; count < SECTIONS_NR; ++count) {

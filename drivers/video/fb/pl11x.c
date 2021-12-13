@@ -78,7 +78,7 @@ static state pl11x_hw_init(struct pl11x_device *pl11x)
     return -ENOERR;
 }
 
-static state pl11x_probe(struct platform_device *pdev, void *pdata)
+static state pl11x_probe(struct platform_device *pdev, const void *pdata)
 {
     struct pl11x_device *pl11x;
     resource_size_t start, size;

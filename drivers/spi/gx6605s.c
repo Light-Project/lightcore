@@ -184,7 +184,7 @@ static struct spi_ops gx6605s_spi_ops = {
     .devsel = gx6605s_spi_devsel,
 };
 
-static state gx6605s_spi_probe(struct platform_device *pdev, void *pdata)
+static state gx6605s_spi_probe(struct platform_device *pdev, const void *pdata)
 {
     struct gx6605s_device *gdev;
     resource_size_t start, size;

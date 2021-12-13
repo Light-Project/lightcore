@@ -2,6 +2,8 @@
 #ifndef _PANIC_H_
 #define _PANIC_H_
 
+#include <asm/bug.h>
+
 extern __printf(1, 2) __cold
 void panic(const char* fmt, ...);
 

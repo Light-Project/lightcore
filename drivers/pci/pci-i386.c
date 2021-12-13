@@ -65,7 +65,7 @@ static struct pci_ops i386pci_ops = {
     .write = pci_config_write,
 };
 
-static state i386pci_probe(struct platform_device *pdev, void *pdata)
+static state i386pci_probe(struct platform_device *pdev, const void *pdata)
 {
     struct pci_host *host;
 

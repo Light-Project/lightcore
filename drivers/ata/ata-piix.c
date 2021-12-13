@@ -7,7 +7,7 @@
 #include <driver/ata.h>
 #include <printk.h>
 
-// static state piix_probe(struct pci_device *pdev, void *pdata)
+// static state piix_probe(struct pci_device *pdev, const void *pdata)
 // {
 //     return -ENOERR;
 // }

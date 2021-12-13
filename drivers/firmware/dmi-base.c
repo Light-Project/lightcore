@@ -55,7 +55,7 @@ bool dmi_match_one(enum dmi_region_type type, const char *name)
     return !strcmp(region, name);
 }
 
-void *dmi_match(struct dmi_deivce_id *dmi)
+const void *dmi_match(struct dmi_deivce_id *dmi)
 {
     while (dmi->name[0]) {
         if (dmi_match_one(dmi->region, dmi->name))

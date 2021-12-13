@@ -429,7 +429,7 @@ static void i8042_irqfree(struct platform_device *pdev)
         irqchip_channel_release(idev->auxirq);
 }
 
-static state i8042_probe(struct platform_device *pdev, void *pdata)
+static state i8042_probe(struct platform_device *pdev, const void *pdata)
 {
     struct i8042_device *idev;
     state ret;

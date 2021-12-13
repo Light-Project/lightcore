@@ -120,6 +120,7 @@ static state ehci_reset(struct ehci_host *ehci)
     ehci_mask(ehci, EHCI_CMD, 0, EHCI_CMD_RESET);
     if (!ehci_wait(ehci, EHCI_CMD, EHCI_CMD_RESET, 0, 250 * 1000))
         return -EBUSY;
+
     return -ENOERR;
 }
 
@@ -137,13 +138,11 @@ static state ehci_setup(struct usb_host *host)
 
 static state ehci_start(struct usb_host *host)
 {
-
     return -ENOERR;
 }
 
 static state ehci_stop(struct usb_host *host)
 {
-
     return -ENOERR;
 }
 

@@ -4,7 +4,7 @@
 # ==========================================================================
 
 ifdef CONFIG_ARCH_ARM
-CROSS_COMPILE       ?= arm-none-eabi-
+CROSS_COMPILE       := arm-none-eabi-
 arch                := arm
 
 arch-$(CONFIG_ARCH_ARM_V7)  = -D__ARM_ARCH__=7 $(call cc-option,-march=armv7-a,-march=armv5t -Wa$(comma)-march=armv7-a)
@@ -18,13 +18,13 @@ platform-elfflags-y += -EL $(arch-y)
 endif # CONFIG_ARCH_ARM
 
 ifdef CONFIG_ARCH_ARM64
-CROSS_COMPILE       ?= aarch64-linux-gnu-
+CROSS_COMPILE       := aarch64-linux-gnu-
 arch                := arm64
 
 endif # CONFIG_ARCH_ARM64
 
 ifdef CONFIG_ARCH_CSKY
-CROSS_COMPILE       ?= csky-elf-
+CROSS_COMPILE       := csky-elf-
 arch                := csky
 
 ifdef CONFIG_CPU_CK610
@@ -41,14 +41,14 @@ platform-elfflags-y +=
 endif # CONFIG_ARCH_CSKY
 
 ifdef CONFIG_ARCH_RISCV
-CROSS_COMPILE       ?= riscv64-linux-gnu-
+CROSS_COMPILE       := riscv64-linux-gnu-
 arch                := riscv64
 
 platform-acflags-y  += -march=rv64imafdc -mabi=lp64d -mcmodel=medany
 endif # CONFIG_ARCH_RISCV
 
 ifdef CONFIG_ARCH_X86
-CROSS_COMPILE       ?=
+CROSS_COMPILE       :=
 arch                := x86
 
 ifneq ($(call cc-option, -mpreferred-stack-boundary=2),)

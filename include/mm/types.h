@@ -5,6 +5,7 @@
 #include <types.h>
 #include <list.h>
 #include <rbtree.h>
+#include <spinlock.h>
 #include <asm/pgtable.h>
 
 enum page_type {
@@ -21,7 +22,6 @@ struct slob_page {
 
 struct page {
     uint32_t type:4;
-    uint32_t region_type:2;
     uint32_t order:4;
     uint32_t free:1;
 #ifdef CONFIG_SPARCEMEM
@@ -52,7 +52,8 @@ struct uvm_area {
 };
 
 struct memory {
-    struct pgd_t *pgdir;
+    spinlock_t pglock;
+    pgd_t *pgdir;
 };
 
 extern struct memory init_mm;

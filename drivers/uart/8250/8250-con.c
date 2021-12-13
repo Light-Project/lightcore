@@ -82,7 +82,7 @@ static struct console_ops i8250con_ops = {
     .startup = i8250con_setup,
 };
 
-static state i8250con_probe(struct platform_device *pdev, void *pdata)
+static state i8250con_probe(struct platform_device *pdev, const void *pdata)
 {
     struct i8250_console *dev;
     resource_size_t addr, size;

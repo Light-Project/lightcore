@@ -2,8 +2,10 @@
 #ifndef _ASM_X86_PGTABLE_H_
 #define _ASM_X86_PGTABLE_H_
 
-#include <arch/x86/page.h>
+#include <bits.h>
+#include <mm/gvm.h>
 #include <asm/page.h>
+#include <arch/x86/page.h>
 
 typedef struct pte pte_t;
 typedef struct pgd pgd_t;
@@ -11,25 +13,52 @@ typedef struct pgd pgd_t;
 #if CONFIG_PGTABLE_LEVEL > 2
 typedef struct pmd pmd_t;
 #else
-# include <asm-generic/pgtable-pmd.h>
+# include <asm-generic/pgtable-nopmd.h>
 #endif
 
 #if CONFIG_PGTABLE_LEVEL > 3
 typedef struct pud pud_t;
 #else
-# include <asm-generic/pgtable-pud.h>
+# include <asm-generic/pgtable-nopud.h>
 #endif
 
 #if CONFIG_PGTABLE_LEVEL > 4
 typedef struct p4d p4d_t;
 #else
-# include <asm-generic/pgtable-p4d.h>
+# include <asm-generic/pgtable-nop4d.h>
 #endif
 
-extern struct pgd page_dir[1024];
+#define __PP PAGE_PRESENT
+#define __PW PAGE_RW
+#define __PU PAGE_USER
+#define __PC PAGE_PCD
+#define __PA PAGE_ACCESSED
+#define __PD PAGE_DIRTY
+#define __PE PAGE_PSE
+#define __PG PAGE_GLOBAL
+#define __PN PAGE_NX
 
-#define pte_index(va) (((va) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
-#define pgd_index(va) ((va) >> PGDIR_SHIFT)
+#define PAGE_NONE               (   0 |    0 |    0 |    0 | __PA |    0 |    0 | __PG |    0)
+#define PAGE_TABLE              (__PP | __PW | __PU |    0 | __PA | __PD |    0 |    0 |    0)
+#define PAGE_KERNEL             (__PP | __PW |    0 |    0 | __PA | __PD |    0 | __PG | __PN)
+#define PAGE_KERNEL_EXC         (__PP | __PW |    0 |    0 | __PA | __PD |    0 | __PG |    0)
+#define PAGE_KERNEL_RO          (__PP |    0 |    0 |    0 | __PA | __PD |    0 | __PG | __PN)
+#define PAGE_KERNEL_ROX         (__PP |    0 |    0 |    0 | __PA | __PD |    0 | __PG |    0)
+#define PAGE_KERNEL_NC          (__PP | __PW |    0 | __PC | __PA | __PD |    0 | __PG | __PN)
+#define PAGE_KERNEL_LARGE       (__PP | __PW |    0 |    0 | __PA | __PD | __PE | __PG | __PN)
+#define PAGE_KERNEL_LARGE_EXC   (__PP | __PW |    0 |    0 | __PA | __PD | __PE | __PG |    0)
+
+extern pgd_t page_dir[PTRS_PER_PGD];
+
+static inline bool pte_get_present(pte_t *pte)
+{
+    return pte->p || pte->g;
+}
+
+static inline bool pte_get_used(pte_t *pte)
+{
+    return !!pte->val;
+}
 
 static inline bool pte_get_dirty(pte_t *pte)
 {
@@ -61,9 +90,26 @@ static inline void pte_set_wrprotect(pte_t *pte, bool wrprotect)
     pte->rw = wrprotect;
 }
 
+static inline void pmd_populate(pmd_t *pmd, pte_t *pte)
+{
+    pmd->val = PAGE_TABLE | va_to_pa(pte);
+}
+
+static inline size_t pmd_get_addr(pmd_t *pmd)
+{
+    phys_addr_t phys;
+
+    if (pmd->ps)
+        phys = pmd->addrl << PGDIR_SHIFT;
+    else
+        phys = pmd->addr << PAGE_SHIFT;
+
+    return (size_t)pa_to_va(phys);
+}
+
 static inline bool pmd_get_present(pmd_t *pmd)
 {
-    return pmd->p;
+    return pmd->p || pmd->g || pmd->ps;
 }
 
 static inline bool pmd_get_dirty(pmd_t *pmd)

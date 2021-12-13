@@ -29,16 +29,16 @@ void __noreturn proc_halt(void)
     for (;;)
     proc_idle();
 }
-
-void __noreturn proc_reset(void)
-{
-    proc_halt();
-}
+EXPORT_SYMBOL(proc_halt);
 
 void __noreturn proc_poweroff(void)
 {
     proc_halt();
 }
+EXPORT_SYMBOL(proc_poweroff);
 
-EXPORT_SYMBOL(proc_halt);
+void __noreturn proc_reset(void)
+{
+    proc_halt();
+}
 EXPORT_SYMBOL(proc_reset);

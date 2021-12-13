@@ -40,7 +40,7 @@ static irqreturn_t pit_handle(irqnr_t vector, void *data)
     return IRQ_RET_HANDLED;
 }
 
-static state i8253_probe(struct platform_device *pdev, void *pdata)
+static state i8253_probe(struct platform_device *pdev, const void *pdata)
 {
     struct i8253_device *idev;
 

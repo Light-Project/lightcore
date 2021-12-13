@@ -28,7 +28,7 @@ static state vbox_hw_init(struct pci_device *pdev)
     return -ENOERR;
 }
 
-static state vbox_probe(struct pci_device *pdev, void *pdata)
+static state vbox_probe(struct pci_device *pdev, const void *pdata)
 {
     struct vesa_device *vesa;
     state ret;

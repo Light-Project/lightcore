@@ -9,7 +9,7 @@
 #include <driver/platform.h>
 #include <driver/sound.h>
 
-static state suniv_codec_probe(struct platform_device *pdev, void *pdata)
+static state suniv_codec_probe(struct platform_device *pdev, const void *pdata)
 {
 
     return -ENOERR;

@@ -492,37 +492,6 @@ static state fdd_detect(struct fdd_device *fdd)
     return -ENOERR;
 }
 
-// static state pio_read(int fdc, int dev, void *buffer, unsigned int lba , unsigned int len)
-// {
-//     struct floppy_cmd cmd;
-//     uint16_t cyl, head, sector;
-//     uint16_t limit, end;
-
-//     do {
-//         lba2chs(lba, &cyl, &head, &sector);
-
-//         /* Calculate end of transfer sector */
-//         end = sector + len - 1;
-//         end = min(16, end);
-//         limit = end - sector + 1;
-
-//         cmd.txlen = 9;
-//         cmd.txcmd[0] = FLOPPY_CMD_READ_DATA;    /* 0 head number << 2 | drive number */
-//         cmd.txcmd[1] = (head << 2) | dev;       /* 1 head number << 2 | drive number */
-//         cmd.txcmd[2] = cyl;                     /* 2 cylinder number */
-//         cmd.txcmd[3] = head;                    /* 3 head number */
-//         cmd.txcmd[4] = sector;                  /* 4 starting sector number */
-//         cmd.txcmd[5] = FLOPPY_SECTOR_SIZE_512;  /* 5 all floppy drives use 512bytes per sector */
-
-//         floppy_transmit(fdc, &cmd);
-
-//         len -= limit;
-//         lba += limit;
-//     } while(len);
-
-//     return -ENOERR;
-// }
-
 static state floppy_enqueue(struct block_device *blk, struct block_request *req)
 {
     struct fdd_device *fdd = block_to_fdd(blk);
@@ -570,7 +539,7 @@ static struct block_ops floppy_ops = {
     .enqueue = floppy_enqueue,
 };
 
-static state floppy_probe(struct platform_device *pdev, void *pdata)
+static state floppy_probe(struct platform_device *pdev, const void *pdata)
 {
     struct fdc_device *fdc;
     struct fdd_device *fdd;

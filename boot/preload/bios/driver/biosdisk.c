@@ -5,27 +5,19 @@
 
 #include <boot.h>
 #include <state.h>
-
 #include <asm/io.h>
 
 struct dap_table {
-    uint8_t size;       // [0]: DAP_Table size
-    uint8_t Res0;       // [1]: Reserved0
-    uint16_t len;       // [2]: BlockCount
-    uint16_t buf_addr;  // [4]: Buff addr
-    uint16_t buf_of;    // [6]: Buff offset
-    uint32_t lbal;      // [8]: Lba low
-    uint32_t lbah;      // [12]: Lba high
+    uint8_t size;       /* 0x00: DAP_TABLE Size */
+    uint8_t Res0;       /* 0x01: Reserved0 */
+    uint16_t len;       /* 0x02: Blockcount */
+    uint16_t buf_addr;  /* 0x04: Buff Addr */
+    uint16_t buf_of;    /* 0x06: Buff Offset */
+    uint32_t lbal;      /* 0x08: LBA Low */
+    uint32_t lbah;      /* 0x0c: LBA High */
 } __packed;
 
-static inline void disk_copy(uint32_t *dest, uint32_t *src, size_t len)
-{
-    len >>= 2;
-    while (len--)
-        ext_writel(dest++, *src++);
-}
-
-static state legacy_read(char dev, uint8_t *buf, uint32_t lba, int count)
+static state legacy_read(char dev, void *buf, uint32_t lba, int count)
 {
     struct bios_reg ir, or;
     unsigned int mcylinder, mhead, msector;
@@ -73,14 +65,15 @@ static state legacy_read(char dev, uint8_t *buf, uint32_t lba, int count)
         }
 
         /* Bounce back to real address */
-        disk_copy((void *)buf, (void *)bound, 512);
+        memcpy(buf, bound, 512);
         buf += 512;
         ++lba;
     }
 
     return -ENOERR;
 }
-static state lba_read(char dev, uint8_t *buf, uint32_t lba, int count)
+
+static state lba_read(char dev, void *buf, uint32_t lba, int count)
 {
     struct dap_table dap;
     struct bios_reg regs;
@@ -120,7 +113,7 @@ static state lba_read(char dev, uint8_t *buf, uint32_t lba, int count)
         }
 
         /* Bounce back to real address */
-        disk_copy((void *)buf, (void *)bound, 512);
+        memcpy(buf, bound, 512);
         buf += 512;
         ++lba;
     }

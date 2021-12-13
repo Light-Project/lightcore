@@ -44,7 +44,7 @@ static struct power_ops piix_power_ops = {
     .reset = piix_power_reset,
 };
 
-static state piix_power_probe(struct platform_device *pdev, void *pdata)
+static state piix_power_probe(struct platform_device *pdev, const void *pdata)
 {
     struct piix_device *piix;
 

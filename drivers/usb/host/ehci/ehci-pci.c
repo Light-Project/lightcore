@@ -5,7 +5,7 @@
 
 #include <driver/pci.h>
 
-static state ehci_probe(struct pci_device *pdev, void *pdata)
+static state ehci_probe(struct pci_device *pdev, const void *pdata)
 {
     struct ehci_host *ehci;
     resource_size_t start, size;
@@ -24,11 +24,12 @@ static state ehci_probe(struct pci_device *pdev, void *pdata)
     if (!ehci)
         return -ENOMEM;
 
+    irq_request(pdev->irq, 0, ehci_irq, ehci, "ehci-pci");
+
     ehci->mmio = mmio;
     ehci->device = &pdev->dev;
     ehci->host.type = USB_HOST_2;
     ehci->host.ops  = &ehci_pci_ops;
-    irq_request(pdev->irq, 0, ehci_irq, ehci, "ehci-pci");
     return usb_host_register(&ehci->host);
 }
 

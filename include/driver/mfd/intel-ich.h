@@ -3,13 +3,17 @@
 #define _DRIVER_MFD_INTEL_ICH_H_
 
 enum intel_ich_registers {
-    /* PCI config regsiters */
-    INTEL_ICH_APCI          = 0x40,
-    INTEL_ICH_PMC           = 0x44,
-    INTEL_ICH_BYT           = 0x54,
-    INTEL_ICH_RCBA          = 0xf0,
+    /* PCI Configuration Registers */
+    INTEL_ICH_APCI          = 0x40, /* ACPI Base Address */
+    INTEL_ICH_PMC           = 0x44, /* ACPI Control */
+    INTEL_ICH_BYT           = 0x54, /*  */
+    INTEL_ICH0_GBA          = 0x58, /* ICH0 GPIO Base Address */
+    INTEL_ICH0_GCTL         = 0x5c, /* ICH0 GPIO Control */
+    INTEL_ICH6_GBA          = 0x48, /* ICH6 GPIO Base Address */
+    INTEL_ICH6_GCTL         = 0x4c, /* ICH6 GPIO Control */
+    INTEL_ICH_RCBA          = 0xf0, /* Root Complex Base Address */
 
-    /* APCI regsiters */
+    /* ACPI Registers */
     INTEL_ICH_ACPI_GPE      = 0x28,
     INTEL_ICH_ACPI_GPE_SZ   = 0x08,
     INTEL_ICH_ACPI_SMI      = 0x30,
@@ -17,14 +21,16 @@ enum intel_ich_registers {
     INTEL_ICH_ACPI_TCO      = 0x60,
     INTEL_ICH_ACPI_TCO_SZ   = 0x20,
 
-    /* PMC regsiters */
+    /* PMC Registers */
     INTEL_ICH_PMC_BASE      = 0x08,
     INTEL_ICH_PMC_SZ        = 0x02,
 
-    /* BYT regsiters */
+    /* BYT Registers */
     INTEL_ICH_BYT_SZ        = 512,
 
-    /* RCBA regsiters */
+    /* RCBA Registers */
+    INTEL_ICH_RCBA_LSPI     = 0x3020,
+    INTEL_ICH_RCBA_LSPI_SZ  = 0x00e0,
     INTEL_ICH_RCBA_GCS      = 0x3410,
     INTEL_ICH_RCBA_GCS_SZ   = 0x0004,
     INTEL_ICH_RCBA_LPT      = 0x3800,

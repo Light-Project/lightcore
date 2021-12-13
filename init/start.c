@@ -9,34 +9,24 @@
 #include <linkage.h>
 #include <kernel.h>
 #include <sched.h>
-
 #include <init.h>
 #include <initcall.h>
-
 #include <mm.h>
 #include <memtest.h>
-#include <mm/memblock.h>
-
 #include <fs.h>
-
 #include <logo.h>
 #include <console.h>
 #include <printk.h>
-
 #include <device/driver.h>
 #include <driver/clk.h>
 #include <driver/irqchip.h>
 #include <driver/clocksource.h>
-
 #include <asm-generic/header.h>
-#include <asm/proc.h>
 #include <asm/irq.h>
 
 struct task init_task = {
 
 };
-
-void __noreturn user_init(void);
 
 static void __init command_setup(void)
 {
@@ -59,11 +49,9 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
     pre_printk_init();
     terminal_logo();
     early_device_init();
-    command_setup();
 
-    /* arch init */
+    command_setup();
     arch_setup();
-    memblock_dump();
 
     pr_info("kernel version: "CONFIG_VERSION"\n");
     pr_info("kernel command: %s\n", boot_args);

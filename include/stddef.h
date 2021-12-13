@@ -2,32 +2,33 @@
 #ifndef _STDDEF_H_
 #define _STDDEF_H_
 
-#ifndef __ASSEMBLY__
-
 enum bool {
     false = 0,
     true = 1,
 };
 
+#undef NULL
 #define NULL ((void *)0)
 
-#define offsetof(type, field) ((size_t)(&((type *)0)->field))
+#undef offsetof
+#ifdef __compiler_offsetof
+# define offsetof(TYPE, MEMBER)	__compiler_offsetof(TYPE, MEMBER)
+#else
+# define offsetof(type, field) ((size_t)(&((type *)0)->field))
+#endif
 
 /**
- * sizeof_field(TYPE, MEMBER)
- *
- * @TYPE: The structure containing the field of interest
- * @MEMBER: The field to return the size of
+ * sizeof_field - Report the size of a struct field in bytes.
+ * @type: the structure containing the field of interest.
+ * @member: the field to return the size of.
  */
-#define sizeof_field(TYPE, MEMBER) sizeof((((TYPE *)0)->MEMBER))
+#define sizeof_field(type, member) sizeof((((type *)0)->member))
 
 /**
- * offsetofend(TYPE, MEMBER)
- *
- * @TYPE: The type of the structure
- * @MEMBER: The member within the structure to get the end offset of
+ * offsetofend - Report the offset of a struct field within the struct.
+ * @type: the type of the structure.
+ * @member: the member within the structure to get the end offset of.
  */
-#define offsetofend(TYPE, MEMBER) (offsetof(TYPE, MEMBER) + sizeof_field(TYPE, MEMBER))
+#define offsetofend(type, member) (offsetof(type, member) + sizeof_field(type, member))
 
-#endif  /* __ASSEMBLY__ */
 #endif  /* _STDDEF_H_ */

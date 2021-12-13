@@ -18,7 +18,7 @@ struct i801_device {
     struct resource tco_res;
 };
 
-static state i801_probe(struct pci_device *pdev, void *pdata)
+static state i801_probe(struct pci_device *pdev, const void *pdata)
 {
     // struct i801_device *i801;
 

@@ -4,6 +4,8 @@
 
 #define boot_args_size 1024
 extern char boot_args[boot_args_size];
+
 extern void __init arch_setup(void);
+extern void __init __noreturn user_init(void);
 
 #endif  /* _INIT_H_ */

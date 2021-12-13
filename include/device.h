@@ -29,16 +29,15 @@ struct device {
     const char *name;
     struct kobject kobj;
 
-    /* Structure description */
-    struct bus_type *bus;		/* device bus */
-    struct driver 	*driver;    /* device driver */
-    struct device   *parent;    /* device parent */
-    list_t bus_list_device;     /* list node by device bus */
-    list_t driver_list_device;  /* list node by device driver */
+    struct bus_type *bus;
+    struct driver *driver;
+    struct device *parent;
+    list_t bus_list_device;
+    list_t driver_list_device;
     struct list_head devres;
 
     struct mutex mutex;
-    void *pdata;                /* device private data */
+    void *pdata;
 };
 
 #define device_for_each_res(res, dev) \

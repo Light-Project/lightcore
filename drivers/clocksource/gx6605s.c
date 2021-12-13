@@ -75,7 +75,7 @@ static inline void gx6605s_clksrc_hw_deinit(struct gx6605s_device *gdev)
     gx6605s_write(gdev, GX6605S_TIM_CONFIG, 0);
 }
 
-static state gx6605s_clksrc_probe(struct platform_device *pdev, void *pdata)
+static state gx6605s_clksrc_probe(struct platform_device *pdev, const void *pdata)
 {
     struct gx6605s_device *gdev;
     resource_size_t start, size;

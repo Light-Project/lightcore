@@ -10,22 +10,27 @@
 #include <devtable.h>
 
 struct i2c_device {
+    struct device dev;
+    uint16_t addr;
+
 };
 
 struct i2c_driver {
-
+    struct driver driver;
 };
 
-struct i2c_bus {
-
+struct i2c_transfer {
+    uint16_t length;
+    uint8_t *buff;
 };
 
 struct i2c_host {
+    struct i2c_ops *ops;
 
 };
 
 struct i2c_ops {
-
+    state (*transfer)(struct i2c_host *, struct i2c_device *, struct i2c_transfer *);
 };
 
 #endif  /* _DRIVER_i2C_H_ */

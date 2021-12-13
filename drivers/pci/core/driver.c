@@ -34,22 +34,22 @@ pci_device_match(struct pci_driver *pdrv, struct pci_device *pdev)
 
 static state pci_bus_match(struct device *dev, struct driver *drv)
 {
-    struct pci_device *pdev = device_to_pci_device(dev);
-    struct pci_driver *pdrv = driver_to_pci_driver(drv);
+    struct pci_device *pdev = device_to_pci(dev);
+    struct pci_driver *pdrv = driver_to_pci(drv);
     const struct pci_device_id *pci;
 
     pci = pci_device_match(pdrv, pdev);
     if (!pci)
         return -ENODEV;
 
-    device_set_pdata(dev, pci->data);
+    device_set_pdata(dev, (void *)pci->data);
     return -ENOERR;
 }
 
 static state pci_bus_probe(struct device *dev)
 {
-    struct pci_device *pdev = device_to_pci_device(dev);
-    struct pci_driver *pdrv = driver_to_pci_driver(dev->driver);
+    struct pci_device *pdev = device_to_pci(dev);
+    struct pci_driver *pdrv = driver_to_pci(dev->driver);
 
     /* If pci driver no probe function, exit */
     if(!pdrv->probe)
@@ -60,8 +60,8 @@ static state pci_bus_probe(struct device *dev)
 
 static state pci_bus_remove(struct device *dev)
 {
-    struct pci_device *pdev = device_to_pci_device(dev);
-    struct pci_driver *pdrv = driver_to_pci_driver(dev->driver);
+    struct pci_device *pdev = device_to_pci(dev);
+    struct pci_driver *pdrv = driver_to_pci(dev->driver);
 
     if (!pdrv->remove)
         return -ENXIO;

@@ -308,7 +308,7 @@ static state gx6605s_hwinit(struct platform_device *pdev)
     return -ENOERR;
 }
 
-static state gx6605s_probe(struct platform_device *pdev, void *pdata)
+static state gx6605s_probe(struct platform_device *pdev, const void *pdata)
 {
     struct gx6605s_device *gdev;
     state ret;

@@ -88,7 +88,7 @@ static const struct pci_device_id es1370_pci_tbl[] = {
     { }, /* NULL */
 };
 
-static state es1370_probe(struct pci_device *pdev, void *pdata)
+static state es1370_probe(struct pci_device *pdev, const void *pdata)
 {
     struct ensoniq_device *ensoniq;
 

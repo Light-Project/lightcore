@@ -9,7 +9,7 @@
 #include <initcall.h>
 #include <driver/pci.h>
 
-static state vesa_probe(struct pci_device *pdev, void *pdata)
+static state vesa_probe(struct pci_device *pdev, const void *pdata)
 {
     struct vesa_device *vesa;
     state ret;

@@ -4,7 +4,7 @@
  */
 
 #include <lib.h>
-#include <../../../lib/list.c>
+#include <list.h>
 
 static LIST_HEAD(sort_list);
 static LIST_HEAD(free_list);
@@ -18,7 +18,10 @@ struct mem_node {
     char data[0];
 };
 
-static inline struct mem_node *heap_sort(list_t *head, size_t size)
+#define data_to_mem(addr) \
+    container_of(addr, struct mem_node, data)
+
+static struct mem_node *heap_sort(struct list_head *head, size_t size)
 {
     struct mem_node *tmp, *node = NULL;
 
@@ -30,22 +33,11 @@ static inline struct mem_node *heap_sort(list_t *head, size_t size)
     return node;
 }
 
-static inline struct mem_node *heap_get_node(list_t *head, void *addr)
-{
-    struct mem_node *node;
-
-    list_for_each_entry(node, head, sort) {
-        if ((void *)node->data == addr)
-            return node;
-    }
-
-    return NULL;
-}
-
 void *malloc(size_t size)
 {
     struct mem_node *node, *free;
 
+    size = align_high(size, MSIZE);
     if (size > available)
         return NULL;
 
@@ -71,7 +63,7 @@ void *malloc(size_t size)
     node->used = true;
     list_del(&node->free);
 
-    /* Adjust heap available size */
+    /* adjust heap available size */
     available -= size;
 
     return node->data;
@@ -79,17 +71,13 @@ void *malloc(size_t size)
 
 void free(void *mem)
 {
-    struct mem_node *node, *tmp;
+    struct mem_node *tmp, *node;
 
-    /* Find the freed memory node header */
-    node = heap_get_node(&sort_list, mem);
-    if (!node)
-        return;
-
+    node = data_to_mem(mem);
     node->used = false;
     list_add(&free_list, &node->free);
 
-    /* Merge previous node */
+    /* merge previous node */
     tmp = list_prev_entry(node, sort);
     if (!tmp->used) {
         tmp->size += sizeof(struct mem_node) + node->size;
@@ -98,7 +86,7 @@ void free(void *mem)
         node = tmp;
     }
 
-    /* Merge next node */
+    /* merge next node */
     tmp = list_next_entry(node, sort);
     if (!tmp->used) {
         node->size += sizeof(struct mem_node) + tmp->size;
@@ -106,7 +94,7 @@ void free(void *mem)
         list_del(&tmp->sort);
     }
 
-    /* Adjust heap available size */
+    /* adjust heap available size */
     available += node->size;
 }
 
@@ -117,7 +105,6 @@ void heap_init(void *addr, size_t size)
     list_head_init(&sort_list);
     list_head_init(&free_list);
 
-    /* setup first free node */
     node->used = false;
     node->size = size - sizeof(*node);
     available = node->size;

@@ -105,7 +105,7 @@ static struct uart_ops esp_uart_ops = {
     .sent_char = esp_uart_putc,
 };
 
-static state espressif_uart_probe(struct platform_device *device, void *pdata)
+static state espressif_uart_probe(struct platform_device *device, const void *pdata)
 {
     struct esp_uart_port *esp_port;
     struct uart_port *port;

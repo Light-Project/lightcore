@@ -59,7 +59,7 @@ static state i8237_channel_set(struct i8237_device *idev, unsigned int index,
 static struct dma_ops i8237_ops = {
 };
 
-static state i8237_prebe(struct platform_device *pdev, void *pdata)
+static state i8237_prebe(struct platform_device *pdev, const void *pdata)
 {
     return -ENOERR;
 }

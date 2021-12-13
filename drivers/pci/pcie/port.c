@@ -9,7 +9,7 @@
 #include <initcall.h>
 #include <driver/pci.h>
 
-static state pcie_port_probe(struct pci_device *pdev, void *pdata)
+static state pcie_port_probe(struct pci_device *pdev, const void *pdata)
 {
 
     return -ENOERR;

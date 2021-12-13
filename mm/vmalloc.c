@@ -64,7 +64,7 @@ void *vmalloc_page(struct page *page)
     struct vmalloc_area *vmalloc;
     size_t size = PAGE_SHIFT << page->order;
 
-    if (page->region_type != REGION_HIMEM)
+    if (page_to_region(page) != REGION_HIMEM)
         return page_to_va(page);
 
     vmalloc = kcache_zalloc(vmalloc_cache, GFP_KERNEL);
@@ -78,7 +78,7 @@ void *vmalloc_page(struct page *page)
     if (vmem_area_alloc(&vmalloc->vmem, size, PAGE_SIZE))
         goto err_free;
 
-    if (vmap_pages(&init_mm, &page, 1, vmalloc->vmem.addr, 0))
+    if (vmap_pages(&init_mm, &page, vmalloc->vmem.addr, size, 0, PGDIR_SHIFT))
         goto err_vmem;
 
     return (void *)vmalloc->vmem.addr;
@@ -109,10 +109,12 @@ void *vmalloc_node(size_t size, size_t align, gfp_t gfp, int numa)
         goto err_area;
 
     vmalloc->page_nr = page_nr;
+    vmalloc->page = page_area;
+
     if (get_pages(vmalloc, gfp))
         goto err_vmem;
 
-    if (vmap_pages(&init_mm, page_area, page_nr, vmalloc->vmem.addr, 0))
+    if (vmap_pages(&init_mm, page_area, vmalloc->vmem.addr, size, 0, PAGE_SHIFT))
         goto err_pages;
 
     return (void *)vmalloc->vmem.addr;

@@ -5,8 +5,6 @@
 #include <types.h>
 #include <lib.h>
 
-extern unsigned char BOOT_DEV;
-
 struct bios_reg {
     union {
         struct {
@@ -49,21 +47,12 @@ struct bios_reg {
 } __packed;
 
 #define load_seek 63
-#define delayms(x)  delayus((x)*1000)
-
-#define ext_readb(addr) ext_rw(1, addr, 0)
-#define ext_readw(addr) ext_rw(2, addr, 0)
-#define ext_readl(addr) ext_rw(3, addr, 0)
-#define ext_writeb(addr, data) ext_rw(4, addr, data)
-#define ext_writew(addr, data) ext_rw(5, addr, data)
-#define ext_writel(addr, data) ext_rw(6, addr, data)
+extern unsigned char boot_dev;
 
 /* boot/startup.S */
 extern __noreturn void halt(void);
 extern __noreturn void kboot_start(uint16_t segment, uint32_t offset);
 extern void bios_int(char nr, struct bios_reg *ir, struct bios_reg *or);
-extern void delayus(uint32_t us);
-extern uint32_t ext_rw(uint32_t flags, void *addr, uint32_t data);
 
 /* driver/biosdisk.c */
 extern void biosdisk_read(uint8_t dev, void *buff, uint32_t lba, int count);

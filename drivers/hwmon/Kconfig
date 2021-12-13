@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig HWMON
+    bool "Hardware Monitor Device Support"
+if HWMON
+
+config HWMON_AMD_K10
+    bool "AMD-K10 Hwmon Support"
+    depends on ARCH_X86
+
+endif

@@ -3,13 +3,12 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <mm.h>
 #include <string.h>
+#include <console.h>
 #include <driver/uart/8250.h>
 #include <driver/video/vesa.h>
-#include <console.h>
-
 #include <asm/proc.h>
+#include <asm/page.h>
 #include <asm/io.h>
 
 #if defined(CONFIG_PRECON_VGA)
@@ -113,7 +112,7 @@ void pre_printk_init(void)
 
 static __always_inline void serial_putc(char ch)
 {
-    while(!(inb(I8250_BASE + UART8250_LSR) & UART8250_LSR_THRE))
+    while (!(inb(I8250_BASE + UART8250_LSR) & UART8250_LSR_THRE))
         cpu_relax();
     outb(I8250_BASE + UART8250_THR, ch);
 }

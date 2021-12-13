@@ -83,7 +83,7 @@ static struct rng_ops intel_rng_ops = {
     .read = intel_rng_read,
 };
 
-static state intel_rng_probe(struct platform_device *pdev, void *pdata)
+static state intel_rng_probe(struct platform_device *pdev, const void *pdata)
 {
     struct intel_device *idev;
     resource_size_t start, size;

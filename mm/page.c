@@ -5,25 +5,26 @@
 
 #define pr_fmt(fmt) "page: " fmt
 
-#include <string.h>
-#include <mm.h>
-#include <mm/region.h>
 #include <mm/page.h>
+#include <string.h>
+#include <mm/region.h>
 
-static __always_inline void free_list_add(struct page_free *free, struct page *page)
+static __always_inline void
+free_list_add(struct page_free *free, struct page *page)
 {
     list_add_prev(&free->list, &page->free_list);
     free->free_nr++;
 }
 
-static inline void free_list_del(struct page_free *free, struct page *page)
+static __always_inline void
+free_list_del(struct page_free *free, struct page *page)
 {
     list_del(&page->free_list);
     free->free_nr--;
 }
 
-static __always_inline
-struct page *free_list_get_page(struct page_free *free)
+static __always_inline struct page *
+free_list_get_page(struct page_free *free)
 {
     return list_first_entry_or_null(&free->list, struct page, free_list);
 }
@@ -34,7 +35,7 @@ static inline void buddy_division(struct page_free *free, struct page *page,
     size_t size = 1 << alloc_order;
 
     while (need_order < alloc_order--) {
-		size >>= 1;
+        size >>= 1;
 
         /* Put buddy into free list */
         free_list_add(&free[alloc_order], &page[size]);
@@ -64,21 +65,20 @@ static struct page *buddy_smallest(struct region *region, int order)
     return NULL;
 }
 
-static inline size_t find_buddy(size_t page_nr, uint order)
+static __always_inline size_t find_buddy(size_t page_nr, uint order)
 {
-	return page_nr ^ (1 << order);
+    return page_nr ^ (1 << order);
 }
 
-static inline bool check_buddy(struct page *page, unsigned int order,
-                               struct page *buddy)
+static bool check_buddy(struct page *page, struct page *buddy, unsigned int order)
 {
     if (buddy->type != PAGE_FREE)
         return false;
 
-    if (page->region_type != buddy->region_type)
+    if (order != buddy->order)
         return false;
 
-    if (order != buddy->order)
+    if (page_to_region(page) != page_to_region(buddy))
         return false;
 
     return true;
@@ -96,14 +96,14 @@ void buddy_merge(struct region *region, struct page *page, uint order)
         buddy_pnr = find_buddy(pnr, order);
         buddy = page + (buddy_pnr - pnr);
 
-        if (!check_buddy(page, order, buddy))
+        if (!check_buddy(page, buddy, order))
             goto finish;
 
         free = &region->page_free[order];
         free_list_del(free, buddy);
 
         merge_pnr = buddy_pnr & pnr;
-		page = page + (merge_pnr - pnr);
+        page = page + (merge_pnr - pnr);
         pnr = merge_pnr;
     }
 
@@ -114,15 +114,17 @@ finish:
     free_list_add(free, page);
 }
 
-struct page *page_alloc(uint order, gfp_t gfp)
+struct page *page_alloc(unsigned int order, gfp_t gfp)
 {
-    struct page *page;
+    enum region_type region_type;
     struct region *region;
+    struct page *page;
 
-    if(unlikely(order > PAGE_ORDER_MAX))
+    if (unlikely(order > PAGE_ORDER_MAX))
         return NULL;
 
-    region = gfp_to_region(gfp);
+    region_type = gfp_to_region(gfp);
+    region = &region_map[region_type];
 
     page = buddy_smallest(region, order);
     if (unlikely(!page))
@@ -130,13 +132,18 @@ struct page *page_alloc(uint order, gfp_t gfp)
 
     if (gfp & GFP_ZERO)
         memset(page_to_va(page), 0, PAGE_SIZE << order);
+
     return page;
 }
 
 void page_free(struct page *page)
 {
-    phys_addr_t pa = page_to_pa(page);
-    struct region *region = pa_to_region(pa);
+    enum region_type region_type;
+    struct region *region;
+
+    region_type = page_to_region(page);
+    region = &region_map[region_type];
+
     buddy_merge(region, page, page->order);
 }
 
@@ -145,5 +152,5 @@ void page_add(struct region *region, struct page *page,
 {
     uint size = 1 << order;
     for (; page && nr--; page += size)
-        buddy_merge(region, page, order);
+    buddy_merge(region, page, order);
 }

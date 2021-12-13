@@ -4,7 +4,13 @@
 
 #include <asm/alternative.h>
 
-#define mb() asm volatile("lock; addl $0,-4(%%esp)" :::"memory", "cc")
+#ifdef CONFIG_ARCH_X86
+# define mb()   asm volatile("lock; addl $0,-4(%%esp)" :::"memory", "cc")
+#else
+# define mb()   asm volatile("mfence":::"memory")
+# define rmb()  asm volatile("lfence":::"memory")
+# define wmb()	asm volatile("sfence" ::: "memory")
+#endif
 
 #include <asm-generic/barrier.h>
 

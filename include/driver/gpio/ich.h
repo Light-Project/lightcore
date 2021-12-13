@@ -2,6 +2,10 @@
 #ifndef _DRIVER_GPIO_ICH_H_
 #define _DRIVER_GPIO_ICH_H_
 
+enum intel_gpio_resources {
+    INTEL_RES_GPIO      = 0,
+    INTEL_RES_GPE0      = 1,
+};
 
 #define INTEL_GPIO_I3100    "intel,gpio-i3100"
 #define INTEL_GPIO_V5       "intel,gpio-v5"

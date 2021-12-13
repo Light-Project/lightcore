@@ -32,12 +32,7 @@ static inline void vga_cursor(const char pos_x, const char pos_y)
 
 static inline void vga_flush(void)
 {
-    uint8_t *vram = vram_base;
-    uint8_t *src = (void *)buff;
-    unsigned int c;
-
-    for (c = 0; c < sizeof(buff); ++c)
-        ext_writeb(vram++, *src++);
+    memcpy(vram_base, buff, sizeof(buff));
 }
 
 static inline void vga_clear(int pos_y, int len)

@@ -11,7 +11,7 @@
 
 #define __CLOBBERS_MEM(clb...)	"memory", ## clb
 
-#if !defined(__GCC_ASM_FLAG_OUTPUTS__) && defined(CONFIG_CC_HAS_ASM_GOTO)
+#if !defined(__GCC_ASM_FLAG_OUTPUTS__)
 
 /* Use asm goto */
 

@@ -53,7 +53,7 @@ static struct gpio_ops ggpio_ops = {
     .direction_set = ggpio_direction_set,
 };
 
-static state ggpio_probe(struct platform_device *pdev, void *pdata)
+static state ggpio_probe(struct platform_device *pdev, const void *pdata)
 {
     struct ggpio_device *ggdev;
     struct resource *res;

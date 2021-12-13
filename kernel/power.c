@@ -12,30 +12,38 @@
 #include <driver/power.h>
 #include <asm/proc.h>
 
+/**
+ * kernel_restart - restart the system
+ * NOTE: Handle all shutdown events and then restart.
+ */
 void kernel_restart(void)
 {
     pevent_shutdown();
-
     pr_emerg("kernel restarting\n");
-    power_reset();
     power_restart();
     proc_reset();
 }
 EXPORT_SYMBOL(kernel_restart);
 
+/**
+ * kernel_halt - halt the system
+ * NOTE: Handle all shutdown events and then halt.
+ */
 void kernel_halt(void)
 {
     pevent_shutdown();
-
     pr_emerg("kernel halted\n");
     proc_halt();
 }
 EXPORT_SYMBOL(kernel_halt);
 
+/**
+ * kernel_poweroff - poweroff the system
+ * NOTE: Handle all shutdown events and then shutdown.
+ */
 void kernel_poweroff(void)
 {
     pevent_shutdown();
-
     pr_emerg("kernel poweroff\n");
     power_shutdown();
     proc_poweroff();

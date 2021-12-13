@@ -110,7 +110,7 @@ static bool i8255_detect(struct i8255_device *idev)
     return true;
 }
 
-static state i8255_probe(struct platform_device *pdev, void *pdata)
+static state i8255_probe(struct platform_device *pdev, const void *pdata)
 {
     struct i8255_device *idev;
 

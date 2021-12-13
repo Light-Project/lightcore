@@ -25,12 +25,11 @@
 #define PGDIR_MASK      (~(PGDIR_SHIFT - 1))
 
 #define PGDIR_COARSE_SHIFT  10
-#define PTRS_PER_PGD        4096
-#define PTRS_PER_PTE        256
+#define PTRS_PER_PGD    4096
+#define PTRS_PER_PTE    256
 
-#define SPARCE_SHIFT        24
+#define SPARCE_SHIFT    24
 
-#ifndef __ASSEMBLY__
+#include <asm-generic/page.h>
 
-#endif	/* __ASSEMBLY__ */
 #endif

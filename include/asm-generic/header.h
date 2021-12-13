@@ -9,17 +9,17 @@
 
 struct uboot_head {
     be32        magic;              /* 0x00: Image Header Magic Number  */
-    be32        hcrc;               /* 0x00: Image Header CRC Checksum  */
-    be32        time;               /* 0x00: Image Creation Timestamp   */
-    be32        size;               /* 0x00: Image Data Size            */
-    be32        load;               /* 0x00: Data Load Address          */
-    be32        ep;                 /* 0x00: Entry Point Address        */
-    be32        dcrc;               /* 0x00: Image Data CRC Checksum    */
-    uint8_t     os;                 /* 0x00: Operating System           */
-    uint8_t     arch;               /* 0x00: CPU architecture           */
-    uint8_t     type;               /* 0x00: Image Type                 */
-    uint8_t     comp;               /* 0x00: Compression Type           */
-    uint8_t     name[UBOOT_NMLEN];  /* 0x00: Image Name                 */
+    be32        hcrc;               /* 0x04: Image Header CRC Checksum  */
+    be32        time;               /* 0x08: Image Creation Timestamp   */
+    be32        size;               /* 0x0c: Image Data Size            */
+    be32        load;               /* 0x10: Data Load Address          */
+    be32        ep;                 /* 0x14: Entry Point Address        */
+    be32        dcrc;               /* 0x18: Image Data CRC Checksum    */
+    uint8_t     os;                 /* 0x1c: Operating System           */
+    uint8_t     arch;               /* 0x1d: CPU architecture           */
+    uint8_t     type;               /* 0x1e: Image Type                 */
+    uint8_t     comp;               /* 0x1f: Compression Type           */
+    uint8_t     name[UBOOT_NMLEN];  /* 0x20: Image Name                 */
 } __attribute__((__packed__));
 
 struct boot_head {

@@ -353,7 +353,7 @@ static state atasim_ports_setup(struct device *dev, struct atasim_host *host)
     return -ENOERR;
 }
 
-static state atasim_probe(struct pci_device *pdev, void *pdata)
+static state atasim_probe(struct pci_device *pdev, const void *pdata)
 {
     struct atasim_host *host;
     resource_size_t size;
@@ -409,15 +409,16 @@ static state atasim_probe(struct pci_device *pdev, void *pdata)
     return -ENOERR;
 }
 
-static struct pci_device_id atasim_id_table[] = {
+static struct pci_device_id atasim_ids[] = {
     { PCI_DEVICE_CLASS(PCI_CLASS_STORAGE_IDE << 8, ~0xff) },
+    { }, /* NULL */
 };
 
 static struct pci_driver atasim_driver = {
     .driver = {
         .name = DRIVER_NAME,
     },
-    .id_table = atasim_id_table,
+    .id_table = atasim_ids,
     .probe = atasim_probe,
 };
 

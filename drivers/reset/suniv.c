@@ -74,7 +74,7 @@ static struct reset_ops suniv_reset_ops = {
     .reset = suniv_reset_reset,
 };
 
-static state suniv_reset_probe(struct platform_device *pdev, void *pdata)
+static state suniv_reset_probe(struct platform_device *pdev, const void *pdata)
 {
     struct reset_device *reset;
 

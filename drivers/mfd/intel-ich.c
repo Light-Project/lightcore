@@ -12,6 +12,7 @@
 #include <driver/pci.h>
 #include <driver/mfd/intel-ich.h>
 #include <driver/gpio/ich.h>
+#include <driver/mtd/ich.h>
 #include <driver/mtd/intel.h>
 #include <driver/watchdog/tco.h>
 #include <printk.h>
@@ -38,6 +39,7 @@ const char ich_gpio_v10cp[] = INTEL_GPIO_V10CP;
 const char ich_gpio_v10cs[] = INTEL_GPIO_V10CS;
 const char ich_gpio_avn[]   = INTEL_GPIO_V10CS;
 
+const char ich_spi_leg[] = INTEL_SPI_LEG_MATCH_ID;
 const char ich_spi_byt[] = INTEL_SPI_BYT_MATCH_ID;
 const char ich_spi_lpt[] = INTEL_SPI_LPT_MATCH_ID;
 const char ich_spi_bxt[] = INTEL_SPI_BXT_MATCH_ID;
@@ -135,7 +137,13 @@ static struct ich_chipinfo lpc_ich7dh = {
 };
 
 static struct ich_chipinfo lpc_ich7m = {
-    .name = "ICH7-M",
+    .name = "ICH7-M/U",
+    .itco_version = ich_tco_v2,
+    .gpio_version = ich_gpio_v7,
+};
+
+static struct ich_chipinfo lpc_ich7mdh = {
+    .name = "ICH7-MDH",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v7,
 };
@@ -146,100 +154,109 @@ static struct ich_chipinfo lpc_nm10 = {
     .gpio_version = ich_gpio_v7,
 };
 
-static struct ich_chipinfo lpc_ich7mdh = {
-    .name = "ICH7DH",
-    .itco_version = ich_tco_v2,
-    .gpio_version = ich_gpio_v7,
-};
-
 static struct ich_chipinfo lpc_ich8 = {
-    .name = "ICH8",
+    .name = "ICH8/R",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v7,
+    .spi_version = ich_spi_leg,
 };
 
 static struct ich_chipinfo lpc_ich8me = {
     .name = "ICH8-ME",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v7,
+    .spi_version = ich_spi_leg,
 };
 
 static struct ich_chipinfo lpc_ich8dh = {
     .name = "ICH8-DH",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v7,
+    .spi_version = ich_spi_leg,
 };
 
 static struct ich_chipinfo lpc_ich8do = {
     .name = "ICH8-DO",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v7,
+    .spi_version = ich_spi_leg,
 };
 
 static struct ich_chipinfo lpc_ich8m = {
     .name = "ICH8-M",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v7,
+    .spi_version = ich_spi_leg,
 };
 
 static struct ich_chipinfo lpc_ich9 = {
     .name = "ICH9",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v9,
+    .spi_version = ich_spi_leg,
 };
 
 static struct ich_chipinfo lpc_ich9r = {
     .name = "ICH9-R",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v9,
+    .spi_version = ich_spi_leg,
 };
 
 static struct ich_chipinfo lpc_ich9dh = {
     .name = "ICH9-DH",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v9,
+    .spi_version = ich_spi_leg,
 };
 
 static struct ich_chipinfo lpc_ich9do = {
     .name = "ICH9-DO",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v9,
+    .spi_version = ich_spi_leg,
 };
 
 static struct ich_chipinfo lpc_ich9m = {
     .name = "ICH9-M",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v9,
+    .spi_version = ich_spi_leg,
 };
 
 static struct ich_chipinfo lpc_ich9me = {
     .name = "ICH9-ME",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v9,
+    .spi_version = ich_spi_leg,
 };
 
 static struct ich_chipinfo lpc_ich10 = {
     .name = "ICH10",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v10cs,
+    .spi_version = ich_spi_leg,
 };
 
 static struct ich_chipinfo lpc_ich10r = {
     .name = "ICH10-R",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v10cs,
+    .spi_version = ich_spi_leg,
 };
 
 static struct ich_chipinfo lpc_ich10d = {
     .name = "ICH10-D",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v10cp,
+    .spi_version = ich_spi_leg,
 };
 
 static struct ich_chipinfo lpc_ich10do = {
     .name = "ICH10-DO",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v10cp,
+    .spi_version = ich_spi_leg,
 };
 
 static struct ich_chipinfo lpc_pch = {
@@ -692,9 +709,77 @@ struct ich_device {
     struct resource gpio_res[2];
     struct platform_device spi;
     struct resource spi_res[1];
+    uint8_t gpio_base, gctl_base;
+    uint8_t acpi_save, pmc_save, gctl_save;
 };
 
-static state intel_ich_tco_setup(struct pci_device *pdev, struct ich_chipinfo *info)
+static void intel_ich_enable_acpi(struct pci_device *pdev, const struct ich_chipinfo *info)
+{
+    struct ich_device *idev = pci_get_devdata(pdev);
+    uint8_t val;
+
+    if (info->itco_version == ich_tco_v3) {
+        /*
+         * Some chipsets (eg Avoton) enable the ACPI space in the
+         * ACPI BASE register.
+         */
+
+        val = pci_config_readb(pdev, INTEL_ICH_APCI);
+        pci_config_writeb(pdev, INTEL_ICH_APCI, val | BIT(1));
+
+        if (!idev->acpi_save)
+            idev->acpi_save = val;
+    } else {
+        /*
+         * Most chipsets enable the ACPI space in the ACPI control
+         * register.
+         */
+
+        val = pci_config_readb(pdev, INTEL_ICH_PMC);
+        pci_config_writeb(pdev, INTEL_ICH_PMC, val | BIT(7));
+
+        if (!idev->pmc_save)
+            idev->pmc_save = val;
+    }
+}
+
+static void intel_ich_enable_pmc(struct pci_device *pdev)
+{
+    struct ich_device *idev = pci_get_devdata(pdev);
+    uint8_t val;
+
+    val = pci_config_readl(pdev, INTEL_ICH_PMC);
+    pci_config_writel(pdev, INTEL_ICH_PMC, val | BIT(1));
+
+    if (!idev->pmc_save)
+        idev->pmc_save = val;
+}
+
+static void intel_ich_enable_gpio(struct pci_device *pdev)
+{
+    struct ich_device *idev = pci_get_devdata(pdev);
+    uint8_t val;
+
+    val = pci_config_readl(pdev, idev->gctl_base);
+    pci_config_writel(pdev, idev->gctl_base, val | BIT(4));
+
+    if (!idev->pmc_save)
+        idev->pmc_save = val;
+}
+
+static void intel_ich_restore_config(struct pci_device *pdev)
+{
+    struct ich_device *idev = pci_get_devdata(pdev);
+
+    if (idev->acpi_save)
+        pci_config_writeb(pdev, INTEL_ICH_APCI, idev->acpi_save);
+    if (idev->pmc_save)
+        pci_config_writeb(pdev, INTEL_ICH_PMC, idev->pmc_save);
+    if (idev->gctl_save)
+        pci_config_writeb(pdev, idev->gctl_base, idev->gctl_save);
+}
+
+static state intel_ich_tco_setup(struct pci_device *pdev, const struct ich_chipinfo *info)
 {
     struct ich_device *idev = pci_get_devdata(pdev);
     uint32_t val, base;
@@ -714,49 +799,123 @@ static state intel_ich_tco_setup(struct pci_device *pdev, struct ich_chipinfo *i
     idev->tco_res[TCO_RES_SMI].size  = INTEL_ICH_ACPI_SMI_SZ;
     idev->tco_res[TCO_RES_SMI].type  = RESOURCE_PMIO;
 
+    intel_ich_enable_acpi(pdev, info);
+
     if (info->itco_version == ich_tco_v2) {
+        /*
+         * Get the Memory-Mapped GCS register. To get access to it
+         * we have to read RCBA from PCI Config space 0xf0 and use
+         * it as base. GCS = RCBA + ICH6_GCS(0x3410).
+         */
+
         val = pci_config_readl(pdev, INTEL_ICH_RCBA);
         base = val & 0xffffc000;
         if (!(val & 0x01)) {
             dev_notice(&pdev->dev, "RCBA is disabled by hardware/BIOS\n");
             return -ENODEV;
         }
+
         idev->tco_res[TCO_RES_MEM].start = base + INTEL_ICH_RCBA_GCS;
         idev->tco_res[TCO_RES_MEM].size  = INTEL_ICH_RCBA_GCS_SZ;
         idev->tco_res[TCO_RES_MEM].type  = RESOURCE_MMIO;
     } else if (info->itco_version == ich_tco_v3) {
-        /* enable pcm space */
-        val = pci_config_readl(pdev, INTEL_ICH_PMC);
-        pci_config_writel(pdev, INTEL_ICH_PMC, val | 0x2);
+        /*
+         * Get the Power Management Configuration register.  To get access
+         * to it we have to read the PMC BASE from config space and address
+         * the register at offset 0x8.
+         */
+
+        intel_ich_enable_pmc(pdev);
 
         val = pci_config_readl(pdev, INTEL_ICH_PMC);
         base = val & 0xfffffe00;
         idev->tco_res[TCO_RES_MEM].start = base + INTEL_ICH_PMC_BASE;
         idev->tco_res[TCO_RES_MEM].size  = INTEL_ICH_PMC_SZ;
         idev->tco_res[TCO_RES_MEM].type  = RESOURCE_MMIO;
-    } else {
+    } else if (info->itco_version != ich_tco_v1) {
         dev_warn(&pdev->dev, "unkown tco type\n");
         return -EINVAL;
     }
 
+    idev->tco.dev.name = "lpt-tco";
     idev->tco.name = info->itco_version;
     idev->tco.resource = idev->tco_res;
     idev->tco.resources_nr = ARRAY_SIZE(idev->tco_res);
     return platform_device_register(&idev->tco);
 }
 
-static state intel_ich_spi_setup(struct pci_device *pdev, struct ich_chipinfo *info)
+static state intel_ich_gpio_setup(struct pci_device *pdev, const struct ich_chipinfo *info)
 {
     struct ich_device *idev = pci_get_devdata(pdev);
     uint32_t val, base;
 
-    if (info->spi_version == ich_spi_byt) {
+    /* Setup power management base register. */
+    val = pci_config_readl(pdev, INTEL_ICH_APCI);
+    base = val & 0xff80;
+    if (!base) {
+        dev_warn(&pdev->dev, "ACPI I/O uninitialized\n");
+        goto gpio_base;
+    }
+
+	idev->tco_res[INTEL_RES_GPIO].start = base + INTEL_ICH_ACPI_GPE;
+	idev->tco_res[INTEL_RES_GPIO].size = INTEL_ICH_ACPI_GPE_SZ;
+    intel_ich_enable_acpi(pdev, info);
+
+gpio_base:
+    /* Setup GPIO base register. */
+	val = pci_config_readl(pdev, idev->gpio_base);
+    base = val & 0xff80;
+    if (!base) {
+        dev_warn(&pdev->dev, "GPIO I/O uninitialized\n");
+        return -ENODEV;
+    }
+
+    idev->tco_res[INTEL_RES_GPIO].start = base;
+
+    if (info->gpio_version == ich_gpio_v10cp ||
+        info->gpio_version == ich_gpio_v5) {
+        idev->tco_res[INTEL_RES_GPIO].size = 128;
+    } else {
+        idev->tco_res[INTEL_RES_GPIO].size = 64;
+    }
+
+    intel_ich_enable_gpio(pdev);
+
+    idev->gpio.dev.name = "lpt-gpio";
+    idev->gpio.name = info->gpio_version;
+    idev->gpio.resource = idev->gpio_res;
+    idev->gpio.resources_nr = ARRAY_SIZE(idev->gpio_res);
+    return platform_device_register(&idev->gpio);
+}
+
+static state intel_ich_spi_setup(struct pci_device *pdev, const struct ich_chipinfo *info)
+{
+    struct ich_device *idev = pci_get_devdata(pdev);
+    uint32_t val, base;
+
+    if (info->spi_version == ich_spi_leg) {
+        val = pci_config_readl(pdev, INTEL_ICH_RCBA);
+        base = val & 0xffffc000;
+        if (!(val & 0x01)) {
+            dev_notice(&pdev->dev, "RCBA is disabled by hardware/BIOS\n");
+            return -ENODEV;
+        }
+
+        // TODO: Judge ICH7
+        // idev->spi_res[0].start = base + INTEL_ICH_RCBA_LSPI;
+        // idev->spi_res[0].size  = INTEL_ICH_RCBA_LSPI_SZ;
+
+        idev->spi_res[0].start = base + INTEL_ICH_RCBA_LPT;
+        idev->spi_res[0].size  = INTEL_ICH_RCBA_LPT_SZ;
+        idev->spi_res[0].type  = RESOURCE_MMIO;
+    } else if (info->spi_version == ich_spi_byt) {
         val = pci_config_readl(pdev, INTEL_ICH_BYT);
         base = val & (INTEL_ICH_BYT_SZ - 1);
         if (!(val & 0x01)) {
             dev_notice(&pdev->dev, "BYT is disabled by hardware/BIOS\n");
             return -ENODEV;
         }
+
         idev->spi_res[0].start = base;
         idev->spi_res[0].size  = INTEL_ICH_BYT_SZ;
         idev->spi_res[0].type  = RESOURCE_MMIO;
@@ -767,33 +926,45 @@ static state intel_ich_spi_setup(struct pci_device *pdev, struct ich_chipinfo *i
             dev_notice(&pdev->dev, "RCBA is disabled by hardware/BIOS\n");
             return -ENODEV;
         }
+
         idev->spi_res[0].start = base + INTEL_ICH_RCBA_LPT;
         idev->spi_res[0].size  = INTEL_ICH_RCBA_LPT_SZ;
         idev->spi_res[0].type  = RESOURCE_MMIO;
     } else if (info->spi_version == ich_spi_bxt) {
+        /*
+         * The P2SB is hidden by BIOS and we need to unhide it in
+         * order to read BAR of the SPI flash device. Once that is
+         * done we hide it again.
+         */
+
         pci_bus_config_writeb(pdev->bus, PCI_DEVFN(13, 0), 0xe1, 0);
         val = pci_bus_config_readl(pdev->bus, PCI_DEVFN(13, 0), PCI_BASE_ADDRESS_0);
         base = val & 0xfffffff0;
         if (val == ~0)
-            return -EIO;
+            return -ENODEV;
+
         idev->spi_res[0].start = base;
         idev->spi_res[0].size  = INTEL_ICH_APL_SZ;
         idev->spi_res[0].type  = RESOURCE_MMIO;
+
+        pci_bus_config_writeb(pdev->bus, PCI_DEVFN(13, 0), 0xe1, 1);
     } else {
         dev_warn(&pdev->dev, "unkown spi type\n");
         return -EINVAL;
     }
 
+    idev->spi.dev.name = "lpt-spi";
     idev->spi.name = info->spi_version;
     idev->spi.resource = idev->spi_res;
     idev->spi.resources_nr = ARRAY_SIZE(idev->spi_res);
-    return platform_device_register(&idev->tco);
+    return platform_device_register(&idev->spi);
 }
 
-static state intel_ich_probe(struct pci_device *pdev, void *pdata)
+static state intel_ich_probe(struct pci_device *pdev, const void *pdata)
 {
+    const struct ich_chipinfo *info = pdata;
     struct ich_device *idev;
-    struct ich_chipinfo *info = pdata;
+    state ret1, ret2, ret3;
 
     dev_info(&pdev->dev, "chipset %s detect\n", info->name);
 
@@ -802,12 +973,47 @@ static state intel_ich_probe(struct pci_device *pdev, void *pdata)
         return -ENOMEM;
     pci_set_devdata(pdev, idev);
 
-    if (info->itco_version)
-        intel_ich_tco_setup(pdev, info);
-    if (info->spi_version)
-        intel_ich_spi_setup(pdev, info);
+    if (info->itco_version == ich_tco_v1) {
+        idev->gpio_base = INTEL_ICH0_GBA;
+        idev->gctl_base = INTEL_ICH0_GCTL;
+    } else {
+        idev->gpio_base = INTEL_ICH6_GBA;
+        idev->gctl_base = INTEL_ICH6_GCTL;
+    }
 
-    return -ENOERR;
+    if (info->itco_version) {
+        ret1 = intel_ich_tco_setup(pdev, info);
+        if (ret1)
+            pr_warn("tco register failed %d\n", ret1);
+    }
+
+    if (info->gpio_version) {
+        ret2 = intel_ich_gpio_setup(pdev, info);
+        if (ret2)
+            pr_warn("gpio register failed %d\n", ret2);
+    }
+
+    if (info->spi_version) {
+        ret3 = intel_ich_spi_setup(pdev, info);
+        if (ret3)
+            pr_warn("spi register failed %d\n", ret3);
+    }
+
+    return ret1 && ret2 && ret3 ? ret1 : -ENOERR;
+}
+
+static void intel_ich_remove(struct pci_device *pdev)
+{
+    struct ich_device *idev = pci_get_devdata(pdev);
+
+    if (idev->tco_res->start)
+        platform_device_unregister(&idev->tco);
+    if (idev->gpio_res->start)
+        platform_device_unregister(&idev->gpio);
+    if (idev->spi_res->size)
+        platform_device_unregister(&idev->spi);
+
+    intel_ich_restore_config(pdev);
 }
 
 static struct pci_driver intel_ich_driver = {
@@ -816,6 +1022,7 @@ static struct pci_driver intel_ich_driver = {
     },
     .id_table = intel_ich_ids,
     .probe = intel_ich_probe,
+    .remove = intel_ich_remove,
 };
 
 static state intel_ich_init(void)

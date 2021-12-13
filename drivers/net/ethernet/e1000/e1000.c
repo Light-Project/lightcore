@@ -88,7 +88,7 @@ static struct pci_device_id e1000_pci_tbl[] = {
     { } /* NULL */
 };
 
-static state e1000_probe(struct pci_device *pdev, void *pdata)
+static state e1000_probe(struct pci_device *pdev, const void *pdata)
 {
     // struct e1000_hw *hw;
 

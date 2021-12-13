@@ -21,9 +21,9 @@ enum i8259_registers {
 #define I8259_ICW1_ICW4         BIT(0)          /* CMD: ICW4 Needed */
 #define I8259_ICW2_VEC          BIT_RANGE(7, 0) /* DAT: Vector Addr (86 88 mode) */
 #define I8259_ICW3_SLVD         BIT_RANGE(2, 0) /* DAT: Slave Device Vector */
-#define I8259_ICW4_SFNM         BIT(4)          /* DAT: Special Fully Nested (not) */
-#define I8259_ICW4_BUFF         BIT(3)          /* DAT: Buffered Mode */
-#define I8259_ICW4_SLAVE        BIT(2)          /* DAT: Master/Slave Mode */
+#define I8259_ICW4_SFNM         BIT(4)          /* DAT: Special Fully Nested */
+#define I8259_ICW4_BUFF         BIT(3)          /* DAT: Buffered Mode (Removed) */
+#define I8259_ICW4_SLAVE        BIT(2)          /* DAT: Master/Slave Mode (Removed) */
 #define I8259_ICW4_AUTO         BIT(1)          /* DAT: Auto (normal) EOI */
 #define I8259_ICW4_8086         BIT(0)          /* DAT: 8086/88 (MCS-80/85) Mode */
 
@@ -33,11 +33,11 @@ enum i8259_registers {
 #define I8259_OCW2_SL           BIT(6)          /* CMD: Specific EOI */
 #define I8259_OCW2_EOI          BIT(5)          /* CMD: EOI command */
 #define I8259_OCW2_VEC          BIT_RANGE(2, 0) /* CMD: Vector to EOI */
-#define I8259_OCW3_ESMM         BIT(6)          /* CMD:  */
-#define I8259_OCW3_SMM          BIT(5)          /* CMD:  */
-#define I8259_OCW3_INIT         BIT(3)          /* CMD:  */
-#define I8259_OCW3_P            BIT(2)          /* CMD:  */
-#define I8259_OCW3_RR           BIT(1)          /* CMD:  */
-#define I8259_OCW3_RIS          BIT(0)          /* CMD:  */
+#define I8259_OCW3_ESMM         BIT(6)          /* CMD: Special Mask Mode */
+#define I8259_OCW3_SMM          BIT(5)          /* CMD: Enable Special Mask Mode */
+#define I8259_OCW3_INIT         BIT(3)          /* CMD: Always on */
+#define I8259_OCW3_P            BIT(2)          /* CMD: Poll Mode Command */
+#define I8259_OCW3_RR           BIT(1)          /* CMD: Read IRQ Register */
+#define I8259_OCW3_RIS          BIT(0)          /* CMD: Read IS Register (With RR) */
 
 #endif

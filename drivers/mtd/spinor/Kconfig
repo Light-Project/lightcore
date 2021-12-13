@@ -5,4 +5,7 @@ if SPINOR
 config SPINOR_INTEL
     bool "intel PCH/PCU SPI flash driver support"
 
+config SPINOR_ICH
+    bool "intel Legacy SPI flash driver support"
+
 endif

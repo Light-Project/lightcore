@@ -13,7 +13,7 @@ typedef struct pgd pgd_t;
 #define SSEG0_BASE  0x80000000
 #define SSEG1_BASE  0xa0000000
 
-#include <asm-generic/pgtable-pmd.h>
+#include <asm-generic/pgtable-nopmd.h>
 
 static inline bool pmd_get_present(pmd_t *pmd)
 {

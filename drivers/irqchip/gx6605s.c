@@ -101,7 +101,7 @@ static void gx6605s_setup_irqs(struct gx6605s_device *gdev, uint32_t magic)
         gx6605s_write(gdev, GX6605S_INTC_SOURCE0 + count, irq_source_val(count, magic));
 }
 
-static state gx6605s_probe(struct platform_device *pdev, void *pdata)
+static state gx6605s_probe(struct platform_device *pdev, const void *pdata)
 {
     resource_size_t start, size;
 

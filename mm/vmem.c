@@ -5,11 +5,10 @@
 
 #define pr_fmt(fmt) "vmem: " fmt
 
-#include <kernel.h>
-#include <cpu.h>
-#include <spinlock.h>
-#include <kmalloc.h>
 #include <mm/vmem.h>
+#include <kmalloc.h>
+#include <kernel.h>
+#include <spinlock.h>
 #include <export.h>
 #include <printk.h>
 #include <asm/page.h>
@@ -19,163 +18,133 @@ static RB_ROOT(vm_area_root);
 static LIST_HEAD(vm_free_area_list);
 static struct kcache *vmem_cache;
 
-/**
- * area_find - finding nodes by address
- * @addr: address to find
- */
+static long vmem_rb_cmp(const struct rb_node *rba, const struct rb_node *rbb)
+{
+    struct vm_area *vma_a = rb_to_vma(rba);
+    struct vm_area *vma_b = rb_to_vma(rbb);
+    return vma_a->addr - vma_b->addr;
+}
+
+static long vmem_rb_find(const struct rb_node *rb, const void *key)
+{
+    struct vm_area *vma = rb_to_vma(rb);
+
+    if ((size_t)key < vma->addr)
+        return -1;
+    if ((size_t)key > vma->addr + vma->size)
+        return 1;
+
+    return 0;
+}
+
 struct vm_area *vmem_area_find(size_t addr)
 {
-    struct rb_node *rb_node;
-    struct vm_area *va;
-
-    rb_node = vm_area_root.rb_node;
-    while (rb_node) {
-        va = rb_entry(rb_node, struct vm_area, rb_node);
-
-        if (addr < va->addr)
-            rb_node = rb_node->left;
-        else if (addr > va->addr + va->size)
-            rb_node = rb_node->right;
-        else
-            return va;
-    }
-
-    return NULL;
+    struct rb_node *rb;
+    rb = rb_find(&vm_area_root, (void *)addr, vmem_rb_find);
+    return rb_to_vma(rb);
 }
 
-/**
- * area_parent - find the parent of the current node.
- * @va: node to be looked for
- * @root: tree root
- * @parentp: parent pointer
- */
-static inline struct rb_node **
-area_parent(struct vm_area *va, struct rb_root *root,
-            struct rb_node **parentp)
-{
-    struct vm_area *parent;
-    struct rb_node **link;
-
-    link = &root->rb_node;
-
-    if (unlikely(!*link)) {
-        *parentp = NULL;
-        return link;
-    }
-
-    do {
-        parent = vm_rb_entry(*link);
-
-        if (va->addr < (parent->addr + parent->size) &&
-           (va->addr + va->size) <= parent->addr)
-            link = &(*link)->left;
-        else if ((va->addr + va->size) > parent->addr &&
-                  va->addr >= (parent->addr + parent->size))
-            link = &(*link)->right;
-        else {
-            pr_err("area overlaps\n");
-            return NULL;
-        }
-    } while (*link);
-
-    *parentp = &parent->rb_node;
-    return link;
-}
-
-static __always_inline state
-area_insert(struct vm_area *va, struct rb_root *root,
-            struct list_head *head, bool free)
+static state vma_insert(struct vm_area *vma, struct rb_root *root, struct list_head *head, bool free)
 {
     struct rb_node *parent, **link;
 
-    link = area_parent(va, root, &parent);
+    link = rb_parent(root, &parent, &vma->rb, vmem_rb_cmp);
     if (unlikely(!link))
         return -EFAULT;
 
     if (likely(parent)) {
-        head = &vm_rb_entry(parent)->list;
+        head = &rb_to_vma(parent)->list;
         if (parent->right == *link)
             head = head->prev;
     }
 
     spin_lock(&vm_area_lock);
 
-    rb_link(parent, link, &va->rb_node);
-    rb_fixup(root, &va->rb_node);
-
-    if (free) {
-        list_add(head, &va->list);
-    }
+    rb_insert_node(root, parent, link, &vma->rb);
+    if (free)
+        list_add(head, &vma->list);
 
     spin_unlock(&vm_area_lock);
-
     return -ENOERR;
 }
 
-static __always_inline void
-area_del(struct vm_area *va, struct rb_root *root)
+static void vma_delete(struct vm_area *vma, struct rb_root *root)
 {
-    rb_del(root, &va->rb_node);
+
 }
 
 /**
- * area_split - split the assigned node
- * @va: assigned node
- * @align_start: alloc start address
+ * vma_split - split the assigned node
+ * @vma: assigned node
+ * @addr: alloc start address
  * @size: allocation size
  */
-static __always_inline state
-area_split(struct vm_area *va, size_t align_start, size_t size)
+static state vma_split(struct vm_area *vma, size_t addr, size_t size)
 {
-    /* new node not within va */
-    if(va->addr > align_start || va->size < size)
+    struct vm_area *vmar;
+
+    if (unlikely(vma->addr > addr || vma->size < size))
         return -EINVAL;
 
-    if (va->addr == align_start) {
-        if(va->size == size) {
-            /*
-             * No need to split VA, it fully fits.
-             *
-             * |               |
-             * V      NVA      V
-             * |---------------|
-             */
-            area_del(va, &vm_area_root);
-            kfree(va);
-        } else {
-            /*
-             * Split left edge of fit VA.
-             *
-             * |       |
-             * V  NVA  V   R
-             * |-------|-------|
-             */
-            va->addr = align_start + size;
-            va->size -= size;
-        }
-    } else if (va->addr + va->size == align_start + size) {
-        va->size -= size;
+    if (vma->size == size) {
+        /*
+         * No need to split VA, it fully fits.
+         *
+         * |               |
+         * V      NVA      V
+         * |---------------|
+         */
+
+        vma_delete(vma, &vm_area_root);
+        kcache_free(vmem_cache, vma);
+    } else if (vma->addr == addr) {
+        /*
+         * Split left edge of fit VA.
+         *
+         * |       |
+         * V  NVA  V   R
+         * |-------|-------|
+         */
+
+        vma->addr = addr + size;
+        vma->size -= size;
+    } else if (vma->addr + vma->size == addr + size) {
+        /*
+         * Split right edge of fit VA.
+         *
+         *         |       |
+         *     L   V  NVA  V
+         * |-------|-------|
+         */
+
+        vma->size -= size;
     } else {
         /*
          * Split no edge of fit VA.
          *
-         *     |       |
-         *   L V  NVA  V R
-         * |---|-------|---|
+         *      |       |
+         *   L  V  NVA  V  R
+         * |----|-------|----|
          */
 
+        vmar = kcache_zalloc(vmem_cache, GFP_KERNEL);
+        if (unlikely(!vmar))
+            return -ENOMEM;
+
+        vmar->addr = addr + size;
+        vmar->size = vma->addr - vma->size - vmar->addr;
+        vma->size = vma->addr - addr;
     }
 
     return -ENOERR;
 }
 
 /**
- * vmem_find_free - find the first free node in list
+ * free_area_find - find the first free node in list
  * @size: allocation size
  * @align:
  */
-static inline size_t
-free_area_find(size_t size, unsigned int align, struct vm_area **vap)
+static size_t free_area_find(size_t size, unsigned int align, struct vm_area **vap)
 {
     struct vm_area *va;
 
@@ -202,23 +171,29 @@ state vmem_area_alloc(struct vm_area *va, size_t size, size_t align)
 {
     struct vm_area *free;
     size_t addr;
+    state ret;
 
     addr = free_area_find(size, align, &free);
     if (unlikely(!addr))
         return -ENOMEM;
 
-    area_split(free, addr, size);
+    ret = vma_split(free, addr, size);
+    if (unlikely(ret))
+        return ret;
 
     va->addr = addr;
     va->size = size;
-    area_insert(va, &vm_area_root, &vm_free_area_list, false);
+    vma_insert(va, &vm_area_root, &vm_free_area_list, false);
+
     return -ENOERR;
 }
+EXPORT_SYMBOL(vmem_area_alloc);
 
 void vmem_area_free(struct vm_area *va)
 {
 
 }
+EXPORT_SYMBOL(vmem_area_free);
 
 struct vm_area *vmem_alloc_node(size_t size, size_t align, gfp_t gfp)
 {
@@ -239,19 +214,22 @@ struct vm_area *vmem_alloc_node(size_t size, size_t align, gfp_t gfp)
 
     return va;
 }
+EXPORT_SYMBOL(vmem_alloc_node);
 
 struct vm_area *vmem_alloc(size_t size)
 {
     return vmem_alloc_node(size, PAGE_SIZE, GFP_KERNEL);
 }
+EXPORT_SYMBOL(vmem_alloc);
 
 void vmem_free(struct vm_area *va)
 {
 
 }
+EXPORT_SYMBOL(vmem_free);
 
 static struct vm_area vmem_free_area = {
-    /* Reserve space for error ptr. */
+    /* reserve space for error ptr. */
     .size = (VIRTS_SIZE - CONFIG_HIGHMAP_OFFSET) - PAGE_SIZE,
     .addr = CONFIG_HIGHMAP_OFFSET,
 };
@@ -259,11 +237,5 @@ static struct vm_area vmem_free_area = {
 void __init __weak vmem_init(void)
 {
     vmem_cache = kcache_create("kmalloc", sizeof(struct vm_area), KCACHE_PANIC);
-    area_insert(&vmem_free_area, &vm_area_root, &vm_free_area_list, true);
+    vma_insert(&vmem_free_area, &vm_area_root, &vm_free_area_list, true);
 }
-
-EXPORT_SYMBOL(vmem_area_alloc);
-EXPORT_SYMBOL(vmem_area_free);
-EXPORT_SYMBOL(vmem_alloc_node);
-EXPORT_SYMBOL(vmem_alloc);
-EXPORT_SYMBOL(vmem_free);

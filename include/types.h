@@ -69,6 +69,7 @@ typedef uint64_t        sector_t;
 typedef uint64_t        blkcnt_t;
 
 typedef uint32_t        gfp_t;
+typedef uint32_t        gvm_t;
 typedef uint64_t        time_t;
 
 typedef unsigned short  umode_t;

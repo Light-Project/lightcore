@@ -113,7 +113,7 @@ struct pci_device {
     struct resource resource[PCI_RESOURCE_MAX];
 };
 
-#define device_to_pci_device(dpt) \
+#define device_to_pci(dpt) \
     container_of(dpt, struct pci_device, dev)
 
 static inline void *pci_get_devdata(const struct pci_device *pdev)
@@ -128,7 +128,7 @@ static inline void pci_set_devdata(struct pci_device *pdev, void *data)
 
 #define pci_resource_start(pdev, bar)   ((pdev)->resource[(bar)].start)
 #define pci_resource_size(pdev, bar)    ((pdev)->resource[(bar)].size)
-#define pci_resource_type(pdev, bar)    ((pdev)->resource[(bar)].type)
+#define pci_resource_type(pdev, bar)    (resource_type(&pdev->resource[bar]))
 
 struct pci_driver {
     struct driver driver;
@@ -136,14 +136,14 @@ struct pci_driver {
     const struct pci_device_id *id_table;
 
     /* Operation function */
-    state (*probe)(struct pci_device *pdev, void *pdata);
+    state (*probe)(struct pci_device *pdev, const void *pdata);
     void (*remove)(struct pci_device *pdev);
     void (*shutdown)(struct pci_device *pdev);
     state (*suspend)(struct pci_device *pdev, pm_message_t state);
     state (*resume)(struct pci_device *pdev);
 };
 
-#define driver_to_pci_driver(dpt) \
+#define driver_to_pci(dpt) \
     container_of((dpt), struct pci_driver, driver)
 
 struct pci_bus {
@@ -184,49 +184,49 @@ struct pci_ops {
 };
 
 /* base.c - PCI basic operation */
-uint8_t  pci_bus_config_readb(struct pci_bus *bus, unsigned int devfn, unsigned int reg);
-uint16_t pci_bus_config_readw(struct pci_bus *bus, unsigned int devfn, unsigned int reg);
-uint32_t pci_bus_config_readl(struct pci_bus *bus, unsigned int devfn, unsigned int reg);
-void pci_bus_config_writeb(struct pci_bus *bus, unsigned int devfn, unsigned int reg, uint8_t val);
-void pci_bus_config_writew(struct pci_bus *bus, unsigned int devfn, unsigned int reg, uint16_t val);
-void pci_bus_config_writel(struct pci_bus *bus, unsigned int devfn, unsigned int reg, uint32_t val);
+extern uint8_t  pci_bus_config_readb(struct pci_bus *bus, unsigned int devfn, unsigned int reg);
+extern uint16_t pci_bus_config_readw(struct pci_bus *bus, unsigned int devfn, unsigned int reg);
+extern uint32_t pci_bus_config_readl(struct pci_bus *bus, unsigned int devfn, unsigned int reg);
+extern void pci_bus_config_writeb(struct pci_bus *bus, unsigned int devfn, unsigned int reg, uint8_t val);
+extern void pci_bus_config_writew(struct pci_bus *bus, unsigned int devfn, unsigned int reg, uint16_t val);
+extern void pci_bus_config_writel(struct pci_bus *bus, unsigned int devfn, unsigned int reg, uint32_t val);
 
-uint8_t  pci_config_readb(struct pci_device *pdev, unsigned int reg);
-uint16_t pci_config_readw(struct pci_device *pdev, unsigned int reg);
-uint32_t pci_config_readl(struct pci_device *pdev, unsigned int reg);
-void pci_config_writeb(struct pci_device *pdev, unsigned int reg, uint8_t val);
-void pci_config_writew(struct pci_device *pdev, unsigned int reg, uint16_t val);
-void pci_config_writel(struct pci_device *pdev, unsigned int reg, uint32_t val);
+extern uint8_t  pci_config_readb(struct pci_device *pdev, unsigned int reg);
+extern uint16_t pci_config_readw(struct pci_device *pdev, unsigned int reg);
+extern uint32_t pci_config_readl(struct pci_device *pdev, unsigned int reg);
+extern void pci_config_writeb(struct pci_device *pdev, unsigned int reg, uint8_t val);
+extern void pci_config_writew(struct pci_device *pdev, unsigned int reg, uint16_t val);
+extern void pci_config_writel(struct pci_device *pdev, unsigned int reg, uint32_t val);
 
-uint8_t pci_capability_find(struct pci_device *pdev, int cap);
-state pci_cacheline_size(struct pci_device *pdev);
-state pci_mwi_enable(struct pci_device *pdev);
-void pci_mwi_disable(struct pci_device *pdev);
-uint32_t pcix_mmrbc_get(struct pci_device *pdev);
-state pcix_mmrbc_set(struct pci_device *pdev, uint32_t mmrbc);
+extern uint8_t pci_capability_find(struct pci_device *pdev, int cap);
+extern state pci_cacheline_size(struct pci_device *pdev);
+extern state pci_mwi_enable(struct pci_device *pdev);
+extern void pci_mwi_disable(struct pci_device *pdev);
+extern uint32_t pcix_mmrbc_get(struct pci_device *pdev);
+extern state pcix_mmrbc_set(struct pci_device *pdev, uint32_t mmrbc);
 
-bool pci_power_no_d1d2(struct pci_device *pdev);
+extern bool pci_power_no_d1d2(struct pci_device *pdev);
 
 /* raw.c - PCI Raw operation */
-state pci_raw_config_read(unsigned int domain, unsigned int bus, unsigned int devfn, unsigned int reg, int size, uint32_t *val);
-state pci_raw_config_write(unsigned int domain, unsigned int bus, unsigned int devfn, unsigned int reg, int size, uint32_t val);
+extern state pci_raw_config_read(unsigned int domain, unsigned int bus, unsigned int devfn, unsigned int reg, int size, uint32_t *val);
+extern state pci_raw_config_write(unsigned int domain, unsigned int bus, unsigned int devfn, unsigned int reg, int size, uint32_t val);
 
 /* find.c */
-struct pci_bus *pci_find_bus(unsigned int domain, unsigned int bus);
-struct pci_device *pci_find_device(struct pci_device_id *id, struct pci_device *form);
+extern struct pci_bus *pci_find_bus(unsigned int domain, unsigned int bus);
+extern struct pci_device *pci_find_device(struct pci_device_id *id, struct pci_device *form);
 
 /* bus.c */
-void pci_bus_devices_probe(const struct pci_bus *bus);
+extern void pci_bus_devices_probe(const struct pci_bus *bus);
 
 /* driver.c */
-state pci_driver_register(struct pci_driver *);
-void pci_driver_unregiste(struct pci_driver *);
+extern state pci_driver_register(struct pci_driver *);
+extern void pci_driver_unregiste(struct pci_driver *);
 
 /* core.c */
-bool pci_resource_set(struct pci_device *pdev, enum pci_bar_type type, struct resource *res, unsigned int reg);
-state pci_bus_scan(struct pci_bus *bus);
-state pci_host_register(struct pci_host *host);
-state pci_host_unregister(struct pci_host *host);
+extern bool pci_resource_set(struct pci_device *pdev, enum pci_bar_type type, struct resource *res, unsigned int reg);
+extern state pci_bus_scan(struct pci_bus *bus);
+extern state pci_host_register(struct pci_host *host);
+extern state pci_host_unregister(struct pci_host *host);
 
 #define pci_emerg(pdev, fmt, ...)   dev_emerg(&(pdev)->dev, fmt, ##__VA_ARGS__)
 #define pci_alert(pdev, fmt, ...)   dev_alert(&(pdev)->dev, fmt, ##__VA_ARGS__)

@@ -4,7 +4,6 @@
  */
 
 #include <linkage.h>
-#include <kernel.h>
 
     .section    .startup,"ax"
 GLOBAL(_start)
@@ -136,7 +135,7 @@ END(env)
 
 GLOBAL(kboot_start)
     mov         r1, a0
-    lrw         a0, KMAGIC      /* arg1: boot magic   */
+    lrw         a0, 0x4c434747  /* arg1: boot magic   */
     lrw         a1, 0x00000000  /* arg2: dtb start    */
     lrw         a2, uart_print  /* arg3: kboot stdout */
     jmp         r1

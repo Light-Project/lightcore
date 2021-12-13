@@ -33,7 +33,7 @@ static struct watchdog_ops esp8266_wdt_ops = {
     .set_timeout = esp8266_wdt_set_timeout,
 };
 
-static state esp8266_wdt_probe(struct platform_device *pdev, void *pdata)
+static state esp8266_wdt_probe(struct platform_device *pdev, const void *pdata)
 {
     struct watchdog_device *wdev;
 

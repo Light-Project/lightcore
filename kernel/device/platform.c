@@ -46,7 +46,7 @@ static state platform_match(struct device *dev, struct driver *drv)
     dt = platform_dt_match(pdrv, pdev);
     if (dt) {
         if (!device_get_pdata(dev))
-            device_set_pdata(dev, dt->data);
+            device_set_pdata(dev, (void *)dt->data);
         return -ENOERR;
     }
 #endif
@@ -56,7 +56,7 @@ static state platform_match(struct device *dev, struct driver *drv)
     acpi = platform_acpi_match(pdrv, pdev);
     if (acpi) {
         if (!device_get_pdata(dev))
-            device_set_pdata(dev, acpi->data);
+            device_set_pdata(dev, (void *)acpi->data);
         return -ENOERR;
     }
 #endif
@@ -64,7 +64,7 @@ static state platform_match(struct device *dev, struct driver *drv)
     platform = platform_device_match(pdrv, pdev);
     if (platform) {
         if (!device_get_pdata(dev))
-            device_set_pdata(dev, platform->data);
+            device_set_pdata(dev, (void *)platform->data);
         return -ENOERR;
     }
 

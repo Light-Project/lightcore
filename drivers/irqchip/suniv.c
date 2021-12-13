@@ -40,7 +40,7 @@ static void suniv_handle(struct regs *regs)
     irq_handle(vector);
 }
 
-static state suniv_probe(struct platform_device *pdev, void *pdata)
+static state suniv_probe(struct platform_device *pdev, const void *pdata)
 {
     struct suniv_device *sdev;
     resource_size_t start, size;

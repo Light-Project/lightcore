@@ -7,20 +7,14 @@
 #include <rbtree.h>
 #include <mm/gfp.h>
 
-enum vm_flags {
-    VM_MALLOC   = 0x01,
-    VM_IOMAP    = 0x02,
-};
-
 struct vm_area {
-    size_t addr;    /* virtual start address */
-    size_t size;    /* virtual allocation size */
-    struct rb_node rb_node; /* address sorted rbtree */
-    struct list_head list;  /* address sorted list */
+    size_t addr, size;
+    struct rb_node rb;
+    struct list_head list;
 };
 
-#define vm_rb_entry(node) \
-    rb_entry(node, struct vm_area, rb_node)
+#define rb_to_vma(node) \
+    rb_entry_safe(node, struct vm_area, rb)
 
 extern struct vm_area *vmem_area_find(size_t addr);
 extern state vmem_area_alloc(struct vm_area *va, size_t size, size_t align);

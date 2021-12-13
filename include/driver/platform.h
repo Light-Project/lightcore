@@ -43,7 +43,7 @@ struct platform_driver {
     const struct acpi_device_id     *acpi_table;
     const struct platform_device_id *platform_table;
 
-    state (*probe)(struct platform_device *pdev, void *pdata);
+    state (*probe)(struct platform_device *pdev, const void *pdata);
     void (*remove)(struct platform_device *pdev);
     void (*shutdown)(struct platform_device *pdev);
     state (*suspend)(struct platform_device *pdev, pm_message_t state);

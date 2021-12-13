@@ -16,12 +16,12 @@ struct dt_node *dt_for_each_all_node(struct dt_node *node)
 {
     if (!node)
         return dt_root;
-    else if (!slist_check_empty(&node->child))
+    else if (slist_check_next(&node->child))
         return slist_first_entry(&node->child, struct dt_node, sibling);
     else {
-        while (slist_check_end(&node->sibling) && node->parent)
+        while (!slist_check_next(&node->sibling) && node->parent)
             node = node->parent;
-        return slist_next_entry_or_null(node, sibling);
+        return slist_next_entry(node, sibling);
     }
 }
 EXPORT_SYMBOL(dt_for_each_all_node);

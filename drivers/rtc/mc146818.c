@@ -187,12 +187,11 @@ static void mc146818_hw_init(struct mc146818_device *mc146818)
     uint8_t val;
 
     val = mc146818_read(mc146818, MC146818_REGISTER_B);
-    val |= MC146818_REGISTER_B_PIE;
     val |= MC146818_REGISTER_B_AIE;
     mc146818_write(mc146818, MC146818_REGISTER_B, val);
 }
 
-static state mc146818_probe(struct platform_device *pdev, void *pdata)
+static state mc146818_probe(struct platform_device *pdev, const void *pdata)
 {
     struct mc146818_device *mc146818;
 

@@ -22,7 +22,7 @@ static inline __noreturn void biosdisk_boot(void)
     struct uboot_head *head = (void *)(uint8_t [512]){};
     uint32_t size, load, entry;
 
-    biosdisk_read(BOOT_DEV, head, load_seek, 512 >> 9);
+    biosdisk_read(boot_dev, head, load_seek, 512 >> 9);
     if (be32_to_cpu(head->magic) != UBOOT_MAGIC)
         panic("biosdisk bad image\n");
 
@@ -33,7 +33,7 @@ static inline __noreturn void biosdisk_boot(void)
     pr_boot("data size: %d\n", size);
     pr_boot("load address: %#x\n", load);
     pr_boot("entry point: %#x\n", entry);
-    biosdisk_read(BOOT_DEV, (void *)load - sizeof(*head), load_seek, size >> 9);
+    biosdisk_read(boot_dev, (void *)load - sizeof(*head), load_seek, size >> 9);
 
     pr_boot("start kboot...\n");
     kboot_start((entry & ~0xffff) >> 4, entry & 0xffff);

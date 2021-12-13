@@ -3,75 +3,103 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <mm.h>
-#include <mm/page.h>
-#include <mm/memblock.h>
 #include <mm/region.h>
+#include <mm/memblock.h>
+#include <mm/memmodel.h>
+#include <mm/page.h>
 
-struct region region_map[REGION_NR_MAX];
+struct region region_map[REGION_NR_MAX] = {
+#ifdef CONFIG_REGION_DMA
+    [REGION_DMA] = {
+        .name = "DMA",
+    },
+#endif
+#ifdef CONFIG_REGION_DMA32
+    [REGION_DMA32] = {
+        .name = "DMA32",
+    },
+#endif
+    [REGION_NORMAL] = {
+        .name = "Normal",
+    },
+#ifdef CONFIG_REGION_HIMEM
+    [REGION_HIMEM] = {
+        .name = "HighMem",
+    },
+#endif
+};
 
-struct region *gfp_to_region(gfp_t gfp)
+enum region_type gfp_to_region(gfp_t gfp)
 {
-    switch(gfp & GFP_REGION_MASK) {
+    switch (gfp & GFP_REGION_MASK) {
 #ifdef CONFIG_REGION_DMA
         case GFP_DMA:
-            return &region_map[REGION_DMA];
+            return REGION_DMA;
 #endif
 #ifdef CONFIG_REGION_DMA32
         case GFP_DMA32:
-            return &region_map[REGION_DMA32];
+            return REGION_DMA32;
 #endif
 #ifdef CONFIG_REGION_HIMEM
         case GFP_HIGHMEM:
-            return &region_map[REGION_HIMEM];
+            return REGION_HIMEM;
 #endif
     }
-    return &region_map[REGION_NORMAL];
+    return REGION_NORMAL;
 }
 
-struct region *pa_to_region(phys_addr_t pa)
+enum region_type pa_to_region(phys_addr_t pa)
 {
 #ifdef CONFIG_REGION_DMA
-    if (pa < (CONFIG_DMA_SIZE + CONFIG_RAM_BASE))
-        return &region_map[REGION_DMA];
+    if (pa < (CONFIG_RAM_BASE + CONFIG_DMA_SIZE))
+        return REGION_DMA;
 #endif
 #ifdef CONFIG_REGION_DMA32
-    if (pa < (CONFIG_DMA32_SIZE + CONFIG_RAM_BASE))
-        return &region_map[REGION_DMA32];
+    if (pa < (CONFIG_RAM_BASE + CONFIG_DMA32_SIZE))
+        return REGION_DMA32;
 #endif
 #ifdef CONFIG_REGION_HIMEM
-    if (pa > (CONFIG_HIGHMEM_OFFSET + CONFIG_RAM_BASE) ||
-        pa < CONFIG_RAM_BASE)
-        return &region_map[REGION_HIMEM];
+    if (pa >= (CONFIG_RAM_BASE + CONFIG_HIGHMEM_OFFSET))
+        return REGION_HIMEM;
 #endif
-    if (pa >= CONFIG_RAM_BASE)
-        return &region_map[REGION_NORMAL];
-    return NULL;
+    return REGION_NORMAL;
 }
 
-static inline bool region_block_add(struct memblock_region *blk)
+enum region_type page_to_region(const struct page *page)
 {
-    struct region *region = pa_to_region(blk->addr);
-    struct page *page = pa_to_page(align_high(blk->addr, PAGE_SIZE));
+    return pa_to_region(page_to_pa(page));
+}
 
-    if (!(blk->size >> PAGE_SHIFT) || !region)
+static bool region_block_add(struct memblock_region *blk)
+{
+    enum region_type region;
+    struct page *page;
+    phys_addr_t addr, end;
+
+    addr = align_high(blk->addr, PAGE_SIZE);
+    end = align_low(blk->addr + blk->size, PAGE_SIZE);
+
+    if (end - addr < PAGE_SIZE)
         return false;
 
-    if (!page)
-        panic("page map not sync");
+    for (; addr < end; addr += PAGE_SIZE) {
+        region = pa_to_region(addr);
+        page = pa_to_page(addr);
+        page_add(&region_map[region], page, 0, 1);
+    }
 
-    page_add(region, page, 0, blk->size >> PAGE_SHIFT);
     return true;
 }
 
-static inline void __init region_free_list_init(void)
+static void __init region_free_list_init(void)
 {
-    for(int region = 0; region < REGION_NR_MAX; ++region)
-    for(int order = 0; order <= PAGE_ORDER_MAX; ++order)
+    unsigned int region, order;
+    for (region = 0; region < REGION_NR_MAX; ++region)
+    for (order = 0; order <= PAGE_ORDER_MAX; ++order)
         list_head_init(&region_map[region].page_free[order].list);
 }
 
-void __weak __init region_init()
+void __init region_init()
 {
     region_free_list_init();
     memblock_takeover(MEMBLOCK_USABLE, region_block_add);

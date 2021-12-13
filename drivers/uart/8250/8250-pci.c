@@ -1372,7 +1372,7 @@ static struct pci_device_id i8250_pci_ids[] = {
     { }, /* NULL */
 };
 
-static state i8250_pci_probe(struct pci_device *pdev, void *pdata)
+static state i8250_pci_probe(struct pci_device *pdev, const void *pdata)
 {
     return -ENOERR;
 }

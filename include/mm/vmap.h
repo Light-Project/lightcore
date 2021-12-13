@@ -3,12 +3,11 @@
 #define _MM_VMAP_H_
 
 #include <bits.h>
+#include <mm/types.h>
+#include <mm/gvm.h>
 
-enum vmap_flags {
-    VMAP_NOCACHE    = BIT(0),
-};
-
-extern state vmap_range(struct memory *mm, phys_addr_t phys, size_t addr, size_t size, enum vmap_flags flags);
-extern state vmap_pages(struct memory *mm, struct page **page, unsigned long pnr, size_t addr, enum vmap_flags flags);
+extern state vmap_range(struct memory *mm, phys_addr_t phys, size_t addr, size_t size, gvm_t flags, unsigned int pgshift);
+extern state vmap_pages(struct memory *mm, struct page **page, size_t addr, size_t size, gvm_t flags, unsigned int pgshift);
+extern void vunmap_range(struct memory *mm, size_t addr, size_t size);
 
 #endif  /* _MM_VMAP_H_ */

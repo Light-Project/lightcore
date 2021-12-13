@@ -74,7 +74,7 @@ struct usb_driver {
     const struct usb_device_id *id_table;
 
     /* Operation function */
-    state (*probe)(struct usb_device *pdev, void *data);
+    state (*probe)(struct usb_device *pdev, const void *data);
     state (*remove)(struct usb_device *pdev);
     void (*shutdown)(struct usb_device *pdev);
     state (*suspend)(struct usb_device *pdev, pm_message_t state);

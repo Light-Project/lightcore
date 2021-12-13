@@ -25,7 +25,7 @@ struct piix4_device {
 static void piix4_power_shutdown(struct power_device *pdev)
 {
     struct piix4_device *piix4 = power_to_piix4(pdev);
-    struct pci_device *pci = device_to_pci_device(pdev->dev);
+    struct pci_device *pci = device_to_pci(pdev->dev);
     uint16_t val;
 
     for (;;) {
@@ -39,14 +39,14 @@ static void piix4_power_shutdown(struct power_device *pdev)
     mdelay(10);
 
     pci_config_writel(pci, 0, PIIX4_SUSPEND_MAGIC);
-	mdelay(1000);
+    mdelay(1000);
 }
 
 static struct power_ops piix_power_ops = {
     .shutdown = piix4_power_shutdown,
 };
 
-static state piix4_power_probe(struct pci_device *pdev, void *pdata)
+static state piix4_power_probe(struct pci_device *pdev, const void *pdata)
 {
     struct piix4_device *piix4;
 

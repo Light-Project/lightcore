@@ -91,7 +91,7 @@ struct bus_type serio_bus = {
     .shutdown = serio_shutdown,
 };
 
-irqreturn_t serio_interrupt(struct serio_host *host, uint32_t data, void *pdata)
+irqreturn_t serio_interrupt(struct serio_host *host, uint32_t data, const void *pdata)
 {
     struct serio_device *sdev = &host->port;
     struct serio_driver *sdrv;

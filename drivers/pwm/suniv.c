@@ -92,7 +92,7 @@ static struct pwm_ops suniv_pwm_ops = {
     .set_state = suniv_pwm_set_state,
 };
 
-static state suniv_pwm_probe(struct platform_device *pdev, void *pdata)
+static state suniv_pwm_probe(struct platform_device *pdev, const void *pdata)
 {
 
     return -ENOERR;

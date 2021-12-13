@@ -5,7 +5,7 @@
 
 #include <mm/memblock.h>
 #include <asm/doublefault.h>
-#include <asm/gdt.h>
+#include <asm/segment.h>
 #include <asm/idt.h>
 #include <asm/e820.h>
 #include <asm/tsc.h>
@@ -25,7 +25,7 @@ void arch_setup(void)
     idt_setup();
     gdt_setup();
 
-    // arch_page_setup();
+    arch_page_setup();
     doublefault_init();
 
     tsc_init();

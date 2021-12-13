@@ -29,7 +29,7 @@ static state suniv_adc_read(struct raw_channel *channel, ssize_t *val)
 static struct raw_ops suniv_adc_ops = {
 };
 
-static state suniv_adc_probe(struct platform_device *pdev, void *pdata)
+static state suniv_adc_probe(struct platform_device *pdev, const void *pdata)
 {
     struct suniv_adc_device *sdev;
 

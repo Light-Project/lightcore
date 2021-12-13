@@ -56,7 +56,7 @@ void spi_transmit(uint8_t *txbuf, uint8_t *rxbuf, uint32_t len)
         writel(SPI_BASE + GX6605S_SPI_CTRL, val);
         val = readl(SPI_BASE + GX6605S_SPI_RX_FIFO);
 
-        for (count = xfer; count; --count)
+        for (count = xfer; rxbuf && count; --count)
             *rxbuf++ = val >> ((count - 1) * 8);
     }
 }

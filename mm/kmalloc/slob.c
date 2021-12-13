@@ -275,7 +275,7 @@ static void *slob_alloc(size_t size, gfp_t flags, int align, int numa)
 
 static struct page *kmalloc_large(size_t size, gfp_t gfp, int numa)
 {
-    int order = to_order(size);
+    int order = size_to_order(size);
     struct page *page;
 
     page = slob_get_page(order, gfp, numa);
@@ -332,8 +332,10 @@ void kfree(const void *block)
     irqflags_t irq_save;
     bool empty;
 
-    if (page->type != PAGE_SLOB)
+    if (unlikely(page->type != PAGE_SLOB)) {
+        pr_crit("illegal release page %p\n", block);
         return;
+    }
 
     spin_lock_irqsave(&lock, &irq_save);
 
@@ -363,7 +365,7 @@ void *kcache_alloc(struct kcache *cache, gfp_t flags)
         block = page_address(page);
     } else {
         block = slob_alloc_node(&cache->free, size,
-                size, cache->align, flags, NUMA_NONE);
+                cache->align, size, flags, NUMA_NONE);
     }
 
     return block;

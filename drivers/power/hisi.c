@@ -5,9 +5,8 @@
 
 #define DRIVER_NAME "hisi-power"
 
-#include <mm.h>
+#include <kmalloc.h>
 #include <initcall.h>
-#include <driver/dt.h>
 #include <driver/platform.h>
 #include <driver/power.h>
 #include <asm/delay.h>
@@ -32,7 +31,7 @@ static struct power_ops hisi_power_ops = {
     .reset = hisi_power_reset,
 };
 
-static state hisi_power_probe(struct platform_device *pdev, void *pdata)
+static state hisi_power_probe(struct platform_device *pdev, const void *pdata)
 {
     struct hisi_device *hisi;
     uint32_t offset;

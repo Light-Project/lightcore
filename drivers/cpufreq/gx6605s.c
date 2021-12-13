@@ -14,7 +14,7 @@ static struct cpufreq_ops gx6605s_cpufreq_ops = {
 
 };
 
-static state gx6605s_cpufreq_probe(struct platform_device *pdev, void *pdata)
+static state gx6605s_cpufreq_probe(struct platform_device *pdev, const void *pdata)
 {
     return -ENOERR;
 }

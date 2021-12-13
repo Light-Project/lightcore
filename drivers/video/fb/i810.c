@@ -200,7 +200,7 @@ static state i810_hwinit(struct pci_device *pdev)
     return -ENOERR;
 }
 
-static state i810_probe(struct pci_device *pdev, void *pdata)
+static state i810_probe(struct pci_device *pdev, const void *pdata)
 {
     struct i810_device *idev;
     state ret;

@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "qemu: " fmt
+#define DRIVER_NAME "qemu"
+#define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
 #include <mm.h>
 #include <initcall.h>
@@ -62,14 +63,11 @@ static struct acpi_device_id qemu_acpi_ids[] = {
     { }, /* NULL */
 };
 
-static struct dt_device_id qemu_dt_ids[] = {
-    { .compatible = "qemu,fw-cfg-mmio" },
-    { }, /* NULL */
-};
-
 static struct platform_driver qemu_cfg_driver = {
+    .driver = {
+        .name = DRIVER_NAME,
+    },
     .acpi_table = qemu_acpi_ids,
-    .dt_table = qemu_dt_ids,
 };
 
 static state qemu_cfg_init(void)

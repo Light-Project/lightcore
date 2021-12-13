@@ -7,7 +7,7 @@
 # Build toolchain                      #
 ########################################
 
-CROSS_COMPILE   ?=
+CROSS_COMPILE   ?= gcc
 
 # Gcc toolchain
 CPP             := $(CROSS_COMPILE)cpp

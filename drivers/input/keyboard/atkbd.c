@@ -21,13 +21,13 @@ static const unsigned short atkbd_keymap[] = {
      82, 83, 80, 76, 77, 72,  1, 69, 87, 78, 81, 74, 55, 73, 70, 99,
 };
 
-static irqreturn_t atkbd_interrupt(struct serio_device *sdev, uint32_t data, void *pdata)
+static irqreturn_t atkbd_interrupt(struct serio_device *sdev, uint32_t data, const void *pdata)
 {
     printk("%d\n", atkbd_keymap[data]);
     return IRQ_RET_HANDLED;
 }
 
-static state atkbd_probe(struct serio_device *sdev, void *pdata)
+static state atkbd_probe(struct serio_device *sdev, const void *pdata)
 {
 
     return -ENOERR;

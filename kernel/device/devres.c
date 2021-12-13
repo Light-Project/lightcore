@@ -5,23 +5,12 @@
 
 #define pr_fmt(fmt) "devres: " fmt
 
+#include <device.h>
 #include <string.h>
 #include <kmalloc.h>
 #include <ioremap.h>
 #include <export.h>
-#include <device.h>
-#include <resource.h>
 #include <printk.h>
-
-static inline void devres_add(struct device *dev, struct devres *devres)
-{
-    list_add_prev(&dev->devres, &devres->list);
-}
-
-static inline void devres_del(struct devres *devres)
-{
-    list_del(&devres->list);
-}
 
 /**
  * devres_find - find device resources by address
@@ -33,8 +22,7 @@ static struct devres *devres_find(struct device *dev, void *addr)
     struct devres *devres;
 
     device_for_each_res(devres, dev) {
-        void *end = devres->addr + devres->size;
-        if (devres->addr <= addr && addr < end)
+        if (devres->addr == addr)
             return devres;
     }
 
@@ -56,8 +44,7 @@ void devres_release(struct devres *devres)
             kfree(devres);
             break;
         default:
-            pr_warn("release %s unknow type\n",
-                    devres->name);
+            pr_warn("release %s unknow type\n", devres->name);
     }
 }
 
@@ -70,26 +57,27 @@ void devres_release_all(struct device *dev)
     struct devres *devres, *next;
 
     list_for_each_entry_safe(devres, next, &dev->devres, list) {
-        devres_del(devres);
+        list_del(&devres->list);
         devres_release(devres);
     }
 }
 
-void *dev_kmalloc(struct device *dev, size_t size, gfp_t gfp)
+void *dev_kmalloc(struct device *dev, size_t size, gfp_t flags)
 {
     struct devres *devres;
     void *block;
 
-    block = kmalloc(size + sizeof(*devres), gfp);
-    if (!block)
+    block = kmalloc(size + sizeof(*devres), flags);
+    if (unlikely(!block))
         return NULL;
 
     devres = (void *)((uint8_t *)block + size);
-    memset(devres, 0, sizeof(*devres));
+    if (!(flags & GFP_ZERO))
+        memset(devres, 0, sizeof(*devres));
 
     devres->type = DEVRES_KMEM;
     devres->addr = block;
-    devres_add(dev, devres);
+    list_add(&dev->devres, &devres->list);
 
     return block;
 }
@@ -98,23 +86,23 @@ EXPORT_SYMBOL(dev_kmalloc);
 void *dev_ioremap(struct device *dev, phys_addr_t addr, size_t size)
 {
     struct devres *devres;
-    void *block = NULL;
+    void *block;
 
     devres = kzalloc(sizeof(*devres), GFP_KERNEL);
-    if (!devres)
+    if (unlikely(!devres))
         return NULL;
 
     block = ioremap(addr, size);
-    if (!block) {
+    if (unlikely(!block)) {
         kfree(block);
-        goto exit;
+        return NULL;
     }
 
     devres->type = DEVRES_IOMAP;
     devres->addr = block;
     devres->size = size;
-    devres_add(dev, devres);
-exit:
+    list_add(&dev->devres, &devres->list);
+
     return block;
 }
 EXPORT_SYMBOL(dev_ioremap);
@@ -123,7 +111,7 @@ void dev_kfree(struct device *dev, void *block)
 {
     struct devres *devres = devres_find(dev, block);
 
-    if (!devres) {
+    if (unlikely(!devres)) {
         dev_crit(dev, "resource %p out bounds\n", block);
         return;
     }

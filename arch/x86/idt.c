@@ -47,28 +47,28 @@ static struct idt_table idt_struct = {
 
 static const __initconst struct idt_data idt_data[] = {
     /* Interrupt gate */
-    {IDT_INTERRUPT(DE_FAULT, entry_divide_error)},
-    {IDT_INTERRUPT(BP_TRAP,  entry_breakpoint)},
-    {IDT_INTERRUPT(BR_FAULT, entry_bounds)},
-    {IDT_INTERRUPT(UD_FAULT, entry_invalid_opcode)},
-    {IDT_INTERRUPT(NM_FAULT, entry_device_not_available)},
-    {IDT_INTERRUPT(TS_FAULT, entry_invalid_tss)},
-    {IDT_INTERRUPT(NP_FAULT, entry_segment_not_present)},
-    {IDT_INTERRUPT(SS_FAULT, entry_stack_segment)},
-    {IDT_INTERRUPT(GP_FAULT, entry_general_protection)},
-    {IDT_INTERRUPT(PF_FAULT, entry_general_protection)},
-    {IDT_INTERRUPT(SP_TRAP,  entry_spurious_interrupt)},
-    {IDT_INTERRUPT(MF_FAULT, entry_coprocessor_error)},
-    {IDT_INTERRUPT(AC_FAULT, entry_alignment_check)},
-    {IDT_INTERRUPT(XM_FAULT, entry_simd_error)},
+    {IDT_INTERRUPT(TRAP_DE, entry_divide_error)},
+    {IDT_INTERRUPT(TRAP_BP, entry_breakpoint)},
+    {IDT_INTERRUPT(TRAP_BR, entry_bounds)},
+    {IDT_INTERRUPT(TRAP_UD, entry_invalid_opcode)},
+    {IDT_INTERRUPT(TRAP_NM, entry_device_not_available)},
+    {IDT_INTERRUPT(TRAP_TS, entry_invalid_tss)},
+    {IDT_INTERRUPT(TRAP_NP, entry_segment_not_present)},
+    {IDT_INTERRUPT(TRAP_SS, entry_stack_segment)},
+    {IDT_INTERRUPT(TRAP_GP, entry_general_protection)},
+    {IDT_INTERRUPT(TRAP_PF, entry_general_protection)},
+    {IDT_INTERRUPT(TRAP_SP, entry_spurious_interrupt)},
+    {IDT_INTERRUPT(TRAP_MF, entry_coprocessor_error)},
+    {IDT_INTERRUPT(TRAP_AC, entry_alignment_check)},
+    {IDT_INTERRUPT(TRAP_XM, entry_simd_error)},
 
     /* System interrupt gate */
-    {IDT_SYSTEM(OF_TRAP, entry_overflow)},
-    {IDT_SYSTEM(SYSCALL_TRAP, entry_syscall_80)},
+    {IDT_SYSTEM(TRAP_OF, entry_overflow)},
+    {IDT_SYSTEM(TRAP_SYSCALL, entry_syscall_80)},
 
-    {IDT_TASK(DF_ABORT, GDT_ENTRY_DF_TSS_BASE)},
-    {IDT_STACK(DB_FAULT, entry_debug, )},
-    {IDT_STACK(NMI_INT,  entry_nmi_interrupt, )},
+    {IDT_TASK(TRAP_DF, GDT_ENTRY_DF_TSS_BASE)},
+    {IDT_STACK(TRAP_DB, entry_debug, )},
+    {IDT_STACK(TRAP_NMI, entry_nmi_interrupt, )},
 };
 
 void idt_int_gate(irqnr_t nr, void *handle)

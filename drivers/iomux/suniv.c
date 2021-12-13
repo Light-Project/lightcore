@@ -22,7 +22,7 @@ struct
 static struct iomux_ops suniv_iomux_ops = {
 };
 
-static state suniv_iomux_probe(struct platform_device *pdev, void *pdata)
+static state suniv_iomux_probe(struct platform_device *pdev, const void *pdata)
 {
     struct suniv_device *suniv;
 
