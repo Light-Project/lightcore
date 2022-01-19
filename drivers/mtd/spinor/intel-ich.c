@@ -6,15 +6,13 @@
 #define DRIVER_NAME "ich-spi"
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
-#include <string.h>
-#include <size.h>
 #include <initcall.h>
+#include <delay.h>
+#include <ioops.h>
+#include <printk.h>
 #include <driver/platform.h>
 #include <driver/mtd/spinor.h>
 #include <driver/mtd/ich.h>
-#include <printk.h>
-#include <asm/delay.h>
-#include <asm/io.h>
 
 struct ich_device {
     struct spinor_device spinor;
@@ -24,36 +22,33 @@ struct ich_device {
 #define spinor_to_idev(nor) \
     container_of(nor, struct ich_device, spinor)
 
-#define ICH_SPI_TIMEOUT 5000
-
 static void ich_spi_dump_regs(struct ich_device *idev)
 {
     unsigned int count;
 
     dev_debug(idev->spinor.device, "dump registers:\n");
-    dev_debug(idev->spinor.device, "BFPR=0x%08x\n", readl(idev->base + ICH_SPI_BFPR));
-    dev_debug(idev->spinor.device, "HSFS=0x%04x\n", readw(idev->base + ICH_SPI_HSFS));
-    dev_debug(idev->spinor.device, "HSFC=0x%04x\n", readw(idev->base + ICH_SPI_HSFC));
-    dev_debug(idev->spinor.device, "FADDR=0x%08x\n", readl(idev->base + ICH_SPI_FADDR));
-
-    for (count = 0; count < ICH_SPI_FDATA_NR; ++count)
-        dev_debug(idev->spinor.device, "FDATA%d=0x%08x\n", count, readl(idev->base + ICH_SPI_FDATA(count)));
-
-    dev_debug(idev->spinor.device, "FRACC=0x%08x\n", readl(idev->base + ICH_SPI_FRACC));
-
     for (count = 0; count < ICH_SPI_FREG_NR; ++count)
-        dev_debug(idev->spinor.device, "FREG%d=0x%08x\n", count, readl(idev->base + ICH_SPI_FREG(count)));
+        dev_debug(idev->spinor.device, "  FREG%d=0x%08x\n", count, readl(idev->base + ICH_SPI_FREG(count)));
+    for (count = 0; count < ICH_SPI_FDATA_NR; ++count)
+        dev_debug(idev->spinor.device, "  FDATA%d=0x%08x\n", count, readl(idev->base + ICH_SPI_FDATA(count)));
 
-    // for (count = 0; count < ICH_SPI_FPR_NR; ++count)
-    //     dev_debug(idev->spinor.device, "FPR%d=0x%08x\n", count, readl(idev->base + ICH_SPI_FPR(count)));
+#if 0
+    for (count = 0; count < ICH_SPI_FPR_NR; ++count)
+        dev_debug(idev->spinor.device, "FPR%d=0x%08x\n", count, readl(idev->base + ICH_SPI_FPR(count)));
+#endif
 
-    dev_debug(idev->spinor.device, "SSFS=0x%08x\n", readw(idev->base + ICH_SPI_SSFS));
-    dev_debug(idev->spinor.device, "SSFC=0x%08x\n", readw(idev->base + ICH_SPI_SSFC));
-    dev_debug(idev->spinor.device, "PREOP=0x%08x\n", readw(idev->base + ICH_SPI_PREOP));
-    dev_debug(idev->spinor.device, "OPTYPE=0x%08x\n", readw(idev->base + ICH_SPI_OPTYPE));
-    dev_debug(idev->spinor.device, "OPMENU=0x%016llx\n", readq(idev->base + ICH_SPI_OPMENU));
-    dev_debug(idev->spinor.device, "FDOC=0x%08x\n", readl(idev->base + ICH_SPI_FDOC));
-    dev_debug(idev->spinor.device, "FDOD=0x%08x\n", readl(idev->base + ICH_SPI_FDOD));
+    dev_debug(idev->spinor.device, "  BFPR=0x%08x\n",       readl(idev->base + ICH_SPI_BFPR));
+    dev_debug(idev->spinor.device, "  HSFS=0x%04x\n",       readw(idev->base + ICH_SPI_HSFS));
+    dev_debug(idev->spinor.device, "  HSFC=0x%04x\n",       readw(idev->base + ICH_SPI_HSFC));
+    dev_debug(idev->spinor.device, "  FADDR=0x%08x\n",      readl(idev->base + ICH_SPI_FADDR));
+    dev_debug(idev->spinor.device, "  FRACC=0x%08x\n",      readl(idev->base + ICH_SPI_FRACC));
+    dev_debug(idev->spinor.device, "  SSFS=0x%08x\n",       readw(idev->base + ICH_SPI_SSFS));
+    dev_debug(idev->spinor.device, "  SSFC=0x%08x\n",       readw(idev->base + ICH_SPI_SSFC));
+    dev_debug(idev->spinor.device, "  PREOP=0x%08x\n",      readw(idev->base + ICH_SPI_PREOP));
+    dev_debug(idev->spinor.device, "  OPTYPE=0x%08x\n",     readw(idev->base + ICH_SPI_OPTYPE));
+    dev_debug(idev->spinor.device, "  OPMENU=0x%016llx\n",  readq(idev->base + ICH_SPI_OPMENU));
+    dev_debug(idev->spinor.device, "  FDOC=0x%08x\n",       readl(idev->base + ICH_SPI_FDOC));
+    dev_debug(idev->spinor.device, "  FDOD=0x%08x\n",       readl(idev->base + ICH_SPI_FDOD));
 }
 
 static int intel_spi_protected(struct ich_device *idev, uint32_t base, uint32_t limit)
@@ -117,7 +112,7 @@ static inline void intel_spi_unprotect(struct ich_device *idev, uint32_t base, u
 
 static state ich_spi_wait_busy(struct ich_device *idev)
 {
-    unsigned int timeout = ICH_SPI_TIMEOUT;
+    unsigned int timeout = 500000;
     uint32_t val;
 
     while (--timeout) {
@@ -134,14 +129,12 @@ static state ich_spi_read(struct spinor_device *nor, loff_t pos, void *buf, uint
 {
     struct ich_device *idev = spinor_to_idev(nor);
     uint32_t xfer, val, count = 0;
-    unsigned int index;
 
-    for (count = 0; xfer; pos += xfer, count += xfer, len -= xfer) {
+    for (count = 0; xfer; pos += xfer, count += xfer, len -= xfer, buf += xfer) {
         xfer = min(len, ICH_SPI_BUFFER_SIZE);
         xfer = min(pos + xfer, round_up(pos + 1, SZ_4KiB)) - pos;
 
         writel(idev->base + ICH_SPI_FADDR, pos);
-
         val = readw(idev->base + ICH_SPI_HSFS);
         val |= ICH_SPI_HSFS_AEL | ICH_SPI_HSFS_FCERR | ICH_SPI_HSFS_DONE;
         writew(idev->base + ICH_SPI_HSFS, val);
@@ -150,8 +143,10 @@ static state ich_spi_read(struct spinor_device *nor, loff_t pos, void *buf, uint
         val |= ((xfer - 1) << 8) | ICH_SPI_HSFC_FCYCLE_READ | ICH_SPI_HSFC_FGO;
         writew(idev->base + ICH_SPI_HSFC, val);
 
-        if (!ich_spi_wait_busy(idev))
+        if (!ich_spi_wait_busy(idev)) {
+            dev_err(nor->device, "timeout while read cycle\n");
             return -EBUSY;
+        }
 
         val = readw(idev->base + ICH_SPI_HSFS);
         if (val & ICH_SPI_HSFS_FCERR) {
@@ -162,10 +157,7 @@ static state ich_spi_read(struct spinor_device *nor, loff_t pos, void *buf, uint
             return -EACCES;
         }
 
-        for (index = 0; index < (xfer / sizeof(uint32_t)); ++index) {
-            *(uint32_t *)buf = readl(idev->base + ICH_SPI_FPR(val));
-            buf += sizeof(uint32_t);
-        }
+        memcpy_formio(buf, idev->base + ICH_SPI_FDATA_BASE, xfer);
     }
 
     return count;
@@ -175,19 +167,14 @@ static state ich_spi_write(struct spinor_device *nor, loff_t pos, void *buf, uin
 {
     struct ich_device *idev = spinor_to_idev(nor);
     uint32_t xfer, val, count = 0;
-    unsigned int index;
 
-    for (count = 0; xfer; pos += xfer, count += xfer, len -= xfer) {
+    for (count = 0; xfer; pos += xfer, count += xfer, len -= xfer, buf += xfer) {
         xfer = min(len, ICH_SPI_BUFFER_SIZE);
         xfer = min(pos + xfer, round_up(pos + 1, SZ_4KiB)) - pos;
 
-        for (index = 0; index < (xfer / sizeof(uint32_t)); ++index) {
-            writel(idev->base + ICH_SPI_FPR(val), *(uint32_t *)buf);
-            buf += sizeof(uint32_t);
-        }
+        memcpy_toio(idev->base + ICH_SPI_FDATA_BASE, buf, xfer);
 
         writel(idev->base + ICH_SPI_FADDR, pos);
-
         val = readw(idev->base + ICH_SPI_HSFS);
         val |= ICH_SPI_HSFS_AEL | ICH_SPI_HSFS_FCERR | ICH_SPI_HSFS_DONE;
         writew(idev->base + ICH_SPI_HSFS, val);
@@ -196,15 +183,17 @@ static state ich_spi_write(struct spinor_device *nor, loff_t pos, void *buf, uin
         val |= ((xfer - 1) << 8) | ICH_SPI_HSFC_FCYCLE_WRITE | ICH_SPI_HSFC_FGO;
         writew(idev->base + ICH_SPI_HSFC, val);
 
-        if (!ich_spi_wait_busy(idev))
+        if (!ich_spi_wait_busy(idev)) {
+            dev_err(nor->device, "timeout while read cycle\n");
             return -EBUSY;
+        }
 
         val = readw(idev->base + ICH_SPI_HSFS);
         if (val & ICH_SPI_HSFS_FCERR) {
-            dev_err(nor->device, "read cycle error\n");
+            dev_err(nor->device, "write cycle error\n");
             return -EIO;
         } else if (val & ICH_SPI_HSFS_AEL) {
-            dev_err(nor->device, "read access Error\n");
+            dev_err(nor->device, "write access Error\n");
             return -EACCES;
         }
     }
@@ -233,10 +222,10 @@ static state ich_spi_erase(struct spinor_device *nor, loff_t pos, uint64_t len)
 
         val = readw(idev->base + ICH_SPI_HSFS);
         if (val & ICH_SPI_HSFS_FCERR) {
-            dev_err(nor->device, "read cycle error\n");
+            dev_err(nor->device, "erase cycle error\n");
             return -EIO;
         } else if (val & ICH_SPI_HSFS_AEL) {
-            dev_err(nor->device, "read access Error\n");
+            dev_err(nor->device, "erase access Error\n");
             return -EACCES;
         }
     }
@@ -254,8 +243,9 @@ static void ich_spi_hwinit(struct ich_device *idev)
 {
     uint32_t val;
 
+    /* Disable #SMI generation from HW sequencer */
     val = readw(idev->base + ICH_SPI_HSFC);
-    val &= ~(ICH_SPI_HSFC_FSMIE);
+    val &= ~ICH_SPI_HSFC_FSMIE;
     writew(idev->base + ICH_SPI_HSFC, val);
 }
 
@@ -264,29 +254,28 @@ static state ich_spi_probe(struct platform_device *pdev, const void *pdata)
     struct ich_device *idev;
     resource_size_t base, size;
 
+    base = platform_resource_start(pdev, 0);
+    size = platform_resource_size(pdev, 0);
+
     idev = dev_kzalloc(&pdev->dev, sizeof(*idev), GFP_KERNEL);
     if (!idev)
         return -ENOMEM;
-    platform_set_devdata(pdev, idev);
-
-    base = platform_resource_start(pdev, 0);
-    size = platform_resource_size(pdev, 0);
 
     idev->base = dev_ioremap(&pdev->dev, base, size);
     if (!idev->base)
         return -ENOMEM;
 
-    ich_spi_hwinit(idev);
-
     idev->spinor.device = &pdev->dev;
     idev->spinor.ops = &ich_spi_ops;
-    ich_spi_dump_regs(idev);
+    platform_set_devdata(pdev, idev);
 
+    ich_spi_hwinit(idev);
+    ich_spi_dump_regs(idev);
     return spinor_register(&idev->spinor);
 }
 
 static const struct platform_device_id ich_spi_ids[] = {
-    { .name = INTEL_SPI_LEG_MATCH_ID },
+    { .name = INTEL_SPI_ICH_MATCH_ID },
     { }, /* NULL */
 };
 

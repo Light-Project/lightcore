@@ -3,13 +3,14 @@
 # elf rule
 # ==========================================================================
 
-# bin-always-y += foo
+# elf-always-y += foo
 # ... is a shorthand for
-# bin += foo
+# elf += foo
 # always-y  += foo
+
 elf             += $(elf-always-y)
 elf_always      += $(elf-always-y)
-
+elf_dis         += $(elf-always-)
 elf_objs     	:= $(foreach m,$(elf),$($(m)-objs))
 
 ########################################
@@ -17,8 +18,9 @@ elf_objs     	:= $(foreach m,$(elf),$($(m)-objs))
 ########################################
 
 elf_file        := $(strip $(sort $(addprefix $(obj)/,$(elf))))
-elf_objs        := $(strip $(sort $(addprefix $(obj)/,$(elf_objs))))
 elf_always      := $(strip $(sort $(addprefix $(obj)/,$(elf_always))))
+elf_dis         := $(strip $(sort $(addprefix $(obj)/,$(elf_dis))))
+elf_objs        := $(strip $(sort $(addprefix $(obj)/,$(elf_objs))))
 
 ########################################
 # Always rule                          #

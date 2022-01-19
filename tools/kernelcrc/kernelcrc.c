@@ -15,7 +15,7 @@
 #define be32 uint32_t
 
 #include "../../include/asm-generic/header.h"
-#include "../../include/crc_table.h"
+#include "../../include/crc-table.h"
 
 static void error(const char *str)
 {

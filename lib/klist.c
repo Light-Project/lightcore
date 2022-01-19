@@ -1,374 +1,247 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
 
 #include <klist.h>
 #include <export.h>
-#include <sched.h>
-#include <spinlock.h>
+#include <panic.h>
 
-/*
- * Use the lowest bit of n_klist to mark deleted nodes and exclude
- * dead ones from iteration.
- */
-#define KNODE_DEAD		1LU
-#define KNODE_KLIST_MASK	~KNODE_DEAD
-
-static struct klist *knode_klist(struct klist_node *knode)
+static inline void
+lock_add_next(struct klist_head *head, struct list_head *node, struct list_head *new)
 {
-	return (struct klist *)
-		((unsigned long)knode->n_klist & KNODE_KLIST_MASK);
+    spin_lock(&head->lock);
+    list_add(node, new);
+    spin_unlock(&head->lock);
 }
 
-static bool knode_dead(struct klist_node *knode)
+static inline void
+lock_add_prev(struct klist_head *head, struct list_head *node, struct list_head *new)
 {
-	return (unsigned long)knode->n_klist & KNODE_DEAD;
+    spin_lock(&head->lock);
+    list_add_prev(node, new);
+    spin_unlock(&head->lock);
 }
 
-static void knode_set_klist(struct klist_node *knode, struct klist *klist)
+static inline void
+klist_init(struct klist_head *head, struct klist_node *node)
 {
-	knode->n_klist = klist;
-	/* no knode deserves to start its life dead */
-	WARN_ON(knode_dead(knode));
+    list_head_init(&node->list);
+    kref_init(&node->kref);
+    node->head = head;
 }
-
-static void knode_kill(struct klist_node *knode)
-{
-	/* and no knode should die twice ever either, see we're very humane */
-	WARN_ON(knode_dead(knode));
-	*(unsigned long *)&knode->n_klist |= KNODE_DEAD;
-}
-
-/**
- * klist_init - Initialize a klist structure.
- * @k: The klist we're initializing.
- * @get: The get function for the embedding object (NULL if none)
- * @put: The put function for the embedding object (NULL if none)
- *
- * Initialises the klist structure.  If the klist_node structures are
- * going to be embedded in refcounted objects (necessary for safe
- * deletion) then the get/put arguments are used to initialise
- * functions that take and release references on the embedding
- * objects.
- */
-void klist_init(struct klist *k, void (*get)(struct klist_node *),
-		void (*put)(struct klist_node *))
-{
-	INIT_LIST_HEAD(&k->k_list);
-	spin_lock_init(&k->k_lock);
-	k->get = get;
-	k->put = put;
-}
-EXPORT_SYMBOL_GPL(klist_init);
-
-static void add_head(struct klist *k, struct klist_node *n)
-{
-	spin_lock(&k->k_lock);
-	list_add(&n->n_node, &k->k_list);
-	spin_unlock(&k->k_lock);
-}
-
-static void add_tail(struct klist *k, struct klist_node *n)
-{
-	spin_lock(&k->k_lock);
-	list_add_tail(&n->n_node, &k->k_list);
-	spin_unlock(&k->k_lock);
-}
-
-static void klist_node_init(struct klist *k, struct klist_node *n)
-{
-	INIT_LIST_HEAD(&n->n_node);
-	kref_init(&n->n_ref);
-	knode_set_klist(n, k);
-	if (k->get)
-		k->get(n);
-}
-
-/**
- * klist_add_head - Initialize a klist_node and add it to front.
- * @n: node we're adding.
- * @k: klist it's going on.
- */
-void klist_add_head(struct klist_node *n, struct klist *k)
-{
-	klist_node_init(k, n);
-	add_head(k, n);
-}
-EXPORT_SYMBOL_GPL(klist_add_head);
-
-/**
- * klist_add_tail - Initialize a klist_node and add it to back.
- * @n: node we're adding.
- * @k: klist it's going on.
- */
-void klist_add_tail(struct klist_node *n, struct klist *k)
-{
-	klist_node_init(k, n);
-	add_tail(k, n);
-}
-EXPORT_SYMBOL_GPL(klist_add_tail);
-
-/**
- * klist_add_behind - Init a klist_node and add it after an existing node
- * @n: node we're adding.
- * @pos: node to put @n after
- */
-void klist_add_behind(struct klist_node *n, struct klist_node *pos)
-{
-	struct klist *k = knode_klist(pos);
-
-	klist_node_init(k, n);
-	spin_lock(&k->k_lock);
-	list_add(&n->n_node, &pos->n_node);
-	spin_unlock(&k->k_lock);
-}
-EXPORT_SYMBOL_GPL(klist_add_behind);
-
-/**
- * klist_add_before - Init a klist_node and add it before an existing node
- * @n: node we're adding.
- * @pos: node to put @n after
- */
-void klist_add_before(struct klist_node *n, struct klist_node *pos)
-{
-	struct klist *k = knode_klist(pos);
-
-	klist_node_init(k, n);
-	spin_lock(&k->k_lock);
-	list_add_tail(&n->n_node, &pos->n_node);
-	spin_unlock(&k->k_lock);
-}
-EXPORT_SYMBOL_GPL(klist_add_before);
-
-struct klist_waiter {
-	struct list_head list;
-	struct klist_node *node;
-	struct task_struct *process;
-	int woken;
-};
-
-static DEFINE_SPINLOCK(klist_remove_lock);
-static LIST_HEAD(klist_remove_waiters);
 
 static void klist_release(struct kref *kref)
 {
-	struct klist_waiter *waiter, *tmp;
-	struct klist_node *n = container_of(kref, struct klist_node, n_ref);
 
-	WARN_ON(!knode_dead(n));
-	list_del(&n->n_node);
-	spin_lock(&klist_remove_lock);
-	list_for_each_entry_safe(waiter, tmp, &klist_remove_waiters, list) {
-		if (waiter->node != n)
-			continue;
-
-		list_del(&waiter->list);
-		waiter->woken = 1;
-		mb();
-		wake_up_process(waiter->process);
-	}
-	spin_unlock(&klist_remove_lock);
-	knode_set_klist(n, NULL);
 }
 
-static int klist_dec_and_del(struct klist_node *n)
+static inline bool klist_kref_put(struct klist_node *node)
 {
-	return kref_put(&n->n_ref, klist_release);
+    return kref_put(&node->kref, klist_release);
 }
 
-static void klist_put(struct klist_node *n, bool kill)
+static void klist_put(struct klist_node *node, bool kill)
 {
-	struct klist *k = knode_klist(n);
-	void (*put)(struct klist_node *) = k->put;
+    void (*put)(struct klist_node *) = node->head->put;
+    struct klist_head *head = node->head;
 
-	spin_lock(&k->k_lock);
-	if (kill)
-		knode_kill(n);
-	if (!klist_dec_and_del(n))
-		put = NULL;
-	spin_unlock(&k->k_lock);
-	if (put)
-		put(n);
+    spin_lock(&head->lock);
+
+    if (kill) {
+        BUG_ON(node->dead);
+        node->dead = true;
+    }
+
+    if (!klist_kref_put(node))
+        put = NULL;
+
+    spin_unlock(&head->lock);
+
+    if (put)
+        put(node);
 }
 
 /**
- * klist_del - Decrement the reference count of node and try to remove.
- * @n: node we're deleting.
+ * klist_add_head - insert a new node on list head
+ * @head: inserted head
+ * @new: node to insert head
  */
-void klist_del(struct klist_node *n)
+void klist_add_head(struct klist_head *head, struct klist_node *new)
 {
-	klist_put(n, true);
+    klist_init(head, new);
+    lock_add_next(head, &head->node, &new->list);
 }
-EXPORT_SYMBOL_GPL(klist_del);
+EXPORT_SYMBOL(klist_add_head);
 
 /**
- * klist_remove - Decrement the refcount of node and wait for it to go away.
- * @n: node we're removing.
+ * klist_add_tail - insert a new node on list tail
+ * @head: inserted head
+ * @new: node to insert tail
  */
-void klist_remove(struct klist_node *n)
+void klist_add_tail(struct klist_head *head, struct klist_node *new)
 {
-	struct klist_waiter waiter;
-
-	waiter.node = n;
-	waiter.process = current;
-	waiter.woken = 0;
-	spin_lock(&klist_remove_lock);
-	list_add(&waiter.list, &klist_remove_waiters);
-	spin_unlock(&klist_remove_lock);
-
-	klist_del(n);
-
-	for (;;) {
-		set_current_state(TASK_UNINTERRUPTIBLE);
-		if (waiter.woken)
-			break;
-		schedule();
-	}
-	__set_current_state(TASK_RUNNING);
+    klist_init(head, new);
+    lock_add_next(head, &head->node, &new->list);
 }
-EXPORT_SYMBOL_GPL(klist_remove);
+EXPORT_SYMBOL(klist_add_tail);
 
 /**
- * klist_node_attached - Say whether a node is bound to a list or not.
- * @n: Node that we're testing.
+ * klist_add_next - insert a new node next old node
+ * @node: inserted node
+ * @new: node to insert next
  */
-int klist_node_attached(struct klist_node *n)
+void klist_add_next(struct klist_node *node, struct klist_node *new)
 {
-	return (n->n_klist != NULL);
+    struct klist_head *head = node->head;
+    klist_init(head, new);
+    lock_add_next(head, &node->list, &new->list);
 }
-EXPORT_SYMBOL_GPL(klist_node_attached);
+EXPORT_SYMBOL(klist_add_next);
 
 /**
- * klist_iter_init_node - Initialize a klist_iter structure.
- * @k: klist we're iterating.
- * @i: klist_iter we're filling.
- * @n: node to start with.
- *
- * Similar to klist_iter_init(), but starts the action off with @n,
- * instead of with the list head.
+ * klist_add_prev - insert a new node behind old node
+ * @node: inserted node
+ * @new: node to insert behind
  */
-void klist_iter_init_node(struct klist *k, struct klist_iter *i,
-			  struct klist_node *n)
+void klist_add_prev(struct klist_node *node, struct klist_node *new)
 {
-	i->i_klist = k;
-	i->i_cur = NULL;
-	if (n && kref_get_unless_zero(&n->n_ref))
-		i->i_cur = n;
+    struct klist_head *head = node->head;
+    klist_init(head, new);
+    lock_add_prev(head, &node->list, &new->list);
 }
-EXPORT_SYMBOL_GPL(klist_iter_init_node);
+EXPORT_SYMBOL(klist_add_prev);
 
 /**
- * klist_iter_init - Iniitalize a klist_iter structure.
- * @k: klist we're iterating.
- * @i: klist_iter structure we're filling.
- *
- * Similar to klist_iter_init_node(), but start with the list head.
+ * klist_del - delete a klist node
+ * @node: node to delete
  */
-void klist_iter_init(struct klist *k, struct klist_iter *i)
+void klist_del(struct klist_node *node)
 {
-	klist_iter_init_node(k, i, NULL);
+	klist_put(node, true);
 }
-EXPORT_SYMBOL_GPL(klist_iter_init);
+EXPORT_SYMBOL(klist_del);
 
 /**
- * klist_iter_exit - Finish a list iteration.
- * @i: Iterator structure.
- *
- * Must be called when done iterating over list, as it decrements the
- * refcount of the current node. Necessary in case iteration exited before
- * the end of the list was reached, and always good form.
+ * klist_iter_next - get next form a klist iteration
+ * @iter: klist iteration context
  */
-void klist_iter_exit(struct klist_iter *i)
+struct klist_node *klist_iter_next(struct klist_iter *iter)
 {
-	if (i->i_cur) {
-		klist_put(i->i_cur, false);
-		i->i_cur = NULL;
-	}
-}
-EXPORT_SYMBOL_GPL(klist_iter_exit);
+    void (*put)(struct klist_node *) = iter->head->put;
+    struct klist_node *node, *last = iter->curr;
+    struct klist_head *head = iter->head;
+    irqflags_t irqflags;
 
-static struct klist_node *to_klist_node(struct list_head *n)
-{
-	return container_of(n, struct klist_node, n_node);
-}
+    spin_lock_irqsave(&head->lock, &irqflags);
 
-/**
- * klist_prev - Ante up prev node in list.
- * @i: Iterator structure.
- *
- * First grab list lock. Decrement the reference count of the previous
- * node, if there was one. Grab the prev node, increment its reference
- * count, drop the lock, and return that prev node.
- */
-struct klist_node *klist_prev(struct klist_iter *i)
-{
-	void (*put)(struct klist_node *) = i->i_klist->put;
-	struct klist_node *last = i->i_cur;
-	struct klist_node *prev;
-	unsigned long flags;
+    iter->curr = NULL;
 
-	spin_lock_irqsave(&i->i_klist->k_lock, flags);
+    /* find the next node */
+    if (!last)
+        node = list_to_klist(head->node.next);
+    else {
+		node = list_to_klist(last->list.next);
+        if (!klist_kref_put(node))
+            put = NULL;
+    }
 
-	if (last) {
-		prev = to_klist_node(last->n_node.prev);
-		if (!klist_dec_and_del(last))
-			put = NULL;
-	} else
-		prev = to_klist_node(i->i_klist->k_list.prev);
-
-	i->i_cur = NULL;
-	while (prev != to_klist_node(&i->i_klist->k_list)) {
-		if (likely(!knode_dead(prev))) {
-			kref_get(&prev->n_ref);
-			i->i_cur = prev;
+    /* searching next surviving node */
+    while (node != list_to_klist(&head->node)) {
+        if (likely(!node->dead)) {
+			kref_get(&node->kref);
+			iter->curr = node;
 			break;
 		}
-		prev = to_klist_node(prev->n_node.prev);
-	}
+        node = list_to_klist(node->list.next);
+    }
 
-	spin_unlock_irqrestore(&i->i_klist->k_lock, flags);
+    spin_unlock_irqrestore(&head->lock, &irqflags);
 
-	if (put && last)
-		put(last);
-	return i->i_cur;
+    if (put)
+        put(node);
+
+    return iter->curr;
 }
-EXPORT_SYMBOL_GPL(klist_prev);
+EXPORT_SYMBOL(klist_iter_next);
 
 /**
- * klist_next - Ante up next node in list.
- * @i: Iterator structure.
- *
- * First grab list lock. Decrement the reference count of the previous
- * node, if there was one. Grab the next node, increment its reference
- * count, drop the lock, and return that next node.
+ * klist_iter_prev - get prev form a klist iteration
+ * @iter: klist iteration context
  */
-struct klist_node *klist_next(struct klist_iter *i)
+struct klist_node *klist_iter_prev(struct klist_iter *iter)
 {
-	void (*put)(struct klist_node *) = i->i_klist->put;
-	struct klist_node *last = i->i_cur;
-	struct klist_node *next;
-	unsigned long flags;
+    void (*put)(struct klist_node *) = iter->head->put;
+    struct klist_node *node, *last = iter->curr;
+    struct klist_head *head = iter->head;
+    irqflags_t irqflags;
 
-	spin_lock_irqsave(&i->i_klist->k_lock, flags);
+    spin_lock_irqsave(&head->lock, &irqflags);
 
-	if (last) {
-		next = to_klist_node(last->n_node.next);
-		if (!klist_dec_and_del(last))
-			put = NULL;
-	} else
-		next = to_klist_node(i->i_klist->k_list.next);
+    iter->curr = NULL;
 
-	i->i_cur = NULL;
-	while (next != to_klist_node(&i->i_klist->k_list)) {
-		if (likely(!knode_dead(next))) {
-			kref_get(&next->n_ref);
-			i->i_cur = next;
+    /* find the prev node */
+    if (!last)
+        node = list_to_klist(head->node.prev);
+    else {
+		node = list_to_klist(last->list.prev);
+        if (!klist_kref_put(node))
+            put = NULL;
+    }
+
+    /* searching prev surviving node */
+    while (node != list_to_klist(&head->node)) {
+        if (likely(!node->dead)) {
+			kref_get(&node->kref);
+			iter->curr = node;
 			break;
 		}
-		next = to_klist_node(next->n_node.next);
-	}
+        node = list_to_klist(node->list.prev);
+    }
 
-	spin_unlock_irqrestore(&i->i_klist->k_lock, flags);
+    spin_unlock_irqrestore(&head->lock, &irqflags);
 
-	if (put && last)
-		put(last);
-	return i->i_cur;
+    if (put)
+        put(node);
+
+    return iter->curr;
 }
-EXPORT_SYMBOL_GPL(klist_next);
+EXPORT_SYMBOL(klist_iter_prev);
+
+/**
+ * klist_iter_init_node - start a klist iteration form node
+ * @iter: iteration to start
+ * @head: klist head to iteration
+ * @node: iteration start node
+ */
+void klist_iter_init_node(struct klist_iter *iter, struct klist_head *head, struct klist_node *node)
+{
+    iter->head = head;
+    iter->curr = node;
+}
+EXPORT_SYMBOL(klist_iter_init_node);
+
+/**
+ * klist_iter_init - start a klist iteration
+ * @iter: iteration to start
+ * @head: klist head to iteration
+ */
+void klist_iter_init(struct klist_iter *iter, struct klist_head *head)
+{
+    iter->head = head;
+    iter->curr = NULL;
+}
+EXPORT_SYMBOL(klist_iter_init);
+
+/**
+ * klist_iter_exit - finish a klist iteration
+ * @iter: iteration to finish
+ */
+void klist_iter_exit(struct klist_iter *iter)
+{
+    if (!iter->curr)
+        return;
+    klist_put(iter->curr, false);
+    iter->curr = NULL;
+}
+EXPORT_SYMBOL(klist_iter_exit);

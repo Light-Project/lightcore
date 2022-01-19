@@ -3,28 +3,31 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "driver: " fmt
+#define MODULE_NAME "driver"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <string.h>
 #include <device/driver.h>
 #include <device.h>
+#include <export.h>
 #include <printk.h>
 
 /**
  * device_find - Find device through driver
  * @drv: driver to scan for the device.
  */
-struct device *device_find(struct driver *drv, const void *data,
-                bool (*match)(struct device *, const void *data))
+struct device *driver_find_device(struct driver *drv, const void *data, dfd_match_t match)
 {
-    struct device *dev = NULL;
+    struct device *dev;
 
-    driver_for_each_device(dev, drv)
-        if(match(dev, data))
+    driver_for_each_device(dev, drv) {
+        if (match(dev, data))
             return dev;
+    }
 
     return NULL;
 }
+EXPORT_SYMBOL(driver_find_device);
 
 /**
  * driver_find - Find device through bus
@@ -35,12 +38,14 @@ struct driver *driver_find(struct bus_type *bus, const char *name)
 {
     struct driver *drv;
 
-    bus_for_each_driver(drv, bus)
+    bus_for_each_driver(drv, bus) {
         if (!strcmp(drv->name, name))
             return drv;
+    }
 
     return NULL;
 }
+EXPORT_SYMBOL(driver_find);
 
 /**
  * driver_register - register driver into bus
@@ -62,6 +67,7 @@ state driver_register(struct driver *drv)
     list_head_init(&drv->devices_list);
     return bus_add_driver(drv);
 }
+EXPORT_SYMBOL(driver_register);
 
 /**
  * driver_unregister - remove driver form bus
@@ -69,10 +75,11 @@ state driver_register(struct driver *drv)
  */
 void driver_unregister(struct driver *drv)
 {
-    struct device *dev;
-
-    driver_for_each_device(dev, drv) {
+    if (!drv) {
+        pr_crit("illegal unregister\n");
+        return;
     }
 
     bus_remove_driver(drv);
 }
+EXPORT_SYMBOL(driver_unregister);

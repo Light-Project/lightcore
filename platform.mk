@@ -62,6 +62,7 @@ platform-acflags-y  += -m32
 platform-ccflags-y  += -mno-sse -mno-mmx -mno-sse2 -mno-3dnow
 platform-ccflags-y  += $(call cc-option,-mno-avx)
 platform-ldflags-y  += -m elf_i386
+platform-symflags-y += -m32
 platform-elfflags-y += -m32 -nostdlib
 endif # CONFIG_ARCH_X86
 

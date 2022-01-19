@@ -6,7 +6,7 @@
 #include <boot.h>
 #include <kernel.h>
 #include <asm-generic/header.h>
-#include <crc_table.h>
+#include <crc-table.h>
 #include <asm/io.h>
 
 static const char *reset_reason[] = {

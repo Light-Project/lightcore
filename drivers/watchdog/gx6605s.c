@@ -119,7 +119,7 @@ static struct watchdog_ops gx6605s_wdt_ops = {
 };
 
 static struct power_ops watchdog_power_ops = {
-    .reset = gx6605s_wdt_reset,
+    .restart = gx6605s_wdt_reset,
 };
 
 static void gx6605s_wdt_hw_init(struct platform_device *pdev, unsigned int freq)

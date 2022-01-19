@@ -240,8 +240,8 @@ static state gx6605s_hwinit(struct platform_device *pdev)
         return -ENOMEM;
     }
 
-    gdev->video.frame_buffer = dev_kzalloc(&pdev->dev, 0x200000, GFP_KERNEL);
-    if (!gdev->video.frame_buffer) {
+    gdev->video.framebuffer = dev_kzalloc(&pdev->dev, 0x200000, GFP_KERNEL);
+    if (!gdev->video.framebuffer) {
         dev_err(&pdev->dev, "cannot alloc framebuffer\n");
         return -ENOMEM;
     }
@@ -288,7 +288,7 @@ static state gx6605s_hwinit(struct platform_device *pdev)
     }
 
     /* configure the address of the layer frame buffer. */
-    gx6605s_region_set(gdev, GX6605S_OSDR_FBADDR, va_to_pa(gdev->video.frame_buffer));
+    gx6605s_region_set(gdev, GX6605S_OSDR_FBADDR, va_to_pa(gdev->video.framebuffer));
     gx6605s_region_set(gdev, GX6605S_OSDR_NEXT_PTR, va_to_pa(gdev->region));
 
     gx6605s_region_mask(gdev, GX6605S_OSDR_ALPHA, 0, GX6605S_OSDR_LIST_END);
@@ -336,7 +336,7 @@ static void gx6605s_remove(struct platform_device *pdev)
 
     iounmap(gdev->mmio);
     kfree(gdev->mmio);
-    kfree(gdev->video.frame_buffer);
+    kfree(gdev->video.framebuffer);
     kfree(gdev);
 }
 

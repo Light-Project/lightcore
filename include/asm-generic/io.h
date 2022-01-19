@@ -2,7 +2,8 @@
 #ifndef _ASM_GENERIC_IO_H_
 #define _ASM_GENERIC_IO_H_
 
-#include <types.h>
+#include <limits.h>
+#include <string.h>
 #include <asm/barrier.h>
 #include <lightcore/asm/byteorder.h>
 
@@ -350,8 +351,12 @@ static inline void writesq(volatile void *addr, const void *buffer, unsigned int
 #endif
 #endif /* CONFIG_ARCH_64BIT */
 
-#ifndef CONFIG_IOBASE
-#define CONFIG_IOBASE ((void *)0)
+#ifndef IO_SPACE_BASE
+# define IO_SPACE_BASE NULL
+#endif
+
+#ifndef IO_SPACE_LIMIT
+# define IO_SPACE_LIMIT UINT16_MAX
 #endif
 
 #ifndef inb
@@ -361,7 +366,7 @@ static inline uint8_t inb(unsigned long addr)
     uint8_t val;
 
     barrier();
-    val = raw_readb((void *)CONFIG_IOBASE + addr);
+    val = raw_readb((void *)IO_SPACE_BASE + addr);
     rmb();
     return val;
 }
@@ -374,7 +379,7 @@ static inline uint16_t inw(unsigned long addr)
     uint16_t val;
 
     barrier();
-    val = raw_readw((void *)CONFIG_IOBASE + addr);
+    val = raw_readw((void *)IO_SPACE_BASE + addr);
     rmb();
     return val;
 }
@@ -387,7 +392,7 @@ static inline uint32_t inl(unsigned long addr)
     uint32_t val;
 
     barrier();
-    val = raw_readl((void *)CONFIG_IOBASE + addr);
+    val = raw_readl((void *)IO_SPACE_BASE + addr);
     rmb();
     return val;
 }
@@ -398,7 +403,7 @@ static inline uint32_t inl(unsigned long addr)
 static inline void outb(unsigned long addr, uint8_t value)
 {
     wmb();
-    raw_writeb((void *)CONFIG_IOBASE + addr, value);
+    raw_writeb((void *)IO_SPACE_BASE + addr, value);
 }
 #endif
 
@@ -407,7 +412,7 @@ static inline void outb(unsigned long addr, uint8_t value)
 static inline void outw(unsigned long addr, uint16_t value)
 {
     wmb();
-    raw_writew((void *)CONFIG_IOBASE + addr, value);
+    raw_writew((void *)IO_SPACE_BASE + addr, value);
 }
 #endif
 
@@ -416,7 +421,7 @@ static inline void outw(unsigned long addr, uint16_t value)
 static inline void outl(unsigned long addr, uint32_t value)
 {
     wmb();
-    raw_writel((void *)CONFIG_IOBASE + addr, value);
+    raw_writel((void *)IO_SPACE_BASE + addr, value);
 }
 #endif
 
@@ -424,7 +429,7 @@ static inline void outl(unsigned long addr, uint32_t value)
 #define insb insb
 static inline void insb(unsigned long addr, void *buffer, unsigned int count)
 {
-    readsb(CONFIG_IOBASE + addr, buffer, count);
+    readsb(IO_SPACE_BASE + addr, buffer, count);
 }
 #endif
 
@@ -432,7 +437,7 @@ static inline void insb(unsigned long addr, void *buffer, unsigned int count)
 #define insw insw
 static inline void insw(unsigned long addr, void *buffer, unsigned int count)
 {
-    readsw(CONFIG_IOBASE + addr, buffer, count);
+    readsw(IO_SPACE_BASE + addr, buffer, count);
 }
 #endif
 
@@ -440,7 +445,7 @@ static inline void insw(unsigned long addr, void *buffer, unsigned int count)
 #define insl insl
 static inline void insl(unsigned long addr, void *buffer, unsigned int count)
 {
-    readsl(CONFIG_IOBASE + addr, buffer, count);
+    readsl(IO_SPACE_BASE + addr, buffer, count);
 }
 #endif
 
@@ -448,7 +453,7 @@ static inline void insl(unsigned long addr, void *buffer, unsigned int count)
 #define outsb outsb
 static inline void outsb(unsigned long addr, const void *buffer, unsigned int count)
 {
-    writesb(CONFIG_IOBASE + addr, buffer, count);
+    writesb(IO_SPACE_BASE + addr, buffer, count);
 }
 #endif
 
@@ -456,7 +461,7 @@ static inline void outsb(unsigned long addr, const void *buffer, unsigned int co
 #define outsw outsw
 static inline void outsw(unsigned long addr, const void *buffer, unsigned int count)
 {
-    writesw(CONFIG_IOBASE + addr, buffer, count);
+    writesw(IO_SPACE_BASE + addr, buffer, count);
 }
 #endif
 
@@ -464,7 +469,16 @@ static inline void outsw(unsigned long addr, const void *buffer, unsigned int co
 #define outsl outsl
 static inline void outsl(unsigned long addr, const void *buffer, unsigned int count)
 {
-    writesl(CONFIG_IOBASE + addr, buffer, count);
+    writesl(IO_SPACE_BASE + addr, buffer, count);
+}
+#endif
+
+#ifndef ioport_map
+#define ioport_map ioport_map
+static inline void *ioport_map(unsigned long port, unsigned int nr)
+{
+    port &= IO_SPACE_LIMIT;
+    return IO_SPACE_BASE + port;
 }
 #endif
 
@@ -520,12 +534,36 @@ static inline void writeq_relax(volatile void *addr, uint64_t val)
 # define iowritew(addr, val) writew(addr, val)
 # define iowritel(addr, val) writel(addr, val)
 #else /* !CONFIG_ARCH_HAS_PMIO */
-# define ioreadb(addr) inb((resource_size_t)addr)
-# define ioreadw(addr) inw((resource_size_t)addr)
-# define ioreadl(addr) inl((resource_size_t)addr)
-# define iowriteb(addr, val) outb((resource_size_t)addr, val)
-# define iowritew(addr, val) outw((resource_size_t)addr, val)
-# define iowritel(addr, val) outl((resource_size_t)addr, val)
+# define ioreadb(addr) inb((unsigned long)addr)
+# define ioreadw(addr) inw((unsigned long)addr)
+# define ioreadl(addr) inl((unsigned long)addr)
+# define iowriteb(addr, val) outb((unsigned long)addr, val)
+# define iowritew(addr, val) outw((unsigned long)addr, val)
+# define iowritel(addr, val) outl((unsigned long)addr, val)
 #endif  /* CONFIG_ARCH_HAS_PMIO */
+
+#ifndef memset_io
+#define memset_io memset_io
+static inline void memset_io(void *addr, int value, size_t size)
+{
+	memset(addr, value, size);
+}
+#endif
+
+#ifndef memcpy_formio
+#define memcpy_formio memcpy_formio
+static inline void memcpy_formio(void *dest, const void *io, size_t size)
+{
+    memcpy(dest, io, size);
+}
+#endif
+
+#ifndef memcpy_toio
+#define memcpy_toio memcpy_toio
+static inline void memcpy_toio(void *io, const void *src, size_t size)
+{
+    memcpy(io, src, size);
+}
+#endif
 
 #endif /* _ASM_GENERIC_IO_H_ */

@@ -1,5 +1,5 @@
 #include <filter/ewma.h>
-#include <mm.h>
+#include <memory.h>
 #include <types.h>
 #include <stddef.h>
 #include <state.h>
@@ -23,7 +23,7 @@ state ewma_free(ewma_t *ewma)
         return -EINVAL;
     kfree(ewma);
     return -ENOERR;
-}   
+}
 
 float ewma_filter(ewma_t *ewma, float val)
 {

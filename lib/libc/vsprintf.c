@@ -145,43 +145,39 @@ int vsprintf(char* buf, const char* fmt, va_list args)
             if (is_digit(*fmt))
                 precision = skip_atoi(&fmt);
             else if (*fmt == '*')
-            {
                 precision = va_arg(args, ssize_t);
-            }
             if (precision < 0)
                 precision = 0;
         }
 
         /* These parameters are not supported */
-        if (*fmt == 'h' || *fmt == 'l' || *fmt == 'L') {
+        if (*fmt == 'h' || *fmt == 'l' || *fmt == 'L')
             ++fmt;
-        }
 
         switch (*fmt) {
-
             case 'd':   /* Signed decimal output */
             case 'i':
                 flags |= SIGN;
                 base = 10;
                 val = va_arg(args, ssize_t);
-            goto is_integer;
+                goto is_integer;
 
             case 'u':   /* Unsigned decimal */
                 base = 10;
                 val = va_arg(args, size_t);
-            goto is_integer;
+                goto is_integer;
 
             case 'x':   /* Hexadecimal */
                 flags |= SMALL;
             case 'X':   /* Upper case hexadecimal */
                 base = 16;
                 val = va_arg(args, size_t);
-            goto is_integer;
+                goto is_integer;
 
             case 'o':   /* Octal */
                 base = 8;
                 val = va_arg(args, size_t);
-            goto is_integer;
+                goto is_integer;
 
             case 'p':   /* pointer */
                 flags |= SMALL;

@@ -6,7 +6,7 @@
 #define DRIVER_NAME "suniv-spi"
 #define pr_fmt(fmt) DRIVER_NAME fmt
 
-#include <mm.h>
+#include <memory.h>
 #include <initcall.h>
 #include <irq.h>
 #include <driver/platform.h>
@@ -224,7 +224,7 @@ static state suniv_spi_probe(struct platform_device *pdev, const void *pdata)
     }
     reset_reset(sdev->reset);
 
-    sdev->irqchip = dt_get_irqchip_channel(pdev->dt_node, 0);
+    sdev->irqchip = dt_irqchip_channel(pdev->dt_node, 0);
     if (sdev->irqchip) {
         dev_err(&pdev->dev, "unable to request irqchip\n");
         return -ENODEV;

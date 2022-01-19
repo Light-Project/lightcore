@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#include <initcall.h>
 #include <font.h>
 
 static const char fontdata_6x11[] = {
@@ -3330,15 +3332,15 @@ static const char fontdata_6x11[] = {
     0x00, /* 00000000 */
 };
 
-static const struct font font_6x11 = {
+static struct font font_6x11 = {
     .name	= "6x11",
     .width	= 6,
     .height	= 11,
     .data	= fontdata_6x11,
 };
 
-void font_6x11_install(void)
+static state font_6x11_init(void)
 {
-    font_register((struct font *)&font_6x11); 
+    return font_register(&font_6x11);
 }
-
+console_initcall(font_6x11_init);

@@ -35,14 +35,17 @@ struct irqchip_ops {
     state (*slave_del)(struct irqchip_device *, irqnr_t);
 };
 
-extern struct irqchip_channel *dt_get_irqchip_channel(struct dt_node *node, int index);
-extern struct irqchip_channel *dt_get_irqchip_channel_by_name(struct dt_node *node, const char *name);
-
+/* irqchip operations */
 extern state irqchip_pass(struct irqchip_channel *);
 extern state irqchip_mask(struct irqchip_channel *);
 extern state irqchip_ack(struct irqchip_channel *);
 extern state irqchip_eoi(struct irqchip_channel *);
 
+/* irqchip channel get */
+extern struct irqchip_channel *dt_irqchip_channel(struct dt_node *node, int index);
+extern struct irqchip_channel *dt_irqchip_channel_name(struct dt_node *node, const char *name);
+
+/* irqchip channel core */
 extern struct irqchip_channel *irqchip_channel_get(struct irqchip_device *idev, irqnr_t chnr);
 extern void irqchip_channel_release(struct irqchip_channel *channel);
 extern state irqchip_register(struct irqchip_device *);

@@ -14,7 +14,7 @@ state early_acpi_scan(void)
 
     ret = AcpiInitializeTables(initial_tables, ACPI_MAX_TABLES, 0);
     if (ACPI_FAILURE(ret)) {
-        pr_err("unable to initialize the ACPI interpreter\n");
+        pr_err("unable to initialize the interpreter\n");
         return -EINVAL;
     }
 

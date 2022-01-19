@@ -20,7 +20,8 @@
 #define VIRTS_SIZE      (_AC(1,ULL) << VIRTS_SHIFT)
 #define VIRTS_MASK      (~(VIRTS_SIZE - 1))
 
-#define THREAD_SHIFT    (PAGE_SHIFT + 1)
+#define THREAD_ORDER    1
+#define THREAD_SHIFT    (PAGE_SHIFT + THREAD_ORDER)
 #define THREAD_SIZE     (_AC(1,UL) << THREAD_SHIFT)
 #define THREAD_MASK     (~(THREAD_SIZE - 1))
 

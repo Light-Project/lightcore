@@ -5,17 +5,18 @@
 #include <spinlock.h>
 #include <mm/gfp.h>
 
-typedef void *(mempool_alloc_t)(gfp_t flags, void *data);
-typedef void (mempool_free_t)(void *block, void *data);
+typedef void *(*mempool_alloc_t)(gfp_t flags, void *data);
+typedef void (*mempool_free_t)(void *block, void *data);
 
 struct mempool {
     spinlock_t lock;
-    mempool_alloc_t *alloc;
-    mempool_free_t *free;
+    mempool_alloc_t alloc;
+    mempool_free_t free;
     void *data;
 
+    unsigned int demand;
+    unsigned int curr;
 	void **objects;
-    unsigned int demand, curr;
 };
 
 extern void *mempool_kmalloc(gfp_t flags, void *size);
@@ -26,7 +27,7 @@ extern void *mempool_pages_alloc(gfp_t flags, void *order);
 extern void mempool_pages_free(void *block, void *data);
 
 extern struct mempool *mempool_create(unsigned int demand, size_t size, gfp_t flags);
-extern struct mempool *mempool_create_node(mempool_alloc_t *, mempool_free_t *, unsigned int demand, gfp_t flags, void *data);
+extern struct mempool *mempool_create_node(mempool_alloc_t, mempool_free_t, unsigned int demand, gfp_t flags, void *data);
 extern state mempool_resize(struct mempool *pool, unsigned int demand, gfp_t flags);
 extern void mempool_release(struct mempool *pool);
 extern void mempool_delete(struct mempool *pool);

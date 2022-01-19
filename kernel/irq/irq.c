@@ -9,6 +9,7 @@
 #include <string.h>
 #include <kmalloc.h>
 #include <printk.h>
+#include <export.h>
 
 static struct kcache *channel_cache;
 
@@ -37,8 +38,16 @@ state irq_request(irqnr_t vector, enum irq_flags flags, irq_handler_t handler,
 
     return -ENOERR;
 }
+EXPORT_SYMBOL(irq_request);
+
+void irq_release(irqnr_t vector)
+{
+
+}
+EXPORT_SYMBOL(irq_release);
 
 void __init irq_init(void)
 {
-    channel_cache = kcache_create("irqchannel", sizeof(struct irq_desc), KCACHE_PANIC);
+    channel_cache = kcache_create("irqchannel",
+        sizeof(struct irq_desc), KCACHE_PANIC);
 }

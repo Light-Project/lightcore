@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#include <kernel.h>
-#include <export.h>
+
 #include <bits.h>
-#include <lightcore/asm/byteorder.h>
+#include <panic.h>
+#include <export.h>
 
 typedef          int QItype  __mode(QI);
 typedef unsigned int UQItype __mode(QI);
@@ -24,9 +24,9 @@ typedef          int WDtype  __mode(word);
 
 #define W_TYPE_SIZE BITS_PER_LONG
 
-#if defined(__BIG_ENDIAN__)
+#if defined(CONFIG_ARCH_BIG_ENDIAN)
 struct DWstruct { Wtype high, low;};
-#elif  defined(__LITTLE_ENDIAN__)
+#elif defined(CONFIG_ARCH_LITTLE_ENDIAN)
 struct DWstruct { Wtype low, high;};
 #else
 # error "unhandled endianity"

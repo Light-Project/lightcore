@@ -3,7 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <mm.h>
+#include <memory.h>
 
 #include <asm/irq.h>
 #include <asm/entry.h>

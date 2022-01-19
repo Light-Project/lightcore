@@ -72,6 +72,6 @@ enum ich_spi_registers {
 #define ICH_SPI_FDOC_FDSI               BIT_RANGE(11, 2)    /* Flash Descriptor Section Index */
 
 #define ICH_SPI_BUFFER_SIZE             64
-#define INTEL_SPI_LEG_MATCH_ID      "intel,spi-leg"
+#define INTEL_SPI_ICH_MATCH_ID          "intel,spi-ich"
 
 #endif  /* _DRIVER_MTD_ICH_H_ */

@@ -124,30 +124,29 @@ state serio_host_register(struct serio_host *host)
 {
     return serio_device_register(&host->port);
 }
+EXPORT_SYMBOL(serio_host_register);
 
 void serio_host_unregister(struct serio_host *host)
 {
     return serio_device_unregister(&host->port);
 }
+EXPORT_SYMBOL(serio_host_unregister);
 
 state serio_driver_register(struct serio_driver *sdrv)
 {
     sdrv->driver.bus = &serio_bus;
     return driver_register(&sdrv->driver);
 }
+EXPORT_SYMBOL(serio_driver_register);
 
 void serio_driver_unregister(struct serio_driver *sdrv)
 {
     driver_unregister(&sdrv->driver);
 }
+EXPORT_SYMBOL(serio_driver_unregister);
 
 static __init state serio_bus_init(void)
 {
     return bus_register(&serio_bus);
 }
 framework_initcall(serio_bus_init);
-
-EXPORT_SYMBOL(serio_host_register);
-EXPORT_SYMBOL(serio_host_unregister);
-EXPORT_SYMBOL(serio_driver_register);
-EXPORT_SYMBOL(serio_driver_unregister);

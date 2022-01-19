@@ -1,2 +1,2 @@
-obj-$(CONFIG_PRE_PRINTK) += pre_printk.o
+obj-$(CONFIG_PRE_CONSOLE) += pre_printk.o
 obj-y += setup.o

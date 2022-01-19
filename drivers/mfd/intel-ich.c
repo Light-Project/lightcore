@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ * devices id form: linux/drivers/mfd/lpc_ich.c
  */
 
 #define DRIVER_NAME "intel-ich"
@@ -39,7 +40,8 @@ const char ich_gpio_v10cp[] = INTEL_GPIO_V10CP;
 const char ich_gpio_v10cs[] = INTEL_GPIO_V10CS;
 const char ich_gpio_avn[]   = INTEL_GPIO_V10CS;
 
-const char ich_spi_leg[] = INTEL_SPI_LEG_MATCH_ID;
+const char ich_spi_leg[] = INTEL_SPI_ICH_MATCH_ID;
+const char ich_spi_ich[] = INTEL_SPI_ICH_MATCH_ID;
 const char ich_spi_byt[] = INTEL_SPI_BYT_MATCH_ID;
 const char ich_spi_lpt[] = INTEL_SPI_LPT_MATCH_ID;
 const char ich_spi_bxt[] = INTEL_SPI_BXT_MATCH_ID;
@@ -128,24 +130,28 @@ static struct ich_chipinfo lpc_ich7 = {
     .name = "ICH7",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v7,
+    .spi_version = ich_spi_leg,
 };
 
 static struct ich_chipinfo lpc_ich7dh = {
     .name = "ICH7-DH",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v7,
+    .spi_version = ich_spi_leg,
 };
 
 static struct ich_chipinfo lpc_ich7m = {
     .name = "ICH7-M/U",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v7,
+    .spi_version = ich_spi_leg,
 };
 
 static struct ich_chipinfo lpc_ich7mdh = {
     .name = "ICH7-MDH",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v7,
+    .spi_version = ich_spi_leg,
 };
 
 static struct ich_chipinfo lpc_nm10 = {
@@ -158,105 +164,105 @@ static struct ich_chipinfo lpc_ich8 = {
     .name = "ICH8/R",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v7,
-    .spi_version = ich_spi_leg,
+    .spi_version = ich_spi_ich,
 };
 
 static struct ich_chipinfo lpc_ich8me = {
     .name = "ICH8-ME",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v7,
-    .spi_version = ich_spi_leg,
+    .spi_version = ich_spi_ich,
 };
 
 static struct ich_chipinfo lpc_ich8dh = {
     .name = "ICH8-DH",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v7,
-    .spi_version = ich_spi_leg,
+    .spi_version = ich_spi_ich,
 };
 
 static struct ich_chipinfo lpc_ich8do = {
     .name = "ICH8-DO",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v7,
-    .spi_version = ich_spi_leg,
+    .spi_version = ich_spi_ich,
 };
 
 static struct ich_chipinfo lpc_ich8m = {
     .name = "ICH8-M",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v7,
-    .spi_version = ich_spi_leg,
+    .spi_version = ich_spi_ich,
 };
 
 static struct ich_chipinfo lpc_ich9 = {
     .name = "ICH9",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v9,
-    .spi_version = ich_spi_leg,
+    .spi_version = ich_spi_ich,
 };
 
 static struct ich_chipinfo lpc_ich9r = {
     .name = "ICH9-R",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v9,
-    .spi_version = ich_spi_leg,
+    .spi_version = ich_spi_ich,
 };
 
 static struct ich_chipinfo lpc_ich9dh = {
     .name = "ICH9-DH",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v9,
-    .spi_version = ich_spi_leg,
+    .spi_version = ich_spi_ich,
 };
 
 static struct ich_chipinfo lpc_ich9do = {
     .name = "ICH9-DO",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v9,
-    .spi_version = ich_spi_leg,
+    .spi_version = ich_spi_ich,
 };
 
 static struct ich_chipinfo lpc_ich9m = {
     .name = "ICH9-M",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v9,
-    .spi_version = ich_spi_leg,
+    .spi_version = ich_spi_ich,
 };
 
 static struct ich_chipinfo lpc_ich9me = {
     .name = "ICH9-ME",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v9,
-    .spi_version = ich_spi_leg,
+    .spi_version = ich_spi_ich,
 };
 
 static struct ich_chipinfo lpc_ich10 = {
     .name = "ICH10",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v10cs,
-    .spi_version = ich_spi_leg,
+    .spi_version = ich_spi_ich,
 };
 
 static struct ich_chipinfo lpc_ich10r = {
     .name = "ICH10-R",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v10cs,
-    .spi_version = ich_spi_leg,
+    .spi_version = ich_spi_ich,
 };
 
 static struct ich_chipinfo lpc_ich10d = {
     .name = "ICH10-D",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v10cp,
-    .spi_version = ich_spi_leg,
+    .spi_version = ich_spi_ich,
 };
 
 static struct ich_chipinfo lpc_ich10do = {
     .name = "ICH10-DO",
     .itco_version = ich_tco_v2,
     .gpio_version = ich_gpio_v10cp,
-    .spi_version = ich_spi_leg,
+    .spi_version = ich_spi_ich,
 };
 
 static struct ich_chipinfo lpc_pch = {
@@ -901,9 +907,16 @@ static state intel_ich_spi_setup(struct pci_device *pdev, const struct ich_chipi
             return -ENODEV;
         }
 
-        // TODO: Judge ICH7
-        // idev->spi_res[0].start = base + INTEL_ICH_RCBA_LSPI;
-        // idev->spi_res[0].size  = INTEL_ICH_RCBA_LSPI_SZ;
+        idev->spi_res[0].start = base + INTEL_ICH_RCBA_LSPI;
+        idev->spi_res[0].size  = INTEL_ICH_RCBA_LSPI_SZ;
+        idev->spi_res[0].type  = RESOURCE_MMIO;
+    } else if (info->spi_version == ich_spi_ich || info->spi_version == ich_spi_lpt) {
+        val = pci_config_readl(pdev, INTEL_ICH_RCBA);
+        base = val & 0xffffc000;
+        if (!(val & 0x01)) {
+            dev_notice(&pdev->dev, "RCBA is disabled by hardware/BIOS\n");
+            return -ENODEV;
+        }
 
         idev->spi_res[0].start = base + INTEL_ICH_RCBA_LPT;
         idev->spi_res[0].size  = INTEL_ICH_RCBA_LPT_SZ;
@@ -919,17 +932,6 @@ static state intel_ich_spi_setup(struct pci_device *pdev, const struct ich_chipi
         idev->spi_res[0].start = base;
         idev->spi_res[0].size  = INTEL_ICH_BYT_SZ;
         idev->spi_res[0].type  = RESOURCE_MMIO;
-    } else if (info->spi_version == ich_spi_lpt) {
-        val = pci_config_readl(pdev, INTEL_ICH_RCBA);
-        base = val & 0xffffc000;
-        if (!(val & 0x01)) {
-            dev_notice(&pdev->dev, "RCBA is disabled by hardware/BIOS\n");
-            return -ENODEV;
-        }
-
-        idev->spi_res[0].start = base + INTEL_ICH_RCBA_LPT;
-        idev->spi_res[0].size  = INTEL_ICH_RCBA_LPT_SZ;
-        idev->spi_res[0].type  = RESOURCE_MMIO;
     } else if (info->spi_version == ich_spi_bxt) {
         /*
          * The P2SB is hidden by BIOS and we need to unhide it in
@@ -938,7 +940,7 @@ static state intel_ich_spi_setup(struct pci_device *pdev, const struct ich_chipi
          */
 
         pci_bus_config_writeb(pdev->bus, PCI_DEVFN(13, 0), 0xe1, 0);
-        val = pci_bus_config_readl(pdev->bus, PCI_DEVFN(13, 0), PCI_BASE_ADDRESS_0);
+        pci_bus_config_readl(pdev->bus, PCI_DEVFN(13, 0), PCI_BASE_ADDRESS_0, &val);
         base = val & 0xfffffff0;
         if (val == ~0)
             return -ENODEV;

@@ -1,23 +1,15 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-/* Copyright(c) 1999 - 2006 Intel Corporation. */
-
-/* glue for the OS independent part of e1000
- * includes register access macros
- */
-
 #ifndef _E1000_OSDEP_H_
 #define _E1000_OSDEP_H_
 
 #include <types.h>
-#include <mm.h>
-#include <sleep.h>
+#include <memory.h>
+#include <delay.h>
 #include <spinlock.h>
 #include <mutex.h>
 #include <sched.h>
 #include <driver/pci.h>
 #include <printk.h>
-
-#include <asm/delay.h>
 #include <asm/io.h>
 
 #define GBE_RAM_BASE            0x60000

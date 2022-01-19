@@ -6,17 +6,15 @@
 #define DRIVER_NAME "i8255"
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
-#include <mm.h>
 #include <initcall.h>
 #include <driver/platform.h>
 #include <driver/parallel.h>
 #include <driver/parallel/i8255.h>
-
 #include <asm/proc.h>
 #include <asm/delay.h>
 #include <asm/io.h>
 
-#define I8255_TIMEOUT   5000
+#define I8255_TIMEOUT   500
 
 struct i8255_device {
     struct parallel_device parallel;
@@ -115,20 +113,21 @@ static state i8255_probe(struct platform_device *pdev, const void *pdata)
     struct i8255_device *idev;
 
     if (platform_resource_type(pdev, 0) != RESOURCE_PMIO)
-        return -ENODEV;
+        return -ENXIO;
 
     idev = dev_kzalloc(&pdev->dev, sizeof(*idev), GFP_KERNEL);
     if (!idev)
         return -ENOMEM;
+
     idev->base = platform_resource_start(pdev, 0);
+    idev->parallel.dev = &pdev->dev;
+    idev->parallel.ops = &i8255_ops;
+    platform_set_devdata(pdev, idev);
 
     if (!i8255_detect(idev))
         return -ENODEV;
 
-    dev_debug(&pdev->dev, "detected port\n");
-
-    idev->parallel.dev = &pdev->dev;
-    idev->parallel.ops = &i8255_ops;
+    platform_debug(pdev, "detected port\n");
     parallel_register(&idev->parallel);
     return -ENOERR;
 }

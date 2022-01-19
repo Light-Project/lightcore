@@ -13,14 +13,14 @@ void show_regs(struct regs *regs)
 	size_t cr0, cr2, cr3, cr4;
 	size_t dr0, dr1, dr2, dr3, dr6, dr7;
 
-    printk("Regs:\n");
-    printk(" EIP: %08x EFLAGS: %08x ERROR: %08x\n",
+    printk("registers:\n");
+    printk(" EIP: 0x%08x EFLAGS: 0x%08x ERROR: %08x\n",
             regs->ip, regs->flags, regs->error);
-    printk(" EAX: %08x EBX: %08x ECX: %08x EDX: %08x\n",
+    printk(" EAX: 0x%08x EBX: 0x%08x ECX: 0x%08x EDX: 0x%08x\n",
             regs->ax, regs->bx, regs->cx, regs->dx);
-    printk(" ESI: %08x EDI: %08x EBP: %08x ESP: %08x\n",
+    printk(" ESI: 0x%08x EDI: 0x%08x EBP: 0x%08x ESP: 0x%08x\n",
             regs->si, regs->di, regs->bp, regs->sp);
-    printk(" CS: %04x DS: %04x SS: %04x ES: %04x FS: %04x GS: %04x\n",
+    printk(" CS: 0x%04x DS: 0x%04x SS: 0x%04x ES: 0x%04x FS: 0x%04x GS: 0x%04x\n",
             regs->cs, regs->ds, regs->ss, regs->es, regs->fs, regs->gs);
 
     cr0 = cr0_get();
@@ -28,7 +28,7 @@ void show_regs(struct regs *regs)
     cr3 = cr3_get();
     cr4 = cr4_get();
 
-    printk(" CR0: %08lx CR2: %08lx CR3: %08lx CR4: %08lx\n", cr0, cr2, cr3, cr4);
+    printk(" CR0: 0x%08lx CR2: 0x%08lx CR3: 0x%08lx CR4: 0x%08lx\n", cr0, cr2, cr3, cr4);
 
     dr0 = dr0_get();
     dr1 = dr1_get();
@@ -41,8 +41,8 @@ void show_regs(struct regs *regs)
         dr3 == DR3_DEFAULT && dr6 == DR6_DEFAULT && dr7 == DR7_DEFAULT)
         return;
 
-    printk(" DB0: %08lx DB1: %08lx DB2: %08lx\n", dr0, dr1, dr2);
-    printk(" DB3: %08lx DB6: %08lx DB7: %08lx\n", dr3, dr6, dr7);
+    printk(" DB0: 0x%08lx DB1: 0x%08lx DB2: 0x%08lx\n", dr0, dr1, dr2);
+    printk(" DB3: 0x%08lx DB6: 0x%08lx DB7: 0x%08lx\n", dr3, dr6, dr7);
 }
 
 void dump_stack(size_t *sp)

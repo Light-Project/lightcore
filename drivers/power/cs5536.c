@@ -3,30 +3,26 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define DRIVER_NAME "ce4100-power"
+#define DRIVER_NAME "cs5536-power"
 
 #include <kmalloc.h>
 #include <initcall.h>
 #include <driver/pci.h>
 #include <driver/power.h>
 #include <asm/delay.h>
-#include <asm/io.h>
+#include <asm/regs.h>
 
-static void ce4100_restart(struct power_device *pdev)
+static void cs5536_restart(struct power_device *pdev)
 {
-    unsigned int count;
-
-    for (count = 0; count < 10; ++count) {
-        outb(0xcf9, 0x02);
-        udelay(50);
-    }
+    msr_set(0x51400017, 1);
+    udelay(100);
 }
 
-static struct power_ops ce4100_ops = {
-    .restart = ce4100_restart,
+static struct power_ops cs5536_ops = {
+    .restart = cs5536_restart,
 };
 
-static state ce4100_power_probe(struct pci_device *pdev, const void *pdata)
+static state cs5536_power_probe(struct pci_device *pdev, const void *pdata)
 {
     struct power_device *power;
 
@@ -34,26 +30,26 @@ static state ce4100_power_probe(struct pci_device *pdev, const void *pdata)
     if (!power)
         return -ENOMEM;
 
-    power->ops = &ce4100_ops;
+    power->ops = &cs5536_ops;
     power->dev = &pdev->dev;
     return power_register(power);
 }
 
-static const struct pci_device_id ce4100_power_ids[] = {
-    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_CE4100) },
+static const struct pci_device_id cs5536_power_ids[] = {
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_AMD_CS5536_ISA) },
     { }, /* NULL */
 };
 
-static struct pci_driver ce4100_power_driver = {
+static struct pci_driver cs5536_power_driver = {
     .driver = {
         .name = DRIVER_NAME,
     },
-    .id_table = ce4100_power_ids,
-    .probe = ce4100_power_probe,
+    .id_table = cs5536_power_ids,
+    .probe = cs5536_power_probe,
 };
 
-static state ce4100_power_init(void)
+static state cs5536_power_init(void)
 {
-    return pci_driver_register(&ce4100_power_driver);
+    return pci_driver_register(&cs5536_power_driver);
 }
-driver_initcall(ce4100_power_init);
+driver_initcall(cs5536_power_init);

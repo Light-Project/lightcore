@@ -3,7 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <sleep.h>
+#include <delay.h>
 #include <driver/pci.h>
 
 static void uhci_pci_reset(struct uhci_host *uhci, struct pci_device *pdev)

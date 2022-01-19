@@ -17,14 +17,14 @@ source "net/Kconfig"
 
 source "crypto/Kconfig"
 
-source "security/Kconfig"
-
 source "lib/Kconfig"
 
-source "kernel/Kconfig.debug"
+source "usr/Kconfig"
+
+source "test/Kconfig"
 
 source "kernel/Kconfig.comp"
 
-source "usr/Kconfig"
+source "kernel/Kconfig.debug"
 
 source "boot/Kconfig"

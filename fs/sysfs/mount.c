@@ -1,4 +1,4 @@
-#include <fs.h>
+#include <filesystem.h>
 #include <magic.h>
 
 
@@ -6,7 +6,7 @@
 
 void sysfs_init()
 {
-    
-    
-    
+
+
+
 }

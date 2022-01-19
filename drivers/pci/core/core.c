@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "pci: " fmt
+#define MODULE_NAME "PCI"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <kmalloc.h>
 #include <initcall.h>
@@ -11,7 +12,7 @@
 #include <printk.h>
 #include <asm/io.h>
 
-static LIST_HEAD(host_list);
+static LIST_HEAD(pci_host_list);
 
 static const enum pci_speed pcix_bus_speed[] = {
     PCI_SPEED_UNKNOWN,
@@ -92,12 +93,16 @@ static inline enum pci_speed pcix_speed(uint32_t status)
     return PCI_SPEED_66MHz_PCIX;
 }
 
-static void pci_bus_speed_setup(struct pci_bus *bus)
+/**
+ * pci_bus_speed_set -
+ *
+ */
+static void pci_bus_speed_set(struct pci_bus *bus)
 {
     uint32_t val;
     uint8_t pos;
 
-    /* agp device */
+    /* AGP device */
     if ((pos = pci_capability_find(bus->bridge, PCI_CAP_ID_AGP)) ||
         (pos = pci_capability_find(bus->bridge, PCI_CAP_ID_AGP3))) {
         val = pci_config_readl(bus->bridge, pos + PCI_AGP_STATUS);
@@ -106,13 +111,13 @@ static void pci_bus_speed_setup(struct pci_bus *bus)
         bus->cur_speed = agp_speed(val);
     }
 
-    /* pcie device */
+    /* PCIE device */
     if ((pos = pci_capability_find(bus->bridge, PCI_EXP_LNKCAP))) {
         val = pci_config_readl(bus->bridge, pos + PCI_EXP_LNKCAP);
         bus->max_speed = pcie_bus_speed[val & PCI_EXP_LNKCAP_SLS];
     }
 
-    /* pcix device */
+    /* PCIX device */
     if ((pos = pci_capability_find(bus->bridge, PCI_CAP_ID_PCIX))) {
         val = pci_config_readl(bus->bridge, pos + PCI_X_BRIDGE_SSTATUS);
         bus->max_speed = pcix_speed(val);
@@ -120,10 +125,6 @@ static void pci_bus_speed_setup(struct pci_bus *bus)
     }
 }
 
-/**
- * pci_res_type - Conversion pci bar type
- * @defgroup: pci_resource_set
- */
 static inline enum resource_type pci_res_type(uint32_t bar)
 {
     if ((bar & PCI_BASE_ADDRESS_SPACE) == PCI_BASE_ADDRESS_SPACE_IO)
@@ -134,11 +135,6 @@ static inline enum resource_type pci_res_type(uint32_t bar)
         return RESOURCE_MMIO;
 }
 
-/**
- * pci_res_size - Conversion pci bar size
- * @defgroup: pci_resource_set
- * @base: base addr
- */
 static inline uint64_t pci_res_size(uint64_t base, uint64_t size, uint64_t mask)
 {
     u64 rsize = size & mask;
@@ -156,9 +152,8 @@ static inline uint64_t pci_res_size(uint64_t base, uint64_t size, uint64_t mask)
 
 /**
  * pci_resource_set - Setting one resource through pci bar
- * @defgroup: pci_resource_setup
  */
-bool pci_resource_set(struct pci_device *pdev, enum pci_bar_type type,
+bool pci_resource_set(struct pci_device *pdev, enum pci_bar type,
                       struct resource *res, unsigned int reg)
 {
     uint32_t l, sz, mask;
@@ -176,7 +171,7 @@ bool pci_resource_set(struct pci_device *pdev, enum pci_bar_type type,
     if (l == 0xffffffff)
         l = 0;
 
-    if (type == pci_bar_unknown) {
+    if (type == PCI_BAR_UNKNOWN) {
         res->type = pci_res_type(l);
         if (res->type == RESOURCE_PMIO) {
             l64 = l & PCI_BASE_ADDRESS_IO_MASK;
@@ -224,12 +219,11 @@ exit:
 }
 
 /**
- * pci_resource_setup - Setting pci device resource through pci bar
- * @defgroup: pci_device_setup
+ * pci_resources_set - Setting pci device resource through pci bar
  * @pdev: pci device to set
  * @nr: bar number
  */
-static void pci_resource_setup(struct pci_device *pdev, int nr, int rom)
+static void pci_resources_set(struct pci_device *pdev, int nr, int rom)
 {
     struct resource *res;
     int pos, reg;
@@ -237,16 +231,16 @@ static void pci_resource_setup(struct pci_device *pdev, int nr, int rom)
     for (pos = 0; pos < nr; ++pos) {
         res = &pdev->resource[pos];
         reg = PCI_BASE_ADDRESS_0 + (pos << 2);
-        pos += pci_resource_set(pdev, pci_bar_unknown, res, reg);
+        pos += pci_resource_set(pdev, PCI_BAR_UNKNOWN, res, reg);
     }
 
     if (rom) {
         res = &pdev->resource[PCI_ROM_RESOURCE];
-        pci_resource_set(pdev, pci_bar_mem32, res, rom);
+        pci_resource_set(pdev, PCI_BAR_MEM32, res, rom);
     }
 }
 
-static inline void pci_bridge_windows_setup(struct pci_device *pdev)
+static inline void pci_bridge_windows_set(struct pci_device *pdev)
 {
     uint32_t val, tmp;
 
@@ -280,7 +274,7 @@ static inline void pci_bridge_windows_setup(struct pci_device *pdev)
     }
 }
 
-static inline void pci_subsystem_setup(struct pci_device *pdev)
+static inline void pci_subsystem_set(struct pci_device *pdev)
 {
     uint16_t val;
 
@@ -293,7 +287,7 @@ static inline void pci_subsystem_setup(struct pci_device *pdev)
     pdev->subdevice = val;
 }
 
-static inline void pci_cb_subsystem_setup(struct pci_device *pdev)
+static inline void pci_cb_subsystem_set(struct pci_device *pdev)
 {
     uint16_t val;
 
@@ -306,29 +300,124 @@ static inline void pci_cb_subsystem_setup(struct pci_device *pdev)
     pdev->subdevice = val;
 }
 
-// static inline void pci_bridge_subsystem_setup(struct pci_device *pdev)
-// {
-//     uint32_t val, pos;
-
-// 		pos = pci_find_capability(dev, PCI_CAP_ID_SSVID);
-//     /* Setup subsystem-vendor */
-//     val = pci_config_readw(pdev, PCI_CB_SUBSYSTEM_VENDOR_ID);
-//     pdev->subvendor = val;
-
-//     /* Setup subsystem-id */
-//     val = pci_config_readw(pdev, PCI_CB_SUBSYSTEM_ID);
-//     pdev->subdevice = val;
-// }
-
-static inline void pci_irq_setup(struct pci_device *pdev)
+static inline void pci_irq_set(struct pci_device *pdev)
 {
     uint8_t val;
 
     val = pci_config_readb(pdev, PCI_INTERRUPT_PIN);
-    pdev->pin = val;
+    if (!val)
+        return;
 
+    pdev->pin = val;
     val = pci_config_readb(pdev, PCI_INTERRUPT_LINE);
     pdev->irq = val;
+}
+
+static inline void pcie_port_set(struct pci_device *pdev)
+{
+    struct pci_device *parent;
+    uint16_t val;
+    uint8_t pos;
+
+    pos = pci_capability_find(pdev, PCI_CAP_ID_EXP);
+    if (!pos)
+        return;
+
+    pdev->pcie_cap = pos;
+
+    val = pci_config_readw(pdev, pos + PCI_EXP_FLAGS);
+    pdev->pcie_flags = val;
+    pdev->devcap = pci_config_readw(pdev, pos + PCI_EXP_DEVCAP);
+    pdev->pcie_mpss = pdev->devcap & PCI_EXP_DEVCAP_PAYLOAD;
+
+    parent = pci_upstream_bridge(pdev);
+    if (!parent)
+        return;
+
+    /*
+     * Some systems do not identify their upstream/downstream ports
+     * correctly so detect impossible configurations here and correct
+     * the port type accordingly.
+     */
+
+    if (pci_pcie_type(pdev) == PCI_EXP_TYPE_DOWNSTREAM &&
+        pci_pcie_is_downstream(parent)) {
+        /*
+         * If pdev claims to be downstream port but the parent
+         * device is also downstream port assume pdev is actually
+         * upstream port.
+         */
+
+        pdev->pcie_flags &= ~PCI_EXP_FLAGS_TYPE;
+        pdev->pcie_flags |= PCI_EXP_TYPE_UPSTREAM;
+    } else if (pci_pcie_type(pdev) == PCI_EXP_TYPE_UPSTREAM &&
+               pci_pcie_type(parent) == PCI_EXP_TYPE_UPSTREAM) {
+        /*
+         * If pdev claims to be upstream port but the parent
+         * device is also upstream port assume pdev is actually
+         * downstream port.
+         */
+
+        pdev->pcie_flags &= ~PCI_EXP_FLAGS_TYPE;
+        pdev->pcie_flags |= PCI_EXP_TYPE_DOWNSTREAM;
+    }
+}
+
+/**
+ * pci_ext_cfgsz_is_aligned -
+ * @pdev: PCI device to check aligned
+ */
+static inline unsigned int pci_ext_cfgsz_is_aligned(struct pci_device *pdev)
+{
+#ifndef CONFIG_PCI_QUIRKS
+    uint32_t header, val;
+    int pos;
+
+    header = pci_config_readl(pdev, PCI_VENDOR_ID);
+
+    for (pos = PCI_CFG_SPACE_SIZE;
+         pos < PCI_CFG_SPACE_EXP_SIZE;
+         pos += PCI_CFG_SPACE_SIZE)
+        if (pci_config_try_readl(pdev, pos, &val) || header != val)
+            return false;
+
+    return true;
+#else
+    return false;
+#endif
+}
+
+static inline unsigned int pci_ext_cfgsz_get(struct pci_device *pdev)
+{
+    uint32_t val;
+
+    if (pci_config_try_readl(pdev, PCI_CFG_SPACE_SIZE, &val))
+        return PCI_CFG_SPACE_SIZE;
+
+    if (val == 0xffffffff || pci_ext_cfgsz_is_aligned(pdev))
+        return PCI_CFG_SPACE_SIZE;
+
+    return PCI_CFG_SPACE_EXP_SIZE;
+}
+
+static inline unsigned int pci_cfgsz_get(struct pci_device *pdev)
+{
+    uint32_t class, val;
+    uint8_t pos;
+
+    class = pdev->class >> 8;
+    if (class == PCI_CLASS_BRIDGE_HOST)
+        return pci_ext_cfgsz_get(pdev);
+
+    pos = pci_capability_find(pdev, PCI_CAP_ID_PCIX);
+    if (!pos)
+        return PCI_CFG_SPACE_SIZE;
+
+    val = pci_config_readl(pdev, pos + PCI_X_STATUS);
+    if (val & (PCI_X_STATUS_266MHZ | PCI_X_STATUS_533MHZ))
+        return pci_ext_cfgsz_get(pdev);
+
+    return PCI_CFG_SPACE_SIZE;
 }
 
 /**
@@ -337,19 +426,23 @@ static inline void pci_irq_setup(struct pci_device *pdev)
  */
 static state pci_device_setup(struct pci_device *pdev)
 {
-    uint32_t val;
+    uint32_t class, val;
 
-    pdev->dev.bus = &pci_bus_type;
-
-    /* Setup Header type */
+    /* Setup Header type first (capability need) */
     val = pci_config_readb(pdev, PCI_HEADER_TYPE);
     pdev->head = val & PCI_HEADER_TYPE_MASK;
     pdev->multifunction = !!(val & 0x80);
+    pcie_port_set(pdev);
 
     /* Setup revision and class code */
-    val = pci_config_readl(pdev, PCI_CLASS_REVISION);
-    pdev->revision = val & 0xff;
-    pdev->class = val >> 8;
+    class = pci_config_readl(pdev, PCI_CLASS_REVISION);
+    pdev->revision = class & 0xff;
+    pdev->class = class >> 8;
+    class >>= 8;
+
+    /* Now need pdev->class */
+    pdev->cfgsz = pci_cfgsz_get(pdev);
+    pdev->power_state = PCI_POWER_UNKNOWN;
 
     pr_info("setup device: %02d:%02d:%d %06x %04x:%04x\n",
             pdev->bus->bus_nr, PCI_SLOT(pdev->devfn), PCI_FUNC(pdev->devfn),
@@ -359,19 +452,21 @@ static state pci_device_setup(struct pci_device *pdev)
     if (pdev->head == PCI_HEADER_TYPE_NORMAL){
         if (pdev->class == PCI_CLASS_BRIDGE_PCI)
             goto eclass;
-        pci_irq_setup(pdev);
-        pci_resource_setup(pdev, 6, PCI_ROM_ADDRESS);
-        pci_subsystem_setup(pdev);
+
+        pci_irq_set(pdev);
+        pci_resources_set(pdev, 6, PCI_ROM_ADDRESS);
+        pci_subsystem_set(pdev);
     } else if (pdev->head == PCI_HEADER_TYPE_CARDBUS) {
         if (pdev->class != PCI_CLASS_BRIDGE_CARDBUS)
             goto eclass;
-        pci_irq_setup(pdev);
-        pci_resource_setup(pdev, 1, 0);
-        pci_cb_subsystem_setup(pdev);
+
+        pci_irq_set(pdev);
+        pci_resources_set(pdev, 1, 0);
+        pci_cb_subsystem_set(pdev);
     } else if (pdev->head == PCI_HEADER_TYPE_BRIDGE) {
-        pci_irq_setup(pdev);
-        pci_resource_setup(pdev, 2, PCI_ROM_ADDRESS1);
-        pci_bridge_windows_setup(pdev);
+        pci_irq_set(pdev);
+        pci_resources_set(pdev, 2, PCI_ROM_ADDRESS1);
+        pci_bridge_windows_set(pdev);
     } else {
         pr_err("unknown head type %x\n", pdev->head);
         return -EIO;
@@ -392,14 +487,16 @@ eclass:
  */
 static struct pci_device *pci_device_alloc(struct pci_bus *bus)
 {
-    struct pci_device *dev;
+    struct pci_device *pdev;
 
-    dev = kzalloc(sizeof(*dev), GFP_KERNEL);
-    if (!dev)
+    pdev = kzalloc(sizeof(*pdev), GFP_KERNEL);
+    if (!pdev)
         return NULL;
 
-    dev->bus = bus;
-    return dev;
+    pdev->bus = bus;
+    pdev->dev.bus = &pci_bus_type;
+
+    return pdev;
 }
 
 /**
@@ -421,10 +518,13 @@ static struct pci_bus *pci_bus_alloc(struct pci_bus *parent)
 
     list_head_init(&bus->child);
     list_head_init(&bus->pci_device_list);
+    bus->cur_speed = PCI_SPEED_UNKNOWN;
+    bus->max_speed = PCI_SPEED_UNKNOWN;
+
     return bus;
 }
 
-static struct pci_bus *pci_bus_add(struct pci_bus *parent, struct pci_device *pdev)
+static struct pci_bus *pci_bus_alloc_child(struct pci_bus *parent, struct pci_device *bridge)
 {
     struct pci_bus *child;
 
@@ -432,9 +532,11 @@ static struct pci_bus *pci_bus_add(struct pci_bus *parent, struct pci_device *pd
     if (!child)
         return NULL;
 
-    child->bridge = pdev;
+    child->bridge = bridge;
+    child->ops = parent->ops;
+    child->host = parent->host;
 
-    pci_bus_speed_setup(child);
+    pci_bus_speed_set(child);
     list_add(&parent->child, &child->sibling);
 
     return child;
@@ -451,8 +553,8 @@ static state pci_scan_device(struct pci_bus *bus, uint32_t devfn,
     state retval;
 
     /* Check whether the device exists */
-    val = pci_bus_config_readl(bus, devfn, PCI_VENDOR_ID);
-    if (val == 0x00000000 || val == 0xffffffff||
+    pci_bus_config_readl(bus, devfn, PCI_VENDOR_ID, &val);
+    if (val == 0x00000000 || val == 0xffffffff ||
         val == 0x0000ffff || val == 0xffff0000)
         return -ENODEV;
 
@@ -475,41 +577,18 @@ static state pci_scan_device(struct pci_bus *bus, uint32_t devfn,
     return -ENOERR;
 }
 
-static void pci_pm_init(struct pci_device *pdev)
-{
-    uint16_t val;
-    uint8_t pos;
-
-    pos = pci_capability_find(pdev, PCI_CAP_ID_PM);
-    if (!pos)
-        return;
-
-    val = pci_config_readw(pdev, pos + PCI_PM_PMC);
-
-    if (!pci_power_no_d1d2(pdev)) {
-        if (val & PCI_PM_CAP_D1)
-            pdev->power_has_d1 = true;
-        if (val & PCI_PM_CAP_D2)
-            pdev->power_has_d2 = true;
-        if (pdev->power_has_d1 || pdev->power_has_d2)
-            dev_info(&pdev->dev, "power supports: %s%s\n",
-                pdev->power_has_d1 ? "D1" : "",
-                pdev->power_has_d2 ? "D2" : "");
-    }
-
-}
-
 static void pci_capabilities_init(struct pci_device *pdev)
 {
-    pci_pm_init(pdev);
+    pci_power_setup(pdev);
 }
 
 static void pci_device_add(struct pci_bus *bus, struct pci_device *pdev)
 {
     pci_capabilities_init(pdev);
 
-    /* Add pci device to pci bus list */
-    list_add(&bus->pci_device_list, &pdev->pci_bus_list_pci_device);
+    list_add(&bus->pci_device_list, &pdev->list);
+    pcibios_device_add(pdev);
+
     device_register(&pdev->dev);
 }
 
@@ -533,9 +612,6 @@ static state pci_scan_add_device(struct pci_bus *bus, uint32_t devfn)
 
 static uint16_t pci_next_fn(struct pci_bus *bus, uint32_t devfn)
 {
-    // uint32_t val;
-    // val = pci_bus_config_readl(bus, devfn, PCI_ARI_CAP);
-
     return PCI_FUNC(devfn) + 1;
 }
 
@@ -544,7 +620,7 @@ static uint16_t pci_next_fn(struct pci_bus *bus, uint32_t devfn)
  * @bus: PCI bus to scan
  * @slot: slot number to scan
  */
-static state pci_scan_slot(struct pci_bus *bus, uint8_t slot)
+static void pci_scan_slot(struct pci_bus *bus, uint8_t slot)
 {
     uint8_t fn;
     state ret;
@@ -552,14 +628,13 @@ static state pci_scan_slot(struct pci_bus *bus, uint8_t slot)
     /* first check whether slot exists */
     ret = pci_scan_add_device(bus, PCI_DEVFN(slot, 0));
     if (ret)
-        return ret;
+        return;
 
-    for (fn = pci_next_fn(bus, PCI_DEVFN(slot, 0)); fn < 8;
+    for (fn = pci_next_fn(bus, PCI_DEVFN(slot, 0));
+         fn < PCI_MAX_FUNCTION;
          fn = pci_next_fn(bus, PCI_DEVFN(slot, fn))) {
-        ret = pci_scan_add_device(bus, PCI_DEVFN(slot, fn));
+        pci_scan_add_device(bus, PCI_DEVFN(slot, fn));
     }
-
-    return -ENOERR;
 }
 
 static state pci_scan_bridge(struct pci_bus *bus, struct pci_device *pdev)
@@ -580,9 +655,10 @@ static state pci_scan_bridge(struct pci_bus *bus, struct pci_device *pdev)
 
     if ((secondary || subordinate) &&
         pdev->head != PCI_HEADER_TYPE_CARDBUS) {
-        child = pci_bus_add(bus, pdev);
+        child = pci_bus_alloc_child(bus, pdev);
         if (!child)
             return -ENOMEM;
+
         child->primary = primary;
         pci_bus_scan(child);
     }
@@ -592,43 +668,42 @@ static state pci_scan_bridge(struct pci_bus *bus, struct pci_device *pdev)
 }
 
 /**
- * pci_bus_scan - Scan all devices of all bus of host
- * @host: pci host
+ * pci_bus_scan - scan all devices of all bus of host
+ * @host: pci host to scan
  */
 state pci_bus_scan(struct pci_bus *bus)
 {
     struct pci_device *pdev;
     uint8_t slot;
 
-    for (slot = 0; slot < 32; ++slot) {
+    for (slot = 0; slot < PCI_MAX_SLOT; ++slot)
         pci_scan_slot(bus, slot);
-    }
 
-    pci_for_each_bridge(pdev, bus) {
+    pci_for_each_bridge(pdev, bus)
         pci_scan_bridge(bus, pdev);
-    }
 
     return -ENOERR;
 }
 
 /**
- * pci_host_register - Register PCI bus and probe drive
- * @host:
+ * pci_host_register - register PCI bus and probe drive
+ * @host: pci host to register
  */
 state pci_host_register(struct pci_host *host)
 {
     struct pci_bus *bus;
 
-    /* Alloc host bus */
     bus = pci_bus_alloc(NULL);
     if (!bus)
-        return -ENOMEM;
+        return -ENOERR;
 
-    host->bus = bus;
+    host->root = bus;
+    bus->host = host;
     bus->ops = host->ops;
 
     pci_bus_scan(bus);
     pci_bus_devices_probe(bus);
 
+    list_add(&pci_host_list, &host->list);
     return -ENOERR;
 }

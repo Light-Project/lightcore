@@ -4,7 +4,7 @@
  */
 
 #include <lib.h>
-#include <crc_table.h>
+#include <crc-table.h>
 
 static uint32_t crc32(const uint8_t *src, int len, uint32_t crc)
 {
@@ -21,8 +21,8 @@ void kernel_check(void *addr)
     uint32_t size = boot_head->size;
 
     pr_boot("verification info:\n");
-    pr_boot("    start: %p\n", addr);
-    pr_boot("     size: %#x\n", size);
+    pr_boot("  start: %p\n", addr);
+    pr_boot("  size: %#x\n", size);
 
     if (strcmp((char *)&boot_head->magic, "lightcore!"))
         panic("can't find kernel!\n");

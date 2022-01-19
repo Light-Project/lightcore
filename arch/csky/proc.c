@@ -7,7 +7,7 @@
 #include <asm/irq.h>
 #include <export.h>
 
-state proc_thread_switch(struct task *prev, struct task *next)
+state proc_thread_switch(struct sched_task *prev, struct sched_task *next)
 {
     return -ENOERR;
 }

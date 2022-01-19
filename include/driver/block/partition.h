@@ -10,9 +10,8 @@ struct partition_type {
     state (*match)(struct block_device *);
 };
 
-state partition_scan(struct block_device *);
-
-state partition_register(struct partition_type *);
-void partition_unregister(struct partition_type *);
+extern state partition_scan(struct block_device *);
+extern state partition_register(struct partition_type *);
+extern void partition_unregister(struct partition_type *);
 
 #endif  /* _DRIVER_BLOCK_PARTITION_H_ */

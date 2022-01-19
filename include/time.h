@@ -4,12 +4,21 @@
 
 #include <types.h>
 
+/* Parameters used to convert the timespec values */
+#define MSEC_PER_SEC    1000UL
+#define USEC_PER_MSEC   1000UL
+#define NSEC_PER_USEC   1000UL
+#define NSEC_PER_MSEC   1000000UL
+#define USEC_PER_SEC    1000000UL
+#define NSEC_PER_SEC    1000000000UL
+#define PSEC_PER_SEC    1000000000000ULL
+#define FSEC_PER_SEC    1000000000000000ULL
+
 struct timespec {
-    time_t  tv_sec;
-    long    tv_nsec;
+    time_t tv_sec;
+    long tv_nsec;
 };
 
-time_t mktime(unsigned int year, unsigned int mon, unsigned int day,
-              unsigned int hour, unsigned int min, unsigned int sec);
+extern time_t mktime(unsigned int year, unsigned int mon, unsigned int day, unsigned int hour, unsigned int min, unsigned int sec);
 
 #endif  /* _TIME_H_ */

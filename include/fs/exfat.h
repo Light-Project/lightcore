@@ -1,8 +1,4 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-/*
- * Copyright (C) 2012-2013 Samsung Electronics Co., Ltd.
- */
-
 #ifndef _FS_EXFAT_H_
 #define _FS_EXFAT_H_
 

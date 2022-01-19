@@ -13,7 +13,6 @@ struct logo {
 };
 
 extern const struct logo logo_info;
-
-void terminal_logo(void);
+extern void terminal_logo(void);
 
 #endif  /* _LOGO_H_ */

@@ -1,5 +1,5 @@
 config LOAD_ADDR
-hex "Boot load physical address"
-default 0x00
-help
-    The physical address where the boot image is loaded
+    hex "Boot load physical address"
+    default 0x00
+    help
+        The physical address where the boot image is loaded

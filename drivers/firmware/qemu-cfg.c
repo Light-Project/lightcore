@@ -6,7 +6,7 @@
 #define DRIVER_NAME "qemu"
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
-#include <mm.h>
+#include <memory.h>
 #include <initcall.h>
 #include <driver/platform.h>
 #include <driver/firmware/qemu.h>

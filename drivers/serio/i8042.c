@@ -285,7 +285,7 @@ static state i8042_aux_write(struct serio_host *shost, uint8_t cmd)
     return i8042_command(idev, I8042_CMD_AUX_SEND, &cmd);
 }
 
-static void i8042_power_reset(struct power_device *pdev)
+static void i8042_power_restart(struct power_device *pdev)
 {
     struct i8042_device *idev = power_to_idev(pdev);
     int timeout = 100;
@@ -307,7 +307,7 @@ static struct serio_ops i8042_aux_ops = {
 };
 
 static struct power_ops i8042_power_ops = {
-    .reset = i8042_power_reset,
+    .restart = i8042_power_restart,
 };
 
 static irqreturn_t i8042_handle(irqnr_t vector, void *data)
@@ -341,7 +341,7 @@ static state i8042_kbd_setup(struct platform_device *pdev)
     /* request irq handle */
     irq_request(ATKBD_IRQ, 0, i8042_handle, idev, DRIVER_NAME);
 
-    irqchip = dt_get_irqchip_channel_by_name(pdev->dt_node, "kbd");
+    irqchip = dt_irqchip_channel_name(pdev->dt_node, "kbd");
     if (!irqchip) {
         dev_err(&pdev->dev, "unable to request irq\n");
         return -EINVAL;
@@ -398,7 +398,7 @@ static state i8042_aux_setup(struct platform_device *pdev)
     /* request irq handle */
     irq_request(ATKBD_IRQ, 0, i8042_handle, idev, DRIVER_NAME);
 
-    irqchip = dt_get_irqchip_channel_by_name(pdev->dt_node, "aux");
+    irqchip = dt_irqchip_channel_name(pdev->dt_node, "aux");
     if (!irqchip) {
         dev_err(&pdev->dev, "unable to request irq\n");
         return -EINVAL;
@@ -435,7 +435,7 @@ static state i8042_probe(struct platform_device *pdev, const void *pdata)
     state ret;
 
     if (platform_resource_type(pdev, 0) != RESOURCE_PMIO)
-        return -ENODEV;
+        return -ENXIO;
 
     idev = dev_kzalloc(&pdev->dev, sizeof(*idev), GFP_KERNEL);
     if (!idev)

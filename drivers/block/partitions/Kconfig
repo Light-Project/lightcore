@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menu "Block Partition Support"
+
+config PART_MSDOS
+    bool "PC BIOS (MSDOS Partition) Support"
+    default y
+
+config PART_EFI
+    bool "EFI GUID Partition Support"
+    default y
+
+endmenu

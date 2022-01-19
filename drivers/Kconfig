@@ -11,6 +11,8 @@ source "drivers/char/Kconfig"
 
 source "drivers/clk/Kconfig"
 
+source "drivers/clockevent/Kconfig"
+
 source "drivers/clocksource/Kconfig"
 
 source "drivers/cpufreq/Kconfig"
@@ -18,8 +20,6 @@ source "drivers/cpufreq/Kconfig"
 source "drivers/dt/Kconfig"
 
 source "drivers/firmware/Kconfig"
-
-source "drivers/floppy/Kconfig"
 
 source "drivers/gpio/Kconfig"
 

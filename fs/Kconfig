@@ -1,10 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-menuconfig FS
-    bool "File Systems"
-if FS
+menu "File Systems"
 
 source "fs/cpio/Kconfig"
 
 source "fs/romfs/Kconfig"
 
-endif
+endmenu

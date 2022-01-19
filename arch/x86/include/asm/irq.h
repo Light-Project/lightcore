@@ -3,6 +3,7 @@
 #define _ASM_X86_IRQ_H_
 
 #include <types.h>
+#include <asm/regs.h>
 
 #define IRQ_EXTERNAL    0x20
 #define IRQ_NR_MAX      256
@@ -28,6 +29,11 @@ enum isa_vector {
     ATA2_IRQ        = IRQ_EXTERNAL + 0x0f,  /* Secondary hard drive     */
 };
 
+static inline bool cpu_irqs_enabled_flags(irqflags_t flags)
+{
+    return flags & EFLAGS_IF;
+}
+
 static inline void cpu_irq_disable(void)
 {
     asm volatile (
@@ -46,13 +52,15 @@ static inline void cpu_irq_enable(void)
 
 static inline irqflags_t cpu_irq_save(void)
 {
+    irqflags_t irqflags = eflags_get();
     cpu_irq_disable();
-    return 0;
+    return irqflags;
 }
 
 static inline void cpu_irq_restore(irqflags_t flags)
 {
-    cpu_irq_enable();
+    if (cpu_irqs_enabled_flags(flags))
+        cpu_irq_enable();
 }
 
 #endif  /* __ASSEMBLY__ */

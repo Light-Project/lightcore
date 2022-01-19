@@ -5,8 +5,8 @@
 #include <device.h>
 
 struct rng_device {
-    struct device *dev;
     struct list_head list;
+    struct device *dev;
     struct rng_ops *ops;
 };
 

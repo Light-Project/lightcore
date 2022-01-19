@@ -3,10 +3,10 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <mm.h>
+#include <kmalloc.h>
 #include <fsdev.h>
 
-LIST_HEAD(fsdev_list);
+static LIST_HEAD(fsdev_list);
 
 state fsdev_read(struct fsdev *fsdev, unsigned long pos, void *buf, size_t len)
 {

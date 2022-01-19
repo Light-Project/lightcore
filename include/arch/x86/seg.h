@@ -38,9 +38,15 @@
  *  20  ->  BIOS PNP support                <=== cacheline #6
  *  21  ->  BIOS APM support
  *
+ *  26  ->  ESPFIX small SS
+ *  27  ->  PERCPU
+ *  28  ->  unused
+ *  29  ->  unused
+ *  30  ->  unused
+ *  31  ->  TSS for double fault handler
  */
 
-/* Reserved for bootloader only */
+/* Use for bootloader only */
 
 #define GDT_ENTRY_BOOT_CS           1
 #define GDT_ENTRY_BOOT_DS           2
@@ -83,7 +89,10 @@
 #define GDT_ENTRY_APMBIOS_CS16_BASE (GDT_ENTRY_APMBIOS_CS16 * 8)
 #define GDT_ENTRY_APMBIOS_DS_BASE   (GDT_ENTRY_APMBIOS_DS   * 8)
 
+#define GDT_ENTRY_PERCPU            27
 #define GDT_ENTRY_DF_TSS            31
+
+#define GDT_ENTRY_PERCPU_BASE       (GDT_ENTRY_PERCPU * 8)
 #define GDT_ENTRY_DF_TSS_BASE       (GDT_ENTRY_DF_TSS * 8)
 
 #define GDT_ENTRY_MAX               64

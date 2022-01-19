@@ -11,25 +11,40 @@
 static LIST_HEAD(console_list);
 static struct console *current_console;
 
-void console_write(const char *str, unsigned int len)
+unsigned int console_read(char *buff, unsigned int len)
 {
     struct console *console;
 
     list_for_each_entry(console, &console_list, list) {
         if (!(console->flags & CONSOLE_ENABLED))
             continue;
-        if(!console->ops->write)
+        if (!console->ops->write)
             continue;
-        return console->ops->write(console, str, len);
+        return console->ops->read(console, buff, len);
     }
 
-    pre_console_write(str, len);
+    return pre_console_read(buff, len);
+}
+
+void console_write(const char *buff, unsigned int len)
+{
+    struct console *console;
+
+    list_for_each_entry(console, &console_list, list) {
+        if (!(console->flags & CONSOLE_ENABLED))
+            continue;
+        if (!console->ops->write)
+            continue;
+        console->ops->write(console, buff, len);
+        return;
+    }
+
+    pre_console_write(buff, len);
 }
 
 void console_startup(struct console *con)
 {
-    if (con->flags & CONSOLE_ENABLED ||
-        !con->ops->startup)
+    if (con->flags & CONSOLE_ENABLED || !con->ops->startup)
         return;
 
     con->flags |= CONSOLE_ENABLED;
@@ -37,8 +52,7 @@ void console_startup(struct console *con)
 
 void console_shutdown(struct console *con)
 {
-    if (~(con->flags & CONSOLE_ENABLED) ||
-        !con->ops->shutdown)
+    if (~(con->flags & CONSOLE_ENABLED) || !con->ops->shutdown)
         return;
 
     con->flags &= ~CONSOLE_ENABLED;

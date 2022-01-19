@@ -57,7 +57,7 @@ state usb_host_register(struct usb_host *host)
     struct usb_device *root_hub;
     state ret;
 
-    if (!host || !host->ops)
+    if (!host->dev || !host->ops)
         return -EINVAL;
 
     root_hub = usb_device_alloc(&host->bus, NULL);
@@ -89,14 +89,14 @@ state usb_host_register(struct usb_host *host)
     if (host->ops->setup) {
         ret = host->ops->setup(host);
         if (unlikely(ret)) {
-            pr_err("reset error\n");
+            dev_err(host->dev, "reset error\n");
             return -EBUSY;
         }
     }
 
     ret = host->ops->start(host);
     if (unlikely(ret)) {
-        pr_err("start error\n");
+        dev_err(host->dev, "start error\n");
         return -EBUSY;
     }
 

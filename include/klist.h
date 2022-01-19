@@ -1,39 +1,43 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _KLIST_H_
 #define _KLIST_H_
 
 #include <list.h>
 #include <spinlock.h>
+#include <kref.h>
 
 struct klist_node {
-    void        *n_klist;
-    list_t      n_node;
-} klist_node_t;
-
-struct klist {
-    spinlock_t  k_lock;
-    list_t      k_list;
-    void        (*get)(struct klist_node *);
-    void        (*put)(struct klist_node *);
+    struct list_head list;
+    struct klist_head *head;
+    struct kref kref;
+    uint8_t dead:1;
 };
 
-#define KLIST_INIT(_name, _get, _put)   \
-    {                                   \
-                                        \
-                                        \
-    }
+#define list_to_klist(node) \
+    container_of(node, struct klist_node, list)
 
-
-extern void klist_add_head();
-extern void klist_add_tail();
-extern void klist_add_before();
-extern void klist_add_behind();
-
-extern void klist_del();
-extern void klist_remove();
+struct klist_head {
+    spinlock_t lock;
+    struct list_head node;
+    void (*get)(struct klist_node *);
+    void (*put)(struct klist_node *);
+};
 
 struct klist_iter {
-	struct klist		*i_klist;
-	struct klist_node	*i_cur;
+    struct klist_head *head;
+    struct klist_node *curr;
 };
 
-#endif
+extern void klist_add_head(struct klist_head *head, struct klist_node *new);
+extern void klist_add_tail(struct klist_head *head, struct klist_node *new);
+extern void klist_add_next(struct klist_node *node, struct klist_node *new);
+extern void klist_add_prev(struct klist_node *node, struct klist_node *new);
+extern void klist_del(struct klist_node *node);
+
+extern void klist_iter_init_node(struct klist_iter *iter, struct klist_head *head, struct klist_node *node);
+extern void klist_iter_init(struct klist_iter *iter, struct klist_head *head);
+extern void klist_iter_exit(struct klist_iter *iter);
+extern struct klist_node *klist_iter_next(struct klist_iter *iter);
+extern struct klist_node *klist_iter_prev(struct klist_iter *iter);
+
+#endif  /* _KLIST_H_ */

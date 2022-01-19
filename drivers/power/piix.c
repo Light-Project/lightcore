@@ -5,7 +5,6 @@
 
 #define DRIVER_NAME "piix-power"
 
-#include <kmalloc.h>
 #include <initcall.h>
 #include <driver/platform.h>
 #include <driver/power.h>
@@ -26,7 +25,7 @@ static void piix_power_restart(struct power_device *pdev)
     struct piix_device *piix = power_to_piix(pdev);
 
     /* CPU Soft Restart */
-    outb(piix->base, PIIX_RC_RCPU);
+    outb(piix->base, PIIX_RC_RCPU | PIIX_RC_SRST);
     mdelay(100);
 }
 
@@ -35,7 +34,7 @@ static void piix_power_reset(struct power_device *pdev)
     struct piix_device *piix = power_to_piix(pdev);
 
     /* Full Power Reset */
-    outb(piix->base, PIIX_RC_FULL | PIIX_RC_RCPU| PIIX_RC_SRST);
+    outb(piix->base, PIIX_RC_FULL | PIIX_RC_RCPU | PIIX_RC_SRST);
     mdelay(100);
 }
 
@@ -48,12 +47,10 @@ static state piix_power_probe(struct platform_device *pdev, const void *pdata)
 {
     struct piix_device *piix;
 
-    return -ENODEV;
-
     if (platform_resource_type(pdev, 0) != RESOURCE_PMIO)
         return -ENODEV;
 
-    piix = kzalloc(sizeof(*piix), GFP_KERNEL);
+    piix = platform_kzalloc(pdev, sizeof(*piix), GFP_KERNEL);
     if (!piix)
         return -ENOMEM;
 

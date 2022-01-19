@@ -8,11 +8,10 @@
 #include <kmalloc.h>
 #include <initcall.h>
 #include <device.h>
+#include <printk.h>
 #include <driver/block.h>
 #include <driver/block/partition.h>
 #include <driver/block/msdos.h>
-#include <printk.h>
-
 #include <lightcore/asm/byteorder.h>
 
 static inline bool msdos_is_extended(uint8_t type)

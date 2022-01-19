@@ -5,9 +5,8 @@
 
 #define pr_fmt(fmt) "memtest: " fmt
 
-#include <stddef.h>
-#include <mm.h>
-#include <memtest.h>
+#include <memory.h>
+#include <mm/memblock.h>
 #include <printk.h>
 
 static size_t patterns[] = {
@@ -19,7 +18,7 @@ static size_t patterns[] = {
 
 static void bad_block(void *start, size_t size)
 {
-    pr_warn("Bad block size %ld @ 0xlx\n", size, start);
+    pr_warn("Bad block size %ld @ %p\n", size, start);
     memblock_reserve("bad-block", va_to_pa(start), size);
 }
 

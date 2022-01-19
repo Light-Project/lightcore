@@ -7,37 +7,22 @@
 #include <pm.h>
 #include <device/bus.h>
 #include <device/driver.h>
-#include <device/devres.h>
 #include <device/devinfo.h>
+#include <device/devres.h>
 #include <printk.h>
-
-enum devres_type {
-    DEVRES_KMEM,
-    DEVRES_VMEM,
-    DEVRES_IOMAP,
-};
-
-struct devres {
-    const char *name;
-    enum devres_type type;
-    struct list_head list;
-    void *addr;
-    size_t size;
-};
 
 struct device {
     const char *name;
-    struct kobject kobj;
-
     struct bus_type *bus;
     struct driver *driver;
     struct device *parent;
-    list_t bus_list_device;
-    list_t driver_list_device;
-    struct list_head devres;
-
-    struct mutex mutex;
     void *pdata;
+
+    struct kobject kobj;
+    struct list_head bus_list_device;
+    struct list_head driver_list_device;
+    struct list_head devres;
+    struct mutex mutex;
 };
 
 #define device_for_each_res(res, dev) \
@@ -53,13 +38,22 @@ static inline void device_set_pdata(struct device *dev, void *data)
     dev->pdata = data;
 }
 
-state device_bind(struct device *);
-state driver_bind(struct driver *);
+static inline void device_lock(struct device *dev)
+{
+    mutex_lock(&dev->mutex);
+}
 
-state device_register(struct device *);
-void device_unregister(struct device *dev);
+static inline void device_unlock(struct device *dev)
+{
+    mutex_unlock(&dev->mutex);
+}
 
-void __init early_device_init(void);
-void __init device_init(void);
+extern state device_bind(struct device *);
+extern state driver_bind(struct driver *);
+extern state device_register(struct device *);
+extern void device_unregister(struct device *dev);
 
-#endif
+extern void __init early_device_init(void);
+extern void __init device_init(void);
+
+#endif  /* _DEVICE_H_ */

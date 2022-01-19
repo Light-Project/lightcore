@@ -3,7 +3,7 @@
 # Build elf
 # ==========================================================================
 
-# Include bin rule
+# Include elf rule
 include $(build_home)/modules/elf_rule.mk
 
 quiet_cmd_link_o_target = $(ECHO_LD) $@

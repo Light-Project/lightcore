@@ -5,10 +5,10 @@
 
 #define pr_fmt(fmt) "kcache: " fmt
 
-#include <kernel.h>
 #include <kmalloc.h>
 #include <export.h>
 #include <printk.h>
+#include <panic.h>
 
 struct kcache kcache_cache = {
     .objsize = sizeof(kcache_cache),
@@ -31,6 +31,8 @@ struct kcache *kcache_create(const char *name, size_t size, enum kcache_flags fl
 
     cache->objsize = size;
     list_head_init(&cache->free);
+
+
     return cache;
 }
 

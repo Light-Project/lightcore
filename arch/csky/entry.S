@@ -92,7 +92,7 @@ ENTRY(exception_return)
     rte
 END(exception_return)
 
-SYM_CODE_START(entry_misaligned)
+GLOBAL(entry_misaligned)
     SAVE_REGS
     psrset  ee
 
@@ -100,45 +100,45 @@ SYM_CODE_START(entry_misaligned)
     jsri    trap_misaligned
 
     br      exception_return
-SYM_CODE_END(entry_misaligned)
+END(entry_misaligned)
 
-SYM_CODE_START(entry_buserr)
+GLOBAL(entry_buserr)
     SAVE_REGS
 
     mov     a0, sp
     jsri    trap_buserr
 
     br      exception_return
-SYM_CODE_END(entry_buserr)
+END(entry_buserr)
 
-SYM_CODE_START(entry_zerodiv)
+GLOBAL(entry_zerodiv)
     SAVE_REGS
 
     mov     a0, sp
     jsri    trap_zerodiv
 
     br      exception_return
-SYM_CODE_END(entry_zerodiv)
+END(entry_zerodiv)
 
-SYM_CODE_START(entry_illinsn)
+GLOBAL(entry_illinsn)
     SAVE_REGS
 
     mov     a0, sp
     jsri    trap_illinsn
 
     br      exception_return
-SYM_CODE_END(entry_illinsn)
+END(entry_illinsn)
 
-SYM_CODE_START(entry_priv)
+GLOBAL(entry_priv)
     SAVE_REGS
 
     mov     a0, sp
     jsri    trap_priv
 
     br      exception_return
-SYM_CODE_END(entry_priv)
+END(entry_priv)
 
-SYM_CODE_START(entry_pagefault)
+GLOBAL(entry_pagefault)
     SAVE_REGS
     psrset  ee
 
@@ -146,17 +146,17 @@ SYM_CODE_START(entry_pagefault)
     jsri    arch_pagefault
 
     br      exception_return
-SYM_CODE_END(entry_pagefault)
+END(entry_pagefault)
 
-SYM_CODE_START(entry_syscall)
+GLOBAL(entry_syscall)
     SAVE_REGS
     psrset  ee, ie
 
     REC_REGS
     rfi
-SYM_CODE_END(entry_syscall)
+END(entry_syscall)
 
-SYM_CODE_START(entry_generic_interrupt)
+GLOBAL(entry_generic_interrupt)
     SAVE_REGS
     psrset  ee
 
@@ -164,4 +164,4 @@ SYM_CODE_START(entry_generic_interrupt)
     jbsr    generic_interrupt
 
     br      exception_return
-SYM_CODE_END(entry_generic_interrupt)
+END(entry_generic_interrupt)

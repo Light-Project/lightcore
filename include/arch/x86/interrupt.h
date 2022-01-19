@@ -22,28 +22,28 @@ struct idt_bits {
 } __packed;
 
 struct idt_entry {
-    uint16_t offsetl;       /* Offsetl to procedure entry point */
-    uint16_t segment;       /* Segment Selector for destination code segment */
-    struct idt_bits bits;   /*  */
-    uint16_t offseth;       /* Offseth to procedure entry point */
+    uint16_t offsetl;           /* Offsetl to procedure entry point */
+    uint16_t segment;           /* Segment Selector for destination code segment */
+    struct idt_bits bits;       /*  */
+    uint16_t offseth;           /* Offseth to procedure entry point */
 } __packed;
 
 struct idt_table {
-    uint16_t limit;         /* IDT_ENTRY limit (byte) */
-    struct idt_entry *idt;  /* Point to IDT_ENTRY */
+    uint16_t limit;             /* IDT_ENTRY limit (byte) */
+    struct idt_entry *idt;      /* Point to IDT_ENTRY */
 } __packed;
 
-#define IDT_TYPE_TASK       0x05  // Task Gate
-#define IDT_TYPE_INTERRUPT  0x06  // Interrupt Gate
-#define IDT_TYPE_TRAP       0x07  // Trap Gate
+#define IDT_TYPE_TASK           0x05    /* Task Gate */
+#define IDT_TYPE_INTERRUPT      0x06    /* Interrupt Gate */
+#define IDT_TYPE_TRAP           0x07    /* Trap Gate */
 
-#define IDT_DPL_RING0       0x00
-#define IDT_DPL_RING1       0x01
-#define IDT_DPL_RING2       0x02
-#define IDT_DPL_RING3       0x03
+#define IDT_DPL_RING0           0x00
+#define IDT_DPL_RING1           0x01
+#define IDT_DPL_RING2           0x02
+#define IDT_DPL_RING3           0x03
 
-#define IDT_D_16            0x00
-#define IDT_D_32            0x01
+#define IDT_D_16                0x00
+#define IDT_D_32                0x01
 
 enum trap_vector {
 /*  Mnemonic        Vector     Description                      Source                                                                      */

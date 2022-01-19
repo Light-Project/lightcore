@@ -133,7 +133,7 @@ else
 _start: start FORCE
 endif
 
-build/%.o: scripts_basic
+build/%.o build/%.h build/%.lds: scripts_basic
 	$(Q)$(MAKE) $(build)=$(patsubst build/%/,%,$(dir $@)) $(patsubst build/%,%,$@)
 
 build/%: scripts_basic
@@ -181,26 +181,39 @@ distclean: mrproper FORCE
 #####################################
 
 help: FORCE
+	$(Q)$(ECHO) 'Generic targets:'
+	$(Q)$(ECHO) '  all              - Build all targets marked with [*]'
+	$(Q)$(ECHO) '  kboot            - Build all targets marked with [*]'
+	$(Q)$(ECHO) '  uboot            - Build all targets marked with [*]'
+	$(Q)$(ECHO) '  preload          - Build all targets marked with [*]'
+	$(Q)$(ECHO) '  disk             - Build all targets marked with [*]'
+	$(Q)$(ECHO) ''
 	$(Q)$(ECHO) 'Other generic targets:'
-	$(Q)$(ECHO) '  all		  - Build all targets marked with [*]'
-	$(Q)$(ECHO) '  dir/            - Build all files in dir and below'
-	$(Q)$(ECHO) '                    (requires a recent binutils and recent build (System.map))'
+	$(Q)$(ECHO) '  build/dir        - Build all files in dir and below'
+	$(Q)$(ECHO) '  build/dir/file.o - Build one files in dir'
+	$(Q)$(ECHO) '  dtbs             - Build all DTB'
+	$(Q)$(ECHO) '  file.dtb         - Build one specific DTB'
+	$(Q)$(ECHO) '  build/dir        - Build all files in dir and below'
+	$(Q)$(ECHO) ''
 	$(Q)$(ECHO) 'Cleaning targets:'
-	$(Q)$(ECHO) '  clean		  - Remove most generated files but keep the config and'
-	$(Q)$(ECHO) '                    enough build support to build external modules'
-	$(Q)$(ECHO) '  mrproper	  - Remove all generated files + config + various backup files'
-	$(Q)$(ECHO) '  distclean	  - mrproper + remove editor backup and patch files'
+	$(Q)$(ECHO) '  clean            - Remove most generated files but keep the config'
+	$(Q)$(ECHO) '  clean/dir        - Build one files in dir'
+	$(Q)$(ECHO) '  mrproper         - Remove all generated files + config + various backup files'
+	$(Q)$(ECHO) '  distclean        - mrproper + remove editor backup and patch files'
 	$(Q)$(ECHO) ''
 	$(Q)$(ECHO) '  make V=0|1 [targets] 0 => quiet build (default), 1 => verbose build'
 	$(Q)$(ECHO) '  make V=2   [targets] 2 => give reason for rebuild of target'
 	$(Q)$(ECHO) '  make W=n   [targets] Enable extra build checks, n=1,2,3 where'
-	$(Q)$(ECHO) '       1: warnings which may be relevant and do not occur too often'
-	$(Q)$(ECHO) '       2: warnings which occur quite often but may still be relevant'
-	$(Q)$(ECHO) '       3: more obscure warnings, can most likely be ignored'
-	$(Q)$(ECHO) '       Multiple levels can be combined with W=12 or W=123'
+	$(Q)$(ECHO) '               1: warnings which may be relevant and do not occur too often'
+	$(Q)$(ECHO) '               2: warnings which occur quite often but may still be relevant'
+	$(Q)$(ECHO) '               3: more obscure warnings, can most likely be ignored'
+	$(Q)$(ECHO) '               Multiple levels can be combined with W=12 or W=123'
 	$(Q)$(ECHO) ''
 	$(Q)$(ECHO) 'Configuration targets:'
 	$(Q)$(MAKE) -f scripts/kconfig/Makefile help
+	$(Q)$(ECHO) ''
+	$(Q)$(ECHO) 'Other targets:'
+	$(Q)$(ECHO) '  run              - Execute (download or simulation) the selected platform'
 
 # We are always building only modules.
 PHONY += FORCE

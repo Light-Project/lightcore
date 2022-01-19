@@ -15,7 +15,6 @@ struct pevent {
 extern state pevent_suspend(void);
 extern void pevent_resume(void);
 extern void pevent_shutdown(void);
-
 extern state pevent_register(struct pevent *);
 extern void pevent_unregister(struct pevent *);
 

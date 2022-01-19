@@ -4,7 +4,7 @@
  */
 
 #include <initcall.h>
-#include <fs.h>
+#include <filesystem.h>
 
 
 static state ramfs_create()

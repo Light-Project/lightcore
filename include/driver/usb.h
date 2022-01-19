@@ -89,9 +89,9 @@ struct usb_bus {
 };
 
 struct usb_host {
-    struct usb_bus  bus;
+    struct usb_bus bus;
     struct usb_ops *ops;
-
+    struct device *dev;
     enum usb_host_type type;
 };
 

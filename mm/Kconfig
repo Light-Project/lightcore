@@ -89,7 +89,7 @@ config HIGHMAP_OFFSET
         will be mapped
 
 choice
-    prompt "Kmem Allocator Select"
+    prompt "KMEM Allocator Select"
     default MM_SLOB
 
 config MM_SLAB
@@ -100,21 +100,24 @@ config MM_SLOB
 
 endchoice
 
-menu "Slob Config"
+menu "SLOB Config"
     depends on MM_SLOB
 
-config SLOB_HUGE_LINE
-    int "Large page boundary (byte)"
-    default 1024
-
 config SLOB_MEDIUM_LINE
-    int "Medium page boundary (byte)"
+    int "Medium Page Boundary (byte)"
     default 256
+
+config SLOB_HUGE_LINE
+    int "Large Page Boundary (byte)"
+    default 512
 
 endmenu
 
+source "mm/kasan/Kconfig"
+
 config MEMTEST
     bool "Memory Test Support"
+    default y
 
 endmenu
 

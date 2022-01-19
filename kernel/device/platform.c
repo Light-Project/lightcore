@@ -7,10 +7,11 @@
 
 #include <string.h>
 #include <kmalloc.h>
-#include <initcall.h>
 #include <driver/platform.h>
 #include <export.h>
 #include <printk.h>
+
+static struct kcache *platform_device_cache;
 
 static __always_inline bool
 platform_device_match_one(const struct platform_device_id *id, struct platform_device *pdev)
@@ -177,18 +178,32 @@ EXPORT_SYMBOL(platform_get_resource);
  */
 struct resource *platform_name_resource(struct platform_device *pdev, const char *name)
 {
-    struct resource *tmp;
+    struct resource *res;
     unsigned int count;
 
     for (count = 0; count < pdev->resources_nr; ++count) {
-        tmp = &pdev->resource[count];
-        if (!strcmp(tmp->name, name))
-            return tmp;
+        res = &pdev->resource[count];
+        if (!strcmp(res->name, name))
+            return res;
     }
 
     return NULL;
 }
 EXPORT_SYMBOL(platform_name_resource);
+
+void *platform_resource_ioremap(struct platform_device *pdev, unsigned int index)
+{
+    struct resource *res = platform_get_resource(pdev, index, RESOURCE_MMIO);
+    return platform_ioremap_resource(pdev, res);
+}
+EXPORT_SYMBOL(platform_resource_ioremap);
+
+void *platform_resource_name_ioremap(struct platform_device *pdev, const char *name)
+{
+    struct resource *res = platform_name_resource(pdev, name);
+    return platform_ioremap_resource(pdev, res);
+}
+EXPORT_SYMBOL(platform_resource_name_ioremap);
 
 /**
  * platform_alloc_device - Allocating for a new platform device
@@ -199,16 +214,23 @@ struct platform_device *platform_device_alloc(const char *name, int id)
 {
     struct platform_device *pdev;
 
-    pdev = kzalloc(sizeof(*pdev), GFP_KERNEL);
+    pdev = kcache_zalloc(platform_device_cache, GFP_KERNEL);
     if (!pdev)
         return NULL;
 
-    pdev->name  = name;
-    pdev->id    = id;
+    pdev->name = name;
+    pdev->id = id;
     pdev->dev.bus = &platform_bus;
+
     return pdev;
 }
 EXPORT_SYMBOL(platform_device_alloc);
+
+void platform_device_free(struct platform_device *pdev)
+{
+    kcache_free(platform_device_cache, pdev);
+}
+EXPORT_SYMBOL(platform_device_free);
 
 /**
  * platform_device_add - register a device to the platform bus
@@ -254,6 +276,8 @@ EXPORT_SYMBOL(platform_driver_unregister);
 
 void __init platform_bus_init(void)
 {
+    platform_device_cache = kcache_create("platform device",
+        sizeof(struct platform_device), KCACHE_PANIC);
     bus_register(&platform_bus);
 
 #ifdef CONFIG_DT

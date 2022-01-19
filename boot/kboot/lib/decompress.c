@@ -19,9 +19,9 @@ void *ld_heap_end = &_ld_heap_end;
 void extract_kernel(void *output_start, void *input_start, unsigned long len)
 {
     pr_boot("decompression info:\n");
-    pr_boot("     input: %p\n", input_start);
-    pr_boot("    output: %p\n", output_start);
-    pr_boot("    length: 0x%x\n", len);
+    pr_boot("  input: %p\n", input_start);
+    pr_boot("  output: %p\n", output_start);
+    pr_boot("  length: 0x%x\n", len);
 
 #ifdef CONFIG_PACK_KERNEL
     int ret;

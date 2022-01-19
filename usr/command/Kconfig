@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menu "Kshell Command Shell"
+    depends on KSH
+
+config KCMD_CLEAR
+    bool "CLEAR Command Support"
+    default y
+
+config KCMD_ECHO
+    bool "Echo Command Support"
+    default y
+
+config KCMD_EXPORT
+    bool "Export Command Support"
+    default y
+
+config KCMD_MEM
+    bool "Memory Command Support"
+    default y
+
+config KCMD_PANIC
+    bool "Panic Command Support"
+    default y
+
+config KCMD_REBOOT
+    bool "Reboot Command Support"
+    default y
+
+config KCMD_SLEEP
+    bool "Sleep Command Support"
+    default y
+
+config KCMD_WATCH
+    bool "Watch Command Support"
+    default y
+
+endmenu

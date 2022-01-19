@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <initcall.h>
 #include <font.h>
 
@@ -3075,16 +3076,15 @@ static const char fontdata_6x10[] = {
     0x00, /* 00000000 */
 };
 
-static const struct font font_6x10 = {
+static struct font font_6x10 = {
     .name	= "6x10",
     .width	= 6,
     .height	= 10,
     .data	= fontdata_6x10,
 };
 
-static state font_6x10_install(void)
+static state font_6x10_init(void)
 {
-    return font_register((struct font *)&font_6x10);
+    return font_register(&font_6x10);
 }
-
-console_initcall(font_6x10_install);
+console_initcall(font_6x10_init);

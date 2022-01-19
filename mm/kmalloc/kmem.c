@@ -11,7 +11,7 @@
 #include <export.h>
 #include <printk.h>
 
-void *krealloc(const void *block, size_t rsize, gfp_t flags)
+void *krealloc(void *block, size_t rsize, gfp_t flags)
 {
     size_t size;
     void *ret;
@@ -32,8 +32,10 @@ void *krealloc(const void *block, size_t rsize, gfp_t flags)
 
     return ret;
 }
-
-void __weak kmem_init(void) {}
-
 EXPORT_SYMBOL(krealloc);
+
+void __weak kmem_init(void)
+{
+
+}
 EXPORT_SYMBOL(kmem_init);

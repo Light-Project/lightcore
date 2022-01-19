@@ -6,13 +6,12 @@
 #define DRIVER_NAME "ata-simple"
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
-#include <mm.h>
-#include <driver/block.h>
 #include <initcall.h>
+#include <printk.h>
+#include <driver/block.h>
 #include <driver/pci.h>
 #include <driver/ata.h>
-#include <printk.h>
-
+#include <driver/ata/atareg.h>
 #include <asm/delay.h>
 #include <asm/proc.h>
 #include <asm/io.h>
@@ -20,16 +19,20 @@
 #define ATASIM_NR       2
 #define ATASIM_PORTS    2
 #define ATASIM_BLOCKSZ  512
-#define ATASIM_TIMEOUT  5000
+#define ATASIM_TIMEOUT  500
 
 struct atasim_host {
     struct spinlock lock;
     resource_size_t cmd, ctl;
+    struct pci_device *pdev;
+    struct list_head ports;
+    unsigned char host;
 };
 
-struct atasim_device {
+struct atasim_port {
     struct block_device block;
     struct atasim_host *host;
+    struct list_head list;
     unsigned char port;
 };
 
@@ -50,61 +53,59 @@ struct atasim_cmd {
 };
 
 #define block_to_atasim(bdev) \
-    container_of(bdev, struct atasim_device, block)
+    container_of(bdev, struct atasim_port, block)
 
 static __always_inline uint8_t
-atasim_cmd_in(struct atasim_device *atasim, int reg)
+atasim_cmd_in(struct atasim_host *host, int reg)
 {
-    struct atasim_host *host = atasim->host;
     return inb(host->cmd + reg);
 }
 
 static __always_inline void
-atasim_cmd_out(struct atasim_device *atasim, int reg, uint8_t val)
+atasim_cmd_out(struct atasim_host *host, int reg, uint8_t val)
 {
-    struct atasim_host *host = atasim->host;
     outb(host->cmd + reg, val);
 }
 
 static __always_inline uint8_t
-atasim_ctl_in(struct atasim_device *atasim, int reg)
+atasim_ctl_in(struct atasim_host *host, int reg)
 {
-    struct atasim_host *host = atasim->host;
     return inb(host->ctl + reg);
 }
 
 static __always_inline void
-atasim_ctl_out(struct atasim_device *atasim, int reg, uint8_t val)
+atasim_ctl_out(struct atasim_host *host, int reg, uint8_t val)
 {
-    struct atasim_host *host = atasim->host;
     outb(host->ctl + reg, val);
 }
 
-static bool atasim_wait_poweron(struct atasim_device *atasim)
+static bool atasim_wait_poweron(struct atasim_host *host)
 {
     uint8_t status, val = 0;
     unsigned int timeout = ATASIM_TIMEOUT;
 
     while (--timeout) {
-        status = atasim_cmd_in(atasim, ATA_REG_STATUS);
+        status = atasim_cmd_in(host, ATA_REG_STATUS);
         if (!(status & ATA_STATUS_BSY))
             break;
+
         val |= status;
         if (val == 0xff)
             return false;
+
         udelay(100);
     }
 
     return !!timeout;
 }
 
-static bool atasim_wait(struct atasim_device *atasim, uint8_t mask,
+static bool atasim_wait(struct atasim_host *host, uint8_t mask,
                         int8_t pass, unsigned int timeout)
 {
     uint8_t val;
 
     while (--timeout) {
-        val = atasim_cmd_in(atasim, ATA_REG_STATUS);
+        val = atasim_cmd_in(host, ATA_REG_STATUS);
         if ((val & mask) == pass)
             break;
         udelay(100);
@@ -113,118 +114,116 @@ static bool atasim_wait(struct atasim_device *atasim, uint8_t mask,
     return !!timeout;
 }
 
-static inline bool atasim_wait_ready(struct atasim_device *atasim)
+static inline bool atasim_wait_ready(struct atasim_host *host)
 {
-    return atasim_wait(atasim, ATA_STATUS_DRDY, ATA_STATUS_DRDY, ATASIM_TIMEOUT);
+    return atasim_wait(host, ATA_STATUS_DRDY, ATA_STATUS_DRDY, ATASIM_TIMEOUT);
 }
 
-static inline bool atasim_wait_busy(struct atasim_device *atasim)
+static inline bool atasim_wait_busy(struct atasim_host *host)
 {
-    return atasim_wait(atasim, ATA_STATUS_BSY, 0, ATASIM_TIMEOUT);
+    return atasim_wait(host, ATA_STATUS_BSY, 0, ATASIM_TIMEOUT);
 }
 
-static inline bool atasim_pause_wait_busy(struct atasim_device *atasim)
+static inline bool atasim_pause_wait_busy(struct atasim_host *host)
 {
-    /* Wait one PIO transfer cycle */
-    atasim_ctl_in(atasim, ATA_REG_ASTAT);
-    return atasim_wait_busy(atasim);
+    /* wait one pio transfer cycle */
+    atasim_ctl_in(host, ATA_REG_ASTAT);
+    return atasim_wait_busy(host);
 }
 
-static inline bool atasim_delay_wait_busy(struct atasim_device *atasim)
+static inline bool atasim_delay_wait_busy(struct atasim_host *host)
 {
-    /* Wait 400ns first */
+    /* wait 400ns first */
     ndelay(400);
-    return atasim_wait_busy(atasim);
+    return atasim_wait_busy(host);
 }
 
-static uint8_t atasmi_devsel(struct atasim_device *atasim, uint8_t device)
+static state atasim_reset(struct atasim_host *host)
 {
+    /* pulse reset device */
+    atasim_ctl_out(host, ATA_REG_DEVCTL, ATA_DEVCTL_HD15 | ATA_DEVCTL_NIEN | ATA_DEVCTL_SRST);
+    udelay(5);
+    atasim_ctl_out(host, ATA_REG_DEVCTL, ATA_DEVCTL_HD15 | ATA_DEVCTL_NIEN);
+    mdelay(2);
+
+    /* wait for device to become not busy */
+    if (!atasim_wait_ready(host)) {
+        pci_debug(host->pdev, "host%d reset timeout\n", host->host);
+        return -ENODEV;
+    }
+
+    /* enable interrupts */
+    atasim_ctl_out(host, ATA_REG_DEVCTL, ATA_DEVCTL_HD15);
+    return -ENOERR;
+}
+
+static uint8_t atasmi_devsel(struct atasim_port *port, uint8_t device)
+{
+    struct atasim_host *host = port->host;
     device |= ATA_DEVSEL_IBM;
 
-    if (atasim->port)
+    if (port->port)
         device |= ATA_DEVSEL_DEV;
 
-    atasim_cmd_out(atasim, ATA_REG_DEVSEL, device);
+    atasim_cmd_out(host, ATA_REG_DEVSEL, device);
     return device;
 }
 
-static state atasim_reset(struct atasim_device *atasim)
+static state atasim_cmd(struct atasim_port *port, struct atasim_cmd *cmd)
 {
-    // uint32_t timeout = ATASIM_TIMEOUT;
-    // uint8_t val;
+    struct atasim_host *host = port->host;
 
-    atasim_cmd_out(atasim, ATA_REG_DEVSEL, ATA_DEVSEL_IBM | ATA_DEVSEL_LBA);
-    udelay(10);
-
-    /* reset devices channel */
-    atasim_ctl_out(atasim, ATA_REG_DEVCTL, ATA_DEVCTL_NIEN | ATA_DEVCTL_SRST);
-    mdelay(10);
-    atasim_ctl_out(atasim, ATA_REG_DEVCTL, ATA_DEVCTL_NIEN);
-    mdelay(100);
-    atasim_cmd_in(atasim, ATA_REG_ERR);
-
-    /* On a user-reset request, wait for RDY if it is an ATA device. */
-    if (!atasim_wait_ready(atasim))
-        return -ENODEV;
-
-    /* Enable interrupts */
-    atasim_ctl_out(atasim, ATA_REG_DEVCTL, ATA_DEVCTL_HD15);
-    return -ENOERR;
-}
-
-static state atasim_cmd(struct atasim_device *atasim, struct atasim_cmd *cmd)
-{
-    if (!atasim_wait_busy(atasim))
+    if (!atasim_wait_busy(host))
         return -EIO;
 
-    /* Select device */
-    atasmi_devsel(atasim, cmd->device);
-    if (!atasim_wait_busy(atasim))
+    /* select device */
+    atasmi_devsel(port, cmd->device);
+    if (!atasim_wait_busy(host))
         return -EIO;
 
-    /* Check for ATA_CMD_(READ|WRITE)_(SECTORS|DMA)_EXT commands. */
+    /* check for ATA_CMD_(READ|WRITE)_(SECTORS|DMA)_EXT commands. */
     if ((cmd->command & ~0x11) == ATA_CMD_READ_SECTORS_EXT) {
-        atasim_cmd_out(atasim, ATA_REG_FEATURE, cmd->feature2);
-        atasim_cmd_out(atasim, ATA_REG_NSECT, cmd->sector_count2);
-        atasim_cmd_out(atasim, ATA_REG_LBAL, cmd->lba_low2);
-        atasim_cmd_out(atasim, ATA_REG_LBAM, cmd->lba_mid2);
-        atasim_cmd_out(atasim, ATA_REG_LBAH, cmd->lba_high2);
+        atasim_cmd_out(host, ATA_REG_FEATURE, cmd->feature2);
+        atasim_cmd_out(host, ATA_REG_NSECT, cmd->sector_count2);
+        atasim_cmd_out(host, ATA_REG_LBAL, cmd->lba_low2);
+        atasim_cmd_out(host, ATA_REG_LBAM, cmd->lba_mid2);
+        atasim_cmd_out(host, ATA_REG_LBAH, cmd->lba_high2);
     }
 
-    atasim_cmd_out(atasim, ATA_REG_FEATURE, cmd->feature);
-    atasim_cmd_out(atasim, ATA_REG_NSECT, cmd->sector_count);
-    atasim_cmd_out(atasim, ATA_REG_LBAL, cmd->lba_low);
-    atasim_cmd_out(atasim, ATA_REG_LBAM, cmd->lba_mid);
-    atasim_cmd_out(atasim, ATA_REG_LBAH, cmd->lba_high);
-    atasim_cmd_out(atasim, ATA_REG_CMD, cmd->command);
+    atasim_cmd_out(host, ATA_REG_FEATURE, cmd->feature);
+    atasim_cmd_out(host, ATA_REG_NSECT, cmd->sector_count);
+    atasim_cmd_out(host, ATA_REG_LBAL, cmd->lba_low);
+    atasim_cmd_out(host, ATA_REG_LBAM, cmd->lba_mid);
+    atasim_cmd_out(host, ATA_REG_LBAH, cmd->lba_high);
+    atasim_cmd_out(host, ATA_REG_CMD, cmd->command);
 
     return -ENOERR;
 }
 
-static state atasim_transfer(struct atasim_device *atasim, void *buffer,
+static state atasim_transfer(struct atasim_host *host, void *buffer,
                              unsigned int count, bool iswrite)
 {
     uint8_t val;
 
     for (; count; --count) {
-        if (iswrite) { /* Write data to controller */
+        if (iswrite) { /* write data to controller */
 #ifdef CONFIG_BLK_ATASIM32
-            outsl(atasim->host->cmd, buffer, ATASIM_BLOCKSZ / 4);
+            outsl(host->cmd, buffer, ATASIM_BLOCKSZ / 4);
 #else
-            outsw(atasim->host->base, buffer, ATASIM_BLOCKSZ / 2);
+            outsw(host->cmd, buffer, ATASIM_BLOCKSZ / 2);
 #endif
-        } else { /* Read data to controller */
+        } else { /* read data to controller */
 #ifdef CONFIG_BLK_ATASIM32
-            insl(atasim->host->cmd, buffer, ATASIM_BLOCKSZ / 4);
+            insl(host->cmd, buffer, ATASIM_BLOCKSZ / 4);
 #else
-            insw(atasim->host->base, buffer, ATASIM_BLOCKSZ / 2);
+            insw(host->cmd, buffer, ATASIM_BLOCKSZ / 2);
 #endif
         }
 
-        if (!atasim_pause_wait_busy(atasim))
+        if (!atasim_pause_wait_busy(host))
             return -EIO;
 
-        val = atasim_cmd_in(atasim, ATA_REG_STATUS);
+        val = atasim_cmd_in(host, ATA_REG_STATUS);
         val &= (ATA_STATUS_BSY | ATA_STATUS_DRQ | ATA_STATUS_ERR);
         if (val != ATA_STATUS_DRQ)
             return -EIO;
@@ -232,7 +231,7 @@ static state atasim_transfer(struct atasim_device *atasim, void *buffer,
         buffer += ATASIM_BLOCKSZ;
     }
 
-    val = atasim_cmd_in(atasim, ATA_REG_STATUS);
+    val = atasim_cmd_in(host, ATA_REG_STATUS);
     val &= ~(ATA_STATUS_BSY | ATA_STATUS_DF | ATA_STATUS_DRQ | ATA_STATUS_ERR);
     if (iswrite)
         val &= ~ATA_STATUS_DF;
@@ -242,9 +241,11 @@ static state atasim_transfer(struct atasim_device *atasim, void *buffer,
 
 static state atasim_enqueue(struct block_device *bdev, struct block_request *breq)
 {
-    struct atasim_device *atasim = block_to_atasim(bdev);
+    struct atasim_port *port = block_to_atasim(bdev);
+    struct atasim_host *host = port->host;
     struct atasim_cmd atacmd;
     sector_t lba = breq->sector;
+    irqflags_t irqflags;
     state retval = -ENOERR;
     bool needext = false;
 
@@ -264,7 +265,7 @@ static state atasim_enqueue(struct block_device *bdev, struct block_request *bre
         atacmd.command = needext ?
             ATA_CMD_WRITE_SECTORS_EXT : ATA_CMD_WRITE_SECTORS_WITH_RETRY;
     } else {
-        pr_warn("request not supported\n");
+        pci_warn(host->pdev, "host%d:port%d request not supported\n", host->host, port->port);
         return -EINVAL;
     }
 
@@ -274,26 +275,26 @@ static state atasim_enqueue(struct block_device *bdev, struct block_request *bre
     atacmd.lba_high = lba >> 16;
     atacmd.device = ((lba >> 24) & 0xf) | ATA_DEVSEL_LBA;
 
-    spin_lock_irq(&atasim->host->lock);
+    spin_lock_irqsave(&host->lock, &irqflags);
 
-    /* Disable interrupt */
-    atasim_ctl_out(atasim, ATA_REG_DEVCTL, ATA_DEVCTL_HD15 | ATA_DEVCTL_NIEN);
+    /* disable interrupt */
+    atasim_ctl_out(host, ATA_REG_DEVCTL, ATA_DEVCTL_HD15 | ATA_DEVCTL_NIEN);
 
-    retval = atasim_cmd(atasim, &atacmd);
+    retval = atasim_cmd(port, &atacmd);
     if (retval)
         goto exit;
 
-    if(!atasim_delay_wait_busy(atasim)) {
+    if(!atasim_delay_wait_busy(host)) {
         retval = -EBUSY;
         goto exit;
     }
 
-    atasim_transfer(atasim, breq->buffer, breq->length, breq->type == REQ_WRITE);
+    atasim_transfer(host, breq->buffer, breq->length, breq->type == REQ_WRITE);
 
 exit:
-    /* Enable interrupt */
-    atasim_ctl_out(atasim, ATA_REG_DEVCTL, ATA_DEVCTL_HD15);
-    spin_unlock_irq(&atasim->host->lock);
+    /* enable interrupt */
+    atasim_ctl_out(host, ATA_REG_DEVCTL, ATA_DEVCTL_HD15);
+    spin_unlock_irqrestore(&host->lock, &irqflags);
     return retval;
 }
 
@@ -301,115 +302,137 @@ static struct block_ops atasim_ops = {
     .enqueue = atasim_enqueue,
 };
 
-static bool atasim_port_detect(struct atasim_device *atasim)
+static bool atasim_port_setup(struct atasim_port *port)
 {
-    /* Wait for not-bsy */
-    if (!atasim_wait_poweron(atasim))
+    struct atasim_host *host = port->host;
+    uint8_t val;
+
+    /* wait for not-bsy */
+    if (!atasim_wait_poweron(host))
         return false;
 
-    atasmi_devsel(atasim, 0);
-    if (!atasim_wait_poweron(atasim))
+    val = atasmi_devsel(port, 0);
+    ndelay(400);
+    if (!atasim_wait_poweron(host))
         return false;
 
-    /* Check if ioport registers look valid */
-    atasim_cmd_out(atasim, ATA_REG_NSECT, 0x55);
-    atasim_cmd_out(atasim, ATA_REG_LBAL, 0xaa);
+    /* check if ioport registers look valid */
+    atasim_cmd_out(host, ATA_REG_DEVSEL, val);
+    atasim_cmd_out(host, ATA_REG_NSECT, 0x55);
+    atasim_cmd_out(host, ATA_REG_LBAL, 0xaa);
 
-    if ((atasim_cmd_in(atasim, ATA_REG_NSECT) != 0x55) ||
-        (atasim_cmd_in(atasim, ATA_REG_LBAL) != 0xaa))
+    if ((atasim_cmd_in(host, ATA_REG_NSECT) != 0x55) ||
+        (atasim_cmd_in(host, ATA_REG_LBAL) != 0xaa)  ||
+        (atasim_cmd_in(host, ATA_REG_DEVSEL) != val))
         return false;
 
-    /* reset the channel */
-    atasim_reset(atasim);
-
-    pr_info("detected port%d @ 0x%lx:0x%lx\n",
-        atasim->port, atasim->host->cmd, atasim->host->ctl);
-
+    pci_info(host->pdev, "host%d:port%d detected\n", host->host, port->port);
     return true;
 }
 
-static state atasim_ports_setup(struct device *dev, struct atasim_host *host)
+static struct atasim_port *atasim_port_create(struct pci_device *pdev, struct atasim_port *src)
 {
-    struct atasim_device *atasim;
+    struct atasim_host *host = src->host;
+    struct atasim_port *port;
 
-    for (int count = 0; count < ATASIM_PORTS; ++count) {
-        atasim = dev_kzalloc(dev, sizeof(*atasim), GFP_KERNEL);
-        if (!atasim)
-            return -ENOMEM;
+    port = pci_kzalloc(pdev, sizeof(*port), GFP_KERNEL);
+    if (!port)
+        return NULL;
 
-        atasim->host = host;
-        atasim->port = count;
+    port->host = src->host;
+    port->port = src->port;
+    port->block.dev = src->block.dev;
+    port->block.ops = src->block.ops;
 
-        if (!atasim_port_detect(atasim)) {
-            dev_kfree(dev, atasim);
-            continue;
-        }
+    list_add(&host->ports, &port->list);
+    return port;
+}
 
-        atasim->block.dev = dev;
-        atasim->block.ops = &atasim_ops;
-        block_device_register(&atasim->block);
-    }
+static state atasim_ports_scan(struct pci_device *pdev, struct atasim_host *host, unsigned int pnr)
+{
+    struct atasim_port *port, *scan;
 
-    return -ENOERR;
+    scan = skzalloc(sizeof(*scan));
+    scan->host = host;
+    scan->port = pnr;
+    scan->block.dev = &pdev->dev;
+    scan->block.ops = &atasim_ops;
+
+    if (!atasim_port_setup(scan))
+        return -ENOERR;
+
+    port = atasim_port_create(pdev, scan);
+    if (!port)
+        return -ENOMEM;
+
+    return block_device_register(&port->block);
 }
 
 static state atasim_probe(struct pci_device *pdev, const void *pdata)
 {
+    unsigned int hostc, portc, online = 0;
     struct atasim_host *host;
     resource_size_t size;
     uint32_t val;
-    state retval;
+    state ret;
 
-    val = pdev->class >> 8;
+    /* legacy mode ATA controllers have fixed addresses */
+    val = pci_config_readb(pdev, PCI_CLASS_PROG);
 
-    /* Legacy mode ATA controllers have fixed addresses */
-    if (val == PCI_CLASS_STORAGE_IDE) {
-        uint8_t prog = pci_config_readb(pdev, PCI_CLASS_PROG);
+    if (!(val & 0x1)) {
+        pdev->resource[0].start = 0x1F0;
+        pdev->resource[0].size = 0x08;
+        pdev->resource[0].type = RESOURCE_PMIO;
 
-        if (!(prog & 0x1)) {
-			pdev->resource[0].start = 0x1F0;
-			pdev->resource[0].size = 0x08;
-            pdev->resource[0].type = RESOURCE_PMIO;
-
-			pdev->resource[1].start = 0x3F6;
-			pdev->resource[1].size = 0x04;
-            pdev->resource[1].type = RESOURCE_PMIO;
-        }
-
-        if (!(prog & 0x4)) {
-			pdev->resource[2].start = 0x170;
-			pdev->resource[2].size = 0x08;
-            pdev->resource[2].type = RESOURCE_PMIO;
-
-			pdev->resource[3].start = 0x376;
-			pdev->resource[3].size = 0x04;
-            pdev->resource[3].type = RESOURCE_PMIO;
-        }
+        pdev->resource[1].start = 0x3F6;
+        pdev->resource[1].size = 0x04;
+        pdev->resource[1].type = RESOURCE_PMIO;
     }
 
-    for (int count = 0; count < ATASIM_NR; ++count) {
-        int bar = count * 2;
+    if (!(val & 0x4)) {
+        pdev->resource[2].start = 0x170;
+        pdev->resource[2].size = 0x08;
+        pdev->resource[2].type = RESOURCE_PMIO;
+
+        pdev->resource[3].start = 0x376;
+        pdev->resource[3].size = 0x04;
+        pdev->resource[3].type = RESOURCE_PMIO;
+    }
+
+    for (hostc = 0; hostc < ATASIM_NR; ++hostc) {
+        unsigned int bar = hostc * 2;
 
         val = pci_resource_type(pdev, bar);
         size = pci_resource_size(pdev, bar);
         if (val != RESOURCE_PMIO || size != 8)
             continue;
 
-        host = dev_kzalloc(&pdev->dev, sizeof(*host), GFP_KERNEL);
+        host = pci_kzalloc(pdev, sizeof(*host), GFP_KERNEL);
         if (!host)
             return -ENOMEM;
 
         host->cmd = pci_resource_start(pdev, bar);
         host->ctl = pci_resource_start(pdev, bar + 1);
-        retval = atasim_ports_setup(&pdev->dev, host);
-        if (retval)
-            return retval;
+        host->pdev = pdev;
+        host->host = hostc;
+        list_head_init(&host->ports);
+
+        ret = atasim_reset(host);
+        if (ret)
+            continue;
+
+        for (portc = 0; portc < ATASIM_PORTS; ++portc) {
+            ret = atasim_ports_scan(pdev, host, portc);
+            if (ret)
+                continue;
+            online++;
+        }
     }
 
-    return -ENOERR;
+    return online ? -ENOERR : ret;
 }
 
-static struct pci_device_id atasim_ids[] = {
+static const struct pci_device_id atasim_ids[] = {
     { PCI_DEVICE_CLASS(PCI_CLASS_STORAGE_IDE << 8, ~0xff) },
     { }, /* NULL */
 };
@@ -422,8 +445,9 @@ static struct pci_driver atasim_driver = {
     .probe = atasim_probe,
 };
 
-static state ata_simple_init(void)
+/* priority to use other drivers (sync init) */
+static state atasim_init(void)
 {
     return pci_driver_register(&atasim_driver);
 }
-driver_initcall_sync(ata_simple_init);
+driver_initcall_sync(atasim_init);

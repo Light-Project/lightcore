@@ -6,12 +6,12 @@
 #define DRIVER_NAME "ehci"
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
-#include <mm.h>
+#include <memory.h>
 #include <initcall.h>
 #include <irq.h>
 #include <driver/usb.h>
 #include <driver/usb/ehci.h>
-#include <sleep.h>
+#include <delay.h>
 #include <printk.h>
 
 #include <asm/io.h>
@@ -20,7 +20,7 @@ struct ehci_host {
     struct device *device;
     spinlock_t lock;
     struct usb_host host;
-    resource_size_t *mmio;
+    void *base;
 };
 
 #define host_to_ehci(usb_host) \
@@ -29,13 +29,13 @@ struct ehci_host {
 static inline uint32_t
 ehci_read(const struct ehci_host *ehci, int reg)
 {
-    return le32_to_cpu(readl(ehci->mmio + reg));
+    return le32_to_cpu(readl(ehci->base + reg));
 }
 
 static inline void
 ehci_write(const struct ehci_host *ehci, int reg, uint32_t val)
 {
-    writel(ehci->mmio + reg, cpu_to_le32(val));
+    writel(ehci->base + reg, cpu_to_le32(val));
 }
 
 static inline void
@@ -45,19 +45,19 @@ ehci_mask(const struct ehci_host *ehci, int reg, uint32_t clr, uint32_t set)
     ehci_write(ehci, reg, (val & ~clr) | set);
 }
 
-static bool ehci_wait(struct ehci_host *ehci, int reg, uint32_t mask,
+static state ehci_wait(struct ehci_host *ehci, int reg, uint32_t mask,
                       uint32_t pass, unsigned int timeout)
 {
     uint32_t val;
 
-    while (timeout--) {
+    while (--timeout) {
         val = ehci_read(ehci, reg);
         if ((val & ~mask) == pass)
             break;
         udelay(1);
     }
 
-    return !!timeout;
+    return timeout ? -ENOERR : -EBUSY;
 }
 
 #include "ehci/ehci-queue.c"
@@ -105,23 +105,20 @@ fail:
 
 static state ehci_halt(struct ehci_host *ehci)
 {
-    spin_lock_irq(&ehci->lock);
+    irqflags_t irqflags;
 
+    spin_lock_irqsave(&ehci->lock, &irqflags);
     ehci_write(ehci, EHCI_INTR, 0);
     ehci_mask(ehci, EHCI_CMD, EHCI_CMD_RUN | EHCI_CMD_IAAD, 0);
+    spin_unlock_irqrestore(&ehci->lock, &irqflags);
 
-    spin_unlock_irq(&ehci->lock);
     return ehci_wait(ehci, EHCI_STS, EHCI_STS_HALT, EHCI_STS_HALT, 2000);
 }
 
 static state ehci_reset(struct ehci_host *ehci)
 {
-
     ehci_mask(ehci, EHCI_CMD, 0, EHCI_CMD_RESET);
-    if (!ehci_wait(ehci, EHCI_CMD, EHCI_CMD_RESET, 0, 250 * 1000))
-        return -EBUSY;
-
-    return -ENOERR;
+    return ehci_wait(ehci, EHCI_CMD, EHCI_CMD_RESET, 0, 250000);
 }
 
 static state ehci_setup(struct usb_host *host)

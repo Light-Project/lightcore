@@ -2,22 +2,39 @@
 #ifndef _TASK_H_
 #define _TASK_H_
 
-#include <types.h>
-#include <list.h>
-#include <time.h>
+#include <sched.h>
+#include <bits.h>
+#include <asm/page.h>
 
-#include <asm/regs.h>
+extern unsigned long init_stack[THREAD_SIZE / BYTE_PER_LONG];
 
-struct task {
-    pid_t pid;
-
-    struct regs *stack;
-
-    struct task *parent;
-    struct list_head child;
-    struct list_head sibling;
-
-    struct timespec utime;
+struct task_clone_args {
+    enum clone_flags flags;
+    struct sched_task *curr;
+    union {
+        struct {
+            state (*fn)(void *arg);
+            void *arg;
+        };
+        struct {
+            size_t stack;
+            size_t stack_size;
+        };
+    };
 };
+
+static inline void *stack_end(void *stack)
+{
+#ifdef CONFIG_ARCH_STACK_GROWUP
+    return stack + THREAD_SIZE - 1;
+#else
+    return stack;
+#endif
+}
+
+extern void task_stack_magic(struct sched_task *task);
+extern bool task_stack_check(struct sched_task *task);
+extern state fork_thread(enum clone_flags flags, int (*fn)(void *), void *arg);
+extern void __init fork_init(void);
 
 #endif  /* _TASK_H_ */

@@ -4,7 +4,10 @@
  */
 
 #include <string.h>
-#include <fs.h>
+#include <kmalloc.h>
+#include <filesystem.h>
+
+static __always_inline struct
 
 static state path_walk(const char *path, struct nameidata *namei)
 {

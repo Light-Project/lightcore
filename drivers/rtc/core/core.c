@@ -7,51 +7,30 @@
 
 #include <string.h>
 #include <driver/rtc.h>
-#include <printk.h>
 
-state rtc_read_time(struct rtc_device *rtc, struct rtc_time *time)
+static void rtc_update_system(struct rtc_device *rtc)
 {
-    state retval;
+    struct rtc_time time;
+    state ret;
 
-    if (!rtc->ops)
-        return -ENODEV;
-    if (!rtc->ops->get_time)
-        return -EINVAL;
-
-    memset(time, 0, sizeof(*time));
-    retval = rtc->ops->get_time(rtc, time);
-    if (retval < 0) {
-        pr_warn("read fail %d\n", retval);
+    ret = rtc_time_get(rtc, &time);
+    if (ret) {
+        dev_err(rtc->dev, "unable to update system\n");
+        return;
     }
 
-    return retval;
 }
 
-state rtc_set_time(struct rtc_device *rtc, struct rtc_time *time)
+state rtc_register(struct rtc_device *rtc)
 {
-    state retval;
+    if (!rtc->dev || !rtc->ops)
 
-    if (!rtc->ops)
-        return -ENODEV;
-    if (!rtc->ops->set_time)
-        return -EINVAL;
 
-    retval = rtc->ops->set_time(rtc, time);
-    if (retval < 0) {
-        pr_warn("write fail %d\n", retval);
-    }
-
-    return retval;
-}
-
-state rtc_register(struct rtc_device *rtc_drv)
-{
-
+    rtc_update_system(rtc);
     return -ENOERR;
 }
 
-state rtc_unregister(struct rtc_device *rtc_drv)
+void rtc_unregister(struct rtc_device *rtc)
 {
 
-    return -ENOERR;
 }

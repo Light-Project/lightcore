@@ -1,14 +1,10 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-menu "Clock Source Device Support"
+menuconfig CLKSRC
+    bool "Clock Source Device Support"
+if CLKSRC
 
-config CLKSRC_GX6605S
-    bool "Gx6605s timer support"
-    depends on ARCH_CSKY
-    default y
-
-config CLKSRC_8253
-    bool "I8253 timer support"
+config CLKSRC_TSC
+    bool "Time Stamp Counter Support"
     depends on ARCH_X86
-    default y
 
-endmenu
+endif

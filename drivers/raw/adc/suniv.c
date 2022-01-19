@@ -5,7 +5,7 @@
 
 #define DRIVER_NAME "suniv-adc"
 
-#include <mm.h>
+#include <memory.h>
 #include <initcall.h>
 #include <driver/platform.h>
 #include <driver/raw.h>

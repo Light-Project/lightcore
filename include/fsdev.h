@@ -9,17 +9,16 @@
 struct fsdev {
     struct list_head list;
     struct fsdev_ops *ops;
-
     size_t sector_nr;
     size_t sector_size;
-    size_t write_size;
 };
 
 struct fsdev_ops {
-    state (*open)(struct fsdev *);
-    state (*close)(struct fsdev *);
-    state (*read)(struct fsdev *, sector_t sector, void *buffer, size_t len);
-    state (*write)(struct fsdev *, sector_t sector, void *buffer, size_t len);
+    state (*open)(struct fsdev *fsdev);
+    void (*close)(struct fsdev *fsdev);
+    state (*sync)(struct fsdev *fsdev);
+    state (*read)(struct fsdev *fsdev, sector_t sector, void *buffer, size_t snr);
+    state (*write)(struct fsdev *fsdev, sector_t sector, void *buffer, size_t snr);
 };
 
 state fsdev_page_read(struct fsdev *, sector_t, struct page *);

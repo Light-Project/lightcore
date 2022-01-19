@@ -14,56 +14,56 @@
     ldmfd   sp!, {r0 - r12}
 .endm
 
-SYM_CODE_START(proc_thread_switch)
+ENTRY(proc_thread_switch)
     stmfd   sp!, {v1 - fp, lr}
-SYM_CODE_END(proc_thread_switch)
+END(proc_thread_switch)
 
-SYM_CODE_START(entry_rst)
+ENTRY(entry_rst)
     SAVE_REGS
 
     REC_REGS
     bx      lr
-SYM_CODE_END(entry_rst)
+END(entry_rst)
 
-SYM_CODE_START(entry_uni)
+ENTRY(entry_uni)
     SAVE_REGS
 
     REC_REGS
     bx      lr
-SYM_CODE_END(entry_uni)
+END(entry_uni)
 
-SYM_CODE_START(entry_swi)
+ENTRY(entry_swi)
     SAVE_REGS
 
     REC_REGS
     bx      lr
-SYM_CODE_END(entry_swi)
+END(entry_swi)
 
-SYM_CODE_START(entry_pabt)
+ENTRY(entry_pabt)
     SAVE_REGS
 
     REC_REGS
     bx      lr
-SYM_CODE_END(entry_pabt)
+END(entry_pabt)
 
 ENTRY(entry_dabt)
     SAVE_REGS
 
     REC_REGS
     bx      lr
-SYM_CODE_END(entry_dabt)
+END(entry_dabt)
 
-SYM_CODE_START(entry_irq)
+ENTRY(entry_irq)
     SAVE_REGS
 
     REC_REGS
     bx      lr
-SYM_CODE_END(entry_irq)
+END(entry_irq)
 
-SYM_CODE_START(entry_fiq)
+ENTRY(entry_fiq)
 
     bx      lr
-SYM_CODE_END(entry_fiq)
+END(entry_fiq)
 
     .section    .vector, "ax"
 GLOBAL(vector_table)

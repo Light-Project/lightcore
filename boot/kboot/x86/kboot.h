@@ -5,7 +5,6 @@
 #include <kboot16.h>
 #include <lib.h>
 
-
 #define kboot_base  (((size_t)&_start - 0x200))
 #define bss_start   (ld_bss_start   + kboot_base)
 #define bss_end     (ld_bss_end     + kboot_base)
@@ -20,21 +19,11 @@
 
 extern struct e820_table e820_table;
 
-/* startup.S */
 extern void _start(void);
 extern void __noreturn kernel_start(void);
 extern void __noreturn halt(void);
-
-/* kaslr.c */
-extern uint64_t kasir_random(void);
-
-/* page.c */
 extern void kernel_map(void);
-
-/* segment.c */
 extern void segment_init(void);
-
-/* video.c */
 extern void console_print(const char *str);
 extern void console_clear(void);
 

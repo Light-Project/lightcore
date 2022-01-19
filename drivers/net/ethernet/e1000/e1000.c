@@ -4,26 +4,21 @@
  */
 
 #define DRIVER_NAME "net-e1000"
-#define pr_fmt(fmt)     DRIVER_NAME ": " fmt
+#define pr_fmt(fmt)	DRIVER_NAME ": " fmt
 
-#include <driver/pci.h>
 #include <initcall.h>
-
 #include "e1000_hw.h"
-
-static char e1000_driver_string[] = "Intel(R) PRO/1000 Network Driver";
-static const char e1000_copyright[] = "Copyright (c) 1999-2006 Intel Corporation.";
 
 void e1000_pci_set_mwi(struct e1000_hw *hw)
 {
     struct pci_device *pdev = hw->back;
-    pci_mwi_set(pdev);
+    pci_mwi_enable(pdev);
 }
 
 void e1000_pci_clear_mwi(struct e1000_hw *hw)
 {
     struct pci_device *pdev = hw->back;
-    pci_mwi_clear(pdev);
+    pci_mwi_disable(pdev);
 }
 
 int e1000_pcix_get_mmrbc(struct e1000_hw *hw)
@@ -40,60 +35,52 @@ void e1000_pcix_set_mmrbc(struct e1000_hw *hw, int mmrbc)
 
 void e1000_io_write(struct e1000_hw *hw, unsigned long port, u32 value)
 {
-	outl(port, value);
+    outl(port, value);
 }
 
-#define INTEL_E1000_ETHERNET_DEVICE(device_id) {            \
-        .vendor = PCI_VENDOR_ID_INTEL, .device = device_id, \
-        .subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID }
-
 static struct pci_device_id e1000_pci_tbl[] = {
-	INTEL_E1000_ETHERNET_DEVICE(0x1000),
-	INTEL_E1000_ETHERNET_DEVICE(0x1001),
-	INTEL_E1000_ETHERNET_DEVICE(0x1004),
-	INTEL_E1000_ETHERNET_DEVICE(0x1008),
-	INTEL_E1000_ETHERNET_DEVICE(0x1009),
-	INTEL_E1000_ETHERNET_DEVICE(0x100C),
-	INTEL_E1000_ETHERNET_DEVICE(0x100D),
-	INTEL_E1000_ETHERNET_DEVICE(0x100E),
-	INTEL_E1000_ETHERNET_DEVICE(0x100F),
-	INTEL_E1000_ETHERNET_DEVICE(0x1010),
-	INTEL_E1000_ETHERNET_DEVICE(0x1011),
-	INTEL_E1000_ETHERNET_DEVICE(0x1012),
-	INTEL_E1000_ETHERNET_DEVICE(0x1013),
-	INTEL_E1000_ETHERNET_DEVICE(0x1014),
-	INTEL_E1000_ETHERNET_DEVICE(0x1015),
-	INTEL_E1000_ETHERNET_DEVICE(0x1016),
-	INTEL_E1000_ETHERNET_DEVICE(0x1017),
-	INTEL_E1000_ETHERNET_DEVICE(0x1018),
-	INTEL_E1000_ETHERNET_DEVICE(0x1019),
-	INTEL_E1000_ETHERNET_DEVICE(0x101A),
-	INTEL_E1000_ETHERNET_DEVICE(0x101D),
-	INTEL_E1000_ETHERNET_DEVICE(0x101E),
-	INTEL_E1000_ETHERNET_DEVICE(0x1026),
-	INTEL_E1000_ETHERNET_DEVICE(0x1027),
-	INTEL_E1000_ETHERNET_DEVICE(0x1028),
-	INTEL_E1000_ETHERNET_DEVICE(0x1075),
-	INTEL_E1000_ETHERNET_DEVICE(0x1076),
-	INTEL_E1000_ETHERNET_DEVICE(0x1077),
-	INTEL_E1000_ETHERNET_DEVICE(0x1078),
-	INTEL_E1000_ETHERNET_DEVICE(0x1079),
-	INTEL_E1000_ETHERNET_DEVICE(0x107A),
-	INTEL_E1000_ETHERNET_DEVICE(0x107B),
-	INTEL_E1000_ETHERNET_DEVICE(0x107C),
-	INTEL_E1000_ETHERNET_DEVICE(0x108A),
-	INTEL_E1000_ETHERNET_DEVICE(0x1099),
-	INTEL_E1000_ETHERNET_DEVICE(0x10B5),
-	INTEL_E1000_ETHERNET_DEVICE(0x2E6E),
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1000) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1001) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1004) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1008) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1009) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x100C) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x100D) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x100E) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x100F) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1010) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1011) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1012) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1013) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1014) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1015) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1016) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1017) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1018) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1019) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x101A) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x101D) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x101E) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1026) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1027) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1028) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1075) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1076) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1077) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1078) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1079) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x107A) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x107B) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x107C) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x108A) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x1099) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x10B5) },
+    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x2E6E) },
     { } /* NULL */
 };
 
 static state e1000_probe(struct pci_device *pdev, const void *pdata)
 {
-    // struct e1000_hw *hw;
-
-    // e1000_reset_hw(hw);
-
     return -ENOERR;
 }
 
@@ -107,9 +94,6 @@ static struct pci_driver e1000_driver = {
 
 static state e1000_init(void)
 {
-	pr_info("%s\n", e1000_driver_string);
-	pr_info("%s\n", e1000_copyright);
-
     return pci_driver_register(&e1000_driver);
 }
 driver_initcall(e1000_init);

@@ -1264,7 +1264,7 @@ speaker: enabled=1, mode=sound
 
 #=======================================================================
 # MEGS
-# Set the number of Megabytes of physical memory you want to emulate. 
+# Set the number of Megabytes of physical memory you want to emulate.
 # The default is 32MB, most OS's won't need more than that.
 # The maximum amount of memory supported is 2048Mb.
 # The 'MEGS' option is deprecated. Use 'MEMORY' option instead.

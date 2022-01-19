@@ -2,9 +2,9 @@
 #ifndef _TYPES_H_
 #define _TYPES_H_
 
-#include <lightcore/types.h>
-
 #ifndef __ASSEMBLY__
+
+#include <lightcore/types.h>
 
 typedef __s8            s8;
 typedef __s16           s16;
@@ -41,12 +41,7 @@ typedef u128            uint128_t;
 
 typedef __ssize_t       ssize_t;
 typedef __size_t        size_t;
-
 typedef _Bool           bool;
-typedef unsigned char   uchar;
-typedef unsigned short  ushort;
-typedef unsigned int    uint;
-typedef unsigned long   ulong;
 
 typedef __state         state;
 
@@ -70,9 +65,10 @@ typedef uint64_t        blkcnt_t;
 
 typedef uint32_t        gfp_t;
 typedef uint32_t        gvm_t;
-typedef uint64_t        time_t;
 
-typedef unsigned short  umode_t;
+typedef uint32_t        dev_t;
+typedef uint16_t        umode_t;
+typedef int64_t         time_t;
 
 typedef __key_t         key_t;
 typedef __mqd_t         mqd_t;
@@ -85,6 +81,10 @@ typedef __gid_t         gid_t;
 typedef __off_t         off_t;
 typedef __loff_t        loff_t;
 
+#define BYTE_PER_SHORT      sizeof(short)
+#define BYTE_PER_INT        sizeof(int)
+#define BYTE_PER_LONG       sizeof(long)
+#define BYTE_PER_LONG_LONG  sizeof(long long)
 
 #endif  /* __ASSEMBLY__ */
 #endif  /* _TYPES_H_ */

@@ -11,33 +11,33 @@
 #define DMI_ANCHOR  "_DMI_"
 
 struct dmi_entry_point {
-    uint8_t anchor[4];      // 0x00: _SM_, specified as four ASCII characters
-    uint8_t checksum;       // 0x04: Checksum of the Entry Point Structure
-    uint8_t length;         // 0x05: Length of the Entry Point Structure
-    uint8_t major;          // 0x06: Major version of this specification
-    uint8_t minor;          // 0x07: Minor version of this specification
-    uint16_t maxsize;       // 0x08: Size of the largest SMBIOS structure
-    uint8_t entryrev;       // 0x0a: EPS revision implemented in this structure and identifies
-    uint8_t formatted[5];   // 0x0b: Value present in the Entry Point Revision field
-    uint8_t inanchor[5];    // 0x10: _DMI_, specified as five ASCII characters
-    uint8_t inchecksum;     // 0x15: Checksum of Intermediate Entry Point Structure
-    uint16_t strlen;        // 0x16: Total length of SMBIOS Structure Table
-    uint32_t straddr;       // 0x18: Physical address of SMBIOS Structure Table
-    uint16_t strnr;         // 0x1c: Total number of structures present in the SMBIOS Structure Table
-    uint8_t bcdrev;         // 0x1e: Indicates compliance with a revision of this specification
+    uint8_t anchor[4];      /* 0x00: _SM_, specified as four ASCII characters */
+    uint8_t checksum;       /* 0x04: Checksum of the Entry Point Structure */
+    uint8_t length;         /* 0x05: Length of the Entry Point Structure */
+    uint8_t major;          /* 0x06: Major version of this specification */
+    uint8_t minor;          /* 0x07: Minor version of this specification */
+    uint16_t maxsize;       /* 0x08: Size of the largest SMBIOS structure */
+    uint8_t entryrev;       /* 0x0a: EPS revision implemented in this structure and identifies */
+    uint8_t formatted[5];   /* 0x0b: Value present in the Entry Point Revision field */
+    uint8_t inanchor[5];    /* 0x10: _DMI_, specified as five ASCII characters */
+    uint8_t inchecksum;     /* 0x15: Checksum of Intermediate Entry Point Structure */
+    uint16_t strlen;        /* 0x16: Total length of SMBIOS Structure Table */
+    uint32_t straddr;       /* 0x18: Physical address of SMBIOS Structure Table */
+    uint16_t strnr;         /* 0x1c: Total number of structures present in the SMBIOS Structure Table */
+    uint8_t bcdrev;         /* 0x1e: Indicates compliance with a revision of this specification */
 } __packed;
 
 #define SM3_ANCHOR  "_SM3_"
 
 struct dmi3_entry_point {
-    uint8_t anchor[5];      // 0x00: _SM3_, specified as five ASCII characters
-    uint8_t checksum;       // 0x05: Checksum of the Entry Point Structure
-    uint8_t length;         // 0x06: Length of the Entry Point Structure
-    uint8_t major;          // 0x07: Major version of this specification
-    uint8_t minor;          // 0x08: Minor version of this specification
-    uint8_t docrev;         // 0x09: docrev of this specification implemented in the table structures
-    uint32_t strmax;        // 0x0c: Maximum size of SMBIOS Structure Table
-    uint64_t straddr;       // 0x10: Physical address of SMBIOS Structure Table
+    uint8_t anchor[5];      /* 0x00: _SM3_, specified as five ASCII characters */
+    uint8_t checksum;       /* 0x05: Checksum of the Entry Point Structure */
+    uint8_t length;         /* 0x06: Length of the Entry Point Structure */
+    uint8_t major;          /* 0x07: Major version of this specification */
+    uint8_t minor;          /* 0x08: Minor version of this specification */
+    uint8_t docrev;         /* 0x09: docrev of this specification implemented in the table structures */
+    uint32_t strmax;        /* 0x0c: Maximum size of SMBIOS Structure Table */
+    uint64_t straddr;       /* 0x10: Physical address of SMBIOS Structure Table */
 } __packed;
 
 enum dmi_device_type {
@@ -108,29 +108,29 @@ struct dmi_header {
 } __packed;
 
 enum dmi_bios {
-    DMI_HD_BIOS_VENDOR      = 0x04, // String number of the BIOS Vendor’s Name
-    DMI_HD_BIOS_VERSION     = 0x05, // String number of the BIOS Version
-    DMI_HD_BIOS_ADDRESS     = 0x06, // Segment location of BIOS starting address
-    DMI_HD_BIOS_DATE        = 0x08, // String number of the BIOS release date
-    DMI_HD_BIOS_ROM_SIZE    = 0x09, // Size of the physical device containing the BIOS (64K * (n+1))
-    DMI_HD_BIOS_FEATURES    = 0x0a, // Defines which functions the BIOS supports
-    DMI_HD_BIOS_EFEATURES   = 0x12, // Optional space reserved for future supported functions
-    DMI_HD_BIOS_MAJOR       = 0x14, // Identifies the major release of the System BIOS
-    DMI_HD_BIOS_MINOR       = 0x15, // Identifies the minor release of the System BIOS
-    DMI_HD_EC_MAJOR         = 0x16, // Identifies the major release of the EC firmware
-    DMI_HD_EC_MINOR         = 0x17, // Identifies the minor release of the EC firmware
-    DMI_HD_EBIOS_ROM_SIZE   = 0x18, // Extended size of the physical device containing the BIOS
+    DMI_HD_BIOS_VENDOR      = 0x04, /* String number of the BIOS Vendor’s Name */
+    DMI_HD_BIOS_VERSION     = 0x05, /* String number of the BIOS Version */
+    DMI_HD_BIOS_ADDRESS     = 0x06, /* Segment location of BIOS starting address */
+    DMI_HD_BIOS_DATE        = 0x08, /* String number of the BIOS release date */
+    DMI_HD_BIOS_ROM_SIZE    = 0x09, /* Size of the physical device containing the BIOS (64K * (n+1)) */
+    DMI_HD_BIOS_FEATURES    = 0x0a, /* Defines which functions the BIOS supports */
+    DMI_HD_BIOS_EFEATURES   = 0x12, /* Optional space reserved for future supported functions */
+    DMI_HD_BIOS_MAJOR       = 0x14, /* Identifies the major release of the System BIOS */
+    DMI_HD_BIOS_MINOR       = 0x15, /* Identifies the minor release of the System BIOS */
+    DMI_HD_EC_MAJOR         = 0x16, /* Identifies the major release of the EC firmware */
+    DMI_HD_EC_MINOR         = 0x17, /* Identifies the minor release of the EC firmware */
+    DMI_HD_EBIOS_ROM_SIZE   = 0x18, /* Extended size of the physical device containing the BIOS */
 };
 
 enum dmi_sys {
-    DMI_HD_SYS_MANUFACT = 0x04, // Number of null-terminated string
-    DMI_HD_SYS_PRODUCT  = 0x05, // Number of null-terminated string
-    DMI_HD_SYS_VERSION  = 0x06, // Number of null-terminated string
-    DMI_HD_SYS_SERIAL   = 0x07, // Number of null-terminated string
-    DMI_HD_SYS_UUID     = 0x08, // Universal unique ID number
-    DMI_HD_SYS_WEAK     = 0x18, // Identifies the event that caused the system to power up.
-    DMI_HD_SYS_SKU      = 0x19, // Number of null-terminated string
-    DMI_HD_SYS_FAMILY   = 0x1a, // Number of null-terminated string
+    DMI_HD_SYS_MANUFACT     = 0x04, /* Number of null-terminated string */
+    DMI_HD_SYS_PRODUCT      = 0x05, /* Number of null-terminated string */
+    DMI_HD_SYS_VERSION      = 0x06, /* Number of null-terminated string */
+    DMI_HD_SYS_SERIAL       = 0x07, /* Number of null-terminated string */
+    DMI_HD_SYS_UUID         = 0x08, /* Universal unique ID number */
+    DMI_HD_SYS_WEAK         = 0x18, /* Identifies the event that caused the system to power up. */
+    DMI_HD_SYS_SKU          = 0x19, /* Number of null-terminated string */
+    DMI_HD_SYS_FAMILY       = 0x1a, /* Number of null-terminated string */
 };
 
 struct dmi_node {
@@ -139,11 +139,12 @@ struct dmi_node {
     struct slist_head list;
 };
 
-extern char *dmi_string_index(const struct dmi_header *dmi, int index);
-extern void dmi_region_byte(struct dmi_header *dmi, int index, enum dmi_region_type region);
-extern void dmi_region_word(struct dmi_header *dmi, int index, enum dmi_region_type region);
-extern void dmi_region_string(struct dmi_header *dmi, int index, enum dmi_region_type region);
-extern bool dmi_match_one(enum dmi_region_type type, const char *name);
-extern const void *dmi_match(struct dmi_deivce_id *dmi);
+extern const char *dmi_string_index(const struct dmi_header *dhead, int index);
+extern void dmi_save_ident(const struct dmi_header *dhead, enum dmi_region_type region, int index);
+extern void dmi_save_release(const struct dmi_header *dhead, enum dmi_region_type region, int index);
+extern const char *dmi_get_ident(enum dmi_region_type region);
+extern uint16_t dmi_get_release(enum dmi_region_type region);
+extern const void *dmi_system_check(struct dmi_device_id *dmi);
+extern void __init dmi_init(void);
 
 #endif  /* _DRIVER_DMI_H_ */

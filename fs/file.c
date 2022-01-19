@@ -4,7 +4,7 @@
  */
 
 #include <linkage.h>
-#include <fs.h>
+#include <filesystem.h>
 #include <syscall.h>
 
 ssize_t sys_read(unsigned int fd, char *buf, size_t len)

@@ -2,20 +2,21 @@
 #ifndef _LINKAGE_H_
 #define _LINKAGE_H_
 
+#include <asm/linkage.h>
+
 /* Some toolchains use other characters (e.g. '`') to mark new line in macro */
 #ifndef ASM_NL
-#define ASM_NL         ;
+# define ASM_NL ;
 #endif
 
 #ifndef __ALIGN
-#define __ALIGN         .align 4,0x90
-#define __ALIGN_STR    ".align 4,0x90"
+# define __ALIGN .align 4,0x90
+# define __ALIGN_STR ".align 4,0x90"
 #endif
 
 #ifndef asmlinkage
-#define asmlinkage
+# define asmlinkage
 #endif
-
 
 /*
  * This is used by architectures to keep arguments on the stack
@@ -30,28 +31,31 @@
  * protection to work (ie no more work that the compiler might
  * end up needing stack temporaries for).
  */
-/* Assembly files may be compiled with -traditional .. */
 #ifndef __ASSEMBLY__
 
 #ifndef asmlinkage_protect
 # define asmlinkage_protect(n, ret, args...)    do { } while (0)
 #endif
 
-#else   /* __ASSEMBLY__ */
+#else
+
+#ifndef L
+# define L(body)            .L##body
+#endif
 
 /* SYM_T_FUNC -- type used by assembler to mark functions */
 #ifndef SYM_T_FUNC
-#define SYM_T_FUNC          STT_FUNC
+# define SYM_T_FUNC         STT_FUNC
 #endif
 
 /* SYM_T_OBJECT -- type used by assembler to mark data */
 #ifndef SYM_T_OBJECT
-#define SYM_T_OBJECT        STT_OBJECT
+# define SYM_T_OBJECT       STT_OBJECT
 #endif
 
 /* SYM_T_NONE -- type used by assembler to mark entries of unknown type */
 #ifndef SYM_T_NONE
-#define SYM_T_NONE          STT_NOTYPE
+# define SYM_T_NONE         STT_NOTYPE
 #endif
 
 /* SYM_A_* -- align the symbol? */
@@ -72,16 +76,14 @@
 #ifndef CONFIG_ARCH_USE_SYM_ANNOTATIONS
 #ifndef GLOBAL
 /* deprecated, use SYM_DATA*, SYM_ENTRY, or similar */
-#define GLOBAL(name)    \
-    .globl name ASM_NL  \
-    name:
+#define GLOBAL(name) .globl name ASM_NL name:
 #endif
 
-#ifndef ENTRY
 /* deprecated, use SYM_FUNC_START */
-#define ENTRY(name) \
-    SYM_FUNC_START(name)
+#ifndef ENTRY
+#define ENTRY(name) SYM_FUNC_START(name)
 #endif
+
 #endif /* CONFIG_ARCH_USE_SYM_ANNOTATIONS */
 #endif /* LINKER_SCRIPT */
 

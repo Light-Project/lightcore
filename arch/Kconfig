@@ -1,47 +1,39 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-choice ARCH
+choice
     prompt "Architecture Select"
 
 config ARCH_ARM
     bool "ARM"
     select ARCH_32BIT
-    select ARCH_HAS_MMU
-
-config ARCH_ARM64
-    bool "ARM64"
-    select ARCH_64BIT
+    select ARCH_LITTLE_ENDIAN
     select ARCH_HAS_MMU
 
 config ARCH_CSKY
     bool "C-SKY"
     select ARCH_32BIT
+    select ARCH_LITTLE_ENDIAN
     select ARCH_HAS_MMU
     select ARCH_HAS_IOMAP
-
-config ARCH_RISCV
-    bool "RISC-V"
-    select ARCH_32BIT
-    select ARCH_HAS_MMU
 
 config ARCH_X86
     bool "X86"
     select ARCH_32BIT
+    select ARCH_LITTLE_ENDIAN
     select ARCH_HAS_MMU
-    select ARCH_HAS_RELOCATABLE
-    select ARCH_HAS_KASLR
     select ARCH_HAS_PMIO
 
 config ARCH_X86_64
     bool "X86_64"
     select ARCH_64BIT
+    select ARCH_LITTLE_ENDIAN
     select ARCH_HAS_MMU
-    select ARCH_HAS_RELOCATABLE
-    select ARCH_HAS_KASLR
     select ARCH_HAS_PMIO
+    select ARCH_HAS_KASAN
 
 config ARCH_XTENSA
     bool "Xtensa"
     select ARCH_32BIT
+    select CPU_LITTLE_ENDIAN
 
 endchoice
 
@@ -52,10 +44,7 @@ source "arch/xtensa/Kconfig"
 
 # Architecture supported
 
-config ARCH_HAS_RELOCATABLE
-    bool
-
-# CPU wide
+# CPU Wide
 config ARCH_32BIT
     bool
 
@@ -63,13 +52,17 @@ config ARCH_64BIT
     bool
 
 # Endianness
-config CPU_LITTLE_ENDIAN
+config ARCH_LITTLE_ENDIAN
     bool
 
-config CPU_BIG_ENDIAN
+config ARCH_BIG_ENDIAN
     bool
 
-# Mem manage
+# Stack Direction
+config ARCH_STACK_GROWUP
+    bool
+
+# Memory Management
 config ARCH_HAS_MMU
     bool
 
@@ -79,6 +72,5 @@ config ARCH_HAS_PMIO
 config ARCH_HAS_IOMAP
     bool
 
-# Security configuration
-config ARCH_HAS_KASLR
+config ARCH_HAS_KASAN
     bool

@@ -1,5 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
+#include <logo.h>
 #include <printk.h>
-#include <init.h>
 
 void __init terminal_logo(void)
 {

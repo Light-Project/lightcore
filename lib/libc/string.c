@@ -10,9 +10,8 @@
 __weak char *strcpy(char *dest, const char *src)
 {
     char *tmp = dest;
-
-    while ((*dest++ = *src++) != '\0');
-    return tmp;
+    while ((*tmp++ = *src++) != '\0');
+    return dest;
 }
 EXPORT_SYMBOL(strcpy);
 
@@ -20,13 +19,13 @@ __weak char *strncpy(char *dest, const char *src, size_t n)
 {
     char *tmp = dest;
 
-    while (n)
-    {
+    while (n) {
         if ((*tmp = *src) != 0)
             src++;
         tmp++;
         n--;
     }
+
     return dest;
 }
 EXPORT_SYMBOL(strncpy);
@@ -36,12 +35,12 @@ __weak size_t strlcpy(char *dest, const char *src, size_t n)
     size_t len;
     size_t ret = strlen(src);
 
-    if (n)
-    {
+    if (n) {
         len = (ret >= n) ? n - 1 : ret;
         memcpy(dest, src, len);
         dest[len] = '\0';
     }
+
     return ret;
 }
 EXPORT_SYMBOL(strlcpy);
@@ -62,12 +61,10 @@ __weak char *strncat(char *dest, const char *src, size_t n)
 {
     char *tmp = dest;
 
-    if (n)
-    {
+    if (n) {
         while (*dest)
             dest++;
-        while ((*dest++ = *src++) != 0)
-        {
+        while ((*dest++ = *src++) != 0) {
             if (--n == 0)
             {
                 *dest = '\0';
@@ -111,7 +108,7 @@ EXPORT_SYMBOL(strcoll);
 __weak size_t strlen(const char *s)
 {
     const char *len;
-    for(len = s; *len != '\0'; len++);
+    for (len = s; *len != '\0'; len++);
     return len - s;
 }
 EXPORT_SYMBOL(strlen);
@@ -119,7 +116,6 @@ EXPORT_SYMBOL(strlen);
 __weak size_t strnlen(const char *s, size_t n)
 {
     const char *sc;
-
     for (sc = s; n-- && *sc != '\0'; ++sc);
     return sc - s;
 }
@@ -137,12 +133,12 @@ __weak int strncmp(const char *s1, const char *s2, size_t n)
 {
     int __res = 0;
 
-    while (n)
-    {
+    while (n) {
         if ((__res = *s1 - *s2++) != 0 || !*s1++)
             break;
         n--;
     }
+
     return __res;
 }
 EXPORT_SYMBOL(strncmp);
@@ -204,6 +200,7 @@ __weak char *strchr(const char *s, int c)
     for (; *s != (char)c; ++s)
         if (*s == '\0')
             return NULL;
+
     return (char *)s;
 }
 EXPORT_SYMBOL(strchr);
@@ -213,8 +210,8 @@ __weak char *strrchr(const char *s, int c)
     const char *p = s + strlen(s);
 
     do {
-    if (*p == (char)c)
-        return (char *)p;
+        if (*p == (char)c)
+            return (char *)p;
     } while (--p >= s);
 
     return NULL;
@@ -234,6 +231,7 @@ char *strchrnul(const char *s, int c)
 {
     while (*s && *s != (char)c)
         s++;
+
     return (char *)s;
 }
 EXPORT_SYMBOL(strchrnul);
@@ -242,10 +240,10 @@ char *strnchrnul(const char *s, size_t count, int c)
 {
     while (count-- && *s && *s != (char)c)
         s++;
+
     return (char *)s;
 }
 EXPORT_SYMBOL(strnchrnul);
-
 
 __weak size_t strspn(const char *s, const char *accept)
 {
@@ -405,13 +403,10 @@ __weak void *memset(void *s, int c, size_t n)
 }
 EXPORT_SYMBOL(memset);
 
-__weak void *memcpy(void *dest, const void*src, size_t len)
+__weak void *memcpy(void *dest, const void *src, size_t len)
 {
-    uint8_t *ndest = (uint8_t *)dest;
-    uint8_t *nsrc = (uint8_t *)src;
-
-    if (ndest == NULL || nsrc == NULL || len == 0)
-        return NULL;
+    uint8_t * restrict ndest = dest;
+    const uint8_t * restrict nsrc = src;
 
     while (len--)
         *ndest++ = *nsrc++;
@@ -487,11 +482,9 @@ int memcount(const void *addr, int c, size_t size)
 {
     const char *p = addr;
     int count;
-
     while (size--)
         if (c == *p++)
             count++;
-
     return count;
 }
 EXPORT_SYMBOL(memcount);

@@ -15,7 +15,7 @@ GLOBAL(boot_head)
 END(boot_head)
 
     .section    .text.init, "ax"
-SYM_CODE_START(init)
+ENTRY(init)
 
     ldr     sp, =(init_thread_union + THREAD_SIZE)
 
@@ -28,4 +28,4 @@ SYM_CODE_START(init)
 
     mov     lr, #0
     b       kernel_start
-SYM_FUNC_END(init)
+END(init)

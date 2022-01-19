@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+config ROMDISK
+    bool "Romdisk support"
+    select FS_CPIO

@@ -6,10 +6,10 @@
 #include <spinlock.h>
 #include <list.h>
 
-struct mutex{
-    atomic_t    atomic;
-    list_t      list;
-    spinlock_t  lock;
+struct mutex {
+    spinlock_t lock;
+    atomic_t atomic;
+    struct list_head list;
 };
 
 #define MUTEX_LOCK(name) \

@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 include $(srctree)/platform.mk
+export KASAN_SANITIZE = n
 
 obj-$(CONFIG_ARCH_ARM)     += arm/
 obj-$(CONFIG_ARCH_CSKY)    += csky/
@@ -68,7 +69,7 @@ suffix-$(CONFIG_PACK_LZO)     := .lzo
 suffix-$(CONFIG_PACK_LZ4)     := .lz4
 suffix-$(CONFIG_PACK_ZSTD)    := .zst
 
-quiet_cmd_mkincbin = MKINCBIN $@
+quiet_cmd_mkincbin = $(ECHO_INCBIN) $@
       cmd_mkincbin = $(objtree)/tools/mkincbin/mkincbin .piggydata $< > $@
 $(obj)/piggy.S: $(obj)/kernel.bin$(suffix-y) FORCE
 	$(call if_changed,mkincbin)

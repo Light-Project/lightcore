@@ -6,7 +6,7 @@
 #define DRIVER_NAME "ohci"
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
-#include <mm.h>
+#include <memory.h>
 #include <initcall.h>
 #include <irq.h>
 #include <driver/usb.h>

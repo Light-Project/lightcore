@@ -2,9 +2,7 @@
 #ifndef _DRIVER_BLOCK_H_
 #define _DRIVER_BLOCK_H_
 
-#include <types.h>
-#include <state.h>
-#include <list.h>
+#include <device.h>
 #include <fsdev.h>
 
 enum request_type {
@@ -14,8 +12,8 @@ enum request_type {
 };
 
 struct block_request {
-    struct list_head list;  /* request list */
-    enum request_type type; /* request type */
+    struct list_head list;
+    enum request_type type;
     sector_t sector;
     unsigned int length;
     void *buffer;
@@ -44,9 +42,10 @@ struct block_ops {
     state (*dequeue)(struct block_device *, struct block_request *);
 };
 
-state block_add_fsdev(struct block_device *);
+extern state block_device_read(struct block_device *blk, void *buff, sector_t sector, size_t len);
 
-state block_device_register(struct block_device *);
-state block_device_read(struct block_device *blk, void *buff, sector_t sector, size_t len);
+extern state block_add_fsdev(struct block_device *);
+extern state block_device_register(struct block_device *);
+extern void block_device_unregister(struct block_device *);
 
 #endif  /* _DRIVER_BLOCK_H_ */

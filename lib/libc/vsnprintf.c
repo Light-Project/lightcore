@@ -97,7 +97,7 @@ static size_t format_int(char * q, size_t n, uintmax_t val, enum flags flags,
     }
     else
     {
-        tickskip = ndigits;	/* No tick marks */
+        tickskip = ndigits; /* No tick marks */
     }
 
     /*
@@ -111,10 +111,10 @@ static size_t format_int(char * q, size_t n, uintmax_t val, enum flags flags,
     nchars = ndigits;
 
     if (minus || (flags & (FL_PLUS | FL_SPACE)))
-        nchars++;			/* Need space for sign */
+        nchars++;   /* Need space for sign */
     if ((flags & FL_HASH) && (base == 16))
     {
-        nchars += 2;		/* Add 0x for hex */
+        nchars += 2;  /* Add 0x for hex */
     }
 
     /*
@@ -159,10 +159,10 @@ static size_t format_int(char * q, size_t n, uintmax_t val, enum flags flags,
     /*
      * Generate the number.  This is done from right to left
      */
-    q += ndigits;			/* Advance the pointer to end of number */
+    q += ndigits;   /* Advance the pointer to end of number */
     o += ndigits;
     qq = q;
-    oo = o;					/* Temporary values */
+    oo = o;     /* Temporary values */
 
     b4tick = tickskip;
     while (ndigits > 0)
@@ -201,24 +201,24 @@ int vsnprintf(char *buf, size_t n, const char *fmt, va_list args)
     const char * p = fmt;
     char ch;
     char *q = buf;
-    size_t o = 0;			/* Number of characters output */
+    size_t o = 0;   /* Number of characters output */
     uintmax_t val = 0;
-    int rank = rank_int;	/* Default rank */
+    int rank = rank_int; /* Default rank */
     int width = 0;
     int prec = -1;
     int base;
     size_t sz;
     enum flags flags = 0;
     enum {
-        st_normal,		/* Ground state */
-        st_flags,		/* Special flags */
-        st_width,		/* Field width */
-        st_prec,		/* Field precision */
-        st_modifiers,	/* Length or conversion modifiers */
+        st_normal,  /* Ground state */
+        st_flags,  /* Special flags */
+        st_width,  /* Field width */
+        st_prec,  /* Field precision */
+        st_modifiers, /* Length or conversion modifiers */
     } state = st_normal;
-    const char * sarg;	/* %s string argument */
-    char carg;			/* %c char argument */
-    int slen;			/* String length */
+    const char * sarg; /* %s string argument */
+    char carg;   /* %c char argument */
+    int slen;   /* String length */
 
     while ((ch = *p++)) {
         switch (state)
@@ -261,7 +261,7 @@ int vsnprintf(char *buf, size_t n, const char *fmt, va_list args)
                 break;
             default:
                 state = st_width;
-                p--;	/* Process this character again */
+                p--; /* Process this character again */
                 break;
             }
             break;
@@ -282,13 +282,13 @@ int vsnprintf(char *buf, size_t n, const char *fmt, va_list args)
             }
             else if (ch == '.')
             {
-                prec = 0;	/* Precision given */
+                prec = 0; /* Precision given */
                 state = st_prec;
             }
             else
             {
                 state = st_modifiers;
-                p--;		/* Process this character again */
+                p--;  /* Process this character again */
             }
             break;
 
@@ -306,7 +306,7 @@ int vsnprintf(char *buf, size_t n, const char *fmt, va_list args)
             else
             {
                 state = st_modifiers;
-                p--;		/* Process this character again */
+                p--;  /* Process this character again */
             }
             break;
 
@@ -317,10 +317,10 @@ int vsnprintf(char *buf, size_t n, const char *fmt, va_list args)
              * Length modifiers - nonterminal sequences
              */
             case 'h':
-                rank--;		/* Shorter rank */
+                rank--;  /* Shorter rank */
                 break;
             case 'l':
-                rank++;		/* Longer rank */
+                rank++;  /* Longer rank */
                 break;
             case 'j':
                 rank = INTMAX_RANK;
@@ -351,10 +351,10 @@ int vsnprintf(char *buf, size_t n, const char *fmt, va_list args)
 
                 switch (ch)
                 {
-                case 'P':		/* Upper case pointer */
+                case 'P':  /* Upper case pointer */
                     flags |= FL_UPPER;
                     break;
-                case 'p':		/* Pointer */
+                case 'p':  /* Pointer */
                     base = 16;
                     prec = (8 * sizeof(void *) + 3) / 4;
                     flags |= FL_HASH;
@@ -362,7 +362,7 @@ int vsnprintf(char *buf, size_t n, const char *fmt, va_list args)
                     va_arg(args, void *);
                     goto is_integer;
 
-                case 'd':		/* Signed decimal output */
+                case 'd':  /* Signed decimal output */
                 case 'i':
                     base = 10;
                     flags |= FL_SIGNED;
@@ -394,22 +394,21 @@ int vsnprintf(char *buf, size_t n, const char *fmt, va_list args)
                         break;
                     }
                     goto is_integer;
-                case 'o':		/* Octal */
+                case 'o':  /* Octal */
                     base = 8;
                     goto is_unsigned;
-                case 'u':		/* Unsigned decimal */
+                case 'u':  /* Unsigned decimal */
                     base = 10;
                     goto is_unsigned;
-                case 'X':		/* Upper case hexadecimal */
+                case 'X':  /* Upper case hexadecimal */
                     flags |= FL_UPPER;
                     base = 16;
                     goto is_unsigned;
-                case 'x':		/* Hexadecimal */
+                case 'x':  /* Hexadecimal */
                     base = 16;
                     goto is_unsigned;
 
-                    is_unsigned: switch (rank)
-                    {
+                    is_unsigned: switch (rank) {
                     case rank_char:
                         val = (uintmax_t)
                         (unsigned char)
@@ -418,19 +417,19 @@ int vsnprintf(char *buf, size_t n, const char *fmt, va_list args)
                     case rank_short:
                         val = (uintmax_t)
                         (unsigned short)
-                        va_arg(args, unsigned	int);
+                        va_arg(args, unsigned int);
                         break;
                     case rank_int:
                         val = (uintmax_t)
-                        va_arg(args, unsigned	int);
+                        va_arg(args, unsigned int);
                         break;
                     case rank_long:
                         val = (uintmax_t)
-                        va_arg(args, unsigned	long);
+                        va_arg(args, unsigned long);
                         break;
                     case rank_longlong:
                         val = (uintmax_t)
-                        va_arg(args, unsigned	long long);
+                        va_arg(args, unsigned long long);
                         break;
                     }
 
@@ -440,12 +439,13 @@ int vsnprintf(char *buf, size_t n, const char *fmt, va_list args)
                     o += sz;
                     break;
 
-                case 'c':		/* Character */
+                case 'c':  /* Character */
                     carg = (char)va_arg(args, int);
                     sarg = &carg;
                     slen = 1;
                     goto is_string;
-                case 's':		/* String */
+
+                case 's':  /* String */
                     sarg = va_arg(args, const char *);
                     sarg = sarg ? sarg : "(null)";
                     slen = strlen(sarg);
@@ -458,22 +458,18 @@ int vsnprintf(char *buf, size_t n, const char *fmt, va_list args)
                         if (prec != -1 && slen > prec)
                             slen = prec;
 
-                        if (width > slen && !(flags & FL_MINUS))
-                        {
+                        if (width > slen && !(flags & FL_MINUS)) {
                             char pad = (flags & FL_ZERO) ? '0' : ' ';
-                            while (width > slen)
-                            {
+                            while (width > slen) {
                                 EMIT(pad);
                                 width--;
                             }
                         }
-                        for (i = slen; i; i--)
-                        {
+                        for (i = slen; i; i--) {
                             sch = *sarg++;
                             EMIT(sch);
                         }
-                        if (width > slen && (flags & FL_MINUS))
-                        {
+                        if (width > slen && (flags & FL_MINUS)) {
                             while (width > slen) {
                                 EMIT(' ');
                                 width--;
@@ -482,34 +478,32 @@ int vsnprintf(char *buf, size_t n, const char *fmt, va_list args)
                     }
                     break;
 
-                case 'n':
-                {
+                case 'n': {
                     /*
                      * Output the number of characters written
                      */
-                    switch (rank)
-                    {
-                    case rank_char:
-                        *va_arg(args, signed char *) = o;
-                        break;
-                    case rank_short:
-                        *va_arg(args, signed short *)	= o;
-                        break;
-                    case rank_int:
-                        *va_arg(args, signed int *) = o;
-                        break;
-                    case rank_long:
-                        *va_arg(args, signed long *) = o;
-                        break;
-                    case rank_longlong:
-                        *va_arg(args, signed long long *) = o;
-                        break;
+                    switch (rank) {
+                        case rank_char:
+                            *va_arg(args, signed char *) = o;
+                            break;
+                        case rank_short:
+                            *va_arg(args, signed short *) = o;
+                            break;
+                        case rank_int:
+                            *va_arg(args, signed int *) = o;
+                            break;
+                        case rank_long:
+                            *va_arg(args, signed long *) = o;
+                            break;
+                        case rank_longlong:
+                            *va_arg(args, signed long long *) = o;
+                            break;
                     }
                 }
                     break;
 
 
-                default:		/* Anything else, including % */
+                default:  /* Anything else, including % */
                     EMIT(ch);
                     break;
                 }
@@ -523,9 +517,9 @@ int vsnprintf(char *buf, size_t n, const char *fmt, va_list args)
      * Null-terminate the string
      */
     if (o < n)
-        *q = '\0';				/* No overflow */
+        *q = '\0';    /* No overflow */
     else if (n > 0)
-        buf[n - 1] = '\0';		/* Overflow - terminate at end of buffer */
+        buf[n - 1] = '\0';  /* Overflow - terminate at end of buffer */
 
     return o;
 }

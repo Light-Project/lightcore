@@ -7,10 +7,10 @@
 #include <asm/regs.h>
 #include <asm/barrier.h>
 
-struct task;
+struct sched_task;
 
 void proc_thread_setup(struct regs *regs, size_t ip, size_t sp);
-state proc_thread_switch(struct task *prev, struct task *next);
+state proc_thread_switch(struct sched_task *prev, struct sched_task *next);
 
 void proc_idle(void);
 void __noreturn proc_reset(void);

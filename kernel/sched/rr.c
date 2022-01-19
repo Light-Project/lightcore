@@ -6,39 +6,50 @@
 #define MODULE_NAME "rr-sched"
 #define pr_fmt(fmt) MODULE_NAME ": " fmt
 
+#include <sched.h>
 #include <bitmap.h>
 #include <kmalloc.h>
 #include <initcall.h>
-#include <sched.h>
+#include <panic.h>
 #include <printk.h>
 
-struct kcache *rr_cache;
 #define RR_PRIO_MAX 64
+#define RR_TIMESLICE (CONFIG_RR_TIMESLICE * CONFIG_SYSTICK_FREQ / 1000)
+struct kcache *rr_cache;
+
+struct rr_queue {
+    DEFINE_BITMAP(bitmap, RR_PRIO_MAX);
+    struct list_head task[RR_PRIO_MAX];
+    unsigned int running[RR_PRIO_MAX];
+    struct sched_queue *sched;
+    unsigned int tasknr;
+};
 
 struct rr_task {
-    struct task task;
+    struct sched_task task;
     struct list_head list;
+    unsigned int timeslice;
 };
 
 #define task_to_rr(tsk) \
     container_of(tsk, struct rr_task, task)
 
-struct rr_queue {
-    DEFINE_BITMAP(bitmap, RR_PRIO_MAX);
-    struct list_head task[RR_PRIO_MAX];
-    struct sched_queue *sched;
-};
-
 static __always_inline struct rr_queue *
 queue_get_rr(struct sched_queue *queue)
 {
-    return queue->priv[SCHED_PRIO_RR];
+    return queue->pdata[SCHED_PRIO_RR];
 }
 
 static __always_inline void
 queue_set_rr(struct sched_queue *queue, struct rr_queue *rr)
 {
-    queue->priv[SCHED_PRIO_RR] = rr;
+    queue->pdata[SCHED_PRIO_RR] = rr;
+}
+
+static __always_inline bool
+move_entity(enum sched_queue_flags flags)
+{
+    return !((flags & (SCHED_QUEUE_SAVE | SCHED_QUEUE_MOVE)) == SCHED_QUEUE_SAVE);
 }
 
 static state rr_queue_create(struct sched_queue *queue)
@@ -49,62 +60,122 @@ static state rr_queue_create(struct sched_queue *queue)
     if (!rr_queue)
         return -ENOMEM;
 
-    queue->priv[SCHED_PRIO_RR] = rr_queue;
+    list_head_init(rr_queue->task);
+    queue_set_rr(queue, rr_queue);
+
     return -ENOERR;
 }
 
 static void rr_queue_destroy(struct sched_queue *queue)
 {
     struct rr_queue *rr_queue = queue_get_rr(queue);
-
     kfree(rr_queue);
 }
 
-static struct task *rr_task_create(int flags)
+static void rr_task_enqueue(struct sched_queue *queue, struct sched_task *task, enum sched_queue_flags flags)
 {
+    struct rr_queue *rr_queue = queue_get_rr(queue);
+    struct rr_task *rr_task = task_to_rr(task);
+    unsigned int prio = task->priority;
+
+    if (move_entity(flags)) {
+        if (flags & SCHED_ENQUEUE_HEAD)
+            list_add(&rr_queue->task[prio], &rr_task->list);
+        else
+            list_add_prev(&rr_queue->task[prio], &rr_task->list);
+    }
+
+    rr_queue->running[prio]++;
+}
+
+static void rr_task_dequeue(struct sched_queue *queue, struct sched_task *task, enum sched_queue_flags flags)
+{
+    struct rr_queue *rr_queue = queue_get_rr(queue);
+    struct rr_task *rr_task = task_to_rr(task);
+    unsigned int prio = task->priority;
+
+    if (move_entity(flags)) {
+        list_del(&rr_task->list);
+        if (list_check_empty(&rr_queue->task[prio]))
+            bit_clr(rr_queue->bitmap, task->priority);
+    }
+
+    rr_queue->running[prio]--;
+}
+
+static struct sched_task *rr_task_create(int numa)
+{
+    struct rr_task *rr_task;
+
+    rr_task = kcache_alloc_numa(rr_cache, GFP_KERNEL, numa);
+    if (!rr_task)
+        return NULL;
+
+    rr_task->task.priority = RR_PRIO_MAX >> 1;
+    rr_task->timeslice = RR_TIMESLICE;
+
+    return &rr_task->task;
+}
+
+static struct sched_task *rr_task_fork(struct sched_queue *queue)
+{
+    struct rr_task *rr_curr = task_to_rr(queue->curr);
     struct rr_task *rr_task;
 
     rr_task = kcache_zalloc(rr_cache, GFP_KERNEL);
     if (!rr_task)
         return NULL;
 
+    rr_task->task.priority = rr_curr->task.priority;
+    rr_task->timeslice = RR_TIMESLICE;
+
     return &rr_task->task;
 }
 
-static void rr_task_destroy(struct task *task)
+static void rr_task_destroy(struct sched_task *task)
 {
     struct rr_task *rr_task = task_to_rr(task);
-
     list_del(&rr_task->list);
     kcache_free(rr_cache, rr_task);
 }
 
-static void rr_task_enqueue(struct sched_queue *queue, struct task *task, int flags)
+static void rr_task_tick(struct sched_queue *queue, struct sched_task *task)
+{
+    struct rr_queue *rr_queue = queue_get_rr(queue);
+    struct rr_task *rr_task = task_to_rr(task);
+    unsigned int prio = task->priority;
+
+    if (!rr_task->timeslice--)
+        rr_task->timeslice = RR_TIMESLICE;
+    else
+        return;
+
+    if (rr_queue->tasknr <= 1) {
+        list_move_tail(&rr_queue->task[prio], &rr_task->list);
+    }
+}
+
+static void rr_task_next(struct sched_queue *queue, struct sched_task *task)
 {
 
 }
 
-static void rr_task_dequeue(struct sched_queue *queue, struct task *task, int flags)
+static void rr_task_prev(struct sched_queue *queue, struct sched_task *task)
 {
 
 }
 
-static void rr_task_tick(struct sched_queue *rueue, struct task *task)
+static void rr_task_yield(struct sched_queue *queue)
 {
+    struct rr_queue *rr_queue = queue_get_rr(queue);
+    struct rr_task *rr_task = task_to_rr(queue->curr);
+    unsigned int prio = rr_task->task.priority;
 
+    rr_task->timeslice = RR_TIMESLICE;
+    list_move_tail(&rr_queue->task[prio], &rr_task->list);
 }
 
-static void rr_task_next(struct sched_queue *rueue, struct task *task)
-{
-
-}
-
-static void rr_task_prev(struct sched_queue *rueue, struct task *task)
-{
-
-}
-
-static struct task *rr_task_pick(struct sched_queue *queue)
+static struct sched_task *rr_task_pick(struct sched_queue *queue)
 {
     struct rr_queue *rr_queue = queue_get_rr(queue);
     struct rr_task *rr_task;
@@ -112,8 +183,7 @@ static struct task *rr_task_pick(struct sched_queue *queue)
     unsigned int index;
 
     index = bitmap_find_first(rr_queue->bitmap, RR_PRIO_MAX);
-    if (index >= RR_PRIO_MAX)
-        return NULL;
+    BUG_ON(index >= RR_PRIO_MAX);
 
     prio = rr_queue->task + index;
     rr_task = list_first_entry(prio, struct rr_task, list);
@@ -127,16 +197,16 @@ static struct sched_type rr_sched = {
 
     .queue_create  = rr_queue_create,
     .queue_destroy = rr_queue_destroy,
-
-    .task_create  = rr_task_create,
-    .task_destroy = rr_task_destroy,
-
     .task_enqueue = rr_task_enqueue,
     .task_dequeue = rr_task_dequeue,
 
+    .task_create  = rr_task_create,
+    .task_fork  = rr_task_fork,
+    .task_destroy = rr_task_destroy,
     .task_tick = rr_task_tick,
     .task_next = rr_task_next,
     .task_prev = rr_task_prev,
+    .task_yield = rr_task_yield,
     .task_pick = rr_task_pick,
 };
 

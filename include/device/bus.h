@@ -24,8 +24,10 @@ struct bus_type {
     state (*offline)(struct device *);
 
     struct mutex mutex;
-    list_t devices_list;  /* devices on this bus */
-    list_t drivers_list;  /* drivers on this bus */
+    struct list_head devices_list;
+    struct list_head drivers_list;
+
+    uint8_t autoprobe:1;
 };
 
 #define bus_for_each_device(device, bus) \

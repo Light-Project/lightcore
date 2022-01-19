@@ -4,39 +4,9 @@
 
 #include <types.h>
 
-struct cpio_inode_old {
-    uint16_t magic;         /* 0x00: 0xc701 for odc */
-    uint16_t dev;
-    uint16_t ino;
-    uint16_t mode;
-    uint16_t uid;
-    uint16_t gid;
-    uint16_t nlink;
-    uint16_t rdev;
-    uint16_t mtimes[2];
-    uint16_t namesize;
-    uint16_t filesizes[2];
-} __packed;
+#define CPIO_MAGIC  "070701"
 
-#define CPIO_OLD_MAGIC  0xc701
-
-struct cpio_inode_odc {
-    uint8_t magic[6];       /* 0x00: "070707" for odc */
-    uint8_t dev[6];
-    uint8_t ino[6];
-    uint8_t mode[6];
-    uint8_t uid[6];
-    uint8_t gid[6];
-    uint8_t nlink[6];
-    uint8_t rdev[6];
-    uint8_t mtime[11];
-    uint8_t namesize[6];
-    uint8_t filesize[11];
-} __packed;
-
-#define CPIO_ODC_MAGIC  "070707"
-
-struct cpio_inode_newc {
+struct cpio_inode {
     uint8_t magic[6];       /* 0x00: "070701" for newc */
     uint8_t ino[8];         /* 0x06: */
     uint8_t mode[8];        /* 0x0e: */
@@ -53,8 +23,6 @@ struct cpio_inode_newc {
     uint8_t check[8];       /* 0x66: 0 for "new" portable format; for CRC format the sum of all the bytes in the file */
 } __packed;
 
-#define CPIO_NEWC_MAGIC  "070701"
-
 enum cpio_mode {
     CP_IFBLK    = 0060000,  /* blockdev */
     CP_IFCHR    = 0020000,  /* chardev */
@@ -66,11 +34,13 @@ enum cpio_mode {
     CP_IFNWK    = 0110000,  /* network */
 };
 
-/* A cpio archive consists of a sequence of files.
-   Each file has a 76 byte header,
-   a variable length, NUL terminated filename,
-   and variable length file data.
-   A header for a filename "TRAILER!!!" indicates the end of the archive.  */
+/*
+ * A cpio archive consists of a sequence of files.
+ * Each file has a 76 byte header,
+ * a variable length, NUL terminated filename,
+ * and variable length file data.
+ * A header for a filename "TRAILER!!!" indicates the end of the archive.
+ */
 
 #define CPIO_TRAILER_NAME "TRAILER!!!"
 

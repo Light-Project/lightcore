@@ -4,6 +4,7 @@
  */
 
 #include <driver/parallel.h>
+#include <driver/gpio.h>
 
 state parallel_register(struct parallel_device *pdev)
 {

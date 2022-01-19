@@ -3,18 +3,17 @@
 #define _PRINTK_H_
 
 #include <types.h>
-#include <linkage.h>
+#include <stdarg.h>
 #include <klevels.h>
 
-#ifdef CONFIG_PRE_PRINTK
-int pr_early(const char *str,...);
+#ifdef CONFIG_PRE_CONSOLE
+int pr_early(const char *str, ...);
 #else
-static inline int pr_early(str,...) {}
+static inline int pr_early(const char *str, ...) {}
 #endif
 
-asmlinkage __printf(1, 2) __cold
-int printk(const char *fmt,...);
-
+extern int vprintk(const char *fmt, va_list args);
+extern __printf(1, 2) int printk(const char *fmt, ...);
 
 /**
  * pr_fmt - used by the pr_*() macros to generate the printk format string
@@ -132,7 +131,8 @@ int printk(const char *fmt,...);
 #define pr_debug(fmt, ...) \
     printk(KERN_DEBUG pr_fmt(fmt), ##__VA_ARGS__)
 #else
-#define pr_debug(fmt, ...)  while(0);
+#define pr_debug(fmt, ...) \
+    pr_none(fmt, ##__VA_ARGS__)
 #endif
 
 #endif	/* _PRINTK_H_ */

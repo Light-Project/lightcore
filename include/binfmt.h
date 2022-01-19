@@ -4,7 +4,7 @@
 
 #include <types.h>
 #include <list.h>
-#include <fs.h>
+#include <filesystem.h>
 
 struct binfmt_type {
     struct list_head list;

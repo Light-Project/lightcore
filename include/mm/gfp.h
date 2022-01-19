@@ -38,10 +38,10 @@
 #define GFP_ACCOUNT             BIT(23)
 
 #define GFP_KERNEL              (GFP_NORMAL)
-#define GFP_NOWAIT	            (GFP_KSWAPD_RECLAIM)
-#define GFP_NOIO	            (GFP_RECLAIM)
-#define GFP_NOFS	            (GFP_RECLAIM | GFP_IO)
-#define GFP_USER	            (GFP_RECLAIM | GFP_IO | GFP_FS | GFP_HARDWALL)
+#define GFP_NOWAIT              (GFP_KSWAPD_RECLAIM)
+#define GFP_NOIO                (GFP_RECLAIM)
+#define GFP_NOFS                (GFP_RECLAIM | GFP_IO)
+#define GFP_USER                (GFP_RECLAIM | GFP_IO | GFP_FS | GFP_HARDWALL)
 
 #endif  /* __ASSEMBLY__ */
 #endif  /* _MM_GFP_H_ */

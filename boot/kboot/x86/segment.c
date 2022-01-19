@@ -8,18 +8,18 @@
 
 #define GDT_SET(Table, Num, Base, Limit, Type,      \
                 S, Dpl, Db , G)                     \
-    do {                                            \
-        Table[Num].basel   = (Base) & 0xffffff;     \
-        Table[Num].baseh   = ((Base) >> 24) & 0xff; \
-        Table[Num].limitl  = ((Limit) & 0xffff);    \
-        Table[Num].limith  = ((Limit) >> 16) & 0xf; \
-        Table[Num].type    = (Type) & 0xff;         \
-        Table[Num].s       = (S) & 0x01;            \
-        Table[Num].dpl     = (Dpl) & 0x03;          \
-        Table[Num].p       = 0x01;                  \
-        Table[Num].db      = (Db) & 0x01;           \
-        Table[Num].g       = (G) & 0x01;            \
-    } while(0)
+do {                                                \
+    Table[Num].basel   = (Base) & 0xffffff;         \
+    Table[Num].baseh   = ((Base) >> 24) & 0xff;     \
+    Table[Num].limitl  = ((Limit) & 0xffff);        \
+    Table[Num].limith  = ((Limit) >> 16) & 0xf;     \
+    Table[Num].type    = (Type) & 0xff;             \
+    Table[Num].s       = (S) & 0x01;                \
+    Table[Num].dpl     = (Dpl) & 0x03;              \
+    Table[Num].p       = 0x01;                      \
+    Table[Num].db      = (Db) & 0x01;               \
+    Table[Num].g       = (G) & 0x01;                \
+} while(0)
 
 #define GDT_SET_DEFAULTS_BOOTLOADER_CS(GDT_ENTRY)   \
     GDT_SET(GDT_ENTRY, GDT_ENTRY_BOOT_CS,           \

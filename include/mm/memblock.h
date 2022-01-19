@@ -22,6 +22,7 @@ struct memblock_region {
     struct list_head list;
 };
 
+extern void memtest(void);
 extern state memblock_add(const char *name, phys_addr_t addr, phys_addr_t size);
 extern state memblock_reserve(const char *name, phys_addr_t addr, phys_addr_t size);
 extern state memblock_remove(phys_addr_t addr, size_t size);

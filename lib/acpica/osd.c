@@ -6,14 +6,13 @@
 #define pr_fmt(fmt) "acpi-osd: " fmt
 
 #include <string.h>
-#include <sleep.h>
-#include <mm.h>
+#include <memory.h>
 #include <kmalloc.h>
 #include <ioremap.h>
+#include <delay.h>
 #include <spinlock.h>
 #include <driver/acpi.h>
 #include <driver/pci.h>
-#include <asm/delay.h>
 #include <asm/io.h>
 #include <printk.h>
 
@@ -143,6 +142,7 @@ void
 AcpiOsDeleteLock (
     ACPI_SPINLOCK           Handle)
 {
+    ACPI_FREE(Handle);
 }
 
 ACPI_CPU_FLAGS
@@ -159,7 +159,7 @@ AcpiOsReleaseLock (
     ACPI_SPINLOCK           Handle,
     ACPI_CPU_FLAGS          Flags)
 {
-	spin_lock_irqsave(Handle, &Flags);
+	spin_unlock_irqrestore(Handle, &Flags);
 }
 
 /*
@@ -171,7 +171,7 @@ AcpiOsCreateSemaphore(
     UINT32          initial_units,
     ACPI_HANDLE     *handle)
 {
-
+    printk("AcpiOsCreateSemaphore\n");
     return (AE_OK);
 }
 
@@ -179,6 +179,7 @@ ACPI_STATUS
 AcpiOsDeleteSemaphore (
     ACPI_HANDLE         Handle)
 {
+    printk("AcpiOsDeleteSemaphore\n");
     return (AE_OK);
 }
 
@@ -188,6 +189,7 @@ AcpiOsWaitSemaphore (
     UINT32              Units,
     UINT16              Timeout)
 {
+    printk("AcpiOsWaitSemaphore\n");
     return (AE_OK);
 }
 
@@ -196,6 +198,7 @@ AcpiOsSignalSemaphore (
     ACPI_HANDLE         Handle,
     UINT32              Units)
 {
+    printk("AcpiOsSignalSemaphore\n");
     return (AE_OK);
 }
 
@@ -305,7 +308,7 @@ void
 AcpiOsWaitEventsComplete (
     void)
 {
-
+    printk("AcpiOsWaitEventsComplete\n");
 }
 
 void
@@ -404,13 +407,13 @@ AcpiOsWriteMemory (
         return (AE_ERROR);
 
     if (Width <= 8)
-        readb(virt);
+        writeb(virt, Value);
     else if (Width <= 16)
-        readw(virt);
+        writew(virt, Value);
     else if (Width <= 32)
-        readl(virt);
+        writel(virt, Value);
     else if (Width <= 64)
-        readq(virt);
+        writeq(virt, Value);
 
     iounmap(virt);
     return (AE_OK);
@@ -458,6 +461,7 @@ UINT64
 AcpiOsGetTimer (
     void)
 {
+    printk("AcpiOsGetTimer\n");
     return 0;
 }
 
@@ -466,6 +470,7 @@ AcpiOsSignal (
     UINT32                  Function,
     void                    *Info)
 {
+    printk("AcpiOsSignal\n");
     return (AE_OK);
 }
 
@@ -475,6 +480,7 @@ AcpiOsEnterSleep (
     UINT32                  RegaValue,
     UINT32                  RegbValue)
 {
+    printk("AcpiOsEnterSleep\n");
     return (AE_OK);
 }
 
@@ -499,10 +505,7 @@ AcpiOsVprintf (
     const char              *Format,
     va_list                 Args)
 {
-    static char buffer[512];
-
-    vsnprintf(buffer, sizeof(buffer), Format, Args);
-    printk("%s", buffer);
+    vprintk(Format, Args);
 }
 
 /*
@@ -512,6 +515,7 @@ ACPI_STATUS ACPI_INIT_FUNCTION
 AcpiOsInitialize (
     void)
 {
+    printk("AcpiOsInitialize\n");
     return (AE_OK);
 }
 
@@ -519,5 +523,6 @@ ACPI_STATUS
 AcpiOsTerminate (
     void)
 {
+    printk("AcpiOsTerminate\n");
     return (AE_OK);
 }

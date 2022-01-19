@@ -2,8 +2,7 @@
 #ifndef _KTHREAD_H_
 #define _KTHREAD_H_
 
-#include <state.h>
-#include <list.h>
+#include <sched.h>
 
 typedef void (*kcoro_entry_t)(struct kcoro_work *, void *data);
 
@@ -19,7 +18,7 @@ struct kthread_work {
 
 typedef state (*kthread_t)(void *data);
 
-__printf(2, 3) struct task *
-kthread_create(kthread_t kthread, void *data, const char *name, ...);
+extern struct sched_task *
+kthread_create(kthread_t kthread, void *data, const char *name);
 
 #endif  /* _KTHREAD_H_ */

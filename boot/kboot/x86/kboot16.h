@@ -47,27 +47,6 @@ struct bios_reg {
     };
 } __packed;
 
-static inline uint16_t ds_get(void)
-{
-    u16 seg;
-    asm("movw %%ds,%0" : "=rm" (seg));
-    return seg;
-}
-
-static inline uint16_t fs_get(void)
-{
-    u16 seg;
-    asm volatile("movw %%fs,%0" : "=rm" (seg));
-    return seg;
-}
-
-static inline uint16_t gs_get(void)
-{
-    u16 seg;
-    asm volatile("movw %%gs,%0" : "=rm" (seg));
-    return seg;
-}
-
 extern void bios_int(char nr, struct bios_reg *in, struct bios_reg *out);
 
 #endif  /* _KBOOT16_H_ */

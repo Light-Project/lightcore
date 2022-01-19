@@ -2,10 +2,10 @@
 #ifndef _MM_TYPES_H_
 #define _MM_TYPES_H_
 
-#include <types.h>
 #include <list.h>
 #include <rbtree.h>
 #include <spinlock.h>
+#include <refcount.h>
 #include <asm/pgtable.h>
 
 enum page_type {
@@ -14,16 +14,23 @@ enum page_type {
     PAGE_SLOB,
 };
 
+/**
+ * slob_page -
+ * @list: slob page list
+ * @head: slob page list head
+ * @node: first slob node on slob page
+ * @avail: free space size on slob pages
+ */
 struct slob_page {
-    struct list_head list;  /* slob page list */
-    struct slob_node* node; /* slob node list head of this page */
-    unsigned int avail;     /* Free space on slob pages */
+    struct list_head list;
+    struct list_head *head;
+    struct slob_node *node;
+    unsigned int avail;
 };
 
 struct page {
     uint32_t type:4;
     uint32_t order:4;
-    uint32_t free:1;
 #ifdef CONFIG_SPARCEMEM
     uint32_t sparce_nr:8;
 #endif
@@ -51,9 +58,14 @@ struct uvm_area {
     struct list_head list;
 };
 
+/**
+ * memory -
+ *
+ */
 struct memory {
     spinlock_t pglock;
     pgd_t *pgdir;
+    struct refcount users;
 };
 
 extern struct memory init_mm;

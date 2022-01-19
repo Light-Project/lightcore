@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#include <initcall.h>
 #include <font.h>
 
 static const char fontdata_10x18[] = {
@@ -5122,15 +5124,15 @@ static const char fontdata_10x18[] = {
     0x00, 0x00, /* 0000000000 */
 };
 
-
-static const struct font font_10x18 = {
+static struct font font_10x18 = {
     .name	= "10x18",
     .width	= 10,
     .height	= 18,
     .data	= fontdata_10x18,
 };
 
-void font_10x18_install(void)
+static state font_10x18_init(void)
 {
-    font_register((struct font *)&font_10x18); 
+    return font_register(&font_10x18);
 }
+console_initcall(font_10x18_init);

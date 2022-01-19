@@ -3,11 +3,23 @@ menuconfig BLOCK
     bool "Block Device Support"
 if BLOCK
 
+source "drivers/block/partitions/Kconfig"
+
+config BLK_FLOPPY
+    bool "Floppy Disk Device Support"
+    depends on ARCH_X86
+
+config BLK_AHCISIM
+    bool "Simple AHCI Controller Support"
+
 config BLK_ATASIM
     bool "Simple ATA Controller Support"
 
 config BLK_ATASIM32
     bool "Simple ATA 32bit PIO"
     depends on BLK_ATASIM
+
+config BLK_NVMESIM
+    bool "Simple NVME Controller Support"
 
 endif

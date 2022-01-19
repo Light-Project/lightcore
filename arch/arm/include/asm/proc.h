@@ -5,7 +5,7 @@
 #include <types.h>
 #include <asm/barrier.h>
 
-struct task;
+struct sched_task;
 
 static inline void arm32_domain_set(uint32_t domain)
 {
@@ -18,6 +18,6 @@ static inline void arm32_domain_set(uint32_t domain)
 
 #define cpu_relax() barrier()
 
-state proc_thread_switch(struct task *prev, struct task *next);
+state proc_thread_switch(struct sched_task *prev, struct sched_task *next);
 
 #endif  /* _ASM_ARM_PROC_H_ */

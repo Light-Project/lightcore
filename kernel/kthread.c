@@ -3,14 +3,11 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <error.h>
+#include <kthread.h>
 #include <kmalloc.h>
 #include <sched.h>
-#include <kthread.h>
 
 static LIST_HEAD(kthread_list);
-
-staitc
 
 state kthread_entry(void *data)
 {

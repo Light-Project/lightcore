@@ -3,32 +3,27 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <mm.h>
+#include <kmalloc.h>
 #include <font.h>
-#include <logo.h>
-#include <driver/tty.h>
-#include <driver/fbcon.h>
+#include <driver/vt.h>
+#include <driver/video.h>
+#include <export.h>
 
-static void fbcon_putc(struct tty_device *tty, int xpos, int ypos)
-{
+// static void fbcon_putc(struct tty_device *tty, int xpos, int ypos)
+// {
 
-}
+// }
 
-struct tty_ops fb_tty = {
-    .putc = fbcon_putc,
+struct vt_ops fbcon_ops = {
 };
 
-state fbcon_register(struct video_device *vdev)
+state video_console_register(struct video_device *vdev)
 {
-    // struct font *font;
-
-    // font = font_suitable(vdev->mode.vxres, vdev->mode.vxres, 0 , 0);
-
     return -ENOERR;
 }
+EXPORT_SYMBOL(video_console_register);
 
-
-void __init fbcon_init()
+void __init fbcon_init(void)
 {
-}
 
+}

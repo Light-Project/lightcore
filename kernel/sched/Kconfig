@@ -1,7 +1,22 @@
 menu "Scheduler Config"
 
+choice
+    prompt "Preemption Model"
+    default PREEMPT_NONE
+
+config PREEMPT_NONE
+    bool ""
+
+config PREEMPT_VOLUNTARY
+    bool ""
+
+config PREEMPT_FORCE
+
+endchoice
+
 config SCHED_RR
     bool "Round Robin (RR) Scheduler Support"
+    default y
 
 config SCHED_FIFO
     bool "First In First Out (FIFO) Scheduler Support"
@@ -33,5 +48,10 @@ config SCHED_DEF_FAIR
     select SCHED_FAIR
 
 endchoice
+
+config RR_TIMESLICE
+    int "Round Robin Time Slice (ms)"
+    range 10 1000
+    default 50
 
 endmenu

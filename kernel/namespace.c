@@ -11,7 +11,7 @@ struct namespace root_ns = {
     .ipc = &root_ipc,
 };
 
-struct namespace *namespace_create(struct task *task)
+struct namespace *namespace_create(struct sched_task *task)
 {
     struct namespace *ns;
 

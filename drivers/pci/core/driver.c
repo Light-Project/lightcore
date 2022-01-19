@@ -32,6 +32,11 @@ pci_device_match(struct pci_driver *pdrv, struct pci_device *pdev)
     return NULL;
 }
 
+static state pci_real_probe(struct pci_device *pdev, struct pci_driver *pdrv)
+{
+    return pdrv->probe(pdev, pci_get_devdata(pdev));
+}
+
 static state pci_bus_match(struct device *dev, struct driver *drv)
 {
     struct pci_device *pdev = device_to_pci(dev);
@@ -50,12 +55,23 @@ static state pci_bus_probe(struct device *dev)
 {
     struct pci_device *pdev = device_to_pci(dev);
     struct pci_driver *pdrv = driver_to_pci(dev->driver);
+    state ret;
 
     /* If pci driver no probe function, exit */
     if(!pdrv->probe)
         return -ENXIO;
 
-    return pdrv->probe(pdev, device_get_pdata(dev));
+    pci_irq_setup(pdev);
+    ret = pcibios_irq_alloc(pdev);
+    if (ret)
+        return ret;
+
+    ret = pci_real_probe(pdev, pdrv);
+    if (!ret)
+        return -ENOERR;
+
+    pcibios_irq_free(pdev);
+    return ret;
 }
 
 static state pci_bus_remove(struct device *dev)
@@ -67,6 +83,11 @@ static state pci_bus_remove(struct device *dev)
         return -ENXIO;
 
     pdrv->remove(pdev);
+    pcibios_irq_free(pdev);
+
+    if (pdev->power_state == PCI_POWER_D0)
+        pdev->power_state = PCI_POWER_UNKNOWN;
+
     return -ENOERR;
 }
 
@@ -85,11 +106,13 @@ state pci_driver_register(struct pci_driver *pdrv)
     pdrv->driver.bus = &pci_bus_type;
     return driver_register(&pdrv->driver);
 }
+EXPORT_SYMBOL(pci_driver_register);
 
 void pci_driver_unregister(struct pci_driver *pdrv)
 {
     driver_unregister(&pdrv->driver);
 }
+EXPORT_SYMBOL(pci_driver_unregister);
 
 static __init state pci_bus_init(void)
 {
@@ -97,6 +120,3 @@ static __init state pci_bus_init(void)
     return bus_register(&pci_bus_type);
 }
 framework_initcall(pci_bus_init);
-
-EXPORT_SYMBOL(pci_driver_register);
-EXPORT_SYMBOL(pci_driver_unregister);

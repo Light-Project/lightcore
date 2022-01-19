@@ -23,7 +23,7 @@ static void rdc321x_restart(struct power_device *pdev)
     val = inl(0xcfc);
     val |= 0x1600;
     outl(0xcfc, val);
-    outb(0x921, 0x01);
+    outb(0x921, 1);
 
     udelay(100);
 }

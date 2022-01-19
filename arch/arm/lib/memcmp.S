@@ -1,7 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <linkage.h>
 
-    .text
 SYM_CODE_START(memcmp)
     /* if(len == 0) return 0 */
     cmp     a3, #0

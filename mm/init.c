@@ -3,7 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <mm.h>
+#include <memory.h>
 #include <mm/memblock.h>
 #include <mm/region.h>
 #include <mm/pgtable.h>

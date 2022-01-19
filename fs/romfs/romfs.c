@@ -8,7 +8,7 @@
 #include <string.h>
 #include <kmalloc.h>
 #include <initcall.h>
-#include <fs.h>
+#include <filesystem.h>
 #include <fs/romfs.h>
 
 static inline uint32_t romfs_chechsum(const void *start, size_t size)
@@ -116,12 +116,12 @@ static struct superblock *romfs_mount(struct fsdev *fsdev, enum mount_flag flags
 {
     struct romfs_superblock rsb;
     struct superblock *sb;
-	unsigned long pos, size;
-	struct inode *root;
-	size_t len;
+    unsigned long pos, size;
+    struct inode *root;
+    size_t len;
     state ret;
 
-	/* read the image superblock and check it */
+    /* read the image superblock and check it */
     ret = fsdev_read(fsdev, 0, &rsb, sizeof(rsb));
     if (ret < 0)
         goto error_rsb;
@@ -131,7 +131,7 @@ static struct superblock *romfs_mount(struct fsdev *fsdev, enum mount_flag flags
         goto error_rsb;
     }
 
-	/* fill super block */
+    /* fill super block */
     sb = kzalloc(sizeof(*sb), GFP_KERNEL);
     if (!sb) {
         ret = -ENOMEM;
@@ -144,12 +144,12 @@ static struct superblock *romfs_mount(struct fsdev *fsdev, enum mount_flag flags
 
     len = strnlen(rsb, );
 
-	/* find the root directory */
-	pos = (ROMFH_SIZE + len + 1 + ROMFH_PAD) & ROMFH_MASK;
+    /* find the root directory */
+    pos = (ROMFH_SIZE + len + 1 + ROMFH_PAD) & ROMFH_MASK;
 
     root = romfs_iget(sb, pos);
-	if (PTR_ERR(root))
-		return PTR_ERR(root);
+    if (PTR_ERR(root))
+        return PTR_ERR(root);
 
     sb->root = root;
 

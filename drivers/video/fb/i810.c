@@ -8,67 +8,257 @@
 
 #include <size.h>
 #include <initcall.h>
-#include <kmalloc.h>
-#include <ioremap.h>
 #include <driver/pci.h>
 #include <driver/video.h>
 #include <driver/video/i810.h>
-#include <driver/video/vesa.h>
 #include <printk.h>
-
 #include <asm/delay.h>
 #include <asm/proc.h>
 #include <asm/io.h>
 
+#define I810_TIMEOUT    10000000
+#define I810_MMIO_SZ    0x80000
+
+struct i810_mode {
+    uint32_t pixclk, m, n, p;
+    uint8_t cr00, cr01, cr02, cr03;
+    uint8_t cr04, cr05, cr06, cr07;
+    uint8_t cr09, cr10, cr11, cr12;
+    uint8_t cr13, cr15, cr16, cr30;
+    uint8_t cr31, cr32, cr33, cr35, cr39;
+    uint32_t bpp8_100, bpp16_100;
+    uint32_t bpp24_100, bpp8_133;
+    uint32_t bpp16_133, bpp24_133;
+    uint8_t msr;
+};
+
 struct i810_device {
     struct video_device video;
-    void *mmio, *region;
+    void *base, *region;
     int byteseq;
 };
 
 #define video_to_idev(vdev) \
     container_of(vdev, struct i810_device, video)
 
-#define I810_TIMEOUT    10000000
-#define I810_MMIO_SZ    0x80000
-
-static __always_inline uint8_t
-i810_readb(struct i810_device *gdev, uint32_t reg)
-{
-    return readb(gdev->mmio + reg);
+#define I810_IOMEM_OP(name, type)               \
+static __always_inline type                     \
+i810_read##name(struct i810_device *idev,       \
+                 unsigned int reg)              \
+{                                               \
+    return read##name(idev->base + reg);        \
+}                                               \
+static __always_inline void                     \
+i810_write##name(struct i810_device *idev,      \
+                  unsigned int reg, type val)   \
+{                                               \
+    write##name(idev->base + reg, val);         \
 }
 
-static __always_inline uint16_t
-i810_readw(struct i810_device *gdev, uint32_t reg)
+I810_IOMEM_OP(b, uint8_t);
+I810_IOMEM_OP(w, uint16_t);
+I810_IOMEM_OP(l, uint32_t);
+
+/***  Intel 810 Serial Discrete Video Timings  ***/
+
+struct i810_mode i810_modes[] = {
+    /* 640x480 @ 60hz */
+    { 25000, 0x0013, 0x0003, 0x40, 0x5f, 0x4f, 0x50, 0x82, 0x51, 0x9d,
+      0x0b, 0x10, 0x40, 0xe9, 0x0b, 0xdf, 0x50, 0xe7, 0x04, 0x02,
+      0x01, 0x01, 0x01, 0x00, 0x01, 0x22002000, 0x22004000, 0x22006000,
+      0x22002000, 0x22004000, 0x22006000, 0xc0 },
+
+    /* 640x480 @ 70hz */
+    { 28000, 0x0053, 0x0010, 0x40, 0x61, 0x4f, 0x4f, 0x85, 0x52, 0x9a,
+      0xf2, 0x10, 0x40, 0xe0, 0x03, 0xdf, 0x50, 0xdf, 0xf3, 0x01,
+      0x01, 0x01, 0x01, 0x00, 0x01, 0x22002000, 0x22004000, 0x22005000,
+      0x22002000, 0x22004000, 0x22005000, 0xc0 },
+
+    /* 640x480 @ 72hz */
+    { 31000, 0x0013, 0x0002, 0x40, 0x63, 0x4f, 0x4f, 0x87, 0x52, 0x97,
+      0x06, 0x0f, 0x40, 0xe8, 0x0b, 0xdf, 0x50, 0xdf, 0x07, 0x02,
+      0x01, 0x01, 0x01, 0x00, 0x01, 0x22003000, 0x22005000, 0x22007000,
+      0x22003000, 0x22005000, 0x22007000, 0xc0 },
+
+    /* 640x480 @ 75hz */
+    { 31000, 0x0013, 0x0002, 0x40, 0x64, 0x4f, 0x4f, 0x88, 0x51, 0x99,
+      0xf2, 0x10, 0x40, 0xe0, 0x03, 0xdf, 0x50, 0xdf, 0xf3, 0x01,
+      0x01, 0x01, 0x01, 0x00, 0x01, 0x22003000, 0x22005000, 0x22007000,
+      0x22003000, 0x22005000, 0x22007000, 0xc0 },
+
+    /* 640x480 @ 85hz */
+    { 36000, 0x0010, 0x0001, 0x40, 0x63, 0x4f, 0x4f, 0x87, 0x56, 0x9d,
+      0xfb, 0x10, 0x40, 0xe0, 0x03, 0xdf, 0x50, 0xdf, 0xfc, 0x01,
+      0x01, 0x01, 0x01, 0x00, 0x01, 0x22003000, 0x22005000, 0x22107000,
+      0x22003000, 0x22005000, 0x22107000, 0xc0 },
+
+    /* 800x600 @ 56hz */
+    { 36000, 0x0010, 0x0001, 0x40, 0x7b, 0x63, 0x63, 0x9f, 0x66, 0x8f,
+      0x6f, 0x10, 0x40, 0x58, 0x0a, 0x57, 0xc8, 0x57, 0x70, 0x02,
+      0x02, 0x02, 0x02, 0x00, 0x01, 0x22003000, 0x22005000, 0x22107000,
+      0x22003000, 0x22005000, 0x22107000, 0x00 },
+
+    /* 800x600 @ 60hz */
+    { 40000, 0x0008, 0x0001, 0x30, 0x7f, 0x63, 0x63, 0x83, 0x68, 0x18,
+      0x72, 0x10, 0x40, 0x58, 0x0c, 0x57, 0xc8, 0x57, 0x73, 0x02,
+      0x02, 0x02, 0x02, 0x00, 0x00, 0x22003000, 0x22006000, 0x22108000,
+      0x22003000, 0x22006000, 0x22108000, 0x00 },
+
+    /* 800x600 @ 70hz */
+    { 45000, 0x0054, 0x0015, 0x30, 0x7d, 0x63, 0x63, 0x81, 0x68, 0x12,
+      0x6f, 0x10, 0x40, 0x58, 0x0b, 0x57, 0x64, 0x57, 0x70, 0x02,
+      0x02, 0x02, 0x02, 0x00, 0x00, 0x22004000, 0x22007000, 0x2210a000,
+      0x22004000, 0x22007000, 0x2210a000, 0x00 },
+
+    /* 800x600 @ 72hz */
+    { 50000, 0x0017, 0x0004, 0x30, 0x7d, 0x63, 0x63, 0x81, 0x6a, 0x19,
+      0x98, 0x10, 0x40, 0x7c, 0x02, 0x57, 0xc8, 0x57, 0x99, 0x02,
+      0x02, 0x02, 0x02, 0x00, 0x00, 0x22004000, 0x22007000, 0x2210a000,
+      0x22004000, 0x22007000, 0x2210a000, 0x00 },
+
+    /* 800x600 @ 75hz */
+    { 49000, 0x001f, 0x0006, 0x30, 0x7f, 0x63, 0x63, 0x83, 0x65, 0x0f,
+      0x6f, 0x10, 0x40, 0x58, 0x0b, 0x57, 0xc8, 0x57, 0x70, 0x02,
+      0x02, 0x02, 0x02, 0x00, 0x00, 0x22004000, 0x22007000, 0x2210b000,
+      0x22004000, 0x22007000, 0x2210b000, 0x00 },
+
+    /* 800x600 @ 85hz */
+    { 56000, 0x0049, 0x000e, 0x30, 0x7e, 0x63, 0x63, 0x82, 0x67, 0x0f,
+      0x75, 0x10, 0x40, 0x58, 0x0b, 0x57, 0xc8, 0x57, 0x76, 0x02,
+      0x02, 0x02, 0x02, 0x00, 0x00, 0x22004000, 0x22108000, 0x2210b000,
+      0x22004000, 0x22108000, 0x2210b000, 0x00 },
+
+    /* 1024x768 @ 60hz */
+    { 65000, 0x003f, 0x000a, 0x30, 0xa3, 0x7f, 0x7f, 0x87, 0x83, 0x94,
+      0x24, 0x10, 0x40, 0x02, 0x08, 0xff, 0x80, 0xff, 0x25, 0x03,
+      0x02, 0x03, 0x02, 0x00, 0x00, 0x22005000, 0x22109000, 0x2220d000,
+      0x22005000, 0x22109000, 0x2220d000, 0xc0 },
+
+    /* 1024x768 @ 70hz */
+    { 75000, 0x0017, 0x0002, 0x30, 0xa1, 0x7f, 0x7f, 0x85, 0x82, 0x93,
+      0x24, 0x10, 0x40, 0x02, 0x08, 0xff, 0x80, 0xff, 0x25, 0x03,
+      0x02, 0x03, 0x02, 0x00, 0x00, 0x22005000, 0x2210a000, 0x2220f000,
+      0x22005000, 0x2210a000, 0x2220f000, 0xc0 },
+
+    /* 1024x768 @ 75hz */
+    { 78000, 0x0050, 0x0017, 0x20, 0x9f, 0x7f, 0x7f, 0x83, 0x81, 0x8d,
+      0x1e, 0x10, 0x40, 0x00, 0x03, 0xff, 0x80, 0xff, 0x1f, 0x03,
+      0x02, 0x03, 0x02, 0x00, 0x00, 0x22006000, 0x2210b000, 0x22210000,
+      0x22006000, 0x2210b000, 0x22210000, 0x00 },
+
+    /* 1024x768 @ 85hz */
+    { 94000, 0x003d, 0x000e, 0x20, 0xa7, 0x7f, 0x7f, 0x8b, 0x85, 0x91,
+      0x26, 0x10, 0x40, 0x00, 0x03, 0xff, 0x80, 0xff, 0x27, 0x03,
+      0x02, 0x03, 0x02, 0x00, 0x00, 0x22007000, 0x2220e000, 0x22212000,
+      0x22007000, 0x2220e000, 0x22212000, 0x00 },
+
+    /* 1152x864 @ 60hz */
+    { 80000, 0x0008, 0x0001, 0x20, 0xb3, 0x8f, 0x8f, 0x97, 0x93, 0x9f,
+      0x87, 0x10, 0x40, 0x60, 0x03, 0x5f, 0x90, 0x5f, 0x88, 0x03,
+      0x03, 0x03, 0x03, 0x00, 0x00, 0x2220c000, 0x22210000, 0x22415000,
+      0x2220c000, 0x22210000, 0x22415000, 0x00 },
+
+    /* 1152x864 @ 70hz */
+    { 96000, 0x000a, 0x0001, 0x20, 0xbb, 0x8f, 0x8f, 0x9f, 0x98, 0x87,
+      0x82, 0x10, 0x40, 0x60, 0x03, 0x5f, 0x90, 0x5f, 0x83, 0x03,
+      0x03, 0x03, 0x03, 0x00, 0x00, 0x22107000, 0x22210000, 0x22415000,
+      0x22107000, 0x22210000, 0x22415000, 0x00 },
+
+    /* 1152x864 @ 72hz */
+    { 99000, 0x001f, 0x0006, 0x20, 0xbb, 0x8f, 0x8f, 0x9f, 0x98, 0x87,
+      0x83, 0x10, 0x40, 0x60, 0x03, 0x5f, 0x90, 0x5f, 0x84, 0x03,
+      0x03, 0x03, 0x03, 0x00, 0x00, 0x22107000, 0x22210000, 0x22415000,
+      0x22107000, 0x22210000, 0x22415000, 0x00 },
+
+    /* 1152x864 @ 75hz */
+    { 108000, 0x0010, 0x0002, 0x20, 0xc3, 0x8f, 0x8f, 0x87, 0x97, 0x07,
+      0x82, 0x10, 0x40, 0x60, 0x03, 0x5f, 0x90, 0x5f, 0x83, 0x03,
+      0x03, 0x03, 0x03, 0x00, 0x01, 0x22107000, 0x22210000, 0x22415000,
+      0x22107000, 0x22210000, 0x22415000, 0x00 },
+
+    /* 1152x864 @ 85hz */
+    { 121000, 0x006d, 0x0014, 0x20, 0xc0, 0x8f, 0x8f, 0x84, 0x97, 0x07,
+      0x93, 0x10, 0x40, 0x60, 0x03, 0x5f, 0x90, 0x5f, 0x94, 0x03,
+      0x03, 0x03, 0x03, 0x00, 0x01, 0x2220c000, 0x22210000, 0x22415000,
+      0x2220c000, 0x22210000, 0x22415000, 0x0 },
+
+    /* 1280x960 @ 60hz */
+    { 108000, 0x0010, 0x0002, 0x20, 0xdc, 0x9f, 0x9f, 0x80, 0xab, 0x99,
+      0xe6, 0x10, 0x40, 0xc0, 0x03, 0xbf, 0xa0, 0xbf, 0xe7, 0x03,
+      0x03, 0x03, 0x03, 0x00, 0x01, 0x2210a000, 0x22210000, 0x22415000,
+      0x2210a000, 0x22210000, 0x22415000, 0x00 },
+
+    /* 1280x960 @ 75hz */
+    { 129000, 0x0029, 0x0006, 0x20, 0xd3, 0x9f, 0x9f, 0x97, 0xaa, 0x1b,
+      0xe8, 0x10, 0x40, 0xc0, 0x03, 0xbf, 0xa0, 0xbf, 0xe9, 0x03,
+      0x03, 0x03, 0x03, 0x00, 0x01, 0x2210a000, 0x22210000, 0x2241b000,
+      0x2210a000, 0x22210000, 0x2241b000, 0x00 },
+
+    /* 1280x960 @ 85hz */
+    { 148000, 0x0042, 0x0009, 0x20, 0xd3, 0x9f, 0x9f, 0x97, 0xa7, 0x1b,
+      0xf1, 0x10, 0x40, 0xc0, 0x03, 0xbf, 0xa0, 0xbf, 0xf2, 0x03,
+      0x03, 0x03, 0x03, 0x00, 0x01, 0x2210a000, 0x22220000, 0x2241d000,
+      0x2210a000, 0x22220000, 0x2241d000, 0x00 },
+
+    /* 1600x1200 @ 60hz */
+    { 162000, 0x0019, 0x0006, 0x10, 0x09, 0xc7, 0xc7, 0x8d, 0xcf, 0x07,
+      0xe0, 0x10, 0x40, 0xb0, 0x03, 0xaf, 0xc8, 0xaf, 0xe1, 0x04,
+      0x04, 0x04, 0x04, 0x01, 0x00, 0x2210b000, 0x22416000, 0x44419000,
+      0x2210b000, 0x22416000, 0x44419000, 0x00 },
+
+    /* 1600x1200 @ 65 hz */
+    { 175000, 0x005d, 0x0018, 0x10, 0x09, 0xc7, 0xc7, 0x8d, 0xcf, 0x07,
+      0xe0, 0x10, 0x40, 0xb0, 0x03, 0xaf, 0xc8, 0xaf, 0xe1, 0x04,
+      0x04, 0x04, 0x04, 0x01, 0x00, 0x2210c000, 0x22416000, 0x44419000,
+      0x2210c000, 0x22416000, 0x44419000, 0x00 },
+
+    /* 1600x1200 @ 70 hz */
+    { 189000, 0x003d, 0x000e, 0x10, 0x09, 0xc7, 0xc7, 0x8d, 0xcf, 0x07,
+      0xe0, 0x10, 0x40, 0xb0, 0x03, 0xaf, 0xc8, 0xaf, 0xe1, 0x04,
+      0x04, 0x04, 0x04, 0x01, 0x00, 0x2220e000, 0x22416000, 0x44419000,
+      0x2220e000, 0x22416000, 0x44419000, 0x00 },
+
+     /* 1600x1200 @ 72 hz */
+     { 195000, 0x003f, 0x000e, 0x10, 0x0b, 0xc7, 0xc7, 0x8f, 0xd5, 0x0b,
+       0xe1, 0x10, 0x40, 0xb0, 0x03, 0xaf, 0xc8, 0xaf, 0xe2, 0x04, 0x04,
+       0x04, 0x04, 0x01, 0x00, 0x2220e000, 0x22416000, 0x44419000,
+       0x2220e000, 0x22416000, 0x44419000, 0x00 },
+
+     /* 1600x1200 @ 75 hz */
+     { 202000, 0x0024, 0x0007, 0x10, 0x09, 0xc7, 0xc7, 0x8d, 0xcf, 0x07,
+       0xe0, 0x10, 0x40, 0xb0, 0x03, 0xaf, 0xc8, 0xaf, 0xe1, 0x04, 0x04,
+       0x04, 0x04, 0x01, 0x00, 0x2220e000, 0x22416000, 0x44419000,
+       0x2220e000, 0x22416000, 0x44419000,  0x00 },
+
+     /* 1600x1200 @ 85 hz */
+    { 229000, 0x0029, 0x0007, 0x10, 0x09, 0xc7, 0xc7, 0x8d, 0xcf, 0x07,
+      0xe0, 0x10, 0x40, 0xb0, 0x03, 0xaf, 0xc8, 0xaf, 0xe1, 0x04, 0x04,
+      0x04, 0x04, 0x01, 0x00, 0x22210000, 0x22416000, 0x0,
+      0x22210000, 0x22416000, 0x0, 0x00 },
+};
+
+static struct i810_mode *i810_mode_find_best(unsigned int xres, unsigned int pixclk)
 {
-    return readw(gdev->mmio + reg);
+    uint32_t diff = 0, dbest = 0xffffffff, best = 0;
+    uint8_t hfl = (xres >> 3) - 1;
+    unsigned int count;
+
+    for (count = 0; count < ARRAY_SIZE(i810_modes); ++count) {
+        if (i810_modes[count].cr01 == hfl) {
+            if (i810_modes[count].pixclk <= pixclk)
+                diff = pixclk - i810_modes[count].pixclk;
+            if (diff < dbest) {
+                    best = count;
+                    dbest = diff;
+            }
+        }
+    }
+
+    return best;
 }
 
-static __always_inline uint32_t
-i810_readl(struct i810_device *gdev, uint32_t reg)
-{
-    return readl(gdev->mmio + reg);
-}
 
-static __always_inline void
-i810_writeb(struct i810_device *gdev, uint32_t reg, uint8_t val)
-{
-    writeb(gdev->mmio + reg, val);
-}
-
-static __always_inline void
-i810_writew(struct i810_device *gdev, uint32_t reg, uint16_t val)
-{
-    writew(gdev->mmio + reg, val);
-}
-
-static __always_inline void
-i810_writel(struct i810_device *gdev, uint32_t reg, uint32_t val)
-{
-    writel(gdev->mmio + reg, val);
-}
-
-/*** Intel 810/815 I2C operation ***/
+/***  Intel 810 Serial I2C  ***/
 
 // static bool i810_i2c_scl_get()
 // {
@@ -87,25 +277,123 @@ i810_writel(struct i810_device *gdev, uint32_t reg, uint32_t val)
 
 // }
 
+
+/***  Intel 810 Serial Hardware Acceleration  ***/
+
+static bool i810_accel_dump_regs(struct i810_device *idev)
+{
+    dev_debug(idev->video.device, "dump accel registers:\n");
+    dev_debug(idev->video.device, "  IIR: 0x%04x\n", i810_readw(idev, I810_IIR));
+    dev_debug(idev->video.device, "  EIR: 0x%02x\n", i810_readb(idev, I810_EIR));
+    dev_debug(idev->video.device, "  PGTBL_ER: 0x%08x\n", i810_readl(idev, I810_PGTBL_ER));
+    dev_debug(idev->video.device, "  IPEIR: 0x%08x\n", i810_readl(idev, I810_IPEIR));
+    dev_debug(idev->video.device, "  IPEHR: 0x%08x\n", i810_readl(idev, I810_IPEHR));
+}
+
+static bool i810_accel_wait_ring(struct i810_device *idev)
+{
+    unsigned int timeout = I810_TIMEOUT;
+    uint32_t head, tail;
+
+    while (timeout--) {
+        head = i810_readl(idev, I810_IRING);
+        head &= I810_IRING_HEAD;
+        if ((head == tail) ||
+            (head < tail && ))
+            return true;
+    }
+
+    dev_err(idev->video.device, "ringbuffer timeout\n");
+    i810_accel_dump_regs(idev);
+    return false;
+}
+
+static bool i810_accel_wait_engine(struct i810_device *idev)
+{
+    unsigned int timeout = I810_TIMEOUT;
+    uint32_t val;
+
+    if (!i810_accel_wait_space(idev))
+        return false;
+
+    while (timeout--) {
+        val = i810_readl(idev, I810_INSTDONE);
+        if ((val & 0x7b) == 0x7b)
+            return true;
+    }
+
+    dev_err(idev->video.device, "accel engine timeout\n");
+    i810_accel_dump_regs(idev);
+    return false;
+}
+
+static void i810_accel_ring_enable(struct i810_device *idev, bool enable)
+{
+    uint32_t val;
+
+    val = i810_readl(idev, I810_IRING + 12);
+    val &= ~1;
+    val |= enable;
+    i810_writel(idev, I810_IRING + 12, val);
+}
+
+static state i810_accel_hwinit(struct i810_device *idev)
+{
+    uint32_t val;
+
+    if (!i810_accel_wait_engine(idev))
+        return -EBUSY;
+
+    i810_accel_ring_enable(idev, false);
+    i810_writel(idev, I810_IRING + 0, 0);
+    i810_writel(idev, I810_IRING + 4, 0);
+
+
+    i810_accel_ring_enable(idev, true);
+}
+
+/***  Intel 810 Serial Hardware Cursor  ***/
+
+static void i810_cursor_enable(struct i810_device *idev, bool enable)
+{
+    uint32_t val;
+
+    val = i810_readl(idev, I810_PIXCONF);
+    val &= ~CURSOR_ENABLE_MASK;
+
+    i810_writel(idev, I810_PIXCONF, val);
+}
+
+static void i810_cursor_init(struct i810_device *idev, bool enable)
+{
+    i810_cursor_enable(idev, false);
+    i810_writel(idev, I810_CURBASE, val);
+    i810_writel(idev, I810_CURCNTR, val);
+}
+
+/***  Intel 810 Serial Frame Buffer  ***/
+
 /**
  * i810_screen_enable - turns off/on display.
  * @idev: i810 device to enable
  * @enable: on or off
  */
-static void i810_screen_enable(struct i810_device *idev, bool enable)
+static bool i810_screen_enable(struct i810_device *idev, bool enable)
 {
     unsigned int timeout = I810_TIMEOUT;
     uint8_t val;
 
-    i810_writeb(idev, I810_SR_INDEX, I810_SR01);
+    i810_writeb(idev, I810_SR_INDEX, I810_SR_INDEX_01);
     val = i810_readb(idev, I810_SR_DATA);
-    val = enable ? val & ~I810_SR01_SCR_OFF : val | I810_SR01_SCR_OFF;
+    val = enable ? val & ~I810_SR01_SCR : val | I810_SR01_SCR;
 
-    while ((i810_readb(idev, I810_SR_DATA) & 0xfff) && timeout--)
+    while ((i810_readb(idev, I810_SR_DATA) & 0xfff) && --timeout)
         cpu_relax();
 
-    i810_writeb(idev, I810_SR_INDEX, I810_SR01);
+    i810_writeb(idev, I810_SR_INDEX, I810_SR_INDEX_01);
     i810_writeb(idev, I810_SR_DATA, val);
+
+    return !!timeout;
 }
 
 static void i810_dram_enable(struct i810_device *idev, bool enable)
@@ -113,7 +401,8 @@ static void i810_dram_enable(struct i810_device *idev, bool enable)
     uint8_t val;
 
     val = i810_readb(idev, I810_DRAMCH);
-    val = enable ? val | I810_DRAMCH_DRAM_ON : val & ~I810_DRAMCH_DRAM_ON;
+    val &= ~I810_DRAMCH_DRAM;
+    val |= enable ? val | I810_DRAMCH_DRAM : 0;
     i810_writeb(idev, I810_DRAMCH, val);
 }
 
@@ -121,11 +410,11 @@ static void i810_protect_enable(struct i810_device *idev, bool enable)
 {
     uint8_t val;
 
-    i810_writeb(idev, I810_CR_INDEX_CGA, I810_CR11);
+    i810_writeb(idev, I810_CR_INDEX_CGA, I810_CR_INDEX_CGA_11);
     val = i810_readb(idev, I810_CR_DATA_CGA);
-    val = enable ? val | VESA_CR11_LOCK_CR0_CR7
-                : val & ~VESA_CR11_LOCK_CR0_CR7;
-    i810_writeb(idev, I810_CR_INDEX_CGA, I810_CR11);
+    val &= ~0x80;
+    val |= enable ? 0x80 : 0;
+    i810_writeb(idev, I810_CR_INDEX_CGA, I810_CR_INDEX_CGA_11);
     i810_writeb(idev, I810_CR_DATA_CGA, val);
 }
 
@@ -146,93 +435,112 @@ static state i810_setmode(struct video_device *vdev)
     i810_protect_enable(idev, false);
     i810_dram_enable(idev, false);
 
-    /*  */
-
     i810_dram_enable(idev, true);
     i810_screen_enable(idev, true);
     i810_protect_enable(idev, true);
+
     return -ENOERR;
 }
 
 static struct video_ops i810_ops = {
-    .set_mode = i810_setmode,
+    .setmode = i810_setmode,
 };
 
-static state i810_hwinit(struct pci_device *pdev)
+static void i810_hwinit(struct pci_device *pdev)
 {
-    struct i810_device *idev = pci_get_devdata(pdev);
-    resource_size_t start;// phys, size;
 
-    if (pci_resource_type(pdev, 0) != RESOURCE_MMIO ||
-        pci_resource_type(pdev, 2) != RESOURCE_MMIO) {
-        dev_err(&pdev->dev, "unknow resource type\n");
-        return -ENODEV;
-    }
-
-    // if ((size = pci_resource_size(pdev, 0)) > I810_MMIO_SZ) {
-    //     phys = pci_resource_start(pdev, 0);
-    //     start = pci_resource_start(pdev, 1);
-    // } else {
-    //     phys = pci_resource_start(pdev, 1);
-    //     size = pci_resource_size(pdev, 1);
-    //     start = pci_resource_start(pdev, 0);
-    // } if (!size) {
-    //     dev_warn(&pdev->dev, "device not enabled\n");
-    //     return -ENODEV;
-    // }
-
-        // phys = pci_resource_start(pdev, 2);
-        // size = pci_resource_size(pdev, 2);
-        start = pci_resource_start(pdev, 0);
-
-    // idev->video.frame_buffer = dev_ioremap(&pdev->dev, phys, size);
-    // if (!idev->video.frame_buffer) {
-    //     dev_warn(&pdev->dev, "cannot remap framebuffer\n");
-    //     return -ENOMEM;
-    // }
-
-    idev->mmio = dev_ioremap(&pdev->dev, start, I810_MMIO_SZ);
-    if (!idev->mmio) {
-        dev_warn(&pdev->dev, "cannot remap mmio\n");
-        return -ENOMEM;
-    }
-
-    return -ENOERR;
 }
 
 static state i810_probe(struct pci_device *pdev, const void *pdata)
 {
+    resource_size_t mmio, mmio_size;
+    resource_size_t phys, phys_size;
     struct i810_device *idev;
-    state ret;
 
-    idev = dev_kzalloc(&pdev->dev, sizeof(*idev), GFP_KERNEL);
+    pci_info(pdev, "chip version %s\n", (char *)pdata);
+
+    if (pci_resource_type(pdev, 0) != RESOURCE_MMIO ||
+        pci_resource_type(pdev, 2) != RESOURCE_MMIO) {
+        pci_err(pdev, "unknow resource type\n");
+        return -ENXIO;
+    }
+
+    mmio_size = pci_resource_size(pdev, 0);
+    phys_size = pci_resource_size(pdev, 2);
+    if (mmio_size < phys_size) {
+        mmio = pci_resource_start(pdev, 0);
+        phys = pci_resource_start(pdev, 2);
+    } else {
+        mmio = pci_resource_start(pdev, 2);
+        phys = pci_resource_start(pdev, 0);
+        swap(mmio_size, phys_size);
+    }
+
+    if (!phys_size) {
+        pci_debug(pdev, "device not enabled\n");
+        return -ENODEV;
+    }
+
+    idev = pci_kzalloc(pdev, sizeof(*idev), GFP_KERNEL);
     if (!idev)
         return -ENOMEM;
-    pci_set_devdata(pdev, idev);
 
-    if ((ret = i810_hwinit(pdev)))
-        return ret;
+    if (phys_size > SZ_64MiB) {
+        pci_debug(pdev, "fixup framebuffer to 64MiB\n");
+        phys_size = SZ_64MiB;
+    }
 
+    idev->video.framebuffer = pci_ioremap(pdev, phys, phys_size);
+    if (!idev->video.framebuffer) {
+        pci_err(pdev, "can't remap framebuffer region\n");
+        return -ENOMEM;
+    }
+
+    idev->base = pci_ioremap(pdev, mmio, mmio_size);
+    if (!idev->base) {
+        pci_err(pdev, "can't remap mmio region\n");
+        return -ENOMEM;
+    }
+
+    idev->video.frame_size = phys_size;
     idev->video.device = &pdev->dev;
     idev->video.ops = &i810_ops;
+    pci_set_devdata(pdev, idev);
+
+    i810_hwinit(idev);
+    memset(idev->video.framebuffer, 0xff, phys_size);
+
     return video_register(&idev->video);
 }
 
-static const struct pci_device_id i810_ids[] = {
-    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810_IG1),
-      .data = "Intel 82810 (i810 GMCH) SVGA controller" },
-    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810_IG3),
-      .data = "Intel 82810-DC100 (i810-DC100 GMCH) SVGA controller", },
-    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810E_IG),
-      .data = "Intel 82810E (i810E GMCH) SVGA controller" },
-    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82815_100) },
-    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82815_NOAGP) },
-    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82815_CGC),
-      .data = "Intel 82815 (i815 GMCH) SVGA controller" },
-    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x2a42),
-      .data = "Intel GM45 SVGA controller" },
-    { PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x2e32),
-      .data = "Intel G41 SVGA controller" },
+static const struct pci_device_id i810_ids[] = {{
+        PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810_IG1),
+        .data = "Intel(R) 82810 (i810 GMCH) SVGA controller"
+    },{
+        PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810_IG3),
+        .data = "Intel(R) 82810-DC100 (i810-DC100 GMCH) SVGA controller", },
+    {
+        PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810E_IG),
+        .data = "Intel(R) 82810E (i810E GMCH) SVGA controller"
+    },{
+        PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82815_100),
+        .data = "Intel(R) 82815 (Internal Graphics 100Mhz FSB) SVGA controller"
+    },{
+        PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82815_NOAGP),
+        .data = "Intel(R) 82815 (Internal Graphics only) SVGA controller"
+    },{
+        PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82815_CGC),
+        .data = "Intel(R) 82815 (Internal Graphics with AGP) SVGA controller"
+    },
+#ifndef CONFIG_VIDEO_I915
+    {
+        PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x2a42),
+        .data = "Intel(R) GM45 SVGA controller"
+    },{
+        PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x2e32),
+        .data = "Intel(R) G41 SVGA controller"
+    },
+#endif
     { }, /* NULL */
 };
 

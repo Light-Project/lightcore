@@ -9,8 +9,11 @@ include $(build_home)/modules/bin_rule.mk
 bin-flags-y ?= -O binary
 
 quiet_cmd_build_bin = $(ECHO_BIN) $@
-      cmd_build_bin = $(OBJCOPY) $(bin-flags-y) $($@-flags-y) \
-                      $(addprefix $(obj)/,$($(@F)-obj)) $@
+      cmd_build_bin = $(OBJCOPY)                            \
+                      $(bin-flags-y)                        \
+                      $($(@F)-flags-y)                      \
+                      $(addprefix $(obj)/,$($(@F)-obj))     \
+                      $@
 $(bin): FORCE
-	$(error_ignored) $(call if_changed,build_bin)
+	$(call if_changed,build_bin)
 $(call multi_depend, $(bin), , -obj)

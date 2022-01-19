@@ -1,7 +1,11 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
 #include <types.h>
+#include <delay.h>
 #include <export.h>
-#include <asm/delay.h>
 #include <asm/tsc.h>
 
 void cpu_do_loop(unsigned long loops)

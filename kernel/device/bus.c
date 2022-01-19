@@ -3,114 +3,42 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "bus: " fmt
+#define MODULE_NAME "bus"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <device/bus.h>
 #include <device.h>
+#include <export.h>
 #include <printk.h>
 
-LIST_HEAD(bus_list);
-
-/**
- * @bus_probe_device - probe a device through a driver
- * @drv: device driver
- * @dev: device to probe
- */
-state bus_probe_device(struct driver *drv, struct device *dev)
-{
-    state ret;
-
-    pr_debug("%s probing driver %s with device %s\n",
-            drv->bus->name, drv->name, dev->name);
-
-    ret = drv->bus->probe(dev);
-
-    if (ret) {
-        devres_release_all(dev);
-        return ret;
-    }
-
-    return -ENOERR;
-}
-
-state device_match(struct device *dev)
-{
-    struct bus_type *bus = dev->bus;
-    struct driver *drv;
-    state ret;
-
-    if (!bus->match)
-        return -ENXIO;
-
-    bus_for_each_driver(drv, bus) {
-        ret = bus->match(dev, drv);
-        if(!ret)
-            break;
-    } if (ret) {
-        return -ENOERR;
-    }
-
-    dev->driver = drv;
-    return -ENOERR;
-}
-
-/**
- * device_bind - try to bind device to a driver
- * @dev: device to bind
- */
-state device_bind(struct device *dev)
-{
-    state ret;
-
-    ret = device_match(dev);
-    if (ret)
-        return ret;
-
-    mutex_lock(&dev->mutex);
-
-    if (dev->driver)
-        ret = bus_probe_device(dev->driver, dev);
-
-    mutex_unlock(&dev->mutex);
-    return ret;
-}
-
-/**
- * driver_bind - try to bind device to drivers
- * @drv: driver
- */
-state driver_bind(struct driver *drv)
-{
-    struct bus_type *bus = drv->bus;
-    struct device *dev;
-    state ret;
-
-    bus_for_each_device(dev, bus) {
-        ret = bus->match(dev, drv);
-        if(ret)
-            continue;
-        dev->driver = drv;
-        bus_probe_device(drv, dev);
-    }
-
-    return -ENOERR;
-}
+static LIST_HEAD(bus_list);
 
 /**
  * bus_add_device - add a device into bus
- * @dev: driver
+ * @drv: driver to bind
  */
 state bus_add_device(struct device *dev)
 {
     struct bus_type *bus;
+    state ret;
 
-    if (!(bus = dev->bus))
+    if (unlikely(!(bus = dev->bus))) {
+        pr_err("device %s without bus\n", dev->name);
         return -EINVAL;
+    }
 
     pr_debug("%s add device %s\n", bus->name, dev->name);
     list_add_prev(&bus->devices_list, &dev->bus_list_device);
-    return device_bind(dev);
+
+    if (bus->autoprobe) {
+        ret = device_bind(dev);
+        if (unlikely(ret))
+            return ret;
+    }
+
+    return -ENOERR;
 }
+EXPORT_SYMBOL(bus_add_device);
 
 void bus_remove_device(struct device *dev)
 {
@@ -119,6 +47,7 @@ void bus_remove_device(struct device *dev)
     pr_debug("%s remove device %s\n", bus->name, dev->name);
     list_del(&dev->bus_list_device);
 }
+EXPORT_SYMBOL(bus_remove_device);
 
 /**
  * bus_add_driver - add a driver into bus
@@ -127,20 +56,31 @@ void bus_remove_device(struct device *dev)
 state bus_add_driver(struct driver *drv)
 {
     struct bus_type *bus;
+    state ret;
 
-    if (!(bus = drv->bus))
+    if (unlikely(!(bus = drv->bus))) {
+        pr_err("driver %s without bus\n", drv->name);
         return -EINVAL;
+    }
 
     pr_debug("%s add driver %s\n", bus->name, drv->name);
-
     list_add_prev(&bus->drivers_list, &drv->bus_list_driver);
-    return driver_bind(drv);
+
+    if (bus->autoprobe) {
+        ret = driver_bind(drv);
+        if (unlikely(ret))
+            return ret;
+    }
+
+    return -ENOERR;
 }
+EXPORT_SYMBOL(bus_add_driver);
 
 void bus_remove_driver(struct driver *drv)
 {
     list_del(&drv->bus_list_driver);
 }
+EXPORT_SYMBOL(bus_remove_driver);
 
 /**
  * bus_register - register a driver bus-type
@@ -151,11 +91,15 @@ state bus_register(struct bus_type *bus)
     if (!bus->match || !bus->probe)
         return -EINVAL;
 
-    pr_debug("register %s\n", bus->name);
+    pr_debug("register %s bus\n", bus->name);
+
+    bus->autoprobe = true;
     list_head_init(&bus->devices_list);
     list_head_init(&bus->drivers_list);
+
     return -ENOERR;
 }
+EXPORT_SYMBOL(bus_register);
 
 /**
  * bus_register - remove a driver bus-type
@@ -165,6 +109,7 @@ void bus_unregister(struct bus_type *bus)
 {
     pr_debug("unregister %s\n", bus->name);
 }
+EXPORT_SYMBOL(bus_unregister);
 
 void __init bus_init(void)
 {

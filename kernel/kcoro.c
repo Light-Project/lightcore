@@ -6,33 +6,14 @@
 #define pr_fmt(fmt) "kcoro: " fmt
 
 #include <kcoro.h>
+#include <task.h>
+#include <export.h>
+#include <panic.h>
 #include <printk.h>
 
 static LIST_HEAD(worker_list);
 
-void kcoro_work_relax(struct kcoro_work *work)
-{
-    struct kcoro_worker *worker = work->worker;
-    list_move_tail(&worker->work_list, &work->list);
-}
-
-void kcoro_work_enqueue(struct kcoro_worker *worker, struct kcoro_work *work)
-{
-    work->worker = worker;
-    worker->work_num++;
-    list_add_prev(&worker->work_list, &work->list);
-}
-
-void kcoro_work_dequeue(struct kcoro_work *work)
-{
-    struct kcoro_worker *worker = work->worker;
-
-    work->worker = NULL;
-    worker->work_num--;
-    list_del(&work->list);
-}
-
-static void kcoro_do_work(struct kcoro_worker *worker, struct kcoro_work *work)
+static void kcoro_dispatch(struct kcoro_worker *worker, struct kcoro_work *work)
 {
     kcoro_state_t retval;
     void *priv = work->data;
@@ -50,14 +31,52 @@ static void kcoro_do_work(struct kcoro_worker *worker, struct kcoro_work *work)
     }
 }
 
-void *kcoro_worker_loop(void *data)
+/**
+ * kcoro_current - gets the currently coroutine
+ * @return: current coroutine work
+ *
+ * NOTE, must on the coroutine thread to use this function
+ */
+struct kcoro_work *kcoro_current(void)
 {
-    struct kcoro_worker *worker = data;
-    struct kcoro_work *work;
+    struct kcoro_worker *worker = current->pdata;
 
-    for (;;)
-    list_for_each_entry(work, &worker->work_list, list)
-        kcoro_do_work(worker, work);
+    if (!worker) {
+        BUG();
+        return NULL;
+    }
+
+    return worker->curr;
+}
+
+void kcoro_work_exit(void)
+{
+    struct kcoro_work *work = kcoro_current;
+
+}
+EXPORT_SYMBOL(kcoro_work_exit);
+
+void kcoro_relax(void)
+{
+    struct kcoro_worker *worker = work->worker;
+    list_move_tail(&worker->work_list, &work->list);
+}
+EXPORT_SYMBOL(kcoro_relax);
+
+void kcoro_work_enqueue(struct kcoro_worker *worker, struct kcoro_work *work)
+{
+    work->worker = worker;
+    worker->work_num++;
+    list_add(&worker->work_list, &work->list);
+}
+
+void kcoro_work_dequeue(struct kcoro_work *work)
+{
+    struct kcoro_worker *worker = work->worker;
+
+    work->worker = NULL;
+    worker->work_num--;
+    list_del(&work->list);
 }
 
 struct kcoro_worker *kcoro_worker_best(void)
@@ -91,18 +110,28 @@ struct kcoro_work *kcoro_work_create(kcoro_fun_t fun, void *data, const char *na
     return work;
 }
 
-void kcoro_work_remove(struct kcoro_work *work)
+void kcoro_work_destroy(struct kcoro_work *work)
 {
     if (work->worker)
         kcoro_work_dequeue(work);
     kcoro_free(work);
 }
 
-struct kcoro_worker *kcoro_worker_create(const char *name, ...)
+void kcoro_worker_loop(void *data)
+{
+    struct kcoro_worker *worker = data;
+    struct kcoro_work *work;
+
+    for (;;)
+    list_for_each_entry(work, &worker->work_list, list)
+        kcoro_dispatch(worker, work);
+}
+
+struct kcoro_worker *kcoro_worker_create(const char *name)
 {
     struct kcoro_worker *worker;
 
-    worker = kcoro_zalloc(sizeof(*worker));
+    worker = kzalloc(sizeof(*worker), GFP_KERNEL);
     if (!worker)
         return NULL;
 
@@ -113,7 +142,7 @@ struct kcoro_worker *kcoro_worker_create(const char *name, ...)
     return worker;
 }
 
-void kcoro_worker_remove(struct kcoro_worker *worker)
+void kcoro_worker_destroy(struct kcoro_worker *worker)
 {
     kcoro_free(worker);
 }

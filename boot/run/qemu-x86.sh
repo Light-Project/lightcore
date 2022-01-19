@@ -21,9 +21,8 @@ else
         -name "Lightcore for x86"           \
         -M q35                              \
         -smp 2,sockets=1,cores=2,threads=1  \
-        -m 1G -fda $image                   \
-        -device usb-ehci                    \
-        -device piix3-usb-uhci              \
+        -m 2G -fda $image                   \
+        -device rtl8139                     \
         -device ES1370                      \
         -soundhw pcspk                      \
         -serial stdio

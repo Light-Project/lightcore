@@ -3,9 +3,9 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <fs.h>
+#include <filesystem.h>
 #include <kmalloc.h>
-#include <syscall.h>
+#include <export.h>
 
 ssize_t vfl_read(struct file *file, void *buf, size_t len, loff_t *pos)
 {
@@ -17,6 +17,7 @@ ssize_t vfl_read(struct file *file, void *buf, size_t len, loff_t *pos)
 
     return file->ops->read(file, buf, len, pos);
 }
+EXPORT_SYMBOL(vfl_read);
 
 ssize_t vfl_write(struct file *file, void *buf, size_t len, loff_t *pos)
 {
@@ -28,6 +29,7 @@ ssize_t vfl_write(struct file *file, void *buf, size_t len, loff_t *pos)
 
     return file->ops->write(file, buf, len, pos);
 }
+EXPORT_SYMBOL(vfl_write);
 
 struct file *vfl_open(const char *name, int flags, umode_t mode)
 {
@@ -39,6 +41,7 @@ struct file *vfl_open(const char *name, int flags, umode_t mode)
 
     return file;
 }
+EXPORT_SYMBOL(vfl_open);
 
 state vfl_mkdir(struct dirent *dir, struct inode *node, umode_t mode)
 {
@@ -50,24 +53,4 @@ state vfl_mkdir(struct dirent *dir, struct inode *node, umode_t mode)
     retval = node->ops->mkdir(dir, node, mode);
     return retval;
 }
-
-struct superblock *vfl_mount(struct filesystem_type *fs, struct fsdev *fsdev, enum mount_flag flag)
-{
-    return fs->mount(fsdev, flag);
-}
-
-state vfl_automount(struct fsdev *fsdev, enum mount_flag flags)
-{
-    struct filesystem_type *fs;
-
-    filesystem_for_each(fs) {
-        if (!vfl_mount(fs, fsdev, flags))
-            return -ENOERR;
-    }
-    return -ENXIO;
-}
-
-void __init vfl_init(void)
-{
-
-}
+EXPORT_SYMBOL(vfl_mkdir);

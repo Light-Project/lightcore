@@ -2,8 +2,6 @@
 #ifndef _RESOURCE_H_
 #define _RESOURCE_H_
 
-#include <types.h>
-#include <state.h>
 #include <list.h>
 #include <bits.h>
 
@@ -14,14 +12,12 @@ enum resource_type {
     RESOURCE_IRQ        = BIT_SHIFT(0, 3),
     RESOURCE_DMA        = BIT_SHIFT(0, 4),
     RESOURCE_TYPE       = BIT_RANGE(7, 0),
-
     RESOURCE_MEM64      = BIT_SHIFT(8, 1),
 };
 
 struct resource {
-    const char *name;
     struct list_head list;
-
+    const char *name;
     resource_size_t start;
     resource_size_t size;
     enum resource_type type;

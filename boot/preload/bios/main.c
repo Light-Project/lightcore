@@ -5,7 +5,7 @@
 
 #include <boot.h>
 #include <linkage.h>
-#include <crc_table.h>
+#include <crc-table.h>
 #include <lightcore/asm/byteorder.h>
 #include <asm-generic/header.h>
 

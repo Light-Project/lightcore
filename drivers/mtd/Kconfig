@@ -3,6 +3,8 @@ menuconfig MTD
     bool "Memory Technology Device (MTD) Support"
 if MTD
 
+source "drivers/mtd/romdisk/Kconfig"
+
 source "drivers/mtd/spinor/Kconfig"
 
 endif

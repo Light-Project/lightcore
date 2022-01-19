@@ -9,7 +9,7 @@
 #include <mm/memblock.h>
 #include <asm/e820.h>
 
-static const char *e820_to_name(enum e820_type type)
+static __init const char *e820_to_name(enum e820_type type)
 {
     switch (type) {
         case E820_TYPE_RAM: return "e820-usable";
@@ -23,7 +23,7 @@ static const char *e820_to_name(enum e820_type type)
     }
 }
 
-void e820_init(struct e820_table *e820_table)
+void __init e820_init(struct e820_table *e820_table)
 {
     struct e820_entry *entry;
     unsigned int count;

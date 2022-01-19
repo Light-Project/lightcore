@@ -16,7 +16,7 @@ void cpu_do_loop(unsigned long loops)
 
 void cpu_const_delay(unsigned long loops)
 {
-    cpu_do_loop(((uint64_t)loops * tick_loops * CONFIG_SYSTICK_FREQ) >> 32);
+    cpu_do_loop(((uint64_t)loops * loops_per_tick * CONFIG_SYSTICK_FREQ) >> 32);
 }
 
 void cpu_ndelay(unsigned long nsecs)

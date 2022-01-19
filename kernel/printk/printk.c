@@ -3,12 +3,12 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
+#include <printk.h>
+#include <string.h>
 #include <kernel.h>
 #include <console.h>
-#include <time.h>
-#include <timer.h>
+#include <timekeeping.h>
 #include <export.h>
-#include <printk.h>
 
 static inline char printk_get_level(const char *str)
 {
@@ -41,7 +41,7 @@ static int printk_time(char *buffer, struct timespec *time)
         time->tv_sec, time->tv_nsec / 1000);
 }
 
-static int vprintk(const char *fmt, va_list args)
+int vprintk(const char *fmt, va_list args)
 {
     char buffer[256], *p = buffer;
     struct timespec time;
@@ -53,7 +53,9 @@ static int vprintk(const char *fmt, va_list args)
     time.tv_sec  = ticktime / CONFIG_SYSTICK_FREQ;
     time.tv_nsec = (ticktime % CONFIG_SYSTICK_FREQ) * (1000000000 / CONFIG_SYSTICK_FREQ);
 
-    p += printk_time(p, &time);
+    if (strchr(fmt, '\n'))
+        p += printk_time(p, &time);
+
     p += vsprintf(p, fmt, args);
     len = p - buffer;
 
@@ -61,7 +63,7 @@ static int vprintk(const char *fmt, va_list args)
     return len;
 }
 
-asmlinkage __visible int printk(const char *fmt, ...)
+int printk(const char *fmt, ...)
 {
     va_list para;
     int length;

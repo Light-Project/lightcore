@@ -3,4 +3,6 @@ menuconfig NETD
     bool "Network Device Support"
 if NETD
 
+source "drivers/net/ethernet/Kconfig"
+
 endif

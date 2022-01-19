@@ -29,7 +29,6 @@ static irqreturn_t atkbd_interrupt(struct serio_device *sdev, uint32_t data, con
 
 static state atkbd_probe(struct serio_device *sdev, const void *pdata)
 {
-
     return -ENOERR;
 }
 

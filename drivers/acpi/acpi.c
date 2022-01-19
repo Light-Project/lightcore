@@ -3,7 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "acpi: " fmt
+#define pr_fmt(fmt) "ACPI: " fmt
 
 #include <driver/acpi.h>
 
@@ -15,13 +15,13 @@ state __init acpi_init(void)
 
     status = AcpiReallocateRootTable();
     if (ACPI_FAILURE(status)) {
-        pr_err("Unable to reallocate ACPI tables\n");
+        pr_err("unable to reallocate tables\n");
     }
 
     /* initialize acpi subsystem */
     status = AcpiInitializeSubsystem();
     if (ACPI_FAILURE(status)) {
-        pr_err("unable to initialize the ACPI subsystem\n");
+        pr_err("unable to initialize the subsystem\n");
     }
 
     return -ENOERR;

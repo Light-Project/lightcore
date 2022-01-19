@@ -79,7 +79,7 @@ static inline void rb_insert_node(struct rb_root *root, struct rb_node *parent,
  * @node: new node to insert.
  * @cmp: operator defining the node order.
  */
-static inline int rb_insert(struct rb_root *root, struct rb_node *node, rb_cmp_t cmp)
+static inline state rb_insert(struct rb_root *root, struct rb_node *node, rb_cmp_t cmp)
 {
     struct rb_node *parent, **link;
 
@@ -88,7 +88,7 @@ static inline int rb_insert(struct rb_root *root, struct rb_node *node, rb_cmp_t
         return -EINVAL;
 
     rb_insert_node(root, parent, link, node);
-    return 0;
+    return -ENOERR;
 }
 
 /**

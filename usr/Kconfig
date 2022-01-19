@@ -4,8 +4,10 @@ menuconfig KUSR
     default y
 if KUSR
 
+source "usr/command/Kconfig"
+
 config KSH
-    bool "Kernel shell support"
+    bool "Kernel Shell Support"
     default y
 
 endif

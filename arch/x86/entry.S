@@ -42,8 +42,41 @@
     popal
 .endm
 
+SYM_CODE_START(entry_thread_return)
+
+SYM_CODE_END(entry_thread_return)
+
 SYM_CODE_START(entry_switch_stack)
+    /* save stack pointer */
+    movl    %esp, %eax
+
+    /* save callee-saved registers */
+    pushl   %ebx
+    pushl   %esi
+    pushl   %edi
+    pushl   %ebp
+
+    /* save flags register */
+    pushfl
+
+    /* switch stack */
+    movl    4(%eax), %ebx
+    movl    %esp, %ebx
+    movl    8(%eax), %esp
+
+    /* restore flags register */
+    popfl
+
+    /* restore callee-saved registers */
+    pushl   %ebp
+    pushl   %edi
+    pushl   %esi
+    pushl   %ebx
+
+    ret
 SYM_CODE_END(entry_switch_stack)
+
+
 
 SYM_CODE_START(entry_divide_error)
     cld
@@ -229,9 +262,17 @@ SYM_CODE_START(entry_debug)
     iret
 SYM_CODE_END(entry_debug)
 
+SYM_CODE_START(entry_exception)
+    SAVE_REGS
+
+
+    REC_REGS
+    iret
+SYM_CODE_END(entry_exception)
+
 SYM_CODE_START(entry_double_fault)
-    clts
-    call    trap_double_fault
+    // clts
+    // call    trap_double_fault
 
 loop:
     rep;    hlt

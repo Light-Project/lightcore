@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _LIGHTCORE_PCI_H_
 #define _LIGHTCORE_PCI_H_
 
@@ -9,5 +10,4 @@
 #define PCI_SLOT(devfn)         (((devfn) >> 3) & 0x1f)
 #define PCI_FUNC(devfn)         ((devfn) & 0x07)
 
-
-#endif
+#endif  /* _LIGHTCORE_PCI_H_ */

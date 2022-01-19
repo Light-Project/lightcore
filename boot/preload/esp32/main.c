@@ -2,7 +2,7 @@
 #include <asm/io.h>
 #include <bits.h>
 #include <asm-generic/header.h>
-#include <crc_table.h>
+#include <crc-table.h>
 
 static uint32_t crc32(const uint32_t *s, int len, uint32_t crc)
 {

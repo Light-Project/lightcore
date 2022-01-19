@@ -6,13 +6,12 @@
 #define DRIVER_NAME "pl11x-display"
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
-#include <mm.h>
-#include <sleep.h>
+#include <memory.h>
+#include <delay.h>
 #include <initcall.h>
 #include <driver/platform.h>
 #include <driver/video.h>
 #include <driver/video/pl11x.h>
-
 #include <asm/io.h>
 
 struct pl11x_device {

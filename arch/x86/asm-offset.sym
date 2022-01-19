@@ -1,0 +1,33 @@
+-- SPDX-License-Identifier: GPL-2.0-or-later
+#include <types.h>
+#include <stddef.h>
+
+-- setjmp
+
+#include <setjmp.h>
+#define jmpbuf(member) offsetof(jmp_buf, member)
+#define jreg(reg) jmpbuf(regs[reg])
+
+SETJMP_EBX      jreg(JMP_BUF_BX)
+SETJMP_ESI      jreg(JMP_BUF_SI)
+SETJMP_EDI      jreg(JMP_BUF_DI)
+SETJMP_EBP      jreg(JMP_BUF_BP)
+SETJMP_ESP      jreg(JMP_BUF_SP)
+SETJMP_EPC      jreg(JMP_BUF_PC)
+
+-- kcontext
+
+#include <kcontext.h>
+#define kcontext(member) offsetof(struct kcontext, member)
+#define mcontext(member) kcontext(mcontext.regs[member])
+
+KCONTEXT_LINK   kcontext(link)
+KCONTEXT_STA    kcontext(stack)
+KCONTEXT_STS    kcontext(ssize)
+KCONTEXT_RET    kcontext(retval)
+KCONTEXT_EBX    mcontext(KC_BUF_BX)
+KCONTEXT_ESI    mcontext(KC_BUF_SI)
+KCONTEXT_EDI    mcontext(KC_BUF_DI)
+KCONTEXT_EBP    mcontext(KC_BUF_BP)
+KCONTEXT_ESP    mcontext(KC_BUF_SP)
+KCONTEXT_EPC    mcontext(KC_BUF_PC)

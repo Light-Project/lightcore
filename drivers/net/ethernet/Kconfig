@@ -1,16 +1,13 @@
-menuconfig ETHERNET
-bool "Ethernet driver support"
-depends on NET
-help
-    This section contains all the Ethernet device drivers.
-if ETHERNET
+menuconfig NETD_ETH
+    bool "Ethernet Driver Support"
+if NETD_ETH
 
-    config ETH_E1000
-    tristate "Intel(R) PRO/1000 Gigabit Ethernet support"
+config ETH_E1000
+    tristate "Intel(R) PRO/1000 Gigabit Ethernet Support"
     depends on PCI
-    
-    config ETH_8139
-    tristate "RealTek RTL-8129/8130/8139 PCI Fast Ethernet Adapter support"
+
+config ETH_RTL8139
+    tristate "RealTek RTL-8129/8130/8139 PCI Fast Ethernet Adapter Support"
     depends on PCI
 
 endif

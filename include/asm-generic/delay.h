@@ -2,12 +2,11 @@
 #ifndef _ASM_GENERIC_DELAY_H_
 #define _ASM_GENERIC_DELAY_H_
 
-extern unsigned long tick_loops;
-
 extern void bad_ndelay(void);
 extern void bad_udelay(void);
 extern void bad_mdelay(void);
 
+extern void cpu_do_loop(unsigned long loops);
 extern void cpu_const_delay(unsigned long loops);
 extern void cpu_ndelay(unsigned long nsecs);
 extern void cpu_udelay(unsigned long usecs);

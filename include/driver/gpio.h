@@ -26,9 +26,9 @@ enum gpio_direction {
 };
 
 struct gpio_device {
+    struct list_head list;
     struct deivce *parent;
     struct gpio_ops *ops;
-    struct list_head list;
 };
 
 struct gpio_ops {
@@ -43,5 +43,6 @@ struct gpio_ops {
 };
 
 state gpio_register(struct gpio_device *);
+state gpio_unregister(struct gpio_device *);
 
 #endif /* _FRAMEWORK_GPIO_GPIO_H_ */

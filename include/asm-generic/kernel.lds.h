@@ -3,7 +3,7 @@
 #define _ASM_GENERIC_KERNEL_LDS_H_
 
 #ifndef LOAD_OFFSET
-#define LOAD_OFFSET 0
+# define LOAD_OFFSET 0
 #endif
 
 /*
@@ -15,11 +15,11 @@
  * up in the PT_NOTE Program Header.
  */
 #ifdef EMITS_PT_NOTE
-#define NOTES_HEADERS		:text :note
-#define NOTES_HEADERS_RESTORE	__restore_ph : { *(.__restore_ph) } :text
+# define NOTES_HEADERS          :text :note
+# define NOTES_HEADERS_RESTORE  __restore_ph : { *(.__restore_ph) } :text
 #else
-#define NOTES_HEADERS
-#define NOTES_HEADERS_RESTORE
+# define NOTES_HEADERS
+# define NOTES_HEADERS_RESTORE
 #endif
 
 /*
@@ -35,96 +35,110 @@
  * sections to be brought in with rodata.
  */
 #if defined(CONFIG_LD_DEAD_CODE_DATA_ELIMINATION)
-#define TEXT_MAIN   .text .text.[0-9a-zA-Z_]*
-#define DATA_MAIN   .data .data.[0-9a-zA-Z_]* .data..L* .data..compoundliteral* .data.$__unnamed_* .data.$L*
-#define SDATA_MAIN  .sdata .sdata.[0-9a-zA-Z_]*
-#define RODATA_MAIN .rodata .rodata.[0-9a-zA-Z_]* .rodata..L*
-#define BSS_MAIN    .bss .bss.[0-9a-zA-Z_]* .bss..compoundliteral*
-#define SBSS_MAIN   .sbss .sbss.[0-9a-zA-Z_]*
+# define TEXT_MAIN      .text .text.[0-9a-zA-Z_]*
+# define DATA_MAIN      .data .data.[0-9a-zA-Z_]* .data..L* .data..compoundliteral* .data.$__unnamed_* .data.$L*
+# define SDATA_MAIN     .sdata .sdata.[0-9a-zA-Z_]*
+# define RODATA_MAIN    .rodata .rodata.[0-9a-zA-Z_]* .rodata..L*
+# define BSS_MAIN       .bss .bss.[0-9a-zA-Z_]* .bss..compoundliteral*
+# define SBSS_MAIN      .sbss .sbss.[0-9a-zA-Z_]*
 #else
-#define TEXT_MAIN   .text
-#define DATA_MAIN   .data
-#define SDATA_MAIN  .sdata
-#define RODATA_MAIN .rodata
-#define BSS_MAIN    .bss
-#define SBSS_MAIN   .sbss
+# define TEXT_MAIN      .text
+# define DATA_MAIN      .data
+# define SDATA_MAIN     .sdata
+# define RODATA_MAIN    .rodata
+# define BSS_MAIN       .bss
+# define SBSS_MAIN      .sbss
 #endif
 
-/* The actual configuration determine if the init/exit sections
+/*
+ * The actual configuration determine if the init/exit sections
  * are handled as text/data or they can be discarded (which
  * often happens at runtime)
  */
 #ifdef CONFIG_HOTPLUG_CPU
-#define CPU_KEEP(sec)    *(.cpu##sec)
-#define CPU_DISCARD(sec)
+# define CPU_KEEP(sec)      *(.cpu##sec)
+# define CPU_DISCARD(sec)
 #else
-#define CPU_KEEP(sec)
-#define CPU_DISCARD(sec) *(.cpu##sec)
+# define CPU_KEEP(sec)
+# define CPU_DISCARD(sec)   *(.cpu##sec)
 #endif
 
 #if defined(CONFIG_MEMORY_HOTPLUG)
-#define MEM_KEEP(sec)    *(.mem##sec)
-#define MEM_DISCARD(sec)
+# define MEM_KEEP(sec)      *(.mem##sec)
+# define MEM_DISCARD(sec)
 #else
-#define MEM_KEEP(sec)
-#define MEM_DISCARD(sec) *(.mem##sec)
+# define MEM_KEEP(sec)
+# define MEM_DISCARD(sec)   *(.mem##sec)
 #endif
 
 /*
- * RO data: RO data
+ * Text Segment
+ */
+
+#define TEXT_SCHED(align)                                   \
+    . = ALIGN(align);                                       \
+    _ld_text_sched_start = .;                               \
+    *(.text.sched)                                          \
+    _ld_text_sched_end = .;
+
+/*
+ * RO data Segment
  */
 #define RODATA_RODATA(align)                                \
+    . = ALIGN(align);                                       \
     _ld_rodata_rodata_start = .;                            \
     *(RODATA_MAIN)                                          \
     _ld_rodata_rodata_end = .;
 
 #define KSYMTAB(align)                                      \
+    . = ALIGN(align);                                       \
     _ld_ksymtab_start = .;                                  \
-    KEEP(*(SORT(.ksymtab+*)))                               \
+    KEEP(*(SORT(.ksymtab*)))                                \
     _ld_ksymtab_end = .;
 
 #define KSYMTAB_GPL(align)                                  \
+    . = ALIGN(align);                                       \
     _ld_ksymtab_gpl_start = .;                              \
-    KEEP(*(SORT(.ksymtab_gpl+*)))                           \
+    KEEP(*(SORT(.ksymtab_gpl*)))                            \
     _ld_ksymtab_gpl_end = .;
+
+#define ROMDISK(align)                                      \
+    . = ALIGN(align);                                       \
+    _ld_romdisk_start = .;                                  \
+    KEEP(*(.romdisk))                                       \
+    _ld_romdisk_end = .;
 
 #define NOTES                                               \
     .notes :                                                \
     AT(ADDR(.notes) - LOAD_OFFSET) {                        \
-        __start_notes = .;                                  \
+        _ld_notes_start = .;                                \
         KEEP(*(.note.*))                                    \
-        __stop_notes = .;                                   \
+        _ld_notes_end = .;                                  \
     } NOTES_HEADERS                                         \
     NOTES_HEADERS_RESTORE
 
 /*
- * Init text: init text
+ * RW data Segment
+ */
+
+#define READ_MOSTLY(align)                                  \
+    . = ALIGN(align);                                       \
+    _ld_data_read_mostly_start = .;                         \
+    *(.data.readmostly*)                                    \
+    _ld_data_read_mostly_end = .;
+
+/*
+ * Init Text Segment
  */
 #define INIT_TEXT                                           \
-    *(.init.text .init.text.*)                              \
+    *(.init.text*)                                          \
     *(.text.startup)                                        \
     MEM_DISCARD(init.text*)
 
 /*
- * Init data: DT table
+ * Init Data Segment
  */
-#define INIT_DT_TABLES                                      \
-    _ld_init_dtb_start = .;                                 \
-    KEEP(*(.init.dtb));                                     \
-    _ld_init_dtb_end = .;
 
-/*
- * Init data: Boot param table
- */
-#define INIT_ARGS(align)                                    \
-    . = ALIGN(align);                                       \
-    _ld_boot_param_start = .;                               \
-    KEEP(*(.init.bootargs))                                 \
-    _ld_boot_param_end = .;
-
-/*
- * Init data: Initcall
- */
 #define INIT_CALLS_LEVEL(level)                             \
     _ld_initcall##level##_start = .;                        \
     KEEP(*(.init.initcall_##level##))                       \
@@ -166,6 +180,11 @@
     KEEP(*(.init.irqchip_initcall))                         \
     _ld_irqchip_initcall_end = .;
 
+#define CLKEVT_INITCALL                                     \
+    _ld_clockevent_initcall_start = .;                      \
+    KEEP(*(.init.clockevent_initcall))                      \
+    _ld_clockevent_initcall_end = .;
+
 #define CLKSRC_INITCALL                                     \
     _ld_clocksource_initcall_start = .;                     \
     KEEP(*(.init.clocksource_initcall))                     \
@@ -175,6 +194,17 @@
     _ld_kshell_initcall_start = .;                          \
     KEEP(*(.init.kshell_initcall))                          \
     _ld_kshell_initcall_end = .;
+
+#define INIT_DT_TABLES                                      \
+    _ld_init_dtb_start = .;                                 \
+    KEEP(*(.init.dtb));                                     \
+    _ld_init_dtb_end = .;
+
+#define INIT_ARGS(align)                                    \
+    . = ALIGN(align);                                       \
+    _ld_boot_param_start = .;                               \
+    KEEP(*(.init.bootargs))                                 \
+    _ld_boot_param_end = .;
 
 /*
  * bss (Block Started by Symbol) - uninitialized data
@@ -205,10 +235,11 @@
     . = ALIGN(align);                                       \
     .task_stack :                                           \
     AT(ADDR(.task_stack) - LOAD_OFFSET) {                   \
-    _ld_init_task_stack_start = .;                          \
-    init_thread_union = .;                                  \
-    . = _ld_init_task_stack_start + THREAD_SIZE;            \
-    _ld_init_task_stack_end = .;                            \
+        _ld_init_task_stack_start = .;                      \
+        init_thread_union = .;                              \
+        init_stack = .;                                     \
+        . = _ld_init_task_stack_start + THREAD_SIZE;        \
+        _ld_init_task_stack_end = .;                        \
     }
 
 #define COMMON_DISCARDS                                     \
@@ -220,7 +251,7 @@
 
 #define DISCARDS                                            \
     /DISCARD/ : {                                           \
-    COMMON_DISCARDS                                         \
+        COMMON_DISCARDS                                     \
     }
 
 /*
@@ -243,6 +274,7 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
     AT(ADDR(.text) - LOAD_OFFSET) {                         \
         _ld_text_start = .;                                 \
         *(TEXT_MAIN)                                        \
+        TEXT_SCHED(pagealign)                               \
         _ld_text_end = .;                                   \
     }
 
@@ -253,6 +285,7 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
         RODATA_RODATA(pagealign)                            \
         KSYMTAB(pagealign)                                  \
         KSYMTAB_GPL(pagealign)                              \
+        ROMDISK(pagealign)                                  \
     }                                                       \
     NOTES
 
@@ -262,6 +295,7 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
     AT(ADDR(.data) - LOAD_OFFSET) {                         \
         _ld_data_start = .;                                 \
         *(DATA_MAIN)                                        \
+        READ_MOSTLY(pagealign)                              \
         _ld_data_end = .;                                   \
     }
 
@@ -270,7 +304,6 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
     .percpu :                                               \
     AT(ADDR(.data) - LOAD_OFFSET) {                         \
     }
-
 
 #define INIT_TEXT_SECTION(pagealign)                        \
     . = ALIGN(pagealign);                                   \
@@ -289,6 +322,7 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
         SCHEDULER_INITCALL                                  \
         CLK_INITCALL                                        \
         IRQCHIP_INITCALL                                    \
+        CLKEVT_INITCALL                                     \
         CLKSRC_INITCALL                                     \
         KSHELL_INITCALL                                     \
         INIT_CALLS                                          \

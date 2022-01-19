@@ -4,7 +4,7 @@
  */
 
 #include <crc.h>
-#include <crc_table.h>
+#include <crc-table.h>
 #include <export.h>
 
 uint8_t crc4(uint8_t *src, int len, uint8_t crc)

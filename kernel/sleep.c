@@ -3,8 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <sleep.h>
+#include <delay.h>
 
-void msleep(unsigned int ms)
+void msleep(unsigned int msecs)
 {
 }

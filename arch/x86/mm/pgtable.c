@@ -13,6 +13,9 @@ state pte_set(pte_t *pte, phys_addr_t phys, gvm_t flags)
     if (flags & GVM_NOCACHE)
         pte->pcd = PAGE_PCD_CACHEOFF;
 
+    if (flags & GVM_WCOMBINED)
+        pte->pwt = PAGE_PWT_THROUGH;
+
     return -ENOERR;
 }
 
@@ -23,6 +26,9 @@ state pmd_set_huge(pmd_t *pmd, phys_addr_t phys, gvm_t flags)
 
     if (flags & GVM_NOCACHE)
         pmd->pcd = PAGE_PCD_CACHEOFF;
+
+    if (flags & GVM_WCOMBINED)
+        pmd->pwt = PAGE_PWT_THROUGH;
 
     return -ENOERR;
 }

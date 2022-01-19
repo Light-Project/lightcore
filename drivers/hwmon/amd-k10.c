@@ -62,21 +62,21 @@ static uint32_t k10_pci_crit_raw(struct pci_device *pdev)
 	return pci_config_readl(pdev, K10_REPORTED_TEMPERATURE);
 }
 
-static state k10_hwmon_string(struct hwmon_device *hdev, unsigned int channel,
-                              uint32_t attribute, const char **str)
+static state k10_hwmon_string(struct hwmon_device *hdev, enum hwmon_sensor sensor,
+                              unsigned int channel, uint32_t att, const char **str)
 {
-    if (attribute != HWMON_THERMAL_LABEL)
+    if (att != HWMON_THERMAL_LABEL)
         return -EOPNOTSUPP;
 
     *str = k10_hwmon_label[channel];
     return -ENOERR;
 }
 
-static state k10_hwmon_read(struct hwmon_device *hdev, unsigned int channel,
-                            uint32_t attribute, ssize_t *val)
+static state k10_hwmon_read(struct hwmon_device *hdev, enum hwmon_sensor sensor,
+                            unsigned int channel, uint32_t att, ssize_t *val)
 {
 
-    switch (attribute) {
+    switch (att) {
         case HWMON_THERMAL_DATA:
 
             break;

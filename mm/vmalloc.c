@@ -7,11 +7,12 @@
 
 #include <vmalloc.h>
 #include <numa.h>
-#include <mm.h>
+#include <mm/vmem.h>
 #include <mm/vmap.h>
 #include <mm/page.h>
-#include <mm/region.h>
 #include <kmalloc.h>
+#include <export.h>
+#include <printk.h>
 
 struct vmalloc_area {
     struct vm_area vmem;
@@ -90,7 +91,7 @@ err_free:
     return NULL;
 }
 
-void *vmalloc_node(size_t size, size_t align, gfp_t gfp, int numa)
+void *vmalloc_numa(size_t size, size_t align, gfp_t gfp, int numa)
 {
     struct vmalloc_area *vmalloc;
     struct page **page_area;
@@ -129,16 +130,19 @@ err_vmalloc:
     kcache_free(vmalloc_cache, vmalloc);
     return NULL;
 }
+EXPORT_SYMBOL(vmalloc_numa);
 
 void *vmalloc(size_t size)
 {
-    return vmalloc_node(size, MSIZE, GFP_KERNEL, NUMA_NONE);
+    return vmalloc_numa(size, MSIZE, GFP_KERNEL, NUMA_NONE);
 }
+EXPORT_SYMBOL(vmalloc);
 
 void *vzalloc(size_t size)
 {
-    return vmalloc_node(size, MSIZE, GFP_KERNEL | GFP_ZERO, NUMA_NONE);
+    return vmalloc_numa(size, MSIZE, GFP_KERNEL | GFP_ZERO, NUMA_NONE);
 }
+EXPORT_SYMBOL(vzalloc);
 
 void vfree(void *addr)
 {
@@ -160,6 +164,7 @@ void vfree(void *addr)
     vmem_free(&vmalloc->vmem);
     kcache_free(vmalloc_cache, vmalloc);
 }
+EXPORT_SYMBOL(vfree);
 
 void __init vmalloc_init(void)
 {

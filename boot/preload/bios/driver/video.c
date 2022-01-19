@@ -4,7 +4,7 @@
  */
 
 #include <boot.h>
-#include <driver/video/vesa.h>
+#include <driver/video/vga.h>
 #include <asm/io.h>
 
 #define xres    80
@@ -24,10 +24,10 @@ static unsigned char pos_x, pos_y;
 static inline void vga_cursor(const char pos_x, const char pos_y)
 {
     uint16_t cursor = pos_x + (pos_y * 80);
-    outb(VESA_CRT_IC, VESA_CRTC_CURSOR_HI);
-    outb(VESA_CRT_DC, cursor >> 8);
-    outb(VESA_CRT_IC, VESA_CRTC_CURSOR_LO);
-    outb(VESA_CRT_DC, cursor);
+    outb(VGA_CRT_IC, VGA_CRTC_CURSOR_HI);
+    outb(VGA_CRT_DC, cursor >> 8);
+    outb(VGA_CRT_IC, VGA_CRTC_CURSOR_LO);
+    outb(VGA_CRT_DC, cursor);
 }
 
 static inline void vga_flush(void)

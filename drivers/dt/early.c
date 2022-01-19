@@ -5,13 +5,14 @@
 
 #define pr_fmt(fmt)	"efdt: " fmt
 
-#include <crc.h>
 #include <init.h>
-#include <mm.h>
+#include <crc.h>
+#include <memory.h>
 #include <mm/memblock.h>
 #include <driver/dt.h>
 #include <driver/dt/fdt.h>
 #include <driver/dt/libfdt.h>
+#include <printk.h>
 
 static state __init dt_scan_chosen(unsigned long node, const char *uname, int depth, void *data)
 {

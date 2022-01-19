@@ -16,11 +16,6 @@ config CC_OPTIMIZE_FOR_SIZE
 
 endchoice
 
-config KERNEL_DEBUG
-    bool "Kernel Generate Debug File"
-    depends on CC_OPTIMIZE_FOR_DEBUG
-    default y
-
 config STRICT
     bool "Compiling Kernel with Strict mode"
     default y
@@ -28,23 +23,18 @@ config STRICT
         Use -Wall and -Werror, To ensure kernel
         security, please keep it open in the mainline
 
+config KERNEL_DEBUG
+    bool "Kernel Generate Debug File"
+    depends on CC_OPTIMIZE_FOR_DEBUG
+    default y
+
 config KERNEL_MAP
     bool "Kernel Generate Map File"
     default y
 
-config RELOCATABLE
-    bool "Build a Relocatable Kernel"
-    depends on ARCH_HAS_RELOCATABLE
+config KERNEL_DUMP
+    bool "Kernel Generate Dump File"
     default y
-    help
-        This compiles a kernel that retains relocation information
-
-config KASLR
-    bool "Kernel Address Space Layout Randomization (KASLR)"
-    depends on RELOCATABLE && ARCH_HAS_KASLR
-    default y
-    help
-        This randomizes the kernel load address and the mapping address.
 
 config LD_DEAD_CODE_DATA_ELIMINATION
     bool "Dead Code and Data Elimination"

@@ -7,16 +7,10 @@
 
 typedef state (*initcall_t)(void);
 
-#ifdef CONFIG_DYNAMIC_DEBUG
 struct initcall_entry {
     const char *name;
     initcall_t fn;
 };
-#else
-struct initcall_entry {
-    initcall_t fn;
-};
-#endif
 
 #ifdef CONFIG_ARCH_HAS_PREL32_RELOCATIONS
 typedef int initcall_entry_t;
@@ -45,16 +39,16 @@ extern initcall_entry_t _ld_clk_initcall_start[];
 extern initcall_entry_t _ld_clk_initcall_end[];
 extern initcall_entry_t _ld_irqchip_initcall_start[];
 extern initcall_entry_t _ld_irqchip_initcall_end[];
+extern initcall_entry_t _ld_clockevent_initcall_start[];
+extern initcall_entry_t _ld_clockevent_initcall_end[];
 extern initcall_entry_t _ld_clocksource_initcall_start[];
 extern initcall_entry_t _ld_clocksource_initcall_end[];
-
 extern initcall_entry_t _ld_pconsole_initcall_start[];
 extern initcall_entry_t _ld_pconsole_initcall_end[];
 extern initcall_entry_t _ld_console_initcall_start[];
 extern initcall_entry_t _ld_console_initcall_end[];
 extern initcall_entry_t _ld_scheduler_initcall_start[];
 extern initcall_entry_t _ld_scheduler_initcall_end[];
-
 extern initcall_entry_t _ld_kshell_initcall_start[];
 extern initcall_entry_t _ld_kshell_initcall_end[];
 
@@ -80,17 +74,10 @@ extern initcall_entry_t _ld_kshell_initcall_end[];
 #define __initcall_stub(fn, __iid, id) fn
 #define __initcall_section(__sec, __iid) ".init" #__sec
 
-#ifdef CONFIG_DYNAMIC_DEBUG
 #define ____define_section(fn, __stub, __name, __sec)   \
         __define_initcall_stub(__stub, fn)              \
         static const struct initcall_entry __name       \
         __used __section(__sec) = { #fn , __stub}
-#else
-#define ____define_section(fn, __stub, __name, __sec)   \
-        __define_initcall_stub(__stub, fn)              \
-        static const struct initcall_entry __name       \
-        __used __section(__sec) = {__stub}
-#endif
 
 #define __unique_initcall(fn, id, __sec, __iid)         \
     ____define_section(fn,                              \
@@ -118,17 +105,16 @@ extern initcall_entry_t _ld_kshell_initcall_end[];
 
 #define clk_initcall(fn)                ___define_initcall(fn, clk, .clk_initcall)
 #define irqchip_initcall(fn)            ___define_initcall(fn, irq, .irqchip_initcall)
+#define clockevent_initcall(fn)         ___define_initcall(fn, tim, .clockevent_initcall)
 #define clocksource_initcall(fn)        ___define_initcall(fn, tim, .clocksource_initcall)
-
 #define pconsole_initcall(fn)           ___define_initcall(fn, pco, .pconsole_initcall)
 #define console_initcall(fn)            ___define_initcall(fn, con, .console_initcall)
 #define scheduler_initcall(fn)          ___define_initcall(fn, sch, .scheduler_initcall)
-
 #define kshell_initcall(fn)             ___define_initcall(fn, ksh, .kshell_initcall)
 
 #define initcall_for_each_fn(fn, sec)                   \
-    for(fn = (initcall_entry_t *)&_ld_##sec##_start;    \
-        fn < (initcall_entry_t *)&_ld_##sec##_end; ++fn)
+    for (fn = (initcall_entry_t *)&_ld_##sec##_start;   \
+         fn < (initcall_entry_t *)&_ld_##sec##_end; ++fn)
 
 struct bootarg {
     const char *args;

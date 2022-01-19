@@ -3,6 +3,7 @@
 #define _LIGHTCORE_SWAB_H_
 
 #include <lightcore/types.h>
+#include <lightcore/asm/swab.h>
 #include <lightcore/asm/bitsperlong.h>
 
 /*
@@ -45,7 +46,7 @@
 
 static inline __attribute_const__ __u16 fswab16(__u16 val)
 {
-#if defined (arch_swab16)
+#ifdef arch_swab16
     return arch_swab16(val);
 #else
     return constant_swab16(val);
@@ -54,7 +55,7 @@ static inline __attribute_const__ __u16 fswab16(__u16 val)
 
 static inline __attribute_const__ __u32 fswab32(__u32 val)
 {
-#if defined(arch_swab32)
+#ifdef arch_swab32
     return arch_swab32(val);
 #else
     return constant_swab32(val);
@@ -63,12 +64,8 @@ static inline __attribute_const__ __u32 fswab32(__u32 val)
 
 static inline __attribute_const__ __u64 fswab64(__u64 val)
 {
-#if defined (arch_swab64)
+#ifdef arch_swab64
     return arch_swab64(val);
-#elif defined(swab_64_THRU_32__)
-    __u32 h = val >> 32;
-    __u32 l = val & ((1ULL << 32) - 1);
-    return (((__u64)fswab32(l)) << 32) | ((__u64)(fswab32(h)));
 #else
     return constant_swab64(val);
 #endif
@@ -141,10 +138,8 @@ static __always_inline unsigned long swab(const unsigned long y)
 }
 
 /**
- * __swahw32 - return a word-swapped 32-bit value
+ * swahw32 - return a word-swapped 32-bit value
  * @x: value to wordswap
- *
- * __swahw32(0x12340000) is 0x00001234
  */
 #define swahw32(x)                          \
     (__builtin_constant_p((__u32)(x)) ?     \
@@ -154,8 +149,6 @@ static __always_inline unsigned long swab(const unsigned long y)
 /**
  * swahb32 - return a high and low byte-swapped 32-bit value
  * @x: value to byteswap
- *
- * swahb32(0x12345678) is 0x34127856
  */
 #define swahb32(x)                          \
     (__builtin_constant_p((__u32)(x)) ?     \
@@ -204,8 +197,6 @@ static __always_inline __u64 swab64p(const __u64 *p)
 /**
  * swahw32p - return a wordswapped 32-bit value from a pointer
  * @p: pointer to a naturally-aligned 32-bit value
- *
- * See __swahw32() for details of wordswapping.
  */
 static inline __u32 swahw32p(const __u32 *p)
 {
@@ -219,8 +210,6 @@ static inline __u32 swahw32p(const __u32 *p)
 /**
  * swahb32p - return a high and low byteswapped 32-bit value from a pointer
  * @p: pointer to a naturally-aligned 32-bit value
- *
- * See swahb32() for details of high/low byteswapping.
  */
 static inline __u32 swahb32p(const __u32 *p)
 {
@@ -243,6 +232,7 @@ static inline void swab16s(__u16 *p)
     *p = swab16p(p);
 #endif
 }
+
 /**
  * swab32s - byteswap a 32-bit value in-place
  * @p: pointer to a naturally-aligned 32-bit value
@@ -270,10 +260,8 @@ static __always_inline void swab64s(__u64 *p)
 }
 
 /**
- * __swahw32s - wordswap a 32-bit value in-place
+ * swahw32s - wordswap a 32-bit value in-place
  * @p: pointer to a naturally-aligned 32-bit value
- *
- * See __swahw32() for details of wordswapping
  */
 static inline void swahw32s(__u32 *p)
 {
@@ -287,8 +275,6 @@ static inline void swahw32s(__u32 *p)
 /**
  * swahb32s - high and low byteswap a 32-bit value in-place
  * @p: pointer to a naturally-aligned 32-bit value
- *
- * See swahb32() for details of high and low byte swapping
  */
 static inline void swahb32s(__u32 *p)
 {

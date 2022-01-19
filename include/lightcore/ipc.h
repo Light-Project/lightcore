@@ -4,6 +4,4 @@
 
 #include <lightcore/types.h>
 
-
-
 #endif  /* _LIGHTCORE_IPC_H_ */

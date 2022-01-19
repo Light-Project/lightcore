@@ -3,12 +3,12 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <mm.h>
+#include <memory.h>
+#include <device.h>
 #include <driver/dt/fdt.h>
 #include <driver/acpi.h>
 #include <driver/platform.h>
-#include <device.h>
-
+#include <driver/firmware/dmi.h>
 #include <asm-generic/header.h>
 
 void __init early_device_init(void)
@@ -32,10 +32,16 @@ void __init device_init(void)
 #ifdef CONFIG_DT
     dt_init();
 #endif
+
 #ifdef CONFIG_ACPI
     early_acpi_scan();
     acpi_init();
 #endif
 
+#ifdef CONFIG_FIRMWARE_DMI
+    dmi_init();
+#endif
+
     platform_bus_init();
+    devres_init();
 }

@@ -112,7 +112,6 @@
 #define EKEYEXPIRED     127     /* Key has expired */
 #define EKEYREVOKED     128     /* Key has been revoked */
 #define EKEYREJECTED    129     /* Key was rejected by service */
-
-#define ERRNO_MAX       4095
+#define ERRNO_MAX       4096
 
 #endif  /* _STATE_H_ */

@@ -5,19 +5,22 @@
 
 include scripts/top.mk
 
-# ---------------------------------------------------------------------------
-# Global Config
+#####################################
+# Global Config                     #
+#####################################
 
 include $(srctree)/platform.mk
 
 sys-include-y += include/ include/generated/autoconf.h  \
                  include/compiler/compiler-attributes.h \
                  include/compiler/compiler-type.h       \
-                 include/compiler/compiler-gcc.h		\
+                 include/compiler/compiler-gcc.h        \
                  include/compiler/compiler.h            \
+                 include/compiler/pointer.h             \
                  include/compiler/sections.h            \
                  include/compiler/stringify.h
-sys-include-y += arch/$(arch)/include/                  \
+sys-include-y += arch/$(arch)/                          \
+                 arch/$(arch)/include/                  \
                  arch/$(arch)/include/generated/
 
 sys-acflags-$(CONFIG_CC_OPTIMIZE_FOR_DEBUG)         += -O0
@@ -36,6 +39,7 @@ asflags-y  := $(strip $(sys-asflags-y) $(platform-asflags-y))
 ccflags-y  := $(strip $(sys-ccflags-y) $(platform-ccflags-y))
 acflags-y  := $(strip $(sys-acflags-y) $(platform-acflags-y))
 ldsflags-y := $(strip $(sys-ldsflags-y) $(platform-ldsflags-y))
+symflags-y := $(strip $(sys-symflags-y) $(platform-symflags-y))
 ldflags-y  := $(strip $(sys-ldflags-y) $(platform-ldflags-y))
 include-direct-y := $(strip $(sys-include-y) $(platform-include-y))
 
@@ -54,10 +58,12 @@ lightcore-flags-y += -Wl,--gc-sections
 endif
 
 export CROSS_COMPILE include-direct-y
-export asflags-y ccflags-y cppflags-y acflags-y ldsflags-y ldflags-y
+export asflags-y ccflags-y cppflags-y acflags-y
+export symflags-y ldsflags-y ldflags-y
 
-# ---------------------------------------------------------------------------
-# Generic headers
+#####################################
+# Generic headers                   #
+#####################################
 
 asm-generic: FORCE
 	$(Q)$(MAKE) $(asm-generic)=arch/$(arch)/include/generated/asm \
@@ -65,8 +71,9 @@ asm-generic: FORCE
 	$(Q)$(MAKE) $(asm-generic)=arch/$(arch)/include/generated/lightcore/asm \
 	generic=include/lightcore/asm-generic
 
-# ---------------------------------------------------------------------------
-# Devicetree files
+#####################################
+# Devicetree files                  #
+#####################################
 
 dtstree = boot/dts
 
@@ -79,39 +86,56 @@ ifdef CONFIG_BUILTIN_DTB
 build: dtbs
 endif
 
-# ---------------------------------------------------------------------------
-# Subproject
+#####################################
+# Subproject                        #
+#####################################
 
 obj-y += arch/
 obj-y += crypto/
-obj-y += doc/
+obj-y += doc/logo/
 obj-y += drivers/
 obj-y += fs/
 obj-y += init/
-# obj-y += ipc/
+obj-y += ipc/
 obj-y += kernel/
 obj-y += lib/
 obj-y += mm/
 obj-y += net/
-obj-y += virt/
+obj-y += test/
 obj-$(CONFIG_KUSR) += usr/
 
-# ---------------------------------------------------------------------------
-# Compiler
+#####################################
+# Generate romdisk                  #
+#####################################
+
+$(obj)/boot/romdisk.cpio: $(src)/boot/romdisk FORCE
+	$(call if_changed,cpio)
+
+ifdef CONFIG_ROMDISK
+$(obj)/drivers: $(obj)/boot/romdisk.cpio FORCE
+targets += boot/romdisk.cpio
+endif
+
+#####################################
+# Compiler                          #
+#####################################
 
 lightcore-objs += built-in.o
 elf-always-y += lightcore
 
-tools: build/tools/kernelcrc build/tools/mkincbin
+lightcore.dump-obj += lightcore
+dump-always-$(CONFIG_KERNEL_DUMP) += lightcore.dump
+
+build/boot/kboot: build
+disk: preload
+
+kboot:      build/boot/kboot FORCE
+preload:    build/boot/preload FORCE
+tools:      build/tools/kernelcrc build/tools/mkincbin FORCE
 
 build: asm-generic scripts_basic tools FORCE
 	$(Q)$(MAKE) $(build)=$(srctree)
 
-build/boot/kboot: build
-kboot: build/boot/kboot FORCE
-preload: build/boot/preload FORCE
-
-disk: preload
 disk uboot: kboot FORCE
 	$(Q)$(MAKE) $(build)=$(srctree)/boot $@
 
@@ -121,8 +145,9 @@ else
 start: uboot
 endif
 
-# ---------------------------------------------------------------------------
-# Run & Install
+#####################################
+# Run & Install                     #
+#####################################
 
 include $(srctree)/boot/run/config.mk
 ckfile := $(objtree)/boot/kboot/boot.bin

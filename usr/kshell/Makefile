@@ -1,2 +1,3 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-obj-y += kshell.o
+obj-y += core.o kshell.o
+obj-y += parser.o readline.o

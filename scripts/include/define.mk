@@ -7,7 +7,7 @@
 # Build toolchain                      #
 ########################################
 
-CROSS_COMPILE   ?= gcc
+CROSS_COMPILE   ?= gcc-
 
 # Gcc toolchain
 CPP             := $(CROSS_COMPILE)cpp
@@ -45,16 +45,17 @@ MKELF           ?= $(CROSS_COMPILE)gcc
 ########################################
 
 MKDIR           := mkdir -p
-MKCPIO          := cpio -o -H newc
 CP              := cp -af
 DD              := dd
-RM              := rm
+RM              := rm -f
 RMDIR           := rm -r
 LN              := ln -fsn
 CD              := cd
 MV              := mv
 FIND            := find
 ECHO            := echo -e "    "
+AWK             := awk -f
+SED             := sed
 PERL            := perl
 CONFIG_SHELL    := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
                     else if [ -x /bin/bash ]; then echo /bin/bash; \
@@ -62,6 +63,7 @@ CONFIG_SHELL    := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 
 INSTALL         = install
 BASH            = bash
+CPIO            = cpio
 KGZIP           = gzip
 KBZIP2          = bzip2
 KLZOP           = lzop
@@ -90,7 +92,7 @@ endef
 # \e[35m : purple
 # \e[36m : dark green
 # \e[37m : white
-#
+
 # background:
 # \e[40m : black
 # \e[41m : dark red
@@ -105,15 +107,16 @@ ECHO_CPP        := \e[32mCPP\e[0m
 ECHO_CC        	:= \e[32mCC\e[0m
 ECHO_CXX        := \e[32mCXX\e[0m
 ECHO_AS         := \e[32mAS\e[0m
-ECHO_AR         := \e[35mAR\e[0m
-ECHO_LDS        := \e[35mLDS\e[0m
+ECHO_AR         := \e[32mAR\e[0m
+ECHO_LDS        := \e[32mLDS\e[0m
+ECHO_SYM        := \e[32mSYM\e[0m
 
 ECHO_DTB        := \e[36mDTB\e[0m
 
-ECHO_LEX        := \e[33mLEX\e[0m
-ECHO_YACC       := \e[33mYACC\e[0m
-ECHO_HOSTCC     := \e[33mHOSTCC\e[0m
-ECHO_HOSTCXX    := \e[33mHOSTCXX\e[0m
+ECHO_LEX        := \e[32mLEX\e[0m
+ECHO_YACC       := \e[32mYACC\e[0m
+ECHO_HOSTCC     := \e[32mHOSTCC\e[0m
+ECHO_HOSTCXX    := \e[32mHOSTCXX\e[0m
 ECHO_HOSTLD     := \e[35mHOSTLD\e[0m
 ECHO_HOSTLLD    := \e[35mHOSTLLD\e[0m
 
@@ -121,6 +124,23 @@ ECHO_LD         := \e[35mLD\e[0m
 ECHO_ELF        := \e[34mMKELF\e[0m
 ECHO_DUMP       := \e[36mDUMP\e[0m
 ECHO_BIN        := \e[34mMKBIN\e[0m
+
+ECHO_INCBIN     := \e[33mMKINCBIN\e[0m
+ECHO_CPIO       := \e[33mCPIO\e[0m
+ECHO_GZIP       := \e[33mGZIP\e[0m
+ECHO_BZIP2      := \e[33mBZIP2\e[0m
+ECHO_LZMA       := \e[33mLZMA\e[0m
+ECHO_LZO        := \e[33mLZO\e[0m
+ECHO_LZ4        := \e[33mLZ4\e[0m
+ECHO_XZKERN     := \e[33mXZKERN\e[0m
+ECHO_XZMISC     := \e[33mXZMISC\e[0m
+ECHO_ZSTD       := \e[33mZSTD\e[0m
+ECHO_ZSTD22     := \e[33mZSTD22\e[0m
+
+ECHO_RM         := \e[31mRM\e[0m
+ECHO_RMDIR      := \e[31mRMDIR\e[0m
+ECHO_CLEAN      := \e[31mCLEAN\e[0m
+ECHO_CLEAN_DIR  := \e[31mCLEANDIR\e[0m
 
 ECHO_RM         := \e[31mRM\e[0m
 ECHO_RMDIR      := \e[31mRMDIR\e[0m

@@ -116,5 +116,5 @@ asmlinkage __visible void trap_nmi_interrupt(struct regs *regs)
 
 asmlinkage __visible void trap_double_fault(struct regs *regs)
 {
-
+    do_trap(regs, TRAP_OF, "double fault");
 }

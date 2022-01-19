@@ -3,12 +3,16 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <fs.h>
+#include <filesystem.h>
 #include <string.h>
 #include <export.h>
 
-LIST_HEAD(filesystem_list);
+static LIST_HEAD(filesystem_list);
 
+/**
+ * filesystem_find - find a filesystem
+ * @name: filesystem name to look for
+ */
 struct filesystem_type *filesystem_find(const char *name)
 {
     struct filesystem_type *fs = NULL;
@@ -21,6 +25,10 @@ struct filesystem_type *filesystem_find(const char *name)
 }
 EXPORT_SYMBOL(filesystem_find);
 
+/**
+ * filesystem_register - register a filesystem
+ * @fs: filesystem to register
+ */
 state filesystem_register(struct filesystem_type *fs)
 {
     struct filesystem_type *already;
@@ -34,6 +42,10 @@ state filesystem_register(struct filesystem_type *fs)
 }
 EXPORT_SYMBOL(filesystem_register);
 
+/**
+ * filesystem_unregister - unregister a filesystem
+ * @fs: filesystem to unregister
+ */
 void filesystem_unregister(struct filesystem_type *fs)
 {
     list_del(&fs->list);

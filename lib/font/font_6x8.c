@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <initcall.h>
 #include <font.h>
 
@@ -2570,9 +2571,8 @@ static struct font font_6x8 = {
     .data	= fontdata_6x8,
 };
 
-static state font_6x8_install(void)
+static state font_6x8_init(void)
 {
     return font_register(&font_6x8);
 }
-
-console_initcall(font_6x8_install);
+console_initcall(font_6x8_init);

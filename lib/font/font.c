@@ -32,11 +32,11 @@ struct font *font_find(const char *name)
     return NULL;
 }
 
-struct font *font_suitable(uint32_t xres, uint32_t yres,
-                        uint32_t font_w, uint32_t font_h)
+struct font *font_suitable(unsigned int xres, unsigned int yres,
+                           unsigned int wide, unsigned int height)
 {
     struct font *font, *sui = NULL;
-    int fontg, suig, val;
+    unsigned int fontg, suig, val;
 
     slist_for_each_entry(font, &font_head, list) {
         fontg = font->pref;
@@ -48,8 +48,8 @@ struct font *font_suitable(uint32_t xres, uint32_t yres,
         if (val > 20)
             fontg += 20 - val;
 
-        if ((font_w & (1 << (font->width - 1))) &&
-            (font_h & (1 << (font->height - 1))))
+        if ((wide & (1 << (font->width - 1))) &&
+            (height & (1 << (font->height - 1))))
             fontg += 1000;
 
         if (fontg > suig) {
@@ -57,5 +57,6 @@ struct font *font_suitable(uint32_t xres, uint32_t yres,
             sui = font;
         }
     }
+
     return sui;
 }

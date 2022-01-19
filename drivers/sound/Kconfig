@@ -4,6 +4,10 @@ menuconfig SND
 if SND
 
 config SND_ES1370
-    bool "ES1370 SND Support"
+    bool "ES1370 Sound Support"
+
+config SND_PCSPKR
+    bool "PC-Speaker Sound Support"
+    depends on CLKEVT_I8253
 
 endif

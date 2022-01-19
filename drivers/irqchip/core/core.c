@@ -52,8 +52,7 @@ state irqchip_eoi(struct irqchip_channel *channel)
     return idev->ops->eoi(idev, channel->index);
 }
 
-state irqchip_slave_add(struct irqchip_channel *channel,
-                        struct irqchip_device *slave)
+state irqchip_slave_add(struct irqchip_channel *channel, struct irqchip_device *slave)
 {
     struct irqchip_device *idev = channel->irqchip;
     state ret;
@@ -68,8 +67,7 @@ state irqchip_slave_add(struct irqchip_channel *channel,
     return -ENOERR;
 }
 
-state irqchip_slave_del(struct irqchip_channel *channel,
-                        struct irqchip_device *slave)
+state irqchip_slave_del(struct irqchip_channel *channel, struct irqchip_device *slave)
 {
     struct irqchip_device *idev = channel->irqchip;
     state ret;
@@ -84,8 +82,7 @@ state irqchip_slave_del(struct irqchip_channel *channel,
     return -ENOERR;
 }
 
-static struct irqchip_channel *
-irqchip_alloc_channel(struct irqchip_device *idev, irqnr_t chnr)
+static struct irqchip_channel *irqchip_alloc_channel(struct irqchip_device *idev, irqnr_t chnr)
 {
     struct irqchip_channel *channel;
 
@@ -155,7 +152,7 @@ static void irqchip_slave_setup(void)
     struct irqchip_channel *channel;
 
     list_for_each_entry(idev, &irqchip_list, list) {
-        if (!(channel = dt_get_irqchip_channel(idev->dt_node, 0)))
+        if (!(channel = dt_irqchip_channel(idev->dt_node, 0)))
             continue;
         irqchip_slave_add(channel, idev);
     }

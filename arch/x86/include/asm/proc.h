@@ -4,16 +4,46 @@
 
 #include <types.h>
 #include <state.h>
+#include <asm/page.h>
 #include <asm/regs.h>
 
-struct task;
+enum clone_flags;
+struct sched_task;
 
-void proc_thread_setup(struct regs *regs, size_t ip, size_t sp);
-state proc_thread_switch(struct task *prev, struct task *next);
+struct proc_inactive_frame {
+#ifdef CONFIG_ARCH_X86_64
+    uint64_t r15;
+    uint64_t r14;
+    uint64_t r13;
+    uint64_t r12;
+#else
+    uint32_t flags;
+    uint32_t si;
+    uint32_t di;
+#endif
 
-void __noreturn proc_reset(void);
-void __noreturn proc_halt(void);
-void __noreturn proc_poweroff(void);
+    size_t bx;
+    size_t bp;
+    size_t ret;
+} __packed;
+
+struct proc_frame {
+    struct proc_inactive_frame frame;
+    struct regs regs;
+} __packed;
+
+struct proc_context {
+    size_t flags;
+    size_t sp;
+    size_t fs;
+    size_t gs;
+};
+
+static __always_inline struct regs *stack_regs(void *stack)
+{
+    void *stack_start = stack + THREAD_SIZE - 1;
+    return ((struct regs *)stack_start) - 1;
+}
 
 static __always_inline void cpu_relax(void)
 {
@@ -23,5 +53,11 @@ static __always_inline void cpu_relax(void)
      */
     asm volatile("rep nop" ::: "memory");
 }
+
+extern void proc_thread_setup(struct regs *regs, size_t ip, size_t sp);
+extern state proc_thread_copy(enum clone_flags flags, struct sched_task *curr, struct sched_task *child, void *arg);
+extern state proc_thread_switch(struct sched_task *prev, struct sched_task *next);
+extern void __noreturn proc_halt(void);
+extern void __noreturn proc_reset(void);
 
 #endif /* _ASM_X86_PROC_H_ */

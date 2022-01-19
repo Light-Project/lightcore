@@ -3,30 +3,29 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "sched: " fmt
+#define MODULE_NAME "sched"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <sched.h>
 #include <string.h>
-#include <initcall.h>
 #include <cpu.h>
+#include <initcall.h>
 #include <export.h>
 #include <printk.h>
 
-#include <asm/percpu.h>
-#include <asm/proc.h>
-
-static LIST_HEAD(sched_list);
+struct kcache *task_cache;
 struct sched_type *default_sched;
-DEFINE_PERCPU(struct sched_queue, queues);
+LIST_HEAD(sched_list);
+DEFINE_PERCPU(struct sched_queue, sched_queues);
 
 static int sched_sort(struct list_head *a, struct list_head *b, void *data)
 {
-    struct sched_type *sched_a = list_entry(a, struct sched_type, list);
-    struct sched_type *sched_b = list_entry(b, struct sched_type, list);
+    struct sched_type *sched_a = container_of(a, struct sched_type, list);
+    struct sched_type *sched_b = container_of(b, struct sched_type, list);
     return sched_a->priority - sched_b->priority;
 }
 
-static struct sched_type *sched_find(const char *name, unsigned char prio)
+struct sched_type *sched_find(const char *name, unsigned char prio)
 {
     struct sched_type *sched;
 
@@ -39,113 +38,29 @@ static struct sched_type *sched_find(const char *name, unsigned char prio)
     return NULL;
 }
 
-static __always_inline void
-context_switch(struct sched_queue *queue, struct task *prev, struct task *next)
+static __always_inline state
+sched_queue_create(struct sched_type *sched, struct sched_queue *queue)
 {
-
-    if (next->kthread) {
-
-    } else {
-
-    }
-
-    proc_thread_switch(prev, next);
-}
-
-static inline struct task *
-sched_task_get(struct sched_queue *queue, struct task *curr)
-{
-    struct sched_type *sched;
-    struct task *task;
-
-    list_for_each_entry(sched, &sched_list, list) {
-        task = sched->task_pick(queue);
-        if (task)
-            return task;
-    }
-
-    return NULL;
-}
-
-void sched_dispatch(void)
-{
-    struct sched_queue *queue;
-    struct task *curr, *next;
-
-    queue = thiscpu_ptr(&queues);
-    curr = queue->curr;
-
-    next = sched_task_get(queue, curr);
-    context_switch(NULL, curr, next);
-}
-
-asmlinkage __visible void sched_preempt(void)
-{
-
-}
-
-void sched_relax(void)
-{
-
-}
-
-void sched_tick(void)
-{
-    struct sched_queue *queue = thiscpu_ptr(&queues);
-    struct task *task = queue->curr;
-
-    return;
-    task->sched_type->task_tick(queue, task);
-}
-
-state sched_task_start(struct task *task)
-{
-
+    if (sched->queue_create)
+        return sched->queue_create(queue);
     return -ENOERR;
 }
 
-void sched_task_stop(struct task *task)
+static __always_inline void
+sched_queue_destroy(struct sched_type *sched, struct sched_queue *queue)
 {
-
-}
-
-struct task *sched_task_create(const char *schedn, int flags)
-{
-    struct sched_type *sched;
-    struct task *task;
-
-    if (!schedn)
-        sched = default_sched;
-    else {
-        sched = sched_find(schedn, SCHED_PRIO_MAX);
-        if (!sched)
-            return ERR_PTR(-EINVAL);
-    }
-
-    task = sched->task_create(flags);
-    if (PTR_ERR(task))
-        return task;
-
-    return task;
-}
-
-void sched_task_destroy(struct task *task)
-{
-    struct sched_type *sched = task->sched_type;
-    sched->task_destroy(task);
-}
-
-void __noreturn sched_task_exit(void)
-{
-    for (;;)
-    cpu_relax();
+    if (sched->queue_destroy)
+        sched->queue_destroy(queue);
 }
 
 state sched_register(struct sched_type *sched)
 {
     struct sched_type *other;
+    struct sched_queue *queue;
+    unsigned int cpu;
+    state ret;
 
-    if (!sched->name || !sched->task_tick)
+    if (!sched->name || !sched->task_pick)
         return -EINVAL;
 
     other = sched_find(sched->name, sched->priority);
@@ -154,25 +69,37 @@ state sched_register(struct sched_type *sched)
         return -EINVAL;
     }
 
-    pr_info("register scheduler %s\n", sched->name);
+    cpu_for_each(cpu) {
+        queue = percpu_ptr(cpu, &sched_queues);
+        ret = sched_queue_create(sched, queue);
+        if (ret)
+            return ret;
+    }
 
+    pr_info("register scheduler %s\n", sched->name);
     list_add(&sched_list, &sched->list);
     list_sort(&sched_list, sched_sort, NULL);
+
     return -ENOERR;
 }
+EXPORT_SYMBOL(sched_register);
 
 void sched_unregister(struct sched_type *sched)
 {
+    struct sched_queue *queue;
+    unsigned int cpu;
+
     pr_info("unregister scheduler %s\n", sched->name);
     list_del(&sched->list);
+
+    cpu_for_each(cpu) {
+        queue = percpu_ptr(cpu, &sched_queues);
+        sched_queue_destroy(sched, queue);
+    }
 }
+EXPORT_SYMBOL(sched_unregister);
 
-static void queue_setup(struct sched_queue *queue)
-{
-
-}
-
-static void sched_initcall(void)
+static void __init sched_initcall(void)
 {
     initcall_entry_t *fn;
     initcall_t call;
@@ -185,18 +112,23 @@ static void sched_initcall(void)
     }
 }
 
+static void __init queue_setup(struct sched_queue *queue)
+{
+    list_head_init(&queue->run_list);
+}
+
 void __init sched_init(void)
 {
     struct sched_queue *queue;
     unsigned int cpu;
 
-    sched_initcall();
+    task_cache = kcache_create("sched-task",
+        sizeof(struct sched_task), KCACHE_PANIC);
 
     cpu_for_each(cpu) {
-        queue = percpu_ptr(cpu, &queues);
+        queue = percpu_ptr(cpu, &sched_queues);
         queue_setup(queue);
     }
-}
 
-EXPORT_SYMBOL(sched_register);
-EXPORT_SYMBOL(sched_unregister);
+    sched_initcall();
+}

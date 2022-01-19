@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig VIDEO_VBE
+    bool "VBE Device Support"
+if VIDEO_VBE
+
+config VBE_BOCHS
+    bool "Bochs Dispi VGA Interface Support"
+
+config VBE_VBOX
+    bool "VBOX Dispi VGA Interface Support"
+
+endif

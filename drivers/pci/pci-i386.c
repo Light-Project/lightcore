@@ -5,11 +5,9 @@
 
 #define DRIVER_NAME "i386-pci"
 
-#include <kmalloc.h>
 #include <initcall.h>
 #include <driver/platform.h>
 #include <driver/pci.h>
-
 #include <asm/io.h>
 
 state pci_raw_config_read(unsigned int domain, unsigned int bus, unsigned int devfn,
@@ -50,12 +48,12 @@ state pci_raw_config_write(unsigned int domain, unsigned int bus, unsigned int d
     return -ENOERR;
 }
 
-static state pci_config_read(struct pci_bus *bus, uint devfn, uint reg, int size, uint32_t *val)
+static state pci_config_read(struct pci_bus *bus, unsigned int devfn, unsigned int reg, int size, uint32_t *val)
 {
     return pci_raw_config_read(0, bus->bus_nr, devfn, reg, size, val);
 }
 
-static state pci_config_write(struct pci_bus *bus, uint devfn, uint reg, int size, uint32_t val)
+static state pci_config_write(struct pci_bus *bus, unsigned int devfn, unsigned int reg, int size, uint32_t val)
 {
     return pci_raw_config_write(0, bus->bus_nr, devfn, reg, size, val);
 }
@@ -69,7 +67,7 @@ static state i386pci_probe(struct platform_device *pdev, const void *pdata)
 {
     struct pci_host *host;
 
-    host = kzalloc(sizeof(*host), GFP_KERNEL);
+    host = platform_kzalloc(pdev, sizeof(*host), GFP_KERNEL);
     if(!host)
         return -ENOMEM;
 

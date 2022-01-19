@@ -5,7 +5,6 @@
 
 #define DRIVER_NAME "i8259"
 
-#include <kmalloc.h>
 #include <initcall.h>
 #include <driver/platform.h>
 #include <driver/irqchip.h>
@@ -122,7 +121,6 @@ static state i8259_slave_add(struct irqchip_device *idev, irqnr_t vector)
     i8259_out(i8259, I8259_DATA, I8259_ICW4_AUTO | I8259_ICW4_8086);
 
     i8259_irq_pass(idev, vector);
-
     spin_unlock(&i8259->lock);
     return -ENOERR;
 }
@@ -145,7 +143,6 @@ static state i8259_slave_del(struct irqchip_device *idev, irqnr_t vector)
     i8259_out(i8259, I8259_DATA, I8259_ICW4_AUTO | I8259_ICW4_8086);
 
     i8259_irq_mask(idev, vector);
-
     spin_unlock(&i8259->lock);
     return -ENOERR;
 }
@@ -175,6 +172,7 @@ static void i8250_hw_init(struct platform_device *pdev)
     } else { /* master mode */
         i8259_out(i8259, I8259_CMD,  I8259_ICW1_INIT | I8259_ICW1_ICW4);
         i8259_out(i8259, I8259_DATA, IRQ_EXTERNAL);
+        /* all interrupts should be prohibited, but bochs will panic */
         i8259_out(i8259, I8259_DATA, BIT(2) & I8259_ICW3_SLVD);
         i8259_out(i8259, I8259_DATA, I8259_ICW4_AUTO | I8259_ICW4_8086);
     }
@@ -193,14 +191,14 @@ static state i8259_probe(struct platform_device *pdev, const void *pdata)
     idev = dev_kzalloc(&pdev->dev, sizeof(*idev), GFP_KERNEL);
     if(!idev)
         return -ENOMEM;
-    platform_set_devdata(pdev, idev);
 
     idev->base = platform_resource_start(pdev, 0);
-    i8250_hw_init(pdev);
-
     idev->irqchip.ops = &pic_ops;
     idev->irqchip.dev = &pdev->dev;
     idev->irqchip.dt_node = pdev->dt_node;
+    platform_set_devdata(pdev, idev);
+
+    i8250_hw_init(pdev);
     return irqchip_register(&idev->irqchip);
 }
 

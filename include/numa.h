@@ -2,6 +2,6 @@
 #ifndef _NUMA_H_
 #define _NUMA_H_
 
-#define NUMA_NONE -1
+#define NUMA_NONE   (-1)
 
 #endif  /* _NUMA_H_ */

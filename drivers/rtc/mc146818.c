@@ -22,6 +22,7 @@
 struct mc146818_device {
     struct rtc_device rtc;
     struct irqchip_channel *irqchip;
+    struct spinlock lock;
     resource_size_t port;
 };
 
@@ -47,6 +48,8 @@ static state mc146818_gettime(struct rtc_device *rtc, struct rtc_time *time)
     struct mc146818_device *mc146818 = rtc_to_mc146818(rtc);
     unsigned int year, mon, day, hour, min, sec;
 
+    spin_lock(&mc146818->lock);
+
     /* waiting time update */
     while (mc146818_read(mc146818, MC146818_REGISTER_A) & MC146818_REGISTER_A_UIP)
         cpu_relax();
@@ -66,6 +69,8 @@ static state mc146818_gettime(struct rtc_device *rtc, struct rtc_time *time)
         mon  = bcd2bin(mon);
         year = bcd2bin(year);
     }
+
+    spin_unlock(&mc146818->lock);
 
     year += MC146818_YEARS_OFFS;
 
@@ -91,16 +96,18 @@ static state mc146818_settime(struct rtc_device *rtc, struct rtc_time *time)
     mon  = time->tm_mon;
     year = time->tm_year;
 
-    if (!(mc146818_read(mc146818, MC146818_REGISTER_B) & MC146818_REGISTER_B_DM)) {
-        sec = bcd2bin(sec);
-        min = bcd2bin(min);
-        hour = bcd2bin(hour);
-        day = bcd2bin(day);
-        mon = bcd2bin(mon);
-        year = bcd2bin(year);
-    }
-
     year -= MC146818_YEARS_OFFS;
+
+    spin_lock(&mc146818->lock);
+
+    if (!(mc146818_read(mc146818, MC146818_REGISTER_B) & MC146818_REGISTER_B_DM)) {
+        sec = bin2bcd(sec);
+        min = bin2bcd(min);
+        hour = bin2bcd(hour);
+        day = bin2bcd(day);
+        mon = bin2bcd(mon);
+        year = bin2bcd(year);
+    }
 
     mc146818_write(mc146818, MC146818_SECONDS, sec);
     mc146818_write(mc146818, MC146818_MINUTES, min);
@@ -109,6 +116,8 @@ static state mc146818_settime(struct rtc_device *rtc, struct rtc_time *time)
     mc146818_write(mc146818, MC146818_MONTH, year);
     mc146818_write(mc146818, MC146818_YEAR, year);
 
+    spin_unlock(&mc146818->lock);
+
     return -ENOERR;
 }
 
@@ -116,6 +125,8 @@ static state mc146818_getalarm(struct rtc_device *rtc, struct rtc_alarm *alarm)
 {
     struct mc146818_device *mc146818 = rtc_to_mc146818(rtc);
     unsigned int hour, min, sec, aie;
+
+    spin_lock(&mc146818->lock);
 
     sec  = mc146818_read(mc146818, MC146818_SECONDS_ALARM);
     min  = mc146818_read(mc146818, MC146818_MINUTES_ALARM);
@@ -127,6 +138,8 @@ static state mc146818_getalarm(struct rtc_device *rtc, struct rtc_alarm *alarm)
         min  = bcd2bin(min);
         hour = bcd2bin(hour);
     }
+
+    spin_unlock(&mc146818->lock);
 
     alarm->time.tm_sec  = sec;
     alarm->time.tm_min  = min;
@@ -146,6 +159,8 @@ static state mc146818_setalarm(struct rtc_device *rtc, struct rtc_alarm *alarm)
     min  = alarm->time.tm_min;
     hour = alarm->time.tm_hour;
 
+    spin_lock(&mc146818->lock);
+
     if (!(mc146818_read(mc146818, MC146818_REGISTER_B) & MC146818_REGISTER_B_DM)) {
         sec = bcd2bin(sec);
         min = bcd2bin(min);
@@ -162,14 +177,16 @@ static state mc146818_setalarm(struct rtc_device *rtc, struct rtc_alarm *alarm)
         mc146818_write(mc146818, MC146818_REGISTER_B, val);
     }
 
+    spin_unlock(&mc146818->lock);
+
     return -ENOERR;
 }
 
 static struct rtc_ops mc146818_ops = {
-    .get_time = mc146818_gettime,
-    .set_time = mc146818_settime,
-    .get_alarm = mc146818_getalarm,
-    .set_alarm = mc146818_setalarm,
+    .time_get = mc146818_gettime,
+    .time_set = mc146818_settime,
+    .alarm_get = mc146818_getalarm,
+    .alarm_set = mc146818_setalarm,
 };
 
 static irqreturn_t mc146818_alarm_handle(irqnr_t vector, void *data)
@@ -194,25 +211,36 @@ static void mc146818_hw_init(struct mc146818_device *mc146818)
 static state mc146818_probe(struct platform_device *pdev, const void *pdata)
 {
     struct mc146818_device *mc146818;
+    state ret;
 
     if (platform_resource_type(pdev, 0) != RESOURCE_PMIO)
-        return -ENODEV;
+        return -EINVAL;
 
-    mc146818 = kzalloc(sizeof(*mc146818), GFP_KERNEL);
+    mc146818 = platform_kzalloc(pdev, sizeof(*mc146818), GFP_KERNEL);
     if (!mc146818)
         return -ENOMEM;
-    platform_set_devdata(pdev, mc146818);
 
-    mc146818->port = platform_resource_start(pdev, 0);
-    mc146818->rtc.ops = &mc146818_ops;
-
-    /* request irq handle */
-    irq_request(RTC_IRQ, 0, mc146818_alarm_handle, mc146818, DRIVER_NAME);
-
-    mc146818->irqchip = dt_get_irqchip_channel(pdev->dt_node, 0);
+    mc146818->irqchip = dt_irqchip_channel(pdev->dt_node, 0);
     if (!mc146818->irqchip)
         return -ENODEV;
-    irqchip_pass(mc146818->irqchip);
+
+    mc146818->port = platform_resource_start(pdev, 0);
+    mc146818->port = platform_resource_start(pdev, 0);
+    mc146818->rtc.dev = &pdev->dev;
+    mc146818->rtc.ops = &mc146818_ops;
+    platform_set_devdata(pdev, mc146818);
+
+    ret = irq_request(RTC_IRQ, 0, mc146818_alarm_handle, mc146818, DRIVER_NAME);
+    if (ret) {
+        platform_err(pdev, "unable to request irq");
+        return ret;
+    }
+
+    ret = irqchip_pass(mc146818->irqchip);
+    if (ret) {
+        platform_err(pdev, "unable to pass irqchip");
+        return ret;
+    }
 
     mc146818_hw_init(mc146818);
     return rtc_register(&mc146818->rtc);
@@ -221,9 +249,7 @@ static state mc146818_probe(struct platform_device *pdev, const void *pdata)
 static void mc146818_remove(struct platform_device *dev)
 {
     struct mc146818_device *mc146818 = platform_get_devdata(dev);
-
     rtc_unregister(&mc146818->rtc);
-    kfree(mc146818);
 }
 
 static struct dt_device_id mc146818_ids[] = {

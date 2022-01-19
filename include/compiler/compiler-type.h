@@ -3,15 +3,18 @@
 #define _COMPILER_TYPE_H_
 
 #ifdef __OPTIMIZE__
-# define compiletime_assert(condition, msg, prefix, suffix)             \
+# define _compiletime_assert(condition, msg, prefix, suffix)            \
     do {                                                                \
         extern void prefix ## suffix(void) __compiletime_error(msg);    \
         if (!(condition))                                               \
             prefix ## suffix();                                         \
     } while (0)
 #else
-# define compiletime_assert(condition, msg, prefix, suffix) while(0);
+# define _compiletime_assert(condition, msg, prefix, suffix) while(0);
 #endif
+
+#define compiletime_assert(condition, msg) \
+	_compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
 
 /* Is this type a native word size -- useful for atomic operations */
 #define __native_word(t) \

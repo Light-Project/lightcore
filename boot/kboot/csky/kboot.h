@@ -2,7 +2,7 @@
 #ifndef _KBOOT_H_
 #define _KBOOT_H_
 
-#include <mm.h>
+#include <memory.h>
 #include <lib.h>
 
 #define bss_start   ((char *)ld_bss_start)

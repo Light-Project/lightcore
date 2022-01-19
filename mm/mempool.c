@@ -8,8 +8,9 @@
 #include <mempool.h>
 #include <kmalloc.h>
 #include <mm/page.h>
-#include <printk.h>
 #include <export.h>
+#include <printk.h>
+#include <panic.h>
 
 static struct kcache *mempool_cache;
 
@@ -141,7 +142,7 @@ EXPORT_SYMBOL(mempool_resize);
  * @flags: alloc parameters
  * @data: private data of callback function
  */
-struct mempool *mempool_create_node(mempool_alloc_t *alloc, mempool_free_t *free, unsigned int demand, gfp_t flags, void *data)
+struct mempool *mempool_create_node(mempool_alloc_t alloc, mempool_free_t free, unsigned int demand, gfp_t flags, void *data)
 {
     struct mempool *pool;
 
@@ -268,4 +269,3 @@ void __init mempool_init(void)
     mempool_cache = kcache_create("mempool",
         sizeof(struct mempool), KCACHE_PANIC);
 }
-

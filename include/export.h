@@ -2,18 +2,20 @@
 #ifndef _EXPORT_H_
 #define _EXPORT_H_
 
-struct kernel_symbot {
+struct kernel_symbol {
     const char *name;
     void *addr;
 };
 
-#define EXPORT_SYMBOL(symbol)                               \
-    extern typeof(symbol) symbol;                           \
-    static const char __ksym_name_##symbol[] = #symbol;     \
-    static const struct kernel_symbot __ksymtab_##symbol    \
-    __attribute__((__used__, section(".ksymtab"))) = {      \
-        .name = __ksym_name_##symbol,                       \
-        .addr = (void *)symbol,                             \
+#define __EXPORT_SYMBOL(symbol, sec)                \
+    extern typeof(symbol) symbol; static const      \
+    struct kernel_symbol __ksymtab_##symbol         \
+    __used __section(".ksymtab" #sec) = {           \
+        .name = #symbol,                            \
+        .addr = (void *)&symbol,                    \
     }
+
+#define EXPORT_SYMBOL(sym)      __EXPORT_SYMBOL(sym, )
+#define EXPORT_SYMBOL_GPL(sym)  __EXPORT_SYMBOL(sym, _gpl)
 
 #endif  /* _EXPORT_H_ */

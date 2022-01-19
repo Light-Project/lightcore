@@ -8,7 +8,7 @@ src := $(obj)
 _build:
 
 # Read auto.conf if it exists, otherwise ignore
--include $(srctree)/include/config/auto.conf
+sinclude $(srctree)/include/config/auto.conf
 
 # Include Buildsystem function
 include $(build_home)/include/define.mk
@@ -40,9 +40,11 @@ export include_blend
 # hostprogs-always-y += foo
 # ... is a shorthand for
 # hostprogs += foo
+
 hostprogs   += $(hostprogs-always-y)
-bin   		+= $(bin-always-y)
-elf   		+= $(elf-always-y)
+elf         += $(elf-always-y)
+bin         += $(bin-always-y)
+dump        += $(dump-always-y)
 
 #####################################
 # basic rule                        #
@@ -105,9 +107,11 @@ cmd_files   := $(wildcard $(foreach f,$(targets),$(dir $(f)).$(notdir $(f)).cmd)
 
 # Create directories for object files if they do not exist
 obj-dirs := $(sort $(patsubst %/,%, $(dir $(targets))))
+
 # If targets exist, their directories apparently exist. Skip mkdir.
 existing-dirs := $(sort $(patsubst %/,%, $(dir $(existing-targets))))
 obj-dirs := $(strip $(filter-out $(existing-dirs), $(obj-dirs)))
+
 ifneq ($(obj-dirs),)
 $(shell mkdir -p $(obj-dirs))
 endif

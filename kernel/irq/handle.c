@@ -4,6 +4,7 @@
  */
 
 #include <irq.h>
+#include <printk.h>
 
 void __weak irq_undefine_ack(irqnr_t vector)
 {

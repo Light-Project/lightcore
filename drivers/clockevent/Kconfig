@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menu "Clock Event Device Support"
+
+config CLKEVT_GX6605S
+    bool "Gx6605s Timer Support"
+    depends on ARCH_CSKY
+    default y
+
+config CLKEVT_HPET
+    bool "High Precision Event Timer (HPET) Support"
+    depends on ARCH_X86
+    default y
+
+config CLKEVT_I8253
+    bool "I8253 Timer Support"
+    depends on ARCH_X86
+    default y
+
+endmenu

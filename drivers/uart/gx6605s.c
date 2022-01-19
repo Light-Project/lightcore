@@ -9,10 +9,8 @@
 #include <initcall.h>
 #include <driver/platform.h>
 #include <driver/uart.h>
-#include <driver/uart/uart-esp.h>
+#include <driver/uart/gx6605s.h>
 #include <asm/io.h>
-
-static
 
 static struct dt_device_id gx6605s_uart_ids[] = {
     { .compatible = "nationalchip,gx6605s-uart" },

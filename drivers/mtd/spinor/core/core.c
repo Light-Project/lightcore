@@ -5,7 +5,7 @@
 
 #define DRIVER_NAME "spinor"
 
-#include <mm.h>
+#include <memory.h>
 #include <driver/mtd.h>
 #include <driver/mtd/spinor.h>
 

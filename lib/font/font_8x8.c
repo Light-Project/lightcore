@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#include <initcall.h>
 #include <font.h>
 
 static const char fontdata_8x8[] = {
@@ -2562,15 +2564,15 @@ static const char fontdata_8x8[] = {
     0x00, /* 00000000 */
 };
 
-
-static const struct font font_8x8 = {
+static struct font font_8x8 = {
     .name	= "8x8",
     .width	= 8,
     .height	= 8,
     .data	= fontdata_8x8,
 };
 
-void font_8x8_install(void)
+static state font_8x8_init(void)
 {
-    font_register((struct font *)&font_8x8); 
+    return font_register(&font_8x8);
 }
+console_initcall(font_8x8_init);

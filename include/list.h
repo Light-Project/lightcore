@@ -6,23 +6,18 @@
 #include <stddef.h>
 #include <kernel.h>
 
-#ifndef __ASSEMBLY__
-
-typedef struct list_head {
+struct list_head {
     struct list_head *prev, *next;
-} list_t;
+};
 
 #define LIST_HEAD(name) \
     struct list_head name = { &(name), &(name) }
 
-#define list_entry(ptr, type, member) \
-    container_of(ptr, type, member)
-
 typedef int (*list_cmp_t)(struct list_head *, struct list_head *, void *);
 extern void list_sort(struct list_head *head, list_cmp_t cmp, void *data);
 
-static inline void list_insert(struct list_head *prev, struct list_head *next,
-                               struct list_head *new)
+static __always_inline void
+list_insert(struct list_head *prev, struct list_head *next, struct list_head *new)
 {
     prev->next = new;
     next->prev = new;
@@ -69,6 +64,12 @@ static inline void list_del(struct list_head *node)
 {
     node->prev->next = node->next;
     node->next->prev = node->prev;
+    node->prev = node->next = NULL;
+}
+
+static inline bool list_outsize(struct list_head *node)
+{
+    return !node->prev && !node->next;
 }
 
 /**
@@ -146,6 +147,31 @@ static inline bool list_check_empty(struct list_head *head)
 }
 
 /**
+ * list_check_head - test if the entry points to the head of the list
+ * @pos: the type * to cursor
+ * @head: the head for your list.
+ * @member: the name of the list_head within the struct.
+ */
+#define list_check_head(pos, head, member) \
+    (&(pos)->member == (head))
+
+/**
+ * list_prev_entry - get the prev element in list
+ * @pos: the type * to cursor
+ * @member: the name of the list_head within the struct.
+ */
+#define list_prev_entry(pos, member) \
+    container_of((pos)->member.prev, typeof(*(pos)), member)
+
+/**
+ * list_next_entry - get the next element in list
+ * @pos: the type * to cursor
+ * @member: the name of the list_head within the struct.
+ */
+#define list_next_entry(pos, member) \
+    container_of((pos)->member.next, typeof(*(pos)), member)
+
+/**
  * list_first_entry - get the first element from a list
  * @ptr: the list head to take the element from.
  * @type: the type of the struct this is embedded in.
@@ -154,32 +180,7 @@ static inline bool list_check_empty(struct list_head *head)
  * Note, that list is expected to be not empty.
  */
 #define list_first_entry(ptr, type, member) \
-    list_entry((ptr)->next, type, member)
-
-/**
- * list_prev_entry - get the prev element in list
- * @pos: the type * to cursor
- * @member: the name of the list_head within the struct.
- */
-#define list_prev_entry(pos, member) \
-    list_entry((pos)->member.prev, typeof(*(pos)), member)
-
-/**
- * list_next_entry - get the next element in list
- * @pos: the type * to cursor
- * @member: the name of the list_head within the struct.
- */
-#define list_next_entry(pos, member) \
-    list_entry((pos)->member.next, typeof(*(pos)), member)
-
-/**
- * list_entry_is_head - test if the entry points to the head of the list
- * @pos: the type * to cursor
- * @head: the head for your list.
- * @member: the name of the list_head within the struct.
- */
-#define list_entry_is_head(pos, head, member) \
-    (&pos->member == (head))
+    container_of((ptr)->next, type, member)
 
 /**
  * list_first_entry_or_null - get the first element from a list
@@ -187,12 +188,12 @@ static inline bool list_check_empty(struct list_head *head)
  * @type: the type of the struct this is embedded in.
  * @member: the name of the list_head within the struct.
  *
- * Note that if the list is empty, it returns NULL.
+ * Note, that if the list is empty, it returns NULL.
  */
 #define list_first_entry_or_null(ptr, type, member) ({          \
     struct list_head *head__ = (ptr);                           \
     struct list_head *pos__ = head__->next;                     \
-    pos__ != head__ ? list_entry(pos__, type, member) : NULL;   \
+    pos__ != head__ ? container_of(pos__, type, member) : NULL; \
 })
 
 /**
@@ -201,7 +202,7 @@ static inline bool list_check_empty(struct list_head *head)
  * @pos: the &struct list_head to use as a loop cursor.
  */
 #define list_for_each(head, pos) \
-    for (pos = (head)->next; pos != (head); pos = pos->next)
+    for ((pos) = (head)->next; (pos) != (head); pos = (pos)->next)
 
 /**
  * list_for_each_prev - iterate over a list backwards
@@ -209,7 +210,7 @@ static inline bool list_check_empty(struct list_head *head)
  * @head: the head for your list.
  */
 #define list_for_each_prev(head, pos) \
-    for (pos = (head)->prev; pos != (head); pos = pos->prev)
+    for ((pos) = (head)->prev; (pos) != (head); (pos) = (pos)->prev)
 
 /**
  * list_for_each_entry - iterate over list of given type
@@ -217,10 +218,10 @@ static inline bool list_check_empty(struct list_head *head)
  * @head: the head for your list.
  * @member: the name of the list_head within the struct.
  */
-#define list_for_each_entry(pos, head, member)                  \
-    for (pos = list_first_entry(head, typeof(*pos), member);    \
-         &pos->member != (head);                                \
-         pos = list_next_entry(pos, member))
+#define list_for_each_entry(pos, head, member)                      \
+    for ((pos) = list_first_entry(head, typeof(*(pos)), member);    \
+         &(pos)->member != (head);                                  \
+         (pos) = list_next_entry(pos, member))
 
 /**
  * list_for_each_entry_reverse - iterate backwards over list of given type.
@@ -228,10 +229,10 @@ static inline bool list_check_empty(struct list_head *head)
  * @head: the head for your list.
  * @member: the name of the list_head within the struct.
  */
-#define list_for_each_entry_reverse(pos, head, member)          \
-    for (pos = list_last_entry(head, typeof(*pos), member);     \
-         !list_entry_is_head(pos, head, member);                \
-         pos = list_prev_entry(pos, member))
+#define list_for_each_entry_reverse(pos, head, member)              \
+    for ((pos) = list_last_entry(head, typeof(*(pos)), member);     \
+         !list_check_head((pos), head, member);                     \
+         (pos) = list_prev_entry((pos), member))
 
 /**
  * list_for_each_entry_safe - iterate over list of given type safe against removal of list entry
@@ -240,11 +241,11 @@ static inline bool list_check_empty(struct list_head *head)
  * @head: the head for your list.
  * @member: the name of the list_head within the struct.
  */
-#define list_for_each_entry_safe(pos, next, head, member)       \
-    for (pos = list_first_entry(head, typeof(*pos), member),    \
-         next = list_next_entry(pos, member);                   \
-         !list_entry_is_head(pos, head, member);                \
-         pos = next, next = list_next_entry(next, member))
+#define list_for_each_entry_safe(pos, next, head, member)           \
+    for (pos = list_first_entry(head, typeof(*(pos)), member),      \
+         (next) = list_next_entry(pos, member);                     \
+         !list_check_head(pos, head, member);                       \
+         pos = (next), (next) = list_next_entry(next, member))
 
 /**
  * list_for_each_entry_continue - continue iteration over list of given type
@@ -255,9 +256,9 @@ static inline bool list_check_empty(struct list_head *head)
  * Continue to iterate over list of given type, continuing after
  * the current position.
  */
-#define list_for_each_entry_continue(pos, head, member)         \
-    for (pos = list_next_entry(pos, member);                    \
-         !list_entry_is_head(pos, head, member);                \
+#define list_for_each_entry_continue(pos, head, member)             \
+    for (pos = list_next_entry(pos, member);                        \
+         !list_check_head(pos, head, member);                       \
          pos = list_next_entry(pos, member))
 
 /**
@@ -269,10 +270,9 @@ static inline bool list_check_empty(struct list_head *head)
  * Start to iterate over list of given type backwards, continuing after
  * the current position.
  */
-#define list_for_each_entry_continue_reverse(pos, head, member) \
-    for (pos = list_prev_entry(pos, member);                    \
-         !list_entry_is_head(pos, head, member);                \
+#define list_for_each_entry_continue_reverse(pos, head, member)     \
+    for (pos = list_prev_entry(pos, member);                        \
+         !list_check_head(pos, head, member);                       \
          pos = list_prev_entry(pos, member))
 
-#endif  /* __ASSEMBLY__ */
 #endif  /* _LIST_H_ */

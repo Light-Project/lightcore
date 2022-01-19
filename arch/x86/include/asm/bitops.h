@@ -16,14 +16,14 @@ static __always_inline void bit_clr(unsigned long *addr, int bit)
     if (__builtin_constant_p(bit)) {
         asm volatile (
             LOCK_PREFIX "andb %b1,%0"
-            :CONST_MASK_ADDR(bit, addr)
-            :"iq" (~CONST_MASK(bit))
+            : CONST_MASK_ADDR(bit, addr)
+            : "iq" (~CONST_MASK(bit))
         );
     } else {
         asm volatile (
-            LOCK_PREFIX __ASM_SIZE(btr) " %1,%0"
-            ::RLONG_ADDR(addr), "Ir" (bit)
-            :"memory"
+            LOCK_PREFIX __ASM_SIZE(btr) "%1,%0"
+            :: RLONG_ADDR(addr), "Ir" (bit)
+            : "memory"
         );
     }
 }
@@ -40,9 +40,9 @@ static __always_inline void bit_set(unsigned long *addr, int bit)
         );
     } else {
         asm volatile (
-            LOCK_PREFIX __ASM_SIZE(bts) " %1,%0"
+            LOCK_PREFIX __ASM_SIZE(bts) "%1,%0"
             :: RLONG_ADDR(addr), "Ir" (bit)
-            :"memory"
+            : "memory"
         );
     }
 }
@@ -54,9 +54,9 @@ static __always_inline bool bit_test(unsigned long *addr, int bit)
 
     asm volatile(
         __ASM_SIZE(bt) " %2,%1" CC_SET(c)
-        :CC_OUT(c) (ret)
-        :"m" (*(unsigned long *)addr), "Ir" (bit)
-        :"memory"
+        : CC_OUT(c)(ret)
+        : "m"(*(unsigned long *)addr), "Ir"(bit)
+        : "memory"
     );
 
     return ret;
@@ -70,7 +70,8 @@ static __always_inline int ffs(unsigned long val)
         "jnz    1f\n"
         "movl   $-1,%0\n"
         "1:"
-        :"=r"(val) :"rm"(val)
+        : "=r"(val)
+        : "rm"(val)
     );
 
     return val;
@@ -84,7 +85,8 @@ static __always_inline int fls(unsigned long val)
         "jnz    1f\n\t"
         "movl   $-1,%0\n"
         "1:"
-        :"=r"(val) :"rm"(val)
+        : "=r"(val)
+        : "rm"(val)
     );
 
     return val;

@@ -4,8 +4,6 @@
  */
 
 #include <kobject.h>
-#include <spinlock.h>
-
-
-
-
+#include <string.h>
+#include <kmalloc.h>
+#include <export.h>

@@ -4,7 +4,7 @@
  */
 
 #include <kboot16.h>
-#include <arch/x86/regs.h>
+#include <asm/regs.h>
 
 #define SMAP 0x534d4150
 struct bootparam bootparam __section(".startup");

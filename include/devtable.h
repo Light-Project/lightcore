@@ -58,11 +58,26 @@ enum dmi_region_type {
     DMI_REG_MAX,
 };
 
-struct dmi_deivce_id {
+struct dmi_reg_match {
+    enum dmi_region_type reg;
+    char substr[DMI_NAME_LEN];
+    bool exact_match;
+};
+
+struct dmi_device_id {
     char name[DMI_NAME_LEN];
-    enum dmi_region_type region;
+    struct dmi_reg_match matches[4];
     const void *data;
 };
+
+#define DMI_MATCH(Reg, Str) {       \
+    .reg = (Reg), .substr = (Str),  \
+}
+
+#define DMI_MATCH_EXACT(Reg, Str) { \
+    .reg = (Reg), .substr = (Str),  \
+    .exact_match = true,            \
+}
 
 #define SDIO_ANY_ID  (~0)
 
@@ -93,8 +108,8 @@ struct pci_device_id {
     .vendor = (Vendor), .device = (Device), \
     .subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID
 
-#define PCI_DEVICE_CLASS(Class, Class_mask) \
-    .class = (Class), .class_mask = (Class_mask),   \
+#define PCI_DEVICE_CLASS(Class, ClassMask) \
+    .class = (Class), .class_mask = (ClassMask),   \
     .vendor = PCI_ANY_ID, .device = PCI_ANY_ID, \
     .subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID
 

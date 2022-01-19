@@ -2,11 +2,11 @@
 #ifndef _MM_PAGE_H_
 #define _MM_PAGE_H_
 
-#include <mm.h>
+#include <bitops.h>
 #include <mm/types.h>
 #include <mm/gfp.h>
 #include <mm/region.h>
-#include <asm/bitops.h>
+#include <mm/memmodel.h>
 
 static inline unsigned int size_to_order(size_t size)
 {

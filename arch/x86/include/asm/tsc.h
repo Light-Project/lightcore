@@ -3,7 +3,6 @@
 #define _ASM_X86_TSC_H_
 
 extern unsigned long tsc_khz;
-
-void tsc_init(void);
+extern void __init tsc_init(void);
 
 #endif  /* _ASM_X86_TSC_H_ */

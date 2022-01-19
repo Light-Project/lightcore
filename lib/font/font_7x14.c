@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <initcall.h>
 #include <font.h>
 
@@ -4106,9 +4107,8 @@ static struct font font_7x14 = {
     .data	= fontdata_7x14,
 };
 
-static state font_7x14_install(void)
+static state font_7x14_init(void)
 {
-    return font_register((struct font *)&font_7x14);
+    return font_register(&font_7x14);
 }
-
-console_initcall(font_7x14_install);
+console_initcall(font_7x14_init);

@@ -103,10 +103,10 @@ static state gx6605s_rtc_setalarm(struct rtc_device *rtc, struct rtc_alarm *alar
 }
 
 static struct rtc_ops gx6605s_rtc_ops = {
-    .get_time = gx6605s_rtc_gettime,
-    .set_time = gx6605s_rtc_settime,
-    .get_alarm = gx6605s_rtc_getalarm,
-    .set_alarm = gx6605s_rtc_setalarm,
+    .time_get = gx6605s_rtc_gettime,
+    .time_set = gx6605s_rtc_settime,
+    .alarm_get = gx6605s_rtc_getalarm,
+    .alarm_set = gx6605s_rtc_setalarm,
 };
 
 static void gx6605s_rtc_hwinit(struct gx6605s_device *gdev)

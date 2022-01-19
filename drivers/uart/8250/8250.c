@@ -5,9 +5,8 @@
 
 #include "8250.h"
 #include <driver/uart/8250.h>
-
-#include <asm/io.h>
 #include <asm/proc.h>
+#include <asm/io.h>
 
 static __always_inline uint32_t
 uart8250_in(struct uart8250_device *uart8250, uint8_t port)

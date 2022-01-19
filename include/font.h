@@ -2,21 +2,28 @@
 #ifndef _FONT_H_
 #define _FONT_H_
 
-#include <slist.h>
 #include <state.h>
+#include <slist.h>
 
-struct font{
-    const void *name;   /* Font name */
-    int width, height;  /* Font size */
-    const void *data;
-    int pref;           /* Preference */
+/**
+ * font - describes a font lib
+ * @name: the name of font
+ * @width: width of a single word
+ * @height: height of a single word
+ * @pref: font priority
+ */
+struct font {
     slist_t list;
+    const void *name;
+    unsigned int width;
+    unsigned int height;
+    unsigned int pref;
+    const void *data;
 };
 
-state font_register(struct font *font);
-state font_unregister(struct font *font);
-
-struct font *font_find(const char *name);
-struct font *font_suitable(uint32_t xres, uint32_t yres, uint32_t font_w, uint32_t font_h);
+extern struct font *font_find(const char *name);
+extern struct font *font_suitable(unsigned int xres, unsigned int yres, unsigned int wide, unsigned int height);
+extern state font_register(struct font *font);
+extern state font_unregister(struct font *font);
 
 #endif

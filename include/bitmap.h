@@ -4,7 +4,7 @@
 
 #include <types.h>
 #include <string.h>
-#include <bits.h>
+#include <bitops.h>
 
 #define DEFINE_BITMAP(name, bits) \
     unsigned long name[BITS_TO_LONG(bits)];

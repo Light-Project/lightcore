@@ -54,7 +54,7 @@ void power_shutdown(void)
  */
 state power_register(struct power_device *pdev)
 {
-    if (!pdev->dev || !pdev->ops)
+    if (!pdev->ops)
         return -EINVAL;
 
     list_add(&power_list, &pdev->list);

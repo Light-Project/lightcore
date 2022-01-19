@@ -20,16 +20,7 @@ config VIDEO_PL11X
 config VIDEO_SIMPLE
     bool "Simple FrameBuffer Support"
 
-config VIDEO_VESA
-    bool "Vesa Device Support"
-
-config VIDEO_BOCHS
-    bool "Bochs Dispi VGA Interface Support"
-    depends on VIDEO_VESA
-
-config VIDEO_VBOX
-    bool "VBOX Dispi VGA Interface Support"
-    depends on VIDEO_VESA
+source "drivers/video/vbe/Kconfig"
 
 endif
 

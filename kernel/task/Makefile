@@ -1,2 +1,3 @@
-obj-y += pid.o fork.o exit.o
-obj-y += exec.o sleep.o waitpid.o
+# SPDX-License-Identifier: GPL-2.0-or-later
+obj-y += clone.o exit.o exec.o
+obj-y += pid.o waitpid.o

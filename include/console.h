@@ -14,36 +14,41 @@
 #define CONSOLE_ANYTIME	BIT(4)
 
 struct console {
+    struct list_head list;
     const char *name;
     unsigned int index;
-    struct list_head list;
-    struct console_ops *ops;
     uint8_t flags;
-    void *data;
+    struct console_ops *ops;
 };
 
 struct console_ops {
-    void (*read)(struct console *, char *, unsigned);
-    void (*write)(struct console *, const char *, unsigned);
+    unsigned int (*read)(struct console *, char *buff, unsigned int len);
+    void (*write)(struct console *, const char *buff, unsigned int len);
     state (*startup)(struct console *);
     void (*shutdown)(struct console *);
 };
 
-/* pre console */
-#ifdef CONFIG_PRE_PRINTK
-void pre_console_write(const char *str, unsigned int len);
-void pre_console_register(struct console *con);
-void pre_printk_init(void);
+/* early console */
+#ifdef CONFIG_PRE_CONSOLE
+extern unsigned int pre_console_read(char *buff, unsigned int len);
+extern void pre_console_write(const char *buff, unsigned int len);
+extern void pre_console_register(struct console *con);
+extern void pre_console_init(void);
 #else
-static inline void pre_console_write(const char *str, unsigned int len) {}
+static inline unsigned int pre_console_read(const char *buff, unsigned int len)
+{
+    return 0;
+}
+static inline void pre_console_write(const char *buff, unsigned int len) {}
 static inline void pre_console_register(struct console *con) {}
-static inline void pre_printk_init(void) {}
+static inline void pre_console_init(void) {}
 #endif
 
 /* console */
-void console_write(const char *str, unsigned int len);
-void console_register(struct console *);
-void console_unregister(struct console *);
-void console_init(void);
+extern unsigned int console_read(char *str, unsigned int len);
+extern void console_write(const char *str, unsigned int len);
+extern void console_register(struct console *);
+extern void console_unregister(struct console *);
+extern void console_init(void);
 
 #endif  /* _CONSOLE_H_ */

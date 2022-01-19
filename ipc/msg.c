@@ -10,12 +10,12 @@
 #include <lightcore/msg.h>
 
 struct msg_send {
-    struct task *task;
+    struct sched_task *task;
     struct list_head list;
 };
 
 struct msg_recv {
-    struct task *task;
+    struct sched_task *task;
     struct list_head list;
 };
 

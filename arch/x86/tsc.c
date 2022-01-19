@@ -4,39 +4,44 @@
  */
 
 #include <kernel.h>
+#include <delay.h>
 #include <printk.h>
 #include <driver/clocksource/i8253.h>
-#include <asm/delay.h>
-#include <asm/regs.h>
 #include <asm/io.h>
+#include <asm/regs.h>
+
+#define PIT_BASE        0x40
+#define PIT_CAL1_MS      10
+#define PIT_CAL1_LOOPS   1000
+#define PIT_CAL2_MS     100
+#define PIT_CAL2_LOOPS  10000
 
 unsigned long tsc_khz;
 
-#define PIT_BASE    0x40
-#define NMISC_BASE  0x61
-
-#define PIT_CAL_MS  10
-#define PIT_CAL2_MS 50
-
-static unsigned long pit_get_tsc(unsigned long ms)
+static unsigned long pit_get_tsc(unsigned long ms, unsigned int minloop)
 {
     uint64_t t1, t2, last, delta;
     unsigned long tscmin, tscmax;
     unsigned int loop;
 
-    /* Enable timer2 Gate, disable speaker */
+    /* enable timer2 gate, disable speaker */
     outb(NMISC_BASE, (inb(NMISC_BASE) & ~NMISC_SPEAKER_EN) | NMISC_TIMER2_EN);
 
-    /* Setup timer2 */
+    /*
+     * Counter Select: Counter 2 select
+     * Read/Write Select: Read/Write LSB then MSB
+     * Counter Mode: Out signal on end of count
+     * Binary/BCD Select: Binary countdown is used
+     */
     outb(PIT_BASE + I8253_MODE, I8253_MODE_SEL_TIMER2 | I8253_MODE_ACCESS_WORD);
     outb(PIT_BASE + I8253_LATCH2, I8253_LATCH(1000 / ms) & 0xff);
     outb(PIT_BASE + I8253_LATCH2, I8253_LATCH(1000 / ms) >> 8);
 
-    t1 = tsc_get();
+    last = t2 = t1 = tsc_get();
     tscmin = ULONG_MAX;
     tscmax = 0;
 
-    for (last = t1; !(inb(NMISC_BASE) & NMISC_SPEAKER_STAT); ++loop) {
+    for (loop = 0; !(inb(NMISC_BASE) & NMISC_SPEAKER_STAT); ++loop) {
         t2 = tsc_get();
         delta = t2 - last;
         last = t2;
@@ -46,31 +51,50 @@ static unsigned long pit_get_tsc(unsigned long ms)
             tscmax = delta;
     }
 
-    if (loop < 1000 * ms || tscmax > 10 * tscmin)
+    /*
+     * Sanity checks:
+     *
+     * If we were not able to read the PIT more than loopmin
+     * times, then we have been hit by a massive SMI
+     *
+     * If the maximum is 10 times larger than the minimum,
+     * then we got hit by an SMI as well.
+     */
+    if (loop < minloop || tscmax > 10 * tscmin)
         return ULONG_MAX;
 
+    /* Calculate the PIT value */
     delta = t2 - t1;
     return delta / ms;
 }
 
+#include <asm/proc.h>
+
 void __init tsc_init(void)
 {
-    unsigned long tscmin, ms, loop;
+    unsigned long pittsc_min;
+    unsigned long ms, minloop;
+    unsigned int count;
 
-    tscmin = ULONG_MAX;
-    ms = PIT_CAL_MS;
+    pittsc_min = ULONG_MAX;
+    ms = PIT_CAL1_MS;
+    minloop = PIT_CAL1_LOOPS;
 
-    for (loop = 0; loop < 3; ++loop) {
+    for (count = 0; count < 3; ++count) {
         unsigned long pittsc;
 
-        pittsc = pit_get_tsc(ms);
-        tscmin = min(tscmin, pittsc);
+        pittsc = pit_get_tsc(ms, minloop);
+        pittsc_min = min(pittsc_min, pittsc);
 
-        if (tscmin == ULONG_MAX)
+        if (count == 1 && pittsc_min == ULONG_MAX) {
             ms = PIT_CAL2_MS;
+            minloop = PIT_CAL2_LOOPS;
+        }
     }
 
-    tsc_khz = tscmin;
-    pr_info("tsc detected %lu.%03lu Mhz\n",
-             tsc_khz / 1000, tsc_khz % 1000);
+    if (pittsc_min == ULONG_MAX)
+        pr_warn("unable to calibrate against pit\n");
+
+    tsc_khz = pittsc_min;
+    pr_info("tsc detected %lu.%03lu mhz\n", tsc_khz / 1000, tsc_khz % 1000);
 }

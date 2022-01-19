@@ -20,7 +20,6 @@ dtb_always  := $(strip $(sort $(addprefix $(obj)/,$(dtb_always))))
 ########################################
 
 dtb_targets		:= $(dtb_file)
-
 always          += $(dtb_always)
 targets         += $(dtb_targets)
 clean-files     += $(dtb_targets) $(dtb_dis)

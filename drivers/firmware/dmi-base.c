@@ -5,17 +5,18 @@
 
 #include <string.h>
 #include <driver/firmware/dmi.h>
+#include <export.h>
 
-static size_t dmi_region[DMI_REG_MAX];
+size_t dmi_region[DMI_REG_MAX];
 
-char *dmi_string_index(const struct dmi_header *dmi, int index)
+const char *dmi_string_index(const struct dmi_header *dhead, int index)
 {
-    char *str;
+    const char *str;
 
     if (!index)
         return NULL;
 
-    for (str = (char *)dmi + dmi->length; --index;)
+    for (str = (char *)dhead + dhead->length; --index;)
         str += strlen(str) + 1;
 
     while (*str == ' ')
@@ -23,42 +24,74 @@ char *dmi_string_index(const struct dmi_header *dmi, int index)
 
     return str;
 }
+EXPORT_SYMBOL(dmi_string_index);
 
-void dmi_region_byte(struct dmi_header *dmi, int index, enum dmi_region_type region)
+void dmi_save_ident(const struct dmi_header *dhead, enum dmi_region_type region, int index)
 {
-    if (!dmi || dmi->length <=index)
+    const uint8_t *data = (const uint8_t *)dhead;
+    const char *str;
+
+    if (dmi_region[region] || dhead->length <= index)
         return;
-    dmi_region[region] = *((uint8_t *)dmi + index);
-}
 
-void dmi_region_word(struct dmi_header *dmi, int index, enum dmi_region_type region)
+    str = dmi_string_index(dhead, data[index]);
+    dmi_region[region] = (size_t)str;
+}
+EXPORT_SYMBOL(dmi_save_ident);
+
+void dmi_save_release(const struct dmi_header *dhead, enum dmi_region_type region, int index)
 {
-    if (!dmi || dmi->length <=index)
+    const uint8_t *minor, *major;
+
+    if (!dhead || dhead->length <= index)
         return;
-    dmi_region[region] = *((uint16_t *)dmi + index);
+
+    minor = (uint8_t *)dhead + index;
+    major = (uint8_t *)dhead + index - 1;
+    dmi_region[region] = *major << 8 | *minor;
+}
+EXPORT_SYMBOL(dmi_save_release);
+
+const char *dmi_get_ident(enum dmi_region_type region)
+{
+    return (const char *)dmi_region[region];
+}
+EXPORT_SYMBOL(dmi_get_ident);
+
+uint16_t dmi_get_release(enum dmi_region_type region)
+{
+    return (uint16_t)dmi_region[region];
+}
+EXPORT_SYMBOL(dmi_get_release);
+
+static bool dmi_match_one(struct dmi_device_id *dmi)
+{
+    unsigned int count;
+
+    for (count = 0; count < ARRAY_SIZE(dmi->matches); ++count) {
+        enum dmi_region_type type = dmi->matches[count].reg;
+        const char *substr = dmi_get_ident(type);
+
+        if (substr) {
+            if (dmi->matches[count].exact_match) {
+                if (!strcmp(substr, dmi->matches[count].substr))
+                    continue;
+            } else {
+                if (strstr(substr, dmi->matches[count].substr))
+                    continue;
+            }
+        }
+
+        return false;
+    }
+
+    return true;
 }
 
-void dmi_region_string(struct dmi_header *dmi, int index, enum dmi_region_type region)
+const void *dmi_system_check(struct dmi_device_id *dmi)
 {
-    if (!dmi || dmi->length <=index)
-        return;
-    dmi_region[region] = (size_t)dmi_string_index(dmi, index);
-}
-
-bool dmi_match_one(enum dmi_region_type type, const char *name)
-{
-    char *region = (char *)dmi_region[type];
-
-    if (!region || !name)
-        return region == name;
-
-    return !strcmp(region, name);
-}
-
-const void *dmi_match(struct dmi_deivce_id *dmi)
-{
-    while (dmi->name[0]) {
-        if (dmi_match_one(dmi->region, dmi->name))
+    while (dmi->name && dmi->name[0]) {
+        if (dmi_match_one(dmi))
             return dmi->data;
         ++dmi;
     }

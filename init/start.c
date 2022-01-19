@@ -5,66 +5,69 @@
 
 #define pr_fmt(fmt) "start: " fmt
 
-#include <string.h>
-#include <linkage.h>
 #include <kernel.h>
-#include <sched.h>
+#include <linkage.h>
+#include <string.h>
 #include <init.h>
-#include <initcall.h>
-#include <mm.h>
-#include <memtest.h>
-#include <fs.h>
+#include <memory.h>
+#include <task.h>
+#include <filesystem.h>
+
 #include <logo.h>
 #include <console.h>
 #include <printk.h>
-#include <device/driver.h>
+#include <panic.h>
+
 #include <driver/clk.h>
 #include <driver/irqchip.h>
-#include <driver/clocksource.h>
-#include <asm-generic/header.h>
+#include <driver/clockevent.h>
+
 #include <asm/irq.h>
+#include <asm-generic/header.h>
 
-struct task init_task = {
-
+struct sched_task init_task = {
+    .stack = init_stack,
 };
 
 static void __init command_setup(void)
 {
     const char *args = (void *)(size_t)boot_head.cmd;
-    if(!args)
+    if (!args)
         return;
     strlcpy(boot_args, args, boot_args_size);
 }
 
-static void __init mount_rootfs(void)
+noinline __noreturn void kernel_main(void)
 {
-
+    user_init(NULL);
+    fork_thread(0, user_init, NULL);
+    idle_task_entry();
 }
 
 asmlinkage __visible __init __noreturn void kernel_start(void)
 {
+    task_stack_magic(&init_task);
     cpu_irq_disable();
 
-    /* early init */
-    pre_printk_init();
+    /* early arch */
+    pre_console_init();
     terminal_logo();
     early_device_init();
-
     command_setup();
     arch_setup();
 
     pr_info("kernel version: "CONFIG_VERSION"\n");
     pr_info("kernel command: %s\n", boot_args);
 
-    /* kernel init */
+    /* early kernel */
     mem_init();
     sched_init();
 
-    /* driver init */
+    /* basic driver */
     device_init();
-    clk_init();
     irqchip_init();
-    timer_init();
+    clk_init();
+    clockevent_init();
     cpu_irq_enable();
 
     console_init();
@@ -72,9 +75,7 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
 
     /* late init */
     vfl_init();
-    initcalls();
 
     /* init task */
-    mount_rootfs();
-    user_init();
+    kernel_main();
 }

@@ -1,88 +1,60 @@
-
-#include <limits.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/uio.h>
-
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Report an error and exit.
- * Use it instead of err(3) to avoid linking-in stdio.
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
-static void error(const char * str, ...)
+
+#include <kshell.h>
+#include <initcall.h>
+#include <printk.h>
+
+static void usage(void)
 {
-    va_list args;
-    va_start(args, str);
-    vfprintf(stderr, str, args);
-    va_end(args);
-    fputc('\n', stderr);
-    exit(0);
+    printk("usage: echo [option]...                 \n");
+    printk("  -n  not output the trailing newline   \n");
+    printk("  -h  show this help                    \n");
 }
 
-int echo(int argc, char *argv[])
+static state echo_main(int argc, char *argv[])
 {
-    int nflag;  /* if not set, output a trailing newline. */
-    int veclen; /* number of writev arguments. */
-    struct iovec *iov, *vp; /* Elements to write, current element. */
-    char space[] = " ";
-    char newline[] = "\n";
-    char *progname = argv[0];
+    char *para;
+    bool nflag = false;
 
-    /* This utility may NOT do getopt(3) option parsing. */
-    if (*++argv && !strcmp(*argv, "-n")) {
-        ++argv;
-        --argc;
-        nflag = 1;
-    } else
-        nflag = 0;
-
-    veclen = (argc >= 2) ? (argc - 2) * 2 + 1 : 0;
-
-    if ((vp = iov = malloc((veclen + 1) * sizeof(struct iovec))) == NULL)
-        error("%s: malloc error", progname);
-
-    while (argv[0] != NULL) {
-        size_t len;
-
-        len = strlen(argv[0]);
-
-        /*
-        * If the next argument is NULL then this is the last argument,
-        * therefore we need to check for a trailing \c.
-        */
-        if (argv[1] == NULL) {
-            /* is there room for a '\c' and is there one? */
-            if (len >= 2 &&
-                argv[0][len - 2] == '\\' &&
-                argv[0][len - 1] == 'c') {
-                /* chop it and set the no-newline flag. */
-                len -= 2;
-                nflag = 1;
+    while (--argc) {
+        para = *++argv;
+        if (para[0] == '-' && para[1]) {
+            switch (*++para) {
+                case 'n':
+                    nflag = true;
+                    break;
+                case 'h':
+                    usage();
+                    return -ENOERR;
             }
+            continue;
         }
-        vp->iov_base = *argv;
-        vp++->iov_len = len;
-        if (*++argv) {
-            vp->iov_base = space;
-            vp++->iov_len = 1;
-        }
+        break;
     }
-    if (!nflag) {
-        veclen++;
-        vp->iov_base = newline;
-        vp++->iov_len = 1;
-    }
-    /* assert(veclen == (vp - iov)); */
-    while (veclen) {
-        int nwrite;
 
-        nwrite = (veclen > INT_MAX) ? INT_MAX : veclen;
-        if (writev(STDOUT_FILENO, iov, nwrite) == -1)
-            error("%s: write error", progname);
-        iov += nwrite;
-        veclen -= nwrite;
+    while (argc--) {
+        printk("%s", *argv++);
+        if (*argv)
+            printk(" ");
     }
-    return 0;
-} 
+
+    if (!nflag)
+        printk("\n");
+
+    return -ENOERR;
+}
+
+static struct kshell_command echo_cmd = {
+    .name = "echo",
+    .desc = "echo the string to console",
+    .exec = echo_main,
+};
+
+static state echo_init(void)
+{
+    return kshell_register(&echo_cmd);
+}
+kshell_initcall(echo_init);

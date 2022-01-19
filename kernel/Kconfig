@@ -1,6 +1,13 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 menu "Executable File Formats"
 
+config BINFMT_ELF
+    bool ""
+    default y
+
+config BINFMT_SCRIPTS
+    bool ""
+    default y
 
 endmenu
 

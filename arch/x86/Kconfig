@@ -145,6 +145,24 @@ config X86_PAE
     depends on ARCH_X86
 
 choice
+    prompt "IO Delay Type"
+    default IO_DELAY_0X80
+
+config IO_DELAY_0X80
+    bool "Use 0x80 port for IO delay (default)"
+
+config IO_DELAY_0XEB
+    bool "Use 0xeb port for IO delay"
+
+config IO_DELAY_UDELAY
+    bool "Use udelay for IO delay"
+
+config IO_DELAY_NONE
+    bool "None IO delay"
+
+endchoice
+
+choice
     prompt "Previous Console Choice"
     default PRECON_SER
 

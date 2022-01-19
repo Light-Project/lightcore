@@ -2,7 +2,7 @@
 #ifndef _BOOT_H_
 #define _BOOT_H_
 
-#include <mm.h>
+#include <memory.h>
 #include <lib.h>
 #include <asm/pgtable.h>
 
