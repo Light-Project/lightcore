@@ -17,7 +17,7 @@
 #include <driver/block.h>
 #include <driver/floppy/floppy.h>
 #include <printk.h>
-#include <asm/delay.h>
+#include <delay.h>
 #include <asm/proc.h>
 #include <asm/io.h>
 
@@ -737,7 +737,7 @@ static struct block_ops floppy_ops = {
 static state floppy_probe(struct platform_device *pdev, const void *pdata)
 {
     struct fdc_device *fdc;
-    unsigned int count, offline;
+    unsigned int count, offline = 0;
     state ret;
 
     if (platform_resource_type(pdev, 0) != RESOURCE_PMIO)
@@ -792,7 +792,8 @@ static state floppy_probe(struct platform_device *pdev, const void *pdata)
         fdd->block.ops = &floppy_ops;
         block_device_register(&fdd->block);
     } if (offline == DRIVER_PER_FDC) {
-        platform_info(pdev, "no floppy disk driver found");
+        platform_info(pdev, "no floppy disk driver found\n");
+        ret = -ENOMEDIUM;
         goto error;
     }
 
@@ -800,7 +801,7 @@ static state floppy_probe(struct platform_device *pdev, const void *pdata)
 
 error:
     irqchip_channel_release(fdc->irqchip);
-    return -ENOMEM; /* auto memory release */
+    return ret; /* auto memory release */
 }
 
 static const struct dt_device_id floppy_ids[] = {

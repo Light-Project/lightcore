@@ -11,7 +11,7 @@ include scripts/top.mk
 
 include $(srctree)/platform.mk
 
-sys-include-y += include/ include/generated/autoconf.h  \
+sys-include-y += include/ include/kconfig.h             \
                  include/compiler/compiler-attributes.h \
                  include/compiler/compiler-type.h       \
                  include/compiler/compiler-gcc.h        \
@@ -23,16 +23,17 @@ sys-include-y += arch/$(arch)/                          \
                  arch/$(arch)/include/                  \
                  arch/$(arch)/include/generated/
 
-sys-acflags-$(CONFIG_CC_OPTIMIZE_FOR_DEBUG)         += -O0
-sys-acflags-$(CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE)   += -O2
-sys-acflags-$(CONFIG_CC_OPTIMIZE_FOR_SIZE)          += -Os
-sys-acflags-$(CONFIG_STRICT) += -Werror
+sys-ccflags-$(CONFIG_CC_OPTIMIZE_FOR_DEBUG)         += -O0
+sys-ccflags-$(CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE)   += -O2
+sys-ccflags-$(CONFIG_CC_OPTIMIZE_FOR_SIZE)          += -Os
+sys-ccflags-$(CONFIG_STRICT) += -Werror
+
+sys-ccflags-y  += -nostdinc -fno-builtin
+sys-ccflags-y  += -static -fno-pic
+sys-ccflags-y  += -fno-common -fno-stack-protector
+sys-ccflags-y  += -ffreestanding -std=gnu11
 
 sys-asflags-y  += -D__ASSEMBLY__
-sys-ccflags-y  += -std=gnu11
-sys-acflags-y  += -ffreestanding -nostdinc -fno-builtin -static
-sys-acflags-y  += -fno-PIE -fno-common
-sys-acflags-y  += -fno-stack-protector
 sys-ldsflags-y += -D__ASSEMBLY__
 
 asflags-y  := $(strip $(sys-asflags-y) $(platform-asflags-y))
@@ -91,7 +92,6 @@ endif
 #####################################
 
 obj-y += arch/
-obj-y += crypto/
 obj-y += doc/logo/
 obj-y += drivers/
 obj-y += fs/
@@ -101,14 +101,13 @@ obj-y += kernel/
 obj-y += lib/
 obj-y += mm/
 obj-y += net/
-obj-y += test/
 obj-$(CONFIG_KUSR) += usr/
 
 #####################################
 # Generate romdisk                  #
 #####################################
 
-$(obj)/boot/romdisk.cpio: $(src)/boot/romdisk FORCE
+$(obj)/boot/romdisk.cpio: $(src)/boot/romdisk/ FORCE
 	$(call if_changed,cpio)
 
 ifdef CONFIG_ROMDISK

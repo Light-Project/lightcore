@@ -9,21 +9,9 @@ config PRELOAD_DEBUG
 choice
     prompt "Chip Platform Selection"
 
-config CHIP_SUNIV
-    depends on ARCH_ARM
-    bool "Allwinner F-series SoCs Support"
-
-config CHIP_RK3399
-    depends on ARCH_ARM64
-    bool "Rockchip RK3399 Support"
-
 config CHIP_X86
     depends on ARCH_X86
     bool "X86"
-
-config CHIP_ESP32
-    depends on ARCH_XTENSA
-    bool "esp32"
 
 config CHIP_ESP8266
     depends on ARCH_XTENSA
@@ -32,6 +20,10 @@ config CHIP_ESP8266
 config CHIP_GX6605S
     depends on ARCH_CSKY
     bool "NationalChip GX6605s Support"
+
+config CHIP_SUNIV
+    depends on ARCH_ARM
+    bool "Allwinner F-series SoCs Support"
 
 endchoice
 

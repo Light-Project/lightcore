@@ -29,12 +29,12 @@ enum isa_vector {
     ATA2_IRQ        = IRQ_EXTERNAL + 0x0f,  /* Secondary hard drive     */
 };
 
-static inline bool cpu_irqs_enabled_flags(irqflags_t flags)
+static inline bool arch_irqs_enabled_flags(irqflags_t flags)
 {
     return flags & EFLAGS_IF;
 }
 
-static inline void cpu_irq_disable(void)
+static inline void arch_irq_disable(void)
 {
     asm volatile (
         "cli"
@@ -42,7 +42,7 @@ static inline void cpu_irq_disable(void)
     );
 }
 
-static inline void cpu_irq_enable(void)
+static inline void arch_irq_enable(void)
 {
     asm volatile (
         "sti"
@@ -50,17 +50,17 @@ static inline void cpu_irq_enable(void)
     );
 }
 
-static inline irqflags_t cpu_irq_save(void)
+static inline irqflags_t arch_irq_save(void)
 {
     irqflags_t irqflags = eflags_get();
-    cpu_irq_disable();
+    arch_irq_disable();
     return irqflags;
 }
 
-static inline void cpu_irq_restore(irqflags_t flags)
+static inline void arch_irq_restore(irqflags_t flags)
 {
-    if (cpu_irqs_enabled_flags(flags))
-        cpu_irq_enable();
+    if (arch_irqs_enabled_flags(flags))
+        arch_irq_enable();
 }
 
 #endif  /* __ASSEMBLY__ */

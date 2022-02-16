@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig KUSR_SELFTEST
+    bool "Kernel Self-Test Support"
+    depends on KSH
+    default y
+if KUSR_SELFTEST
+
+source "usr/selftest/kernel/Kconfig"
+
+source "usr/selftest/lib/Kconfig"
+
+source "usr/selftest/memory/Kconfig"
+
+source "usr/selftest/string/Kconfig"
+
+endif

@@ -2,7 +2,7 @@
 #include <asm-generic/kernel.lds.h>
 #include <asm/page.h>
 
-#if defined(CONFIG_ARCH_X86)
+#if defined(CONFIG_ARCH_X86_32)
 OUTPUT_ARCH(i386)
 #elif defined(CONFIG_ARCH_X86_64)
 OUTPUT_ARCH(i386:x86-64)

@@ -12,6 +12,7 @@
 #include <printk.h>
 
 static struct kcache *platform_device_cache;
+static struct kcache *platform_devid_cache;
 
 static __always_inline bool
 platform_device_match_one(const struct platform_device_id *id, struct platform_device *pdev)
@@ -274,10 +275,67 @@ void platform_driver_unregister(struct platform_driver *pdrv)
 }
 EXPORT_SYMBOL(platform_driver_unregister);
 
+/**
+ * platform_unified_register - register driver and create corresponding device
+ * @pdrv: the platform driver structure
+ * @reg: the platform driver resources
+ * @nres: the platform driver resource number
+ */
+struct platform_device *platform_unified_register(struct platform_driver *pdrv, struct resource *res, unsigned int nres)
+{
+    struct platform_device_id *pid;
+    struct platform_device *pdev;
+    state ret;
+
+    pdev = platform_device_alloc(pdrv->driver.name, 0);
+    if (!pdev)
+        return NULL;
+
+    pid = kcache_zalloc(platform_devid_cache, GFP_KERNEL);
+    if (!pid)
+        goto error_pid;
+
+    pdev->resource = res;
+    pdev->resources_nr = nres;
+    pdev->dev.name = pdrv->driver.name;
+
+    strncpy(pid->name, pdrv->driver.name, PLATFORM_NAME_LEN);
+    pdrv->platform_table = pid;
+
+    ret = platform_device_register(pdev);
+    if (ret)
+        goto error_pdev;
+
+    ret = platform_driver_register(pdrv);
+    if (ret)
+        goto error_pdrv;
+
+    return pdev;
+
+error_pdrv:
+    platform_device_unregister(pdev);
+error_pdev:
+    kfree(pdev);
+error_pid:
+    kfree(pdev);
+    return NULL;
+}
+EXPORT_SYMBOL(platform_unified_register);
+
 void __init platform_bus_init(void)
 {
-    platform_device_cache = kcache_create("platform device",
-        sizeof(struct platform_device), KCACHE_PANIC);
+    platform_device_cache = kcache_create(
+        "platform device",
+        sizeof(struct platform_device),
+        KCACHE_PANIC
+    );
+
+    platform_devid_cache = kcache_create(
+        "platform devid",
+        sizeof(struct platform_device_id),
+        KCACHE_PANIC
+    );
+
     bus_register(&platform_bus);
 
 #ifdef CONFIG_DT

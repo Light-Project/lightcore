@@ -96,5 +96,33 @@ static inline unsigned int fls(unsigned long value)
 }
 #endif
 
+#if BITS_PER_LONG == 32
+static inline unsigned int ffs64(uint64_t value)
+{
+    uint32_t hi = value >> 32;
+
+    if ((uint32_t)value)
+        return ffs((uint32_t)value);
+
+    return ffs(hi) + 32;
+}
+#else
+# define ffs64 ffs
+#endif
+
+#if BITS_PER_LONG == 32
+static inline unsigned int fls64(uint64_t value)
+{
+    uint32_t hi = value >> 32;
+
+    if (hi)
+        return fls(hi) + 32;
+
+    return fls((uint32_t)value);
+}
+#else
+# define fls64 fls
+#endif
+
 #endif  /* __ASSEMBLY__ */
 #endif  /* _ASM_GENERIC_BITOPS_H_ */

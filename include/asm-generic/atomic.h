@@ -3,8 +3,7 @@
 #define _ASM_GENERIC_ATOMIC_H_
 
 #include <types.h>
-#include <asm/irq.h>
-#include <asm/rwonce.h>
+#include <irqflags.h>
 #include <asm/cmpxchg.h>
 
 #ifndef atomic_read
@@ -29,9 +28,9 @@ generic_atomic_##op(atomic_t *atomic, atomic_t val)         \
 {                                                           \
     irqflags_t flags;                                       \
                                                             \
-    flags = cpu_irq_save();                                 \
+    flags = irq_local_save();                               \
     *atomic sym val;                                        \
-    cpu_irq_restore(flags);                                 \
+    irq_local_restore(flags);                               \
 }
 
 #define ATOMIC_FETCH_OP(op, sym)                            \
@@ -41,10 +40,10 @@ generic_atomic_fetch_##op(atomic_t *atomic, atomic_t val)   \
     irqflags_t flags;                                       \
     atomic_t old;                                           \
                                                             \
-    flags = cpu_irq_save();                                 \
+    flags = irq_local_save();                               \
     old = *atomic;                                          \
     *atomic sym val;                                        \
-    cpu_irq_restore(flags);                                 \
+    irq_local_restore(flags);                               \
                                                             \
     return old;                                             \
 }
@@ -56,10 +55,10 @@ generic_atomic_test_##op(atomic_t *atomic, atomic_t val)    \
     irqflags_t flags;                                       \
     atomic_t ret;                                           \
                                                             \
-    flags = cpu_irq_save();                                 \
+    flags = irq_local_save();                               \
     *atomic sym val;                                        \
     ret = *atomic;                                          \
-    cpu_irq_restore(flags);                                 \
+    irq_local_restore(flags);                               \
                                                             \
     return !!ret;                                           \
 }

@@ -7,6 +7,18 @@
 #include <kmalloc.h>
 #include <export.h>
 
+void vfl_set_root(struct filesystem *fs, const struct path *path)
+{
+
+
+}
+
+void vfl_set_pwd(struct filesystem *fs, const struct path *path)
+{
+
+
+}
+
 ssize_t vfl_read(struct file *file, void *buf, size_t len, loff_t *pos)
 {
     if(!(file->fmode & FMODE_RDONLY))
@@ -29,7 +41,6 @@ ssize_t vfl_write(struct file *file, void *buf, size_t len, loff_t *pos)
 
     return file->ops->write(file, buf, len, pos);
 }
-EXPORT_SYMBOL(vfl_write);
 
 struct file *vfl_open(const char *name, int flags, umode_t mode)
 {
@@ -41,7 +52,6 @@ struct file *vfl_open(const char *name, int flags, umode_t mode)
 
     return file;
 }
-EXPORT_SYMBOL(vfl_open);
 
 state vfl_mkdir(struct dirent *dir, struct inode *node, umode_t mode)
 {
@@ -53,4 +63,15 @@ state vfl_mkdir(struct dirent *dir, struct inode *node, umode_t mode)
     retval = node->ops->mkdir(dir, node, mode);
     return retval;
 }
-EXPORT_SYMBOL(vfl_mkdir);
+
+state vfl_chdir(struct dirent *dir, struct inode *node, umode_t mode)
+{
+
+
+    return -ENOERR;
+}
+
+void __init vfl_init(void)
+{
+
+}

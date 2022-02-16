@@ -4,6 +4,4 @@
 
 #include <asm/percpu.h>
 
-
-
 #endif  /* _PERCPU_H_ */

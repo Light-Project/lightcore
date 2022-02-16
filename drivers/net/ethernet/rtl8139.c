@@ -9,7 +9,7 @@
 #include <initcall.h>
 #include <driver/pci.h>
 #include <driver/net/rtl8139.h>
-#include <asm/delay.h>
+#include <delay.h>
 #include <asm/io.h>
 
 struct rtl8139_info {

@@ -12,14 +12,14 @@
 #include <driver/pci.h>
 #include <driver/ata.h>
 #include <driver/ata/atareg.h>
-#include <asm/delay.h>
+#include <delay.h>
 #include <asm/proc.h>
 #include <asm/io.h>
 
 #define ATASIM_NR       2
 #define ATASIM_PORTS    2
 #define ATASIM_BLOCKSZ  512
-#define ATASIM_TIMEOUT  500
+#define ATASIM_TIMEOUT  5000
 
 struct atasim_host {
     struct spinlock lock;
@@ -145,6 +145,9 @@ static state atasim_reset(struct atasim_host *host)
     udelay(5);
     atasim_ctl_out(host, ATA_REG_DEVCTL, ATA_DEVCTL_HD15 | ATA_DEVCTL_NIEN);
     mdelay(2);
+
+    /* setup device on reset */
+    atasim_cmd_out(host, ATA_REG_DEVSEL, ATA_DEVSEL_IBM);
 
     /* wait for device to become not busy */
     if (!atasim_wait_ready(host)) {
@@ -391,11 +394,11 @@ static state atasim_probe(struct pci_device *pdev, const void *pdata)
 
     if (!(val & 0x4)) {
         pdev->resource[2].start = 0x170;
-        pdev->resource[2].size = 0x08;
+        pdev->resource[2].size = 0x02;
         pdev->resource[2].type = RESOURCE_PMIO;
 
         pdev->resource[3].start = 0x376;
-        pdev->resource[3].size = 0x04;
+        pdev->resource[3].size = 0x02;
         pdev->resource[3].type = RESOURCE_PMIO;
     }
 

@@ -37,6 +37,11 @@
         #size-cells = <1>;
         compatible = "simple-bus";
 
+        apic@fec00000 {
+            compatible = "intel,apic";
+            reg = <0xfec00000 0x50>;
+        };
+
         hpet@fed00000 {
             compatible = "intel,hpet";
             reg = <0xfed00000 0x400>;

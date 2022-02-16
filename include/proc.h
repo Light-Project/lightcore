@@ -3,5 +3,6 @@
 #define _PROC_H_
 
 #include <asm/proc.h>
+#include <asm/unaligned.h>
 
 #endif  /* _PROC_H_ */

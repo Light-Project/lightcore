@@ -46,13 +46,13 @@ static inline bool slob_node_last(struct slob_node *node)
 	return !((size_t)slob_node_next(node) & ~PAGE_MASK);
 }
 
-static struct page *slob_get_page(gfp_t gfp, int order, int numa)
+static struct page *slob_get_page(int order, gfp_t gfp, int numa)
 {
     struct page *page;
 
 #ifdef CONFIG_NUMA
     if (numa != NUMA_NONE)
-        page = page_numa_alloc();
+        page = page_alloc_numa(order, gfp, numa);
     else
 #endif
         page = page_alloc(order, gfp);
@@ -109,13 +109,16 @@ static void *slob_page_alloc(struct slob_page *slob_page, size_t size,
      * SLOB adjustment: (offset = 32, align = 32)
      *
      *  addr:  0      3       32       64
-     *  size:         | delta | offset |  size
-     *   map:  ++++++ | ##### | ###### | ########
+     *  size:         | delta | offset |  size (free)
+     *   map:  ++++++ | ##### | ###### | #############
      *  type:   used  |          avail
      */
 
     for (node = slob_page->node;; node = slob_node_next(node)) {
         avail = node->size;
+
+        if (node->magic != KMAGIC)
+            panic("slob %p magic (%x) out of bounds", node, node->magic);
 
         if (node->use)
             goto skip;
@@ -123,7 +126,7 @@ static void *slob_page_alloc(struct slob_page *slob_page, size_t size,
         if (align) {
             aligned = (struct slob_node *)(align_high
                       ((size_t)node + offset, align) - offset);
-            delta = aligned - node;
+            delta = (size_t)aligned - (size_t)node;
         }
 
         /* Is there enough space */
@@ -131,9 +134,6 @@ static void *slob_page_alloc(struct slob_page *slob_page, size_t size,
             break;
 
 skip:
-        if (node->magic != KMAGIC)
-            panic("slob %p magic (%x) out of bounds", node, node->magic);
-
         /* It's the last node. There's no memory available. */
         if (slob_node_last(node))
             return NULL;
@@ -143,22 +143,28 @@ skip:
 
     if (unlikely(delta)) {
         if (delta > (offset + bsize)) {
-            node->magic = KMAGIC;
+            /* delta is availability */
             node->size = delta;
             node->use = false;
-            slob_page->avail += delta;
-        } else if (prev) {
-            prev->size += delta;
+        } else {
+            /* delta is not available */
+            if (prev)
+                prev->size += delta;
+            else
+                slob_page->node = aligned;
             slob_page->avail -= delta;
-        } else
-            slob_page->node = aligned;
-        aligned->size = avail - delta;
-        node = aligned;
+        }
         avail -= delta;
+        node = aligned;
+        node->magic = KMAGIC;
+        node->size = avail;
     }
 
+    /* avail = offset + size (free) */
     slob_page->avail -= avail;
     used = offset + size;
+
+    /* avail = free */
     avail -= used;
 
     /* avoid generating unusable fragments */
@@ -256,8 +262,8 @@ static void *slob_alloc_node(struct list_head *slob_list, size_t size, size_t of
 
         /* Setup new page */
         slob_page->head = slob_list;
-        slob_page->node = page_address(page);
         slob_page->avail = PAGE_SIZE;
+        slob_page->node = page_address(page);
         slob_page->node->magic = KMAGIC;
         slob_page->node->size = PAGE_SIZE;
         slob_page->node->use = false;
@@ -279,6 +285,9 @@ static void *slob_alloc(size_t size, gfp_t flags, size_t align, int numa)
 {
     struct list_head *slob_list;
     unsigned int break_size;
+
+    if (BUG_ON(!size))
+        return NULL;
 
     align = max(align, SLOB_ALIGN);
     size = align_high(size, align);
@@ -305,8 +314,11 @@ static void slob_free(const void *block)
     irqflags_t irq_save;
     bool empty;
 
+    if (BUG_ON(!block))
+        return;
+
     if (unlikely(page->type != PAGE_SLOB)) {
-        pr_crit("illegal release page %p\n", block);
+        pr_crit("Illegal release page %p\n", block);
         return;
     }
 
@@ -344,6 +356,9 @@ size_t ksize(const void *block)
     struct slob_node *node;
     struct page *page;
 
+    if (BUG_ON(!block))
+        return 0;
+
     page = va_to_page(block);
     slob_page = &page->slob;
 
@@ -376,7 +391,7 @@ void *kmalloc_numa_align(size_t size, gfp_t flags, int numa, size_t align)
     struct page *page;
     void *block;
 
-    if (size >= PAGE_SIZE) {
+    if (size >= PAGE_SIZE + SLOB_ALIGN) {
         page = kmalloc_large(size, flags, numa, align);
         block = page_address(page);
     } else

@@ -39,6 +39,14 @@ cmd_disk = rm -f $(obj)/disk.img; \
            $(DD) if=$(obj)/uImage of=$(obj)/disk.img bs=512 seek=63 conv=notrunc
 endif
 
+ifneq ($(CONFIG_CHIP_ESP8266),)
+cmd_disk = rm -f $(obj)/disk.img; \
+           tools/esp/esptool.py -c esp8266 elf2image -o $(obj)/preload- $(obj)/preload/preload; \
+           tools/esp/esptool.py -c esp8266 image_info $(obj)/preload-0x00000.bin; \
+           $(DD) if=$(obj)/preload-0x00000.bin of=$(obj)/disk.img bs=512 conv=notrunc; \
+           $(DD) if=$(obj)/kernel.bin of=$(obj)/disk.img bs=512 seek=64 conv=notrunc;
+endif
+
 ifneq ($(CONFIG_CHIP_GX6605S),)
 cmd_disk = rm -f $(obj)/disk.img; \
            $(DD) if=$(obj)/preload/preload.bin of=$(obj)/disk.img bs=512 conv=notrunc; \
@@ -51,23 +59,6 @@ cmd_disk = rm -f $(obj)/disk.img; \
            tools/sunxi/mksunxiboot $(obj)/preload.bin; \
            $(DD) if=$(obj)/preload.bin of=$(obj)/disk.img bs=512 conv=notrunc; \
            $(DD) if=$(obj)/uImage of=$(obj)/disk.img bs=512 seek=64 conv=notrunc
-endif
-
-ifneq ($(CONFIG_CHIP_ESP8266),)
-cmd_disk = rm -f $(obj)/disk.img; \
-           tools/esp/esptool.py -c esp8266 elf2image -o $(obj)/preload- $(obj)/preload/preload; \
-           tools/esp/esptool.py -c esp8266 image_info $(obj)/preload-0x00000.bin; \
-           $(DD) if=$(obj)/preload-0x00000.bin of=$(obj)/disk.img bs=512 conv=notrunc; \
-           $(DD) if=$(obj)/kernel.bin of=$(obj)/disk.img bs=512 seek=64 conv=notrunc;
-endif
-
-ifneq ($(CONFIG_CHIP_ESP32),)
-cmd_disk = rm -f $(obj)/disk.img; \
-           tools/esp/esptool.py -c esp32 elf2image -fm dio -o $(obj)/preload.bin $(obj)/preload/preload; \
-           tools/esp/esptool.py -c esp32 image_info $(obj)/preload.bin; \
-           $(DD) if=/dev/zero of=$(obj)/disk.img bs=512 count=8 conv=notrunc; \
-           $(DD) if=$(obj)/preload.bin of=$(obj)/disk.img bs=512 seek=8 conv=notrunc; \
-           $(DD) if=$(obj)/kernel.bin of=$(obj)/disk.img bs=512 seek=64 conv=notrunc;
 endif
 
 $(obj)/disk.img: $(obj)/preload/preload.bin $(obj)/uImage FORCE

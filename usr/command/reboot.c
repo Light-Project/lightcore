@@ -16,6 +16,7 @@ static void usage(void)
     printk("  -R  cold restart the machine          \n");
     printk("  -r  warn restart the machine          \n");
     printk("  -s  soft restart the machine          \n");
+    printk("  -f  hard restart the machine          \n");
     printk("  -h  display this message              \n");
 }
 
@@ -29,14 +30,22 @@ static state reset_main(int argc, char *argv[])
             switch (*++para) {
                 case 'H':
                     kernel_halt();
+
                 case 'S':
                     kernel_poweroff();
+
                 case 'R':
                     kernel_restart(POWER_RESTART_COLD);
+
                 case 'r':
                     kernel_restart(POWER_RESTART_WARM);
+
                 case 's':
                     kernel_restart(POWER_RESTART_SOFT);
+
+                case 'f':
+                    kernel_restart(POWER_RESTART_HARD);
+
                 case 'h': default:
                     usage();
                     return -ENOERR;

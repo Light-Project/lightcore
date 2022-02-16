@@ -31,9 +31,10 @@ typedef u16             uint16_t;
 typedef u32             uint32_t;
 typedef u64             uint64_t;
 
-#ifdef CONFIG_ARCH_64BIT
-typedef __int128        s128;
-typedef __uint128       u128;
+#if defined(CONFIG_ARCH_HAS_INT128) && defined(__SIZEOF_INT128__)
+#define TYPE_HAS_INT128
+typedef __int128            s128;
+typedef unsigned __int128   u128;
 
 typedef s128            int128_t;
 typedef u128            uint128_t;
@@ -69,6 +70,7 @@ typedef uint32_t        gvm_t;
 typedef uint32_t        dev_t;
 typedef uint16_t        umode_t;
 typedef int64_t         time_t;
+typedef int64_t         ktime_t;
 
 typedef __key_t         key_t;
 typedef __mqd_t         mqd_t;

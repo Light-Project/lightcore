@@ -2,10 +2,10 @@
 #ifndef _ASM_GENERIC_CMPXCHG_H_
 #define _ASM_GENERIC_CMPXCHG_H_
 
-#include <asm/irq.h>
+#include <irqflags.h>
 
 #define xchg(ptr, new) ({                                       \
-    irqflags_t flags = cpu_irq_save();                          \
+    irqflags_t flags = irq_local_save();                          \
     typeof(*(ptr)) __new = (new);                               \
     typeof(*(ptr)) tmp;                                         \
     switch (sizeof(*(ptr))) {                                   \
@@ -26,12 +26,12 @@
             *(uint64_t *)(ptr) = (uint64_t)__new;               \
             break;                                              \
     }                                                           \
-    cpu_irq_restore(flags);                                     \
+    irq_local_restore(flags);                                     \
     tmp;                                                        \
 })
 
 #define cmpxchg(ptr, old, new) ({                               \
-    irqflags_t flags = cpu_irq_save();                          \
+    irqflags_t flags = irq_local_save();                          \
     typeof(*(ptr)) __new = (new);                               \
     typeof(*(ptr)) __old = (old);                               \
     typeof(*(ptr)) tmp;                                         \
@@ -57,7 +57,7 @@
                 *(uint64_t *)(ptr) = (uint64_t)__new;           \
             break;                                              \
     }                                                           \
-    cpu_irq_restore(flags);                                     \
+    irq_local_restore(flags);                                     \
     tmp;                                                        \
 })
 

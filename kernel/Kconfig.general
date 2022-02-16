@@ -26,6 +26,10 @@ config SYSTICK_FREQ
     range 100 1000
     default 1000
 
+config HIRES_TIMER_DELAY
+    bool "Use high-res timer to do delay operations"
+    default y
+
 config VMAP_STACK
     bool "Use Virtually Mapped Stack"
     default y

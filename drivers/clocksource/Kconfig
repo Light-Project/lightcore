@@ -1,10 +1,24 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-menuconfig CLKSRC
-    bool "Clock Source Device Support"
-if CLKSRC
+menu "Clock Source Device Support"
+
+config CLKSRC_ACPI_PM
+    bool "ACPI Power Management Timer Support"
+    depends on ACPI
+    default y
+
+config CLKSRC_HPET
+    bool "High Precision Event Timer (HPET) Support"
+    depends on CLKEVT_HPET
+    default y
+
+config CLKSRC_I8253
+    bool "I8253 Timer (PIT) Support"
+    depends on CLKEVT_I8253
+    default y
 
 config CLKSRC_TSC
     bool "Time Stamp Counter Support"
     depends on ARCH_X86
+    default y
 
-endif
+endmenu

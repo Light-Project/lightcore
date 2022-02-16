@@ -225,7 +225,6 @@ AcpiOsGetThreadId (
     void)
 {
     return 0;
-//     return (ACPI_THREAD_ID) (unsigned long) current;
 }
 
 /*

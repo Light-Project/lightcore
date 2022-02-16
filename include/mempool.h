@@ -21,8 +21,8 @@ struct mempool {
 
 extern void *mempool_kmalloc(gfp_t flags, void *size);
 extern void mempool_kfree(void *block, void *data);
-extern void *mempool_kmalloc(gfp_t flags, void *cache);
-extern void mempool_kfree(void *block, void *cache);
+extern void *mempool_kcache_alloc(gfp_t flags, void *cache);
+extern void mempool_kcache_free(void *block, void *cache);
 extern void *mempool_pages_alloc(gfp_t flags, void *order);
 extern void mempool_pages_free(void *block, void *data);
 

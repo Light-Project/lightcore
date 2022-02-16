@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig SELFTEST_KERNEL
+    bool "Test Kernel Unit"
+    default y
+if SELFTEST_KERNEL
+
+config SELFTEST_KERNEL_RANDOM
+    bool "Random Test"
+    default y
+
+endif

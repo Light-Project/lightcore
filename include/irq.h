@@ -5,7 +5,7 @@
 #include <state.h>
 #include <list.h>
 #include <rbtree.h>
-#include <asm/irq.h>
+#include <irqflags.h>
 
 typedef enum irq_return irqreturn_t;
 typedef irqreturn_t (*irq_handler_t)(irqnr_t, void *);

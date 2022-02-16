@@ -11,11 +11,12 @@
 enum page_type {
     PAGE_UNINIT,
     PAGE_FREE,
+    PAGE_USED,
     PAGE_SLOB,
 };
 
 /**
- * slob_page -
+ * slob_page - slob page infrastructure
  * @list: slob page list
  * @head: slob page list head
  * @node: first slob node on slob page
@@ -28,6 +29,9 @@ struct slob_page {
     unsigned int avail;
 };
 
+/**
+ * page - page infrastructure
+ */
 struct page {
     uint32_t type:4;
     uint32_t order:4;
@@ -35,9 +39,7 @@ struct page {
     uint32_t sparce_nr:8;
 #endif
     union {
-        struct {
-            struct list_head free_list;
-        };
+        struct list_head free_list;
 #ifdef CONFIG_MM_SLOB
         struct slob_page slob;
 #endif
@@ -47,25 +49,16 @@ struct page {
 #define slob_to_page(slob) \
     container_of(slob, struct page, slob)
 
-struct page_free {
-    struct list_head list;  /* free page list */
-    size_t free_nr;         /* free page number */
-};
-
-struct uvm_area {
-    size_t addr;    /* virtual start address */
-    size_t size;    /* virtual allocation size */
-    struct list_head list;
-};
-
 /**
- * memory -
- *
+ * memory - describes the memory information of a task
  */
 struct memory {
     spinlock_t pglock;
     pgd_t *pgdir;
     struct refcount users;
+
+    size_t brk_start, brk_curr;
+    size_t stack_start;
 };
 
 extern struct memory init_mm;

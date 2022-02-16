@@ -7,7 +7,11 @@
 #define arch_swab32 arch_swab32
 static __attribute_const__ __u32 arch_swab32(__u32 val)
 {
-    asm("bswapl %0" : "=r" (val) : "0" (val));
+    asm volatile (
+        "bswapl %0"
+        :"=r"(val)
+        :"0"(val)
+    );
     return val;
 }
 
@@ -29,13 +33,17 @@ static __attribute_const__ __u64 arch_swab64(__u64 val)
         "bswapl %0      \n"
         "bswapl %1      \n"
         "xchgl  %0,%1   \n"
-        : "=r" (v.s.a), "=r" (v.s.b)
-        : "0" (v.s.a), "1" (v.s.b)
+        :"=r"(v.s.a), "=r"(v.s.b)
+        :"0"(v.s.a), "1"(v.s.b)
     );
 
     return v.u;
 #else
-    asm("bswapq %0" : "=r" (val) : "0" (val));
+    asm volatile (
+        "bswapq %0"
+        :"=r" (val)
+        :"0" (val)
+    );
     return val;
 #endif
 }

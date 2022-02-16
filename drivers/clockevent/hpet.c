@@ -7,16 +7,18 @@
 
 #include <initcall.h>
 #include <irq.h>
+#include <delay.h>
+#include <ioops.h>
 #include <driver/platform.h>
 #include <driver/irqchip.h>
 #include <driver/clockevent.h>
 #include <driver/clocksource.h>
 #include <driver/clocksource/hpet.h>
-#include <asm/delay.h>
-#include <asm/io.h>
 
 #define HPET_MIN_CYCLES 128
 #define HPET_MIN_DELTA  (HPET_MIN_CYCLES + (HPET_MIN_CYCLES >> 1))
+
+bool hpet_ready;
 
 struct hpet_device {
     struct clocksource_device clksrc;
@@ -96,12 +98,6 @@ static irqreturn_t hpet_clockevent_handle(irqnr_t vector, void *data)
     struct hpet_channel *channel = data;
     channel->clkevt.event_handle(&channel->clkevt);
     return IRQ_RET_HANDLED;
-}
-
-static uint64_t hpet_main_read(struct clocksource_device *cdev)
-{
-    struct hpet_device *hdev = clksrc_to_hpet(cdev);
-    return readq(hdev->base + HPET_MAIN);
 }
 
 static state hpet_next_event(struct clockevent_device *cdev, uint64_t delta)
@@ -202,16 +198,24 @@ static state hpet_state_shutdown(struct clockevent_device *cdev)
     return -ENOERR;
 }
 
-static struct clocksource_ops hpet_clocksource_ops = {
-    .read = hpet_main_read,
-};
-
 static struct clockevent_ops hpet_clockevent_ops = {
     .next_event = hpet_next_event,
     .state_oneshot = hpet_state_oneshot,
     .state_periodic = hpet_state_periodic,
     .state_shutdown = hpet_state_shutdown,
 };
+
+#ifdef CONFIG_CLKSRC_HPET
+static uint64_t hpet_main_read(struct clocksource_device *cdev)
+{
+    struct hpet_device *hdev = clksrc_to_hpet(cdev);
+    return readq(hdev->base + HPET_MAIN);
+}
+
+static struct clocksource_ops hpet_clocksource_ops = {
+    .read = hpet_main_read,
+};
+#endif
 
 static state hpet_clockevent_init(struct platform_device *pdev)
 {
@@ -240,7 +244,7 @@ static state hpet_clockevent_init(struct platform_device *pdev)
         channel->index = count;
         channel->clkevt.device = &pdev->dev;
         channel->clkevt.ops = &hpet_clockevent_ops;
-        channel->clkevt.rating = CLOCK_RATING_GOOD;
+        channel->clkevt.rating = 220;
         channel->clkevt.capability = CLKEVT_CAP_ONESHOT;
 
         channel->irqchip = dt_irqchip_channel(pdev->dt_node, count);
@@ -296,13 +300,22 @@ static state hpet_probe(struct platform_device *pdev, const void *pdata)
     hpet_general_restart(hdev);
     hpet_general_legacy(hdev);
 
+#ifdef CONFIG_CLKSRC_HPET
     hdev->clksrc.device = &pdev->dev;
-    hdev->clksrc.rating = CLOCK_RATING_GOOD;
+    hdev->clksrc.rating = 220;
     hdev->clksrc.ops = &hpet_clocksource_ops;
     ret = clocksource_config_register(&hdev->clksrc, hdev->freq, BIT_RANGE(31, 0));
     BUG_ON(ret);
+#endif
 
-    return hpet_clockevent_init(pdev);
+    ret = hpet_clockevent_init(pdev);
+    if (ret) {
+        BUG();
+        return -ENOERR;
+    }
+
+    hpet_ready = true;
+    return -ENOERR;
 };
 
 static const struct dt_device_id hpet_device_id[] = {

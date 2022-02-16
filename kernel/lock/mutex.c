@@ -4,6 +4,7 @@
  */
 
 #include <mutex.h>
+#include <export.h>
 
 void mutex_lock(struct mutex *mutex)
 {

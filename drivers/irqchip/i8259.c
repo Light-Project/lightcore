@@ -9,7 +9,7 @@
 #include <driver/platform.h>
 #include <driver/irqchip.h>
 #include <driver/irqchip/i8259.h>
-#include <asm/delay.h>
+#include <delay.h>
 #include <asm/io.h>
 
 struct i8259_device {
@@ -120,8 +120,8 @@ static state i8259_slave_add(struct irqchip_device *idev, irqnr_t vector)
     i8259_out(i8259, I8259_DATA, i8259->slave);
     i8259_out(i8259, I8259_DATA, I8259_ICW4_AUTO | I8259_ICW4_8086);
 
-    i8259_irq_pass(idev, vector);
     spin_unlock(&i8259->lock);
+    i8259_irq_pass(idev, vector);
     return -ENOERR;
 }
 
@@ -142,8 +142,8 @@ static state i8259_slave_del(struct irqchip_device *idev, irqnr_t vector)
     i8259_out(i8259, I8259_DATA, i8259->slave);
     i8259_out(i8259, I8259_DATA, I8259_ICW4_AUTO | I8259_ICW4_8086);
 
-    i8259_irq_mask(idev, vector);
     spin_unlock(&i8259->lock);
+    i8259_irq_mask(idev, vector);
     return -ENOERR;
 }
 

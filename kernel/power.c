@@ -22,7 +22,7 @@ static const char *restart_name[] = {
 
 void __weak __noreturn proc_halt(void)
 {
-    cpu_irq_disable();
+    irq_local_disable();
     for (;;);
 }
 EXPORT_SYMBOL(proc_halt);

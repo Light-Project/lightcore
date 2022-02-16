@@ -24,11 +24,13 @@ struct ncache {
 
     atomic_t curr;
     unsigned long num;
+    void *xchg_cache;
     void *objects[0];
 };
 
 extern void *ncache_get(struct ncache *cache);
 extern void ncache_put(struct ncache *cache, void *object);
+extern state ncache_charge(struct ncache *cache);
 extern void ncache_flush(struct ncache *cache);
 extern struct ncache *ncache_create(ncache_alloc_t, ncache_free_t, unsigned int num, enum ncache_flags, void *pdata);
 extern void ncache_destroy(struct ncache *cache);

@@ -13,17 +13,16 @@
 static inline void gdt_set(void *addr)
 {
     asm volatile (
-        "lgdtl   (%0)"
-        ::"Na"(addr)
+        "lgdt (%0)\n"
+        ::"a"(addr)
     );
 }
 
 static inline void tss_set(unsigned int seg)
 {
     asm volatile (
-        "movl   %0, %%ecx\n"
-        "ltr    %%cx\n"
-        ::"Na"(seg)
+        "ltr %0\n"
+        ::"c"(seg)
     );
 }
 

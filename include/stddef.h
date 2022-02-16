@@ -2,6 +2,8 @@
 #ifndef _STDDEF_H_
 #define _STDDEF_H_
 
+#ifndef __ASSEMBLY__
+
 enum bool {
     false = 0,
     true = 1,
@@ -31,4 +33,5 @@ enum bool {
  */
 #define offsetofend(type, member) (offsetof(type, member) + sizeof_field(type, member))
 
+#endif  /* __ASSEMBLY__ */
 #endif  /* _STDDEF_H_ */

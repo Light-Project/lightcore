@@ -212,6 +212,7 @@ void rb_fixup(struct rb_root *root, struct rb_node *node)
         }
     }
 }
+EXPORT_SYMBOL(rb_fixup);
 
 /**
  * rb_erase - balance after remove node.
@@ -364,6 +365,7 @@ void rb_erase(struct rb_root *root, struct rb_node *parent)
         }
     }
 }
+EXPORT_SYMBOL(rb_erase);
 
 /**
  * rb_remove - remove node form rbtree.
@@ -482,6 +484,7 @@ struct rb_node *rb_remove(struct rb_root *root, struct rb_node *node)
 
     return rebalance;
 }
+EXPORT_SYMBOL(rb_remove);
 
 /**
  * rb_replace - replace old node by new one.
@@ -502,6 +505,7 @@ void rb_replace(struct rb_root *root, struct rb_node *old, struct rb_node *new)
 
     child_change(root, parent, old, new);
 }
+EXPORT_SYMBOL(rb_replace);
 
 /**
  * rb_find - find @key in tree @root.
@@ -509,15 +513,16 @@ void rb_replace(struct rb_root *root, struct rb_node *old, struct rb_node *new)
  * @key: key to match.
  * @cmp: operator defining the node order.
  */
-struct rb_node *rb_find(const struct rb_root *root, const void *key,
-                        long (*cmp)(const struct rb_node *, const void *key))
+struct rb_node *rb_find(const struct rb_root *root, const void *key, rb_find_t cmp)
 {
     struct rb_node *node = root->rb_node;
-    int ret;
+    long ret;
 
     while (node) {
         ret = cmp(node, key);
-        if (ret < 0)
+        if (ret == LONG_MIN)
+            return NULL;
+        else if (ret < 0)
             node = node->left;
         else if (ret > 0)
             node = node->right;
@@ -527,6 +532,7 @@ struct rb_node *rb_find(const struct rb_root *root, const void *key,
 
     return NULL;
 }
+EXPORT_SYMBOL(rb_find);
 
 /**
  * rb_parent - find the parent node.
@@ -535,11 +541,15 @@ struct rb_node *rb_find(const struct rb_root *root, const void *key,
  * @node: new node to insert.
  * @cmp: operator defining the node order.
  */
-struct rb_node **rb_parent(struct rb_root *root, struct rb_node **parentp, struct rb_node *node,
-                           long (*cmp)(const struct rb_node *, const struct rb_node *))
+struct rb_node **rb_parent(struct rb_root *root, struct rb_node **parentp,
+                           struct rb_node *node, rb_cmp_t cmp, bool *leftmost)
 {
     struct rb_node **link;
-    long ret;
+    bool leftmost_none;
+    long retval;
+
+    if (!leftmost)
+        leftmost = &leftmost_none;
 
     link = &root->rb_node;
     if (unlikely(!*link)) {
@@ -548,17 +558,18 @@ struct rb_node **rb_parent(struct rb_root *root, struct rb_node **parentp, struc
     }
 
     do {
-        ret = cmp(node, (*parentp = *link));
-        if (ret < 0)
+        retval = cmp(node, (*parentp = *link));
+        if (retval < 0)
             link = &(*link)->left;
-        else if (ret > 0)
+        else {
             link = &(*link)->right;
-        else
-            return NULL;
+            *leftmost = false;
+        }
     } while (*link);
 
     return link;
 }
+EXPORT_SYMBOL(rb_parent);
 
 /**
  * left_far - go left as we can.
@@ -639,6 +650,7 @@ struct rb_node *rb_first(const struct rb_root *root)
     node = left_far(node);
     return node;
 }
+EXPORT_SYMBOL(rb_first);
 
 struct rb_node *rb_last(const struct rb_root *root)
 {
@@ -651,6 +663,7 @@ struct rb_node *rb_last(const struct rb_root *root)
     node = right_far(node);
     return node;
 }
+EXPORT_SYMBOL(rb_last);
 
 struct rb_node *rb_prev(const struct rb_node *node)
 {
@@ -677,6 +690,7 @@ struct rb_node *rb_prev(const struct rb_node *node)
 
     return parent;
 }
+EXPORT_SYMBOL(rb_prev);
 
 struct rb_node *rb_next(const struct rb_node *node)
 {
@@ -703,6 +717,7 @@ struct rb_node *rb_next(const struct rb_node *node)
 
     return parent;
 }
+EXPORT_SYMBOL(rb_next);
 
 /**
  * rb_post_first/next - Postorder iteration (Depth-first)
@@ -718,6 +733,7 @@ struct rb_node *rb_post_first(const struct rb_root *root)
     node = left_deep(node);
     return node;
 }
+EXPORT_SYMBOL(rb_post_first);
 
 struct rb_node *rb_post_next(const struct rb_node *node)
 {
@@ -733,3 +749,4 @@ struct rb_node *rb_post_next(const struct rb_node *node)
     else
         return (struct rb_node *)parent;
 }
+EXPORT_SYMBOL(rb_post_next);

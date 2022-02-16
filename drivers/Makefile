@@ -1,11 +1,10 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-obj-y += clockevent/ irqchip/
+obj-y += clockevent/ clocksource/ irqchip/
 obj-$(CONFIG_ACPI)          += acpi/
 obj-$(CONFIG_ATA)           += ata/
 obj-$(CONFIG_BLOCK)         += block/
 obj-$(CONFIG_CHAR)          += char/
 obj-$(CONFIG_CLK)           += clk/
-obj-$(CONFIG_CLKSRC)        += clocksource/
 obj-$(CONFIG_CPUFREQ)       += cpufreq/
 obj-$(CONFIG_DT)            += dt/
 obj-$(CONFIG_FIRMWARE)      += firmware/
@@ -22,6 +21,7 @@ obj-$(CONFIG_POWER)         += power/
 obj-$(CONFIG_SERIO)         += serio/
 obj-$(CONFIG_NETD)          += net/
 obj-$(CONFIG_RESET)         += reset/
+obj-$(CONFIG_RNG)           += rng/
 obj-$(CONFIG_RTC)           += rtc/
 obj-$(CONFIG_MMC)           += mmc/
 obj-$(CONFIG_SND)           += sound/

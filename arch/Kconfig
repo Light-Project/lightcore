@@ -15,20 +15,25 @@ config ARCH_CSKY
     select ARCH_HAS_MMU
     select ARCH_HAS_IOMAP
 
-config ARCH_X86
+config ARCH_X86_32
     bool "X86"
+    select ARCH_X86
     select ARCH_32BIT
     select ARCH_LITTLE_ENDIAN
+    select ARCH_HAS_HUGE_PMD
     select ARCH_HAS_MMU
     select ARCH_HAS_PMIO
 
 config ARCH_X86_64
     bool "X86_64"
+    select ARCH_X86
     select ARCH_64BIT
+    select ARCH_HAS_INT128
     select ARCH_LITTLE_ENDIAN
     select ARCH_HAS_MMU
     select ARCH_HAS_PMIO
     select ARCH_HAS_KASAN
+    select PGTABLE_LEVEL5
 
 config ARCH_XTENSA
     bool "Xtensa"
@@ -44,11 +49,17 @@ source "arch/xtensa/Kconfig"
 
 # Architecture supported
 
+config ARCH_X86
+    bool
+
 # CPU Wide
 config ARCH_32BIT
     bool
 
 config ARCH_64BIT
+    bool
+
+config ARCH_HAS_INT128
     bool
 
 # Endianness
@@ -63,6 +74,18 @@ config ARCH_STACK_GROWUP
     bool
 
 # Memory Management
+config ARCH_HAS_HUGE_PMD
+    bool
+
+config ARCH_HAS_HUGE_PUD
+    bool
+
+config ARCH_HAS_HUGE_P4D
+    bool
+
+config ARCH_HAS_HUGE_PGD
+    bool
+
 config ARCH_HAS_MMU
     bool
 

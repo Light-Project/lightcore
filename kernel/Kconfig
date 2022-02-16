@@ -10,5 +10,3 @@ config BINFMT_SCRIPTS
     default y
 
 endmenu
-
-source "kernel/sched/Kconfig"

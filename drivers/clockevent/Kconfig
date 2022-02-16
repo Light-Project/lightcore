@@ -12,7 +12,7 @@ config CLKEVT_HPET
     default y
 
 config CLKEVT_I8253
-    bool "I8253 Timer Support"
+    bool "I8253 Timer (PIT) Support"
     depends on ARCH_X86
     default y
 

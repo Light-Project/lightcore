@@ -6,7 +6,7 @@
 #include <kshell.h>
 #include <initcall.h>
 #include <console.h>
-#include <asm/delay.h>
+#include <delay.h>
 #include <printk.h>
 
 static void usage(void)

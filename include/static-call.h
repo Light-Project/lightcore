@@ -3,23 +3,18 @@
 #define _STATIC_CALL_H_
 
 #include <types.h>
-#include <asm/rwonce.h>
 
-#define STATIC_CALL_KEY_PREFIX          __SCK__
+#define STATIC_CALL_KEY_PREFIX          __STATIC_CALL_KEY__
 #define STATIC_CALL_KEY_PREFIX_STR      __stringify(STATIC_CALL_KEY_PREFIX)
 #define STATIC_CALL_KEY_PREFIX_LEN      (sizeof(STATIC_CALL_KEY_PREFIX_STR) - 1)
 #define STATIC_CALL_KEY(name)           __PASTE(STATIC_CALL_KEY_PREFIX, name)
 #define STATIC_CALL_KEY_STR(name)       __stringify(STATIC_CALL_KEY(name))
 
-#define STATIC_CALL_TRAMP_PREFIX        __SCT__
+#define STATIC_CALL_TRAMP_PREFIX        __STATIC_CALL_TRAMP__
 #define STATIC_CALL_TRAMP_PREFIX_STR    __stringify(STATIC_CALL_TRAMP_PREFIX)
 #define STATIC_CALL_TRAMP_PREFIX_LEN    (sizeof(STATIC_CALL_TRAMP_PREFIX_STR) - 1)
 #define STATIC_CALL_TRAMP(name)         __PASTE(STATIC_CALL_TRAMP_PREFIX, name)
 #define STATIC_CALL_TRAMP_STR(name)     __stringify(STATIC_CALL_TRAMP(name))
-
-#define DECLARE_STATIC_CALL(name, func)                     \
-    extern struct static_call_key STATIC_CALL_KEY(name);    \
-    extern typeof(func) STATIC_CALL_TRAMP(name);
 
 #ifdef CONFIG_ARCH_HAS_STATIC_CALL_INLINE
 struct static_call_key {
@@ -30,6 +25,10 @@ struct static_call_key {
     void *func;
 };
 #endif
+
+#define DECLARE_STATIC_CALL(name, func)                     \
+    extern struct static_call_key STATIC_CALL_KEY(name);    \
+    extern typeof(func) STATIC_CALL_TRAMP(name);
 
 #if defined(CONFIG_ARCH_HAS_STATIC_CALL_INLINE)
 
@@ -43,10 +42,17 @@ struct static_call_key {
         .func = _func_init,                                 \
     }
 
-#define static_call(name) (             \
-    (typeof(STATIC_CALL_TRAMP(name))*)  \
-    (STATIC_CALL_KEY(name).func)        \
-)
+#define __static_call_cond(name) ({                         \
+    void *func = READ_ONCE(STATIC_CALL_KEY(name).func);     \
+    if (!func)                                              \
+        func = &__static_call_nop;                          \
+    (typeof(STATIC_CALL_TRAMP(name))*)func;                 \
+})
+
+static inline void __static_call_nop(void)
+{
+
+}
 
 static __always_inline void
 __static_call_update(struct static_call_key *key, void *tramp, void *func)
@@ -61,6 +67,9 @@ __static_call_update(struct static_call_key *key, void *tramp, void *func)
 #else
 # define STATIC_CALL_TRAMP_ADDR(name) NULL
 #endif
+
+#define static_call_cond(name)                              \
+    (void)__static_call_cond(name)
 
 #define static_call_update(name, func) ({                   \
     typeof(&STATIC_CALL_TRAMP(name)) __func = (func);       \

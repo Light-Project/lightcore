@@ -6,10 +6,10 @@
 #include <device.h>
 
 #define CLOCK_RATING_UNSAFE     0
-#define CLOCK_RATING_BASE       200
-#define CLOCK_RATING_GOOD       400
-#define CLOCK_RATING_DESIRED    800
-#define CLOCK_RATING_PERFECT    1400
+#define CLOCK_RATING_BASE       100
+#define CLOCK_RATING_GOOD       200
+#define CLOCK_RATING_DESIRED    300
+#define CLOCK_RATING_PERFECT    400
 
 enum clockevent_state {
     CLKEVT_STATE_UNINIT     = 0,
@@ -22,15 +22,23 @@ enum clockevent_state {
 enum clockevent_capability {
     CLKEVT_CAP_PERIODIC     = BIT(0),
     CLKEVT_CAP_ONESHOT      = BIT(1),
-    CLKEVT_CAP_PERCPU       = BIT(2),
+    CLKEVT_CAP_KTIME        = BIT(2),
+    CLKEVT_CAP_PERCPU       = BIT(3),
 };
 
 /**
- *
- *
+ * clockevent_device - describes clockevent device
+ * @delta_min:maximum delta value (ns)
+ * @delta_max: minimum delta value (ns)
+ * @rating: clockevent accuracy rating
+ * @mult: nsec to cycles multiplier
+ * @shift: nsec to cycles divisor
+ * @capability: clockevent capability
+ * @next_event: time of next event
+ * @state: clockevent current state
+ * @event_handle: clockevent interrupt handle
  */
 struct clockevent_device {
-    /* device base data */
     struct list_head list;
     struct device *device;
     struct clockevent_ops *ops;
@@ -44,13 +52,15 @@ struct clockevent_device {
     enum clockevent_capability capability;
 
     /* clockevent state */
+    ktime_t next_event;
     enum clockevent_state state;
     void (*event_handle)(struct clockevent_device *cdev);
 };
 
 /**
- * struct clockevent_ops - periodic running counter operations
- * @next_event: program the next event in oneshot mode
+ * clockevent_ops - periodic running counter operations
+ * @next_ktime: program the next event using ktime in oneshot mode
+ * @next_event: program the next event using delta in oneshot mode
  * @stop_event: remove the next event in oneshot mode
  * @state_oneshot: switch state to oneshot
  * @state_periodic: switch state to periodic
@@ -58,6 +68,7 @@ struct clockevent_device {
  * @state_resume: resume before shutdown
  */
 struct clockevent_ops {
+    state (*next_ktime)(struct clockevent_device *cdev, ktime_t time);
     state (*next_event)(struct clockevent_device *cdev, uint64_t delta);
     state (*stop_event)(struct clockevent_device *cdev);
     state (*state_oneshot)(struct clockevent_device *cdev);
@@ -66,10 +77,13 @@ struct clockevent_ops {
     state (*state_resume)(struct clockevent_device *cdev);
 };
 
-extern void clockevent_cloc_mult_shift(unsigned int *mult, unsigned int *shift, unsigned int from, uint64_t to, unsigned int maxsec);
-extern state clockevent_switch_state(struct clockevent_device *cdev, enum clockevent_state cstate);
-extern state clockevent_program_event(struct clockevent_device *cdev, ktime_t count);
+/* clock tools */
+extern void clock_cloc_mult_shift(unsigned int *mult, unsigned int *shift, uint64_t from, uint64_t to, uint64_t maxsec);
+extern uint64_t clock_cycle_to_nsec(uint64_t cycles, unsigned int mult, unsigned int shift);
 
+/* clockevent core */
+extern state clockevent_switch_state(struct clockevent_device *cdev, enum clockevent_state cstate);
+extern state clockevent_program_event(struct clockevent_device *cdev, ktime_t stamp);
 extern void clockevent_config(struct clockevent_device *cdev, uint64_t freq, uint64_t delta_min, uint64_t delta_max);
 extern state clockevent_config_register(struct clockevent_device *cdev, uint64_t freq, uint64_t delta_min, uint64_t delta_max);
 extern state clockevent_register(struct clockevent_device *cdev);

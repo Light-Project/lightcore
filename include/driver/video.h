@@ -5,7 +5,7 @@
 #include <device.h>
 #include <lightcore/video.h>
 
-struct vm_area;
+struct vmem_area;
 
 /**
  * video_mode - videocard supportive modes
@@ -85,7 +85,7 @@ struct video_ops {
     state (*panoff)(struct video_device *vdev);
     state (*checkmode)(struct video_device *vdev, struct video_screen *info);
     state (*setmode)(struct video_device *vdev);
-    state (*mmap)(struct video_device *vdev, struct vm_area *vm);
+    state (*mmap)(struct video_device *vdev, struct vmem_area *vm);
     state (*imageblit)(struct video_device *vdev, const struct video_image *image);
     state (*ioctl)(struct video_device *vdev, unsigned int cmd, unsigned long arg);
 };

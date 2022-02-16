@@ -6,11 +6,18 @@
 #include <state.h>
 #include <list.h>
 
+/**
+ * enum memblock_type - memblock state types.
+ * @usable: memory that can be used
+ * @allocated: allocated by memblock
+ * @takeover: buddy system takeover
+ * @reserved: nonexistent memory
+ */
 enum memblock_type {
-    MEMBLOCK_USABLE     = 0x00, /* Memory that can be used */
-    MEMBLOCK_ALLOCATED  = 0x01, /* allocated by memblock */
-    MEMBLOCK_TAKEOVER   = 0x02, /* buddy system takeover */
-    MEMBLOCK_RESERVED   = 0x03, /* nonexistent memory */
+    MEMBLOCK_USABLE     = 0x00,
+    MEMBLOCK_ALLOCATED  = 0x01,
+    MEMBLOCK_TAKEOVER   = 0x02,
+    MEMBLOCK_RESERVED   = 0x03,
 };
 
 struct memblock_region {

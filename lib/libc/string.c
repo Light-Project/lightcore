@@ -7,6 +7,7 @@
 /*
  * String manipulation
  */
+
 __weak char *strcpy(char *dest, const char *src)
 {
     char *tmp = dest;
@@ -392,6 +393,7 @@ EXPORT_SYMBOL(strim);
 /*
  * Memory manipulation
  */
+
 __weak void *memset(void *s, int c, size_t n)
 {
     char *xs = s;
@@ -478,10 +480,32 @@ __weak int memcmp(const void *s1, const void *s2, size_t n)
 }
 EXPORT_SYMBOL(memcmp);
 
+/*
+ * Extend Helper
+ */
+
+int strcount(const char *str, char c)
+{
+    int count = 0;
+    while (*str)
+        if (*str++ == c)
+            count++;
+    return count;
+}
+
+int strncount(const char *str, char c, size_t size)
+{
+    int count = 0;
+    while (*str && size--)
+        if (*str++ == c)
+            count++;
+    return count;
+}
+
 int memcount(const void *addr, int c, size_t size)
 {
     const char *p = addr;
-    int count;
+    int count = 0;
     while (size--)
         if (c == *p++)
             count++;

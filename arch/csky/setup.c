@@ -4,7 +4,7 @@
  */
 
 #include <asm/pgtable.h>
-#include <asm/irq.h>
+#include <irqflags.h>
 
 void arch_setup(void)
 {

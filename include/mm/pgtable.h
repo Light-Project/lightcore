@@ -58,21 +58,21 @@ static inline pte_t *pte_offset(pmd_t *pmd, size_t addr)
 #ifndef pmd_offset
 static inline pmd_t *pmd_offset(pud_t *pud, size_t addr)
 {
-    return pud_get_addr(pud) + pmd_index(addr);
+    return (pmd_t *)pud_get_addr(pud) + pmd_index(addr);
 }
 #endif
 
 #ifndef pud_offset
 static inline pud_t *pud_offset(p4d_t *p4d, size_t addr)
 {
-    return p4d_get_addr(p4d) + pud_index(addr);
+    return (pud_t *)p4d_get_addr(p4d) + pud_index(addr);
 }
 #endif
 
 #ifndef p4d_offset
 static inline p4d_t *p4d_offset(pgd_t *pgd, size_t addr)
 {
-    return pgd_get_addr(pgd) + p4d_index(addr);
+    return (p4d_t *)pgd_get_addr(pgd) + p4d_index(addr);
 }
 #endif
 
@@ -114,6 +114,50 @@ static inline size_t pgd_bound_size(size_t addr, size_t size)
     return min(bound - addr, size);
 }
 #endif
+
+static inline bool pmd_none_clear_bad(pmd_t *pmd)
+{
+    if (!pmd_get_present(pmd))
+        return true;
+    if (unlikely(pmd_inval(pmd))) {
+        pmd_clear(pmd);
+        return true;
+    }
+    return false;
+}
+
+static inline bool pud_none_clear_bad(pud_t *pud)
+{
+    if (!pud_get_present(pud))
+        return true;
+    if (unlikely(pud_inval(pud))) {
+        pud_clear(pud);
+        return true;
+    }
+    return false;
+}
+
+static inline bool p4d_none_clear_bad(p4d_t *p4d)
+{
+    if (!p4d_get_present(p4d))
+        return true;
+    if (unlikely(p4d_inval(p4d))) {
+        p4d_clear(p4d);
+        return true;
+    }
+    return false;
+}
+
+static inline bool pgd_none_clear_bad(pgd_t *pgd)
+{
+    if (!pgd_get_present(pgd))
+        return true;
+    if (unlikely(pgd_inval(pgd))) {
+        pgd_clear(pgd);
+        return true;
+    }
+    return false;
+}
 
 extern state pte_set(pte_t *pte, phys_addr_t addr, gvm_t flags);
 extern state pmd_set_huge(pmd_t *pmd, phys_addr_t addr, gvm_t flags);

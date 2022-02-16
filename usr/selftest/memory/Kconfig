@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig SELFTEST_MEMORY
+    bool "Test Memory Alloc"
+    default y
+if SELFTEST_MEMORY
+
+config SELFTEST_MEMORY_BUDDY
+    bool "Page Buddy Test"
+    default y
+
+config SELFTEST_MEMORY_IOREMAP
+    bool "IO Remap Test"
+    default y
+
+config SELFTEST_MEMORY_KCACHE
+    bool "Kernel Cache Test"
+    default y
+
+config SELFTEST_MEMORY_KMALLOC
+    bool "Kernel Malloc Test"
+    default y
+
+config SELFTEST_MEMORY_MEMPOOL
+    bool "Memory Pool Test"
+    default y
+
+config SELFTEST_MEMORY_VMALLOC
+    bool "Virtual Malloc Test"
+    default y
+
+config SELFTEST_MEMORY_VMEM
+    bool "Virtual Memory Test"
+    default y
+
+endif

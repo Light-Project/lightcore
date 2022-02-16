@@ -1,7 +1,0 @@
-# SPDX-License-Identifier: GPL-2.0-or-later
-menuconfig CRYPTO
-	bool "Cryptographic Support"
-
-if CRYPTO
-
-endif

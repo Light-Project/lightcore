@@ -10,6 +10,7 @@
 #include <mm/vmem.h>
 #include <kmalloc.h>
 #include <vmalloc.h>
+#include <mempool.h>
 #include <ioremap.h>
 #include <printk.h>
 
@@ -32,5 +33,6 @@ void __init mem_init(void)
 
     vmem_init();
     vmalloc_init();
+    mempool_init();
     ioremap_init();
 }

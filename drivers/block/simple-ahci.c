@@ -7,15 +7,15 @@
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
 #include <initcall.h>
-#include <printk.h>
+#include <proc.h>
+#include <delay.h>
+#include <ioops.h>
 #include <driver/block.h>
 #include <driver/pci.h>
 #include <driver/ata.h>
 #include <driver/ata/atareg.h>
 #include <driver/ata/ahci.h>
-#include <asm/delay.h>
-#include <asm/proc.h>
-#include <asm/io.h>
+#include <printk.h>
 
 #define AHCISIM_PORTS           32
 #define AHCISIM_LINK_TIMEOUT    100
@@ -250,7 +250,7 @@ static struct ahcisim_port *ahcisim_port_alloc(struct pci_device *pdev)
     struct ahcisim_port *port;
     size_t size;
 
-    port = pci_kzalloc(pdev, sizeof(struct ahci_cmd_list), GFP_KERNEL);
+    port = pci_kzalloc(pdev, sizeof(*port), GFP_KERNEL);
     if (!port)
         return NULL;
 

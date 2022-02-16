@@ -202,7 +202,7 @@
 #include <ctype.h>
 #include <sched.h>
 #include <kmalloc.h>
-#include <spinlock_type.h>
+#include <spinlock.h>
 #include <export.h>
 #include <printk.h>
 

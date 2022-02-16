@@ -5,7 +5,7 @@
 
 #include <memory.h>
 
-#include <asm/irq.h>
+#include <irqflags.h>
 #include <asm/entry.h>
 #include <asm/regs.h>
 #include <asm/pgtable.h>

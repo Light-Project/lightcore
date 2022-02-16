@@ -3,7 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <asm/irq.h>
+#include <irqflags.h>
 #include <asm/tlb.h>
 #include <asm/mmu.h>
 
@@ -12,7 +12,7 @@ void tlb_refresh(size_t addr)
     irqflags_t irq;
     uint32_t val, index;
 
-    irq = cpu_irq_save();
+    irq = irq_local_save();
 
     addr &= MEH_VPN;
     val = mmu_entryhi_get() & MEH_ASID;
@@ -26,5 +26,5 @@ void tlb_refresh(size_t addr)
     mmu_entryhi_set(val + 1);
     mmu_entryhi_set(val);
 
-    cpu_irq_restore(irq);
+    irq_local_restore(irq);
 }

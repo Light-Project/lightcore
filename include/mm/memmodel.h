@@ -5,8 +5,8 @@
 #include <mm/types.h>
 #include <asm/page.h>
 
-/* Flat Memory model */
 #ifdef CONFIG_FLATMEM
+/* Flat Memory model */
 
 #define PAGE_NR ((PAGE_MASK >> PAGE_SHIFT) + 1)
 #define PAGE_BITMAP_NR (PAGE_NR / MSIZE)
@@ -17,8 +17,8 @@ extern struct page page_map[];
 
 static inline void memmodel_init(void) {}
 
-/* Sparce Memory model */
 #elif CONFIG_SPARCEMEM
+/* Sparce Memory model */
 
 #define SECTIONS_WIDE (PHYS_SHIFT - SPARCE_SHIFT)
 #define SECTIONS_PFN_SHIFT (SPARCE_SHIFT - PAGE_SHIFT)
@@ -63,10 +63,9 @@ sparce_nr_page(const struct sparce_block *sparce, unsigned long pnr)
 #endif  /* CONFIG_SPARCEMEM */
 
 #define page_to_pa(page)    (page_to_nr(page) << PAGE_SHIFT)
-#define pa_to_page(pa)      (nr_to_page(pa >> PAGE_SHIFT))
-
 #define page_to_va(page)    (pa_to_va(page_to_pa(page)))
-#define va_to_page(address) (pa_to_page(va_to_pa(address)))
+#define pa_to_page(paddr)   (nr_to_page(paddr >> PAGE_SHIFT))
+#define va_to_page(vaddr)   (pa_to_page(va_to_pa(vaddr)))
 
 void memmodel_init(void);
 

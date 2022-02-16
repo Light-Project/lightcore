@@ -5,15 +5,21 @@
 #include <types.h>
 #include <state.h>
 
+/**
+ * ERR_PTR - convert state to pointer
+ */
 static inline void *ERR_PTR(state err)
 {
-    return (void *)err;
+    return (void *)(ssize_t)err;
 }
 
+/**
+ * PTR_ERR - convert pointer to state
+ */
 static inline state PTR_ERR(void *ptr)
 {
-    if (unlikely((state)ptr >= -ERRNO_MAX))
-        return (state)ptr;
+    if (unlikely((state)(ssize_t)ptr >= -ERRNO_MAX))
+        return (state)(ssize_t)ptr;
     return -ENOERR;
 }
 

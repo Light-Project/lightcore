@@ -11,7 +11,7 @@
 #include <driver/parallel.h>
 #include <driver/parallel/i8255.h>
 #include <asm/proc.h>
-#include <asm/delay.h>
+#include <delay.h>
 #include <asm/io.h>
 
 #define I8255_TIMEOUT   500

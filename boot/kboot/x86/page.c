@@ -28,7 +28,7 @@ static void section_link(uint32_t va, uint32_t pa, uint32_t size)
 {
     int index = va >> PGDIR_SHIFT;
 
-    for(size >>= PGDIR_SHIFT; size > 0; --size) {
+    for (size >>= PGDIR_SHIFT; size > 0; --size) {
         pde_huge_set(index++, pa, 0);
         pa += 1 << PGDIR_SHIFT;
     }
@@ -51,6 +51,7 @@ void kernel_map(void)
     cr3_set(val);
 
     val = cr0_get();
-    val |= 1 << 31;
+    val |= CR0_PG;
+    val &= ~(CR0_CD | CR0_NW);
     cr0_set(val);
 }

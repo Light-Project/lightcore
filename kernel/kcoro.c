@@ -6,36 +6,49 @@
 #define pr_fmt(fmt) "kcoro: " fmt
 
 #include <kcoro.h>
-#include <task.h>
-#include <export.h>
 #include <panic.h>
+#include <timekeeping.h>
 #include <printk.h>
+#include <export.h>
 
+static struct kcache *kcoro_work_cache;
+static struct kcache *kcoro_worker_cache;
 static LIST_HEAD(worker_list);
 
-static void kcoro_dispatch(struct kcoro_worker *worker, struct kcoro_work *work)
+static inline uint64_t calc_delta(struct kcoro_work *task, uint64_t delta)
 {
-    kcoro_state_t retval;
-    void *priv = work->data;
+    uint64_t fact = 1024;
+    int shift = 32;
 
-    retval = work->entry(work, priv);
-
-    switch (retval) {
-        case KCORO_EXITED:
-            kcoro_work_dequeue(work);
-            break;
-        case KCORO_BLOCK:
-            break;
-        default:
-            kcoro_debug("kcoro work return unknow value\n");
+    if (unlikely(fact >> 32)) {
+        while(fact >> 32)
+        {
+            fact >>= 1;
+            shift--;
+        }
     }
+
+    fact = (uint64_t)(uint32_t)fact * sched_prio_to_wmult[task->dyprio];
+
+    while (fact >> 32) {
+        fact >>= 1;
+        shift--;
+    }
+
+    return mul_u64_u32_shr(delta, fact, shift);
+}
+
+static inline uint64_t kcoro_delta_fair(struct kcoro_work *task, uint64_t delta)
+{
+    if (unlikely(task->dyprio != 20))
+        delta = calc_delta(task, delta);
+
+    return delta;
 }
 
 /**
  * kcoro_current - gets the currently coroutine
  * @return: current coroutine work
- *
- * NOTE, must on the coroutine thread to use this function
  */
 struct kcoro_work *kcoro_current(void)
 {
@@ -48,101 +61,277 @@ struct kcoro_work *kcoro_current(void)
 
     return worker->curr;
 }
+EXPORT_SYMBOL(kcoro_current);
 
-void kcoro_work_exit(void)
+static long kcoro_work_vtime_cmp(const struct rb_node *a, const struct rb_node *b)
 {
-    struct kcoro_work *work = kcoro_current;
-
+    const struct kcoro_work *work_a = container_of(a, struct kcoro_work, node);
+    const struct kcoro_work *work_b = container_of(b, struct kcoro_work, node);
+    return work_a->vtime - work_b->vtime;
 }
-EXPORT_SYMBOL(kcoro_work_exit);
 
-void kcoro_relax(void)
+static inline struct kcoro_work *kcoro_work_pick(struct kcoro_worker *worker)
 {
-    struct kcoro_worker *worker = work->worker;
-    list_move_tail(&worker->work_list, &work->list);
+    struct rb_node *lestmost = rb_cached_first(&worker->ready);
+    return container_of_safe(lestmost, struct kcoro_work, node);
 }
-EXPORT_SYMBOL(kcoro_relax);
 
-void kcoro_work_enqueue(struct kcoro_worker *worker, struct kcoro_work *work)
+static inline void kcoro_worker_update(struct kcoro_worker *worker)
 {
+    struct kcoro_work *next = kcoro_work_pick(worker);
+
+    if (next)
+        worker->min_vtime = next->vtime;
+    else if (worker->curr)
+        worker->min_vtime = worker->curr->vtime;
+    else
+        worker->min_vtime = 0;
+}
+
+/**
+ * kcoro_worker_enqueue - enqueue work to a worker
+ *
+ */
+static void kcoro_worker_enqueue(struct kcoro_worker *worker, struct kcoro_work *work)
+{
+    rb_cached_insert(&worker->ready, &work->node, kcoro_work_vtime_cmp);
+    kcoro_worker_update(worker);
     work->worker = worker;
-    worker->work_num++;
-    list_add(&worker->work_list, &work->list);
 }
 
-void kcoro_work_dequeue(struct kcoro_work *work)
+/**
+ * kcoro_worker_dequeue - dequeue work form a worker
+ */
+static void kcoro_worker_dequeue(struct kcoro_worker *worker, struct kcoro_work *work)
 {
-    struct kcoro_worker *worker = work->worker;
-
+    rb_cached_delete(&worker->ready, &work->node);
+    kcoro_worker_update(worker);
     work->worker = NULL;
-    worker->work_num--;
-    list_del(&work->list);
 }
 
-struct kcoro_worker *kcoro_worker_best(void)
+/**
+ * kcoro_work_prio - coroutine scheduling core
+ */
+void kcoro_work_prio(int prio)
 {
-    struct kcoro_worker *walk, *best = NULL;
+    struct kcoro_worker *worker = current->pdata;
+    struct kcoro_work *work = worker->curr;
 
-    list_for_each_entry(walk, &worker_list, list)
-        if (!best || best->work_num > walk->work_num)
-            best = walk;
+    if (prio < -20)
+        prio = 0;
+    else if (prio > 19)
+        prio = 39;
+    else
+        prio += 20;
 
-    return best;
+    worker->weight -= sched_prio_to_weight[work->prio];
+    worker->weight += sched_prio_to_weight[prio];
+    work->prio = work->dyprio = prio;
 }
+EXPORT_SYMBOL(kcoro_work_prio);
 
-int kcoro_worker_wakeup(struct kcoro_worker *worker, kcoro_pth_flag *flags)
+/**
+ * kcoro_yield - yield the current worker to other coroutine
+ */
+void kcoro_yield(void)
 {
-    return kcoro_pthread_create(&worker->pth, flags,
-                                kcoro_worker_loop, worker);
-}
+    struct kcoro_worker *worker = current->pdata;
+    struct kcoro_work *next, *work = worker->curr;
+    struct kcontext *context = NULL;
+    ktime_t now;
 
-struct kcoro_work *kcoro_work_create(kcoro_fun_t fun, void *data, const char *name, ...)
+    now = timekeeping_get_time();
+    work->vtime += kcoro_delta_fair(work, now - work->start);
+
+    if (likely(work->state == KCORO_READY)) {
+        if (((int64_t)(work->vtime - worker->min_vtime) > 0))
+            kcoro_worker_enqueue(worker, work);
+        else {
+            work->start = now;
+            return;
+        }
+    }
+
+    next = kcoro_work_pick(worker);
+    if (next) {
+        kcoro_worker_dequeue(worker, next);
+        next->start = now;
+        if (next != work) {
+            worker->curr = next;
+            context = swapcontext(&work->context, &next->context);
+        }
+    }
+
+    barrier();
+
+    if (unlikely(context))
+        work = container_of(context, struct kcoro_work, context);
+
+    if (unlikely(work->state == KCORO_EXITED)) {
+        if (context)
+            kcoro_work_destroy(work);
+        else
+            swapcontext(&work->context, &worker->retc);
+    }
+}
+EXPORT_SYMBOL(kcoro_yield);
+
+/**
+ * kcoro_exit - exit the current coroutine
+ */
+void kcoro_exit(void)
+{
+    struct kcoro_worker *worker = current->pdata;
+    struct kcoro_work *work = worker->curr;
+    work->state = KCORO_EXITED;
+    kcoro_yield();
+}
+EXPORT_SYMBOL(kcoro_exit);
+
+/**
+ * kcoro_dispatch - coroutine scheduler
+ */
+void kcoro_dispatch(void)
+{
+    struct kcoro_worker *worker = current->pdata;
+    struct kcoro_work *next, *curr;
+    struct kcontext *context;
+
+    while ((next = kcoro_work_pick(worker))) {
+        kcoro_worker_dequeue(worker, next);
+        worker->curr = next;
+        context = swapcontext(&worker->retc, &next->context);
+        barrier();
+        curr = container_of(context, struct kcoro_work, context);
+        kcoro_work_destroy(curr);
+    }
+}
+EXPORT_SYMBOL(kcoro_dispatch);
+
+static struct kcoro_work *kcoro_work_vcreate(struct kcoro_worker *worker,
+                                             kcoro_entry_t entry, void *pdata,
+                                             const char *namefmt, va_list args)
 {
     struct kcoro_work *work;
+    void *stack;
 
-    work = kcoro_zalloc(sizeof(*work));
+    work = kcache_zalloc(kcoro_work_cache, GFP_KERNEL);
     if (!work)
         return NULL;
 
-    work->name = name;
-    work->entry = fun;
-    work->data = data;
+    stack = task_stack_alloc();
+    if (!stack) {
+        kcache_free(kcoro_work_cache, work);
+        return NULL;
+    }
+
+    work->prio = 20;
+    work->dyprio = 20;
+    work->start = timekeeping_get_time();
+    work->vtime = worker->min_vtime;
+
+    work->context.stack = stack;
+    work->context.ssize = THREAD_SIZE;
+    work->context.link = &worker->retc;
+
+    vsnprintf(work->name, sizeof(work->name), namefmt, args);
+    makecontext(&work->context, (state (*)(void))entry, 1, pdata);
+    kcoro_worker_enqueue(worker, work);
+
     return work;
 }
 
+struct kcoro_work *kcoro_work_create(struct kcoro_worker *worker,
+                                     kcoro_entry_t entry, void *pdata,
+                                     const char *namefmt, ...)
+{
+    struct kcoro_work *work;
+    va_list args;
+
+    va_start(args, namefmt);
+    work = kcoro_work_vcreate(worker, entry, pdata, namefmt, args);
+    va_end(args);
+
+    return work;
+}
+EXPORT_SYMBOL(kcoro_work_create);
+
 void kcoro_work_destroy(struct kcoro_work *work)
 {
-    if (work->worker)
-        kcoro_work_dequeue(work);
-    kcoro_free(work);
+    struct kcoro_worker *worker = work->worker;
+
+    if (worker) {
+        kcoro_worker_dequeue(worker, work);
+    }
+
+    task_stack_free(work->context.stack);
+    kcache_free(kcoro_work_cache, work);
 }
+EXPORT_SYMBOL(kcoro_work_destroy);
 
-void kcoro_worker_loop(void *data)
-{
-    struct kcoro_worker *worker = data;
-    struct kcoro_work *work;
-
-    for (;;)
-    list_for_each_entry(work, &worker->work_list, list)
-        kcoro_dispatch(worker, work);
-}
-
-struct kcoro_worker *kcoro_worker_create(const char *name)
+static struct kcoro_worker *kcoro_worker_vcreate(int cpu, const char *name, va_list args)
 {
     struct kcoro_worker *worker;
 
-    worker = kzalloc(sizeof(*worker), GFP_KERNEL);
+    worker = kcache_zalloc(kcoro_worker_cache, GFP_KERNEL);
     if (!worker)
         return NULL;
 
-    worker->name = name;
+    current->pdata = worker;
+    list_add(&worker_list, &worker->list);
 
-    list_add_prev(&worker_list, &worker->list);
-    list_head_init(&worker->work_list);
     return worker;
 }
 
+/**
+ * kthread_create_worker - create a kcoroutine worker
+ * @namefmt: name format for the kcoroutine worker
+ */
+struct kcoro_worker *kcoro_worker_create(const char *namefmt, ...)
+{
+    struct kcoro_worker *worker;
+    va_list args;
+
+    va_start(args, namefmt);
+    worker = kcoro_worker_vcreate(-1, namefmt, args);
+    va_end(args);
+
+    return worker;
+}
+EXPORT_SYMBOL(kcoro_worker_create);
+
+/**
+ * kthread_create_worker - create a kcoroutine worker on specific CPU
+ * @cpu: CPU number
+ * @namefmt: name format for the kcoroutine worker
+ */
+struct kcoro_worker *kcoro_worker_create_on_cpu(int cpu, const char *namefmt, ...)
+{
+    struct kcoro_worker *worker;
+    va_list args;
+
+    va_start(args, namefmt);
+    worker = kcoro_worker_vcreate(cpu, namefmt, args);
+    va_end(args);
+
+    return worker;
+}
+EXPORT_SYMBOL(kcoro_worker_create_on_cpu);
+
 void kcoro_worker_destroy(struct kcoro_worker *worker)
 {
-    kcoro_free(worker);
+    kfree(worker);
+}
+EXPORT_SYMBOL(kcoro_worker_destroy);
+
+void __init kcoro_init(void)
+{
+    kcoro_worker_cache = kcache_create(
+        "kcoro-worker", sizeof(struct kcoro_worker),
+        KCACHE_PANIC
+    );
+    kcoro_work_cache = kcache_create(
+        "kcoro-work", sizeof(struct kcoro_work),
+        KCACHE_PANIC
+    );
 }

@@ -12,7 +12,7 @@
 #include <driver/pci.h>
 #include <driver/ata.h>
 #include <driver/nvme.h>
-#include <asm/delay.h>
+#include <delay.h>
 #include <asm/proc.h>
 #include <asm/io.h>
 

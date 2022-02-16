@@ -7,12 +7,17 @@
 #include <kmalloc.h>
 #include <filesystem.h>
 
-static __always_inline struct
+struct namei {
+    struct
 
-static state path_walk(const char *path, struct nameidata *namei)
+};
+
+static state path_walk(const char *path, struct namei *namei)
 {
 
-    while (*path++ == '/')
+    while (*path == '/')
+        ++path;
+
     if (!*path)
         return -ENOERR;
 
@@ -29,7 +34,12 @@ static state path_walk(const char *path, struct nameidata *namei)
     }
 }
 
-struct file *namei_open()
-{
 
+state namei_kernel_path(const char *path)
+{
+    state ret;
+
+
+
+    return ret;
 }

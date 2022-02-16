@@ -7,14 +7,14 @@
 
 #include <initcall.h>
 #include <irq.h>
+#include <ioops.h>
 #include <export.h>
+#include <timekeeping.h>
 #include <driver/platform.h>
 #include <driver/irqchip.h>
 #include <driver/clockevent.h>
+#include <driver/clocksource.h>
 #include <driver/clocksource/i8253.h>
-#include <asm/io.h>
-
-#define I8253_CLKSRC_FREQ 1000
 
 /*
  * Protects access to I/O ports
@@ -24,14 +24,22 @@
 SPIN_LOCK(i8253_lock);
 EXPORT_SYMBOL(i8253_lock);
 
+#ifdef CONFIG_CLKEVT_HPET
+extern bool hpet_ready;
+#endif
+
 struct i8253_device {
     struct clockevent_device clkevt;
+    struct clocksource_device clksrc;
     struct irqchip_channel *irqchip;
     resource_size_t base;
 };
 
 #define clkevt_to_i8253(cdev) \
     container_of(cdev, struct i8253_device, clkevt)
+
+#define clksrc_to_i8253(cdev) \
+    container_of(cdev, struct i8253_device, clksrc)
 
 static __always_inline uint8_t
 i8253_in(struct i8253_device *idev, int reg)
@@ -124,6 +132,65 @@ static struct clockevent_ops i8253_ops = {
     .state_shutdown = i8253_state_shutdown,
 };
 
+#ifdef CONFIG_CLKSRC_I8253
+static uint64_t i8253_read(struct clocksource_device *cdev)
+{
+    struct i8253_device *idev = clksrc_to_i8253(cdev);
+    static uint64_t old_tick;
+    uint64_t tick;
+    static uint16_t old_count;
+    uint16_t count, latch;
+
+    spin_lock(&i8253_lock);
+    tick = ticktime;
+
+    /* latched the count then read count */
+    i8253_out(idev, I8253_MODE, I8253_MODE_ACCESS_WORD | I8253_MODE_MOD_RATE);
+    count = i8253_in(idev, I8253_COUNTER0);
+    count |= i8253_in(idev, I8253_COUNTER0) << 8;
+
+    /*
+     * Maybe i8253 clockevent not used,
+     * so it is not initialized.
+     */
+    if (count > (latch = I8253_LATCH(CONFIG_SYSTICK_FREQ))) {
+        i8253_out(idev, I8253_MODE, I8253_MODE_ACCESS_WORD | I8253_MODE_MOD_RATE);
+        i8253_out(idev, I8253_COUNTER0, latch & 0xff);
+        i8253_out(idev, I8253_COUNTER0, latch >> 8);
+        count = latch - 1;
+    }
+
+    /*
+     * It's possible for count to appear to go the wrong way for a
+     * couple of reasons:
+     *
+     *  1. The timer counter underflows, but we haven't handled the
+     *     resulting interrupt and incremented jiffies yet.
+     *  2. Hardware problem with the timer, not giving us continuous time,
+     *     the counter does small "jumps" upwards on some Pentium systems,
+     *     (see c't 95/10 page 335 for Neptun bug.)
+     *
+     * Previous attempts to handle these cases intelligently were
+     * buggy, so we just do the simple thing now.
+     */
+    if (count > old_count && tick == old_tick)
+        count = old_count;
+
+    old_count = count;
+    old_tick = tick;
+
+    spin_unlock(&i8253_lock);
+
+    /* reversal count */
+    count = (latch - 1) - count;
+    return (ticktime * latch) + count;
+}
+
+static struct clocksource_ops i8253_clocksource_ops = {
+    .read = i8253_read,
+};
+#endif
+
 static state i8253_probe(struct platform_device *pdev, const void *pdata)
 {
     struct i8253_device *idev;
@@ -132,6 +199,14 @@ static state i8253_probe(struct platform_device *pdev, const void *pdata)
     idev = platform_kzalloc(pdev, sizeof(*idev), GFP_KERNEL);
     if (!idev)
         return -ENOMEM;
+
+    idev->base = platform_resource_start(pdev, 0);
+    platform_set_devdata(pdev, idev);
+
+#ifdef CONFIG_CLKEVT_HPET
+    if (hpet_ready)
+        goto skip_clkevt;
+#endif
 
     idev->irqchip = dt_irqchip_channel(pdev->dt_node, 0);
     if (!idev->irqchip) {
@@ -145,16 +220,24 @@ static state i8253_probe(struct platform_device *pdev, const void *pdata)
         return ret;
     }
 
-    idev->base = platform_resource_start(pdev, 0);
     idev->clkevt.device = &pdev->dev;
     idev->clkevt.ops = &i8253_ops;
-    idev->clkevt.rating = CLOCK_RATING_BASE;
+    idev->clkevt.rating = 110;
     idev->clkevt.capability = CLKEVT_CAP_PERIODIC | CLKEVT_CAP_ONESHOT;
     ret = clockevent_config_register(&idev->clkevt, I8253_CLKRATE, 0x0f, 0x7fff);
     BUG_ON(ret);
 
     ret = irqchip_pass(idev->irqchip);
     BUG_ON(ret);
+
+skip_clkevt:
+#ifdef CONFIG_CLKSRC_I8253
+    idev->clksrc.device = &pdev->dev;
+    idev->clksrc.rating = 110;
+    idev->clksrc.ops = &i8253_clocksource_ops;
+    ret = clocksource_config_register(&idev->clksrc, I8253_CLKRATE, BIT_RANGE(31, 0));
+    BUG_ON(ret);
+#endif
 
     return -ENOERR;
 }

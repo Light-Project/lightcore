@@ -2,7 +2,7 @@
 #include <irq.h>
 #include <printk.h>
 
-#include <asm/irq.h>
+#include <irqflags.h>
 #include <asm/entry.h>
 #include <asm/regs.h>
 

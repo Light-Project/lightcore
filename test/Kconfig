@@ -1,7 +1,0 @@
-# SPDX-License-Identifier: GPL-2.0-or-later
-menu "Kernel Selftest"
-
-config TEST_CRC32
-    bool "CRC32 Selftest (Benchmark)"
-
-endmenu

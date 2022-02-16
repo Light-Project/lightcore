@@ -6,15 +6,15 @@
 #define DRIVER_NAME "gx6605s-intc"
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
+#include <linkage.h>
 #include <initcall.h>
 #include <irq.h>
+#include <ioops.h>
+#include <bitops.h>
 #include <driver/platform.h>
 #include <driver/irqchip.h>
 #include <driver/irqchip/gx6605s.h>
-#include <asm/bitops.h>
 #include <asm/regs.h>
-#include <asm/regs.h>
-#include <asm/io.h>
 
 struct gx6605s_device {
     struct irqchip_device irqchip;

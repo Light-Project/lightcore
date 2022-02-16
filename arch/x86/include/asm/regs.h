@@ -7,15 +7,25 @@
 #define _ASM_X86_REGS_H_
 
 #include <types.h>
+#include <stddef.h>
 #include <limits.h>
 #include <asm/asm.h>
 #include <arch/x86/regs.h>
+#include <arch/x86/cpuid.h>
 
 #ifndef __ASSEMBLY__
 
 #ifdef CONFIG_ARCH_X86_64
 
 struct regs {
+    /* segment registers */
+    uint64_t ds;
+    uint64_t es;
+    uint64_t ss;
+    uint64_t fs;
+    uint64_t gs;
+
+    /* generic registers */
     uint64_t r15;
     uint64_t r14;
     uint64_t r13;
@@ -31,14 +41,15 @@ struct regs {
     uint64_t dx;
     uint64_t si;
     uint64_t di;
+    uint64_t sp;
 
     /* interrupt stack */
     uint64_t error;
     uint64_t ip;
     uint64_t cs;
     uint64_t flags;
-    uint64_t sp;
-    uint64_t ss;
+    uint64_t usp;
+    uint64_t uss;
 } __packed;
 
 #else  /* !CONFIG_ARCH_X86_64 */
@@ -168,6 +179,35 @@ static inline void cpuid_count(uint32_t op, uint32_t count,
     *eax = op;
     *ecx = count;
     cpuid_asm(eax, ebx, ecx, edx);
+}
+
+static inline bool cpuid_support(uint64_t code)
+{
+    uint32_t eax, ebx, ecx, edx;
+
+    cpuid(
+        X86_CPUID_OP_GET(code),
+        &eax, &ebx, &ecx, &edx
+    );
+
+    switch (X86_CPUID_REG_GET(code)) {
+        case 0:
+            eax = eax;
+            break;
+        case 1:
+            eax = ebx;
+            break;
+        case 2:
+            eax = ecx;
+            break;
+        case 3:
+            eax = edx;
+            break;
+        default:
+            return false;
+    }
+
+    return !!(BIT(X86_CPUID_BIT_GET(code)) & eax);
 }
 
 #define CPUID_REG_OP(reg)               \

@@ -9,6 +9,7 @@
 #include <time.h>
 #include <proc.h>
 #include <percpu.h>
+#include <fstype.h>
 #include <lightcore/sched.h>
 
 #define TASK_NAME_LEN   32
@@ -75,6 +76,7 @@ struct sched_task {
     struct sched_queue *queue;
 #endif
 
+    struct filesystem *fs;
     void *pdata;
 };
 
@@ -129,6 +131,7 @@ struct sched_type {
     void (*task_prev)(struct sched_queue *queue, struct sched_task *task);
     void (*task_next)(struct sched_queue *queue, struct sched_task *task);
     void (*task_yield)(struct sched_queue *queue);
+    void (*task_yield_to)(struct sched_queue *queue, struct sched_task *task);
     struct sched_task *(*task_pick)(struct sched_queue *queue);
 
 #ifdef CONFIG_SMP
@@ -137,10 +140,12 @@ struct sched_type {
 #endif
 };
 
-extern struct sched_type *default_sched;
-extern struct list_head sched_list;
-extern struct kcache *task_cache;
 DECLARE_PERCPU(struct sched_queue, sched_queues);
+extern struct list_head sched_list;
+extern struct sched_type *default_sched;
+extern struct kcache *task_cache;
+extern const unsigned int sched_prio_to_weight[40];
+extern const unsigned int sched_prio_to_wmult[40];
 
 /* idle task */
 extern void __noreturn idle_task_entry(void);

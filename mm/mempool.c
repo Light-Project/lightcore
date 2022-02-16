@@ -28,7 +28,7 @@ mempool_pop(struct mempool *mempool)
 
 /**
  * mempool_alloc - return an object to the pool
- * @pool: memory pool to release
+ * @pool: memory pool to allocation
  * @flags: alloc parameters
  */
 void *mempool_alloc(struct mempool *pool, gfp_t flags)
@@ -181,6 +181,18 @@ error_mempool:
 EXPORT_SYMBOL(mempool_create_node);
 
 /**
+ * mempool_create - create a slab memory pool
+ * @demand: number of objects required
+ * @size: size of each object
+ * @flags: alloc parameters
+ */
+struct mempool *mempool_create(unsigned int demand, size_t size, gfp_t flags)
+{
+    return mempool_create_node(mempool_kmalloc, mempool_kfree, demand, flags, (void *)size);
+}
+EXPORT_SYMBOL(mempool_create);
+
+/**
  * mempool_release - release all memory in a mempool
  * @pool: memory pool to release
  */
@@ -195,18 +207,6 @@ void mempool_release(struct mempool *pool)
     pool->objects = NULL;
 }
 EXPORT_SYMBOL(mempool_release);
-
-/**
- * mempool_create - create a slab memory pool
- * @demand: number of objects required
- * @size: size of each object
- * @flags: alloc parameters
- */
-struct mempool *mempool_create(unsigned int demand, size_t size, gfp_t flags)
-{
-    return mempool_create_node(mempool_kmalloc, mempool_kfree, demand, flags, (void *)size);
-}
-EXPORT_SYMBOL(mempool_create);
 
 /**
  * mempool_delete - destroy a memory pool

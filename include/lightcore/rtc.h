@@ -5,8 +5,7 @@
 #include <lightcore/types.h>
 
 struct rtc_time {
-    int tm_us;
-    int tm_ms;
+    int tm_nsec;
     int tm_sec;
     int tm_min;
     int tm_hour;

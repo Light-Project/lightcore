@@ -77,6 +77,7 @@ extern state platform_device_register(struct platform_device *pdev);
 extern void platform_device_unregister(struct platform_device *pdev);
 extern state platform_driver_register(struct platform_driver *pdrv);
 extern void platform_driver_unregister(struct platform_driver *pdrv);
+extern struct platform_device *platform_unified_register(struct platform_driver *pdrv, struct resource *res, unsigned int nres);
 
 extern void __init platform_dt_init(void);
 extern void __init platform_bus_init(void);

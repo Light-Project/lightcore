@@ -3,6 +3,10 @@ menuconfig RTC
     bool "Real Time Clock (RTC) Support"
 if RTC
 
+config RTC_HCTOSYS
+    bool "Set time from RTC on Startup and Resume"
+    default y
+
 config RTC_GX6605S
     tristate "GX6605S RTC Support"
 

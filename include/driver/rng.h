@@ -8,6 +8,7 @@ struct rng_device {
     struct list_head list;
     struct device *dev;
     struct rng_ops *ops;
+    unsigned int rating;
 };
 
 struct rng_ops {
@@ -16,7 +17,7 @@ struct rng_ops {
     state (*read)(struct rng_device *, unsigned long *data);
 };
 
-state rng_register(struct rng_device *);
-void rng_unregister(struct rng_device *);
+extern state rng_register(struct rng_device *);
+extern void rng_unregister(struct rng_device *);
 
 #endif  /* _DRIVER_RNG_H_ */

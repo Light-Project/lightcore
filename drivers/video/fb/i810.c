@@ -8,11 +8,11 @@
 
 #include <size.h>
 #include <initcall.h>
+#include <delay.h>
 #include <driver/pci.h>
 #include <driver/video.h>
 #include <driver/video/i810.h>
 #include <printk.h>
-#include <asm/delay.h>
 #include <asm/proc.h>
 #include <asm/io.h>
 

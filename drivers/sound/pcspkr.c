@@ -9,6 +9,7 @@
 #include <initcall.h>
 #include <driver/platform.h>
 #include <driver/clocksource/i8253.h>
+#include <driver/platform/ibmpc.h>
 #include <panic.h>
 #include <asm/io.h>
 
@@ -34,8 +35,8 @@ i8253_out(struct pcspkr_device *sdev, int reg, uint8_t value)
 static void pcspkr_panic(const void *data)
 {
     /* enable speaker output gate */
-    uint8_t val = inb(NMISC_BASE);
-    outb(NMISC_BASE, val | NMISC_SPEAKER_EN | NMISC_TIMER2_EN);
+    uint8_t val = inb(IBMPC_NMISC_BASE);
+    outb(IBMPC_NMISC_BASE, val | IBMPC_NMISC_SPEAKER_EN | IBMPC_NMISC_TIMER2_EN);
 }
 
 static void pcspkr_hwinit(struct pcspkr_device *sdev)

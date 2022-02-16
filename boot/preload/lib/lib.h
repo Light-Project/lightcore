@@ -14,7 +14,7 @@ extern int pr_boot(const char *str, ...);
 extern __noreturn void panic(const char *str, ...);
 
 extern int strcmp(const char *, const char *);
-extern void *memcpy(void *, const void*, size_t);
+extern void *memcpy(void *, const void *, size_t);
 extern int strncmp(const char *s1, const char *s2, size_t n);
 extern void *memset(void *, int, size_t);
 extern void *memmove(void * dest, const void * src, size_t n);

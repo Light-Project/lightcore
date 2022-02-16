@@ -236,7 +236,7 @@ static inline void writeq(volatile void *addr, uint64_t val)
 static inline void readsb(const volatile void *addr, void *buffer, unsigned int count)
 {
     if (count) {
-        uint8_t *buf = (uint8_t *)buffer;
+        uint8_t *buf = buffer;
 
         do {
             uint8_t x = raw_readb(addr);
@@ -251,7 +251,7 @@ static inline void readsb(const volatile void *addr, void *buffer, unsigned int 
 static inline void readsw(const volatile void *addr, void *buffer, unsigned int count)
 {
     if (count) {
-        uint16_t *buf = (uint16_t *)buffer;
+        uint16_t *buf = buffer;
 
         do {
             uint16_t x = raw_readw(addr);
@@ -266,7 +266,7 @@ static inline void readsw(const volatile void *addr, void *buffer, unsigned int 
 static inline void readsl(const volatile void *addr, void *buffer, unsigned int count)
 {
     if (count) {
-        uint32_t *buf = (uint32_t *)buffer;
+        uint32_t *buf = buffer;
 
         do {
             uint32_t x = raw_readl(addr);
@@ -282,10 +282,10 @@ static inline void readsl(const volatile void *addr, void *buffer, unsigned int 
 static inline void readsq(const volatile void *addr, void *buffer, unsigned int count)
 {
     if (count) {
-        u64 *buf = (u64 *)buffer;
+        uint64_t *buf = buffer;
 
         do {
-            u64 x = (u64 *)raw_readq(addr);
+            uint64_t x = raw_readq(addr);
             *buf++ = x;
         } while (--count);
     }
@@ -341,7 +341,7 @@ static inline void writesl(volatile void *addr, const void *buffer, unsigned int
 static inline void writesq(volatile void *addr, const void *buffer, unsigned int count)
 {
     if (count) {
-        const u64 *buf = (u64 *)buffer;
+        const uint64_t *buf = (uint64_t *)buffer;
 
         do {
             raw_writeq(addr, *buf++);

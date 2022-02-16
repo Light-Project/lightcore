@@ -2,7 +2,6 @@
 menuconfig KASAN
     bool "Runtime Memory Monitor Support"
     depends on ARCH_HAS_KASAN
-    default y
 if KASAN
 
 choice
@@ -13,5 +12,8 @@ config KASAN_GENERIC
     bool "Generic Mode"
 
 endchoice
+
+config KASAN_SHADOW_OFFSET
+    hex "KASAN Shadow Offset"
 
 endif

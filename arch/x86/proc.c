@@ -8,7 +8,7 @@
 #include <asm/proc.h>
 #include <asm/entry.h>
 #include <asm/idt.h>
-#include <asm/irq.h>
+#include <irqflags.h>
 
 void proc_thread_setup(struct regs *regs, size_t ip, size_t sp)
 {
@@ -55,14 +55,14 @@ state proc_thread_switch(struct sched_task *prev, struct sched_task *next)
 
 void __noreturn proc_halt(void)
 {
-    cpu_irq_disable();
+    irq_local_disable();
     for (;;)
     asm volatile ("rep \n hlt");
 }
 
 void __noreturn proc_reset(void)
 {
-    cpu_irq_disable();
+    irq_local_disable();
     idt_int_gate(TRAP_PF, NULL);
     idt_int_gate(TRAP_GP, NULL);
     idt_int_gate(TRAP_DF, NULL);

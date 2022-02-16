@@ -207,15 +207,15 @@ skip_va:
 
     switch (type) {
         case VALUE_BIT:
-            va = BIT(vb);
+            va = BIT_ULL(vb);
             break;
 
         case VALUE_BIT_SHIFT:
-            va = BIT_SHIFT(va, vb);
+            va = BIT_SHIFT_ULL(va, vb);
             break;
 
         case VALUE_BIT_RANGE:
-            va = BIT_RANGE(va, vb);
+            va = BIT_RANGE_ULL(va, vb);
             break;
 
         default:
@@ -421,7 +421,7 @@ static state mem_write(int argc, char *argv[])
         }
     }
 
-    else if (argc == 3 && isdigit(*argv[0] && legal_val(argv[2])))
+    else if (argc == 3 && isdigit(*argv[0]) && legal_val(argv[2]))
         goto pass;
 
     else
@@ -657,7 +657,7 @@ static state ioport_out(int argc, char *argv[])
         }
     }
 
-    else if (argc == 3 && isdigit(*argv[0] && isdigit(*argv[2])))
+    else if (argc == 3 && isdigit(*argv[0]) && isdigit(*argv[2]))
         goto pass;
 
     else
@@ -771,12 +771,10 @@ static state mem_main(int argc, char *argv[])
     switch (act) {
         case ACTION_MEM_WRITE:
             ret = mem_write(argc - 2, &argv[2]);
-            if (ret)
+            if (ret || !show)
                 return ret;
-            if (show) {
-                show = false;
-                argc -= 2;
-            }
+            show = false;
+            argc -= 2;
 
         case ACTION_MEM_READ: default:
             if (show)
@@ -785,12 +783,10 @@ static state mem_main(int argc, char *argv[])
 
         case ACTION_IOPORT_OUT:
             ret = ioport_out(argc - 2, &argv[2]);
-            if (ret)
+            if (ret || !show)
                 return ret;
-            if (show) {
-                show = false;
-                argc -= 2;
-            }
+            show = false;
+            argc -= 2;
 
         case ACTION_IOPORT_IN:
             if (show)

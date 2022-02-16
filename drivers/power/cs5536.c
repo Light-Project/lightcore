@@ -9,7 +9,7 @@
 #include <initcall.h>
 #include <driver/pci.h>
 #include <driver/power.h>
-#include <asm/delay.h>
+#include <delay.h>
 #include <asm/regs.h>
 
 static void cs5536_restart(struct power_device *pdev)

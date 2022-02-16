@@ -15,7 +15,7 @@ syscall(unsigned int callnr, long arg1, long arg2,
         "pushl  %%edx               \n"
         "pushl  %%ecx               \n"
         "pushl  %%ebx               \n"
-        "movl   0x14(%%eax), %%ebp  \n"
+        "movl   0x18(%%eax), %%ebp  \n"
         "movl   0x14(%%eax), %%edi  \n"
         "movl   0x10(%%eax), %%esi  \n"
         "movl   0x0c(%%eax), %%edx  \n"

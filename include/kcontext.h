@@ -23,7 +23,7 @@ extern void getcontext(struct kcontext *kc);
 /*
  * Set user context from information of variable pointed to by kc.
  */
-extern struct kcontext *setcontext(const struct kcontext *kc);
+extern void __noreturn setcontext(const struct kcontext *kc);
 
 /*
  * Save current context in context variable pointed to by okc and set

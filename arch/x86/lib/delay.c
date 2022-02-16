@@ -8,7 +8,7 @@
 #include <export.h>
 #include <asm/tsc.h>
 
-void cpu_do_loop(unsigned long loops)
+void arch_proc_do_loop(unsigned long loops)
 {
     asm volatile (
         "test   %0, %0  \n"
@@ -26,7 +26,7 @@ void cpu_do_loop(unsigned long loops)
     );
 }
 
-void cpu_const_delay(unsigned long loops)
+void arch_proc_const_delay(unsigned long loops)
 {
     int d0;
 
@@ -38,20 +38,20 @@ void cpu_const_delay(unsigned long loops)
         :"1"(loops), "0"(tsc_khz * (1000 / 4))
     );
 
-    cpu_do_loop(++loops);
+    arch_proc_do_loop(++loops);
 }
 
-void cpu_ndelay(unsigned long nsecs)
+void arch_proc_ndelay(unsigned long nsecs)
 {
-    cpu_const_delay(nsecs * 5);
+    arch_proc_const_delay(nsecs * 5);
 }
 
-void cpu_udelay(unsigned long usecs)
+void arch_proc_udelay(unsigned long usecs)
 {
-    cpu_const_delay(usecs * 4295);
+    arch_proc_const_delay(usecs * 4295);
 }
 
-EXPORT_SYMBOL(cpu_do_loop);
-EXPORT_SYMBOL(cpu_const_delay);
-EXPORT_SYMBOL(cpu_ndelay);
-EXPORT_SYMBOL(cpu_udelay);
+EXPORT_SYMBOL(arch_proc_do_loop);
+EXPORT_SYMBOL(arch_proc_const_delay);
+EXPORT_SYMBOL(arch_proc_ndelay);
+EXPORT_SYMBOL(arch_proc_udelay);

@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menu "Printk Config"
+
+config PRE_CONSOLE
+    bool "Early Console Support"
+    default y
+
+config PRINTK
+    bool "Printk Support"
+    default y
+
+config PRINTK_TIME
+    bool "Show Timing Information"
+    depends on PRINTK
+    default y
+
+config PRINTK_LOGLEVEL
+    int "Default message log level"
+    depends on PRINTK
+    range 1 7
+    default 4
+
+config DYNAMIC_DEBUG
+    bool "Kernel Dynamic Debug"
+    depends on PRINTK
+    default y
+
+endmenu

@@ -5,7 +5,7 @@
 
 #include <linkage.h>
 #include <irq.h>
-#include <asm/irq.h>
+#include <irqflags.h>
 #include <asm/entry.h>
 #include <asm/regs.h>
 

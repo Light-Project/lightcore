@@ -1,9 +1,17 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 obj-y += boot/ lib/ mm/
-obj-y += setup.o entry.o proc.o syscall.o
-obj-y += idt.o irq.o backtrace.o traps.o
-obj-y += doublefault.o e820.o tsc.o
+obj-y += setup.o proc.o
+obj-y += idt.o irq.o traps.o
+obj-y += e820.o tsc.o syscall.o
+
 obj-$(CONFIG_PRE_CONSOLE) += pre-console.o
+
+obj-$(CONFIG_ARCH_X86_32) += entry32.o
+obj-$(CONFIG_ARCH_X86_32) += doublefault32.o
+obj-$(CONFIG_ARCH_X86_32) += backtrace32.o
+
+obj-$(CONFIG_ARCH_X86_64) += entry64.o
+obj-$(CONFIG_ARCH_X86_64) += backtrace64.o
 
 obj-$(CONFIG_SMP) += smp.o
 subdir-$(CONFIG_SMP) += smpboot/

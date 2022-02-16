@@ -10,7 +10,7 @@
 #include <driver/acpi.h>
 #include <driver/pci.h>
 #include <driver/power.h>
-#include <asm/delay.h>
+#include <delay.h>
 
 struct power_device acpi_power_device;
 
@@ -88,7 +88,7 @@ static void acpi_shutdown(struct power_device *pdev)
         return;
     }
 
-    cpu_irq_disable();
+    irq_local_disable();
     acpi_sleep_prepare(ACPI_STATE_S5);
     AcpiEnterSleepState(ACPI_STATE_S5);
 }

@@ -2,13 +2,15 @@
 #ifndef _FILESYSTEM_H_
 #define _FILESYSTEM_H_
 
+#include <error.h>
 #include <bits.h>
 #include <list.h>
 #include <time.h>
+#include <fstype.h>
 #include <fsdev.h>
 #include <fs/dirent.h>
 
-struct vm_area;
+struct vmem_area;
 
 typedef enum fmode {
     FMODE_RDONLY    = BIT(0),
@@ -20,105 +22,169 @@ typedef enum fmode {
     FMODE_EXEC      = BIT(5),
 } fmode_t;
 
-enum mount_flag {
+enum mount_flags {
     MOUNT_RDONLY    = BIT(0),
     MOUNT_WRONLY    = BIT(1),
     MOUNT_RW        = MOUNT_RDONLY | MOUNT_WRONLY,
 };
 
+/**
+ * file - describe an file of vfl
+ *
+ */
 struct file {
     enum fmode fmode;
     const char *path;
-    loff_t  offset;
+    loff_t offset;
 
     struct file_ops *ops;
     void *data;
 };
 
+/**
+ * inode - describe an inode of vfl
+ * @atime: access time
+ * @mtime: modify time
+ * @ctime: change time
+ * @lru: inode lru list
+ */
 struct inode {
     umode_t mode;
-    uid_t   uid;
-    gid_t   gid;
+    uid_t uid;
+    gid_t gid;
 
-    struct timespec atime;  /* access time */
-    struct timespec mtime;  /* modify time */
-    struct timespec ctime;  /* change time */
+    struct timespec atime;
+    struct timespec mtime;
+    struct timespec ctime;
 
     struct superblock *sb;
     struct inode_ops *ops;
     struct file_ops *fops;
-    struct list_head list;  /* inode LRU list */
+    struct list_head lru;
 };
 
+/**
+ * superblock - describe an superblock of vfl
+ *
+ *
+ */
 struct superblock {
+    struct list_head mount_list;
     struct filesystem_type *fs_type;
     struct fsdev *fsdev;
 
-    struct inode *root;
+    struct dirent *root;
     struct list_head inode;
-
-    struct superblock_ops *ops;
-    struct list_head mount_list;
+    const struct superblock_ops *ops;
 };
 
+/**
+ * file_ops - file operations
+ * @open:
+ * @close:
+ * @read:
+ * @write:
+ * @ioctl:
+ * @mmap:
+ */
 struct file_ops {
     state (*open)(struct inode *inode, struct file *file);
-    void (*close)(struct inode *inode, struct file *file);
-    state (*read)(struct file *fp, void *dest, size_t len, loff_t *off);
-    state (*write)(struct file *fp, void *src, size_t len, loff_t *off);
-    state (*ioctl)(struct file *fp, unsigned int cmd, unsigned long arg);
-    state (*mmap)(struct file *fp, struct vm_area *vmem);
+    state (*close)(struct inode *inode, struct file *file);
+    state (*read)(struct file *file, void *dest, size_t len, loff_t *off);
+    state (*write)(struct file *file, void *src, size_t len, loff_t *off);
+    state (*ioctl)(struct file *file, unsigned int cmd, unsigned long arg);
+    state (*mmap)(struct file *file, struct vmem_area *vmem);
 };
 
+/**
+ * inode_ops - inode operations
+ * @lookup:
+ * @mkdir:
+ * @rmdir:
+ * @readlink:
+ * @symlink:
+ * @link:
+ * @unlink:
+ */
 struct inode_ops {
-    state (*mkdir)(struct dirent *, struct inode *, umode_t);
-    state (*rmdir)(struct dirent *, struct inode *);
-    struct dirent *(*lookup)(struct inode *, struct dirent *, unsigned int);
-    state (*readlink)(struct dirent *, char *, int);
-    state (*symlink)(struct inode *, struct dirent *, const char *);
-    state (*link)(struct dirent *, struct inode *,struct dirent *);
-    state (*unlink)(struct inode *, struct dirent *);
+    struct dirent *(*lookup)(struct inode *inode, struct dirent *dir, unsigned int);
+    state (*mkdir)(struct dirent *dir, struct inode *inode, umode_t mode);
+    state (*rmdir)(struct dirent *dir, struct inode *inode);
+    state (*readlink)(struct dirent *dir, char *, int);
+    state (*symlink)(struct inode *inode, struct dirent *dir, const char *);
+    state (*link)(struct dirent *dir, struct inode *inode,struct dirent *);
+    state (*unlink)(struct inode *inode, struct dirent *dir);
 };
 
+/**
+ * superblock_ops - superblock operations
+ * @inode_alloc:
+ * @inode_free:
+ * @sync:
+ */
 struct superblock_ops {
+    struct inode *(*inode_alloc)(void);
+    void (*inode_free)(struct inode *inode);
     void (*sync)(struct superblock *);
 };
 
 struct filesystem_type {
     const char *name;
     struct list_head list;
-    state (*mount)(struct fsdev *, enum mount_flag, struct superblock **);
-    state (*unmount)(struct superblock *);
+    struct superblock *(*mount)(struct fsdev *, enum mount_flags);
+    void (*unmount)(struct superblock *);
 };
 
-static inline state sb_read(struct superblock *sb, unsigned long pos,
-                            void *buf, size_t len)
+extern struct list_head filesystem_list;
+extern struct spinlock filesystem_lock;
+
+/**
+ * sb_read - use superblock to read filesystem device
+ * @sb: the superblock to read data
+ * @pos: position (byte)
+ * @buf: read buffer
+ * @len: read length
+ */
+static inline state sb_read(struct superblock *sb, unsigned long pos, void *buf, size_t len)
 {
     return fsdev_read(sb->fsdev, pos, buf, len);
 }
 
-static inline state sb_write(struct superblock *sb, unsigned long pos,
-                             void *buf, size_t len)
+/**
+ * sb_write - use superblock to write filesystem device
+ * @sb: the superblock to write data
+ * @pos: position (byte)
+ * @buf: write buffer
+ * @len: write length
+ */
+static inline state sb_write(struct superblock *sb, unsigned long pos, void *buf, size_t len)
 {
     return fsdev_write(sb->fsdev, pos, buf, len);
 }
 
-static inline state sb_page_read(struct superblock *sb, unsigned long pos,
-                            void *buf, size_t len)
-{
-    return fsdev_read(sb->fsdev, pos, buf, len);
-}
+/* filesystem lib */
+extern struct inode *fslib_inode_alloc(void);
+extern void fslib_inode_free(struct inode *inode);
+extern struct superblock *fslib_superblock_alloc(void);
+extern void fslib_superblock_free(struct superblock *sb);
 
+/* vfl core */
 extern struct file *vfl_open(const char *name, int flags, umode_t mode);
 extern ssize_t vfl_read(struct file *fp, void *buf, size_t len, loff_t *pos);
+extern void __init vfl_init(void);
 
-extern state kernel_execve(const char *file, const char *const *argv, const char *const *envp);
-
-/* filesystem.c */
+/* filesystem manager */
 extern state filesystem_register(struct filesystem_type *fs);
 extern void filesystem_unregister(struct filesystem_type *fs);
 
-/* init.c */
-extern void __init vfl_init(void);
+/* init */
+extern state kernel_link(const char *oldname, const char *newname);
+extern state kernel_symlink(const char *oldname, const char *newname);
+extern state kernel_unlink(const char *filename);
+extern state kernel_chdir(const char *path);
+extern state kernel_chroot(const char *path);
+extern state kernel_mount(const char *devn, const char *fsn, enum mount_flags flags);
+extern state kernel_unmount(const char *pathname);
+extern state kernel_execve(const char *file, const char *const *argv, const char *const *envp);
 
 #endif  /* _FILESYSTEM_H_ */

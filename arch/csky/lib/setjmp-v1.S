@@ -15,6 +15,8 @@ SYM_CODE_START(setjmp)
     stw     l5, (a0, 0x18)
     stw     gb, (a0, 0x1c)
     stw     lr, (a0, 0x20)
+
+    xor     a0, a0
     rts
 SYM_CODE_END(setjmp)
 

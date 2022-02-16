@@ -32,8 +32,14 @@ static inline void *stack_end(void *stack)
 #endif
 }
 
+/* task resource operations */
 extern void task_stack_magic(struct sched_task *task);
 extern bool task_stack_check(struct sched_task *task);
+extern void *task_stack_alloc(void);
+extern void task_stack_free(void *stack);
+extern struct memory *task_memory_alloc(void);
+extern void task_memory_free(struct memory *mem);
+
 extern state fork_thread(enum clone_flags flags, int (*fn)(void *), void *arg);
 extern void __init fork_init(void);
 

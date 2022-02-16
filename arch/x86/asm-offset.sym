@@ -8,12 +8,23 @@
 #define jmpbuf(member) offsetof(jmp_buf, member)
 #define jreg(reg) jmpbuf(regs[reg])
 
+#ifdef CONFIG_ARCH_X86_32
 SETJMP_EBX      jreg(JMP_BUF_BX)
 SETJMP_ESI      jreg(JMP_BUF_SI)
 SETJMP_EDI      jreg(JMP_BUF_DI)
 SETJMP_EBP      jreg(JMP_BUF_BP)
 SETJMP_ESP      jreg(JMP_BUF_SP)
 SETJMP_EPC      jreg(JMP_BUF_PC)
+#else
+SETJMP_RBX      jreg(JMP_BUF_BX)
+SETJMP_RBP      jreg(JMP_BUF_BP)
+SETJMP_R12      jreg(JMP_BUF_12)
+SETJMP_R13      jreg(JMP_BUF_13)
+SETJMP_R14      jreg(JMP_BUF_14)
+SETJMP_R15      jreg(JMP_BUF_15)
+SETJMP_RSP      jreg(JMP_BUF_SP)
+SETJMP_RPC      jreg(JMP_BUF_PC)
+#endif
 
 -- kcontext
 
@@ -25,9 +36,27 @@ KCONTEXT_LINK   kcontext(link)
 KCONTEXT_STA    kcontext(stack)
 KCONTEXT_STS    kcontext(ssize)
 KCONTEXT_RET    kcontext(retval)
+
+#ifdef CONFIG_ARCH_X86_32
 KCONTEXT_EBX    mcontext(KC_BUF_BX)
 KCONTEXT_ESI    mcontext(KC_BUF_SI)
 KCONTEXT_EDI    mcontext(KC_BUF_DI)
 KCONTEXT_EBP    mcontext(KC_BUF_BP)
 KCONTEXT_ESP    mcontext(KC_BUF_SP)
 KCONTEXT_EPC    mcontext(KC_BUF_PC)
+#else
+KCONTEXT_RBX    mcontext(KC_BUF_BX)
+KCONTEXT_RCX    mcontext(KC_BUF_CX)
+KCONTEXT_RDX    mcontext(KC_BUF_DX)
+KCONTEXT_RSI    mcontext(KC_BUF_SI)
+KCONTEXT_RDI    mcontext(KC_BUF_DI)
+KCONTEXT_RBP    mcontext(KC_BUF_BP)
+KCONTEXT_R8     mcontext(KC_BUF_8)
+KCONTEXT_R9     mcontext(KC_BUF_9)
+KCONTEXT_R12    mcontext(KC_BUF_12)
+KCONTEXT_R13    mcontext(KC_BUF_13)
+KCONTEXT_R14    mcontext(KC_BUF_14)
+KCONTEXT_R15    mcontext(KC_BUF_15)
+KCONTEXT_RSP    mcontext(KC_BUF_SP)
+KCONTEXT_RPC    mcontext(KC_BUF_PC)
+#endif

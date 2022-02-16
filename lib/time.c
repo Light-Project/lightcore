@@ -28,3 +28,26 @@ time_t mktime(unsigned int year, unsigned int mon, unsigned int day,
     return time;
 }
 EXPORT_SYMBOL(mktime);
+
+struct timespec ns_to_timespec(const int64_t nsec)
+{
+    struct timespec ts;
+
+    ts.tv_nsec = nsec % NSEC_PER_SEC;
+    ts.tv_sec = nsec / NSEC_PER_SEC;
+
+    return ts;
+}
+EXPORT_SYMBOL(ns_to_timespec);
+
+int64_t timespec_to_ns(struct timespec *ts)
+{
+	if (ts->tv_sec >= KTIME_SEC_MAX)
+		return KTIME_MAX;
+
+	if (ts->tv_sec <= KTIME_SEC_MIN)
+		return KTIME_MIN;
+
+    return (ts->tv_sec * NSEC_PER_SEC) + ts->tv_nsec;
+}
+EXPORT_SYMBOL(timespec_to_ns);

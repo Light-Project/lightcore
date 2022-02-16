@@ -2,11 +2,15 @@
 menu "Block Partition Support"
 
 config PART_MSDOS
-    bool "PC BIOS (MSDOS Partition) Support"
+    bool "PC BIOS (MSDOS Partition) Partition Table Support"
     default y
 
 config PART_EFI
-    bool "EFI GUID Partition Support"
+    bool "EFI GUID (GPT) Partition Table Support"
+    default y
+
+config PART_SUN
+    bool "Sun Partition Table Support"
     default y
 
 endmenu

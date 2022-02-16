@@ -9,7 +9,7 @@
 #include <initcall.h>
 #include <driver/pci.h>
 #include <driver/power.h>
-#include <asm/delay.h>
+#include <delay.h>
 
 static void cs5530a_warm_restart(struct power_device *pdev)
 {

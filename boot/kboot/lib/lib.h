@@ -7,20 +7,6 @@
 #include <stdarg.h>
 #include <asm-generic/header.h>
 
-extern char _ld_piggy_start;
-extern char _ld_piggy_end;
-extern char _ld_bss_start;
-extern char _ld_bss_end;
-extern char _ld_heap_start;
-extern char _ld_heap_end;
-
-extern void *ld_piggy_start;
-extern void *ld_piggy_end;
-extern void *ld_bss_start;
-extern void *ld_bss_end;
-extern void *ld_heap_start;
-extern void *ld_heap_end;
-
 extern void (*stdout)(const char *);
 
 extern size_t strlen(const char *s);

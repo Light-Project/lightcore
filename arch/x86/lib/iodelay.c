@@ -6,8 +6,8 @@
 #define MODULE_NAME "iodelay"
 #define pr_fmt(fmt) MODULE_NAME ": " fmt
 
-#include <asm/io.h>
-#include <asm/delay.h>
+#include <ioops.h>
+#include <delay.h>
 #include <driver/firmware/dmi.h>
 #include <export.h>
 #include <printk.h>

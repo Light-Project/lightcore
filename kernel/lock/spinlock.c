@@ -5,76 +5,67 @@
 
 #include <spinlock.h>
 #include <export.h>
-#include <asm/irq.h>
 
-void raw_spin_lock(raw_spinlock_t *lock)
+#ifndef CONFIG_INLINE_SPINLOCK
+
+void raw_spin_lock(arch_spinlock_t *lock)
 {
-
+    _raw_spin_lock(lock);
 }
 EXPORT_SYMBOL(raw_spin_lock);
 
-void raw_spin_unlock(raw_spinlock_t *lock)
+void raw_spin_unlock(arch_spinlock_t *lock)
 {
-
+    _raw_spin_unlock(lock);
 }
 EXPORT_SYMBOL(raw_spin_unlock);
 
-void raw_spin_lock_bh(raw_spinlock_t *lock)
+void raw_spin_lock_bh(arch_spinlock_t *lock)
 {
-
+    _raw_spin_lock_bh(lock);
 }
 EXPORT_SYMBOL(raw_spin_lock_bh);
 
-void raw_spin_unlock_bh(raw_spinlock_t *lock)
+void raw_spin_unlock_bh(arch_spinlock_t *lock)
 {
-
+    _raw_spin_unlock_bh(lock);
 }
 EXPORT_SYMBOL(raw_spin_unlock_bh);
 
-void raw_spin_lock_irq(raw_spinlock_t *lock)
+void raw_spin_lock_irq(arch_spinlock_t *lock)
 {
-    cpu_irq_disable();
+    _raw_spin_lock_irq(lock);
 }
 EXPORT_SYMBOL(raw_spin_lock_irq);
 
-void raw_spin_unlock_irq(raw_spinlock_t *lock)
+void raw_spin_unlock_irq(arch_spinlock_t *lock)
 {
-    cpu_irq_enable();
+    _raw_spin_unlock_irq(lock);
 }
 EXPORT_SYMBOL(raw_spin_unlock_irq);
 
-void raw_spin_lock_irqsave(raw_spinlock_t *lock, irqflags_t *flags)
+void raw_spin_lock_irqsave(arch_spinlock_t *lock, irqflags_t *flags)
 {
-    *flags = cpu_irq_save();
+    _raw_spin_lock_irqsave(lock, flags);
 }
 EXPORT_SYMBOL(raw_spin_lock_irqsave);
 
-void raw_spin_unlock_irqrestore(raw_spinlock_t *lock, irqflags_t *flags)
+void raw_spin_unlock_irqrestore(arch_spinlock_t *lock, irqflags_t *flags)
 {
-    cpu_irq_restore(*flags);
+    _raw_spin_unlock_irqrestore(lock, flags);
 }
 EXPORT_SYMBOL(raw_spin_unlock_irqrestore);
 
-bool raw_spin_trylock(raw_spinlock_t *lock)
+bool raw_spin_trylock(arch_spinlock_t *lock)
 {
-    return true;
+    return _raw_spin_trylock(lock);
 }
 EXPORT_SYMBOL(raw_spin_trylock);
 
-bool raw_spin_trylock_bh(raw_spinlock_t *lock)
+bool raw_spin_trylock_bh(arch_spinlock_t *lock)
 {
-    return true;
+    return _raw_spin_trylock_bh(lock);
 }
 EXPORT_SYMBOL(raw_spin_trylock_bh);
 
-bool raw_spin_trylock_irq(raw_spinlock_t *lock)
-{
-    return true;
-}
-EXPORT_SYMBOL(raw_spin_trylock_irq);
-
-bool raw_spin_trylock_irqsave(raw_spinlock_t *lock, irqflags_t *flags)
-{
-    return true;
-}
-EXPORT_SYMBOL(raw_spin_trylock_irqsave);
+#endif  /* CONFIG_INLINE_SPINLOCK */

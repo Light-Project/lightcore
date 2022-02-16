@@ -112,7 +112,7 @@ free:
 static struct superblock_ops romfs_sb_ops = {
 };
 
-static struct superblock *romfs_mount(struct fsdev *fsdev, enum mount_flag flags)
+static struct superblock *romfs_mount(struct fsdev *fsdev, enum mount_flags flags)
 {
     struct romfs_superblock rsb;
     struct superblock *sb;

@@ -55,11 +55,13 @@ void *task_stack_alloc(void)
     memset(stack, 0, THREAD_SIZE);
     return stack;
 }
+EXPORT_SYMBOL(task_stack_alloc);
 
 void task_stack_free(void *stack)
 {
     ncache_put(stack_cache, stack);
 }
+EXPORT_SYMBOL(task_stack_free);
 
 /***  Allocate and init memory struct  ***/
 

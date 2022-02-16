@@ -3,32 +3,29 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
+#include <linkage.h>
 #include <memory.h>
 #include <kboot.h>
+#include <arch/x86/seg.h>
 
-void __noreturn main(void)
+asmlinkage void main(void)
 {
     struct boot_head *head;
-
-    /* clean bss */
-    memset(bss_start, 0, bss_size);
 
     /* Init console */
     console_clear();
     pr_init(console_print);
 
-    /* Init heap */
-    heap_init(heap_start, heap_size);
-
     /* Init Memory */
+    heap_init(heap_start, heap_size);
     segment_init();
     kernel_map();
 
-    /* extract kernel */
+    /* Extract kernel */
     extract_kernel(pa_to_va(NORMAL_OFFSET), piggy_start, piggy_size);
     head = pa_to_va(NORMAL_OFFSET);
     head->params = (size_t)pa_to_va(&bootparam);
 
     pr_boot("boot to kernel...\n");
-    kernel_start();
+    kernel_start(GDT_ENTRY_KERNEL_CS_BASE, (size_t)pa_to_va(NORMAL_OFFSET));
 }

@@ -9,9 +9,14 @@
 #include <state.h>
 #include <size.h>
 #include <math.h>
+#include <log2.h>
 
 #define KMAGIC  0x4c434d4bU
 #define MSIZE   (sizeof(void *))
+
+#define REPEAT_BYTE(char) (                             \
+    (~0UL / 0xff) * char                                \
+)
 
 /**
  * ARRAY_SIZE - get the number of elements in array.
@@ -70,7 +75,41 @@
  * @lo: lowest allowable value.
  * @hi: highest allowable value.
  */
-#define clamp(val, lo, hi)  min(max(val, lo), hi)
+#define clamp(val, lo, hi) (                            \
+    min(max(val, lo), hi)                               \
+)
+
+/**
+ * upper_32_bits - return bits 32-63 of a number
+ * @val: the value we're accessing
+ */
+#define upper_32_bits(val) (                            \
+    (uint32_t)(((val) >> 16) >> 16)                     \
+)
+
+/**
+ * lower_32_bits - return bits 0-31 of a number
+ * @val: the value we're accessing
+ */
+#define lower_32_bits(val) (                            \
+    (u32)((val) & 0xffffffff)                           \
+)
+
+/**
+ * upper_16_bits - return bits 16-31 of a number
+ * @val: the value we're accessing
+ */
+#define upper_16_bits(val) (                            \
+    (uint16_t)((val) >> 16)                             \
+)
+
+/**
+ * lower_16_bits - return bits 0-15 of a number
+ * @val: the value we're accessing
+ */
+#define lower_16_bits(val) (                            \
+    (uint16_t)((val) & 0xffff)                          \
+)
 
 /**
  * align_low/high - aligned address.

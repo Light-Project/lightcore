@@ -77,17 +77,6 @@ enum i8253_registers {
 #define I8253_COMMAND_COUNTER1      BIT(2)          /* Counter 1 count latched  */
 #define I8253_COMMAND_COUNTER0      BIT(1)          /* Counter 0 count latched */
 
-/* NMI Status And Control bitflag definitions */
-#define NMISC_BASE                  0x61
-#define NMISC_NMI_SERR_STAT         BIT(7)          /* SERR# NMI Source Status */
-#define NMISC_NMI_IOCHK_STAT        BIT(6)          /* IOCHK# NMI Source Status */
-#define NMISC_SPEAKER_STAT          BIT(5)          /* Timer Counter 2 OUT Status */
-#define NMISC_REFRESH_TOGGLE        BIT(4)          /* Refresh Cycle Toggle */
-#define NMISC_NMI_IOCHK             BIT(3)          /* IOCHK# NMI Enable */
-#define NMISC_PCI_SERR              BIT(2)          /* PCI SERR# Enable */
-#define NMISC_SPEAKER_EN            BIT(1)          /* Speaker Data Enable */
-#define NMISC_TIMER2_EN             BIT(0)          /* Timer Counter 2 Enable */
-
 /* The clock frequency of the i8253/i8254 PIT */
 #define I8253_CLKRATE               0x1234DE
 #define I8253_LATCH(HZ)             ((I8253_CLKRATE + (HZ) / 2) / (HZ))

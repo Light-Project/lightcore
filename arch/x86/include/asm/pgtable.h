@@ -11,35 +11,36 @@ typedef struct pte pte_t;
 typedef struct pgd pgd_t;
 
 #if CONFIG_PGTABLE_LEVEL > 2
-typedef struct pmd pmd_t;
+typedef struct pgd pmd_t;
 #else
 # include <asm-generic/pgtable-nopmd.h>
 #endif
 
 #if CONFIG_PGTABLE_LEVEL > 3
-typedef struct pud pud_t;
+typedef struct pgd pud_t;
 #else
 # include <asm-generic/pgtable-nopud.h>
 #endif
 
 #if CONFIG_PGTABLE_LEVEL > 4
-typedef struct p4d p4d_t;
+typedef struct pgd p4d_t;
 #else
 # include <asm-generic/pgtable-nop4d.h>
 #endif
 
-#define __PP PAGE_PRESENT
-#define __PW PAGE_RW
-#define __PU PAGE_USER
-#define __PC PAGE_PCD
-#define __PA PAGE_ACCESSED
-#define __PD PAGE_DIRTY
-#define __PE PAGE_PSE
-#define __PG PAGE_GLOBAL
-#define __PN PAGE_NX
+#define __PP    ((unsigned long)PAGE_PRESENT)
+#define __PW    ((unsigned long)PAGE_RW)
+#define __PU    ((unsigned long)PAGE_USER)
+#define __PC    ((unsigned long)PAGE_PCD)
+#define __PA    ((unsigned long)PAGE_ACCESSED)
+#define __PD    ((unsigned long)PAGE_DIRTY)
+#define __PE    ((unsigned long)PAGE_PSE)
+#define __PG    ((unsigned long)PAGE_GLOBAL)
+#define __PN    ((unsigned long)PAGE_NX)
 
 #define PAGE_NONE               (   0 |    0 |    0 |    0 | __PA |    0 |    0 | __PG |    0)
-#define PAGE_TABLE              (__PP | __PW | __PU |    0 | __PA | __PD |    0 |    0 |    0)
+#define PAGE_TABLE              (__PP | __PW | __PU |    0 | __PA | __PD |    0 |    0 | __PN)
+#define PAGE_TABLE_EXC          (__PP | __PW | __PU |    0 | __PA | __PD |    0 |    0 |    0)
 #define PAGE_KERNEL             (__PP | __PW |    0 |    0 | __PA | __PD |    0 | __PG | __PN)
 #define PAGE_KERNEL_EXC         (__PP | __PW |    0 |    0 | __PA | __PD |    0 | __PG |    0)
 #define PAGE_KERNEL_RO          (__PP |    0 |    0 |    0 | __PA | __PD |    0 | __PG | __PN)
@@ -49,6 +50,11 @@ typedef struct p4d p4d_t;
 #define PAGE_KERNEL_LARGE_EXC   (__PP | __PW |    0 |    0 | __PA | __PD | __PE | __PG |    0)
 
 extern pgd_t page_dir[PTRS_PER_PGD];
+
+static inline void pte_clear(pte_t *pte)
+{
+    pte->val = 0;
+}
 
 static inline bool pte_get_present(pte_t *pte)
 {
@@ -90,156 +96,136 @@ static inline void pte_set_wrprotect(pte_t *pte, bool wrprotect)
     pte->rw = wrprotect;
 }
 
-static inline void pmd_populate(pmd_t *pmd, pte_t *pte)
-{
-    pmd->val = PAGE_TABLE | va_to_pa(pte);
+#define X86_GENERIC_PGTABLE_OPS(name, type, child)                                  \
+static inline void name##_generic_populate(type *pgt, child *cpt)                   \
+{                                                                                   \
+    pgt->val = PAGE_TABLE | va_to_pa(cpt);                                          \
+}                                                                                   \
+                                                                                    \
+static inline bool name##_generic_inval(type *pgt)                                  \
+{                                                                                   \
+    return !!((pgt->val & __PU) & PAGE_TABLE);                                      \
+}                                                                                   \
+                                                                                    \
+static inline void name##_generic_clear(type *pgt)                                  \
+{                                                                                   \
+    pgt->val = 0;                                                                   \
+}                                                                                   \
+                                                                                    \
+static inline bool name##_generic_get_huge(type *pgt)                               \
+{                                                                                   \
+    return pgt->ps;                                                                 \
+}                                                                                   \
+                                                                                    \
+static inline size_t name##_generic_get_addr(type *pgt)                             \
+{                                                                                   \
+    phys_addr_t phys;                                                               \
+                                                                                    \
+    if (pgt->ps)                                                                    \
+        phys = pgt->addrl << PGDIR_SHIFT;                                           \
+    else                                                                            \
+        phys = pgt->addr << PAGE_SHIFT;                                             \
+                                                                                    \
+    return (size_t)pa_to_va(phys);                                                  \
+}                                                                                   \
+                                                                                    \
+static inline bool name##_generic_get_present(type *pgt)                            \
+{                                                                                   \
+    return pgt->p || pgt->g || pgt->ps;                                             \
+}                                                                                   \
+                                                                                    \
+static inline bool name##_generic_get_dirty(type *pgt)                              \
+{                                                                                   \
+    return pgt->d;                                                                  \
+}                                                                                   \
+                                                                                    \
+static inline void name##_generic_set_dirty(type *pgt, bool dirty)                  \
+{                                                                                   \
+    pgt->d = dirty;                                                                 \
+}                                                                                   \
+                                                                                    \
+static inline bool name##_generic_get_accessed(type *pgt)                           \
+{                                                                                   \
+    return pgt->a;                                                                  \
+}                                                                                   \
+                                                                                    \
+static inline void name##_generic_set_accessed(type *pgt, bool accessed)            \
+{                                                                                   \
+    pgt->a = accessed;                                                              \
+}                                                                                   \
+                                                                                    \
+static inline bool name##_generic_get_wrprotect(type *pgt)                          \
+{                                                                                   \
+    return pgt->rw;                                                                 \
+}                                                                                   \
+                                                                                    \
+static inline void name##_generic_set_wrprotect(type *pgt, bool wrprotect)          \
+{                                                                                   \
+    pgt->rw = wrprotect;                                                            \
 }
 
-static inline size_t pmd_get_addr(pmd_t *pmd)
-{
-    phys_addr_t phys;
+X86_GENERIC_PGTABLE_OPS(pmd, pmd_t, pte_t)
+#define pmd_populate        pmd_generic_populate
+#define pmd_inval           pmd_generic_inval
+#define pmd_clear           pmd_generic_clear
+#define pmd_get_huge        pmd_generic_get_huge
+#define pmd_get_addr        pmd_generic_get_addr
+#define pmd_get_present     pmd_generic_get_present
+#define pmd_get_dirty       pmd_generic_get_dirty
+#define pmd_set_dirty       pmd_generic_set_dirty
+#define pmd_get_accessed    pmd_generic_get_accessed
+#define pmd_set_accessed    pmd_generic_set_accessed
+#define pmd_get_wrprotect   pmd_generic_get_wrprotect
+#define pmd_set_wrprotect   pmd_generic_set_wrprotect
 
-    if (pmd->ps)
-        phys = pmd->addrl << PGDIR_SHIFT;
-    else
-        phys = pmd->addr << PAGE_SHIFT;
-
-    return (size_t)pa_to_va(phys);
-}
-
-static inline bool pmd_get_present(pmd_t *pmd)
-{
-    return pmd->p || pmd->g || pmd->ps;
-}
-
-static inline bool pmd_get_dirty(pmd_t *pmd)
-{
-    return pmd->d;
-}
-
-static inline void pmd_set_dirty(pmd_t *pmd, bool dirty)
-{
-    pmd->d = dirty;
-}
-
-static inline bool pmd_get_accessed(pmd_t *pmd)
-{
-    return pmd->a;
-}
-
-static inline void pmd_set_accessed(pmd_t *pmd, bool accessed)
-{
-    pmd->a = accessed;
-}
-
-static inline bool pmd_get_wrprotect(pmd_t *pmd)
-{
-    return pmd->rw;
-}
-
-static inline void pmd_set_wrprotect(pmd_t *pmd, bool wrprotect)
-{
-    pmd->rw = wrprotect;
-}
-
-#if CONFIG_PAGE_LEVEL > 2
-static inline bool pud_get_dirty(pud_t *pud)
-{
-    return pud->d;
-}
-
-static inline void pud_set_dirty(pud_t *pud, bool dirty)
-{
-    pud->d = dirty;
-}
-
-static inline bool pud_get_accessed(pud_t *pud)
-{
-    return pud->a;
-}
-
-static inline void pud_set_accessed(pud_t *pud, bool accessed)
-{
-    pud->a = accessed;
-}
-
-static inline bool pud_get_wrprotect(pud_t *pud)
-{
-    return pud->rw;
-}
-
-static inline void pud_set_wrprotect(pud_t *pud, bool wrprotect)
-{
-    pud->rw = wrprotect;
-}
+#if CONFIG_PGTABLE_LEVEL > 2
+X86_GENERIC_PGTABLE_OPS(pud, pud_t, pmd_t)
+# define pud_populate       pud_generic_populate
+# define pud_inval          pud_generic_inval
+# define pud_clear          pud_generic_clear
+# define pud_get_huge       pud_generic_get_huge
+# define pud_get_addr       pud_generic_get_addr
+# define pud_get_present    pud_generic_get_present
+# define pud_get_dirty      pud_generic_get_dirty
+# define pud_set_dirty      pud_generic_set_dirty
+# define pud_get_accessed   pud_generic_get_accessed
+# define pud_set_accessed   pud_generic_set_accessed
+# define pud_get_wrprotect  pud_generic_get_wrprotect
+# define pud_set_wrprotect  pud_generic_set_wrprotect
 #endif
 
-#if CONFIG_PAGE_LEVEL > 3
-static inline bool p4d_get_dirty(p4d_t *p4d)
-{
-    return p4d->d;
-}
-
-static inline void p4d_set_dirty(p4d_t *p4d, bool dirty)
-{
-    p4d->d = dirty;
-}
-
-static inline bool p4d_get_accessed(p4d_t *p4d)
-{
-    return p4d->a;
-}
-
-static inline void p4d_set_accessed(p4d_t *p4d, bool accessed)
-{
-    p4d->a = accessed;
-}
-
-static inline bool p4d_get_wrprotect(p4d_t *p4d)
-{
-    return p4d->rw;
-}
-
-static inline void p4d_set_wrprotect(p4d_t *p4d, bool wrprotect)
-{
-    p4d->rw = wrprotect;
-}
+#if CONFIG_PGTABLE_LEVEL > 3
+X86_GENERIC_PGTABLE_OPS(p4d, p4d_t, pud_t)
+# define p4d_populate       p4d_generic_populate
+# define p4d_inval          p4d_generic_inval
+# define p4d_clear          p4d_generic_clear
+# define p4d_get_huge       p4d_generic_get_huge
+# define p4d_get_addr       p4d_generic_get_addr
+# define p4d_get_present    p4d_generic_get_present
+# define p4d_get_dirty      p4d_generic_get_dirty
+# define p4d_set_dirty      p4d_generic_set_dirty
+# define p4d_get_accessed   p4d_generic_get_accessed
+# define p4d_set_accessed   p4d_generic_set_accessed
+# define p4d_get_wrprotect  p4d_generic_get_wrprotect
+# define p4d_set_wrprotect  p4d_generic_set_wrprotect
 #endif
 
-#if CONFIG_PAGE_LEVEL > 4
-static inline bool pgd_get_dirty(pgd_t *pgd)
-{
-    return pgd->d;
-}
-
-static inline void pgd_set_dirty(pgd_t *pgd, bool dirty)
-{
-    pgd->d = dirty;
-}
-
-static inline bool pgd_get_accessed(pgd_t *pgd)
-{
-    return pgd->a;
-}
-
-static inline void pgd_set_accessed(pgd_t *pgd, bool accessed)
-{
-    pgd->a = accessed;
-}
-
-static inline bool pgd_get_wrprotect(pgd_t *pgd)
-{
-    return pgd->rw;
-}
-
-static inline void pgd_set_wrprotect(pgd_t *pgd, bool wrprotect)
-{
-    pgd->rw = wrprotect;
-}
-
+#if CONFIG_PGTABLE_LEVEL > 4
+X86_GENERIC_PGTABLE_OPS(pgd, pgd_t, p4d_t)
+# define pgd_populate       pgd_generic_populate
+# define pgd_inval          pgd_generic_inval
+# define pgd_clear          pgd_generic_clear
+# define pgd_get_huge       pgd_generic_get_huge
+# define pgd_get_addr       pgd_generic_get_addr
+# define pgd_get_present    pgd_generic_get_present
+# define pgd_get_dirty      pgd_generic_get_dirty
+# define pgd_set_dirty      pgd_generic_set_dirty
+# define pgd_get_accessed   pgd_generic_get_accessed
+# define pgd_set_accessed   pgd_generic_set_accessed
+# define pgd_get_wrprotect  pgd_generic_get_wrprotect
+# define pgd_set_wrprotect  pgd_generic_set_wrprotect
 #endif
 
-state arch_page_map(phys_addr_t phys_addr, size_t addr, size_t size);
-void arch_page_setup(void);
+extern void __init arch_page_setup(void);
 
 #endif  /* _ASM_X86_PGTABLE_H_ */

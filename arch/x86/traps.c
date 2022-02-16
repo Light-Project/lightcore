@@ -21,12 +21,12 @@ static bool trap_bug(struct regs *regs)
         return false;
 
     if (regs->flags & EFLAGS_IF)
-        cpu_irq_enable();
+        irq_local_enable();
 
     regs->ip += BUG_LEN;
 
     if (regs->flags & EFLAGS_IF)
-        cpu_irq_disable();
+        irq_local_disable();
 
     return true;
 }

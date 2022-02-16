@@ -1,123 +1,124 @@
 menu "Processor type and features"
-    depends on ARCH_X86 || ARCH_X86_64
+    depends on ARCH_X86_32 || ARCH_X86_64
 
 choice
     prompt "Platform Selection"
-    default CPU_686 if ARCH_X86
+    default CPU_686 if ARCH_X86_32
     default CPU_GEN64 if ARCH_X86_64
 
 config CPU_486SX
     bool "486SX"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT4
 
 config CPU_486
     bool "486DX"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT4
 
 config CPU_586
     bool "586/K5/5x86/6x86/6x86MX"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT5
 
 config CPU_586TSC
     bool "Pentium-Classic"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT5
 
 config CPU_586MMX
     bool "Pentium-MMX"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT5
 
 config CPU_686
     bool "Pentium-Pro"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT5
 
 config CPU_PENTIUMII
     bool "Pentium-II/Celeron(pre-Coppermine)"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT5
 
 config CPU_PENTIUMIII
     bool "Pentium-III/Celeron(Coppermine)/Pentium-III Xeon"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT5
 
 config CPU_PENTIUMM
     bool "Pentium M"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT6
 
 config CPU_PENTIUM4
     bool "Pentium-4/Celeron(P4-based)/Pentium-4 M/older Xeon"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT7
 
 config CPU_K6
     bool "K6/K6-II/K6-III"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT5
 
 config CPU_K7
     bool "Athlon/Duron/K7"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT6
 
 config CPU_K8
     bool "Opteron/Athlon64/Hammer/K8"
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT6
 
 config CPU_CRUSOE
     bool "Crusoe"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT5
 
 config CPU_EFFICEON
     bool "Efficeon"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT5
 
 config CPU_WINCHIPC6
     bool "Winchip-C6"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT5
 
 config CPU_WINCHIP3D
     bool "Winchip-2/Winchip-2A/Winchip-3"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT5
 
 config CPU_ELAN
     bool "AMD Elan"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT4
 
 config CPU_GEODEGX1
     bool "GeodeGX1"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT4
 
 config CPU_GEODE_LX
     bool "Geode GX/LX"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT5
 
 config CPU_CYRIXIII
     bool "CyrixIII/VIA-C3"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT5
 
 config CPU_VIAC3_2
     bool "VIA C3-2 (Nehemiah)"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT5
 
 config CPU_VIAC7
     bool "VIA C7"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
     select CPU_CACHE_SHIFT6
 
 config CPU_PSC
@@ -142,7 +143,7 @@ endchoice
 
 config X86_PAE
     bool "Physical Address Extension (PAE) Support"
-    depends on ARCH_X86
+    depends on ARCH_X86_32
 
 choice
     prompt "IO Delay Type"
@@ -174,8 +175,6 @@ config PRECON_SER
 
 endchoice
 
-endmenu
-
 config CPU_CACHE_SHIFT7
     bool
 
@@ -194,3 +193,5 @@ config CPU_CACHE_SHIFT
     default "6" if CPU_CACHE_SHIFT6
     default "5" if CPU_CACHE_SHIFT5
     default "4" if CPU_CACHE_SHIFT4
+
+endmenu

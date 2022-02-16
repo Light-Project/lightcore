@@ -53,6 +53,8 @@ source "drivers/serio/Kconfig"
 
 source "drivers/reset/Kconfig"
 
+source "drivers/rng/Kconfig"
+
 source "drivers/rtc/Kconfig"
 
 source "drivers/sound/Kconfig"

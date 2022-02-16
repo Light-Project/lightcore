@@ -2,7 +2,7 @@
 #ifndef _ASM_X86_IDT_H_
 #define _ASM_X86_IDT_H_
 
-#include <asm/irq.h>
+#include <irqflags.h>
 #include <arch/x86/segment.h>
 #include <arch/x86/interrupt.h>
 
@@ -17,7 +17,7 @@ struct idt_data {
 
 static inline void idt_set(struct idt_table *idt)
 {
-    asm volatile("lidtl (%0)"::"Na"(idt));
+    asm volatile("lidt (%0)"::"Na"(idt));
 }
 
 void idt_int_gate(irqnr_t nr, void *handle);

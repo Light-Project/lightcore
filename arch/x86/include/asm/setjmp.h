@@ -10,7 +10,7 @@
 # define JMP_BUF_14     4
 # define JMP_BUF_15     5
 # define JMP_BUF_SP     6
-# define JMP_BUF_PC	    7
+# define JMP_BUF_PC     7
 # define JMP_BUF_REGS   8
 #else
 # define JMP_BUF_BX     0

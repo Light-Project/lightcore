@@ -17,11 +17,12 @@ static long nofill(void *buffer, unsigned long len)
 }
 
 /* Included from initramfs et al code */
-static int decompress(unsigned char *buf, long len,
-            long (*fill)(void*, unsigned long),
-            long (*flush)(void*, unsigned long),
-            unsigned char *out_buf, long out_len,
-            long *pos) {
+static state decompress(unsigned char *buf, long len,
+                        long (*fill)(void*, unsigned long),
+                        long (*flush)(void*, unsigned long),
+                        unsigned char *out_buf, long out_len,
+                        long *pos)
+{
     uint8_t *zbuf;
     struct z_stream_s *strm;
     int rc;

@@ -19,16 +19,16 @@ struct dap_table {
 
 static state legacy_read(char dev, void *buf, uint32_t lba, int count)
 {
-    struct bios_reg ir, or;
+    struct bios_reg or, ir = {};
     unsigned int mcylinder, mhead, msector;
     unsigned int cylinder, head, sector;
     uint8_t bound[512];
 
     /* Get disk parameters */
-    memset(&ir, 0, sizeof(ir));
     ir.ah = 0x8;
     ir.dl = dev;
     bios_int(0x13, &ir, &or);
+
     mhead = or.dh;
     mcylinder = ((or.cl & 0xc0) << 2) | or.ch;
     msector = or.cl & 0x3f;
@@ -41,14 +41,12 @@ static state legacy_read(char dev, void *buf, uint32_t lba, int count)
     /* Head number:     %DH */
     /* Dev number:      %DL */
     /* Buffer offset:   %ES */
-    memset(&ir, 0, sizeof(ir));
     ir.ah = 0x2;
     ir.al = 1;
     ir.bx = (uint16_t)(uint32_t)&bound;
     ir.dl = dev;
 
     while (count--) {
-
         /* Unit conversion */
         sector = (lba % msector) + 1;
         head = (lba / msector) % (mhead + 1);
@@ -65,7 +63,7 @@ static state legacy_read(char dev, void *buf, uint32_t lba, int count)
         }
 
         /* Bounce back to real address */
-        memcpy(buf, bound, 512);
+        bigreal_memcpy(buf, bound, 512);
         buf += 512;
         ++lba;
     }
@@ -113,7 +111,7 @@ static state lba_read(char dev, void *buf, uint32_t lba, int count)
         }
 
         /* Bounce back to real address */
-        memcpy(buf, bound, 512);
+        bigreal_memcpy(buf, bound, 512);
         buf += 512;
         ++lba;
     }
@@ -125,5 +123,5 @@ void biosdisk_read(uint8_t dev, void *buff, uint32_t lba, int count)
 {
     if ((dev < 0x80 || lba_read(dev, buff, lba, count))
         && legacy_read(dev, buff, lba, count))
-        panic("Biosdisk read error");
+        panic("BIOS disk service error");
 }

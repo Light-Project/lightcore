@@ -71,7 +71,7 @@ static state bochs_hw_init(struct pci_device *pdev)
     if (!vesa->video.framebuffer)
         return -ENOMEM;
 
-    dev_info(&pdev->dev, "framebuffer size 0x%#lx @ 0x%lx\n", size, addr);
+    dev_info(&pdev->dev, "framebuffer size 0x%lx @ 0x%lx\n", size, addr);
 
     if (vesa->mmio && pdev->revision >= 2) {
         ret = readl(vesa->mmio + 0x100);

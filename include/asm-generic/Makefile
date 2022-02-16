@@ -8,3 +8,4 @@ mandatory-y += linkage.h
 mandatory-y += mmiowb.h
 mandatory-y += percpu.h
 mandatory-y += rwonce.h
+mandatory-y += unaligned.h

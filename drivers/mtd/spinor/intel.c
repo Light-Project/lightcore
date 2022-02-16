@@ -14,7 +14,7 @@
 #include <driver/mtd/intel.h>
 #include <printk.h>
 
-#include <asm/delay.h>
+#include <delay.h>
 #include <asm/io.h>
 
 struct intel_spec {

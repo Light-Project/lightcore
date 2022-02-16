@@ -65,14 +65,23 @@ static __always_inline bool bit_test(unsigned long *addr, int bit)
 #define ffs ffs
 static __always_inline int ffs(unsigned long val)
 {
+#if defined(CONFIG_ARCH_X86_32)
     asm volatile (
-        "bsfl   %1,%0\n"
-        "jnz    1f\n"
-        "movl   $-1,%0\n"
+        "bsfl   %1, %0  \n"
+        "jnz    1f      \n"
+        "movl   $-1, %0 \n"
         "1:"
         : "=r"(val)
         : "rm"(val)
     );
+#elif defined(CONFIG_ARCH_X86_64)
+    int d0;
+    asm volatile (
+        "bsfl   %1, %0  \n"
+        : "=r"(d0)
+        : "rm"(val), "0"(-1)
+    );
+#endif
 
     return val;
 }
@@ -80,14 +89,23 @@ static __always_inline int ffs(unsigned long val)
 #define fls fls
 static __always_inline int fls(unsigned long val)
 {
+#if defined(CONFIG_ARCH_X86_32)
     asm volatile (
-        "bsrl   %1,%0\n\t"
-        "jnz    1f\n\t"
-        "movl   $-1,%0\n"
+        "bsr    %1, %0  \n"
+        "jnz    1f      \n"
+        "mov    $-1, %0 \n"
         "1:"
-        : "=r"(val)
-        : "rm"(val)
+        :"=r"(val)
+        :"rm"(val)
     );
+#elif defined(CONFIG_ARCH_X86_64)
+    int d0;
+    asm volatile (
+        "bsr    %1, %0  \n"
+        : "=r"(d0)
+        : "rm"(val), "0"(-1)
+    );
+#endif
 
     return val;
 }

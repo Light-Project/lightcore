@@ -5,7 +5,7 @@
 
 #define irqflags_t  size_t
 
-static inline void cpu_irq_disable()
+static inline void irq_local_disable()
 {
     unsigned long flags;
     asm volatile(
@@ -14,7 +14,7 @@ static inline void cpu_irq_disable()
     );
 }
 
-static inline void cpu_irq_enable()
+static inline void irq_local_enable()
 {
     unsigned long flags;
     asm volatile(
@@ -23,7 +23,7 @@ static inline void cpu_irq_enable()
     );
 }
 
-static inline irqflags_t cpu_irq_save(void)
+static inline irqflags_t irq_local_save(void)
 {
     irqflags_t flags;
     asm volatile(
@@ -33,7 +33,7 @@ static inline irqflags_t cpu_irq_save(void)
     return flags;
 }
 
-static inline void cpu_irq_restore(irqflags_t flags)
+static inline void irq_local_restore(irqflags_t flags)
 {
     flags &= 0x0f;
 

@@ -6,7 +6,7 @@
 #define pr_fmt(fmt)	"efdt: " fmt
 
 #include <init.h>
-#include <crc.h>
+#include <crypto.h>
 #include <memory.h>
 #include <mm/memblock.h>
 #include <driver/dt.h>

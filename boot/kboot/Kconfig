@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+config EFI_STUB
+    bool "EFI stub support"
+
 config LOAD_ADDR
     hex "Boot load physical address"
     default 0x00

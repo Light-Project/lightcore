@@ -186,18 +186,36 @@ space           := $(empty) $(empty)
 space_escape    := _-_SPACE_-_
 pound           := \#
 
+# remove target filename to get target directory
+fulltarget = $(shell pwd)/$@
+
+# remove prerequisite filename to get prerequisite directory
+fullprereq = $(shell pwd)/$<
+
+# remove target filename to get target directory
+dirtarget = $(dir $@)
+
+# remove prerequisite filename to get prerequisite directory
+dirprereq = $(dir $<)
+
+# remove target filename to get target directory
+filetarget = $(notdir $@)
+
+# remove prerequisite filename to get prerequisite directory
+fileprereq = $(notdir $<)
+
+# filename of target with directory and extension stripped
+basetarget = $(basename $(filetarget))
+
+# filename of first prerequisite with directory and extension stripped
+baseprereq = $(basename $(fileprereq))
+
 # Name of target with a '.' as filename prefix. foo/bar.o => foo/.bar.o
 dot-target = $(dir $@).$(notdir $@)
 
 # The temporary file to save gcc -MD generated dependencies must not
 # contain a comma
 depfile = $(subst $(comma),_,$(dot-target).d)
-
-# filename of target with directory and extension stripped
-basetarget = $(basename $(notdir $@))
-
-# filename of first prerequisite with directory and extension stripped
-baseprereq = $(basename $(notdir $<))
 
 # Escape single quote for use in echo statements
 escsq    = $(subst $(squote),'\$(squote)',$1)

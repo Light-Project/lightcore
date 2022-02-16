@@ -53,8 +53,6 @@
 
 #else /* !__ASSEMBLY__ */
 
-#include <kernel.h>
-
 #define BITS_PER_BYTE       8
 #define BITS_PER_TYPE(type) (sizeof(type) * BITS_PER_BYTE)
 
@@ -116,8 +114,8 @@
  * @lo: starting position
  */
 #define BIT_RANGE_ULL(hi, lo) (                 \
-    ((~0UL) - (1UL << (lo)) + 1) &              \
-    (~0UL >> (BITS_PER_LONG_LONG - 1 - (hi)))   \
+    ((~0ULL) - (1ULL << (lo)) + 1) &            \
+    (~0ULL >> (BITS_PER_LONG_LONG - 1 - (hi)))  \
 )
 
 #endif  /* __ASSEMBLY__ */

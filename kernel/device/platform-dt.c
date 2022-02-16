@@ -123,7 +123,7 @@ static state platform_dt_setup_node(struct dt_node *node, const struct dt_device
     pr_debug("new device: %s\n", node->path);
     pdev->dev.name = node->path;
 
-    dt_populate_resource(pdev, (int)id->data);
+    dt_populate_resource(pdev, (int)(size_t)id->data);
     return device_register(&pdev->dev);
 }
 

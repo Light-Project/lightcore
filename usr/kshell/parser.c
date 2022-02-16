@@ -156,7 +156,7 @@ state kshell_parser(char *cmdline, char **pos, int *argc, char ***argv)
     }
 
     count = *argc * sizeof(**argv);
-    *argv = kmalloc(count + (tmp - buff) , GFP_KERNEL);
+    *argv = kmalloc(count + (tmp - buff), GFP_KERNEL);
     if (!*argv) {
         kfree(buff);
         return -ENOMEM;

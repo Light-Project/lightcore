@@ -1,9 +1,9 @@
 
-void cpu_irq_disable()
+void irq_local_disable()
 {
 }
 
-void cpu_irq_enable()
+void irq_local_enable()
 {
 }
 

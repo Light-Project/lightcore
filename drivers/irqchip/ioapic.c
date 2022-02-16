@@ -4,8 +4,8 @@
  */
 
 #include <initcall.h>
+#include <delay.h>
+#include <ioops.h>
 #include <driver/platform.h>
 #include <driver/irqchip.h>
 #include <driver/irqchip/i8259.h>
-#include <asm/delay.h>
-#include <asm/io.h>

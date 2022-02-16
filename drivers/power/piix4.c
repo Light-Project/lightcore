@@ -9,7 +9,7 @@
 #include <driver/pci.h>
 #include <driver/power.h>
 #include <driver/power/piix4.h>
-#include <asm/delay.h>
+#include <delay.h>
 #include <asm/io.h>
 
 struct piix4_device {

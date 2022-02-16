@@ -43,5 +43,6 @@ asmlinkage void __noreturn main(void)
 {
     video_clear();
     pr_init(video_print);
+    a20_enable();
     biosdisk_boot();
 }

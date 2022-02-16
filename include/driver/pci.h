@@ -351,7 +351,7 @@ extern state pci_raw_config_read(unsigned int domain, unsigned int bus, unsigned
 extern state pci_raw_config_write(unsigned int domain, unsigned int bus, unsigned int devfn, unsigned int reg, int size, uint32_t val);
 extern struct pci_device *pci_get_device(struct pci_bus *pbus, unsigned int devfn);
 extern struct pci_bus *pci_find_bus(unsigned int domain, unsigned int bus);
-extern struct pci_device *pci_find_device(struct pci_device_id *id, struct pci_device *form);
+extern struct pci_device *pci_find_device(const struct pci_device_id *id, struct pci_device *form);
 extern struct pci_bus *pci_bus_find_ancestor(const struct pci_bus *bus);
 extern struct pci_host *pci_bus_find_host(const struct pci_bus *bus);
 

@@ -9,7 +9,7 @@
 #include <initcall.h>
 #include <driver/platform.h>
 #include <driver/power.h>
-#include <asm/delay.h>
+#include <delay.h>
 #include <asm/io.h>
 
 struct hisi_device {

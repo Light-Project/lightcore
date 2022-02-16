@@ -1,13 +1,15 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-.*
 *.a
 *.o
 *.o.*
+*.cmd
+*.tmp
 *.lex.c
 *.tab.[ch]
 *.map
 *.dump
 *.patch
+*.cpio
 *.gz
 *.tar
 *.xz
@@ -19,7 +21,6 @@
 *.elf
 *.bin
 *.img
-
 
 /.config
 /.config.old

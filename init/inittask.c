@@ -9,7 +9,7 @@
 #include <power.h>
 #include <kshell.h>
 #include <printk.h>
-#include <asm/delay.h>
+#include <delay.h>
 
 static const char *init_argv[] = {
     NULL, "init", NULL
@@ -45,6 +45,49 @@ static void __init basic_init(void)
     initcalls();
 }
 
+// #include <kcoro.h>
+
+// state kcoro_work_a(void *pdata)
+// {
+//     int a;
+
+//     while (++a) {
+//         printk("resume a\n");
+//         if (a == 3)
+//             kcoro_exit();
+//         kcoro_relax();
+//     }
+
+//     return -ENOERR;
+// }
+
+// state kcoro_work_b(void *pdata)
+// {
+//     int b;
+
+//     while (++b) {
+//         printk("resume b\n");
+//         if (b == 6)
+//             kcoro_exit();
+//         udelay(100);
+//         kcoro_relax();
+//     }
+
+//     return -ENOERR;
+// }
+
+// void kcoro_test(void)
+// {
+//     struct kcoro_worker *worker;
+
+//     worker = kcoro_worker_create("worker");
+//     kcoro_work_create(worker, kcoro_work_a, NULL, "a");
+//     kcoro_work_create(worker, kcoro_work_b, NULL, "b");
+//     kcoro_dispatch();
+
+//     printk("kcoro done\n");
+// }
+
 int __noreturn user_init(void *arg)
 {
     unsigned int count;
@@ -55,6 +98,8 @@ int __noreturn user_init(void *arg)
     init_run(CONFIG_DEFAULT_INIT);
     init_run("/bin/init");
     init_run("/sbin/init");
+
+    // kcoro_test();
 
     ksh_init();
 

@@ -22,6 +22,7 @@
 /*
  * ACPI Table interfaces
  */
+
 ACPI_PHYSICAL_ADDRESS
 AcpiOsGetRootPointer (
     void)
@@ -78,66 +79,15 @@ AcpiOsPhysicalTableOverride (
     ACPI_PHYSICAL_ADDRESS   *NewAddress,
     UINT32                  *NewTableLength)
 {
-    // struct ACPI_TABLE_HEADER *Table;
-    // int TableOffset = 0;
-    // int TableIndex = 0;
-    // UINT32 TableLength;
-
     *NewAddress = 0;
     *NewTableLength = 0;
-
-    // if (!acpi_tables_addr)
-    //     return AE_OK;
-
-//     while (table_offset + ACPI_HEADER_SIZE <= all_tables_size) {
-//         table = acpi_os_map_memory(acpi_tables_addr + table_offset,
-//                        ACPI_HEADER_SIZE);
-//         if (table_offset + table->length > all_tables_size) {
-//             acpi_os_unmap_memory(table, ACPI_HEADER_SIZE);
-//             WARN_ON(1);
-//             return AE_OK;
-//         }
-
-//         table_length = table->length;
-
-//         /* Only override tables matched */
-//         if (memcmp(existing_table->signature, table->signature, 4) ||
-//             memcmp(table->oem_id, existing_table->oem_id,
-//                ACPI_OEM_ID_SIZE) ||
-//             memcmp(table->oem_table_id, existing_table->oem_table_id,
-//                ACPI_OEM_TABLE_ID_SIZE)) {
-//             acpi_os_unmap_memory(table, ACPI_HEADER_SIZE);
-//             goto next_table;
-//         }
-//         /*
-//          * Mark the table to avoid being used in
-//          * acpi_table_initrd_scan() and check the revision.
-//          */
-//         if (test_and_set_bit(table_index, acpi_initrd_installed) ||
-//             existing_table->oem_revision >= table->oem_revision) {
-//             acpi_os_unmap_memory(table, ACPI_HEADER_SIZE);
-//             goto next_table;
-//         }
-
-//         *length = table_length;
-//         *address = acpi_tables_addr + table_offset;
-//         pr_info("Table Upgrade: override [%4.4s-%6.6s-%8.8s]\n",
-//             table->signature, table->oem_id,
-//             table->oem_table_id);
-//         acpi_os_unmap_memory(table, ACPI_HEADER_SIZE);
-//         break;
-
-// next_table:
-//         table_offset += table_length;
-//         table_index++;
-//     }
-
     return AE_OK;
 }
 
 /*
  * Spinlock primitives
  */
+
 void
 AcpiOsDeleteLock (
     ACPI_SPINLOCK           Handle)
@@ -165,6 +115,7 @@ AcpiOsReleaseLock (
 /*
  * Semaphore primitives
  */
+
 ACPI_STATUS
 AcpiOsCreateSemaphore(
     UINT32          max_units,
@@ -205,6 +156,7 @@ AcpiOsSignalSemaphore (
 /*
  * Memory allocation and mapping
  */
+
 void *
 AcpiOsMapMemory (
     ACPI_PHYSICAL_ADDRESS   Where,
@@ -237,6 +189,7 @@ AcpiOsGetPhysicalAddress (
 /*
  * Memory/Object Cache
  */
+
 ACPI_STATUS
 AcpiOsCreateCache (
     char                    *CacheName,
@@ -275,6 +228,7 @@ AcpiOsReleaseObject (
 /*
  * Interrupt handlers
  */
+
 ACPI_STATUS
 AcpiOsInstallInterruptHandler (
     UINT32                  InterruptNumber,
@@ -295,6 +249,7 @@ AcpiOsRemoveInterruptHandler (
 /*
  * Threads and Scheduling
  */
+
 ACPI_STATUS
 AcpiOsExecute (
     ACPI_EXECUTE_TYPE       Type,
@@ -328,6 +283,7 @@ AcpiOsStall (
 /*
  * Platform and hardware-independent I/O interfaces
  */
+
 ACPI_STATUS
 AcpiOsReadPort (
     ACPI_IO_ADDRESS         Address,
@@ -367,6 +323,7 @@ AcpiOsWritePort (
 /*
  * Platform and hardware-independent physical memory interfaces
  */
+
 ACPI_STATUS
 AcpiOsReadMemory (
     ACPI_PHYSICAL_ADDRESS   Address,
@@ -431,9 +388,12 @@ AcpiOsReadPciConfiguration (
     if (!Value)
         return (AE_BAD_PARAMETER);
 
-    retval = pci_raw_config_read(PciId->Segment, PciId->Bus,
-            PCI_DEVFN(PciId->Device, PciId->Function),
-            Reg, Width / 8, (uint32_t *)Value);
+    retval = pci_raw_config_read(
+        PciId->Segment,
+        PciId->Bus,
+        PCI_DEVFN(PciId->Device, PciId->Function),
+        Reg, Width / 8, (uint32_t *)Value
+    );
 
     return retval ? (AE_ERROR) : (AE_OK);
 }
@@ -447,9 +407,12 @@ AcpiOsWritePciConfiguration (
 {
     state retval;
 
-    retval = pci_raw_config_write(PciId->Segment, PciId->Bus,
-            PCI_DEVFN(PciId->Device, PciId->Function),
-            Reg, Width / 8, (uint32_t)Value);
+    retval = pci_raw_config_write(
+        PciId->Segment,
+        PciId->Bus,
+        PCI_DEVFN(PciId->Device, PciId->Function),
+        Reg, Width / 8, (uint32_t)Value
+    );
 
     return retval ? (AE_ERROR) : (AE_OK);
 }
@@ -457,6 +420,7 @@ AcpiOsWritePciConfiguration (
 /*
  * Miscellaneous
  */
+
 UINT64
 AcpiOsGetTimer (
     void)

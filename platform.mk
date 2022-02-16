@@ -40,30 +40,39 @@ platform-ldflags-y  += -EL
 platform-elfflags-y +=
 endif # CONFIG_ARCH_CSKY
 
-ifdef CONFIG_ARCH_RISCV
-CROSS_COMPILE       := riscv64-linux-gnu-
-arch                := riscv64
-
-platform-acflags-y  += -march=rv64imafdc -mabi=lp64d -mcmodel=medany
-endif # CONFIG_ARCH_RISCV
-
 ifdef CONFIG_ARCH_X86
 CROSS_COMPILE       :=
 arch                := x86
 
 ifneq ($(call cc-option, -mpreferred-stack-boundary=2),)
     cc_stack_align4 := -mpreferred-stack-boundary=2
+    cc_stack_align8 := -mpreferred-stack-boundary=3
 else ifneq ($(call cc-option, -mstack-alignment=4),)
     cc_stack_align4 := -mstack-alignment=4
+    cc_stack_align8 := -mstack-alignment=8
 endif
 
-platform-ccflags-y  += $(cc_stack_align4)
+platform-ccflags-y  += -mno-sse -mno-mmx -mno-sse2
+platform-ccflags-y  += -mno-3dnow -mno-avx
+
+ifdef CONFIG_ARCH_X86_32
 platform-acflags-y  += -m32
-platform-ccflags-y  += -mno-sse -mno-mmx -mno-sse2 -mno-3dnow
-platform-ccflags-y  += $(call cc-option,-mno-avx)
+platform-ccflags-y  += $(cc_stack_align4)
+platform-ccflags-y  += -msoft-float
 platform-ldflags-y  += -m elf_i386
 platform-symflags-y += -m32
 platform-elfflags-y += -m32 -nostdlib
+endif # CONFIG_ARCH_X86_32
+
+ifdef CONFIG_ARCH_X86_64
+platform-acflags-y  += -m64
+platform-ccflags-y  += $(cc_stack_align8)
+platform-ccflags-y  += -mno-red-zone
+platform-ccflags-y  += -mcmodel=kernel
+platform-ldflags-y  += -m elf_x86_64
+platform-symflags-y += -m64
+platform-elfflags-y += -m64 -nostdlib
+endif # CONFIG_ARCH_X86_64
 endif # CONFIG_ARCH_X86
 
 ifdef CONFIG_ARCH_XTENSA

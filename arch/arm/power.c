@@ -1,9 +1,9 @@
-#include <asm/irq.h>
+#include <irqflags.h>
 #include <power.h>
 
 void power_halt()
 {
-    cpu_irq_disable();
+    irq_local_disable();
     while(1);
 }
 

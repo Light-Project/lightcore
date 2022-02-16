@@ -10,7 +10,7 @@ obj-$(CONFIG_ARCH_X86)     += x86/
 obj-y += lib/ piggy.o
 extra-y += kboot.lds
 
-include-y += $(arch)/ lib/
+include-y += $(arch)/include/ lib/
 
 kboot-asflags-y  += -D__ASSEMBLY__
 kboot-ccflags-y  += -std=gnu11  -Wall -Werror
@@ -37,6 +37,9 @@ elf-always-y += kboot
 
 boot.bin-obj += kboot
 bin-always-y += boot.bin
+
+boot.dump-obj += kboot
+dump-always-$(CONFIG_KERNEL_DUMP) += boot.dump
 
 quiet_cmd_copy_kernel = $(ECHO_BIN) $@
       cmd_copy_kernel = $(OBJCOPY) -O binary $< $@

@@ -4,6 +4,7 @@
 
 #include <bits.h>
 #include <list.h>
+#include <ncache.h>
 #include <mm/gfp.h>
 
 enum kcache_flags {
@@ -11,9 +12,11 @@ enum kcache_flags {
 };
 
 struct kcache {
-    size_t objsize;
-    size_t align;
+    struct list_head list;
+    const char *name;
+    struct ncache cache;
     struct list_head free;
+    size_t objsize, align;
 };
 
 /* allocator function */

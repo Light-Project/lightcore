@@ -1,7 +1,7 @@
 # Default configuration of x86 computer
 
 # arch
-CONFIG_ARCH_X86=y
+CONFIG_ARCH_X86_32=y
 
 # mem
 CONFIG_MMU=y
@@ -21,7 +21,6 @@ CONFIG_ACPI=y
 
 CONFIG_BLOCK=y
 CONFIG_BLK_FLOPPY=y
-CONFIG_BLK_AHCISIM=y
 CONFIG_BLK_ATASIM=y
 CONFIG_BLK_ATASIM32=y
 

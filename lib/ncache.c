@@ -7,7 +7,6 @@
 #include <kmalloc.h>
 #include <panic.h>
 #include <export.h>
-#include <asm/rwonce.h>
 
 static __always_inline void
 ncache_push(struct ncache *cache, void *object)
@@ -29,6 +28,10 @@ void *ncache_get(struct ncache *cache)
 {
     irqflags_t irqflags;
     void *object;
+
+    object = xchg(&cache->xchg_cache, NULL);
+    if (likely(object))
+        return object;
 
     if (READ_ONCE(cache->curr)) {
         spin_lock_irqsave(&cache->lock, &irqflags);
@@ -53,7 +56,11 @@ void ncache_put(struct ncache *cache, void *object)
 {
     irqflags_t irqflags;
 
-    BUG_ON(!object);
+    if (BUG_ON(!object))
+        return;
+
+    if (!cmpxchg(&cache->xchg_cache, NULL, object))
+        return;
 
     if (READ_ONCE(cache->curr) < cache->num) {
         spin_lock_irqsave(&cache->lock, &irqflags);
@@ -95,6 +102,7 @@ state ncache_charge(struct ncache *cache)
 
     return -ENOERR;
 }
+EXPORT_SYMBOL(ncache_charge);
 
 /**
  * ncache_flush - flush all object in specific nodecache

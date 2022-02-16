@@ -4,7 +4,7 @@
 
 #include <asm/alternative.h>
 
-#ifdef CONFIG_ARCH_X86
+#ifdef CONFIG_ARCH_X86_32
 # define mb()   asm volatile("lock; addl $0,-4(%%esp)" :::"memory", "cc")
 #else
 # define mb()   asm volatile("mfence":::"memory")

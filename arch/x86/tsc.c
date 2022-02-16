@@ -7,12 +7,13 @@
 #include <delay.h>
 #include <printk.h>
 #include <driver/clocksource/i8253.h>
+#include <driver/platform/ibmpc.h>
 #include <asm/io.h>
 #include <asm/regs.h>
 
 #define PIT_BASE        0x40
-#define PIT_CAL1_MS      10
-#define PIT_CAL1_LOOPS   1000
+#define PIT_CAL1_MS     10
+#define PIT_CAL1_LOOPS  1000
 #define PIT_CAL2_MS     100
 #define PIT_CAL2_LOOPS  10000
 
@@ -23,9 +24,12 @@ static unsigned long pit_get_tsc(unsigned long ms, unsigned int minloop)
     uint64_t t1, t2, last, delta;
     unsigned long tscmin, tscmax;
     unsigned int loop;
+    uint8_t val;
 
     /* enable timer2 gate, disable speaker */
-    outb(NMISC_BASE, (inb(NMISC_BASE) & ~NMISC_SPEAKER_EN) | NMISC_TIMER2_EN);
+    val = inb(IBMPC_NMISC_BASE);
+    val = (val & ~IBMPC_NMISC_SPEAKER_EN) | IBMPC_NMISC_TIMER2_EN;
+    outb(IBMPC_NMISC_BASE, val);
 
     /*
      * Counter Select: Counter 2 select
@@ -41,7 +45,7 @@ static unsigned long pit_get_tsc(unsigned long ms, unsigned int minloop)
     tscmin = ULONG_MAX;
     tscmax = 0;
 
-    for (loop = 0; !(inb(NMISC_BASE) & NMISC_SPEAKER_STAT); ++loop) {
+    for (loop = 0; !(inb(IBMPC_NMISC_BASE) & IBMPC_NMISC_SPEAKER_STAT); ++loop) {
         t2 = tsc_get();
         delta = t2 - last;
         last = t2;

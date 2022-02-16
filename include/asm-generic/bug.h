@@ -6,20 +6,36 @@
 #include <printk.h>
 #include <panic.h>
 
+#ifndef WARN
+# define WARN() do {                                \
+    printk("Generic Warn: failure at %s:%d/%s()\n", \
+            __FILE__, __LINE__, __func__);          \
+} while (0)
+#endif
+
 #ifndef BUG
-# define BUG() do { \
-    printk("generic bug: failure at %s:%d/%s()\n",  \
+# define BUG() do {                                 \
+    printk("Generic BUG: failure at %s:%d/%s()\n",  \
             __FILE__, __LINE__, __func__);          \
     barrier_before_unreachable();                   \
     panic();                                        \
 } while (0)
 #endif
 
+#ifndef WARN_ON
+# define WARN_ON(condition) ({                      \
+    if (unlikely(condition))                        \
+        WARN();                                     \
+    unlikely(condition);                            \
+})
+#endif
+
 #ifndef BUG_ON
-# define BUG_ON(condition) do {                     \
+# define BUG_ON(condition) ({                       \
     if (unlikely(condition))                        \
         BUG();                                      \
-} while (0)
+    unlikely(condition);                            \
+})
 #endif
 
 #endif  /* __ASSEMBLY__ */

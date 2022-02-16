@@ -4,7 +4,7 @@
  */
 
 #include <asm/proc.h>
-#include <asm/irq.h>
+#include <irqflags.h>
 #include <export.h>
 
 state proc_thread_switch(struct sched_task *prev, struct sched_task *next)
@@ -25,7 +25,7 @@ void proc_idle(void)
 
 void __noreturn proc_halt(void)
 {
-    cpu_irq_disable();
+    irq_local_disable();
     for (;;)
     proc_idle();
 }

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <types.h>
 #include <export.h>
-#include <asm/delay.h>
+#include <delay.h>
 
 void cpu_do_loop(unsigned long loops)
 {

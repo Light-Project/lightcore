@@ -40,6 +40,15 @@ SECTIONS {
         *(.data*)
     }
 
+    .got : {
+        . = ALIGN(4);
+        PROVIDE(_ld_got_start = .);
+        *(.got)
+        *(.got*)
+        . = ALIGN(4);
+        PROVIDE(_ld_got_end = .);
+    }
+
     .piggydata : {
         _ld_piggy_start = .;
         KEEP(*(.piggydata))

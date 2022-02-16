@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "cpio: " fmt
+#define MUDULE_NAME "cpio"
+#define pr_fmt(fmt) MUDULE_NAME ": " fmt
 
 #include <string.h>
 #include <kmalloc.h>
@@ -32,9 +33,11 @@ struct inode_ops cpio_inode_ops = {
 };
 
 static struct superblock_ops cpio_sb_ops = {
+    .inode_alloc = fslib_inode_alloc,
+    .inode_free = fslib_inode_free,
 };
 
-static state cpio_mount(struct fsdev *fsdev, enum mount_flag flags, struct superblock **sbp)
+static struct superblock *cpio_mount(struct fsdev *fsdev, enum mount_flags flags)
 {
     struct cpio_inode csb;
     struct superblock *sb;
@@ -43,19 +46,19 @@ static state cpio_mount(struct fsdev *fsdev, enum mount_flag flags, struct super
     /* read the image superblock and check it */
     ret = fsdev_read(fsdev, 0, &csb, sizeof(csb));
     if (ret < 0)
-        return ret;
+        return ERR_PTR(ret);
 
     if (memcmp(csb.magic, CPIO_MAGIC, 6))
-        return -EINVAL;
+        return ERR_PTR(-EINVAL);
 
     /* fill super block */
     sb = kzalloc(sizeof(*sb), GFP_KERNEL);
     if (!sb)
-        return -ENOMEM;
+        return ERR_PTR(-ENOMEM);
 
     sb->ops = &cpio_sb_ops;
 
-    return -ENOERR;
+    return sb;
 }
 
 static struct filesystem_type cpio_type = {

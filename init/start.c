@@ -11,6 +11,7 @@
 #include <init.h>
 #include <memory.h>
 #include <task.h>
+#include <kcoro.h>
 #include <filesystem.h>
 
 #include <logo.h>
@@ -22,7 +23,7 @@
 #include <driver/irqchip.h>
 #include <driver/clockevent.h>
 
-#include <asm/irq.h>
+#include <irqflags.h>
 #include <asm-generic/header.h>
 
 struct sched_task init_task = {
@@ -37,7 +38,7 @@ static void __init command_setup(void)
     strlcpy(boot_args, args, boot_args_size);
 }
 
-noinline __noreturn void kernel_main(void)
+static noinline __noreturn void kernel_main(void)
 {
     user_init(NULL);
     fork_thread(0, user_init, NULL);
@@ -47,7 +48,7 @@ noinline __noreturn void kernel_main(void)
 asmlinkage __visible __init __noreturn void kernel_start(void)
 {
     task_stack_magic(&init_task);
-    cpu_irq_disable();
+    irq_local_disable();
 
     /* early arch */
     pre_console_init();
@@ -62,13 +63,14 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
     /* early kernel */
     mem_init();
     sched_init();
+    kcoro_init();
 
     /* basic driver */
     device_init();
     irqchip_init();
     clk_init();
     clockevent_init();
-    cpu_irq_enable();
+    irq_local_enable();
 
     console_init();
     fork_init();

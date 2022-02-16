@@ -12,7 +12,7 @@
 #include <driver/watchdog.h>
 #include <driver/watchdog/gx6605s.h>
 #include <printk.h>
-#include <asm/delay.h>
+#include <delay.h>
 #include <asm/io.h>
 
 struct gx6605s_device {

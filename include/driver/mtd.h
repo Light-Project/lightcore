@@ -14,6 +14,7 @@ enum mtd_type {
 
 struct mtd_part {
     struct fsdev fsdev;
+    const char *name;
     uint64_t offset, size;
     struct mtd_device *device;
     struct list_head list;
@@ -40,7 +41,8 @@ struct mtd_ops {
     void (*reboot)(struct mtd_device *mtd);
 };
 
-extern state mtd_register(struct mtd_device *mdev);
+extern state mtd_fsdev_register(struct mtd_device *mdev);
+extern state mtd_register(struct mtd_device *mdev, struct mtd_part *part, unsigned int pnr);
 extern void mtd_unregister(struct mtd_device *mdev);
 
 #endif  /* _DRIVER_MTD_H_ */

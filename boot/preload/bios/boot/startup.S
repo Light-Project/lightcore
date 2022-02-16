@@ -34,10 +34,10 @@ GLOBAL(_start)
 
     /* normalize memory address */
     ljmpl   $0x00, $1f
-1:  xorl    %eax, %eax
-    movl    %eax, %ds
-    movl    %eax, %es
-    movl    %eax, %ss
+1:  xorw    %ax, %ax
+    movw    %ax, %ds
+    movw    %ax, %es
+    movw    %ax, %ss
 
     /* save device number */
     movw    %dx, boot_dev
@@ -117,9 +117,9 @@ GLOBAL(boot_dev)
 END(boot_dev)
 
     .align  4
-TXT_MBR_BOOT: .asciz "MBR booting\n\r"
-TXT_INT13_1_ERR: .asciz "INT13/1 ERR!\n\r"
-TXT_INT13_2_ERR: .asciz "INT13/2 ERR!\n\r"
+TXT_MBR_BOOT:       .asciz "[MBR] MBR booting\n\r"
+TXT_INT13_1_ERR:    .asciz "[MBR] INT13/1 ERR!\n\r"
+TXT_INT13_2_ERR:    .asciz "[MBR] INT13/2 ERR!\n\r"
 
 /****************************/
 /* The text section begins  */
@@ -127,31 +127,7 @@ TXT_INT13_2_ERR: .asciz "INT13/2 ERR!\n\r"
 
     .section .text,"ax"
 ENTRY(init)
-    /* test a20 first */
-    call    a20_test
-    je      big_unreal_mode
 
-    /* bios enable a20 */
-    printf(TXT_A20BIOS)
-    movw    $0x2401, %ax
-    int     $0x15
-    call    a20_test
-    je      big_unreal_mode
-
-    /* pch enable a20 */
-    printf(TXT_A20PCH)
-    inb     $0x92, %al
-    or      $(1<<1), %ax
-    and     $(~(1<<0)), %ax
-    outb    %al, $0x92
-    call    a20_test
-    je      big_unreal_mode
-
-    /* unable to enable a20 */
-    printf(TXT_A20ERROR)
-    jmp     halt
-
-big_unreal_mode:
     /* load gdt and idt table */
     lgdtl   gdt_struct
 
@@ -166,21 +142,12 @@ big_unreal_mode:
 1:
     /* select descriptor */
     movw    $0x08, %ax
-    movw    %ax, %ds
-    movw    %ax, %es
-    movw    %ax, %ss
+    movw    %ax, %fs
 
     /* disable pe mode */
     movl    %cr0, %eax
     xorl    $(1<<0), %eax
     movl    %eax, %cr0
-
-env:
-    /* set segment register */
-    xorw    %ax, %ax
-    movw    %ax, %ds
-    movw    %ax, %es
-    movw    %ax, %ss
 
     /* clear the bss region */
     movl    $_ld_bss_start, %edi
@@ -197,17 +164,6 @@ env:
     jmp     main
 END(init)
 
-ENTRY(a20_test)
-    pusha
-
-    pushl   0x80 * 4
-    IO_DELAY
-    popl    0x80 * 4
-
-    popa
-    ret
-END(a20_test)
-
 GLOBAL(kboot_start)
     movl    8(%esp), %ebx
     movw    4(%esp), %ax
@@ -217,9 +173,9 @@ GLOBAL(kboot_start)
     movw    %ax, %ds
     movw    %ax, %es
 
-    .byte   0x66, 0xea  // ljmpl opcode
-1:  .long   0x00        // address
-2:  .word   0x00        // offset
+    .byte   0x66, 0xea  /* ljmpl opcode */
+1:  .long   0x00        /* address */
+2:  .word   0x00        /* segment */
 END(kboot_start)
 
 GLOBAL(bios_int)
@@ -227,8 +183,6 @@ GLOBAL(bios_int)
     movl    %esp, %ebp
 
     pushfl
-    pushw   %fs
-    pushw   %gs
     pushw   %ds
     pushw   %es
     pushal
@@ -237,67 +191,55 @@ GLOBAL(bios_int)
     movl    8(%ebp), %eax
     movb    %al, intnr
 
-    /* arg2: Save regs */
+    /* arg2: save regs */
     movl    16(%ebp), %eax
-    addl    $0x2c, %eax
+    addl    $0x28, %eax
     pushl   %eax
 
     /* arg1: load regs */
-    movl    %esp, save_sp
-    movl    12(%ebp), %esp  /* arg1: input register */
+    movl    %esp, %gs
+    movl    12(%ebp), %esp
 
-    /* Pop register form ir */
+    /* pop register form ir */
     popal
-    popw    %gs
-    popw    %fs
     popw    %es
     popw    %ds
     popfl
 
-    /* Recovery sp */
-    movl    %cs:save_sp, %esp
+    /* recovery sp */
+    movl    %gs, %esp
 
-    /* int imm8.  */
+    /* int imm8 */
     .byte   0xcd
-intnr:  .byte   0
+intnr:  .byte  0
 
+    /* pop save regs */
     popl    %esp
 
-    /* Push register to or */
+    /* push register to or */
     pushfl
     pushw   %ds
     pushw   %es
-    pushw   %fs
-    pushw   %gs
     pushal
 
-    movl    save_sp, %esp
+    movl    %gs, %esp
     addl    $0x4, %esp
 
     popal
     popw    %es
     popw    %ds
-    popw    %gs
-    popw    %fs
     popfl
 
     leavel
     ret
-
-save_sp: .long  0x00
 END(bios_int)
 
     .align 16
 gdt_table:
-    .long   0x00000000  // 0x00: NULL ENTRY
-    .long   0x00000000  // 0x04: NULL
-    .long   0x0000ffff  // 0x08: 32BIT FS ENTRY
-    .long   0x00cf9300  // 0x0c: data, read/write, 4GB, base=0
+    .long   0x00000000  /* 0x00: NULL ENTRY                     */
+    .long   0x00000000  /* 0x04: NULL                           */
+    .long   0x0000ffff  /* 0x08: DS ENTRY                       */
+    .long   0x00cf9300  /* 0x0c: data, read/write, 4GB, base=0  */
 gdt_struct:
-    .word   0x0010      // GDT limit
-    .long   gdt_table   // GDT addr
-
-    .align  4
-TXT_A20BIOS: .asciz "Open A20 through BIOS\n\r"
-TXT_A20PCH: .asciz "Open A20 through PCH\n\r"
-TXT_A20ERROR: .asciz "A20 can't open\n\r"
+    .word   0x0010      /* GDT Limit    */
+    .long   gdt_table   /* GDT Addr     */

@@ -1,4 +1,3 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-obj-y += header.o startup.o memdetect.o
-obj-y += main.o page.o segment.o video.o
-memdetect-flags-y := -m16 -fno-pic
+obj-y += boot/ main.o
+obj-y += page.o segment.o video.o

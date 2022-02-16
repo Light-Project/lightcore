@@ -29,12 +29,18 @@ static state tsc_probe(struct platform_device *pdev, const void *pdata)
     if (!cdev)
         return -ENOMEM;
 
-    cdev->rating = CLOCK_RATING_DESIRED;
+    cdev->flags = CLKSRC_CONTINUOUS  | CLKSRC_VALID_HRES |
+                  CLKSRC_MUST_VERIFY | CLKSRC_VERIFY_PERCPU;
+
     cdev->device = &pdev->dev;
     cdev->ops = &tsc_ops;
+    cdev->rating = CLOCK_RATING_DESIRED;
     platform_set_devdata(pdev, cdev);
 
-    return clocksource_config_register(cdev, tsc_khz, BIT_RANGE_ULL(63, 0));
+    return clocksource_config_register(
+        cdev, (uint64_t)tsc_khz * 1000,
+        BIT_RANGE_ULL(63, 0)
+    );
 }
 
 static const struct dt_device_id tsc_ids[] = {

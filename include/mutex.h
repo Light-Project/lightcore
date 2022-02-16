@@ -13,9 +13,9 @@ struct mutex {
 };
 
 #define MUTEX_LOCK(name) \
-    struct mutex name
+    struct mutex name = {}
 
-void mutex_lock(struct mutex *mutex);
-void mutex_unlock(struct mutex *mutex);
+extern void mutex_lock(struct mutex *mutex);
+extern void mutex_unlock(struct mutex *mutex);
 
 #endif

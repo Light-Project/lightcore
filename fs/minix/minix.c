@@ -8,9 +8,9 @@
 #include <kmalloc.h>
 #include <fs/minix.h>
 
-static state minix_mount(struct fsdev *fsdev, enum mount_flag flags)
+static state minix_mount(struct fsdev *fsdev, enum mount_flags flags)
 {
-    struct minix_superblock *msb = (uint8_t [64]){};
+    struct minix_superblock *msb = skzalloc(64);
     struct minix3_superblock *m3sb = msb;
     struct minix_info *minfo;
     state ret;
@@ -63,19 +63,18 @@ static state minix_mount(struct fsdev *fsdev, enum mount_flag flags)
     }
 
 
-
 error_minfo:
     kfree(minfo);
     return ret;
 }
 
-static struct filesystem_type romfs_type = {
-    .name = "romfs",
-    .mount = romfs_mount,
+static struct filesystem_type minix_type = {
+    .name = "minix",
+    .mount = minix_mount,
 };
 
-static state romfs_init(void)
+static state minix_init(void)
 {
-    return filesystem_register(&romfs_type);
+    return filesystem_register(&minix_type);
 }
-fs_initcall(romfs_init);
+fs_initcall(minix_init);

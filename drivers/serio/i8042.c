@@ -19,7 +19,7 @@
 #include <driver/input/psmse.h>
 #include <printk.h>
 
-#include <asm/delay.h>
+#include <delay.h>
 #include <asm/io.h>
 
 #define I8042_BUFFER_SIZE   16

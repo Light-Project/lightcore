@@ -7,6 +7,8 @@
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
 #include <initcall.h>
+#include <kmalloc.h>
+#include <ioops.h>
 #include <driver/platform.h>
 #include <driver/pci.h>
 #include <driver/rng.h>
@@ -91,13 +93,13 @@ static state intel_rng_probe(struct platform_device *pdev, const void *pdata)
     if (platform_resource_type(pdev, 0) != RESOURCE_MMIO)
         return -EINVAL;
 
-    idev = dev_kzalloc(&pdev->dev, sizeof(*idev), GFP_KERNEL);
+    idev = platform_kzalloc(pdev, sizeof(*idev), GFP_KERNEL);
     if (!idev)
         return -ENOMEM;
 
     start = platform_resource_start(pdev, 0);
     size = platform_resource_size(pdev, 0);
-    idev->base = (&pdev->dev, start, size);
+    idev->base = platform_ioremap(pdev, start, size);
     if (!idev->base)
         return -ENOMEM;
 
@@ -166,7 +168,7 @@ static state intel_rng_init(void)
         if (!pdev)
             return -ENOMEM;
 
-        res = (char *)pdev + sizeof(*pdev);
+        res = (void *)pdev + sizeof(*pdev);
         res->start = INTEL_RNG_BASE;
         res->size = INTEL_RNG_SIZE;
         res->type = RESOURCE_MMIO;

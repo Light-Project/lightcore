@@ -1,18 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 menu "Kernel Hacking"
 
-config PRE_CONSOLE
-    bool "Early Console Support"
-    default y
+source "kernel/printk/Kconfig"
 
-config PRINTK
-    bool "Printk Support"
-    default y
-
-config DYNAMIC_DEBUG
-    bool "Kernel Dynamic Debug"
-    depends on PRINTK
-    help
-        Compiles debug level messages into the kernel
+config DEBUG_SPINLOCK
+    bool "Spinlock Debugging Support"
 
 endmenu

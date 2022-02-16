@@ -10,7 +10,7 @@
 #include <driver/platform.h>
 #include <driver/spi.h>
 #include <driver/spi/gx6605s.h>
-#include <asm/delay.h>
+#include <delay.h>
 #include <asm/proc.h>
 #include <asm/io.h>
 

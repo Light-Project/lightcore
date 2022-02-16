@@ -5,22 +5,22 @@
 #include <types.h>
 
 struct msdos_dpt {
-    uint8_t flag;       /* 0x80 active partition */
-    uint8_t head;       /* start head */
-    uint8_t sec;        /* start sector */
-    uint8_t cyl;        /* start cylinder */
-    uint8_t type;       /* partition type */
-    uint8_t end_head;   /* end head */
-    uint8_t end_sec;    /* end sector */
-    uint8_t end_cyl;    /* end cylinder */
-    uint32_t lba;       /* start lba */
-    uint32_t size;      /* partition size */
+    uint8_t flag;               /* 0x0000: 0x80 active partition */
+    uint8_t head;               /* 0x0001: start head */
+    uint8_t sec;                /* 0x0002: start sector */
+    uint8_t cyl;                /* 0x0003: start cylinder */
+    uint8_t type;               /* 0x0004: partition type */
+    uint8_t end_head;           /* 0x0005: end head */
+    uint8_t end_sec;            /* 0x0006: end sector */
+    uint8_t end_cyl;            /* 0x0007: end cylinder */
+    le32 lba;                   /* 0x0008: start lba */
+    le32 size;                  /* 0x000c: partition size */
 } __packed;
 
 struct msdos_head {
-    uint8_t mbr[446];
-    struct msdos_dpt dpt[4];
-    uint16_t magic;
+    uint8_t mbr[446];           /* 0x0000: boot code */
+    struct msdos_dpt dpt[4];    /* 0x01c0: part entry */
+    be16 magic;                 /* 0x01fe: msdos disk magic */
 } __packed;
 
 enum msdos_type {

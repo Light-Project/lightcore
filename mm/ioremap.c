@@ -14,6 +14,7 @@
 #include <refcount.h>
 #include <export.h>
 #include <printk.h>
+#include <panic.h>
 
 static SPIN_LOCK(ioremap_lock);
 static RB_ROOT(ioremap_root);
@@ -21,16 +22,16 @@ static struct kcache *ioremap_cache;
 
 struct ioremap_node {
     struct rb_node rb;
-    struct vm_area vm_area;
+    struct vmem_area vm_area;
     phys_addr_t addr;
     unsigned int count;
 };
 
 #define rb_to_ioremap(io) \
-    container_of(io, struct ioremap_node, rb)
+    rb_entry(io, struct ioremap_node, rb)
 
 #define rb_to_ioremap_safe(io) \
-    container_of_safe(io, struct ioremap_node, rb)
+    rb_entry_safe(io, struct ioremap_node, rb)
 
 #define vm_to_ioremap(io) \
     container_of(io, struct ioremap_node, vm_area)
@@ -44,26 +45,36 @@ static long ioremap_rb_cmp(const struct rb_node *rba, const struct rb_node *rbb)
 {
     struct ioremap_node *node_a = rb_to_ioremap(rba);
     struct ioremap_node *node_b = rb_to_ioremap(rbb);
-    long diff;
 
-    diff = node_a->addr - node_b->addr;
-    if (diff)
-        return diff;
+    if (node_a->addr != node_b->addr)
+        return node_a->addr < node_b->addr ? -1 : 1;
 
-    return node_a->vm_area.size - node_b->vm_area.size;
+    if (node_a->vm_area.size != node_b->vm_area.size)
+        return node_a->vm_area.size - node_b->vm_area.size ? -1 : 1;
+
+    BUG();
+    return 0;
 }
 
 static long ioremap_rb_find(const struct rb_node *rb, const void *key)
 {
     struct ioremap_node *node = rb_to_ioremap(rb);
     const struct ioremap_find *cmp = key;
-    long diff;
+    phys_addr_t node_end, cmp_end;
 
-    diff = cmp->addr - node->addr;
-    if (diff)
-        return diff;
+    node_end = node->addr + node->vm_area.size - 1;
+    cmp_end = cmp->addr + cmp->size - 1;
 
-    return cmp->size <= node->vm_area.size ? 0 : ~0L;
+    if (cmp->addr < node->addr)
+        return -1;
+
+    if (node_end < cmp_end)
+        return 1;
+
+    if (node->addr <= cmp->addr && cmp_end <= node_end)
+        return 0;
+
+    return LONG_MIN;
 }
 
 static struct ioremap_node *phys_addr_find(phys_addr_t start, phys_addr_t end)
@@ -82,7 +93,7 @@ static struct ioremap_node *ioremap_alloc(phys_addr_t pa, size_t size, gvm_t fla
     if (unlikely(!node))
         return NULL;
 
-    ret = vmem_area_alloc(&node->vm_area, size, PAGE_SIZE);
+    ret = vmem_area_alloc(&node->vm_area, size);
     if (unlikely(ret))
         goto error_free;
 
@@ -107,6 +118,9 @@ void *ioremap_node(phys_addr_t pa, size_t size, gvm_t flags)
     phys_addr_t offset;
 
     if (!size)
+        return NULL;
+
+    if (pa + size < pa)
         return NULL;
 
 	/* page-align mappings */
@@ -145,6 +159,15 @@ void *ioremap(phys_addr_t pa, size_t size)
 }
 EXPORT_SYMBOL(ioremap);
 
+void *ioremap_uc(phys_addr_t pa, size_t size)
+{
+    if (pa >= CONFIG_RAM_BASE && pa < CONFIG_HIGHMEM_OFFSET)
+        return pa_to_va(pa);
+
+    return ioremap_node(pa, size, 0);
+}
+EXPORT_SYMBOL(ioremap_uc);
+
 void *ioremap_wc(phys_addr_t pa, size_t size)
 {
     return ioremap_node(pa, size, GVM_WCOMBINED);
@@ -157,38 +180,31 @@ void *ioremap_wt(phys_addr_t pa, size_t size)
 }
 EXPORT_SYMBOL(ioremap_wt);
 
-void *ioremap_uc(phys_addr_t pa, size_t size)
-{
-    if (pa >= CONFIG_RAM_BASE && pa < CONFIG_HIGHMEM_OFFSET)
-        return pa_to_va(pa);
-
-    return ioremap_node(pa, size, 0);
-}
-EXPORT_SYMBOL(ioremap_uc);
-
 void iounmap(void *block)
 {
     size_t addr = (size_t)block;
     struct ioremap_node *node;
-    struct vm_area *vm;
+    struct vmem_area *vm;
 
     if (addr < CONFIG_HIGHMAP_OFFSET)
         return;
 
-    return;
-
+    spin_lock(&ioremap_lock);
     vm = vmem_area_find(addr);
     if (!vm) {
         pr_crit("abort iounmap %p\n", block);
+        spin_unlock(&ioremap_lock);
         return;
     }
 
     node = vm_to_ioremap(vm);
-    if (!--node->count)
+    if (--node->count)
         return;
 
-    vmem_area_free(vm);
     rb_delete(&ioremap_root, &node->rb);
+    spin_unlock(&ioremap_lock);
+
+    vmem_area_free(vm);
     kcache_free(ioremap_cache, vm);
 }
 EXPORT_SYMBOL(iounmap);

@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig SELFTEST_LIB
+    bool "Test Library Unit"
+    default y
+if SELFTEST_LIB
+
+config SELFTEST_LIB_NCACHE
+    bool "Ncache Test"
+    default y
+
+endif

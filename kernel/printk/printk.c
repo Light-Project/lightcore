@@ -35,7 +35,7 @@ static const char *printk_level(const char *str, enum klevel *klevel)
     return str;
 }
 
-static int printk_time(char *buffer, struct timespec *time)
+static inline int printk_time(char *buffer, struct timespec *time)
 {
     return sprintf(buffer, "[%5llu.%06lu] ",
         time->tv_sec, time->tv_nsec / 1000);
@@ -44,17 +44,17 @@ static int printk_time(char *buffer, struct timespec *time)
 int vprintk(const char *fmt, va_list args)
 {
     char buffer[256], *p = buffer;
-    struct timespec time;
     enum klevel klevel;
     int len;
 
     fmt = printk_level(fmt, &klevel);
 
-    time.tv_sec  = ticktime / CONFIG_SYSTICK_FREQ;
-    time.tv_nsec = (ticktime % CONFIG_SYSTICK_FREQ) * (1000000000 / CONFIG_SYSTICK_FREQ);
-
+#ifdef CONFIG_PRINTK_TIME
+    struct timespec btime;
+    btime = timekeeping_get_time_ts();
     if (strchr(fmt, '\n'))
-        p += printk_time(p, &time);
+        p += printk_time(p, &btime);
+#endif
 
     p += vsprintf(p, fmt, args);
     len = p - buffer;
@@ -62,6 +62,7 @@ int vprintk(const char *fmt, va_list args)
     console_write(buffer, len);
     return len;
 }
+EXPORT_SYMBOL(vprintk);
 
 int printk(const char *fmt, ...)
 {

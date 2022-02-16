@@ -7,7 +7,7 @@
 #include <export.h>
 #include <printk.h>
 #include <asm/proc.h>
-#include <asm/irq.h>
+#include <irqflags.h>
 
 static LIST_HEAD(panic_works_list);
 
@@ -36,7 +36,7 @@ void __noreturn panic(const char* fmt, ...)
     char buf[256];
     va_list args;
 
-    cpu_irq_disable();
+    irq_local_disable();
 
     va_start(args, fmt);
     vsnprintf(buf, sizeof(buf), fmt, args);
