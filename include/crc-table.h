@@ -144,4 +144,45 @@ static const uint32_t crc32_table[256] = {
     0xb40bbe37lU, 0xc30c8ea1U, 0x5a05df1bU, 0x2d02ef8dU,
 };
 
+static inline uint8_t crc4_inline(uint8_t *src, int len, uint8_t crc)
+{
+    uint8_t tmp = crc;
+
+    len *= 2;
+    while (len--)
+        tmp = crc4_table[(tmp & 0x0f) ^ *src++];
+
+    return tmp ^ crc;
+}
+
+static inline uint8_t crc8_inline(uint8_t *src, int len, uint8_t crc)
+{
+    uint8_t tmp = crc;
+
+    while (len--)
+        tmp = crc8_table[(tmp & 0xff) ^ *src++];
+
+    return tmp ^ crc;
+}
+
+static inline uint16_t crc16_inline(uint8_t *src, int len, uint16_t crc)
+{
+    uint32_t tmp = crc;
+
+    while (len--)
+        tmp = (tmp << 8) ^ crc16_table[(tmp & 0xff) ^ *src++];
+
+    return tmp ^ crc;
+}
+
+static inline uint32_t crc32_inline(const uint8_t *src, int len, uint32_t crc)
+{
+    uint32_t tmp = crc;
+
+    while (len--)
+        tmp = (tmp >> 8) ^ crc32_table[(tmp & 0xff) ^ *src++];
+
+    return tmp ^ crc;
+}
+
 #endif  /* _CRC_TABLE_H_ */
