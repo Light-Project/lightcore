@@ -64,7 +64,8 @@ static void vfree_pages_internal(void *block, bool free_pages)
         kfree(vmalloc->page_map);
     }
 
-    vmem_free(&vmalloc->vmem);
+    vmem_area_free(vmem);
+    vunmap_range(&init_mm, vmalloc->vmem.addr, vmalloc->vmem.size);
     kcache_free(vmalloc_cache, vmalloc);
 }
 
