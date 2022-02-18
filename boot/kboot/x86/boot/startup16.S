@@ -14,7 +14,7 @@
     call Service_printf
 
     .code16
-    .section    .head,"ax"
+    .section    .startup, "ax"
 GLOBAL(startup16)
     cli
     cld
@@ -58,7 +58,7 @@ GLOBAL(startup16)
  * temporary stack.
  */
     printf(TXT_MEMDETECT)
-    movl    $_start, %esp
+    movl    $sentinel, %esp
     calll   memdetect
 
     printf(TXT_A20ENABLE)

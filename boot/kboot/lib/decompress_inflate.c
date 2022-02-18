@@ -1,12 +1,11 @@
 /* SPDX-License-Identifier: GPL-2.0 */
-
 #include "../../../lib/compress/zlib_inflate/inftrees.c"
 #include "../../../lib/compress/zlib_inflate/inffast.c"
 #include "../../../lib/compress/zlib_inflate/inflate.c"
 
 #ifdef CONFIG_ZLIB_DFLTCC
-#include "zlib_dfltcc/dfltcc.c"
-#include "zlib_dfltcc/dfltcc_inflate.c"
+#include "../../../lib/compress/zlib_dfltcc/dfltcc.c"
+#include "../../../lib/compress/zlib_dfltcc/dfltcc_inflate.c"
 #endif
 
 #define GZIP_IOBUF_SIZE (16 * 1024)
@@ -17,11 +16,9 @@ static long nofill(void *buffer, unsigned long len)
 }
 
 /* Included from initramfs et al code */
-static state decompress(unsigned char *buf, long len,
-                        long (*fill)(void*, unsigned long),
-                        long (*flush)(void*, unsigned long),
-                        unsigned char *out_buf, long out_len,
-                        long *pos)
+static state decompress(unsigned char *buf, long len, long (*fill)(void*, unsigned long),
+                        long (*flush)(void*, unsigned long), unsigned char *out_buf,
+                        long out_len, long *pos)
 {
     uint8_t *zbuf;
     struct z_stream_s *strm;
@@ -79,8 +76,7 @@ static state decompress(unsigned char *buf, long len,
         len = fill(zbuf, GZIP_IOBUF_SIZE);
 
     /* verify the gzip header */
-    if (len < 10 ||
-    zbuf[0] != 0x1f || zbuf[1] != 0x8b || zbuf[2] != 0x08) {
+    if (len < 10 || zbuf[0] != 0x1f || zbuf[1] != 0x8b || zbuf[2] != 0x08) {
         if (pos)
             *pos = 0;
         pr_boot("not a gzip file\n");

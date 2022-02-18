@@ -36,6 +36,6 @@ EXPORT_SYMBOL(krealloc);
 
 void __weak kmem_init(void)
 {
-
+    /* Nothing */
 }
 EXPORT_SYMBOL(kmem_init);

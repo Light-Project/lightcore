@@ -2,8 +2,10 @@
 #ifndef _KASAN_H_
 #define _KASAN_H_
 
-#include <types.h>
+#include <kernel.h>
 #include <asm/kasan.h>
+
+#define KASAN_GRANULE_MASK 0
 
 static inline void *kasan_to_shadow(const void *addr)
 {
@@ -56,5 +58,8 @@ extern void __asan_set_shadow_f2(const void *addr, size_t size);
 extern void __asan_set_shadow_f3(const void *addr, size_t size);
 extern void __asan_set_shadow_f5(const void *addr, size_t size);
 extern void __asan_set_shadow_f8(const void *addr, size_t size);
+
+/* kasan core */
+extern bool kasan_report(unsigned long addr, size_t size, bool is_write, unsigned long ip);
 
 #endif  /* _KASAN_H_ */

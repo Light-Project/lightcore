@@ -4,7 +4,7 @@
 
 #include <const.h>
 
-#define KASAN_SHADOW_SHIFT  3
-#define KASAN_SHADOW_OFFSET _AC()
+#define KASAN_SHADOW_SHIFT      3
+#define KASAN_SHADOW_OFFSET     _AC(CONFIG_KASAN_SHADOW_OFFSET, UL)
 
 #endif  /* _ASM_X86_KASAN_H_ */

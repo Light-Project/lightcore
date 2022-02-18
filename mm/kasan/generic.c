@@ -7,40 +7,94 @@
 #include <string.h>
 #include <export.h>
 
-static __always_inline unsigned long
-mem_is_nonzero(const uint8_t *start, size_t size)
+static __always_inline bool
+memory_poisoned_1(unsigned long addr)
 {
-    while (size) {
-        if (unlikely(*start))
-            return (unsigned long)start;
-        start++;
-        size--;
+    int8_t shadow_value = *(int8_t *)kasan_to_shadow((void *)addr);
+
+    if (unlikely(shadow_value)) {
+        int8_t last_accessible_byte = addr & KASAN_GRANULE_MASK;
+        return unlikely(last_accessible_byte >= shadow_value);
     }
 
-    return 0;
-}
-
-static __always_inline bool
-memory_poisoned_1(unsigned long addr, size_t size)
-{
     return false;
 }
 
 static __always_inline bool
 memory_poisoned_2_4_8(unsigned long addr, size_t size)
 {
-    return false;
+    uint8_t *shadow_addr = (uint8_t *)kasan_to_shadow((void *)addr);
+
+    if (unlikely(((addr + size - 1) & KASAN_GRANULE_MASK) < size - 1))
+        return *shadow_addr || memory_poisoned_1(addr + size - 1);
+
+    return memory_poisoned_1(addr + size - 1);
 }
 
 static __always_inline bool
-memory_poisoned_16(unsigned long addr, size_t size)
+memory_poisoned_16(unsigned long addr)
 {
     return false;
+}
+
+static __always_inline unsigned long
+bytes_is_nonzero(const uint8_t *start, size_t size)
+{
+    while (size--) {
+        if (unlikely(*start))
+            return (unsigned long)start;
+        start++;
+    }
+
+    return 0;
+}
+
+static __always_inline unsigned long
+memory_is_nonzero(const void *start, const void *end)
+{
+    unsigned int prefix = (unsigned long)start % 8;
+    unsigned int words, ret;
+
+    if (end - start <= 16)
+        return bytes_is_nonzero(start, end - start);
+
+    if (prefix) {
+        prefix = 8 - prefix;
+        ret = bytes_is_nonzero(start, prefix);
+        if (unlikely(ret))
+            return ret;
+        start += prefix;
+    }
+
+    words = (end - start) / 8;
+    while (words--) {
+        if (unlikely(*(u64 *)start))
+            return bytes_is_nonzero(start, 8);
+        start += 8;
+    }
+
+    return bytes_is_nonzero(start, (end - start) % 8);
 }
 
 static __always_inline bool
 memory_poisoned_n(unsigned long addr, size_t size)
 {
+    unsigned long ret;
+
+    ret = memory_is_nonzero(
+        kasan_to_shadow((void *)addr),
+        kasan_to_shadow((void *)addr + size - 1) + 1
+    );
+
+    if (unlikely(ret)) {
+        unsigned long last_byte = addr + size - 1;
+        int8_t *last_shadow = (int8_t *)kasan_to_shadow((void *)last_byte);
+
+        if (unlikely(ret != (unsigned long)last_shadow ||
+            ((long)(last_byte & KASAN_GRANULE_MASK) >= *last_shadow)))
+            return true;
+    }
+
     return false;
 }
 
@@ -50,13 +104,13 @@ memory_poisoned(unsigned long addr, size_t size)
     if (__builtin_constant_p(size)) {
         switch (size) {
             case 1: default:
-                return memory_poisoned_1(addr, size);
+                return memory_poisoned_1(addr);
 
             case 2: case 4: case 8:
                 return memory_poisoned_2_4_8(addr, size);
 
             case 16:
-                return memory_poisoned_16(addr, size);
+                return memory_poisoned_16(addr);
         }
     }
 
@@ -66,7 +120,9 @@ memory_poisoned(unsigned long addr, size_t size)
 static __always_inline void
 asan_check_region_inline(unsigned long addr, size_t size, bool write, unsigned long rip)
 {
-    if (size == 0)
+        return;
+
+    if (unlikely(size == 0))
         return;
 
     if (unlikely(addr + size < addr)) {

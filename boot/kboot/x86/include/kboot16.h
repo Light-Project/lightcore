@@ -2,7 +2,7 @@
 #ifndef _KBOOT16_H_
 #define _KBOOT16_H_
 
-#include <asm/bootparam.h>
+#include <asm/header.h>
 
 extern struct bootparam bootparam;
 

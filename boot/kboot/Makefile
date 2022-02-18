@@ -2,13 +2,8 @@
 include $(srctree)/platform.mk
 export KASAN_SANITIZE = n
 
-obj-$(CONFIG_ARCH_ARM)     += arm/
-obj-$(CONFIG_ARCH_CSKY)    += csky/
-obj-$(CONFIG_ARCH_X86)     += x86/
-obj-$(CONFIG_ARCH_X86)     += x86/
-
-obj-y += lib/ piggy.o
-extra-y += kboot.lds
+obj-y += $(arch)/ lib/ piggy.o
+extra-y += $(arch)/kboot.lds
 
 include-y += $(arch)/include/ lib/
 
@@ -17,7 +12,7 @@ kboot-ccflags-y  += -std=gnu11  -Wall -Werror
 kboot-acflags-y  += -ffreestanding -nostdinc
 kboot-acflags-y  += -fPIC -fno-stack-protector -fno-common
 kboot-ldsflags-y += -D__ASSEMBLY__
-kboot-elfflags-y += -T $(obj)/kboot.lds -Wl,-Map=$@.map
+kboot-elfflags-y += -T $(obj)/$(arch)/kboot.lds -Wl,-Map=$@.map
 kboot-elfflags-y += -Wl,--no-dynamic-linker -nostdlib
 
 ifdef CONFIG_KERNEL_DEBUG
