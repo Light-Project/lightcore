@@ -115,6 +115,16 @@ endmenu
 
 source "mm/kasan/Kconfig"
 
+config MEMBLK_REGIONS
+    int "Memblock Maximum Regions"
+    default 128
+
+config MEMBLK_MERGE
+    bool "Memblock Merge Identical Regions"
+    help
+        It may be possible to turn on this feature in
+        the case of insufficient memory blocks.
+
 config MEMTEST
     bool "Memory Test Support"
     default y

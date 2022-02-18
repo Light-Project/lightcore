@@ -48,8 +48,7 @@ static void sparce_alloc(void)
     size_t size;
 
     size = sparce_nr * PAGES_PER_SECTION * sizeof(*page);
-    page = pa_to_va(memblock_alloc(size, MSIZE, NORMAL_OFFSET, CONFIG_HIGHMEM_OFFSET));
-    memset(page, 0, size);
+    page = memblock_alloc(size);
 
     for (count = 0; count < SECTIONS_NR; ++count) {
         if (!sparce_map[count].present)

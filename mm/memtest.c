@@ -14,14 +14,14 @@ static size_t patterns[] = {
     (size_t)0xffffffffffffffffULL,
     (size_t)0x5555555555555555ULL,
     (size_t)0xaaaaaaaaaaaaaaaaULL,
-	(size_t)0x1111111111111111ULL,
-	(size_t)0x2222222222222222ULL,
-	(size_t)0x4444444444444444ULL,
-	(size_t)0x8888888888888888ULL,
-	(size_t)0x3333333333333333ULL,
-	(size_t)0x7777777777777777ULL,
-	(size_t)0xccccccccccccccccULL,
-	(size_t)0xeeeeeeeeeeeeeeeeULL,
+    (size_t)0x1111111111111111ULL,
+    (size_t)0x2222222222222222ULL,
+    (size_t)0x4444444444444444ULL,
+    (size_t)0x8888888888888888ULL,
+    (size_t)0x3333333333333333ULL,
+    (size_t)0x7777777777777777ULL,
+    (size_t)0xccccccccccccccccULL,
+    (size_t)0xeeeeeeeeeeeeeeeeULL,
 };
 
 static void bad_block(void *start, size_t size)
@@ -51,12 +51,9 @@ static void memtest_once(size_t pattern, size_t *start, size_t *end)
     }
 }
 
-void __init memtest(void)
+void __init memtest(void *block, size_t size)
 {
-    void *va = &_ld_image_end;
-    size_t size = 0x10000000;
     unsigned int c;
-
     for (c = 0; c < ARRAY_SIZE(patterns); ++c)
-    memtest_once(patterns[c], va, (void *)((size_t)va + size));
+    memtest_once(patterns[c], block, block + size);
 }

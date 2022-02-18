@@ -7,6 +7,7 @@
 #include <mm/memblock.h>
 #include <mm/memmodel.h>
 #include <mm/page.h>
+#include <export.h>
 
 struct region region_map[REGION_NR_MAX] = {
 #ifdef CONFIG_REGION_DMA
@@ -47,6 +48,7 @@ enum region_type gfp_to_region(gfp_t gfp)
     }
     return REGION_NORMAL;
 }
+EXPORT_SYMBOL(gfp_to_region);
 
 enum region_type pa_to_region(phys_addr_t pa)
 {
@@ -64,11 +66,13 @@ enum region_type pa_to_region(phys_addr_t pa)
 #endif
     return REGION_NORMAL;
 }
+EXPORT_SYMBOL(pa_to_region);
 
 enum region_type page_to_region(const struct page *page)
 {
     return pa_to_region(page_to_pa(page));
 }
+EXPORT_SYMBOL(page_to_region);
 
 static bool region_block_add(struct memblock_region *blk)
 {
