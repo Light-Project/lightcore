@@ -50,7 +50,7 @@ static long ioremap_rb_cmp(const struct rb_node *rba, const struct rb_node *rbb)
         return node_a->addr < node_b->addr ? -1 : 1;
 
     if (node_a->vm_area.size != node_b->vm_area.size)
-        return node_a->vm_area.size - node_b->vm_area.size ? -1 : 1;
+        return node_a->vm_area.size < node_b->vm_area.size ? -1 : 1;
 
     BUG();
     return 0;
@@ -65,14 +65,14 @@ static long ioremap_rb_find(const struct rb_node *rb, const void *key)
     node_end = node->addr + node->vm_area.size - 1;
     cmp_end = cmp->addr + cmp->size - 1;
 
-    if (cmp->addr < node->addr)
-        return -1;
-
-    if (node_end < cmp_end)
-        return 1;
-
     if (node->addr <= cmp->addr && cmp_end <= node_end)
         return 0;
+
+    if (node->addr != cmp->addr)
+        return node->addr < cmp->addr ? -1 : 1;
+
+    if (node->vm_area.size != cmp->size)
+        return node->vm_area.size < cmp->size ? -1 : 1;
 
     return LONG_MIN;
 }
@@ -205,7 +205,8 @@ void iounmap(void *block)
     spin_unlock(&ioremap_lock);
 
     vmem_area_free(vm);
-    kcache_free(ioremap_cache, vm);
+    vunmap_range(&init_mm, vm->addr, vm->size);
+    kcache_free(ioremap_cache, node);
 }
 EXPORT_SYMBOL(iounmap);
 

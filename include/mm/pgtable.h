@@ -51,28 +51,28 @@ static inline size_t pgd_index(size_t addr)
 #ifndef pte_offset
 static inline pte_t *pte_offset(pmd_t *pmd, size_t addr)
 {
-    return (pte_t *)pmd_get_addr(pmd) + pte_index(addr);
+    return (pte_t *)pmd_address(pmd) + pte_index(addr);
 }
 #endif
 
 #ifndef pmd_offset
 static inline pmd_t *pmd_offset(pud_t *pud, size_t addr)
 {
-    return (pmd_t *)pud_get_addr(pud) + pmd_index(addr);
+    return (pmd_t *)pud_address(pud) + pmd_index(addr);
 }
 #endif
 
 #ifndef pud_offset
 static inline pud_t *pud_offset(p4d_t *p4d, size_t addr)
 {
-    return (pud_t *)p4d_get_addr(p4d) + pud_index(addr);
+    return (pud_t *)p4d_address(p4d) + pud_index(addr);
 }
 #endif
 
 #ifndef p4d_offset
 static inline p4d_t *p4d_offset(pgd_t *pgd, size_t addr)
 {
-    return (p4d_t *)pgd_get_addr(pgd) + p4d_index(addr);
+    return (p4d_t *)pgd_address(pgd) + p4d_index(addr);
 }
 #endif
 
