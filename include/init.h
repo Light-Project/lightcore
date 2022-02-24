@@ -10,7 +10,7 @@ extern char boot_args[boot_args_size];
 extern struct sched_task init_task;
 
 extern void __init arch_setup(void);
-extern int __init __noreturn user_init(void *arg);
-extern state __init vfl_init_root(void);
+extern state __init mount_rootfs(void);
+extern int __noreturn user_init(void *arg);
 
 #endif  /* _INIT_H_ */
