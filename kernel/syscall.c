@@ -53,6 +53,8 @@ asmlinkage long syscall_handle(unsigned int call_num, ...)
     if (syscall->args > 5)
         arg6 = va_arg(args, long);
 
+    va_end(args);
+
     switch (syscall->args) {
         case 0:
             retval = ((long (*)())
