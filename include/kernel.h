@@ -6,6 +6,7 @@
 #include <limits.h>
 #include <stddef.h>
 #include <stdarg.h>
+#include <error.h>
 #include <state.h>
 #include <size.h>
 #include <math.h>
