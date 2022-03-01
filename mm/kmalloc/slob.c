@@ -343,14 +343,14 @@ static void slob_free(const void *block)
     empty = slob_page_free(slob_page, block, SLOB_ALIGN);
 
     if (empty) {
-        if (!list_outsize(&slob_page->list))
+        if (!list_check_outsize(&slob_page->list))
             list_del(&slob_page->list);
         spin_unlock_irqrestore(&lock, &irq_save);
         page_free(page);
         return;
     }
 
-    if (list_outsize(&slob_page->list))
+    if (list_check_outsize(&slob_page->list))
         list_add(slob_page->head, &slob_page->list);
 
     spin_unlock_irqrestore(&lock, &irq_save);

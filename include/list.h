@@ -26,8 +26,8 @@ list_insert(struct list_head *prev, struct list_head *next, struct list_head *ne
 }
 
 /**
- * list_head_init -
- * @head: list head to init.
+ * list_head_init - initialize a list_head structure.
+ * @head: list_head structure to be initialized.
  */
 static inline void list_head_init(struct list_head *head)
 {
@@ -47,7 +47,7 @@ static inline void list_add(struct list_head *node, struct list_head *new)
 
 /**
  * list_add_prev - add a new node after old node.
- * @node: list head to add it next.
+ * @node: list head to add it prev.
  * @new: new entry to be added.
  */
 static inline void list_add_prev(struct list_head *node, struct list_head *new)
@@ -57,8 +57,7 @@ static inline void list_add_prev(struct list_head *node, struct list_head *new)
 
 /**
  * list_del - in fact, it just connect next and prev node.
- * @node: list head to add it next.
- * @new: new entry to be added.
+ * @entry: the element to delete from the list.
  */
 static inline void list_del(struct list_head *node)
 {
@@ -67,15 +66,10 @@ static inline void list_del(struct list_head *node)
     node->prev = node->next = NULL;
 }
 
-static inline bool list_outsize(struct list_head *node)
-{
-    return !node->prev && !node->next;
-}
-
 /**
  * list_replace - Replace a linked list node with an external node.
- * @node: list head to add it next.
- * @new: new entry to be added.
+ * @old: the element to be replaced.
+ * @new: the new element to insert.
  */
 static inline void list_replace(struct list_head *old, struct list_head *new)
 {
@@ -86,9 +80,30 @@ static inline void list_replace(struct list_head *old, struct list_head *new)
 }
 
 /**
- * list_move_front - Move the node to the tail of the list.
- * @node: list head to add it next.
- * @new: new entry to be added.
+ * list_del_init - deletes entry from list and reinitialize it.
+ * @node: the element to delete from the list.
+ */
+static inline void list_del_init(struct list_head *node)
+{
+    list_del(node);
+    list_head_init(node);
+}
+
+/**
+ * list_replace_init - replace old entry by new one and initialize the old one.
+ * @old: the element to be replaced.
+ * @new: the new element to insert.
+ */
+static inline void list_replace_init(struct list_head *old, struct list_head *new)
+{
+    list_replace(old, new);
+    list_head_init(old);
+}
+
+/**
+ * list_move_front - move the node to the front of the list.
+ * @head: the head that will precede our entry.
+ * @list: the entry to move.
  */
 static inline void list_move_front(struct list_head *head, struct list_head *node)
 {
@@ -97,9 +112,9 @@ static inline void list_move_front(struct list_head *head, struct list_head *nod
 }
 
 /**
- * list_move_tail - Move the node to the tail of the list.
- * @node: list head to add it next.
- * @new: new entry to be added.
+ * list_move_tail - move the node to the tail of the list.
+ * @head: the head that will follow our entry.
+ * @list: the entry to move.
  */
 static inline void list_move_tail(struct list_head *head, struct list_head *node)
 {
@@ -108,9 +123,9 @@ static inline void list_move_tail(struct list_head *head, struct list_head *node
 }
 
 /**
- * list_check_first - Check whether the node is a header.
- * @node: list head to add it next.
- * @new: new entry to be added.
+ * list_check_first - check whether the node is a header.
+ * @head: the head of the list.
+ * @list: the entry to test.
  */
 static inline bool list_check_first(struct list_head *head, struct list_head *node)
 {
@@ -118,9 +133,9 @@ static inline bool list_check_first(struct list_head *head, struct list_head *no
 }
 
 /**
- * list_check_end - Check whether the node is a ending.
- * @node: list head to add it next.
- * @new: new entry to be added.
+ * list_check_end - check whether the node is a ending.
+ * @head: the head of the list.
+ * @list: the entry to test.
  */
 static inline bool list_check_end(struct list_head *head, struct list_head *node)
 {
@@ -128,7 +143,16 @@ static inline bool list_check_end(struct list_head *head, struct list_head *node
 }
 
 /**
- * list_check_around - Check whether the node is a ending.
+ * list_check_empty - check whether a list is empty.
+ * @head: list head to check.
+ */
+static inline bool list_check_empty(struct list_head *head)
+{
+    return head->next == head;
+}
+
+/**
+ * list_check_around - check whether the node is a ending.
  * @node: list head to add it next.
  * @new: new entry to be added.
  */
@@ -138,13 +162,22 @@ static inline bool list_check_around(struct list_head *prev, struct list_head *n
 }
 
 /**
- * list_check_empty - add a new node next old node.
- * @head: list head to check.
+ * list_check_outsize - check whether the node is outside the linked list.
+ * @node: list entry to check.
  */
-static inline bool list_check_empty(struct list_head *head)
+static inline bool list_check_outsize(struct list_head *node)
 {
-    return head->next == head;
+    return !node->prev && !node->next;
 }
+
+/**
+ * list_entry - get the struct for this entry
+ * @ptr: the &struct list_head pointer.
+ * @type: the type of the struct this is embedded in.
+ * @member: the name of the list_head within the struct.
+ */
+#define list_entry(ptr, type, member) \
+    container_of(ptr, type, member)
 
 /**
  * list_check_head - test if the entry points to the head of the list
@@ -161,7 +194,7 @@ static inline bool list_check_empty(struct list_head *head)
  * @member: the name of the list_head within the struct.
  */
 #define list_prev_entry(pos, member) \
-    container_of((pos)->member.prev, typeof(*(pos)), member)
+    list_entry((pos)->member.prev, typeof(*(pos)), member)
 
 /**
  * list_next_entry - get the next element in list
@@ -169,7 +202,7 @@ static inline bool list_check_empty(struct list_head *head)
  * @member: the name of the list_head within the struct.
  */
 #define list_next_entry(pos, member) \
-    container_of((pos)->member.next, typeof(*(pos)), member)
+    list_entry((pos)->member.next, typeof(*(pos)), member)
 
 /**
  * list_first_entry - get the first element from a list
@@ -180,7 +213,18 @@ static inline bool list_check_empty(struct list_head *head)
  * Note, that list is expected to be not empty.
  */
 #define list_first_entry(ptr, type, member) \
-    container_of((ptr)->next, type, member)
+    list_entry((ptr)->next, type, member)
+
+/**
+ * list_last_entry - get the last element from a list
+ * @ptr: the list head to take the element from.
+ * @type: the type of the struct this is embedded in.
+ * @member: the name of the list_head within the struct.
+ *
+ * Note, that list is expected to be not empty.
+ */
+#define list_last_entry(ptr, type, member) \
+    list_entry((ptr)->prev, type, member)
 
 /**
  * list_first_entry_or_null - get the first element from a list
@@ -193,7 +237,7 @@ static inline bool list_check_empty(struct list_head *head)
 #define list_first_entry_or_null(ptr, type, member) ({          \
     struct list_head *head__ = (ptr);                           \
     struct list_head *pos__ = head__->next;                     \
-    pos__ != head__ ? container_of(pos__, type, member) : NULL; \
+    pos__ != head__ ? list_entry(pos__, type, member) : NULL; \
 })
 
 /**
