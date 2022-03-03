@@ -52,21 +52,21 @@ void timer_mdelay(unsigned long msec)
 }
 EXPORT_SYMBOL(timer_mdelay);
 
-DEFINE_STATIC_CALL(static_call_ndelay, static_call_proc_ndelay);
-DEFINE_STATIC_CALL(static_call_udelay, static_call_proc_udelay);
-DEFINE_STATIC_CALL(static_call_mdelay, static_call_proc_mdelay);
+DEFINE_STATIC_CALL(ndelay, static_call_proc_ndelay);
+DEFINE_STATIC_CALL(udelay, static_call_proc_udelay);
+DEFINE_STATIC_CALL(mdelay, static_call_proc_mdelay);
 
 void delay_change(struct clocksource_device *cdev)
 {
     if (cdev->rating >= CLOCK_RATING_DESIRED) {
-        static_call_update(static_call_ndelay, timer_ndelay);
-        static_call_update(static_call_udelay, timer_udelay);
-        static_call_update(static_call_mdelay, timer_mdelay);
+        static_call_update(ndelay, timer_ndelay);
+        static_call_update(udelay, timer_udelay);
+        static_call_update(mdelay, timer_mdelay);
         pr_info("change to timer-delay mode\n");
     } else {
-        static_call_update(static_call_ndelay, static_call_proc_ndelay);
-        static_call_update(static_call_udelay, static_call_proc_udelay);
-        static_call_update(static_call_mdelay, static_call_proc_mdelay);
+        static_call_update(ndelay, static_call_proc_ndelay);
+        static_call_update(udelay, static_call_proc_udelay);
+        static_call_update(mdelay, static_call_proc_mdelay);
         pr_info("change to proc-delay mode\n");
     }
 }
