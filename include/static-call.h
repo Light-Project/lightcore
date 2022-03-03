@@ -54,7 +54,7 @@ static inline void __static_call_nop(void)
     /* Nothing */
 }
 
-static inline void __static_call_ret0(void)
+static inline int __static_call_ret0(void)
 {
     return 0;
 }
