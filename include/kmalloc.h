@@ -36,6 +36,9 @@ extern struct kcache *kcache_create(const char *name, size_t size, enum kcache_f
 extern void kcache_release(struct kcache *);
 extern void kcache_delete(struct kcache *);
 
+#define KCACHE_CREATE(struct, flags) \
+    kcache_create(#struct, sizeof(struct), flags)
+
 /**
  * kzalloc - allocate memory and set to zero.
  * @size: alloc memory size.
