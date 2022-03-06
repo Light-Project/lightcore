@@ -10,6 +10,7 @@
 #include <string.h>
 #include <init.h>
 #include <memory.h>
+#include <idr.h>
 #include <task.h>
 #include <kcoro.h>
 #include <filesystem.h>
@@ -60,8 +61,9 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
     pr_info("kernel version: "CONFIG_VERSION"\n");
     pr_info("kernel command: %s\n", boot_args);
 
-    /* early kernel */
     mem_init();
+    idr_init();
+
     sched_init();
     kcoro_init();
 
