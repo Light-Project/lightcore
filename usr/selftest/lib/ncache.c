@@ -50,7 +50,7 @@ static state ncache_testing(void *pdata)
         count++;
     } while (ktime_after(
         start, ktime_sub_ms
-        (timekeeping_get_time(), 1000)
+        (timekeeping_get_time(), 2000)
     ));
 
     printk("ncache multilayer: %lu/s\n", count * TEST_DEEPTH);
