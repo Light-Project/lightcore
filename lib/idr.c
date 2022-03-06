@@ -46,7 +46,7 @@ static unsigned long idr_get_free_range(struct idr *idr, unsigned long min, unsi
     struct idr_node *node;
     struct rb_node *rb;
 
-    min = max(max(min, 0), idr->id_base);
+    min = max(max(min, 1), idr->id_base);
 
     rb = rb_find(&idr->root, (void *)min, idr_rb_find);
     if (unlikely(!(node = rb_to_idr_safe(rb)))) {
