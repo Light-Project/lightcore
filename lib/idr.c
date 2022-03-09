@@ -7,22 +7,6 @@
 #include <kmalloc.h>
 #include <export.h>
 
-struct idr_node {
-    struct list_head list;
-    struct rb_node rb;
-    unsigned long index;
-    void *pdata;
-};
-
-#define rb_to_idr(ptr) \
-    rb_entry(ptr, struct idr_node, rb)
-
-#define rb_to_idr_safe(ptr) \
-    rb_entry_safe(ptr, struct idr_node, rb)
-
-#define list_to_idr(ptr) \
-    list_entry(ptr, struct idr_node, list)
-
 static struct kcache *idr_cache;
 static struct kcache *idrn_cache;
 
@@ -40,6 +24,13 @@ static long idr_rb_find(const struct rb_node *rb, const void *key)
     return node->index > (unsigned long)key ? -1 : 1;
 }
 
+/**
+ * idr_get_free_range - get the first unused id
+ * @idr: the idr handle
+ * @min: minimum id to get
+ * @max: maximum id to get
+ * @nextp: return the next linked list node
+ */
 static unsigned long idr_get_free_range(struct idr *idr, unsigned long min, unsigned long max, struct list_head **nextp)
 {
     unsigned long walk;
@@ -54,7 +45,7 @@ static unsigned long idr_get_free_range(struct idr *idr, unsigned long min, unsi
         return min;
     }
 
-    for (walk = min + 1; walk <= max; ++walk) {
+    for (walk = min + 1; walk < max; ++walk) {
         if (list_check_end(&idr->list, &node->list))
             goto finish;
 
@@ -70,15 +61,18 @@ finish:
     return walk;
 }
 
-unsigned long idr_alloc_range(struct idr *idr, void *pdata, unsigned long min, unsigned long max, gfp_t flags)
+/**
+ * idr_node_alloc_range - sequence add an node to the idr
+ * @idr: the idr handle
+ * @node: idr node to add
+ * @pdata: node pdata
+ * @min: minimum id
+ * @max: maximum id
+ */
+unsigned long idr_node_alloc_range(struct idr *idr, struct idr_node *node, void *pdata, unsigned long min, unsigned long max)
 {
-    struct idr_node *node;
     struct list_head *next;
     unsigned long id;
-
-    node = kcache_alloc(idrn_cache, flags);
-    if (!node)
-        return IDR_NONE;
 
     spin_lock(&idr->lock);
 
@@ -93,23 +87,28 @@ unsigned long idr_alloc_range(struct idr *idr, void *pdata, unsigned long min, u
 
 finish:
     spin_unlock(&idr->lock);
-    if (unlikely(id == IDR_NONE))
-        kcache_free(idrn_cache, pdata);
     return id;
 }
-EXPORT_SYMBOL(idr_alloc_range);
+EXPORT_SYMBOL(idr_node_alloc_range);
 
-unsigned long idr_alloc_cyclic_range(struct idr *idr, void *pdata, unsigned long min, unsigned long max, gfp_t flags)
+/**
+ * idr_node_alloc_cyclic_range - cyclic add an node to the idr
+ * @idr: the idr handle
+ * @node: idr node to add
+ * @pdata: node pdata
+ * @min: minimum id
+ * @max: maximum id
+ */
+unsigned long idr_node_alloc_cyclic_range(struct idr *idr, struct idr_node *node, void *pdata, unsigned long min, unsigned long max)
 {
-    unsigned long next = idr->id_next;
+    unsigned long next;
     unsigned long id;
 
-    if (next < min)
-        next = min;
+    next = clamp(idr->id_next, min, max);
 
-    id = idr_alloc_range(idr, pdata, next, max, flags);
+    id = idr_node_alloc_range(idr, node, pdata, next, max);
     if (id == IDR_NONE)
-        id = idr_alloc_range(idr, pdata, min, max, flags);
+        id = idr_node_alloc_range(idr, node, pdata, min, max);
 
     if (id == IDR_NONE)
         return id;
@@ -117,9 +116,64 @@ unsigned long idr_alloc_cyclic_range(struct idr *idr, void *pdata, unsigned long
     idr->id_next = id + 1;
     return id;
 }
+EXPORT_SYMBOL(idr_node_alloc_cyclic_range);
+
+/**
+ * idr_alloc_range - alloc a node and sequence add the id to idr
+ * @idr: the idr handle
+ * @pdata: node pdata
+ * @min: minimum id
+ * @max: maximum id
+ * @flags: gfp flags
+ */
+unsigned long idr_alloc_range(struct idr *idr, void *pdata, unsigned long min, unsigned long max, gfp_t flags)
+{
+    struct idr_node *node;
+    unsigned long id;
+
+    node = kcache_alloc(idrn_cache, flags);
+    if (!node)
+        return IDR_NONE;
+
+    id = idr_node_alloc_range(idr, node, pdata, min, max);
+    if (unlikely(id == IDR_NONE))
+        kcache_free(idrn_cache, node);
+
+    return id;
+}
+EXPORT_SYMBOL(idr_alloc_range);
+
+/**
+ * idr_alloc_cyclic_range - alloc a node and cyclic add the id to idr
+ * @idr: the idr handle
+ * @pdata: node pdata
+ * @min: minimum id
+ * @max: maximum id
+ * @flags: gfp flags
+ */
+unsigned long idr_alloc_cyclic_range(struct idr *idr, void *pdata, unsigned long min, unsigned long max, gfp_t flags)
+{
+    struct idr_node *node;
+    unsigned long id;
+
+    node = kcache_alloc(idrn_cache, flags);
+    if (!node)
+        return IDR_NONE;
+
+    id = idr_node_alloc_cyclic_range(idr, node, pdata, min, max);
+    if (unlikely(id == IDR_NONE))
+        kcache_free(idrn_cache, node);
+
+    return id;
+}
 EXPORT_SYMBOL(idr_alloc_cyclic_range);
 
-void idr_free(struct idr *idr, unsigned long id)
+/**
+ * idr_node_free - remove an id from the idr
+ * @idr: the idr handle
+ * @id: the id to release
+ */
+struct idr_node *idr_node_free(struct idr *idr, unsigned long id)
 {
     struct idr_node *node;
     struct rb_node *rb;
@@ -132,13 +186,33 @@ void idr_free(struct idr *idr, unsigned long id)
 
     list_del(&node->list);
     rb_delete(&idr->root, &node->rb);
-    kcache_free(idrn_cache, node);
 
 finish:
     spin_unlock(&idr->lock);
+    return node;
+}
+EXPORT_SYMBOL(idr_node_free);
+
+/**
+ * idr_free - remove id from the idr and free
+ * @idr: the idr handle
+ * @id: the id to release
+ */
+void idr_free(struct idr *idr, unsigned long id)
+{
+    struct idr_node *node;
+
+    node = idr_node_free(idr, id);
+    if (node)
+        kcache_free(idrn_cache, node);
 }
 EXPORT_SYMBOL(idr_free);
 
+/**
+ * idr_find - remove id from the idr and free
+ * @idr: the idr handle
+ * @id: the id to find
+ */
 void *idr_find(struct idr *idr, unsigned long id)
 {
     struct idr_node *node;
@@ -154,18 +228,26 @@ void *idr_find(struct idr *idr, unsigned long id)
 }
 EXPORT_SYMBOL(idr_find);
 
+/**
+ * idr_release - remove id from the idr and free
+ * @idr: the idr handle
+ */
 void idr_release(struct idr *idr)
 {
     struct idr_node *node, *next;
 
-    rb_post_for_each_entry_safe(node, next, &idr->root, rb) {
-        rb_delete(&idr->root, &node->rb);
-        list_del(&node->list);
+    list_for_each_entry_safe(node, next, &idr->list, list)
         kcache_free(idrn_cache, node);
-    }
+
+    idr->root = RB_INIT;
+    list_head_init(&idr->list);
 }
 EXPORT_SYMBOL(idr_release);
 
+/**
+ * idr_create - create an idr
+ * @base: id number base
+ */
 struct idr *idr_create(unsigned long base)
 {
     struct idr *idr;
@@ -183,6 +265,10 @@ struct idr *idr_create(unsigned long base)
 }
 EXPORT_SYMBOL(idr_create);
 
+/**
+ * idr_delete - delete an idr
+ * @idr: the idr handle
+ */
 void idr_delete(struct idr *idr)
 {
     idr_release(idr);
