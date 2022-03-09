@@ -14,7 +14,7 @@ GLOBAL(boot_head)
     KERNEL_HEADER
 END(boot_head)
 
-    .section    .text.init, "ax"
+    .section    .init.text, "ax"
 ENTRY(init)
 
     ldr     sp, =(init_thread_union + THREAD_SIZE)
