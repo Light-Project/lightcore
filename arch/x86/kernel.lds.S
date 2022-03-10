@@ -57,4 +57,8 @@ SECTIONS {
     }
 }
 
+ASSERT(SIZEOF(.got) == 0, "Unexpected GOT entries detected!")
+ASSERT(SIZEOF(.plt) == 0, "Unexpected run-time procedure linkages detected!")
+ASSERT(SIZEOF(.rel.dyn) == 0, "Unexpected run-time relocations (.rel) detected!")
+ASSERT(SIZEOF(.rela.dyn) == 0, "Unexpected run-time relocations (.rela) detected!")
 PROVIDE(_ld_image_size = _ld_image_end - _ld_image_start);

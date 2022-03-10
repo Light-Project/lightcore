@@ -170,8 +170,6 @@ GLOBAL(kboot_start)
 
     movl    %ebx, 1f
     movw    %ax, 2f
-    movw    %ax, %ds
-    movw    %ax, %es
 
     .byte   0x66, 0xea  /* ljmpl opcode */
 1:  .long   0x00        /* address */

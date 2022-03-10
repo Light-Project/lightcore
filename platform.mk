@@ -57,21 +57,21 @@ platform-ccflags-y  += -mno-3dnow -mno-avx
 
 ifdef CONFIG_ARCH_X86_32
 platform-acflags-y  += -m32
+platform-symflags-y += -m32
 platform-ccflags-y  += $(cc_stack_align4)
 platform-ccflags-y  += -msoft-float
 platform-ldflags-y  += -m elf_i386
-platform-symflags-y += -m32
-platform-elfflags-y += -m32 -nostdlib
+platform-elfflags-y += -m elf_i386
 endif # CONFIG_ARCH_X86_32
 
 ifdef CONFIG_ARCH_X86_64
 platform-acflags-y  += -m64
+platform-symflags-y += -m64
 platform-ccflags-y  += $(cc_stack_align8)
 platform-ccflags-y  += -mno-red-zone
 platform-ccflags-y  += -mcmodel=kernel
 platform-ldflags-y  += -m elf_x86_64
-platform-symflags-y += -m64
-platform-elfflags-y += -m64 -nostdlib
+platform-elfflags-y += -m elf_x86_64
 endif # CONFIG_ARCH_X86_64
 endif # CONFIG_ARCH_X86
 

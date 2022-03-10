@@ -44,9 +44,10 @@ symflags-y := $(strip $(sys-symflags-y) $(platform-symflags-y))
 ldflags-y  := $(strip $(sys-ldflags-y) $(platform-ldflags-y))
 include-direct-y := $(strip $(sys-include-y) $(platform-include-y))
 
-lightcore-flags-$(CONFIG_KERNEL_MAP) += -Wl,--cref,-Map=$@.map
-lightcore-flags-y += -e boot_head -nostdlib -T arch/$(arch)/kernel.lds
-lightcore-flags-y += $(platform-elfflags-y) -Wl,--build-id=sha1
+lightcore-flags-y += -nostdlib --build-id=sha1
+lightcore-flags-y += -e boot_head -T arch/$(arch)/kernel.lds
+lightcore-flags-$(CONFIG_KERNEL_MAP) += -Map=$@.map
+lightcore-flags-y += $(platform-elfflags-y)
 
 ifdef CONFIG_KERNEL_DEBUG
 acflags-y += -g
@@ -80,6 +81,7 @@ dtstree = boot/dts
 
 %dtb: scripts_dtc
 	$(Q)$(MAKE) $(build)=$(dtstree) $(dtstree)/$@
+
 dtbs: scripts_dtc
 	$(Q)$(MAKE) $(build)=$(dtstree)
 

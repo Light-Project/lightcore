@@ -40,7 +40,11 @@ endif
 # OK, Make called in directory where kernel src resides
 # Do we want to locate output files in a separate directory?
 ifeq ("$(origin O)", "command line")
-    BUILD_CHDIR := $(O)
+BUILD_CHDIR := $(O)
+endif
+
+ifeq ("$(origin M)", "command line")
+BUILD_EXTMOD := $(M)
 endif
 
 ifneq ($(BUILD_CHDIR),)
@@ -62,7 +66,7 @@ export srctree objtree build_home
 VERSION = test
 EXTRAVERSION = -rc0
 KERNELVERSION = $(VERSION)$(EXTRAVERSION)
-export VERSION EXTRAVERSION KERNELVERSION
+export VERSION EXTRAVERSION KERNELVERSION BUILD_EXTMOD
 
 # ===========================================================================
 # Rules shared between *config targets and build targets

@@ -13,7 +13,6 @@ CROSS_COMPILE   ?= gcc-
 CPP             := $(CROSS_COMPILE)cpp
 AS              := $(CROSS_COMPILE)gcc
 CC              := $(CROSS_COMPILE)gcc
-LD              := $(CROSS_COMPILE)ld
 CXX             := $(CROSS_COMPILE)g++
 AR              := $(CROSS_COMPILE)ar
 NM              := $(CROSS_COMPILE)nm
@@ -38,7 +37,8 @@ HOSTCXX         ?= g++
 HOSTCFLAGS      ?= -Wall
 HOSTCXXFLAGS    ?= -O2
 
-MKELF           ?= $(CROSS_COMPILE)gcc
+LD              := $(CROSS_COMPILE)ld
+MKELF           := $(CROSS_COMPILE)ld
 
 ########################################
 # CMD tool                             #
@@ -217,6 +217,9 @@ dot-target = $(dir $@).$(notdir $@)
 # contain a comma
 depfile = $(subst $(comma),_,$(dot-target).d)
 
+# real prerequisites without phony targets
+real-prereqs = $(filter-out $(PHONY), $^)
+
 # Escape single quote for use in echo statements
 escsq    = $(subst $(squote),'\$(squote)',$1)
 
@@ -233,17 +236,21 @@ kecho := $($(quiet)kecho)
 # try-run                              #
 ########################################
 
+# output directory for tests below
+TMPOUT := $(if $(KBUILD_EXTMOD),$(firstword $(KBUILD_EXTMOD))/)
+
 # Usage: option = $(call try-run, $(CC)...-o "$$TMP",option-ok,otherwise)
 # Exit code chooses option. "$$TMP" is can be used as temporary file and
 # is automatically cleaned up.
-try-run = $(shell set -e;           \
-    TMP="$(TMPOUT).$$$$.tmp";       \
-    TMPO="$(TMPOUT).$$$$.o";        \
-    if ($(1)) >/dev/null 2>&1;      \
-    then echo "$(2)";               \
-    else echo "$(3)";               \
-    fi;                             \
-    rm -f "$$TMP" "$$TMPO")
+try-run = $(shell set -e;                   \
+            TMP="$(TMPOUT).$$$$.tmp";       \
+            TMPO="$(TMPOUT).$$$$.o";        \
+            TMPSU="$(TMPOUT).$$$$.su";      \
+            if ($(1)) >/dev/null 2>&1;      \
+            then echo "$(2)";               \
+            else echo "$(3)";               \
+            fi;                             \
+            rm -f "$$TMP" "$$TMPO" "$$TMPSU")
 
 # filechk is used to check if the content of a generated file is updated.
 # Sample usage:
@@ -276,51 +283,51 @@ endef
 # Build option                         #
 ########################################
 
-# real prerequisites without phony targets
-real-prereqs = $(filter-out $(PHONY), $^)
-
 # as-option
 # Usage: cflags-y += $(call as-option,-Wa$(comma)-isa=foo,)
 as-option = $(call try-run,\
-    $(CC) $(BUILD_CFLAGS) $(1) -c -x assembler /dev/null -o "$$TMP",$(1),$(2))
+    $(CC) $(KBUILD_CFLAGS) $(1) -c -x assembler /dev/null -o "$$TMP",$(1),$(2))
 
 # as-instr
 # Usage: cflags-y += $(call as-instr,instr,option1,option2)
 as-instr = $(call try-run,\
-    printf "%b\n" "$(1)" | $(CC) $(BUILD_AFLAGS) -c -x assembler -o "$$TMP" -,$(2),$(3))
+    printf "%b\n" "$(1)" | $(CC) $(KBUILD_AFLAGS) -c -x assembler -o "$$TMP" -,$(2),$(3))
+
+# __cc-option
+# Usage: MY_CFLAGS += $(call __cc-option,$(CC),$(MY_CFLAGS),-march=winchip-c6,-march=i586)
+__cc-option = $(call try-run,\
+    $(1) -Werror $(2) $(3) -c -x c /dev/null -o "$$TMP",$(3),$(4))
 
 # cc-option
 # Usage: cflags-y += $(call cc-option,-march=winchip-c6,-march=i586)
-cc-option = $(call try-run,\
-    $(CC) $(KBUILD_CPPFLAGS) $(BUILD_CFLAGS) $(1) -c -xc /dev/null -o "$$TMP",$(1),$(2))
+cc-option = $(call __cc-option, $(CC),\
+    $(KBUILD_CPPFLAGS) $(KBUILD_CFLAGS),$(1),$(2))
 
 # cc-option-yn
 # Usage: flag := $(call cc-option-yn,-march=winchip-c6)
 cc-option-yn = $(call try-run,\
-    $(CC) $(KBUILD_CPPFLAGS) $(BUILD_CFLAGS) $(1) -c -xc /dev/null -o "$$TMP",y,n)
-
-# cc-option-align
-# Prefix align with either -falign or -malign
-cc-option-align = $(subst -functions=0,,\
-    $(call cc-option,-falign-functions=0,-malign-functions=0))
+    $(CC) -Werror $(KBUILD_CPPFLAGS) $(KBUILD_CFLAGS) $(1) -c -x c /dev/null -o "$$TMP",y,n)
 
 # cc-disable-warning
 # Usage: cflags-y += $(call cc-disable-warning,unused-but-set-variable)
 cc-disable-warning = $(call try-run,\
-    $(CC) $(KBUILD_CPPFLAGS) $(KBUILD_CFLAGS) -W$(strip $(1)) -c -xc /dev/null -o "$$TMP",-Wno-$(strip $(1)))
+    $(CC) -Werror $(KBUILD_CPPFLAGS) $(KBUILD_CFLAGS) -W$(strip $(1)) -c -x c /dev/null -o "$$TMP",-Wno-$(strip $(1)))
 
-# cc-version
-# Usage gcc-ver := $(call cc-version)
-cc-version = $(shell $(CONFIG_SHELL) $(srctree)/scripts/tools/gcc-version.sh $(CC))
+# cc-ifversion
+# Usage:  EXTRA_CFLAGS += $(call cc-ifversion, -lt, 0402, -O1)
+cc-ifversion = $(shell [ $(CONFIG_GCC_VERSION)0 $(1) $(2)000 ] && echo $(3) || echo $(4))
 
 # cc-ifversion
 # Usage:  EXTRA_CFLAGS += $(call cc-ifversion, -lt, 0402, -O1)
 cc-ifversion = $(shell [ $(call cc-version, $(CC)) $(1) $(2) ] && echo $(3))
 
-# cc-ldoption
-# Usage: ldflags += $(call cc-ldoption, -Wl$(comma)--hash-style=both)
-cc-ldoption = $(call try-run,\
-    $(CC) $(1) -nostdlib -xc /dev/null -o "$$TMP",$(1),$(2))
+# ld-option
+# Usage: KBUILD_LDFLAGS += $(call ld-option, -X, -Y)
+ld-option = $(call try-run, $(LD) $(KBUILD_LDFLAGS) $(1) -v,$(1),$(2),$(3))
+
+# ld-ifversion
+# Usage:  $(call ld-ifversion, -ge, 22252, y)
+ld-ifversion = $(shell [ $(CONFIG_LD_VERSION)0 $(1) $(2)0 ] && echo $(3) || echo $(4))
 
 # hostcc-option
 # Usage: cflags-y += $(call hostcc-option,-march=winchip-c6,-march=i586)
@@ -336,12 +343,9 @@ hostcc-option = $(call __cc-option, $(HOSTCC),\
 #   $(call multi_depend, multi_used_targets, suffix_to_remove, suffix_to_add)
 define multi_depend
 $(foreach m, $(notdir $1), \
-	$(eval $(obj)/$m: \
-	$(addprefix $(obj)/, $(foreach s, $3, $($(m:%$(strip $2)=%$(s)))))))
+    $(eval $(obj)/$m: \
+    $(addprefix $(obj)/, $(foreach s, $3, $($(m:%$(strip $2)=%$(s)))))))
 endef
-
-# output directory for tests below
-TMPOUT := $(if $(KBUILD_EXTMOD),$(firstword $(KBUILD_EXTMOD))/)
 
 target-stem = $(basename $(patsubst $(obj)/%,%,$@))
 

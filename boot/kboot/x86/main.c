@@ -22,10 +22,11 @@ asmlinkage void main(void)
     kernel_map();
 
     /* Extract kernel */
-    extract_kernel(pa_to_va(NORMAL_OFFSET), (void *)code32_start, piggy_size);
+    extract_kernel(pa_to_va(NORMAL_OFFSET), piggy_start, piggy_size);
     head = pa_to_va(NORMAL_OFFSET);
     head->params = (size_t)pa_to_va(&bootparam);
 
+    /* Boot kernel */
     pr_boot("boot to kernel...\n");
     kernel_start(GDT_ENTRY_KERNEL_CS_BASE, (size_t)pa_to_va(NORMAL_OFFSET));
 }

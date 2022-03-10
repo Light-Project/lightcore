@@ -60,10 +60,11 @@ static state decompress(unsigned char *buf, long len, long (*fill)(void*, unsign
     strm->workspace = malloc(flush ? zlib_inflate_workspacesize() :
 #ifdef CONFIG_ZLIB_DFLTCC
     /* Always allocate the full workspace for DFLTCC */
-                zlib_inflate_workspacesize());
+        zlib_inflate_workspacesize());
 #else
-                sizeof(struct inflate_state));
+        sizeof(struct inflate_state));
 #endif
+
     if (strm->workspace == NULL) {
         pr_boot("out of memory while allocating workspace\n");
         goto gunzip_nomem4;
@@ -83,11 +84,13 @@ static state decompress(unsigned char *buf, long len, long (*fill)(void*, unsign
         goto gunzip_5;
     }
 
-    /* skip over gzip header (1f,8b,08... 10 bytes total +
+    /*
+     * skip over gzip header (1f,8b,08... 10 bytes total +
      * possible asciz filename)
      */
     strm->next_in = zbuf + 10;
     strm->avail_in = len - 10;
+
     /* skip over asciz filename */
     if (zbuf[3] & 0x8) {
         do {
@@ -149,7 +152,7 @@ static state decompress(unsigned char *buf, long len, long (*fill)(void*, unsign
             rc = 0;
             break;
         } else if (rc != Z_OK) {
-            pr_boot("uncompression error\n");
+            pr_boot("uncompression error (%d)\n", rc);
             rc = -1;
         }
     }

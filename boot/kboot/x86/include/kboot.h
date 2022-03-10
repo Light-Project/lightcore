@@ -47,18 +47,18 @@ extern uint32_t init_size;
 extern uint32_t handover_offset;
 extern uint32_t kernel_info_offset;
 
-extern char _ld_piggy_start;
-extern char _ld_piggy_end;
-extern char _ld_heap_start;
-extern char _ld_heap_end;
+extern uint8_t _ld_piggy_start;
+extern uint8_t _ld_piggy_end;
+extern uint8_t _ld_heap_start;
+extern uint8_t _ld_heap_end;
 
-#define piggy_start (&_ld_piggy_start)
-#define piggy_end   (&_ld_piggy_end)
-#define piggy_size  (piggy_end - piggy_start)
+#define piggy_start ((void *)&_ld_piggy_start)
+#define piggy_end   ((void *)&_ld_piggy_end)
+#define piggy_size  ((size_t)piggy_end - (size_t)piggy_start)
 
-#define heap_start  (&_ld_heap_start)
-#define heap_end    (&_ld_heap_end)
-#define heap_size   (heap_end - heap_start)
+#define heap_start  ((void *)&_ld_heap_start)
+#define heap_end    ((void *)&_ld_heap_end)
+#define heap_size   ((size_t)heap_end - (size_t)heap_start)
 
 extern struct e820_table e820_table;
 extern struct kboot_params kboot_params;

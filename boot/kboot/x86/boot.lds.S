@@ -5,8 +5,14 @@
 
 #include <size.h>
 
-OUTPUT_FORMAT("elf32-i386")
-OUTPUT_ARCH("i386")
+#if defined(CONFIG_ARCH_X86_32)
+OUTPUT_ARCH(i386)
+#elif defined(CONFIG_ARCH_X86_64)
+OUTPUT_ARCH(i386:x86-64)
+#else
+# error "unknown instruction set"
+#endif
+
 ENTRY(_start)
 
 #define stack_size  (SZ_1KiB * 8)

@@ -17,7 +17,7 @@ ifdef CONFIG_ARCH_X86
 include-y               += bios/include/
 platform-acflags-y      := -m16
 platform-ldflags-y      := -m elf_i386
-platform-elfflags-y     := -Wl,-m elf_i386 -Wl,-T $(src)/bios/boot.lds
+platform-elfflags-y     := -m elf_i386 -T $(src)/bios/boot.lds
 endif
 
 ifdef CONFIG_CHIP_SUNIV

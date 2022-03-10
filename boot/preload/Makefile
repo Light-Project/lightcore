@@ -17,7 +17,7 @@ preload-acflags-y += -ffreestanding -nostdinc
 preload-acflags-y += -fno-pic -fno-stack-protector
 preload-acflags-y += -ffunction-sections -fdata-sections
 preload-ldsflags-y += -D__ASSEMBLY__
-preload-elfflags-y += -nostdlib -Wl,-Map=$@.map -Wl,--gc-sections
+preload-elfflags-y += -nostdlib -Map=$@.map --gc-sections
 
 ifdef CONFIG_PRELOAD_DEBUG
 preload-acflags-y += -g

@@ -27,20 +27,34 @@ GLOBAL(startup16)
     movl    %cs, %eax
     shll    $4, %eax
     addl    %eax, %ebx
-    movl    %ebx, boot_offset
 
     /* Normalize the memory address */
     movl    %ebx, %eax
     shrl    $4, %eax
+
     movw    %ax, %ds
     movw    %ax, %es
-    movw    %ax, %ss
     movw    %ax, 1f
 
     .byte   0x66, 0xea  /* ljmpl opcode */
     .long   2f          /* offset */
 1:  .word   0x00        /* segment */
 2:
+
+    /* Save boot_offset */
+    movl    %ebx, boot_offset
+
+    /* Initialization real mode stack */
+    leal    _ld_stack_start(%ebx), %eax
+    movl    %eax, %edx
+    andl    $0xf, %edx
+    shrl    $4, %eax
+    movl    %eax, %ss
+
+    movl    $_ld_stack_end, %eax
+    subl    $_ld_stack_start, %eax
+    movl    %eax, %esp
+    addl    %edx, %esp
 
     /* Clean screen */
     movb    $0x00, %ah
@@ -107,9 +121,9 @@ GLOBAL(startup16)
     shll    $4, %eax
     addl    %eax, 1f
 
-    .byte   0x66, 0xea              // ljmpl opcode
-1:  .long   startup32               // offset
-    .word   GDT_ENTRY_BOOT_CS_BASE  // segment
+    .byte   0x66, 0xea              /* ljmpl opcode */
+1:  .long   startup32               /* offset */
+    .word   GDT_ENTRY_BOOT_CS_BASE  /* segment */
 END(startup16)
 
 halt_16:
