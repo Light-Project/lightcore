@@ -5,6 +5,7 @@
 #include <types.h>
 
 /* Maximum value an 'unsigned char' can hold (Minimum is 0) */
+#define UCHAR_MIN       ((unsigned char)0U)
 #define UCHAR_MAX       ((unsigned char)~0U)
 
 /* Minimum and maximum values a 'char' can hold */
@@ -12,6 +13,7 @@
 #define CHAR_MIN        ((signed char)(-CHAR_MAX - 1))
 
 /* Maximum value an 'unsigned short int' can hold (Minimum is 0) */
+#define USHRT_MIN       ((unsigned short)0U)
 #define USHRT_MAX       ((unsigned short)~0U)
 
 /* Minimum and maximum values a 'signed short int' can hold */
@@ -19,6 +21,7 @@
 #define SHRT_MAX        ((signed short)(-SHRT_MIN - 1))
 
 /* Maximum value an 'unsigned int' can hold (Minimum is 0) */
+#define UINT_MIN        ((unsigned int)0U)
 #define UINT_MAX        ((unsigned int)~0U)
 
 /* Minimum and maximum values a 'signed int' can hold */
@@ -26,6 +29,7 @@
 #define INT_MIN         ((signed int)(-INT_MAX - 1))
 
 /* Maximum value an 'unsigned long int' can hold (Minimum is 0) */
+#define ULONG_MIN       ((unsigned long)0UL)
 #define ULONG_MAX       ((unsigned long)~0UL)
 
 /* Minimum and maximum values a 'signed long int' can hold */
@@ -33,6 +37,7 @@
 #define LONG_MIN        ((signed long)(-LONG_MAX - 1))
 
 /* Maximum value an 'unsigned long long int' can hold (Minimum is 0) */
+#define ULLONG_MIN      ((unsigned long long)0ULL)
 #define ULLONG_MAX      ((unsigned long long)~0ULL)
 
 /* Minimum and maximum values a 'signed long long int' can hold */

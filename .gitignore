@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 *.a
 *.o
-*.o.*
+*.d
 *.cmd
 *.tmp
 *.lex.c
@@ -28,6 +28,4 @@
 /include/generated/
 /arch/*/include/generated/
 /lightcore
-
-/.vscode/
 /bochsout.txt

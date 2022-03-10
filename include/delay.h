@@ -48,13 +48,13 @@ extern void timer_udelay(unsigned long usec);
 extern void timer_mdelay(unsigned long msec);
 extern void delay_change(struct clocksource_device *cdev);
 
-DECLARE_STATIC_CALL(static_call_ndelay, static_call_proc_ndelay);
-DECLARE_STATIC_CALL(static_call_udelay, static_call_proc_udelay);
-DECLARE_STATIC_CALL(static_call_mdelay, static_call_proc_mdelay);
+DECLARE_STATIC_CALL(ndelay, static_call_proc_ndelay);
+DECLARE_STATIC_CALL(udelay, static_call_proc_udelay);
+DECLARE_STATIC_CALL(mdelay, static_call_proc_mdelay);
 
-# define ndelay static_call_cond(static_call_ndelay)
-# define udelay static_call_cond(static_call_udelay)
-# define mdelay static_call_cond(static_call_mdelay)
+# define ndelay(nsec) static_call_cond(ndelay)(nsec)
+# define udelay(usec) static_call_cond(udelay)(usec)
+# define mdelay(msec) static_call_cond(mdelay)(msec)
 #endif  /* CONFIG_HIRES_TIMER_DELAY */
 
 extern void msleep(unsigned int msecs);

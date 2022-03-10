@@ -10,7 +10,7 @@
 #include <export.h>
 #include <panic.h>
 
-struct syscall_entry syscall_table[] = {
+static struct syscall_entry syscall_table[SYSCALL_NR_MAX] = {
     [0 ... SYSCALL_NR_MAX - 1] = {
         .name = "undefine",
         .args = UINT_MAX,
@@ -53,34 +53,43 @@ asmlinkage long syscall_handle(unsigned int call_num, ...)
     if (syscall->args > 5)
         arg6 = va_arg(args, long);
 
+    va_end(args);
+
     switch (syscall->args) {
         case 0:
             retval = ((long (*)())
                 (syscall->entry))();
+            break;
 
         case 1:
             retval = ((long (*)(long))
                 (syscall->entry))(arg1);
+            break;
 
         case 2:
             retval = ((long (*)(long, long))
                 (syscall->entry))(arg1, arg2);
+            break;
 
         case 3:
             retval = ((long (*)(long, long, long))
                 (syscall->entry))(arg1, arg2, arg3);
+            break;
 
         case 4:
             retval = ((long (*)(long, long, long, long))
                 (syscall->entry))(arg1, arg2, arg3, arg4);
+            break;
 
         case 5:
             retval = ((long (*)(long, long, long, long, long))
                 (syscall->entry))(arg1, arg2, arg3, arg4, arg5);
+            break;
 
         case 6:
             retval = ((long (*)(long, long, long, long, long, long))
                 (syscall->entry))(arg1, arg2, arg3, arg4, arg5, arg6);
+            break;
     }
 
     return retval;
@@ -96,12 +105,16 @@ state syscall_register(unsigned int callnr, const char *name, unsigned int args,
     syscall_table[callnr].name = name;
     syscall_table[callnr].args = args;
     syscall_table[callnr].entry = entry;
+
     return -ENOERR;
 }
 EXPORT_SYMBOL(syscall_register);
 
 void syscall_unregister(unsigned int callnr)
 {
+    if (syscall_table[callnr].args == UINT_MAX)
+        return;
+
     syscall_table[callnr].name = "undefine";
     syscall_table[callnr].args = UINT_MAX;
     syscall_table[callnr].entry = syscall_undefine_handle;

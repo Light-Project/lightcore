@@ -42,7 +42,6 @@ static void kshell_env_release(struct kshell_env *env)
     spin_lock(&kshell_env_lock);
     list_del(&env->list);
     spin_unlock(&kshell_env_lock);
-    kfree(env->val);
     kfree(env);
 }
 

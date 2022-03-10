@@ -10,19 +10,17 @@
 #include <bitmap.h>
 #include <kmalloc.h>
 #include <initcall.h>
-#include <panic.h>
 #include <printk.h>
 
 #define RR_PRIO_MAX 64
 #define RR_TIMESLICE (CONFIG_RR_TIMESLICE * CONFIG_SYSTICK_FREQ / 1000)
-struct kcache *rr_cache;
+static struct kcache *rr_cache;
 
 struct rr_queue {
     DEFINE_BITMAP(bitmap, RR_PRIO_MAX);
     struct list_head task[RR_PRIO_MAX];
     unsigned int running[RR_PRIO_MAX];
     struct sched_queue *sched;
-    unsigned int tasknr;
 };
 
 struct rr_task {
@@ -83,6 +81,7 @@ static void rr_task_enqueue(struct sched_queue *queue, struct sched_task *task, 
             list_add(&rr_queue->task[prio], &rr_task->list);
         else
             list_add_prev(&rr_queue->task[prio], &rr_task->list);
+        bit_set(rr_queue->bitmap, task->priority);
     }
 
     rr_queue->running[prio]++;
@@ -145,14 +144,13 @@ static void rr_task_tick(struct sched_queue *queue, struct sched_task *task)
     struct rr_task *rr_task = task_to_rr(task);
     unsigned int prio = task->priority;
 
-    if (!rr_task->timeslice--)
-        rr_task->timeslice = RR_TIMESLICE;
-    else
+    if (rr_task->timeslice--)
         return;
 
-    if (rr_queue->tasknr <= 1) {
+    if (rr_queue->running[prio] > 1)
         list_move_tail(&rr_queue->task[prio], &rr_task->list);
-    }
+
+    rr_task->timeslice = RR_TIMESLICE;
 }
 
 static void rr_task_next(struct sched_queue *queue, struct sched_task *task)
@@ -183,7 +181,8 @@ static struct sched_task *rr_task_pick(struct sched_queue *queue)
     unsigned int index;
 
     index = bitmap_find_first(rr_queue->bitmap, RR_PRIO_MAX);
-    BUG_ON(index >= RR_PRIO_MAX);
+    if ((index >= RR_PRIO_MAX))
+        return NULL;
 
     prio = rr_queue->task + index;
     rr_task = list_first_entry(prio, struct rr_task, list);

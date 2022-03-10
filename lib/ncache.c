@@ -87,7 +87,7 @@ state ncache_charge(struct ncache *cache)
 
     while (READ_ONCE(cache->curr) < cache->num) {
         spin_lock_irqsave(&cache->lock, &irqflags);
-        if (cache->curr < cache->num) {
+        if (cache->curr == cache->num) {
             spin_unlock_irqrestore(&cache->lock, &irqflags);
             return -ENOERR;
         }

@@ -7,7 +7,6 @@
 #include <timekeeping.h>
 #include <kmalloc.h>
 #include <ncache.h>
-#include <random.h>
 #include <selftest.h>
 #include <printk.h>
 
@@ -54,7 +53,7 @@ static state ncache_testing(void *pdata)
         (timekeeping_get_time(), 2000)
     ));
 
-    printk("ncache multilayer: %lu/s\n", count * 10);
+    printk("ncache multilayer: %lu/s\n", count * TEST_DEEPTH);
 
     return -ENOERR;
 }

@@ -126,6 +126,7 @@ lightcore.dump-obj += lightcore
 dump-always-$(CONFIG_KERNEL_DUMP) += lightcore.dump
 
 build/boot/kboot: build
+build/boot/preload: build
 disk: preload
 
 kboot:      build/boot/kboot FORCE

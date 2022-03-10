@@ -3,7 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define MODULE_NAME "VFL"
+#define MODULE_NAME "mount"
 #define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <init.h>
@@ -43,7 +43,7 @@ exit:
 #ifdef CONFIG_BLOCK
 static state __init mount_block_root(void)
 {
-    return -ENOERR;
+    return auto_mount("/dev/root", MOUNT_RW);
 }
 #endif
 
@@ -54,7 +54,7 @@ static state __init mount_romdisk_root(void)
 }
 #endif
 
-state __init vfl_init_root(void)
+state __init mount_rootfs(void)
 {
     state ret;
 

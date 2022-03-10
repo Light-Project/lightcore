@@ -39,8 +39,8 @@ typedef struct pgd p4d_t;
 #define __PN    ((unsigned long)PAGE_NX)
 
 #define PAGE_NONE               (   0 |    0 |    0 |    0 | __PA |    0 |    0 | __PG |    0)
-#define PAGE_TABLE              (__PP | __PW | __PU |    0 | __PA | __PD |    0 |    0 | __PN)
-#define PAGE_TABLE_EXC          (__PP | __PW | __PU |    0 | __PA | __PD |    0 |    0 |    0)
+#define PAGE_TABLE              (__PP | __PW |    0 |    0 | __PA | __PD |    0 |    0 | __PN)
+#define PAGE_TABLE_EXC          (__PP | __PW |    0 |    0 | __PA | __PD |    0 |    0 |    0)
 #define PAGE_KERNEL             (__PP | __PW |    0 |    0 | __PA | __PD |    0 | __PG | __PN)
 #define PAGE_KERNEL_EXC         (__PP | __PW |    0 |    0 | __PA | __PD |    0 | __PG |    0)
 #define PAGE_KERNEL_RO          (__PP |    0 |    0 |    0 | __PA | __PD |    0 | __PG | __PN)
@@ -96,7 +96,37 @@ static inline void pte_set_wrprotect(pte_t *pte, bool wrprotect)
     pte->rw = wrprotect;
 }
 
-#define X86_GENERIC_PGTABLE_OPS(name, type, child)                                  \
+#define X86_GENERIC_PGTABLE_OPS(name, type, valtype, child)                         \
+static inline valtype name##_generic_pfn_mask(type *pgt)                            \
+{                                                                                   \
+    if (pgt->ps)                                                                    \
+        return PHYS_PGDIR_MASK;                                                     \
+    else                                                                            \
+        return PHYS_PAGE_MASK;                                                      \
+}                                                                                   \
+                                                                                    \
+static inline valtype name##_generic_flags_mask(type *pgt)                          \
+{                                                                                   \
+    return ~name##_generic_pfn_mask(pgt);                                           \
+}                                                                                   \
+                                                                                    \
+static inline valtype name##_generic_phys(type *pgt)                                \
+{                                                                                   \
+    return name##_generic_pfn_mask(pgt) & pgt->val;                                 \
+}                                                                                   \
+                                                                                    \
+static inline valtype name##_generic_flags(type *pgt)                               \
+{                                                                                   \
+    return name##_generic_flags_mask(pgt) & pgt->val;                               \
+}                                                                                   \
+                                                                                    \
+static inline size_t name##_generic_address(type *pgt)                              \
+{                                                                                   \
+    phys_addr_t phys;                                                               \
+    phys = name##_generic_phys(pgt);                                                \
+    return (size_t)pa_to_va(phys);                                                  \
+}                                                                                   \
+                                                                                    \
 static inline void name##_generic_populate(type *pgt, child *cpt)                   \
 {                                                                                   \
     pgt->val = PAGE_TABLE | va_to_pa(cpt);                                          \
@@ -104,7 +134,7 @@ static inline void name##_generic_populate(type *pgt, child *cpt)               
                                                                                     \
 static inline bool name##_generic_inval(type *pgt)                                  \
 {                                                                                   \
-    return !!((pgt->val & __PU) & PAGE_TABLE);                                      \
+    return (name##_generic_flags(pgt) & ~__PU) != PAGE_TABLE;                       \
 }                                                                                   \
                                                                                     \
 static inline void name##_generic_clear(type *pgt)                                  \
@@ -115,18 +145,6 @@ static inline void name##_generic_clear(type *pgt)                              
 static inline bool name##_generic_get_huge(type *pgt)                               \
 {                                                                                   \
     return pgt->ps;                                                                 \
-}                                                                                   \
-                                                                                    \
-static inline size_t name##_generic_get_addr(type *pgt)                             \
-{                                                                                   \
-    phys_addr_t phys;                                                               \
-                                                                                    \
-    if (pgt->ps)                                                                    \
-        phys = pgt->addrl << PGDIR_SHIFT;                                           \
-    else                                                                            \
-        phys = pgt->addr << PAGE_SHIFT;                                             \
-                                                                                    \
-    return (size_t)pa_to_va(phys);                                                  \
 }                                                                                   \
                                                                                     \
 static inline bool name##_generic_get_present(type *pgt)                            \
@@ -164,12 +182,15 @@ static inline void name##_generic_set_wrprotect(type *pgt, bool wrprotect)      
     pgt->rw = wrprotect;                                                            \
 }
 
-X86_GENERIC_PGTABLE_OPS(pmd, pmd_t, pte_t)
+X86_GENERIC_PGTABLE_OPS(pmd, pmd_t, pmdval_t, pte_t)
+#define pmd_pfn_mask        pmd_generic_pfn_mask
+#define pmd_flags_mask      pmd_generic_flags_mask
+#define pmd_flags           pmd_generic_flags
+#define pmd_address         pmd_generic_address
 #define pmd_populate        pmd_generic_populate
 #define pmd_inval           pmd_generic_inval
 #define pmd_clear           pmd_generic_clear
 #define pmd_get_huge        pmd_generic_get_huge
-#define pmd_get_addr        pmd_generic_get_addr
 #define pmd_get_present     pmd_generic_get_present
 #define pmd_get_dirty       pmd_generic_get_dirty
 #define pmd_set_dirty       pmd_generic_set_dirty
@@ -179,12 +200,15 @@ X86_GENERIC_PGTABLE_OPS(pmd, pmd_t, pte_t)
 #define pmd_set_wrprotect   pmd_generic_set_wrprotect
 
 #if CONFIG_PGTABLE_LEVEL > 2
-X86_GENERIC_PGTABLE_OPS(pud, pud_t, pmd_t)
+X86_GENERIC_PGTABLE_OPS(pud, pud_t, pudval_t, pmd_t)
+# define pud_pfn_mask       pud_generic_pfn_mask
+# define pud_flags_mask     pud_generic_flags_mask
+# define pud_flags          pud_generic_flags
+# define pud_address        pud_generic_address
 # define pud_populate       pud_generic_populate
 # define pud_inval          pud_generic_inval
 # define pud_clear          pud_generic_clear
 # define pud_get_huge       pud_generic_get_huge
-# define pud_get_addr       pud_generic_get_addr
 # define pud_get_present    pud_generic_get_present
 # define pud_get_dirty      pud_generic_get_dirty
 # define pud_set_dirty      pud_generic_set_dirty
@@ -195,12 +219,15 @@ X86_GENERIC_PGTABLE_OPS(pud, pud_t, pmd_t)
 #endif
 
 #if CONFIG_PGTABLE_LEVEL > 3
-X86_GENERIC_PGTABLE_OPS(p4d, p4d_t, pud_t)
+X86_GENERIC_PGTABLE_OPS(p4d, p4d_t, p4dval_t, pud_t)
+# define p4d_pfn_mask       p4d_generic_pfn_mask
+# define p4d_flags_mask     p4d_generic_flags_mask
+# define p4d_flags          p4d_generic_flags
+# define p4d_address        p4d_generic_address
 # define p4d_populate       p4d_generic_populate
 # define p4d_inval          p4d_generic_inval
 # define p4d_clear          p4d_generic_clear
 # define p4d_get_huge       p4d_generic_get_huge
-# define p4d_get_addr       p4d_generic_get_addr
 # define p4d_get_present    p4d_generic_get_present
 # define p4d_get_dirty      p4d_generic_get_dirty
 # define p4d_set_dirty      p4d_generic_set_dirty
@@ -211,12 +238,15 @@ X86_GENERIC_PGTABLE_OPS(p4d, p4d_t, pud_t)
 #endif
 
 #if CONFIG_PGTABLE_LEVEL > 4
-X86_GENERIC_PGTABLE_OPS(pgd, pgd_t, p4d_t)
+X86_GENERIC_PGTABLE_OPS(pgd, pgd_t, pgdval_t, p4d_t)
+# define pgd_pfn_mask       pgd_generic_pfn_mask
+# define pgd_flags_mask     pgd_generic_flags_mask
+# define pgd_flags          pgd_generic_flags
+# define pgd_address        pgd_generic_address
 # define pgd_populate       pgd_generic_populate
 # define pgd_inval          pgd_generic_inval
 # define pgd_clear          pgd_generic_clear
 # define pgd_get_huge       pgd_generic_get_huge
-# define pgd_get_addr       pgd_generic_get_addr
 # define pgd_get_present    pgd_generic_get_present
 # define pgd_get_dirty      pgd_generic_get_dirty
 # define pgd_set_dirty      pgd_generic_set_dirty

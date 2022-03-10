@@ -103,6 +103,21 @@ static inline struct timespec timekeeping_get_realtime_ts(void)
     return ktime_to_timespec(timekeeping_get_realtime());
 }
 
+static inline uint64_t timekeeping_get_time_ns(void)
+{
+    return ktime_to_ns(timekeeping_get_time());
+}
+
+static inline uint64_t timekeeping_get_boottime_ns(void)
+{
+    return ktime_to_ns(timekeeping_get_boottime());
+}
+
+static inline uint64_t timekeeping_get_realtime_ns(void)
+{
+    return ktime_to_ns(timekeeping_get_realtime());
+}
+
 /* timekeeping core */
 extern volatile uint64_t ticktime;
 extern void timekeeping_tick(void);

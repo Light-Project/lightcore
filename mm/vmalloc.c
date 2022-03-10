@@ -27,6 +27,11 @@ struct vmalloc_area {
 static struct kcache *vmalloc_cache;
 static atomic_t vmalloc_page_nr;
 
+/**
+ * release_pages - batch release page
+ * @page_area: page area pointer
+ * @page_nr: page area size
+ */
 static void release_pages(struct page **page_area, unsigned long page_nr)
 {
     unsigned long count;
@@ -64,10 +69,15 @@ static void vfree_pages_internal(void *block, bool free_pages)
         kfree(vmalloc->page_map);
     }
 
-    vmem_free(&vmalloc->vmem);
+    vmem_area_free(vmem);
+    vunmap_range(&init_mm, vmem->addr, vmem->size);
     kcache_free(vmalloc_cache, vmalloc);
 }
 
+/**
+ * vfree_pages - release virtual mapping obtained by vmalloc_pages
+ * @addr: memory address
+ */
 void vfree_pages(void *block)
 {
     vfree_pages_internal(block, false);
@@ -117,6 +127,11 @@ err_free:
 }
 EXPORT_SYMBOL(vmalloc_pages);
 
+/**
+ * alloc_pages - batch allocation page
+ * @area: vmalloc area pointer
+ * @gfp: alloc page flags
+ */
 static state alloc_pages(struct vmalloc_area *area, gfp_t gfp)
 {
     unsigned int count;

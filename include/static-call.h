@@ -51,7 +51,12 @@ struct static_call_key {
 
 static inline void __static_call_nop(void)
 {
+    /* Nothing */
+}
 
+static inline int __static_call_ret0(void)
+{
+    return 0;
 }
 
 static __always_inline void
@@ -79,5 +84,11 @@ __static_call_update(struct static_call_key *key, void *tramp, void *func)
 
 #define DEFINE_STATIC_CALL(name, func)                      \
     __DEFINE_STATIC_CALL(name, func, func)
+
+#define DEFINE_STATIC_CALL_RET(name, func)                  \
+    __DEFINE_STATIC_CALL(name, func, __static_call_nop)
+
+#define DEFINE_STATIC_CALL_RET0(name, func)                 \
+    __DEFINE_STATIC_CALL(name, func, __static_call_ret0)
 
 #endif  /* _STATIC_CALL_H_ */

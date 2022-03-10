@@ -64,19 +64,26 @@ static struct page *slob_get_page(int order, gfp_t gfp, int numa)
     return page;
 }
 
+/**
+ * slob_node_find - find a slob node within a given page.
+ * @slob_page: page to find node
+ * @block: address of node
+ * @pnext: used to return next node
+ * @pprev: used to return prev node
+ * @offset: offset in the allocated block that will be aligned
+ */
 static struct slob_node *slob_node_find(struct slob_page *slob, const void *block,
-                                        struct slob_node **pnext, struct slob_node **pprev)
+                struct slob_node **pnext, struct slob_node **pprev, size_t offset)
 {
     struct slob_node *node, *next, *prev = NULL;
 
     for (node = slob->node;; node = slob_node_next(node)) {
         next = slob_node_next(node);
 
-        if ((void *)node <= block && (void *)next >= block)
+        if ((void *)node + offset == block)
             break;
 
-        /* It's the last node. There's no block found */
-        if (unlikely(slob_node_last(node)))
+        if ((void *)node + offset > block)
             return NULL;
 
         prev = node;
@@ -184,14 +191,18 @@ skip:
 /**
  * slob_page_free - free memory within a given page.
  * @slob_page: page to free memory
- * @block: address pointer
+ * @block: address of node
+ * @offset: offset in the allocated block that will be aligned
  */
-static bool slob_page_free(struct slob_page *slob_page, const void *block)
+static bool slob_page_free(struct slob_page *slob_page, const void *block, size_t offset)
 {
     struct slob_node *node, *next, *prev;
     slobidx_t free;
 
-    node = slob_node_find(slob_page, block, &next, &prev);
+    node = slob_node_find(slob_page, block, &next, &prev, offset);
+    if (WARN_ON(!node))
+        return false;
+
     node->use = false;
     free = node->size;
 
@@ -329,17 +340,17 @@ static void slob_free(const void *block)
 
     spin_lock_irqsave(&lock, &irq_save);
 
-    empty = slob_page_free(slob_page, block);
+    empty = slob_page_free(slob_page, block, SLOB_ALIGN);
 
     if (empty) {
-        if (!list_outsize(&slob_page->list))
+        if (!list_check_outsize(&slob_page->list))
             list_del(&slob_page->list);
         spin_unlock_irqrestore(&lock, &irq_save);
         page_free(page);
         return;
     }
 
-    if (list_outsize(&slob_page->list))
+    if (list_check_outsize(&slob_page->list))
         list_add(slob_page->head, &slob_page->list);
 
     spin_unlock_irqrestore(&lock, &irq_save);
@@ -365,7 +376,7 @@ size_t ksize(const void *block)
     if (slob_page->node == SLOB_PAGEUSE)
         return page_size(page);
 
-    node = slob_node_find(&page->slob, block, NULL, NULL);
+    node = slob_node_find(&page->slob, block, NULL, NULL, SLOB_ALIGN);
     if (!node)
         return 0;
 

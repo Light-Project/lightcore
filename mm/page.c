@@ -30,8 +30,8 @@ free_list_get_page(struct page_free *free)
     return list_first_entry_or_null(&free->list, struct page, free_list);
 }
 
-static __always_inline size_t
-find_buddy(size_t page_nr, unsigned int order)
+static __always_inline unsigned long
+find_buddy(unsigned long page_nr, unsigned int order)
 {
     return page_nr ^ (1 << order);
 }
@@ -100,7 +100,7 @@ static bool check_buddy(struct page *page, struct page *buddy, unsigned int orde
 
 static void buddy_merge(struct region *region, struct page *page, unsigned int order)
 {
-    size_t buddy_pnr, pnr = page_to_nr(page);
+    unsigned long buddy_pnr, pnr = page_to_nr(page);
     struct page_free *free;
     struct page *buddy;
 

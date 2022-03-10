@@ -34,6 +34,11 @@ static inline bool arch_irqs_enabled_flags(irqflags_t flags)
     return flags & EFLAGS_IF;
 }
 
+static inline bool arch_irq_disabled(void)
+{
+    return !arch_irqs_enabled_flags(eflags_get());
+}
+
 static inline void arch_irq_disable(void)
 {
     asm volatile (

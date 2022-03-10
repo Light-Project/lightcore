@@ -264,7 +264,7 @@ void __init *memblock_alloc_range(size_t size, size_t align,
     void *block;
 
     block = memblock_alloc_internal(size, align, min_addr, max_addr, numa);
-    if (block)
+    if (!block)
         return NULL;
 
     memset(block, 0, size);

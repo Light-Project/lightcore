@@ -24,11 +24,17 @@ struct rb_root_cached {
     struct rb_node *rb_leftmost;
 };
 
+#define RB_INIT \
+    (struct rb_root) {NULL}
+
+#define RB_CACHED_INIT \
+    (struct rb_root_cached) {{NULL}, NULL}
+
 #define RB_ROOT(name) \
-    struct rb_root name = {NULL};
+    struct rb_root name = RB_INIT
 
 #define RB_ROOT_CACHED(name) \
-    struct rb_root_cached name = {{NULL}, NULL};
+    struct rb_root_cached name = RB_CACHED_INIT
 
 #define RB_EMPTY_NODE(node) \
     ((node)->parent == (node))

@@ -11,15 +11,15 @@
 #include <printk.h>
 #include <delay.h>
 
-static const char *init_argv[] = {
+static __initdata const char *init_argv[] = {
     NULL, "init", NULL
 };
 
-static const char *init_envp[] = {
+static __initdata const char *init_envp[] = {
     "HOME=/", NULL
 };
 
-static bool init_run(const char *file)
+static __init bool init_run(const char *file)
 {
 	const char *const *arg;
 
@@ -35,81 +35,37 @@ static bool init_run(const char *file)
     return kernel_execve(file, init_argv, init_envp);
 }
 
-static void __init mount_rootfs(void)
-{
-
-}
-
-static void __init basic_init(void)
+static __init void basic_init(void)
 {
     initcalls();
 }
 
-// #include <kcoro.h>
-
-// state kcoro_work_a(void *pdata)
-// {
-//     int a;
-
-//     while (++a) {
-//         printk("resume a\n");
-//         if (a == 3)
-//             kcoro_exit();
-//         kcoro_relax();
-//     }
-
-//     return -ENOERR;
-// }
-
-// state kcoro_work_b(void *pdata)
-// {
-//     int b;
-
-//     while (++b) {
-//         printk("resume b\n");
-//         if (b == 6)
-//             kcoro_exit();
-//         udelay(100);
-//         kcoro_relax();
-//     }
-
-//     return -ENOERR;
-// }
-
-// void kcoro_test(void)
-// {
-//     struct kcoro_worker *worker;
-
-//     worker = kcoro_worker_create("worker");
-//     kcoro_work_create(worker, kcoro_work_a, NULL, "a");
-//     kcoro_work_create(worker, kcoro_work_b, NULL, "b");
-//     kcoro_dispatch();
-
-//     printk("kcoro done\n");
-// }
-
-int __noreturn user_init(void *arg)
+static __noreturn void auto_reboot(void)
 {
     unsigned int count;
 
-    basic_init();
-    mount_rootfs();
-
-    init_run(CONFIG_DEFAULT_INIT);
-    init_run("/bin/init");
-    init_run("/sbin/init");
-
-    // kcoro_test();
-
-    ksh_init();
-
-    /* Startup failed reset the machine */
-    pr_emerg("No init executable found, system will reset:");
+    pr_emerg("No init executable found, system will reset:\n");
     for (count = 5; count; count--) {
-        pr_emerg(" %d", count);
+        pr_emerg("%d\n", count);
         mdelay(1000);
     }
-    pr_emerg("\n");
 
     kernel_reboot();
+}
+
+int __noreturn user_init(void *arg)
+{
+    state ret;
+
+    basic_init();
+
+    ret = mount_rootfs();
+    if (ret) {
+        init_run(CONFIG_DEFAULT_INIT);
+        init_run("/bin/init");
+        init_run("/sbin/init");
+    }
+
+    ksh_init();
+    auto_reboot();
 }

@@ -126,7 +126,7 @@ extern struct bootarg _ld_boot_param_end[];
 
 #define define_bootarg(str, unique_id, fn)              \
         static struct bootarg __boot_##unique_id        \
-        __used __section(".init.param")                 \
+        __used __section(".init.bootargs")              \
         __aligned(__alignof__(struct bootarg)) = {str,fn}
 
 #define bootarg_initcall(str, fn) define_bootarg(str, fn, fn)

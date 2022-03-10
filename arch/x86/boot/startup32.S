@@ -16,7 +16,7 @@ GLOBAL(boot_head)
     KERNEL_HEADER
 END(boot_head)
 
-    .section    .text.init,"ax"
+    .section    .init.text,"ax"
 ENTRY(init)
     xorl    %eax, %eax
     movw    $(GDT_ENTRY_KERNEL_DS_BASE), %dx

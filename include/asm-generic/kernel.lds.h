@@ -81,6 +81,30 @@
     *(.text.sched)                                          \
     _ld_text_sched_end = .;
 
+#define TEXT_CPUIDLE(align)                                 \
+    . = ALIGN(align);                                       \
+    _ld_text_cpuidle_start = .;                             \
+    *(.text.cpuidle)                                        \
+    _ld_text_cpuidle_end = .;
+
+#define TEXT_ENTRY(align)                                   \
+    . = ALIGN(align);                                       \
+    _ld_text_entry_start = .;                               \
+    *(.text.entry)                                          \
+    _ld_text_entry_end = .;
+
+#define TEXT_IRQENTRY(align)                                \
+    . = ALIGN(align);                                       \
+    _ld_text_irqentry_start = .;                            \
+    *(.text.irqentry)                                       \
+    _ld_text_irqentry_end = .;
+
+#define TEXT_SOFTIRQENTRY(align)                            \
+    . = ALIGN(align);                                       \
+    _ld_text_softirqentry_start = .;                        \
+    *(.text.softirqentry)                                   \
+    _ld_text_softirqentry_end = .;
+
 /*
  * RO data Segment
  */
@@ -101,6 +125,12 @@
     _ld_ksymtab_gpl_start = .;                              \
     KEEP(*(SORT(.ksymtab_gpl*)))                            \
     _ld_ksymtab_gpl_end = .;
+
+#define EXCEPTION_TABLE(align)                              \
+    . = ALIGN(align);                                       \
+    _ld_extable_start = .;                                  \
+    KEEP(*(.extable))                                       \
+    _ld_extable_end = .;
 
 #define ROMDISK(align)                                      \
     . = ALIGN(align);                                       \
@@ -130,14 +160,24 @@
 /*
  * Init Text Segment
  */
+
 #define INIT_TEXT                                           \
-    *(.init.text*)                                          \
+    *(.init.text)                                           \
+    *(.init.text.*)                                         \
     *(.text.startup)                                        \
     MEM_DISCARD(init.text*)
 
 /*
  * Init Data Segment
  */
+
+#define INIT_DATA                                           \
+    *(.init.rodata)                                         \
+    *(.init.rodata.*)                                       \
+    *(.init.data)                                           \
+    *(.init.data.*)                                         \
+    MEM_DISCARD(init.rodata*)                               \
+    MEM_DISCARD(init.data*)
 
 #define INIT_CALLS_LEVEL(level)                             \
     _ld_initcall##level##_start = .;                        \
@@ -207,6 +247,27 @@
     _ld_boot_param_end = .;
 
 /*
+ * Exit Text Segment
+ */
+
+#define EXIT_TEXT                                           \
+    *(.exit.text)                                           \
+    *(.exit.text.*)                                         \
+    MEM_DISCARD(exit.text*)
+
+/*
+ * Exit Data Segment
+ */
+
+#define EXIT_DATA                                           \
+    *(.exit.rodata)                                         \
+    *(.exit.rodata.*)                                       \
+    *(.exit.data)                                           \
+    *(.exit.data.*)                                         \
+    MEM_DISCARD(exit.rodata*)                               \
+    MEM_DISCARD(exit.data*)
+
+/*
  * bss (Block Started by Symbol) - uninitialized data
  * zeroed during startup
  */
@@ -264,6 +325,7 @@
     AT(ADDR(.startup) - LOAD_OFFSET) {                      \
         PROVIDE(_ld_startup_start = .);                     \
         KEEP(*(.startup))                                   \
+        KEEP(*(.startup.*))                                 \
         PROVIDE(_ld_startup_end = .);                       \
     }                                                       \
 PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
@@ -275,6 +337,10 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
         _ld_text_start = .;                                 \
         *(TEXT_MAIN)                                        \
         TEXT_SCHED(pagealign)                               \
+        TEXT_CPUIDLE(pagealign)                             \
+        TEXT_ENTRY(pagealign)                               \
+        TEXT_IRQENTRY(pagealign)                            \
+        TEXT_SOFTIRQENTRY(pagealign)                        \
         _ld_text_end = .;                                   \
     }
 
@@ -285,6 +351,7 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
         RODATA_RODATA(pagealign)                            \
         KSYMTAB(pagealign)                                  \
         KSYMTAB_GPL(pagealign)                              \
+        EXCEPTION_TABLE(pagealign)                          \
         ROMDISK(pagealign)                                  \
     }                                                       \
     NOTES
@@ -318,6 +385,7 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
     .init.data :                                            \
     AT(ADDR(.init.data) - LOAD_OFFSET) {                    \
         _ld_data_section_start = .;                         \
+        INIT_DATA                                           \
         CONSOLE_INITCALL                                    \
         SCHEDULER_INITCALL                                  \
         CLK_INITCALL                                        \
@@ -329,6 +397,24 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
         INIT_ARGS(align)                                    \
         INIT_DT_TABLES                                      \
         _ld_data_section_end = .;                           \
+    }
+
+#define EXIT_TEXT_SECTION(pagealign)                        \
+    . = ALIGN(pagealign);                                   \
+    .exit.text :                                            \
+    AT(ADDR(.init.text) - LOAD_OFFSET) {                    \
+        _ld_exittext_start = .;                             \
+        EXIT_TEXT                                           \
+        _ld_exittext_end = .;                               \
+    }
+
+#define EXIT_DATA_SECTION(pagealign)                        \
+    . = ALIGN(pagealign);                                   \
+    .exit.data :                                            \
+    AT(ADDR(.init.data) - LOAD_OFFSET) {                    \
+        _ld_exitdata_start = .;                             \
+        EXIT_DATA                                           \
+        _ld_exitdata_end = .;                               \
     }
 
 #define BSS_SECTION(sbss_align, bss_align, stop_align)      \
