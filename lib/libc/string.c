@@ -484,7 +484,7 @@ EXPORT_SYMBOL(memcmp);
  * Extend Helper
  */
 
-int strcount(const char *str, char c)
+__weak int strcount(const char *str, char c)
 {
     int count = 0;
     while (*str)
@@ -492,8 +492,9 @@ int strcount(const char *str, char c)
             count++;
     return count;
 }
+EXPORT_SYMBOL(strcount);
 
-int strncount(const char *str, char c, size_t size)
+__weak int strncount(const char *str, char c, size_t size)
 {
     int count = 0;
     while (*str && size--)
@@ -501,10 +502,11 @@ int strncount(const char *str, char c, size_t size)
             count++;
     return count;
 }
+EXPORT_SYMBOL(strncount);
 
-int memcount(const void *addr, int c, size_t size)
+__weak int memcount(const void *addr, int c, size_t size)
 {
-    const char *p = addr;
+    const unsigned char *p = addr;
     int count = 0;
     while (size--)
         if (c == *p++)
@@ -513,7 +515,22 @@ int memcount(const void *addr, int c, size_t size)
 }
 EXPORT_SYMBOL(memcount);
 
-char *skip_spaces(const char *str)
+__weak void *memdiff(const void *addr, int c, size_t size)
+{
+    const unsigned char *p = addr;
+
+    while (size) {
+        if (*p != c)
+            return (void *)p;
+        p++;
+        size--;
+    }
+
+    return NULL;
+}
+EXPORT_SYMBOL(memdiff);
+
+__weak char *skip_spaces(const char *str)
 {
 	while (isspace(*str))
 		++str;
@@ -521,7 +538,7 @@ char *skip_spaces(const char *str)
 }
 EXPORT_SYMBOL(skip_spaces);
 
-char *basename(const char *path)
+__weak char *basename(const char *path)
 {
     const char *c = strrchr(path, '/');
     return (char *)(c ? c + 1 : path);

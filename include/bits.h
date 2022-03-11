@@ -53,16 +53,41 @@
 
 #else /* !__ASSEMBLY__ */
 
-#define BITS_PER_BYTE       8
+#include <limits.h>
+
+#define BITS_PER_BYTE  8
 #define BITS_PER_TYPE(type) (sizeof(type) * BITS_PER_BYTE)
 
 #define BITS_PER_U8         BITS_PER_TYPE(uint8_t)
 #define BITS_PER_U16        BITS_PER_TYPE(uint16_t)
 #define BITS_PER_U32        BITS_PER_TYPE(uint32_t)
 #define BITS_PER_U64        BITS_PER_TYPE(uint64_t)
+
 #define BITS_PER_SHORT      BITS_PER_TYPE(short)
 #define BITS_PER_INT        BITS_PER_TYPE(int)
 #define BITS_PER_LONG_LONG  BITS_PER_TYPE(long long)
+
+/**
+ * BIT_LOW_MASK - create a low position mask
+ * @nbits: mask length
+ * For example:
+ * BIT_LOW_MASK(16) gives us the vector 0x0000ffff
+ */
+#define BIT_LOW_MASK(nbits) (                   \
+    ULONG_MAX >>                                \
+    (-(nbits) & (BITS_PER_LONG - 1))            \
+)
+
+/**
+ * BIT_HIGH_MASK - create a high position mask
+ * @nbits: mask length
+ * For example:
+ * BIT_LOW_MASK(16) gives us the vector 0xffff0000
+ */
+#define BIT_HIGH_MASK(nbits) (                  \
+    ULONG_MAX <<                                \
+    ((nbits) & (BITS_PER_LONG - 1))             \
+)
 
 /**
  * BIT - create a bitmask (long)

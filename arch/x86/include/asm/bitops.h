@@ -62,8 +62,45 @@ static __always_inline bool bit_test(unsigned long *addr, int bit)
     return ret;
 }
 
+/**
+ * ffsuf - find first set bit in word (unsafe)
+ * @value: The word to search
+ * Undefined if no bit exists, so code should check against 0 first.
+ */
+#define ffsuf ffsuf
+static __always_inline unsigned int ffsuf(unsigned long value)
+{
+    asm volatile (
+        "rep            \n"
+        "bsf    %1,%0   \n"
+        : "=r" (value)
+        : "rm" (value)
+    );
+    return value;
+}
+
+/*
+ * flsuf: find last set bit in word (unsafe)
+ * @value: The word to search
+ * Undefined if no set bit exists, so code should check against 0 first.
+ */
+#define flsuf flsuf
+static __always_inline unsigned int flsuf(unsigned long value)
+{
+    asm volatile (
+        "bsr    %1,%0"
+        : "=r" (value)
+        : "rm" (value)
+    );
+    return value;
+}
+
+/**
+ * ffs - find first set bit in word
+ * @value: The word to search
+ */
 #define ffs ffs
-static __always_inline int ffs(unsigned long val)
+static __always_inline unsigned int ffs(unsigned long value)
 {
 #if defined(CONFIG_ARCH_X86_32)
     asm volatile (
@@ -71,23 +108,27 @@ static __always_inline int ffs(unsigned long val)
         "jnz    1f      \n"
         "movl   $-1, %0 \n"
         "1:"
-        : "=r"(val)
-        : "rm"(val)
+        : "=r"(value)
+        : "rm"(value)
     );
 #elif defined(CONFIG_ARCH_X86_64)
     int d0;
     asm volatile (
         "bsfl   %1, %0  \n"
         : "=r"(d0)
-        : "rm"(val), "0"(-1)
+        : "rm"(value), "0"(-1)
     );
 #endif
 
-    return val;
+    return value + 1;
 }
 
+/*
+ * fls: find last set bit in word
+ * @value: The word to search
+ */
 #define fls fls
-static __always_inline int fls(unsigned long val)
+static __always_inline unsigned int fls(unsigned long value)
 {
 #if defined(CONFIG_ARCH_X86_32)
     asm volatile (
@@ -95,19 +136,19 @@ static __always_inline int fls(unsigned long val)
         "jnz    1f      \n"
         "mov    $-1, %0 \n"
         "1:"
-        :"=r"(val)
-        :"rm"(val)
+        :"=r"(value)
+        :"rm"(value)
     );
 #elif defined(CONFIG_ARCH_X86_64)
     int d0;
     asm volatile (
         "bsr    %1, %0  \n"
         : "=r"(d0)
-        : "rm"(val), "0"(-1)
+        : "rm"(value), "0"(-1)
     );
 #endif
 
-    return val;
+    return value + 1;
 }
 
 #include <asm-generic/bitops.h>

@@ -6,7 +6,7 @@
 #include <bits.h>
 #include <asm/page.h>
 
-extern unsigned long init_stack[THREAD_SIZE / BYTE_PER_LONG];
+extern unsigned long init_stack[THREAD_SIZE / BYTES_PER_LONG];
 
 struct task_clone_args {
     enum clone_flags flags;

@@ -2,6 +2,7 @@
 #ifndef _ASM_GENERIC_BITOPS_H_
 #define _ASM_GENERIC_BITOPS_H_
 
+#include <limits.h>
 #include <bits.h>
 #include <asm/atomic.h>
 
@@ -21,8 +22,13 @@ static __always_inline void bit_set(unsigned long *addr, unsigned int bit)
 }
 #endif
 
-#ifndef ffs
-static inline unsigned int ffs(unsigned long value)
+/**
+ * ffsuf - find first set bit in word (unsafe)
+ * @val: The word to search
+ * Undefined if no bit exists, so code should check against 0 first.
+ */
+#ifndef ffsuf
+static inline unsigned int ffsuf(unsigned long value)
 {
     unsigned int shift = 0;
 
@@ -61,8 +67,13 @@ static inline unsigned int ffs(unsigned long value)
 }
 #endif
 
-#ifndef fls
-static inline unsigned int fls(unsigned long value)
+/*
+ * flsuf: find last set bit in word (unsafe)
+ * @val: The word to search
+ * Undefined if no set bit exists, so code should check against 0 first.
+ */
+#ifndef flsuf
+static inline unsigned int flsuf(unsigned long value)
 {
     unsigned int shift = BITS_PER_LONG - 1;
 
@@ -93,6 +104,82 @@ static inline unsigned int fls(unsigned long value)
         shift -= 1;
 
     return shift;
+}
+#endif
+
+/*
+ * ffzuf - find first zero in word (unsafe)
+ * @word: The word to search
+ * Undefined if no zero exists, so code should check against ~0UL first.
+ */
+#ifndef ffzuf
+static inline unsigned int ffzuf(unsigned long value)
+{
+    return ffsuf(~value);
+}
+#endif
+
+/*
+ * flzuf - find last zero in word (unsafe)
+ * @word: The word to search
+ * Undefined if no zero exists, so code should check against ~0UL first.
+ */
+#ifndef flzuf
+static inline unsigned int flzuf(unsigned long value)
+{
+    return flsuf(~value);
+}
+#endif
+
+/**
+ * ffs - find first bit set
+ * @value: the word to search
+ */
+#ifndef ffs
+static inline unsigned int ffs(unsigned long value)
+{
+    if (value == ULONG_MIN)
+        return 0;
+    return ffsuf(value) + 1;
+}
+#endif
+
+/**
+ * fls - find last zero in word
+ * @value: the word to search
+ */
+#ifndef fls
+static inline unsigned int fls(unsigned long value)
+{
+    if (value == ULONG_MIN)
+        return 0;
+    return flsuf(value) + 1;
+}
+#endif
+
+/*
+ * ffz - find first zero in word
+ * @value: The word to search
+ */
+#ifndef ffz
+static inline unsigned int ffz(unsigned long value)
+{
+    if (value == ULONG_MAX)
+        return 0;
+    return ffs(~value);
+}
+#endif
+
+/*
+ * flz - find last zero in word
+ * @value: The word to search
+ */
+#ifndef flz
+static inline unsigned int flz(unsigned long value)
+{
+    if (value == ULONG_MAX)
+        return 0;
+    return fls(~value);
 }
 #endif
 
