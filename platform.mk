@@ -45,11 +45,11 @@ CROSS_COMPILE       :=
 arch                := x86
 
 ifneq ($(call cc-option, -mpreferred-stack-boundary=2),)
-    cc_stack_align4 := -mpreferred-stack-boundary=2
-    cc_stack_align8 := -mpreferred-stack-boundary=3
+cc_stack_align4     := -mpreferred-stack-boundary=2
+cc_stack_align8     := -mpreferred-stack-boundary=3
 else ifneq ($(call cc-option, -mstack-alignment=4),)
-    cc_stack_align4 := -mstack-alignment=4
-    cc_stack_align8 := -mstack-alignment=8
+cc_stack_align4     := -mstack-alignment=4
+cc_stack_align8     := -mstack-alignment=8
 endif
 
 platform-ccflags-y  += -mno-sse -mno-mmx -mno-sse2
@@ -57,19 +57,20 @@ platform-ccflags-y  += -mno-3dnow -mno-avx
 
 ifdef CONFIG_ARCH_X86_32
 platform-acflags-y  += -m32
-platform-symflags-y += -m32
+platform-acflags-y  += -march=i386
+platform-acflags-y  += -msoft-float
 platform-ccflags-y  += $(cc_stack_align4)
-platform-ccflags-y  += -msoft-float
+platform-symflags-y += -m32
 platform-ldflags-y  += -m elf_i386
 platform-elfflags-y += -m elf_i386
 endif # CONFIG_ARCH_X86_32
 
 ifdef CONFIG_ARCH_X86_64
 platform-acflags-y  += -m64
-platform-symflags-y += -m64
+platform-acflags-y  += -mno-red-zone
+platform-acflags-y  += -mcmodel=kernel
 platform-ccflags-y  += $(cc_stack_align8)
-platform-ccflags-y  += -mno-red-zone
-platform-ccflags-y  += -mcmodel=kernel
+platform-symflags-y += -m64
 platform-ldflags-y  += -m elf_x86_64
 platform-elfflags-y += -m elf_x86_64
 endif # CONFIG_ARCH_X86_64

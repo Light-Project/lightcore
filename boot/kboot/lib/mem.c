@@ -6,8 +6,8 @@
 #include <lib.h>
 #include <list.h>
 
-static LIST_HEAD(sort_list);
-static LIST_HEAD(free_list);
+static struct list_head sort_list;
+static struct list_head free_list;
 static size_t available;
 
 struct mem_node {

@@ -37,7 +37,10 @@ SECTIONS {
 
     _ld_image_end = .;
 
+    STABS_DEBUG
     DWARF_DEBUG
+    ELF_DETAILS
+
     DISCARDS
 
     .got : {

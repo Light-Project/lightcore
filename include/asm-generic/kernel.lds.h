@@ -155,6 +155,7 @@
     . = ALIGN(align);                                       \
     _ld_data_read_mostly_start = .;                         \
     *(.data.readmostly*)                                    \
+    . = ALIGN(align);                                       \
     _ld_data_read_mostly_end = .;
 
 /*
@@ -273,35 +274,26 @@
  */
 #define SBSS(align)                                         \
     . = ALIGN(align);                                       \
-    .sbss :                                                 \
-    AT(ADDR(.sbss) - LOAD_OFFSET) {                         \
-        *(.dynsbss)                                         \
-        *(SBSS_MAIN)                                        \
-        *(.scommon)                                         \
-    }
+    *(.dynsbss)                                             \
+    *(SBSS_MAIN)                                            \
+    *(.scommon)
 
-#define BSS(align)                                          \
+#define BSS(align, pagealign)                               \
     . = ALIGN(align);                                       \
-    .bss :                                                  \
-    AT(ADDR(.bss) - LOAD_OFFSET) {                          \
-        . = ALIGN(PAGE_SIZE);                               \
-        *(.bss..page_aligned)                               \
-        . = ALIGN(PAGE_SIZE);                               \
-        *(.dynbss)                                          \
-        *(BSS_MAIN)                                         \
-        *(COMMON)                                           \
-    }
+    *(BSS_MAIN)                                             \
+    *(.dynbss)                                              \
+    *(COMMON)                                               \
+    . = ALIGN(pagealign);                                   \
+    *(.bss..page_aligned)                                   \
+    . = ALIGN(pagealign);
 
 #define INIT_TASK_STACK(align)                              \
     . = ALIGN(align);                                       \
-    .task_stack :                                           \
-    AT(ADDR(.task_stack) - LOAD_OFFSET) {                   \
-        _ld_init_task_stack_start = .;                      \
-        init_thread_union = .;                              \
-        init_stack = .;                                     \
-        . = _ld_init_task_stack_start + THREAD_SIZE;        \
-        _ld_init_task_stack_end = .;                        \
-    }
+    _ld_init_task_stack_start = .;                          \
+    init_thread_union = .;                                  \
+    init_stack = .;                                         \
+    . = _ld_init_task_stack_start + THREAD_SIZE;            \
+    _ld_init_task_stack_end = .;                            \
 
 #define COMMON_DISCARDS                                     \
     *(.eh_frame)                                            \
@@ -362,7 +354,7 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
     AT(ADDR(.data) - LOAD_OFFSET) {                         \
         _ld_data_start = .;                                 \
         *(DATA_MAIN)                                        \
-        READ_MOSTLY(pagealign)                              \
+        READ_MOSTLY(cacheline)                              \
         _ld_data_end = .;                                   \
     }
 
@@ -417,14 +409,17 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
         _ld_exitdata_end = .;                               \
     }
 
-#define BSS_SECTION(sbss_align, bss_align, stop_align)      \
-    . = ALIGN(sbss_align);                                  \
-    _ld_bss_start = .;                                      \
-    SBSS(sbss_align)                                        \
-    BSS(bss_align)                                          \
-    INIT_TASK_STACK(bss_align)                              \
-    . = ALIGN(stop_align);                                  \
-    _ld_bss_end = .;
+#define BSS_SECTION(sbss_align, bss_align, pagealign)       \
+    . = ALIGN(pagealign);                                   \
+    .bss :                                                  \
+    AT(ADDR(.bss) - LOAD_OFFSET) {                          \
+        _ld_bss_start = .;                                  \
+        SBSS(sbss_align)                                    \
+        BSS(bss_align, pagealign)                           \
+        INIT_TASK_STACK(bss_align)                          \
+        . = ALIGN(pagealign);                               \
+        _ld_bss_end = .;                                    \
+    }
 
 #define DWARF_DEBUG                                         \
     /* DWARF 1 */                                           \
@@ -466,5 +461,21 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
     .debug_names    0 : { *(.debug_names) }                 \
     .debug_rnglists    0 : { *(.debug_rnglists) }           \
     .debug_str_offsets    0 : { *(.debug_str_offsets) }
+
+/* Stabs debugging sections. */
+#define STABS_DEBUG                                         \
+    .stab 0 : { *(.stab) }                                  \
+    .stabstr 0 : { *(.stabstr) }                            \
+    .stab.excl 0 : { *(.stab.excl) }                        \
+    .stab.exclstr 0 : { *(.stab.exclstr) }                  \
+    .stab.index 0 : { *(.stab.index) }                      \
+    .stab.indexstr 0 : { *(.stab.indexstr) }
+
+/* Required sections not related to debugging. */
+#define ELF_DETAILS                                         \
+    .comment 0 : { *(.comment) }                            \
+    .symtab 0 : { *(.symtab) }                              \
+    .strtab 0 : { *(.strtab) }                              \
+    .shstrtab 0 : { *(.shstrtab) }
 
 #endif  /* _ASM_GENERIC_KERNEL_LDS_H_ */

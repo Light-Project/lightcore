@@ -7,7 +7,8 @@
 #include <arch/x86/seg.h>
 
     .code32
-    .align  32
+    .align      32
+    .section    .text, "ax"
 ENTRY(startup32)
 /*
  * Set segments to known values
@@ -16,19 +17,6 @@ ENTRY(startup32)
     movl    %eax, %ds
     movl    %eax, %es
     movl    %eax, %ss
-
-/*
- * Initialize got table
- */
-    leal    _ld_got_start(%ebx), %edi
-    leal    _ld_got_end(%ebx), %ecx
-    subl    %edi, %ecx
-    shrl    $2, %ecx
-1:
-    movl    (%edi), %eax
-    addl    %ebx, %eax
-    stosl   %eax, %es:(%edi)
-    loop    1b
 
 /*
  * Clear the BSS region

@@ -4,6 +4,7 @@
  */
 
 #include <size.h>
+#include <asm-generic/kernel.lds.h>
 
 #if defined(CONFIG_ARCH_X86_32)
 OUTPUT_ARCH(i386)
@@ -37,28 +38,42 @@ SECTIONS {
     .text : {
         . = ALIGN(4);
         *(.text)
-        *(.text*)
+        *(.text.*)
     }
 
     .rodata : {
         . = ALIGN(4);
         *(.rodata)
-        *(.rodata*)
+        *(.rodata.*)
     }
 
     .data : {
         . = ALIGN(4);
         *(.data)
-        *(.data*)
+        *(.data.*)
+    }
+
+    .got.plt (INFO) : {
+        *(.got.plt)
     }
 
     .got : {
-        . = ALIGN(4);
-        PROVIDE(_ld_got_start = .);
         *(.got)
-        *(.got*)
-        . = ALIGN(4);
-        PROVIDE(_ld_got_end = .);
+    }
+
+    .plt : {
+        *(.plt)
+        *(.plt.*)
+    }
+
+    .rel.dyn : {
+        *(.rel.*)
+        *(.rel_*)
+    }
+
+    .rela.dyn : {
+        *(.rela.*)
+        *(.rela_*)
     }
 
     _ld_header_end = .;
@@ -70,7 +85,7 @@ SECTIONS {
     }
 
     .align : {
-        PROVIDE(_ld_align = .);
+        _ld_align = .;
         SHORT(0xaa55)
         . = ALIGN(512);
     }
@@ -81,7 +96,8 @@ SECTIONS {
         . = ALIGN(4);
         _ld_bss_start = .;
         *(.bss)
-        *(.bss*)
+        *(.bss.*)
+        *(COMMON)
         . = ALIGN(4);
         _ld_bss_end = .;
     }
@@ -101,12 +117,19 @@ SECTIONS {
         _ld_heap_end = .;
     }
 
-    /DISCARD/ : {
-        *(.note*)
-    }
+    STABS_DEBUG
+    DWARF_DEBUG
+    ELF_DETAILS
 
-    PROVIDE(_ld_header_size = _ld_header_end - _ld_header_start);
-    PROVIDE(_ld_kernel_size = _ld_kernel_end - _ld_header_end);
-    PROVIDE(_ld_header_sects = _ld_header_size / 512);
-    PROVIDE(_ld_kernel_sects = _ld_kernel_size / 512);
+    DISCARDS
+    /DISCARD/ : {
+        *(.dynamic) *(.dynsym) *(.dynstr) *(.dynbss)
+        *(.hash) *(.gnu.hash)
+        *(.note.*)
+    }
 }
+
+PROVIDE(_ld_header_size = _ld_header_end - _ld_header_start);
+PROVIDE(_ld_kernel_size = _ld_kernel_end - _ld_header_end);
+PROVIDE(_ld_header_sects = _ld_header_size / 512);
+PROVIDE(_ld_kernel_sects = _ld_kernel_size / 512);
