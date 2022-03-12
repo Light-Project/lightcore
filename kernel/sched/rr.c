@@ -180,7 +180,7 @@ static struct sched_task *rr_task_pick(struct sched_queue *queue)
     struct list_head *prio;
     unsigned int index;
 
-    index = bitmap_find_first(rr_queue->bitmap, RR_PRIO_MAX);
+    index = find_first_bit(rr_queue->bitmap, RR_PRIO_MAX);
     if ((index >= RR_PRIO_MAX))
         return NULL;
 
