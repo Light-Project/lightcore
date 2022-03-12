@@ -10,8 +10,11 @@ struct list_head {
     struct list_head *prev, *next;
 };
 
+#define LIST_HEAD_INIT(name) \
+    (struct list_head) { &(name), &(name) }
+
 #define LIST_HEAD(name) \
-    struct list_head name = { &(name), &(name) }
+    struct list_head name = LIST_HEAD_INIT(name)
 
 typedef int (*list_cmp_t)(struct list_head *, struct list_head *, void *);
 extern void list_sort(struct list_head *head, list_cmp_t cmp, void *data);
@@ -57,7 +60,7 @@ static inline void list_add_prev(struct list_head *node, struct list_head *new)
 
 /**
  * list_del - in fact, it just connect next and prev node.
- * @entry: the element to delete from the list.
+ * @node: the element to delete from the list.
  */
 static inline void list_del(struct list_head *node)
 {
@@ -67,7 +70,7 @@ static inline void list_del(struct list_head *node)
 }
 
 /**
- * list_replace - Replace a linked list node with an external node.
+ * list_replace - replace a linked list node with an external node.
  * @old: the element to be replaced.
  * @new: the new element to insert.
  */
@@ -103,7 +106,7 @@ static inline void list_replace_init(struct list_head *old, struct list_head *ne
 /**
  * list_move_front - move the node to the front of the list.
  * @head: the head that will precede our entry.
- * @list: the entry to move.
+ * @node: the entry to move.
  */
 static inline void list_move_front(struct list_head *head, struct list_head *node)
 {
@@ -114,7 +117,7 @@ static inline void list_move_front(struct list_head *head, struct list_head *nod
 /**
  * list_move_tail - move the node to the tail of the list.
  * @head: the head that will follow our entry.
- * @list: the entry to move.
+ * @node: the entry to move.
  */
 static inline void list_move_tail(struct list_head *head, struct list_head *node)
 {
@@ -125,7 +128,7 @@ static inline void list_move_tail(struct list_head *head, struct list_head *node
 /**
  * list_check_first - check whether the node is a header.
  * @head: the head of the list.
- * @list: the entry to test.
+ * @node: the entry to test.
  */
 static inline bool list_check_first(struct list_head *head, struct list_head *node)
 {
@@ -135,7 +138,7 @@ static inline bool list_check_first(struct list_head *head, struct list_head *no
 /**
  * list_check_end - check whether the node is a ending.
  * @head: the head of the list.
- * @list: the entry to test.
+ * @node: the entry to test.
  */
 static inline bool list_check_end(struct list_head *head, struct list_head *node)
 {
@@ -149,16 +152,6 @@ static inline bool list_check_end(struct list_head *head, struct list_head *node
 static inline bool list_check_empty(struct list_head *head)
 {
     return head->next == head;
-}
-
-/**
- * list_check_around - check whether the node is a ending.
- * @node: list head to add it next.
- * @new: new entry to be added.
- */
-static inline bool list_check_around(struct list_head *prev, struct list_head *next)
-{
-    return prev->next == next;
 }
 
 /**
@@ -237,7 +230,7 @@ static inline bool list_check_outsize(struct list_head *node)
 #define list_first_entry_or_null(ptr, type, member) ({          \
     struct list_head *head__ = (ptr);                           \
     struct list_head *pos__ = head__->next;                     \
-    pos__ != head__ ? list_entry(pos__, type, member) : NULL; \
+    pos__ != head__ ? list_entry(pos__, type, member) : NULL;   \
 })
 
 /**
@@ -279,19 +272,6 @@ static inline bool list_check_outsize(struct list_head *node)
          (pos) = list_prev_entry((pos), member))
 
 /**
- * list_for_each_entry_safe - iterate over list of given type safe against removal of list entry
- * @pos: the type * to use as a loop cursor.
- * @next: another type * to use as temporary storage
- * @head: the head for your list.
- * @member: the name of the list_head within the struct.
- */
-#define list_for_each_entry_safe(pos, next, head, member)           \
-    for (pos = list_first_entry(head, typeof(*(pos)), member),      \
-         (next) = list_next_entry(pos, member);                     \
-         !list_check_head(pos, head, member);                       \
-         pos = (next), (next) = list_next_entry(next, member))
-
-/**
  * list_for_each_entry_continue - continue iteration over list of given type
  * @pos: the type * to use as a loop cursor.
  * @head: the head for your list.
@@ -318,5 +298,44 @@ static inline bool list_check_outsize(struct list_head *node)
     for (pos = list_prev_entry(pos, member);                        \
          !list_check_head(pos, head, member);                       \
          pos = list_prev_entry(pos, member))
+
+/**
+ * list_for_each_entry_safe - iterate over list of given type safe against removal of list entry
+ * @pos: the type * to use as a loop cursor.
+ * @next: another type * to use as temporary storage
+ * @head: the head for your list.
+ * @member: the name of the list_head within the struct.
+ */
+#define list_for_each_entry_safe(pos, next, head, member)           \
+    for (pos = list_first_entry(head, typeof(*(pos)), member),      \
+         next = list_next_entry(pos, member);                       \
+         !list_check_head(pos, head, member);                       \
+         pos = next, next = list_next_entry(next, member))
+
+/**
+ * list_for_each_entry_safe_reverse - iterate backwards over list safe against removal
+ * @pos: the type * to use as a loop cursor.
+ * @next: another type * to use as temporary storage
+ * @head: the head for your list.
+ * @member:	the name of the list_head within the struct.
+ */
+#define list_for_each_entry_safe_reverse(pos, next, head, member)   \
+    for (pos = list_last_entry(head, typeof(*pos), member),         \
+         next = list_prev_entry(pos, member);                       \
+         !list_check_head(pos, head, member);                       \
+         pos = next, next = list_prev_entry(next, member))
+
+/**
+ * list_for_each_entry_safe_continue - continue list iteration safe against removal
+ * @pos: the type * to use as a loop cursor.
+ * @next: another type * to use as temporary storage
+ * @head: the head for your list.
+ * @member:	the name of the list_head within the struct.
+ */
+#define list_for_each_entry_safe_continue(pos, next, head, member)  \
+    for (pos = list_next_entry(pos, member),                        \
+         next = list_next_entry(pos, member);                       \
+         !list_check_head(pos, head, member);                       \
+         pos = next, next = list_next_entry(next, member))
 
 #endif  /* _LIST_H_ */
