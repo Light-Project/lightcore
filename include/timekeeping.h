@@ -60,34 +60,35 @@ struct timekeeper {
         CONFIG_SYSTICK_FREQ \
 )
 
+extern volatile uint64_t ticktime;
+
 /* kernel time get */
 extern ktime_t timekeeping_get_time(void);
 extern ktime_t timekeeping_get_offset(enum timekeeper_offsets index);
 
 /**
- * timekeeping_get_boottime - get boottime in ktime_t format
+ * timekeeping_get_boot/real/taitime - get time in ktime_t format
+ * @return: ktime_t format time
  */
 static inline ktime_t timekeeping_get_boottime(void)
 {
     return timekeeping_get_offset(TIMEKEEPER_BOOT);
 }
 
-/**
- * timekeeping_get_realtime - get realtime in ktime_t format
- */
 static inline ktime_t timekeeping_get_realtime(void)
 {
     return timekeeping_get_offset(TIMEKEEPER_REAL);
 }
 
-/**
- * timekeeping_get_clocktai - get tai clock in ktime_t format
- */
 static inline ktime_t timekeeping_get_clocktai(void)
 {
     return timekeeping_get_offset(TIMEKEEPER_TAI);
 }
 
+/**
+ * timekeeping_get_boot/real/taitime_ts - get time in timespec format
+ * @return: timespec format time
+ */
 static inline struct timespec timekeeping_get_time_ts(void)
 {
     return ktime_to_timespec(timekeeping_get_time());
@@ -103,6 +104,10 @@ static inline struct timespec timekeeping_get_realtime_ts(void)
     return ktime_to_timespec(timekeeping_get_realtime());
 }
 
+/**
+ * timekeeping_get_boot/real/taitime_ts - get time in nanosecond format
+ * @return: nanosecond format time
+ */
 static inline uint64_t timekeeping_get_time_ns(void)
 {
     return ktime_to_ns(timekeeping_get_time());
@@ -119,7 +124,6 @@ static inline uint64_t timekeeping_get_realtime_ns(void)
 }
 
 /* timekeeping core */
-extern volatile uint64_t ticktime;
 extern void timekeeping_tick(void);
 extern state timekeeping_set_realtime(struct timespec *ts);
 extern state timekeeping_change(struct clocksource_device *cdev);

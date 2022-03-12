@@ -3,7 +3,7 @@
 #define _LIGHTCORE_ASM_GENERIC_POSIX_H_
 
 typedef int             __mode_t;
-typedef unsigned int    __pid_t;
+typedef int             __pid_t;
 typedef unsigned int    __uid_t;
 typedef unsigned int    __gid_t;
 
