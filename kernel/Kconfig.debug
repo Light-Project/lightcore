@@ -5,5 +5,10 @@ source "kernel/printk/Kconfig"
 
 config DEBUG_SPINLOCK
     bool "Spinlock Debugging Support"
+    default y
+
+config DEBUG_LIST
+    bool "List Debugging Support"
+    default y
 
 endmenu

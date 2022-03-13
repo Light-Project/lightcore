@@ -123,7 +123,7 @@ state kshell_unsetenv(const char *name)
 }
 EXPORT_SYMBOL(kshell_unsetenv);
 
-static int kshell_sort(struct list_head *a, struct list_head *b, void *pdata)
+static long kshell_sort(struct list_head *a, struct list_head *b, void *pdata)
 {
     struct kshell_command *ca = list_to_kshell(a);
     struct kshell_command *cb = list_to_kshell(b);

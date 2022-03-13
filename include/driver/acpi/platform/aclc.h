@@ -164,16 +164,6 @@
 
 #define BOOLEAN     bool
 
-#ifdef __KERNEL__
-
-/* ACPICA external files should not include ACPICA headers directly. */
-
-#if !defined(BUILDING_ACPICA) && !defined(_LINUX_ACPI_H)
-#error "Please don't include <acpi/acpi.h> directly, include <linux/acpi.h> instead."
-#endif
-
-#endif
-
 /* Common (in-kernel/user-space) ACPICA configuration */
 
 #define ACPI_USE_SYSTEM_CLIBRARY

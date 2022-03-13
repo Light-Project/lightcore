@@ -35,7 +35,7 @@ state pevent_suspend(void)
 error:
     pr_err("suspend calling %p fail", pevent->suspend);
 
-    list_for_each_entry_continue_reverse(pevent, &pevent_list, list)
+    list_for_each_entry_reverse_continue(pevent, &pevent_list, list)
         if (!pevent->resume)
             pevent->resume();
 

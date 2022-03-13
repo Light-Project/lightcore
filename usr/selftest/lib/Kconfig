@@ -12,6 +12,10 @@ config SELFTEST_LIB_IDR
     bool "IDR Test"
     default y
 
+config SELFTEST_LIB_LIST
+    bool "List Test"
+    default y
+
 config SELFTEST_LIB_NCACHE
     bool "Ncache Test"
     default y

@@ -33,6 +33,7 @@ sys-ccflags-y  += -static -fno-pic
 sys-ccflags-y  += -fno-common -fno-stack-protector
 sys-ccflags-y  += -ffreestanding -std=gnu11
 
+sys-acflags-y  += -D__KERNEL__
 sys-asflags-y  += -D__ASSEMBLY__
 sys-ldsflags-y += -D__ASSEMBLY__
 

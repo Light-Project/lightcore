@@ -11,6 +11,15 @@ struct panic_work {
     const void *data;
 };
 
+#define DEBUG_DATA_CHECK(condition, fmt, ...) ({    \
+    bool corruption = unlikely(condition);          \
+    if (corruption) {                               \
+        pr_crit(fmt, ##__VA_ARGS__);                \
+        BUG();                                      \
+    }                                               \
+    corruption;                                     \
+})
+
 extern state panic_work_register(struct panic_work *work);
 extern __printf(1, 2) __noreturn __cold void panic(const char *fmt, ...);
 

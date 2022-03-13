@@ -18,7 +18,7 @@ struct sched_type *default_sched;
 LIST_HEAD(sched_list);
 DEFINE_PERCPU(struct sched_queue, sched_queues);
 
-static int sched_sort(struct list_head *a, struct list_head *b, void *data)
+static long sched_sort(struct list_head *a, struct list_head *b, void *data)
 {
     struct sched_type *sched_a = container_of(a, struct sched_type, list);
     struct sched_type *sched_b = container_of(b, struct sched_type, list);

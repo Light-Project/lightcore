@@ -29,7 +29,7 @@ static struct readline_history *readline_history_prev(struct readline_state *sta
 
     if (state->curr) {
         prev = list_next_entry(state->curr, list);
-        if (list_check_head(prev, &state->history, list))
+        if (list_entry_check_head(prev, &state->history, list))
             return NULL;
     } else {
         prev = list_first_entry_or_null(&state->history,
@@ -47,7 +47,7 @@ static struct readline_history *readline_history_next(struct readline_state *sta
         return NULL;
 
     next = list_prev_entry(state->curr, list);
-    if (list_check_head(next, &state->history, list))
+    if (list_entry_check_head(next, &state->history, list))
         next = NULL;
 
     return (state->curr = next);

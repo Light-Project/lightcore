@@ -79,7 +79,7 @@ void free(void *mem)
 
     /* merge previous node */
     tmp = list_prev_entry(node, sort);
-    if (!list_check_head(tmp, &sort_list, sort) && !tmp->used) {
+    if (!list_entry_check_head(tmp, &sort_list, sort) && !tmp->used) {
         tmp->size += sizeof(struct mem_node) + node->size;
         list_del(&node->free);
         list_del(&node->sort);
@@ -88,7 +88,7 @@ void free(void *mem)
 
     /* merge next node */
     tmp = list_next_entry(node, sort);
-    if (!list_check_head(tmp, &sort_list, sort) && !tmp->used) {
+    if (!list_entry_check_head(tmp, &sort_list, sort) && !tmp->used) {
         node->size += sizeof(struct mem_node) + tmp->size;
         list_del(&tmp->free);
         list_del(&tmp->sort);
