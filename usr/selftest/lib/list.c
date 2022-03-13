@@ -7,7 +7,6 @@
 #include <timekeeping.h>
 #include <kmalloc.h>
 #include <list.h>
-#include <random.h>
 #include <selftest.h>
 #include <printk.h>
 

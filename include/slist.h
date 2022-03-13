@@ -16,6 +16,12 @@ typedef struct slist_head {
 #define SLIST_HEAD(name) \
     struct slist_head name = SLIST_HEAD_INIT
 
+#ifdef CONFIG_DEBUG_SLIST
+extern bool slist_debug_add_check(struct slist_head *node, struct slist_head *new);
+extern bool slist_debug_del_check(struct slist_head *node);
+#define DEBUG_SLIST
+#endif
+
 /**
  * slist_head_init - initialize a slist_head structure.
  * @head: slist_head structure to be initialized.
@@ -32,6 +38,10 @@ static inline void slist_head_init(struct slist_head *head)
  */
 static inline void slist_add(struct slist_head *node, struct slist_head *new)
 {
+#ifdef DEBUG_SLIST
+    if (unlikely(!slist_debug_add_check(node, new)))
+        return;
+#endif
     new->next = node->next;
     node->next = new;
 }
@@ -45,10 +55,16 @@ static inline void slist_del(struct slist_head *head, struct slist_head *node)
 {
     struct slist_head *walk = head;
 
+#ifdef DEBUG_SLIST
+    if (unlikely(!slist_debug_del_check(node)))
+        return;
+#endif
+
     while (walk->next != node)
         walk = walk->next;
 
     walk->next = node->next;
+    node->next = NULL;
 }
 
 /**
@@ -100,7 +116,7 @@ static inline bool slist_check_next(struct slist_head *node)
  * slist_first_entry - get the first element from a slist
  * @ptr: the list head to take the element from.
  * @type: the type of the struct this is embedded in.
- * @member:	the name of the list_head within the struct.
+ * @member:	the name of the slist_head within the struct.
  */
 #define slist_first_entry(ptr, type, member) \
     slist_entry((ptr)->next, type, member)
@@ -108,18 +124,44 @@ static inline bool slist_check_next(struct slist_head *node)
 /**
  * slist_next_entry - get the next element in slist
  * @pos: the type * to cursor
- * @member: the name of the list_head within the struct.
+ * @member: the name of the slist_head within the struct.
  */
 #define slist_next_entry(pos, member) \
     slist_entry((pos)->member.next, typeof(*(pos)), member)
 
 /**
  * slist_for_each - iterate over a slist
+ * @pos: the &struct slist_head to use as a loop cursor.
  * @head: the head for your slist.
+ */
+#define slist_for_each(pos, head) \
+    for (pos = (head)->next; pos; pos = pos->next)
+
+/**
+ * slist_for_each_continue - continue iteration over a slist.
  * @pos: the &struct slist_head to use as a loop cursor.
  */
-#define slist_for_each(head, pos) \
-    for (pos = (head)->next; &pos->member != NULL; pos = pos->next)
+#define slist_for_each_continue(pos) \
+    for (pos = pos->next; pos; pos = pos->next)
+
+/**
+ * list_for_each_safe - iterate over a slist safe against removal of slist entry.
+ * @pos: the &struct slist_head to use as a loop cursor.
+ * @tmp: another slist_head to use as temporary storage.
+ * @head: the head for your slist.
+ */
+#define slist_for_each_safe(pos, tmp, head)                             \
+    for (pos = (head)->next, tmp = pos->next;                           \
+         pos; pos = tmp, (tmp && (tmp = tmp->next)))
+
+/**
+ * slist_for_each_continue_safe - continue slist iteration safe against removal.
+ * @pos: the &struct slist_head to use as a loop cursor.
+ * @tmp: another slist_head to use as temporary storage.
+ */
+#define slist_for_each_continue_safe(pos, tmp)                          \
+    for (pos = pos->next, tmp = pos->next;                              \
+         pos; pos = tmp, (tmp && (tmp = tmp->next)))
 
 /**
  * slist_for_each_entry - iterate over slist of given type
@@ -127,20 +169,40 @@ static inline bool slist_check_next(struct slist_head *node)
  * @head: the head for your slist.
  * @member: the name of the slist_head within the struct.
  */
-#define slist_for_each_entry(pos, head, member)                 \
-    for (pos = slist_first_entry(head, typeof(*pos), member);   \
+#define slist_for_each_entry(pos, head, member)                         \
+    for (pos = slist_first_entry(head, typeof(*pos), member);           \
          pos; pos = slist_next_entry(pos, member))
 
 /**
- * slist_for_each_entry_safe - iterate over slist of given type safe against removal of list entry
+ * slist_for_each_entry_continue - continue iteration over slist of given type.
  * @pos: the type * to use as a loop cursor.
- * @next: another type * to use as temporary storage
+ * @member: the name of the slist_head within the struct.
+ */
+#define slist_for_each_entry_continue(pos, member)                      \
+    for (pos = slist_next_entry(pos, member);                           \
+         pos; pos = slist_next_entry(pos, member))
+
+/**
+ * slist_for_each_entry_safe - iterate over slist of given type safe against removal of slist entry
+ * @pos: the type * to use as a loop cursor.
+ * @tmp: another type * to use as temporary storage
  * @head: the head for your slist.
  * @member: the name of the slist_head within the struct.
  */
-#define slist_for_each_entry_safe(pos, next, head, member)          \
-    for (pos = slist_first_entry(head, typeof(*(pos)), member),     \
-         next = slist_next_entry(pos, member);                      \
-         pos; pos = next, next = slist_next_entry(next, member))
+#define slist_for_each_entry_safe(pos, tmp, head, member)               \
+    for (pos = slist_first_entry(head, typeof(*(pos)), member),         \
+         tmp = slist_next_entry(pos, member);                           \
+         pos; pos = tmp, (tmp && (tmp = slist_next_entry(tmp, member))))
+
+/**
+ * list_for_each_entry_continue_safe - continue slist iteration safe against removal.
+ * @pos: the type * to use as a loop cursor.
+ * @tmp: another type * to use as temporary storage.
+ * @member:	the name of the slist_head within the struct.
+ */
+#define slist_for_each_entry_continue_safe(pos, tmp, member)            \
+    for (pos = slist_next_entry(pos, member),                           \
+         tmp = slist_next_entry(pos, member);                           \
+         pos; pos = tmp, (tmp && (tmp = slist_next_entry(pos, member))))
 
 #endif  /* _SLIST_H_ */
