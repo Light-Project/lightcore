@@ -64,7 +64,7 @@ static inline void slist_del(struct slist_head *head, struct slist_head *node)
         walk = walk->next;
 
     walk->next = node->next;
-    node->next = NULL;
+    node->next = ERR_PTR(-EFAULT);
 }
 
 /**
@@ -130,19 +130,26 @@ static inline bool slist_check_next(struct slist_head *node)
     slist_entry((pos)->member.next, typeof(*(pos)), member)
 
 /**
- * slist_for_each - iterate over a slist
+ * slist_for_each - iterate over a slist.
  * @pos: the &struct slist_head to use as a loop cursor.
  * @head: the head for your slist.
  */
 #define slist_for_each(pos, head) \
-    for (pos = (head)->next; pos; pos = pos->next)
+    for ((pos) = (head)->next; (pos); (pos) = (pos)->next)
+
+/**
+ * slist_for_each_from - iterate over a slist from the current point.
+ * @pos: the &struct slist_head to use as a loop cursor.
+ */
+#define slist_for_each_from(pos) \
+    for (; (pos); (pos) = (pos)->next)
 
 /**
  * slist_for_each_continue - continue iteration over a slist.
  * @pos: the &struct slist_head to use as a loop cursor.
  */
 #define slist_for_each_continue(pos) \
-    for (pos = pos->next; pos; pos = pos->next)
+    for ((pos) = (pos)->next; (pos); (pos) = (pos)->next)
 
 /**
  * list_for_each_safe - iterate over a slist safe against removal of slist entry.
@@ -151,8 +158,17 @@ static inline bool slist_check_next(struct slist_head *node)
  * @head: the head for your slist.
  */
 #define slist_for_each_safe(pos, tmp, head)                             \
-    for (pos = (head)->next, tmp = pos->next;                           \
-         pos; pos = tmp, (tmp && (tmp = tmp->next)))
+    for ((pos) = (head)->next, (tmp) = (pos)->next;                     \
+         (pos); (pos) = (tmp), ((tmp) && ((tmp) = (tmp)->next)))
+
+/**
+ * slist_for_each_from_safe - iterate over a slist safe against removal of slist entry from the current point.
+ * @pos: the &struct slist_head to use as a loop cursor.
+ * @tmp: another slist_head to use as temporary storage.
+ */
+#define slist_for_each_from_safe(pos, tmp)                              \
+    for ((tmp) = (pos)->next;                                           \
+         (pos); (pos) = (tmp), ((tmp) && ((tmp) = (tmp)->next)))
 
 /**
  * slist_for_each_continue_safe - continue slist iteration safe against removal.
@@ -160,8 +176,8 @@ static inline bool slist_check_next(struct slist_head *node)
  * @tmp: another slist_head to use as temporary storage.
  */
 #define slist_for_each_continue_safe(pos, tmp)                          \
-    for (pos = pos->next, tmp = pos->next;                              \
-         pos; pos = tmp, (tmp && (tmp = tmp->next)))
+    for ((pos) = (pos)->next, (tmp) = (pos)->next;                      \
+         (pos); (pos) = (tmp), ((tmp) && ((tmp) = (tmp)->next)))
 
 /**
  * slist_for_each_entry - iterate over slist of given type
@@ -170,8 +186,16 @@ static inline bool slist_check_next(struct slist_head *node)
  * @member: the name of the slist_head within the struct.
  */
 #define slist_for_each_entry(pos, head, member)                         \
-    for (pos = slist_first_entry(head, typeof(*pos), member);           \
-         pos; pos = slist_next_entry(pos, member))
+    for ((pos) = slist_first_entry(head, typeof(*(pos)), member);       \
+         (pos); (pos) = slist_next_entry(pos, member))
+
+/**
+ * slist_for_each_entry_from - iterate over slist of given type from the current point.
+ * @pos: the type * to use as a loop cursor.
+ * @member: the name of the slist_head within the struct.
+ */
+#define slist_for_each_entry_from(pos, member)                          \
+    for (; (pos); (pos) = slist_next_entry(pos, member))
 
 /**
  * slist_for_each_entry_continue - continue iteration over slist of given type.
@@ -179,8 +203,8 @@ static inline bool slist_check_next(struct slist_head *node)
  * @member: the name of the slist_head within the struct.
  */
 #define slist_for_each_entry_continue(pos, member)                      \
-    for (pos = slist_next_entry(pos, member);                           \
-         pos; pos = slist_next_entry(pos, member))
+    for ((pos) = slist_next_entry(pos, member);                         \
+         (pos); (pos) = slist_next_entry(pos, member))
 
 /**
  * slist_for_each_entry_safe - iterate over slist of given type safe against removal of slist entry
@@ -190,19 +214,29 @@ static inline bool slist_check_next(struct slist_head *node)
  * @member: the name of the slist_head within the struct.
  */
 #define slist_for_each_entry_safe(pos, tmp, head, member)               \
-    for (pos = slist_first_entry(head, typeof(*(pos)), member),         \
-         tmp = slist_next_entry(pos, member);                           \
-         pos; pos = tmp, (tmp && (tmp = slist_next_entry(tmp, member))))
+    for ((pos) = slist_first_entry(head, typeof(*(pos)), member),       \
+         (tmp) = slist_next_entry(pos, member); (pos); (pos) = (tmp),   \
+         ((tmp) && ((tmp) = slist_next_entry(tmp, member))))
 
 /**
- * list_for_each_entry_continue_safe - continue slist iteration safe against removal.
+ * slist_for_each_entry_from_safe -  iterate over list from current point safe against removal.
+ * @pos: the type * to use as a loop cursor.
+ * @tmp: another type * to use as temporary storage.
+ * @member:	the name of the slist_head within the struct.
+ */
+#define slist_for_each_entry_from_safe(pos, tmp, member)                \
+    for ((tmp) = slist_next_entry(pos, member); (pos); (pos) = (tmp),   \
+         ((tmp) && ((tmp) = slist_next_entry(pos, member))))
+
+/**
+ * slist_for_each_entry_continue_safe - continue slist iteration safe against removal.
  * @pos: the type * to use as a loop cursor.
  * @tmp: another type * to use as temporary storage.
  * @member:	the name of the slist_head within the struct.
  */
 #define slist_for_each_entry_continue_safe(pos, tmp, member)            \
-    for (pos = slist_next_entry(pos, member),                           \
-         tmp = slist_next_entry(pos, member);                           \
-         pos; pos = tmp, (tmp && (tmp = slist_next_entry(pos, member))))
+    for ((pos) = slist_next_entry(pos, member),                         \
+         (tmp) = slist_next_entry(pos, member); (pos); (pos) = (tmp),   \
+         ((tmp) && ((tmp) = slist_next_entry(pos, member))))
 
 #endif  /* _SLIST_H_ */

@@ -274,20 +274,38 @@ static inline bool list_check_outsize(const struct list_head *node)
     for ((pos) = (head)->prev; (pos) != (head); (pos) = (pos)->prev)
 
 /**
+ * list_for_each - iterate over a list from the current point.
+ * @head: the head for your list.
+ * @pos: the &struct list_head to use as a loop cursor.
+ */
+#define list_for_each_from(pos, head) \
+    for (; !list_check_head(pos, head); (pos) = (pos)->next)
+
+/**
+ * list_for_each_reverse - iterate over a list backwards from the current point.
+ * @pos: the &struct list_head to use as a loop cursor.
+ * @head: the head for your list.
+ */
+#define list_for_each_reverse_from(pos, head) \
+    for (; !list_check_head(pos, head); (pos) = (pos)->prev)
+
+/**
  * list_for_each_continue - continue iteration over a list.
  * @pos: the &struct list_head to use as a loop cursor.
  * @head: the head for your list.
  */
-#define list_for_each_continue(pos, head) \
-    for (pos = pos->next; !list_check_head(pos, (head)); pos = pos->next)
+#define list_for_each_continue(pos, head)                                   \
+    for ((pos) = (pos)->next; !list_check_head(pos, head);                  \
+         (pos) = (pos)->next)
 
 /**
  * list_for_each_reverse_continue - continue iteration over a list backwards.
  * @pos: the &struct list_head to use as a loop cursor.
  * @head: the head for your list.
  */
-#define list_for_each_reverse_continue(pos, head) \
-    for (pos = pos->prev; !list_check_head(pos, (head)); pos = pos->prev)
+#define list_for_each_reverse_continue(pos, head)                           \
+    for ((pos) = (pos)->prev; !list_check_head(pos, head);                  \
+         (pos) = (pos)->prev)
 
 /**
  * list_for_each_safe - iterate over a list safe against removal of list entry.
@@ -296,9 +314,9 @@ static inline bool list_check_outsize(const struct list_head *node)
  * @head: the head for your list.
  */
 #define list_for_each_safe(pos, tmp, head)                                  \
-    for (pos = (head)->next, tmp = pos->next;                               \
-         !list_check_head(pos, head);                                       \
-         pos = tmp, tmp = tmp->next)
+    for ((pos) = (head)->next, (tmp) = (pos)->next;                         \
+         !list_check_head((pos), head);                                     \
+         (pos) = (tmp), (tmp) = (tmp)->next)
 
 /**
  * list_for_each_reverse_save - iterate backwards over list safe against removal.
@@ -307,9 +325,31 @@ static inline bool list_check_outsize(const struct list_head *node)
  * @head: the head for your list.
  */
 #define list_for_each_reverse_save(pos, tmp, head)                          \
-    for (pos = (head)->prev, tmp = pos->prev;                               \
+    for ((pos) = (head)->prev, (tmp) = (pos)->prev;                         \
          !list_check_head(pos, head);                                       \
-         pos = tmp, tmp = tmp->prev)
+         (pos) = (tmp), (tmp) = (tmp)->prev)
+
+/**
+ * list_for_each_reverse_save - iterate over a list safe against removal of list entry from the current point.
+ * @pos: the &struct list_head to use as a loop cursor.
+ * @tmp: another list_head to use as temporary storage.
+ * @head: the head for your list.
+ */
+#define list_for_each_from_safe(pos, tmp, head)                             \
+    for ((tmp) = (pos)->next;                                               \
+         !list_check_head(pos, head);                                       \
+         (pos) = (tmp), (tmp) = (tmp)->next)
+
+/**
+ * list_for_each_reverse_save - iterate backwards over list safe against removal from the current point.
+ * @pos: the &struct list_head to use as a loop cursor.
+ * @tmp: another list_head to use as temporary storage.
+ * @head: the head for your list.
+ */
+#define list_for_each_reverse_from_safe(pos, tmp, head)                     \
+    for ((tmp) = pos->prev;                                                 \
+         !list_check_head(pos, head);                                       \
+         (pos) = (tmp), (tmp) = (tmp)->prev)
 
 /**
  * list_for_each_continue_safe - continue list iteration safe against removal.
@@ -318,9 +358,9 @@ static inline bool list_check_outsize(const struct list_head *node)
  * @head: the head for your list.
  */
 #define list_for_each_continue_safe(pos, tmp, head)                         \
-    for (pos = pos->next, tmp = pos->next;                                  \
+    for ((pos) = (pos)->next, (tmp) = (pos)->next;                          \
          !list_check_head(pos, head);                                       \
-         pos = tmp, tmp = tmp->next)
+         (pos) = (tmp), (tmp) = (tmp)->next)
 
 /**
  * list_for_each_reverse_continue_safe - continue backwards over list iteration safe against removal.
@@ -329,9 +369,9 @@ static inline bool list_check_outsize(const struct list_head *node)
  * @head: the head for your list.
  */
 #define list_for_each_reverse_continue_safe(pos, tmp, head)                 \
-    for (pos = pos->prev, tmp = pos->prev;                                  \
+    for ((pos) = pos->prev, (tmp) = pos->prev;                              \
          !list_check_head(pos, head);                                       \
-         pos = tmp, tmp = tmp->prev)
+         (pos) = (tmp), (tmp) = (tmp)->prev)
 
 /**
  * list_for_each_entry - iterate over list of given type
@@ -356,15 +396,35 @@ static inline bool list_check_outsize(const struct list_head *node)
          (pos) = list_prev_entry(pos, member))
 
 /**
+ * list_for_each_entry_from - iterate over list of given type from the current point.
+ * @pos: the type * to use as a loop cursor.
+ * @head: the head for your list.
+ * @member: the name of the list_head within the struct.
+ */
+#define list_for_each_entry_from(pos, head, member)                         \
+    for (; !list_entry_check_head(pos, head, member);                       \
+         (pos) = list_next_entry(pos, member))
+
+/**
+ * list_for_each_entry_reverse_from - iterate backwards over list of given type from the current point.
+ * @pos: the type * to use as a loop cursor.
+ * @head: the head for your list.
+ * @member: the name of the list_head within the struct.
+ */
+#define list_for_each_entry_reverse_from(pos, head, member)                 \
+    for (; !list_entry_check_head(pos, head, member);                       \
+         (pos) = list_prev_entry(pos, member))
+
+/**
  * list_for_each_entry_continue - continue iteration over list of given type.
  * @pos: the type * to use as a loop cursor.
  * @head: the head for your list.
  * @member: the name of the list_head within the struct.
  */
 #define list_for_each_entry_continue(pos, head, member)                     \
-    for (pos = list_next_entry(pos, member);                                \
+    for ((pos) = list_next_entry(pos, member);                              \
          !list_entry_check_head(pos, head, member);                         \
-         pos = list_next_entry(pos, member))
+         (pos) = list_next_entry(pos, member))
 
 /**
  * list_for_each_entry_reverse_continue - iterate backwards from the given point.
@@ -373,9 +433,9 @@ static inline bool list_check_outsize(const struct list_head *node)
  * @member: the name of the list_head within the struct.
  */
 #define list_for_each_entry_reverse_continue(pos, head, member)             \
-    for (pos = list_prev_entry(pos, member);                                \
+    for ((pos) = list_prev_entry(pos, member);                              \
          !list_entry_check_head(pos, head, member);                         \
-         pos = list_prev_entry(pos, member))
+         (pos) = list_prev_entry(pos, member))
 
 /**
  * list_for_each_entry_safe - iterate over list of given type safe against removal of list entry.
@@ -385,10 +445,10 @@ static inline bool list_check_outsize(const struct list_head *node)
  * @member: the name of the list_head within the struct.
  */
 #define list_for_each_entry_safe(pos, tmp, head, member)                    \
-    for (pos = list_first_entry(head, typeof(*(pos)), member),              \
-         tmp = list_next_entry(pos, member);                                \
+    for ((pos) = list_first_entry(head, typeof(*(pos)), member),            \
+         (tmp) = list_next_entry(pos, member);                              \
          !list_entry_check_head(pos, head, member);                         \
-         pos = tmp, tmp = list_next_entry(tmp, member))
+         (pos) = (tmp), (tmp) = list_next_entry(tmp, member))
 
 /**
  * list_for_each_entry_reverse_safe - iterate backwards over list safe against removal.
@@ -398,10 +458,34 @@ static inline bool list_check_outsize(const struct list_head *node)
  * @member:	the name of the list_head within the struct.
  */
 #define list_for_each_entry_reverse_safe(pos, tmp, head, member)            \
-    for (pos = list_last_entry(head, typeof(*pos), member),                 \
-         tmp = list_prev_entry(pos, member);                                \
+    for ((pos) = list_last_entry(head, typeof(*pos), member),               \
+         (tmp) = list_prev_entry(pos, member);                              \
          !list_entry_check_head(pos, head, member);                         \
-         pos = tmp, tmp = list_prev_entry(tmp, member))
+         (pos) = (tmp), (tmp) = list_prev_entry(tmp, member))
+
+/**
+ * list_for_each_entry_continue_safe - iterate over list from current point safe against removal.
+ * @pos: the type * to use as a loop cursor.
+ * @tmp: another type * to use as temporary storage.
+ * @head: the head for your list.
+ * @member:	the name of the list_head within the struct.
+ */
+#define list_for_each_entry_from_safe(pos, tmp, head, member)               \
+    for ((tmp) = list_next_entry(pos, member);                              \
+         !list_entry_check_head(pos, head, member);                         \
+         (pos) = (tmp), (tmp) = list_next_entry(tmp, member))
+
+/**
+ * list_for_each_entry_continue_safe - iterate backwards over list from current point safe against removal.
+ * @pos: the type * to use as a loop cursor.
+ * @tmp: another type * to use as temporary storage.
+ * @head: the head for your list.
+ * @member:	the name of the list_head within the struct.
+ */
+#define list_for_each_entry_reverse_from_safe(pos, tmp, head, member)       \
+    for ((tmp) = list_prev_entry(pos, member);                              \
+         !list_entry_check_head(pos, head, member);                         \
+         (pos) = (tmp), (tmp) = list_prev_entry(tmp, member))
 
 /**
  * list_for_each_entry_continue_safe - continue list iteration safe against removal.
@@ -411,10 +495,10 @@ static inline bool list_check_outsize(const struct list_head *node)
  * @member:	the name of the list_head within the struct.
  */
 #define list_for_each_entry_continue_safe(pos, tmp, head, member)           \
-    for (pos = list_next_entry(pos, member),                                \
-         tmp = list_next_entry(pos, member);                                \
+    for ((pos) = list_next_entry(pos, member),                              \
+         (tmp) = list_next_entry(pos, member);                              \
          !list_entry_check_head(pos, head, member);                         \
-         pos = tmp, tmp = list_next_entry(tmp, member))
+         (pos) = (tmp), (tmp) = list_next_entry(tmp, member))
 
 /**
  * list_for_each_entry_continue_safe - continue backwards over list iteration safe against removal.
@@ -424,9 +508,9 @@ static inline bool list_check_outsize(const struct list_head *node)
  * @member:	the name of the list_head within the struct.
  */
 #define list_for_each_entry_reverse_continue_safe(pos, tmp, head, member)   \
-    for (pos = list_prev_entry(pos, member),                                \
-         tmp = list_prev_entry(pos, member);                                \
+    for ((pos) = list_prev_entry(pos, member),                              \
+         (tmp) = list_prev_entry(pos, member);                              \
          !list_entry_check_head(pos, head, member);                         \
-         pos = tmp, tmp = list_prev_entry(tmp, member))
+         (pos) = (tmp), (tmp) = list_prev_entry(tmp, member))
 
 #endif  /* _LIST_H_ */

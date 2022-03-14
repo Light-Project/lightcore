@@ -4,13 +4,12 @@
  */
 
 #include <initcall.h>
-#include <timekeeping.h>
 #include <kmalloc.h>
 #include <list.h>
 #include <selftest.h>
 #include <printk.h>
 
-#define TEST_LOOP 100
+#define TEST_LOOP 10
 
 struct list_test_node {
     struct list_head list;
@@ -34,8 +33,8 @@ static long list_test_sort(struct list_head *nodea, struct list_head *nodeb, voi
 static state list_test_testing(void *pdata)
 {
     struct list_test_pdata *ldata = pdata;
-    struct list_test_node *node, *nnode;
-    struct list_head *list, *nlist;
+    struct list_test_node *node, *nnode, *tnode;
+    struct list_head *list, *nlist, *tlist;
     unsigned int count;
 
     LIST_HEAD(test_head);
@@ -56,9 +55,16 @@ static state list_test_testing(void *pdata)
             break;
     }
 
+    tlist = list;
     list_for_each_continue(list, &test_head) {
         node = list_to_test(list);
         printk("list 'list_for_each_continue' test: %lu\n", node->num);
+    }
+
+    list = tlist;
+    list_for_each_from(list, &test_head) {
+        node = list_to_test(list);
+        printk("list 'list_for_each_from' test: %lu\n", node->num);
     }
 
     list_for_each_reverse(list, &test_head) {
@@ -68,9 +74,16 @@ static state list_test_testing(void *pdata)
             break;
     }
 
+    tlist = list;
     list_for_each_reverse_continue(list, &test_head) {
         node = list_to_test(list);
         printk("list 'list_for_each_reverse_continue' test: %lu\n", node->num);
+    }
+
+    list = tlist;
+    list_for_each_reverse_from(list, &test_head) {
+        node = list_to_test(list);
+        printk("list 'list_for_each_reverse_from' test: %lu\n", node->num);
     }
 
     list_for_each_safe(list, nlist, &test_head) {
@@ -80,9 +93,16 @@ static state list_test_testing(void *pdata)
             break;
     }
 
+    tlist = list;
     list_for_each_continue_safe(list, nlist, &test_head) {
         node = list_to_test(list);
         printk("list 'list_for_each_continue_safe' test: %lu\n", node->num);
+    }
+
+    list = tlist;
+    list_for_each_from_safe(list, nlist, &test_head) {
+        node = list_to_test(list);
+        printk("list 'list_for_each_from_safe' test: %lu\n", node->num);
     }
 
     list_for_each_reverse_save(list, nlist, &test_head) {
@@ -92,9 +112,16 @@ static state list_test_testing(void *pdata)
             break;
     }
 
+    tlist = list;
     list_for_each_reverse_continue_safe(list, nlist, &test_head) {
         node = list_to_test(list);
         printk("list 'list_for_each_reverse_continue_safe' test: %lu\n", node->num);
+    }
+
+    list = tlist;
+    list_for_each_reverse_from_safe(list, nlist, &test_head) {
+        node = list_to_test(list);
+        printk("list 'list_for_each_reverse_from_safe' test: %lu\n", node->num);
     }
 
     list_for_each_entry(node, &test_head, list) {
@@ -103,8 +130,14 @@ static state list_test_testing(void *pdata)
             break;
     }
 
+    tnode = node;
     list_for_each_entry_continue(node, &test_head, list) {
         printk("list 'list_for_each_entry_continue' test: %lu\n", node->num);
+    }
+
+    node = tnode;
+    list_for_each_entry_from(node, &test_head, list) {
+        printk("list 'list_for_each_entry_from' test: %lu\n", node->num);
     }
 
     list_for_each_entry_reverse(node, &test_head, list) {
@@ -113,8 +146,14 @@ static state list_test_testing(void *pdata)
             break;
     }
 
+    tnode = node;
     list_for_each_entry_reverse_continue(node, &test_head, list) {
         printk("list 'list_for_each_entry_reverse_continue' test: %lu\n", node->num);
+    }
+
+    node = tnode;
+    list_for_each_entry_reverse_from(node, &test_head, list) {
+        printk("list 'list_for_each_entry_reverse_from' test: %lu\n", node->num);
     }
 
     list_for_each_entry_safe(node, nnode, &test_head, list) {
@@ -123,18 +162,32 @@ static state list_test_testing(void *pdata)
             break;
     }
 
+    tnode = node;
     list_for_each_entry_continue_safe(node, nnode, &test_head, list) {
         printk("list 'list_for_each_entry_continue_safe' test: %lu\n", node->num);
+    }
+
+    node = tnode;
+    list_for_each_entry_from_safe(node, nnode, &test_head, list) {
+        printk("list 'list_for_each_entry_form_safe' test: %lu\n", node->num);
     }
 
     list_for_each_entry_reverse_safe(node, nnode, &test_head, list) {
         printk("list 'list_for_each_entry_reverse_safe' test: %lu\n", node->num);
         if (node->num == TEST_LOOP / 2)
             break;
+        list_del(&node->list);
     }
 
+    tnode = node;
     list_for_each_entry_reverse_continue_safe(node, nnode, &test_head, list) {
         printk("list 'list_for_each_entry_reverse_continue_safe' test: %lu\n", node->num);
+    }
+
+    node = tnode;
+    list_for_each_entry_reverse_from_safe(node, nnode, &test_head, list) {
+        printk("list 'list_for_each_entry_reverse_form_safe' test: %lu\n", node->num);
+        list_del(&node->list);
     }
 
     return -ENOERR;
