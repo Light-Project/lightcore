@@ -11,8 +11,12 @@ config DEBUG_LIST
     bool "List Debugging Support"
     default y
 
+config DEBUG_HLIST
+    bool "Hash List Debugging Support"
+    default y
+
 config DEBUG_SLIST
-    bool "Slist Debugging Support"
+    bool "Single List Debugging Support"
     default y
 
 endmenu

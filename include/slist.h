@@ -104,7 +104,7 @@ static inline bool slist_check_next(struct slist_head *node)
 }
 
 /**
- * slist_entry - get the struct for this entry
+ * slist_entry - get the struct for this entry.
  * @ptr: the &struct slist_head pointer.
  * @type: the type of the struct this is embedded in.
  * @member: the name of the list_head within the struct.
@@ -113,7 +113,7 @@ static inline bool slist_check_next(struct slist_head *node)
     container_of_safe(ptr, type, member)
 
 /**
- * slist_first_entry - get the first element from a slist
+ * slist_first_entry - get the first element from a slist.
  * @ptr: the list head to take the element from.
  * @type: the type of the struct this is embedded in.
  * @member:	the name of the slist_head within the struct.
@@ -122,8 +122,8 @@ static inline bool slist_check_next(struct slist_head *node)
     slist_entry((ptr)->next, type, member)
 
 /**
- * slist_next_entry - get the next element in slist
- * @pos: the type * to cursor
+ * slist_next_entry - get the next element in slist.
+ * @pos: the type * to cursor.
  * @member: the name of the slist_head within the struct.
  */
 #define slist_next_entry(pos, member) \
@@ -180,7 +180,7 @@ static inline bool slist_check_next(struct slist_head *node)
          (pos); (pos) = (tmp), ((tmp) && ((tmp) = (tmp)->next)))
 
 /**
- * slist_for_each_entry - iterate over slist of given type
+ * slist_for_each_entry - iterate over slist of given type.
  * @pos: the type * to use as a loop cursor.
  * @head: the head for your slist.
  * @member: the name of the slist_head within the struct.
@@ -207,9 +207,9 @@ static inline bool slist_check_next(struct slist_head *node)
          (pos); (pos) = slist_next_entry(pos, member))
 
 /**
- * slist_for_each_entry_safe - iterate over slist of given type safe against removal of slist entry
+ * slist_for_each_entry_safe - iterate over slist of given type safe against removal of slist entry.
  * @pos: the type * to use as a loop cursor.
- * @tmp: another type * to use as temporary storage
+ * @tmp: another type * to use as temporary storage.
  * @head: the head for your slist.
  * @member: the name of the slist_head within the struct.
  */
@@ -219,7 +219,7 @@ static inline bool slist_check_next(struct slist_head *node)
          ((tmp) && ((tmp) = slist_next_entry(tmp, member))))
 
 /**
- * slist_for_each_entry_from_safe -  iterate over list from current point safe against removal.
+ * slist_for_each_entry_from_safe - iterate over slist from current point safe against removal.
  * @pos: the type * to use as a loop cursor.
  * @tmp: another type * to use as temporary storage.
  * @member:	the name of the slist_head within the struct.
