@@ -153,4 +153,20 @@ static inline unsigned int find_last_zero(const unsigned long *block, unsigned i
         return comp_find_last_zero(block, bits);
 }
 
+#define GENERIC_STRUCT_BITOPS(name, type, member)                                   \
+static inline void generic_##name##_##member##_set(type *ptr, unsigned int bit)     \
+{                                                                                   \
+    bit_set(&ptr->member, bit);                                                     \
+}                                                                                   \
+                                                                                    \
+static inline void generic_##name##_##member##_clr(type *ptr, unsigned int bit)     \
+{                                                                                   \
+    bit_clr(&ptr->member, bit);                                                     \
+}                                                                                   \
+                                                                                    \
+static inline bool generic_##name##_##member##_test(type *ptr, unsigned int bit)    \
+{                                                                                   \
+    return bit_test(&ptr->member, bit);                                             \
+}
+
 #endif  /* _BITOPS_H_ */

@@ -4,21 +4,249 @@
 
 #include <limits.h>
 #include <bits.h>
+#include <kasan-check.h>
 #include <asm/atomic.h>
 
 #ifndef __ASSEMBLY__
 
-#ifndef bit_clr
-static __always_inline void bit_clr(unsigned long *addr, unsigned int bit)
+#ifndef arch_bit_clr
+static inline void arch_bit_clr(volatile unsigned long *addr, long bit)
 {
+    addr += BITS_WORD(bit);
+    *addr &= ~BIT(bit);
+}
+#endif
+
+#ifndef arch_bit_set
+static inline void arch_bit_set(volatile unsigned long *addr, long bit)
+{
+    addr += BITS_WORD(bit);
+    *addr |= BIT(bit);
+}
+#endif
+
+#ifndef arch_bit_flip
+static inline void arch_bit_flip(volatile unsigned long *addr, long bit)
+{
+    addr += BITS_WORD(bit);
+    *addr ^= BIT(bit);
+}
+#endif
+
+#ifndef arch_bit_test
+static inline bool arch_bit_test(volatile unsigned long *addr, long bit)
+{
+    addr += BITS_WORD(bit);
+    return !!(*addr & BIT(bit));
+}
+#endif
+
+#ifndef arch_bit_test_clr
+static inline bool arch_bit_test_clr(volatile unsigned long *addr, long bit)
+{
+    unsigned long old;
+    addr += BITS_WORD(bit);
+    old = *addr;
+    *addr &= ~BIT(bit);
+    return !!(old & BIT(bit));
+}
+#endif
+
+#ifndef arch_bit_test_set
+static inline bool arch_bit_test_set(volatile unsigned long *addr, long bit)
+{
+    unsigned long old;
+    addr += BITS_WORD(bit);
+    old = *addr;
+    *addr |= BIT(bit);
+    return !!(old & BIT(bit));
+}
+#endif
+
+#ifndef arch_bit_test_flip
+static inline bool arch_bit_test_flip(volatile unsigned long *addr, long bit)
+{
+    unsigned long old;
+    addr += BITS_WORD(bit);
+    old = *addr;
+    *addr ^= BIT(bit);
+    return !!(old & BIT(bit));
+}
+#endif
+
+#ifndef arch_bit_atomic_clr
+static inline void arch_bit_atomic_clr(volatile unsigned long *addr, long bit)
+{
+    addr += BITS_WORD(bit);
+    atomic_and((atomic_t *)addr, ~BIT(bit));
+}
+#endif
+
+#ifndef arch_bit_atomic_set
+static inline void arch_bit_atomic_set(volatile unsigned long *addr, long bit)
+{
+    addr += BITS_WORD(bit);
     atomic_or((atomic_t *)addr, BIT(bit));
 }
 #endif
 
-#ifndef bit_set
-static __always_inline void bit_set(unsigned long *addr, unsigned int bit)
+#ifndef arch_bit_atomic_flip
+static inline void arch_bit_atomic_flip(volatile unsigned long *addr, long bit)
 {
-    atomic_and((atomic_t *)addr, ~BIT(bit));
+    addr += BITS_WORD(bit);
+    atomic_xor((atomic_t *)addr, BIT(bit));
+}
+#endif
+
+#ifndef arch_bit_atomic_test
+static inline bool arch_bit_atomic_test(volatile unsigned long *addr, long bit)
+{
+    addr += BITS_WORD(bit);
+    return !!(atomic_read((atomic_t *)addr) & BIT(bit));
+}
+#endif
+
+#ifndef arch_bit_atomic_test_clr
+static inline bool arch_bit_atomic_test_clr(volatile unsigned long *addr, long bit)
+{
+    unsigned long old;
+    addr += BITS_WORD(bit);
+    if ((READ_ONCE(*addr) & BIT(bit)) == 0) return 0;
+    old = atomic_fetch_and((atomic_t *)addr, ~BIT(bit));
+    return !!(old & BIT(bit));
+}
+#endif
+
+#ifndef arch_bit_atomic_test_set
+static inline bool arch_bit_atomic_test_set(volatile unsigned long *addr, long bit)
+{
+    unsigned long old;
+    addr += BITS_WORD(bit);
+    if ((READ_ONCE(*addr) & BIT(bit)) != 0) return 1;
+    old = atomic_fetch_or((atomic_t *)addr, BIT(bit));
+    return !!(old & BIT(bit));
+}
+#endif
+
+#ifndef arch_bit_atomic_test_flip
+static inline bool arch_bit_atomic_test_flip(volatile unsigned long *addr, long bit)
+{
+    unsigned long old;
+    addr += BITS_WORD(bit);
+    old = atomic_fetch_xor((atomic_t *)addr, BIT(bit));
+    return !!(old & BIT(bit));
+}
+#endif
+
+#ifndef bit_clr
+static inline void bit_clr(volatile unsigned long *addr, long bit)
+{
+    kasan_check_write(addr + BITS_WORD(bit), sizeof(*addr));
+    arch_bit_clr(addr, bit);
+}
+#endif
+
+#ifndef bit_set
+static inline void bit_set(volatile unsigned long *addr, long bit)
+{
+    kasan_check_write(addr + BITS_WORD(bit), sizeof(*addr));
+    arch_bit_set(addr, bit);
+}
+#endif
+
+#ifndef bit_flip
+static inline void bit_flip(volatile unsigned long *addr, long bit)
+{
+    kasan_check_write(addr + BITS_WORD(bit), sizeof(*addr));
+    arch_bit_flip(addr, bit);
+}
+#endif
+
+#ifndef bit_test
+static inline bool bit_test(volatile unsigned long *addr, long bit)
+{
+    kasan_check_write(addr + BITS_WORD(bit), sizeof(*addr));
+    return arch_bit_test(addr, bit);
+}
+#endif
+
+#ifndef bit_test_clr
+static inline bool bit_test_clr(volatile unsigned long *addr, long bit)
+{
+    kasan_check_write(addr + BITS_WORD(bit), sizeof(*addr));
+    return arch_bit_test_clr(addr, bit);
+}
+#endif
+
+#ifndef bit_test_set
+static inline bool bit_test_set(volatile unsigned long *addr, long bit)
+{
+    kasan_check_write(addr + BITS_WORD(bit), sizeof(*addr));
+    return arch_bit_test_set(addr, bit);
+}
+#endif
+
+#ifndef bit_test_flip
+static inline bool bit_test_flip(volatile unsigned long *addr, long bit)
+{
+    kasan_check_write(addr + BITS_WORD(bit), sizeof(*addr));
+    return arch_bit_test_flip(addr, bit);
+}
+#endif
+
+#ifndef bit_atomic_clr
+static inline void bit_atomic_clr(volatile unsigned long *addr, long bit)
+{
+    kasan_check_write(addr + BITS_WORD(bit), sizeof(*addr));
+    arch_bit_atomic_clr(addr, bit);
+}
+#endif
+
+#ifndef bit_atomic_set
+static inline void bit_atomic_set(volatile unsigned long *addr, long bit)
+{
+    kasan_check_write(addr + BITS_WORD(bit), sizeof(*addr));
+    arch_bit_atomic_set(addr, bit);
+}
+#endif
+
+#ifndef bit_atomic_flip
+static inline void bit_atomic_flip(volatile unsigned long *addr, long bit)
+{
+    kasan_check_write(addr + BITS_WORD(bit), sizeof(*addr));
+    arch_bit_atomic_flip(addr, bit);
+}
+#endif
+
+#ifndef bit_atomic_test
+static inline bool bit_atomic_test(volatile unsigned long *addr, long bit)
+{
+    kasan_check_write(addr + BITS_WORD(bit), sizeof(*addr));
+    return arch_bit_atomic_test(addr, bit);
+}
+#endif
+
+#ifndef bit_atomic_test_clr
+static inline bool bit_atomic_test_clr(volatile unsigned long *addr, long bit)
+{
+    kasan_check_write(addr + BITS_WORD(bit), sizeof(*addr));
+    return arch_bit_atomic_test_clr(addr, bit);
+}
+#endif
+
+#ifndef bit_atomic_test_set
+static inline bool bit_atomic_test_set(volatile unsigned long *addr, long bit)
+{
+    kasan_check_write(addr + BITS_WORD(bit), sizeof(*addr));
+    return arch_bit_atomic_test_set(addr, bit);
+}
+#endif
+
+#ifndef bit_atomic_test_flip
+static inline bool bit_atomic_test_flip(volatile unsigned long *addr, long bit)
+{
+    kasan_check_write(addr + BITS_WORD(bit), sizeof(*addr));
+    return arch_bit_atomic_test_flip(addr, bit);
 }
 #endif
 

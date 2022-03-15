@@ -57,6 +57,7 @@
 
 #define BITS_PER_BYTE  8
 #define BITS_PER_TYPE(type) (sizeof(type) * BITS_PER_BYTE)
+#define BITS_WORD(bit)      ((bit) / BITS_PER_LONG)
 
 #define BITS_PER_U8         BITS_PER_TYPE(uint8_t)
 #define BITS_PER_U16        BITS_PER_TYPE(uint16_t)

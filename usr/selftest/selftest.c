@@ -16,7 +16,7 @@ static SPIN_LOCK(selftest_lock);
 
 static struct selftest_command *selftest_find(const char *name)
 {
-    struct selftest_command *cmd;
+    struct selftest_command *cmd, *find = NULL;
     char *separate;
 
     if (strcount(name, ':') != 1)
@@ -31,11 +31,12 @@ static struct selftest_command *selftest_find(const char *name)
             continue;
         if (strcmp(cmd->name, separate))
             continue;
-        return cmd;
+        find = cmd;
+        break;
     }
     spin_unlock(&selftest_lock);
 
-    return NULL;
+    return find;
 }
 
 state selftest_register(struct selftest_command *cmd)

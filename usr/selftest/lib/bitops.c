@@ -23,56 +23,56 @@ static state bitops_test_testing(void *pdata)
 
         printk("bitops 'ffsuf' test%u: ", count);
         if (count != (bit = ffsuf(bitops_tests[count]))) {
-            printk("failed (%u->%u)\n", count, bit);
+            printk("failed (%#08lx->%u)\n", bitops_tests[count], bit);
             return -EFAULT;
         }
         printk("passed (%#08lx->%u)\n", bitops_tests[count], bit);
 
         printk("bitops 'ffs' test%u: ", count);
         if (count + 1 != (bit = ffs(bitops_tests[count]))) {
-            printk("failed (%u->%u)\n", count + 1, bit);
+            printk("failed (%#08lx->%u)\n", bitops_tests[count], bit);
             return -EFAULT;
         }
         printk("passed (%#08lx->%u)\n", bitops_tests[count], bit);
 
         printk("bitops 'ffzuf' test%u: ", count);
         if (count != (bit = ffzuf(~bitops_tests[count]))) {
-            printk("failed (%u->%u)\n", count, bit);
+            printk("failed (%#08lx->%u)\n", bitops_tests[count], bit);
             return -EFAULT;
         }
         printk("passed (%#08lx->%u)\n", bitops_tests[count], bit);
 
         printk("bitops 'ffz' test%u: ", count);
         if (count + 1 != (bit = ffz(~bitops_tests[count]))) {
-            printk("failed (%u->%u)\n", count + 1, bit);
+            printk("failed (%#08lx->%u)\n", bitops_tests[count], bit);
             return -EFAULT;
         }
         printk("passed (%#08lx->%u)\n", bitops_tests[count], bit);
 
         printk("bitops 'flsuf' test%u: ", count);
         if (count != (bit = flsuf(bitops_tests[count]))) {
-            printk("failed (%u->%u)\n", count, bit);
+            printk("failed (%#08lx->%u)\n", bitops_tests[count], bit);
             return -EFAULT;
         }
         printk("passed (%#08lx->%u)\n", bitops_tests[count], bit);
 
         printk("bitops 'fls' test%u: ", count);
         if (count + 1 != (bit = fls(bitops_tests[count]))) {
-            printk("failed (%u->%u)\n", count + 1, bit);
+            printk("failed (%#08lx->%u)\n", bitops_tests[count], bit);
             return -EFAULT;
         }
         printk("passed (%#08lx->%u)\n", bitops_tests[count], bit);
 
         printk("bitops 'flzuf' test%u: ", count);
         if (count != (bit = flzuf(~bitops_tests[count]))) {
-            printk("failed (%u->%u)\n", count, bit);
+            printk("failed (%#08lx->%u)\n", bitops_tests[count], bit);
             return -EFAULT;
         }
         printk("passed (%#08lx->%u)\n", bitops_tests[count], bit);
 
         printk("bitops 'flz' test%u: ", count);
         if (count + 1 != (bit = flz(~bitops_tests[count]))) {
-            printk("failed (%u->%u)\n", count + 1, bit);
+            printk("failed (%#08lx->%u)\n", bitops_tests[count], bit);
             return -EFAULT;
         }
         printk("passed (%#08lx->%u)\n", bitops_tests[count], bit);

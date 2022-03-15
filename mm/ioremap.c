@@ -193,13 +193,12 @@ void iounmap(void *block)
     vm = vmem_area_find(addr);
     if (!vm) {
         pr_crit("abort iounmap %p\n", block);
-        spin_unlock(&ioremap_lock);
-        return;
+        goto finish;
     }
 
     node = vm_to_ioremap(vm);
     if (--node->count)
-        return;
+        goto finish;
 
     rb_delete(&ioremap_root, &node->rb);
     spin_unlock(&ioremap_lock);
@@ -207,6 +206,11 @@ void iounmap(void *block)
     vmem_area_free(vm);
     vunmap_range(&init_mm, vm->addr, vm->size);
     kcache_free(ioremap_cache, node);
+
+    return;
+
+finish:
+    spin_unlock(&ioremap_lock);
 }
 EXPORT_SYMBOL(iounmap);
 
