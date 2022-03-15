@@ -6,27 +6,28 @@
 #define X86_CPUID_REG_EBX                               (0x01 << 8)
 #define X86_CPUID_REG_ECX                               (0x02 << 8)
 #define X86_CPUID_REG_EDX                               (0x03 << 8)
+#define X86_CPUID_REG_LNX                               (0x04 << 8)
 
-#define X86_CPUID_0000_0001_EDX                         (X86_CPUID_REG_EDX | (0x00000001ULL << 32)
-#define X86_CPUID_8000_0001_EDX                         (X86_CPUID_REG_EDX | (0x80000001ULL << 32)
-#define X86_CPUID_8086_0001_EDX                         (X86_CPUID_REG_EDX | (0x80860001ULL << 32)
-#define X86_CPUID_LNX_1                                 ( | ( << 32)
+#define X86_CPUID_0000_0001_EDX                         (X86_CPUID_REG_EDX | (0x00000001ULL << 32))
+#define X86_CPUID_8000_0001_EDX                         (X86_CPUID_REG_EDX | (0x80000001ULL << 32))
+#define X86_CPUID_8086_0001_EDX                         (X86_CPUID_REG_EDX | (0x80860001ULL << 32))
+#define X86_CPUID_LNX_1                                 (X86_CPUID_REG_LNX | (0x00000001ULL << 32))
 #define X86_CPUID_0000_0001_ECX                         (X86_CPUID_REG_ECX | (0x00000001ULL << 32))
 #define X86_CPUID_C000_0001_EDX                         (X86_CPUID_REG_EDX | (0xc0000001ULL << 32))
 #define X86_CPUID_8000_0001_ECX                         (X86_CPUID_REG_ECX | (0x80000001ULL << 32))
-#define X86_CPUID_LNX_2                                 ( | ( << 32)
-#define X86_CPUID_LNX_3                                 ( | ( << 32)
-#define X86_CPUID_0007_0000_EBX                         (X86_CPUID_REG_EBX | ( << 32)
-#define X86_CPUID_000D_0001_EAX                         (X86_CPUID_REG_EAX | ( << 32)
-#define X86_CPUID_LNX_4                                 ( | ( << 32)
-#define X86_CPUID_0007_0001_EAX                         (X86_CPUID_REG_EAX | (0x00070001 << 32)
-#define X86_CPUID_8000_0008_EBX                         (X86_CPUID_REG_EBX | (0x80000008 << 32)
-#define X86_CPUID_0000_0006_EAX                         (X86_CPUID_REG_EAX | (0x00000006 << 32)
-#define X86_CPUID_8000_000A_EDX                         (X86_CPUID_REG_EDX | (0x8000000a << 32)
-#define X86_CPUID_0000_0007_ECX                         (X86_CPUID_REG_ECX | (0x00000007 << 32)
-#define X86_CPUID_8000_0007_EBX                         (X86_CPUID_REG_EBX | (0x80000007 << 32)
-#define X86_CPUID_0000_0007_EDX                         (X86_CPUID_REG_EDX | (0x00000007 << 32)
-#define X86_CPUID_8000_001F_EAX                         (X86_CPUID_REG_EAX | (0x8000001f << 32)
+#define X86_CPUID_LNX_2                                 (X86_CPUID_REG_LNX | (0x00000002ULL << 32))
+#define X86_CPUID_LNX_3                                 (X86_CPUID_REG_LNX | (0x00000003ULL << 32))
+#define X86_CPUID_0007_0000_EBX                         (X86_CPUID_REG_EBX | (0x00070000ULL << 32))
+#define X86_CPUID_000D_0001_EAX                         (X86_CPUID_REG_EAX | (0x000d0001ULL << 32))
+#define X86_CPUID_LNX_4                                 (X86_CPUID_REG_LNX | (0x00000004ULL << 32))
+#define X86_CPUID_0007_0001_EAX                         (X86_CPUID_REG_EAX | (0x00070001ULL << 32))
+#define X86_CPUID_8000_0008_EBX                         (X86_CPUID_REG_EBX | (0x80000008ULL << 32))
+#define X86_CPUID_0000_0006_EAX                         (X86_CPUID_REG_EAX | (0x00000006ULL << 32))
+#define X86_CPUID_8000_000A_EDX                         (X86_CPUID_REG_EDX | (0x8000000aULL << 32))
+#define X86_CPUID_0000_0007_ECX                         (X86_CPUID_REG_ECX | (0x00000007ULL << 32))
+#define X86_CPUID_8000_0007_EBX                         (X86_CPUID_REG_EBX | (0x80000007ULL << 32))
+#define X86_CPUID_0000_0007_EDX                         (X86_CPUID_REG_EDX | (0x00000007ULL << 32))
+#define X86_CPUID_8000_001F_EAX                         (X86_CPUID_REG_EAX | (0x8000001fULL << 32))
 
 #define X86_CPUID_FPU                                   (X86_CPUID_0000_0001_EDX |  0)      /* Onboard FPU */
 #define X86_CPUID_VME                                   (X86_CPUID_0000_0001_EDX |  1)      /* Virtual Mode Extensions */
@@ -74,36 +75,36 @@
 #define X86_CPUID_LONGRUN                               (X86_CPUID_8086_0001_EDX |  1)      /* Longrun power control */
 #define X86_CPUID_LRTI                                  (X86_CPUID_8086_0001_EDX |  3)      /* LongRun table interface */
 
-#define X86_CPUID_CXMMX                                 ( 3 |  0)      /* Cyrix MMX extensions */
-#define X86_CPUID_K6_MTRR                               ( 3 |  1)      /* AMD K6 nonstandard MTRRs */
-#define X86_CPUID_CYRIX_ARR                             ( 3 |  2)      /* Cyrix ARRs (= MTRRs) */
-#define X86_CPUID_CENTAUR_MCR                           ( 3 |  3)      /* Centaur MCRs (= MTRRs) */
-#define X86_CPUID_K8                                    ( 3 |  4)      /* "" Opteron, Athlon64 */
-#define X86_CPUID_P3                                    ( 3 |  6)      /* "" P3 */
-#define X86_CPUID_P4                                    ( 3 |  7)      /* "" P4 */
-#define X86_CPUID_CONSTANT_TSC                          ( 3 |  8)      /* TSC ticks at a constant rate */
-#define X86_CPUID_UP                                    ( 3 |  9)      /* SMP kernel running on UP */
-#define X86_CPUID_ART                                   ( 3 | 10)      /* Always running timer (ART) */
-#define X86_CPUID_ARCH_PERFMON                          ( 3 | 11)      /* Intel Architectural PerfMon */
-#define X86_CPUID_PEBS                                  ( 3 | 12)      /* Precise-Event Based Sampling */
-#define X86_CPUID_BTS                                   ( 3 | 13)      /* Branch Trace Store */
-#define X86_CPUID_SYSCALL32                             ( 3 | 14)      /* "" syscall in IA32 userspace */
-#define X86_CPUID_SYSENTER32                            ( 3 | 15)      /* "" sysenter in IA32 userspace */
-#define X86_CPUID_REP_GOOD                              ( 3 | 16)      /* REP microcode works well */
-#define X86_CPUID_LFENCE_RDTSC                          ( 3 | 18)      /* "" LFENCE synchronizes RDTSC */
-#define X86_CPUID_ACC_POWER                             ( 3 | 19)      /* AMD Accumulated Power Mechanism */
-#define X86_CPUID_NOPL                                  ( 3 | 20)      /* The NOPL (0F 1F) instructions */
-#define X86_CPUID_ALWAYS                                ( 3 | 21)      /* "" Always-present feature */
-#define X86_CPUID_XTOPOLOGY                             ( 3 | 22)      /* CPU topology enum extensions */
-#define X86_CPUID_TSC_RELIABLE                          ( 3 | 23)      /* TSC is known to be reliable */
-#define X86_CPUID_NONSTOP_TSC                           ( 3 | 24)      /* TSC does not stop in C states */
-#define X86_CPUID_CPUID                                 ( 3 | 25)      /* CPU has CPUID instruction itself */
-#define X86_CPUID_EXTD_APICID                           ( 3 | 26)      /* Extended APICID (8 bits) */
-#define X86_CPUID_AMD_DCM                               ( 3 | 27)      /* AMD multi-node processor */
-#define X86_CPUID_APERFMPERF                            ( 3 | 28)      /* P-State hardware coordination feedback capability (APERF/MPERF MSRs) */
-#define X86_CPUID_RAPL                                  ( 3 | 29)      /* AMD/Hygon RAPL interface */
-#define X86_CPUID_NONSTOP_TSC_S3                        ( 3 | 30)      /* TSC doesn't stop in S3 state */
-#define X86_CPUID_TSC_KNOWN_FREQ                        ( 3 | 31)      /* TSC has known frequency */
+#define X86_CPUID_CXMMX                                 (X86_CPUID_LNX_1         |  0)      /* Cyrix MMX extensions */
+#define X86_CPUID_K6_MTRR                               (X86_CPUID_LNX_1         |  1)      /* AMD K6 nonstandard MTRRs */
+#define X86_CPUID_CYRIX_ARR                             (X86_CPUID_LNX_1         |  2)      /* Cyrix ARRs (= MTRRs) */
+#define X86_CPUID_CENTAUR_MCR                           (X86_CPUID_LNX_1         |  3)      /* Centaur MCRs (= MTRRs) */
+#define X86_CPUID_K8                                    (X86_CPUID_LNX_1         |  4)      /* "" Opteron, Athlon64 */
+#define X86_CPUID_P3                                    (X86_CPUID_LNX_1         |  6)      /* "" P3 */
+#define X86_CPUID_P4                                    (X86_CPUID_LNX_1         |  7)      /* "" P4 */
+#define X86_CPUID_CONSTANT_TSC                          (X86_CPUID_LNX_1         |  8)      /* TSC ticks at a constant rate */
+#define X86_CPUID_UP                                    (X86_CPUID_LNX_1         |  9)      /* SMP kernel running on UP */
+#define X86_CPUID_ART                                   (X86_CPUID_LNX_1         | 10)      /* Always running timer (ART) */
+#define X86_CPUID_ARCH_PERFMON                          (X86_CPUID_LNX_1         | 11)      /* Intel Architectural PerfMon */
+#define X86_CPUID_PEBS                                  (X86_CPUID_LNX_1         | 12)      /* Precise-Event Based Sampling */
+#define X86_CPUID_BTS                                   (X86_CPUID_LNX_1         | 13)      /* Branch Trace Store */
+#define X86_CPUID_SYSCALL32                             (X86_CPUID_LNX_1         | 14)      /* "" syscall in IA32 userspace */
+#define X86_CPUID_SYSENTER32                            (X86_CPUID_LNX_1         | 15)      /* "" sysenter in IA32 userspace */
+#define X86_CPUID_REP_GOOD                              (X86_CPUID_LNX_1         | 16)      /* REP microcode works well */
+#define X86_CPUID_LFENCE_RDTSC                          (X86_CPUID_LNX_1         | 18)      /* "" LFENCE synchronizes RDTSC */
+#define X86_CPUID_ACC_POWER                             (X86_CPUID_LNX_1         | 19)      /* AMD Accumulated Power Mechanism */
+#define X86_CPUID_NOPL                                  (X86_CPUID_LNX_1         | 20)      /* The NOPL (0F 1F) instructions */
+#define X86_CPUID_ALWAYS                                (X86_CPUID_LNX_1         | 21)      /* "" Always-present feature */
+#define X86_CPUID_XTOPOLOGY                             (X86_CPUID_LNX_1         | 22)      /* CPU topology enum extensions */
+#define X86_CPUID_TSC_RELIABLE                          (X86_CPUID_LNX_1         | 23)      /* TSC is known to be reliable */
+#define X86_CPUID_NONSTOP_TSC                           (X86_CPUID_LNX_1         | 24)      /* TSC does not stop in C states */
+#define X86_CPUID_CPUID                                 (X86_CPUID_LNX_1         | 25)      /* CPU has CPUID instruction itself */
+#define X86_CPUID_EXTD_APICID                           (X86_CPUID_LNX_1         | 26)      /* Extended APICID (8 bits) */
+#define X86_CPUID_AMD_DCM                               (X86_CPUID_LNX_1         | 27)      /* AMD multi-node processor */
+#define X86_CPUID_APERFMPERF                            (X86_CPUID_LNX_1         | 28)      /* P-State hardware coordination feedback capability (APERF/MPERF MSRs) */
+#define X86_CPUID_RAPL                                  (X86_CPUID_LNX_1         | 29)      /* AMD/Hygon RAPL interface */
+#define X86_CPUID_NONSTOP_TSC_S3                        (X86_CPUID_LNX_1         | 30)      /* TSC doesn't stop in S3 state */
+#define X86_CPUID_TSC_KNOWN_FREQ                        (X86_CPUID_LNX_1         | 31)      /* TSC has known frequency */
 
 #define X86_CPUID_XMM3                                  (X86_CPUID_0000_0001_ECX |  0)      /* "pni" SSE-3 */
 #define X86_CPUID_PCLMULQDQ                             (X86_CPUID_0000_0001_ECX |  1)      /* PCLMULQDQ instruction */
@@ -175,184 +176,198 @@
 #define X86_CPUID_PERFCTR_LLC                           (X86_CPUID_8000_0001_ECX | 28)      /* Last Level Cache performance counter extensions */
 #define X86_CPUID_MWAITX                                (X86_CPUID_8000_0001_ECX | 29)      /* MWAIT extension (MONITORX/MWAITX instructions) */
 
-#define X86_CPUID_RING3MWAIT                            ( 7 |  0)      /* Ring 3 MONITOR/MWAIT instructions */
-#define X86_CPUID_CPUID_FAULT                           ( 7 |  1)      /* Intel CPUID faulting */
-#define X86_CPUID_CPB                                   ( 7 |  2)      /* AMD Core Performance Boost */
-#define X86_CPUID_EPB                                   ( 7 |  3)      /* IA32_ENERGY_PERF_BIAS support */
-#define X86_CPUID_CAT_L3                                ( 7 |  4)      /* Cache Allocation Technology L3 */
-#define X86_CPUID_CAT_L2                                ( 7 |  5)      /* Cache Allocation Technology L2 */
-#define X86_CPUID_CDP_L3                                ( 7 |  6)      /* Code and Data Prioritization L3 */
-#define X86_CPUID_INVPCID_SINGLE                        ( 7 |  7)      /* Effectively INVPCID && CR4.PCIDE=1 */
-#define X86_CPUID_HW_PSTATE                             ( 7 |  8)      /* AMD HW-PState */
-#define X86_CPUID_PROC_FEEDBACK                         ( 7 |  9)      /* AMD ProcFeedbackInterface */
-#define X86_CPUID_PTI                                   ( 7 | 11)      /* Kernel Page Table Isolation enabled */
-#define X86_CPUID_RETPOLINE                             ( 7 | 12)      /* "" Generic Retpoline mitigation for Spectre variant 2 */
-#define X86_CPUID_RETPOLINE_AMD                         ( 7 | 13)      /* "" AMD Retpoline mitigation for Spectre variant 2 */
-#define X86_CPUID_INTEL_PPIN                            ( 7 | 14)      /* Intel Processor Inventory Number */
-#define X86_CPUID_CDP_L2                                ( 7 | 15)      /* Code and Data Prioritization L2 */
-#define X86_CPUID_MSR_SPEC_CTRL                         ( 7 | 16)      /* "" MSR SPEC_CTRL is implemented */
-#define X86_CPUID_SSBD                                  ( 7 | 17)      /* Speculative Store Bypass Disable */
-#define X86_CPUID_MBA                                   ( 7 | 18)      /* Memory Bandwidth Allocation */
-#define X86_CPUID_RSB_CTXSW                             ( 7 | 19)      /* "" Fill RSB on context switches */
-#define X86_CPUID_USE_IBPB                              ( 7 | 21)      /* "" Indirect Branch Prediction Barrier enabled */
-#define X86_CPUID_USE_IBRS_FW                           ( 7 | 22)      /* "" Use IBRS during runtime firmware calls */
-#define X86_CPUID_SPEC_STORE_BYPASS_DISABLE             ( 7 | 23)      /* "" Disable Speculative Store Bypass. */
-#define X86_CPUID_LS_CFG_SSBD                           ( 7 | 24)      /* "" AMD SSBD implementation via LS_CFG MSR */
-#define X86_CPUID_IBRS                                  ( 7 | 25)      /* Indirect Branch Restricted Speculation */
-#define X86_CPUID_IBPB                                  ( 7 | 26)      /* Indirect Branch Prediction Barrier */
-#define X86_CPUID_STIBP                                 ( 7 | 27)      /* Single Thread Indirect Branch Predictors */
-#define X86_CPUID_ZEN                                   ( 7 | 28)      /* "" CPU is AMD family 0x17 or above (Zen) */
-#define X86_CPUID_L1TF_PTEINV                           ( 7 | 29)      /* "" L1TF workaround PTE inversion */
-#define X86_CPUID_IBRS_ENHANCED                         ( 7 | 30)      /* Enhanced IBRS */
-#define X86_CPUID_MSR_IA32_FEAT_CTL                     ( 7 | 31)      /* "" MSR IA32_FEAT_CTL configured */
-#define X86_CPUID_TPR_SHADOW                            ( 8 |  0)      /* Intel TPR Shadow */
-#define X86_CPUID_VNMI                                  ( 8 |  1)      /* Intel Virtual NMI */
-#define X86_CPUID_FLEXPRIORITY                          ( 8 |  2)      /* Intel FlexPriority */
-#define X86_CPUID_EPT                                   ( 8 |  3)      /* Intel Extended Page Table */
-#define X86_CPUID_VPID                                  ( 8 |  4)      /* Intel Virtual Processor ID */
-#define X86_CPUID_VMMCALL                               ( 8 | 15)      /* Prefer VMMCALL to VMCALL */
-#define X86_CPUID_XENPV                                 ( 8 | 16)      /* "" Xen paravirtual guest */
-#define X86_CPUID_EPT_AD                                ( 8 | 17)      /* Intel Extended Page Table access-dirty bit */
-#define X86_CPUID_VMCALL                                ( 8 | 18)      /* "" Hypervisor supports the VMCALL instruction */
-#define X86_CPUID_VMW_VMMCALL                           ( 8 | 19)      /* "" VMware prefers VMMCALL hypercall instruction */
-#define X86_CPUID_PVUNLOCK                              ( 8 | 20)      /* "" PV unlock function */
-#define X86_CPUID_VCPUPREEMPT                           ( 8 | 21)      /* "" PV vcpu_is_preempted function */
-#define X86_CPUID_FSGSBASE                              ( 9 |  0)      /* RDFSBASE, WRFSBASE, RDGSBASE, WRGSBASE instructions*/
-#define X86_CPUID_TSC_ADJUST                            ( 9 |  1)      /* TSC adjustment MSR 0x3B */
-#define X86_CPUID_SGX                                   ( 9 |  2)      /* Software Guard Extensions */
-#define X86_CPUID_BMI1                                  ( 9 |  3)      /* 1st group bit manipulation extensions */
-#define X86_CPUID_HLE                                   ( 9 |  4)      /* Hardware Lock Elision */
-#define X86_CPUID_AVX2                                  ( 9 |  5)      /* AVX2 instructions */
-#define X86_CPUID_FDP_EXCPTN_ONLY                       ( 9 |  6)      /* "" FPU data pointer updated only on x87 exceptions */
-#define X86_CPUID_SMEP                                  ( 9 |  7)      /* Supervisor Mode Execution Protection */
-#define X86_CPUID_BMI2                                  ( 9 |  8)      /* 2nd group bit manipulation extensions */
-#define X86_CPUID_ERMS                                  ( 9 |  9)      /* Enhanced REP MOVSB/STOSB instructions */
-#define X86_CPUID_INVPCID                               ( 9 | 10)      /* Invalidate Processor Context ID */
-#define X86_CPUID_RTM                                   ( 9 | 11)      /* Restricted Transactional Memory */
-#define X86_CPUID_CQM                                   ( 9 | 12)      /* Cache QoS Monitoring */
-#define X86_CPUID_ZERO_FCS_FDS                          ( 9 | 13)      /* "" Zero out FPU CS and FPU DS */
-#define X86_CPUID_MPX                                   ( 9 | 14)      /* Memory Protection Extension */
-#define X86_CPUID_RDT_A                                 ( 9 | 15)      /* Resource Director Technology Allocation */
-#define X86_CPUID_AVX512F                               ( 9 | 16)      /* AVX-512 Foundation */
-#define X86_CPUID_AVX512DQ                              ( 9 | 17)      /* AVX-512 DQ (Double/Quad granular) Instructions */
-#define X86_CPUID_RDSEED                                ( 9 | 18)      /* RDSEED instruction */
-#define X86_CPUID_ADX                                   ( 9 | 19)      /* ADCX and ADOX instructions */
-#define X86_CPUID_SMAP                                  ( 9 | 20)      /* Supervisor Mode Access Prevention */
-#define X86_CPUID_AVX512IFMA                            ( 9 | 21)      /* AVX-512 Integer Fused Multiply-Add instructions */
-#define X86_CPUID_CLFLUSHOPT                            ( 9 | 23)      /* CLFLUSHOPT instruction */
-#define X86_CPUID_CLWB                                  ( 9 | 24)      /* CLWB instruction */
-#define X86_CPUID_INTEL_PT                              ( 9 | 25)      /* Intel Processor Trace */
-#define X86_CPUID_AVX512PF                              ( 9 | 26)      /* AVX-512 Prefetch */
-#define X86_CPUID_AVX512ER                              ( 9 | 27)      /* AVX-512 Exponential and Reciprocal */
-#define X86_CPUID_AVX512CD                              ( 9 | 28)      /* AVX-512 Conflict Detection */
-#define X86_CPUID_SHA_NI                                ( 9 | 29)      /* SHA1/SHA256 Instruction Extensions */
-#define X86_CPUID_AVX512BW                              ( 9 | 30)      /* AVX-512 BW (Byte/Word granular) Instructions */
-#define X86_CPUID_AVX512VL                              ( 9 | 31)      /* AVX-512 VL (128/256 Vector Length) Extensions */
-#define X86_CPUID_XSAVEOPT                              (10 |  0)      /* XSAVEOPT instruction */
-#define X86_CPUID_XSAVEC                                (10 |  1)      /* XSAVEC instruction */
-#define X86_CPUID_XGETBV1                               (10 |  2)      /* XGETBV with ECX = 1 instruction */
-#define X86_CPUID_XSAVES                                (10 |  3)      /* XSAVES/XRSTORS instructions */
-#define X86_CPUID_XFD                                   (10 |  4)      /* "" eXtended Feature Disabling */
-#define X86_CPUID_CQM_LLC                               (11 |  0)      /* LLC QoS if 1 */
-#define X86_CPUID_CQM_OCCUP_LLC                         (11 |  1)      /* LLC occupancy monitoring */
-#define X86_CPUID_CQM_MBM_TOTAL                         (11 |  2)      /* LLC Total MBM monitoring */
-#define X86_CPUID_CQM_MBM_LOCAL                         (11 |  3)      /* LLC Local MBM monitoring */
-#define X86_CPUID_FENCE_SWAPGS_USER                     (11 |  4)      /* "" LFENCE in user entry SWAPGS path */
-#define X86_CPUID_FENCE_SWAPGS_KERNEL                   (11 |  5)      /* "" LFENCE in kernel entry SWAPGS path */
-#define X86_CPUID_SPLIT_LOCK_DETECT                     (11 |  6)      /* #AC for split lock */
-#define X86_CPUID_PER_THREAD_MBA                        (11 |  7)      /* "" Per-thread Memory Bandwidth Allocation */
-#define X86_CPUID_SGX1                                  (11 |  8)      /* "" Basic SGX */
-#define X86_CPUID_SGX2                                  (11 |  9)      /* "" SGX Enclave Dynamic Memory Management (EDMM) */
-#define X86_CPUID_AVX_VNNI                              (12 |  4)      /* AVX VNNI instructions */
-#define X86_CPUID_AVX512_BF16                           (12 |  5)      /* AVX512 BFLOAT16 instructions */
-#define X86_CPUID_AMX_TILE                              (18 | 24)      /* AMX tile Support */
-#define X86_CPUID_CLZERO                                (13 |  0)      /* CLZERO instruction */
-#define X86_CPUID_IRPERF                                (13 |  1)      /* Instructions Retired Count */
-#define X86_CPUID_XSAVEERPTR                            (13 |  2)      /* Always save/restore FP error pointers */
-#define X86_CPUID_RDPRU                                 (13 |  4)      /* Read processor register at user level */
-#define X86_CPUID_WBNOINVD                              (13 |  9)      /* WBNOINVD instruction */
-#define X86_CPUID_AMD_IBPB                              (13 | 12)      /* "" Indirect Branch Prediction Barrier */
-#define X86_CPUID_AMD_IBRS                              (13 | 14)      /* "" Indirect Branch Restricted Speculation */
-#define X86_CPUID_AMD_STIBP                             (13 | 15)      /* "" Single Thread Indirect Branch Predictors */
-#define X86_CPUID_AMD_STIBP_ALWAYS_ON                   (13 | 17)      /* "" Single Thread Indirect Branch Predictors always-on preferred */
-#define X86_CPUID_AMD_PPIN                              (13 | 23)      /* Protected Processor Inventory Number */
-#define X86_CPUID_AMD_SSBD                              (13 | 24)      /* "" Speculative Store Bypass Disable */
-#define X86_CPUID_VIRT_SSBD                             (13 | 25)      /* Virtualized Speculative Store Bypass Disable */
-#define X86_CPUID_AMD_SSB_NO                            (13 | 26)      /* "" Speculative Store Bypass is fixed in hardware. */
-#define X86_CPUID_DTHERM                                (14 |  0)      /* Digital Thermal Sensor */
-#define X86_CPUID_IDA                                   (14 |  1)      /* Intel Dynamic Acceleration */
-#define X86_CPUID_ARAT                                  (14 |  2)      /* Always Running APIC Timer */
-#define X86_CPUID_PLN                                   (14 |  4)      /* Intel Power Limit Notification */
-#define X86_CPUID_PTS                                   (14 |  6)      /* Intel Package Thermal Status */
-#define X86_CPUID_HWP                                   (14 |  7)      /* Intel Hardware P-states */
-#define X86_CPUID_HWP_NOTIFY                            (14 |  8)      /* HWP Notification */
-#define X86_CPUID_HWP_ACT_WINDOW                        (14 |  9)      /* HWP Activity Window */
-#define X86_CPUID_HWP_EPP                               (14 | 10)      /* HWP Energy Perf. Preference */
-#define X86_CPUID_HWP_PKG_REQ                           (14 | 11)      /* HWP Package Level Request */
-#define X86_CPUID_NPT                                   (15 |  0)      /* Nested Page Table support */
-#define X86_CPUID_LBRV                                  (15 |  1)      /* LBR Virtualization support */
-#define X86_CPUID_SVML                                  (15 |  2)      /* "svm_lock" SVM locking MSR */
-#define X86_CPUID_NRIPS                                 (15 |  3)      /* "nrip_save" SVM next_rip save */
-#define X86_CPUID_TSCRATEMSR                            (15 |  4)      /* "tsc_scale" TSC scaling support */
-#define X86_CPUID_VMCBCLEAN                             (15 |  5)      /* "vmcb_clean" VMCB clean bits support */
-#define X86_CPUID_FLUSHBYASID                           (15 |  6)      /* flush-by-ASID support */
-#define X86_CPUID_DECODEASSISTS                         (15 |  7)      /* Decode Assists support */
-#define X86_CPUID_PAUSEFILTER                           (15 | 10)      /* filtered pause intercept */
-#define X86_CPUID_PFTHRESHOLD                           (15 | 12)      /* pause filter threshold */
-#define X86_CPUID_AVIC                                  (15 | 13)      /* Virtual Interrupt Controller */
-#define X86_CPUID_V_VMSAVE_VMLOAD                       (15 | 15)      /* Virtual VMSAVE VMLOAD */
-#define X86_CPUID_VGIF                                  (15 | 16)      /* Virtual GIF */
-#define X86_CPUID_V_SPEC_CTRL                           (15 | 20)      /* Virtual SPEC_CTRL */
-#define X86_CPUID_SVME_ADDR_CHK                         (15 | 28)      /* "" SVME addr check */
-#define X86_CPUID_AVX512VBMI                            (16 |  1)      /* AVX512 Vector Bit Manipulation instructions*/
-#define X86_CPUID_UMIP                                  (16 |  2)      /* User Mode Instruction Protection */
-#define X86_CPUID_PKU                                   (16 |  3)      /* Protection Keys for Userspace */
-#define X86_CPUID_OSPKE                                 (16 |  4)      /* OS Protection Keys Enable */
-#define X86_CPUID_WAITPKG                               (16 |  5)      /* UMONITOR/UMWAIT/TPAUSE Instructions */
-#define X86_CPUID_AVX512_VBMI2                          (16 |  6)      /* Additional AVX512 Vector Bit Manipulation Instructions */
-#define X86_CPUID_GFNI                                  (16 |  8)      /* Galois Field New Instructions */
-#define X86_CPUID_VAES                                  (16 |  9)      /* Vector AES */
-#define X86_CPUID_VPCLMULQDQ                            (16 | 10)      /* Carry-Less Multiplication Double Quadword */
-#define X86_CPUID_AVX512_VNNI                           (16 | 11)      /* Vector Neural Network Instructions */
-#define X86_CPUID_AVX512_BITALG                         (16 | 12)      /* Support for VPOPCNT[B,W] and VPSHUF-BITQMB instructions */
-#define X86_CPUID_TME                                   (16 | 13)      /* Intel Total Memory Encryption */
-#define X86_CPUID_AVX512_VPOPCNTDQ                      (16 | 14)      /* POPCNT for vectors of DW/QW */
-#define X86_CPUID_LA57                                  (16 | 16)      /* 5-level page tables */
-#define X86_CPUID_RDPID                                 (16 | 22)      /* RDPID instruction */
-#define X86_CPUID_BUS_LOCK_DETECT                       (16 | 24)      /* Bus Lock detect */
-#define X86_CPUID_CLDEMOTE                              (16 | 25)      /* CLDEMOTE instruction */
-#define X86_CPUID_MOVDIRI                               (16 | 27)      /* MOVDIRI instruction */
-#define X86_CPUID_MOVDIR64B                             (16 | 28)      /* MOVDIR64B instruction */
-#define X86_CPUID_ENQCMD                                (16 | 29)      /* ENQCMD and ENQCMDS instructions */
-#define X86_CPUID_SGX_LC                                (16 | 30)      /* Software Guard Extensions Launch Control */
-#define X86_CPUID_OVERFLOW_RECOV                        (17 |  0)      /* MCA overflow recovery support */
-#define X86_CPUID_SUCCOR                                (17 |  1)      /* Uncorrectable error containment and recovery */
-#define X86_CPUID_SMCA                                  (17 |  3)      /* Scalable MCA */
-#define X86_CPUID_AVX512_4VNNIW                         (18 |  2)      /* AVX-512 Neural Network Instructions */
-#define X86_CPUID_AVX512_4FMAPS                         (18 |  3)      /* AVX-512 Multiply Accumulation Single precision */
-#define X86_CPUID_FSRM                                  (18 |  4)      /* Fast Short Rep Mov */
-#define X86_CPUID_AVX512_VP2INTERSECT                   (18 |  8)      /* AVX-512 Intersect for D/Q */
-#define X86_CPUID_SRBDS_CTRL                            (18 |  9)      /* "" SRBDS mitigation MSR available */
-#define X86_CPUID_MD_CLEAR                              (18 | 10)      /* VERW clears CPU buffers */
-#define X86_CPUID_RTM_ALWAYS_ABORT                      (18 | 11)      /* "" RTM transaction always aborts */
-#define X86_CPUID_TSX_FORCE_ABORT                       (18 | 13)      /* "" TSX_FORCE_ABORT */
-#define X86_CPUID_SERIALIZE                             (18 | 14)      /* SERIALIZE instruction */
-#define X86_CPUID_HYBRID_CPU                            (18 | 15)      /* "" This part has CPUs of more than one type */
-#define X86_CPUID_TSXLDTRK                              (18 | 16)      /* TSX Suspend Load Address Tracking */
-#define X86_CPUID_PCONFIG                               (18 | 18)      /* Intel PCONFIG */
-#define X86_CPUID_ARCH_LBR                              (18 | 19)      /* Intel ARCH LBR */
-#define X86_CPUID_AVX512_FP16                           (18 | 23)      /* AVX512 FP16 */
-#define X86_CPUID_SPEC_CTRL                             (18 | 26)      /* "" Speculation Control (IBRS + IBPB) */
-#define X86_CPUID_INTEL_STIBP                           (18 | 27)      /* "" Single Thread Indirect Branch Predictors */
-#define X86_CPUID_FLUSH_L1D                             (18 | 28)      /* Flush L1D cache */
-#define X86_CPUID_ARCH_CAPABILITIES                     (18 | 29)      /* IA32_ARCH_CAPABILITIES MSR (Intel) */
-#define X86_CPUID_CORE_CAPABILITIES                     (18 | 30)      /* "" IA32_CORE_CAPABILITIES MSR */
-#define X86_CPUID_SPEC_CTRL_SSBD                        (18 | 31)      /* "" Speculative Store Bypass Disable */
-#define X86_CPUID_SME                                   (19 |  0)      /* AMD Secure Memory Encryption */
-#define X86_CPUID_SEV                                   (19 |  1)      /* AMD Secure Encrypted Virtualization */
-#define X86_CPUID_VM_PAGE_FLUSH                         (19 |  2)      /* "" VM Page Flush MSR is supported */
-#define X86_CPUID_SEV_ES                                (19 |  3)      /* AMD Secure Encrypted Virtualization - Encrypted State */
-#define X86_CPUID_SME_COHERENT                          (19 | 10)      /* "" AMD hardware-enforced cache coherency */
+#define X86_CPUID_RING3MWAIT                            (X86_CPUID_LNX_2         |  0)      /* Ring 3 MONITOR/MWAIT instructions */
+#define X86_CPUID_CPUID_FAULT                           (X86_CPUID_LNX_2         |  1)      /* Intel CPUID faulting */
+#define X86_CPUID_CPB                                   (X86_CPUID_LNX_2         |  2)      /* AMD Core Performance Boost */
+#define X86_CPUID_EPB                                   (X86_CPUID_LNX_2         |  3)      /* IA32_ENERGY_PERF_BIAS support */
+#define X86_CPUID_CAT_L3                                (X86_CPUID_LNX_2         |  4)      /* Cache Allocation Technology L3 */
+#define X86_CPUID_CAT_L2                                (X86_CPUID_LNX_2         |  5)      /* Cache Allocation Technology L2 */
+#define X86_CPUID_CDP_L3                                (X86_CPUID_LNX_2         |  6)      /* Code and Data Prioritization L3 */
+#define X86_CPUID_INVPCID_SINGLE                        (X86_CPUID_LNX_2         |  7)      /* Effectively INVPCID && CR4.PCIDE=1 */
+#define X86_CPUID_HW_PSTATE                             (X86_CPUID_LNX_2         |  8)      /* AMD HW-PState */
+#define X86_CPUID_PROC_FEEDBACK                         (X86_CPUID_LNX_2         |  9)      /* AMD ProcFeedbackInterface */
+#define X86_CPUID_PTI                                   (X86_CPUID_LNX_2         | 11)      /* Kernel Page Table Isolation enabled */
+#define X86_CPUID_RETPOLINE                             (X86_CPUID_LNX_2         | 12)      /* "" Generic Retpoline mitigation for Spectre variant 2 */
+#define X86_CPUID_RETPOLINE_AMD                         (X86_CPUID_LNX_2         | 13)      /* "" AMD Retpoline mitigation for Spectre variant 2 */
+#define X86_CPUID_INTEL_PPIN                            (X86_CPUID_LNX_2         | 14)      /* Intel Processor Inventory Number */
+#define X86_CPUID_CDP_L2                                (X86_CPUID_LNX_2         | 15)      /* Code and Data Prioritization L2 */
+#define X86_CPUID_MSR_SPEC_CTRL                         (X86_CPUID_LNX_2         | 16)      /* "" MSR SPEC_CTRL is implemented */
+#define X86_CPUID_SSBD                                  (X86_CPUID_LNX_2         | 17)      /* Speculative Store Bypass Disable */
+#define X86_CPUID_MBA                                   (X86_CPUID_LNX_2         | 18)      /* Memory Bandwidth Allocation */
+#define X86_CPUID_RSB_CTXSW                             (X86_CPUID_LNX_2         | 19)      /* "" Fill RSB on context switches */
+#define X86_CPUID_USE_IBPB                              (X86_CPUID_LNX_2         | 21)      /* "" Indirect Branch Prediction Barrier enabled */
+#define X86_CPUID_USE_IBRS_FW                           (X86_CPUID_LNX_2         | 22)      /* "" Use IBRS during runtime firmware calls */
+#define X86_CPUID_SPEC_STORE_BYPASS_DISABLE             (X86_CPUID_LNX_2         | 23)      /* "" Disable Speculative Store Bypass. */
+#define X86_CPUID_LS_CFG_SSBD                           (X86_CPUID_LNX_2         | 24)      /* "" AMD SSBD implementation via LS_CFG MSR */
+#define X86_CPUID_IBRS                                  (X86_CPUID_LNX_2         | 25)      /* Indirect Branch Restricted Speculation */
+#define X86_CPUID_IBPB                                  (X86_CPUID_LNX_2         | 26)      /* Indirect Branch Prediction Barrier */
+#define X86_CPUID_STIBP                                 (X86_CPUID_LNX_2         | 27)      /* Single Thread Indirect Branch Predictors */
+#define X86_CPUID_ZEN                                   (X86_CPUID_LNX_2         | 28)      /* "" CPU is AMD family 0x17 or above (Zen) */
+#define X86_CPUID_L1TF_PTEINV                           (X86_CPUID_LNX_2         | 29)      /* "" L1TF workaround PTE inversion */
+#define X86_CPUID_IBRS_ENHANCED                         (X86_CPUID_LNX_2         | 30)      /* Enhanced IBRS */
+#define X86_CPUID_MSR_IA32_FEAT_CTL                     (X86_CPUID_LNX_2         | 31)      /* "" MSR IA32_FEAT_CTL configured */
+
+#define X86_CPUID_TPR_SHADOW                            (X86_CPUID_LNX_3         |  0)      /* Intel TPR Shadow */
+#define X86_CPUID_VNMI                                  (X86_CPUID_LNX_3         |  1)      /* Intel Virtual NMI */
+#define X86_CPUID_FLEXPRIORITY                          (X86_CPUID_LNX_3         |  2)      /* Intel FlexPriority */
+#define X86_CPUID_EPT                                   (X86_CPUID_LNX_3         |  3)      /* Intel Extended Page Table */
+#define X86_CPUID_VPID                                  (X86_CPUID_LNX_3         |  4)      /* Intel Virtual Processor ID */
+#define X86_CPUID_VMMCALL                               (X86_CPUID_LNX_3         | 15)      /* Prefer VMMCALL to VMCALL */
+#define X86_CPUID_XENPV                                 (X86_CPUID_LNX_3         | 16)      /* "" Xen paravirtual guest */
+#define X86_CPUID_EPT_AD                                (X86_CPUID_LNX_3         | 17)      /* Intel Extended Page Table access-dirty bit */
+#define X86_CPUID_VMCALL                                (X86_CPUID_LNX_3         | 18)      /* "" Hypervisor supports the VMCALL instruction */
+#define X86_CPUID_VMW_VMMCALL                           (X86_CPUID_LNX_3         | 19)      /* "" VMware prefers VMMCALL hypercall instruction */
+#define X86_CPUID_PVUNLOCK                              (X86_CPUID_LNX_3         | 20)      /* "" PV unlock function */
+#define X86_CPUID_VCPUPREEMPT                           (X86_CPUID_LNX_3         | 21)      /* "" PV vcpu_is_preempted function */
+
+#define X86_CPUID_FSGSBASE                              (X86_CPUID_0007_0000_EBX |  0)      /* RDFSBASE, WRFSBASE, RDGSBASE, WRGSBASE instructions*/
+#define X86_CPUID_TSC_ADJUST                            (X86_CPUID_0007_0000_EBX |  1)      /* TSC adjustment MSR 0x3B */
+#define X86_CPUID_SGX                                   (X86_CPUID_0007_0000_EBX |  2)      /* Software Guard Extensions */
+#define X86_CPUID_BMI1                                  (X86_CPUID_0007_0000_EBX |  3)      /* 1st group bit manipulation extensions */
+#define X86_CPUID_HLE                                   (X86_CPUID_0007_0000_EBX |  4)      /* Hardware Lock Elision */
+#define X86_CPUID_AVX2                                  (X86_CPUID_0007_0000_EBX |  5)      /* AVX2 instructions */
+#define X86_CPUID_FDP_EXCPTN_ONLY                       (X86_CPUID_0007_0000_EBX |  6)      /* "" FPU data pointer updated only on x87 exceptions */
+#define X86_CPUID_SMEP                                  (X86_CPUID_0007_0000_EBX |  7)      /* Supervisor Mode Execution Protection */
+#define X86_CPUID_BMI2                                  (X86_CPUID_0007_0000_EBX |  8)      /* 2nd group bit manipulation extensions */
+#define X86_CPUID_ERMS                                  (X86_CPUID_0007_0000_EBX |  9)      /* Enhanced REP MOVSB/STOSB instructions */
+#define X86_CPUID_INVPCID                               (X86_CPUID_0007_0000_EBX | 10)      /* Invalidate Processor Context ID */
+#define X86_CPUID_RTM                                   (X86_CPUID_0007_0000_EBX | 11)      /* Restricted Transactional Memory */
+#define X86_CPUID_CQM                                   (X86_CPUID_0007_0000_EBX | 12)      /* Cache QoS Monitoring */
+#define X86_CPUID_ZERO_FCS_FDS                          (X86_CPUID_0007_0000_EBX | 13)      /* "" Zero out FPU CS and FPU DS */
+#define X86_CPUID_MPX                                   (X86_CPUID_0007_0000_EBX | 14)      /* Memory Protection Extension */
+#define X86_CPUID_RDT_A                                 (X86_CPUID_0007_0000_EBX | 15)      /* Resource Director Technology Allocation */
+#define X86_CPUID_AVX512F                               (X86_CPUID_0007_0000_EBX | 16)      /* AVX-512 Foundation */
+#define X86_CPUID_AVX512DQ                              (X86_CPUID_0007_0000_EBX | 17)      /* AVX-512 DQ (Double/Quad granular) Instructions */
+#define X86_CPUID_RDSEED                                (X86_CPUID_0007_0000_EBX | 18)      /* RDSEED instruction */
+#define X86_CPUID_ADX                                   (X86_CPUID_0007_0000_EBX | 19)      /* ADCX and ADOX instructions */
+#define X86_CPUID_SMAP                                  (X86_CPUID_0007_0000_EBX | 20)      /* Supervisor Mode Access Prevention */
+#define X86_CPUID_AVX512IFMA                            (X86_CPUID_0007_0000_EBX | 21)      /* AVX-512 Integer Fused Multiply-Add instructions */
+#define X86_CPUID_CLFLUSHOPT                            (X86_CPUID_0007_0000_EBX | 23)      /* CLFLUSHOPT instruction */
+#define X86_CPUID_CLWB                                  (X86_CPUID_0007_0000_EBX | 24)      /* CLWB instruction */
+#define X86_CPUID_INTEL_PT                              (X86_CPUID_0007_0000_EBX | 25)      /* Intel Processor Trace */
+#define X86_CPUID_AVX512PF                              (X86_CPUID_0007_0000_EBX | 26)      /* AVX-512 Prefetch */
+#define X86_CPUID_AVX512ER                              (X86_CPUID_0007_0000_EBX | 27)      /* AVX-512 Exponential and Reciprocal */
+#define X86_CPUID_AVX512CD                              (X86_CPUID_0007_0000_EBX | 28)      /* AVX-512 Conflict Detection */
+#define X86_CPUID_SHA_NI                                (X86_CPUID_0007_0000_EBX | 29)      /* SHA1/SHA256 Instruction Extensions */
+#define X86_CPUID_AVX512BW                              (X86_CPUID_0007_0000_EBX | 30)      /* AVX-512 BW (Byte/Word granular) Instructions */
+#define X86_CPUID_AVX512VL                              (X86_CPUID_0007_0000_EBX | 31)      /* AVX-512 VL (128/256 Vector Length) Extensions */
+
+#define X86_CPUID_XSAVEOPT                              (X86_CPUID_000D_0001_EAX |  0)      /* XSAVEOPT instruction */
+#define X86_CPUID_XSAVEC                                (X86_CPUID_000D_0001_EAX |  1)      /* XSAVEC instruction */
+#define X86_CPUID_XGETBV1                               (X86_CPUID_000D_0001_EAX |  2)      /* XGETBV with ECX = 1 instruction */
+#define X86_CPUID_XSAVES                                (X86_CPUID_000D_0001_EAX |  3)      /* XSAVES/XRSTORS instructions */
+#define X86_CPUID_XFD                                   (X86_CPUID_000D_0001_EAX |  4)      /* "" eXtended Feature Disabling */
+
+#define X86_CPUID_CQM_LLC                               (X86_CPUID_LNX_4         |  0)      /* LLC QoS if 1 */
+#define X86_CPUID_CQM_OCCUP_LLC                         (X86_CPUID_LNX_4         |  1)      /* LLC occupancy monitoring */
+#define X86_CPUID_CQM_MBM_TOTAL                         (X86_CPUID_LNX_4         |  2)      /* LLC Total MBM monitoring */
+#define X86_CPUID_CQM_MBM_LOCAL                         (X86_CPUID_LNX_4         |  3)      /* LLC Local MBM monitoring */
+#define X86_CPUID_FENCE_SWAPGS_USER                     (X86_CPUID_LNX_4         |  4)      /* "" LFENCE in user entry SWAPGS path */
+#define X86_CPUID_FENCE_SWAPGS_KERNEL                   (X86_CPUID_LNX_4         |  5)      /* "" LFENCE in kernel entry SWAPGS path */
+#define X86_CPUID_SPLIT_LOCK_DETECT                     (X86_CPUID_LNX_4         |  6)      /* #AC for split lock */
+#define X86_CPUID_PER_THREAD_MBA                        (X86_CPUID_LNX_4         |  7)      /* "" Per-thread Memory Bandwidth Allocation */
+#define X86_CPUID_SGX1                                  (X86_CPUID_LNX_4         |  8)      /* "" Basic SGX */
+#define X86_CPUID_SGX2                                  (X86_CPUID_LNX_4         |  9)      /* "" SGX Enclave Dynamic Memory Management (EDMM) */
+
+#define X86_CPUID_AVX_VNNI                              (X86_CPUID_0007_0001_EAX |  4)      /* AVX VNNI instructions */
+#define X86_CPUID_AVX512_BF16                           (X86_CPUID_0007_0001_EAX |  5)      /* AVX512 BFLOAT16 instructions */
+
+#define X86_CPUID_CLZERO                                (X86_CPUID_8000_0008_EBX |  0)      /* CLZERO instruction */
+#define X86_CPUID_IRPERF                                (X86_CPUID_8000_0008_EBX |  1)      /* Instructions Retired Count */
+#define X86_CPUID_XSAVEERPTR                            (X86_CPUID_8000_0008_EBX |  2)      /* Always save/restore FP error pointers */
+#define X86_CPUID_RDPRU                                 (X86_CPUID_8000_0008_EBX |  4)      /* Read processor register at user level */
+#define X86_CPUID_WBNOINVD                              (X86_CPUID_8000_0008_EBX |  9)      /* WBNOINVD instruction */
+#define X86_CPUID_AMD_IBPB                              (X86_CPUID_8000_0008_EBX | 12)      /* "" Indirect Branch Prediction Barrier */
+#define X86_CPUID_AMD_IBRS                              (X86_CPUID_8000_0008_EBX | 14)      /* "" Indirect Branch Restricted Speculation */
+#define X86_CPUID_AMD_STIBP                             (X86_CPUID_8000_0008_EBX | 15)      /* "" Single Thread Indirect Branch Predictors */
+#define X86_CPUID_AMD_STIBP_ALWAYS_ON                   (X86_CPUID_8000_0008_EBX | 17)      /* "" Single Thread Indirect Branch Predictors always-on preferred */
+#define X86_CPUID_AMD_PPIN                              (X86_CPUID_8000_0008_EBX | 23)      /* Protected Processor Inventory Number */
+#define X86_CPUID_AMD_SSBD                              (X86_CPUID_8000_0008_EBX | 24)      /* "" Speculative Store Bypass Disable */
+#define X86_CPUID_VIRT_SSBD                             (X86_CPUID_8000_0008_EBX | 25)      /* Virtualized Speculative Store Bypass Disable */
+#define X86_CPUID_AMD_SSB_NO                            (X86_CPUID_8000_0008_EBX | 26)      /* "" Speculative Store Bypass is fixed in hardware. */
+
+#define X86_CPUID_DTHERM                                (X86_CPUID_0000_0006_EAX |  0)      /* Digital Thermal Sensor */
+#define X86_CPUID_IDA                                   (X86_CPUID_0000_0006_EAX |  1)      /* Intel Dynamic Acceleration */
+#define X86_CPUID_ARAT                                  (X86_CPUID_0000_0006_EAX |  2)      /* Always Running APIC Timer */
+#define X86_CPUID_PLN                                   (X86_CPUID_0000_0006_EAX |  4)      /* Intel Power Limit Notification */
+#define X86_CPUID_PTS                                   (X86_CPUID_0000_0006_EAX |  6)      /* Intel Package Thermal Status */
+#define X86_CPUID_HWP                                   (X86_CPUID_0000_0006_EAX |  7)      /* Intel Hardware P-states */
+#define X86_CPUID_HWP_NOTIFY                            (X86_CPUID_0000_0006_EAX |  8)      /* HWP Notification */
+#define X86_CPUID_HWP_ACT_WINDOW                        (X86_CPUID_0000_0006_EAX |  9)      /* HWP Activity Window */
+#define X86_CPUID_HWP_EPP                               (X86_CPUID_0000_0006_EAX | 10)      /* HWP Energy Perf. Preference */
+#define X86_CPUID_HWP_PKG_REQ                           (X86_CPUID_0000_0006_EAX | 11)      /* HWP Package Level Request */
+
+#define X86_CPUID_NPT                                   (X86_CPUID_8000_000A_EDX |  0)      /* Nested Page Table support */
+#define X86_CPUID_LBRV                                  (X86_CPUID_8000_000A_EDX |  1)      /* LBR Virtualization support */
+#define X86_CPUID_SVML                                  (X86_CPUID_8000_000A_EDX |  2)      /* "svm_lock" SVM locking MSR */
+#define X86_CPUID_NRIPS                                 (X86_CPUID_8000_000A_EDX |  3)      /* "nrip_save" SVM next_rip save */
+#define X86_CPUID_TSCRATEMSR                            (X86_CPUID_8000_000A_EDX |  4)      /* "tsc_scale" TSC scaling support */
+#define X86_CPUID_VMCBCLEAN                             (X86_CPUID_8000_000A_EDX |  5)      /* "vmcb_clean" VMCB clean bits support */
+#define X86_CPUID_FLUSHBYASID                           (X86_CPUID_8000_000A_EDX |  6)      /* flush-by-ASID support */
+#define X86_CPUID_DECODEASSISTS                         (X86_CPUID_8000_000A_EDX |  7)      /* Decode Assists support */
+#define X86_CPUID_PAUSEFILTER                           (X86_CPUID_8000_000A_EDX | 10)      /* filtered pause intercept */
+#define X86_CPUID_PFTHRESHOLD                           (X86_CPUID_8000_000A_EDX | 12)      /* pause filter threshold */
+#define X86_CPUID_AVIC                                  (X86_CPUID_8000_000A_EDX | 13)      /* Virtual Interrupt Controller */
+#define X86_CPUID_V_VMSAVE_VMLOAD                       (X86_CPUID_8000_000A_EDX | 15)      /* Virtual VMSAVE VMLOAD */
+#define X86_CPUID_VGIF                                  (X86_CPUID_8000_000A_EDX | 16)      /* Virtual GIF */
+#define X86_CPUID_V_SPEC_CTRL                           (X86_CPUID_8000_000A_EDX | 20)      /* Virtual SPEC_CTRL */
+#define X86_CPUID_SVME_ADDR_CHK                         (X86_CPUID_8000_000A_EDX | 28)      /* "" SVME addr check */
+
+#define X86_CPUID_AVX512VBMI                            (X86_CPUID_0000_0007_ECX |  1)      /* AVX512 Vector Bit Manipulation instructions*/
+#define X86_CPUID_UMIP                                  (X86_CPUID_0000_0007_ECX |  2)      /* User Mode Instruction Protection */
+#define X86_CPUID_PKU                                   (X86_CPUID_0000_0007_ECX |  3)      /* Protection Keys for Userspace */
+#define X86_CPUID_OSPKE                                 (X86_CPUID_0000_0007_ECX |  4)      /* OS Protection Keys Enable */
+#define X86_CPUID_WAITPKG                               (X86_CPUID_0000_0007_ECX |  5)      /* UMONITOR/UMWAIT/TPAUSE Instructions */
+#define X86_CPUID_AVX512_VBMI2                          (X86_CPUID_0000_0007_ECX |  6)      /* Additional AVX512 Vector Bit Manipulation Instructions */
+#define X86_CPUID_GFNI                                  (X86_CPUID_0000_0007_ECX |  8)      /* Galois Field New Instructions */
+#define X86_CPUID_VAES                                  (X86_CPUID_0000_0007_ECX |  9)      /* Vector AES */
+#define X86_CPUID_VPCLMULQDQ                            (X86_CPUID_0000_0007_ECX | 10)      /* Carry-Less Multiplication Double Quadword */
+#define X86_CPUID_AVX512_VNNI                           (X86_CPUID_0000_0007_ECX | 11)      /* Vector Neural Network Instructions */
+#define X86_CPUID_AVX512_BITALG                         (X86_CPUID_0000_0007_ECX | 12)      /* Support for VPOPCNT[B,W] and VPSHUF-BITQMB instructions */
+#define X86_CPUID_TME                                   (X86_CPUID_0000_0007_ECX | 13)      /* Intel Total Memory Encryption */
+#define X86_CPUID_AVX512_VPOPCNTDQ                      (X86_CPUID_0000_0007_ECX | 14)      /* POPCNT for vectors of DW/QW */
+#define X86_CPUID_LA57                                  (X86_CPUID_0000_0007_ECX | 16)      /* 5-level page tables */
+#define X86_CPUID_RDPID                                 (X86_CPUID_0000_0007_ECX | 22)      /* RDPID instruction */
+#define X86_CPUID_BUS_LOCK_DETECT                       (X86_CPUID_0000_0007_ECX | 24)      /* Bus Lock detect */
+#define X86_CPUID_CLDEMOTE                              (X86_CPUID_0000_0007_ECX | 25)      /* CLDEMOTE instruction */
+#define X86_CPUID_MOVDIRI                               (X86_CPUID_0000_0007_ECX | 27)      /* MOVDIRI instruction */
+#define X86_CPUID_MOVDIR64B                             (X86_CPUID_0000_0007_ECX | 28)      /* MOVDIR64B instruction */
+#define X86_CPUID_ENQCMD                                (X86_CPUID_0000_0007_ECX | 29)      /* ENQCMD and ENQCMDS instructions */
+#define X86_CPUID_SGX_LC                                (X86_CPUID_0000_0007_ECX | 30)      /* Software Guard Extensions Launch Control */
+
+#define X86_CPUID_OVERFLOW_RECOV                        (X86_CPUID_8000_0007_EBX |  0)      /* MCA overflow recovery support */
+#define X86_CPUID_SUCCOR                                (X86_CPUID_8000_0007_EBX |  1)      /* Uncorrectable error containment and recovery */
+#define X86_CPUID_SMCA                                  (X86_CPUID_8000_0007_EBX |  3)      /* Scalable MCA */
+
+#define X86_CPUID_AVX512_4VNNIW                         (X86_CPUID_0000_0007_EDX |  2)      /* AVX-512 Neural Network Instructions */
+#define X86_CPUID_AVX512_4FMAPS                         (X86_CPUID_0000_0007_EDX |  3)      /* AVX-512 Multiply Accumulation Single precision */
+#define X86_CPUID_FSRM                                  (X86_CPUID_0000_0007_EDX |  4)      /* Fast Short Rep Mov */
+#define X86_CPUID_AVX512_VP2INTERSECT                   (X86_CPUID_0000_0007_EDX |  8)      /* AVX-512 Intersect for D/Q */
+#define X86_CPUID_SRBDS_CTRL                            (X86_CPUID_0000_0007_EDX |  9)      /* "" SRBDS mitigation MSR available */
+#define X86_CPUID_MD_CLEAR                              (X86_CPUID_0000_0007_EDX | 10)      /* VERW clears CPU buffers */
+#define X86_CPUID_RTM_ALWAYS_ABORT                      (X86_CPUID_0000_0007_EDX | 11)      /* "" RTM transaction always aborts */
+#define X86_CPUID_TSX_FORCE_ABORT                       (X86_CPUID_0000_0007_EDX | 13)      /* "" TSX_FORCE_ABORT */
+#define X86_CPUID_SERIALIZE                             (X86_CPUID_0000_0007_EDX | 14)      /* SERIALIZE instruction */
+#define X86_CPUID_HYBRID_CPU                            (X86_CPUID_0000_0007_EDX | 15)      /* "" This part has CPUs of more than one type */
+#define X86_CPUID_TSXLDTRK                              (X86_CPUID_0000_0007_EDX | 16)      /* TSX Suspend Load Address Tracking */
+#define X86_CPUID_PCONFIG                               (X86_CPUID_0000_0007_EDX | 18)      /* Intel PCONFIG */
+#define X86_CPUID_ARCH_LBR                              (X86_CPUID_0000_0007_EDX | 19)      /* Intel ARCH LBR */
+#define X86_CPUID_AMX_BF16                              (X86_CPUID_0000_0007_EDX | 22)      /* AMX bf16 Support */
+#define X86_CPUID_AVX512_FP16                           (X86_CPUID_0000_0007_EDX | 23)      /* AVX512 FP16 */
+#define X86_CPUID_AMX_TILE                              (X86_CPUID_0000_0007_EDX | 24)      /* AMX tile Support */
+#define X86_CPUID_AMX_INT8                              (X86_CPUID_0000_0007_EDX | 25)      /* AMX int8 Support */
+#define X86_CPUID_SPEC_CTRL                             (X86_CPUID_0000_0007_EDX | 26)      /* "" Speculation Control (IBRS + IBPB) */
+#define X86_CPUID_INTEL_STIBP                           (X86_CPUID_0000_0007_EDX | 27)      /* "" Single Thread Indirect Branch Predictors */
+#define X86_CPUID_FLUSH_L1D                             (X86_CPUID_0000_0007_EDX | 28)      /* Flush L1D cache */
+#define X86_CPUID_ARCH_CAPABILITIES                     (X86_CPUID_0000_0007_EDX | 29)      /* IA32_ARCH_CAPABILITIES MSR (Intel) */
+#define X86_CPUID_CORE_CAPABILITIES                     (X86_CPUID_0000_0007_EDX | 30)      /* "" IA32_CORE_CAPABILITIES MSR */
+#define X86_CPUID_SPEC_CTRL_SSBD                        (X86_CPUID_0000_0007_EDX | 31)      /* "" Speculative Store Bypass Disable */
+
+#define X86_CPUID_SME                                   (X86_CPUID_8000_001F_EAX |  0)      /* AMD Secure Memory Encryption */
+#define X86_CPUID_SEV                                   (X86_CPUID_8000_001F_EAX |  1)      /* AMD Secure Encrypted Virtualization */
+#define X86_CPUID_VM_PAGE_FLUSH                         (X86_CPUID_8000_001F_EAX |  2)      /* "" VM Page Flush MSR is supported */
+#define X86_CPUID_SEV_ES                                (X86_CPUID_8000_001F_EAX |  3)      /* AMD Secure Encrypted Virtualization - Encrypted State */
+#define X86_CPUID_SME_COHERENT                          (X86_CPUID_8000_001F_EAX | 10)      /* "" AMD hardware-enforced cache coherency */
 
 #define X86_CPUID_BIT_GET(code)                         ((code >> 0) & 0xff)
 #define X86_CPUID_REG_GET(code)                         ((code >> 8) & 0xff)
