@@ -105,9 +105,9 @@ static state list_test_testing(void *pdata)
         printk("list 'list_for_each_from_safe' test: %lu\n", node->num);
     }
 
-    list_for_each_reverse_save(list, nlist, &test_head) {
+    list_for_each_reverse_safe(list, nlist, &test_head) {
         node = list_to_test(list);
-        printk("list 'list_for_each_reverse_save' test: %lu\n", node->num);
+        printk("list 'list_for_each_reverse_safe' test: %lu\n", node->num);
         if (node->num == TEST_LOOP / 2)
             break;
     }
