@@ -2,6 +2,33 @@
 #include <types.h>
 #include <stddef.h>
 
+-- regs
+
+#include <asm/regs.h>
+#define regs(member) offsetof(struct regs, member)
+
+REGS_DI         regs(di)
+REGS_SI         regs(si)
+REGS_BP         regs(bp)
+REGS_SP         regs(sp)
+REGS_BX         regs(bx)
+REGS_DX         regs(dx)
+REGS_CX         regs(cx)
+REGS_AX         regs(ax)
+
+REGS_DS         regs(ds)
+REGS_ES         regs(es)
+REGS_SS         regs(ss)
+REGS_FS         regs(fs)
+REGS_GS         regs(gs)
+
+REGS_ERROR      regs(error)
+REGS_IP         regs(ip)
+REGS_CS         regs(cs)
+REGS_FLAGS      regs(flags)
+REGS_USP        regs(usp)
+REGS_USS        regs(uss)
+
 -- setjmp
 
 #include <setjmp.h>

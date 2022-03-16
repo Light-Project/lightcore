@@ -8,14 +8,14 @@
 #include <asm/backtrace.h>
 #include <asm/traps.h>
 
-void show_regs(struct regs *regs)
+void show_regs(struct regs *regs, unsigned long error_code)
 {
     uint32_t cr0, cr2, cr3, cr4;
     uint32_t dr0, dr1, dr2, dr3, dr6, dr7;
 
     printk("registers:\n");
-    printk(" EIP: 0x%08x EFLAGS: 0x%08x ERROR: %08x\n",
-            regs->ip, regs->flags, regs->error);
+    printk(" EIP: 0x%08x EFLAGS: 0x%08x ERROR: %08lx\n",
+            regs->ip, regs->flags, error_code);
     printk(" EAX: 0x%08x EBX: 0x%08x ECX: 0x%08x EDX: 0x%08x\n",
             regs->ax, regs->bx, regs->cx, regs->dx);
     printk(" ESI: 0x%08x EDI: 0x%08x EBP: 0x%08x ESP: 0x%08x\n",
@@ -67,11 +67,11 @@ void backtrace(size_t *bp)
     }
 }
 
-void oops(struct regs *regs, const char *str)
+void oops(struct regs *regs, unsigned long error_code, const char *str)
 {
     printk("Oops: %s\n", str);
 
-    show_regs(regs);
+    show_regs(regs, error_code);
     dump_stack((size_t *)regs->sp);
     backtrace((size_t *)regs->bp);
 

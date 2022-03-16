@@ -5,7 +5,7 @@
 #include <types.h>
 #include <asm/regs.h>
 
-#define IRQ_EXTERNAL    0x20
+#define IRQ_EXTERNAL    32
 #define IRQ_NR_MAX      256
 
 #ifndef __ASSEMBLY__

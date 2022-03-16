@@ -4,6 +4,7 @@
  */
 
 #include <asm/page.h>
+#include <asm/regs.h>
 #include <asm/segment.h>
 
 static struct gdt_entry gdt_entry[GDT_ENTRY_MAX] = {

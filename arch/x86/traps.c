@@ -5,6 +5,7 @@
 
 #include <linkage.h>
 #include <kernel.h>
+#include <irqflags.h>
 #include <printk.h>
 
 #include <asm/traps.h>
@@ -31,90 +32,105 @@ static bool trap_bug(struct regs *regs)
     return true;
 }
 
-static void do_trap(struct regs *regs, unsigned int num, const char *type)
+static bool kernel_trap(struct regs *regs, unsigned long error_code,
+                        unsigned long vector, const char *type)
 {
     if (!trap_user_mode(regs)) {
-        oops(regs, type);
+        oops(regs, error_code, type);
     }
+
+    return true;
 }
 
-asmlinkage __visible void trap_divide_error(struct regs *regs)
+static void generic_trap(struct regs *regs, unsigned long error_code,
+                         unsigned long vector, const char *type)
 {
-    do_trap(regs, TRAP_DE, "divide error");
+    if (!kernel_trap(regs, error_code, vector, type))
+        return;
 }
 
-asmlinkage __visible void trap_bounds(struct regs *regs)
-{
-    do_trap(regs, TRAP_BR, "bounds");
-}
-
-asmlinkage __visible void trap_device_not_available(struct regs *regs)
-{
-    do_trap(regs, TRAP_NM, "device not available");
-}
-
-asmlinkage __visible void trap_invalid_tss(struct regs *regs)
-{
-    do_trap(regs, TRAP_TS, "invalid tss");
-}
-
-asmlinkage __visible void trap_segment_not_present(struct regs *regs)
-{
-    do_trap(regs, TRAP_NP, "segment not present");
-}
-
-asmlinkage __visible void trap_stack_segment(struct regs *regs)
-{
-    do_trap(regs, TRAP_SS, "stack segment");
-}
-
-asmlinkage __visible void trap_coprocessor_error(struct regs *regs)
-{
-    do_trap(regs, TRAP_MF, "coprocessor error");
-}
-
-asmlinkage __visible void trap_alignment_check(struct regs *regs)
-{
-    do_trap(regs, TRAP_AC, "alignment check");
-}
-
-asmlinkage __visible void trap_simd_error(struct regs *regs)
-{
-    do_trap(regs, TRAP_XM, "simd error");
-}
-
-asmlinkage __visible void trap_general_protection(struct regs *regs)
-{
-    do_trap(regs, TRAP_GP, "general protection");
-}
-
-asmlinkage __visible void trap_overflow(struct regs *regs)
-{
-    do_trap(regs, TRAP_OF, "overflow");
-}
-
-asmlinkage __visible void trap_breakpoint(struct regs *regs)
-{
-
-}
-
-asmlinkage __visible void trap_debug(struct regs *regs)
-{
-
-}
-
-asmlinkage __visible void trap_invalid_opcode(struct regs *regs)
+DEFINE_IDTENTRY_RAW(invalid_opcode)
 {
     if (!trap_user_mode(regs) && trap_bug(regs))
         return;
 }
 
-asmlinkage __visible void trap_nmi_interrupt(struct regs *regs)
+DEFINE_IDTENTRY_RAW(breakpoint)
 {
 
 }
 
-asmlinkage __visible void trap_double_fault(struct regs *regs)
+DEFINE_IDTENTRY_NORMAL(spurious_interrupt)
 {
-    do_trap(regs, TRAP_OF, "double fault");
+    /* Do nothing */
+}
+
+DEFINE_IDTENTRY_NORMAL(overflow)
+{
+    generic_trap(regs, 0, TRAP_OF, "overflow");
+}
+
+DEFINE_IDTENTRY_NORMAL(divide_error)
+{
+    generic_trap(regs, 0, TRAP_DE, "divide error");
+}
+
+DEFINE_IDTENTRY_NORMAL(bounds)
+{
+    generic_trap(regs, 0, TRAP_BR, "bounds");
+}
+
+DEFINE_IDTENTRY_NORMAL(device_not_available)
+{
+    generic_trap(regs, 0, TRAP_NM, "device not available");
+}
+
+DEFINE_IDTENTRY_NORMAL(coprocessor_error)
+{
+    generic_trap(regs, 0, TRAP_MF, "coprocessor error");
+}
+
+DEFINE_IDTENTRY_NORMAL(simd_error)
+{
+    generic_trap(regs, 0, TRAP_XM, "simd error");
+}
+
+DEFINE_IDTENTRY_ERRORCODE(invalid_tss)
+{
+    generic_trap(regs, error_code, TRAP_TS, "invalid tss");
+}
+
+DEFINE_IDTENTRY_ERRORCODE(segment_not_present)
+{
+    generic_trap(regs, error_code, TRAP_NP, "segment not present");
+}
+
+DEFINE_IDTENTRY_ERRORCODE(stack_segment)
+{
+    generic_trap(regs, error_code, TRAP_SS, "stack segment");
+}
+
+DEFINE_IDTENTRY_ERRORCODE(general_protection)
+{
+    generic_trap(regs, error_code, TRAP_GP, "general protection");
+}
+
+DEFINE_IDTENTRY_ERRORCODE(alignment_check)
+{
+    generic_trap(regs, error_code, TRAP_AC, "alignment check");
+}
+
+DEFINE_IDTENTRY_RAW_ERRORCODE(page_fault)
+{
+    generic_trap(regs, error_code, TRAP_OF, "page fault");
+}
+
+DEFINE_IDTENTRY_DF(double_fault)
+{
+
+}
+
+DEFINE_IDTENTRY_DEBUG(debug)
+{
+
 }

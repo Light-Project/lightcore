@@ -4,6 +4,8 @@
  */
 
 #include <linkage.h>
+#include <asm-offset.h>
+#include <asm/segment.h>
 #include <asm/irq.h>
 
 .macro SWITCH_TO_KERNEL
@@ -24,268 +26,157 @@
     popl    %eax
 .endm
 
-.macro SAVE_REGS
-    pushal
-    pushl   %gs
+.macro SAVE_REGS switch_stacks=0 skip_gs=0
+.if \skip_gs == 0
+    pushl   $0
+.endif
+
     pushl   %fs
     pushl   %ss
     pushl   %es
     pushl   %ds
+    pushal
+
+.if \switch_stacks != 0
+
+.endif
 .endm
 
-.macro REC_REGS
+.macro REC_REGS pop=0
+    popal
     popl    %ds
     popl    %es
     popl    %ss
     popl    %fs
-    popl    %gs
-    popal
+    addl    $(4 + \pop), %esp
 .endm
 
 SYM_CODE_START(entry_thread_return)
-
 SYM_CODE_END(entry_thread_return)
 
 SYM_CODE_START(entry_switch_stack)
-    /* save stack pointer */
-    movl    %esp, %eax
-
-    /* save callee-saved registers */
-    pushl   %ebx
-    pushl   %esi
-    pushl   %edi
-    pushl   %ebp
-
-    /* save flags register */
-    pushfl
-
-    /* switch stack */
-    movl    4(%eax), %ebx
-    movl    %esp, %ebx
-    movl    8(%eax), %esp
-
-    /* restore flags register */
-    popfl
-
-    /* restore callee-saved registers */
-    pushl   %ebp
-    pushl   %edi
-    pushl   %esi
-    pushl   %ebx
-
-    ret
 SYM_CODE_END(entry_switch_stack)
 
-SYM_CODE_START(entry_divide_error)
-    cld
-    SAVE_REGS
+SYM_CODE_START_LOCAL_NOALIGN(exception_handle)
+    SAVE_REGS switch_stacks=1 skip_gs=1
+    movl    %esp, %ebp
 
-    pushl   %esp
-    call    trap_divide_error
-    addl    $4, %esp
+    /* get handle addrss */
+    movl    REGS_GS(%esp), %eax
 
-    REC_REGS
+    /* fixup error code */
+    movl    REGS_ERROR(%esp), %ebx
+    movl    $-1, REGS_ERROR(%esp)
+
+    /* Call the handle function */
+    pushl   %ebx    /* push arg2: vector */
+    pushl   %ebp    /* push arg1: regs */
+    call    *%eax
+    movl    %ebp, %esp
+
+exception_handle_ret:
+    movl    REGS_CS(%esp), %ebx
+    andl    $SEGMENT_RPL_MASK, %ebx
+    cmpl    $USER_RPL, %eax
+    jnb     ret_to_user
+
+    REC_REGS 4
     iret
-SYM_CODE_END(entry_divide_error)
 
-SYM_CODE_START(entry_nmi_interrupt)
-    cld
-    SAVE_REGS
-
-    pushl   %esp
-    call    trap_nmi_interrupt
-    addl    $4, %esp
-
-    REC_REGS
-    iret
-SYM_CODE_END(entry_nmi_interrupt)
-
-SYM_CODE_START(entry_breakpoint)
-    cld
-    SAVE_REGS
-
-    pushl   %esp
-    call    trap_breakpoint
-    addl    $4, %esp
-
-    REC_REGS
-    iret
-SYM_CODE_END(entry_breakpoint)
-
-SYM_CODE_START(entry_bounds)
-    cld
-    SAVE_REGS
-
-    pushl   %esp
-    call    trap_bounds
-    addl    $4, %esp
-
-    REC_REGS
-    iret
-SYM_CODE_END(entry_bounds)
-
-SYM_CODE_START(entry_invalid_opcode)
-    cld
-    SAVE_REGS
-
-    pushl   %esp
-    call    trap_invalid_opcode
-    addl    $4, %esp
-
-    REC_REGS
-    iret
-SYM_CODE_END(entry_invalid_opcode)
-
-SYM_CODE_START(entry_device_not_available)
-    cld
-    SAVE_REGS
-
-    pushl   %esp
-    call    trap_device_not_available
-    addl    $4, %esp
-
-    REC_REGS
-    iret
-SYM_CODE_END(entry_device_not_available)
-
-SYM_CODE_START(entry_invalid_tss)
-    cld
-    SAVE_REGS
-
-    pushl   %esp
-    call    trap_invalid_tss
-    addl    $4, %esp
-
-    REC_REGS
-    iret
-SYM_CODE_END(entry_invalid_tss)
-
-SYM_CODE_START(entry_segment_not_present)
-    cld
-    SAVE_REGS
-
-    pushl   %esp
-    call    trap_segment_not_present
-    addl    $4, %esp
-
-    REC_REGS
-    iret
-SYM_CODE_END(entry_segment_not_present)
-
-SYM_CODE_START(entry_stack_segment)
-    cld
-    SAVE_REGS
-
-    pushl   %esp
-    call    trap_stack_segment
-    addl    $4, %esp
-
-    REC_REGS
-    iret
-SYM_CODE_END(entry_stack_segment)
-
-SYM_CODE_START(entry_spurious_interrupt)
-    iret
-SYM_CODE_END(entry_spurious_interrupt)
-
-SYM_CODE_START(entry_coprocessor_error)
-    cld
-    SAVE_REGS
-
-    pushl   %esp
-    call    trap_coprocessor_error
-    addl    $4, %esp
-
-    REC_REGS
-    iret
-SYM_CODE_END(entry_coprocessor_error)
-
-SYM_CODE_START(entry_alignment_check)
-    cld
-    SAVE_REGS
-
-    pushl   %esp
-    call    trap_alignment_check
-    addl    $4, %esp
-
-    REC_REGS
-    iret
-SYM_CODE_END(entry_alignment_check)
-
-SYM_CODE_START(entry_simd_error)
-    cld
-    SAVE_REGS
-
-    pushl   %esp
-    call    trap_simd_error
-    addl    $4, %esp
-
-    REC_REGS
-    iret
-SYM_CODE_END(entry_simd_error)
-
-SYM_CODE_START(entry_general_protection)
-    cld
-    SAVE_REGS
-
-    pushl   %esp
-    call    trap_general_protection
-    addl    $4, %esp
-
-    REC_REGS
-    iret
-SYM_CODE_END(entry_general_protection)
-
-SYM_CODE_START(entry_overflow)
-    cld
-    SAVE_REGS
-
-    pushl   %esp
-    call    trap_overflow
-    addl    $4, %esp
-
-    REC_REGS
-    iret
-SYM_CODE_END(entry_overflow)
-
-SYM_CODE_START(entry_debug)
-    cld
-    SAVE_REGS
-
-    pushl   %esp
-    call    trap_debug
-    addl    $4, %esp
-
-    REC_REGS
-    iret
-SYM_CODE_END(entry_debug)
-
-SYM_CODE_START(entry_exception)
-    SAVE_REGS
-
-
-    REC_REGS
-    iret
-SYM_CODE_END(entry_exception)
-
-SYM_CODE_START(entry_double_fault)
-    // clts
-    // call    trap_double_fault
-
-loop:
-    rep;    hlt
-    jmp     loop
-SYM_CODE_END(entry_double_fault)
+ret_to_user:
+SYM_CODE_END(exception_handle)
 
 /**
- * Arguments:
- * eax: system call number
- * ebx: arg1
- * ecx: arg2
- * edx: arg3
- * esi: arg4
- * edi: arg5
- * ebp: arg6
+ * idtentry - macro to generate entry stubs for idt entries
+ * @vector: vector number
+ * @asmsym: symbol name for entry point
+ * @handle: c function name to called
+ * @error_code:
+ */
+.macro idtentry vector asmsym handle error_code:req
+SYM_CODE_START(\asmsym)
+    cld
+
+.if \error_code == 0
+    /* Cushion error code slot */
+    pushl   $0
+.endif
+
+    /* Push handle address to gs slot */
+    push    $\handle
+    /* Invoke the common exception entry */
+    jmp     exception_handle
+SYM_CODE_END(\asmsym)
+.endm
+
+/**
+ * idtentry_irq - macro to generate entry stubs for irq entries
+ * @vector: vector number
+ * @asmsym: symbol name for entry point
+ * @handle: c function name to called
+ */
+.macro idtentry_irq vector asmsym handle
+SYM_CODE_START(\asmsym)
+    SAVE_REGS switch_stacks=1
+    movl    %esp, %ebp
+
+    /* Get the vector number */
+    movl    REGS_ERROR(%esp), %ebx
+    movl    $-1, REGS_ERROR(%esp)
+
+    /* Call the handle function */
+    pushl   %ebx    /* push arg2: vector */
+    pushl   %ebp    /* push arg1: regs */
+    call    \handle
+
+    movl    %ebp, %esp
+    jmp     exception_handle_ret
+SYM_CODE_END(\asmsym)
+.endm
+
+/**
+ * idtentry_nmi - macro to generate entry stubs for nmi entries
+ * @vector: vector number
+ * @asmsym: symbol name for entry point
+ * @handle: c function name to called
+ */
+.macro idtentry_nmi vector asmsym handle
+SYM_CODE_START(\asmsym)
+
+SYM_CODE_END(\asmsym)
+.endm
+
+/**
+ * idtentry_df - macro to generate entry stubs for double fault entries
+ * @vector: vector number
+ * @asmsym: symbol name for entry point
+ * @handle: c function name to called
+ */
+.macro idtentry_df vector asmsym handle
+SYM_CODE_START(\asmsym)
+    clts    /* Clear CR0.TS */
+    push    $EFLAGS_FIXED
+    popfl   /* Clear EFLAGS.NT */
+
+    call    \handle
+
+L(halt):
+    rep;    hlt
+    jmp     L(halt)
+SYM_CODE_END(\asmsym)
+.endm
+
+#include <asm/idt.h>
+
+/**
+ * entry_syscall_80 - x86_32 int80 system call entry
+ * @eax: syscall number
+ * @ebx: syscall arg1
+ * @ecx: syscall arg2
+ * @edx: syscall arg3
+ * @esi: syscall arg4
+ * @edi: syscall arg5
+ * @ebp: syscall arg6
  */
 SYM_CODE_START(entry_syscall_80)
     clac
@@ -299,24 +190,15 @@ SYM_CODE_START(entry_syscall_80)
     iret
 SYM_CODE_END(entry_syscall_80)
 
-SYM_CODE_START(entry_generic_interrupt)
+SYM_CODE_START(entry_irq_vector)
     vector = IRQ_EXTERNAL
 .rept(IRQ_NR_MAX - IRQ_EXTERNAL)
 1:
-    cld
-    SAVE_REGS
-
+    /* push vector to error code */
     pushl   $vector
-    jmp     2f
+    jmp     entry_generic_interrupt
 
-    . = 1b + 0x20
+    . = 1b + 0x10
     vector = vector + 1
 .endr
-
-2:
-    call    generic_interrupt
-    addl    $4, %esp
-
-    REC_REGS
-    iret
-SYM_CODE_END(entry_generic_interrupt)
+SYM_CODE_END(entry_irq_vector)

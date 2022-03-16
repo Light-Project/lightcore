@@ -4,6 +4,7 @@
  */
 
 #include <kboot.h>
+#include <asm/regs.h>
 #include <asm/segment.h>
 
 #define GDT_SET(Table, Num, Base, Limit, Type,      \

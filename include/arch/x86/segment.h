@@ -5,6 +5,8 @@
 #include <types.h>
 #include <arch/x86/seg.h>
 
+#ifndef __ASSEMBLY__
+
 struct gdt_entry {
     uint64_t limitl:16;     /* Segment limit low */
     uint64_t basel:24;      /* Segment Base address low */
@@ -27,6 +29,8 @@ struct gdt_table {
     uint16_t limit;         /* GDT_ENTRY limit (byte) */
     struct gdt_entry *gdt;  /* Point to GDT_ENTRY */
 } __packed;
+
+#endif  /* __ASSEMBLY__ */
 
 #define GDT_LIMIT_G_4KiB    0x00001 /* 4KiB limit segment */
 #define GDT_LIMIT_G_4MiB    0x00400 /* 4MiB limit segment */

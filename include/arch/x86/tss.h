@@ -2,6 +2,8 @@
 #ifndef _ARCH_X86_TSS_H_
 #define _ARCH_X86_TSS_H_
 
+#ifndef __ASSEMBLY__
+
 #include <types.h>
 #include <kernel.h>
 
@@ -54,6 +56,7 @@ struct tss_entry {
 } __packed;
 
 #endif  /* CONFIG_X86_64 */
+#endif  /* __ASSEMBLY__ */
 
 #define IO_BITMAP_BITS      65536
 #define IO_BITMAP_BYTES     (IO_BITMAP_BITS / 8)

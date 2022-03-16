@@ -4,8 +4,8 @@
  */
 
 #include <kernel.h>
+#include <irqflags.h>
 #include <asm/idt.h>
-#include <asm/entry.h>
 
 #define IDT_BITS(Ist, Type, Dpl) \
     .bits.ist = (Ist), .bits.type = (Type), .bits.dpl = (Dpl), \
@@ -41,6 +41,13 @@ static struct idt_table idt_struct = {
     .limit = sizeof(idt_entry) - 1,
 };
 
+struct idt_data {
+    irqnr_t vector;
+    void *handle;
+    uint16_t segment;
+    struct idt_bits bits;
+};
+
 static const __initconst struct idt_data idt_data[] = {
     /* Interrupt gate */
     { IDT_INTERRUPT(TRAP_DE, entry_divide_error) },
@@ -52,7 +59,7 @@ static const __initconst struct idt_data idt_data[] = {
     { IDT_INTERRUPT(TRAP_NP, entry_segment_not_present) },
     { IDT_INTERRUPT(TRAP_SS, entry_stack_segment) },
     { IDT_INTERRUPT(TRAP_GP, entry_general_protection) },
-    { IDT_INTERRUPT(TRAP_PF, entry_general_protection) },
+    { IDT_INTERRUPT(TRAP_PF, entry_page_fault) },
     { IDT_INTERRUPT(TRAP_SP, entry_spurious_interrupt) },
     { IDT_INTERRUPT(TRAP_MF, entry_coprocessor_error) },
     { IDT_INTERRUPT(TRAP_AC, entry_alignment_check) },
@@ -95,8 +102,8 @@ void __init idt_setup(void)
             continue;
         idt_int_gate(
             count,
-            (void *)((size_t)entry_generic_interrupt +
-            (0x20 * (count - IRQ_EXTERNAL)))
+            (void *)((size_t)entry_irq_vector +
+            (0x10 * (count - IRQ_EXTERNAL)))
         );
     }
 

@@ -6,7 +6,6 @@
 #include <kernel.h>
 #include <task.h>
 #include <asm/proc.h>
-#include <asm/entry.h>
 #include <asm/idt.h>
 #include <irqflags.h>
 

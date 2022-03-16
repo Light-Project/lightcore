@@ -3,12 +3,9 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <linkage.h>
-#include <irq.h>
-#include <entry.h>
 #include <asm/idt.h>
 
-DEFINE_IDTENTRY_IRQ(generic_interrupt)
+DEFINE_IDTENTRY_NMI(nmi_interrupt)
 {
-    irq_handle(vector);
+
 }

@@ -36,6 +36,7 @@ sys-ccflags-y  += -ffreestanding -std=gnu11
 sys-acflags-y  += -D__KERNEL__
 sys-asflags-y  += -D__ASSEMBLY__
 sys-ldsflags-y += -D__ASSEMBLY__
+sys-symflags-y += -D__SYMBOL__
 
 asflags-y  := $(strip $(sys-asflags-y) $(platform-asflags-y))
 ccflags-y  := $(strip $(sys-ccflags-y) $(platform-ccflags-y))

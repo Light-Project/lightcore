@@ -5,9 +5,8 @@
 
 #include <memory.h>
 #include <asm/pgtable.h>
-#include <asm/entry.h>
 #include <asm/percpu.h>
-#include <asm/regs.h>
+#include <asm/idt.h>
 #include <asm/page.h>
 #include <asm/segment.h>
 

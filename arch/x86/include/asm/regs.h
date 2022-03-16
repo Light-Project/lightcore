@@ -55,13 +55,6 @@ struct regs {
 #else  /* !CONFIG_ARCH_X86_64 */
 
 struct regs {
-    /* segment registers */
-    uint32_t ds;
-    uint32_t es;
-    uint32_t ss;
-    uint32_t fs;
-    uint32_t gs;
-
     /* generic registers */
     uint32_t di;
     uint32_t si;
@@ -71,6 +64,13 @@ struct regs {
     uint32_t dx;
     uint32_t cx;
     uint32_t ax;
+
+    /* segment registers */
+    uint32_t ds;
+    uint32_t es;
+    uint32_t ss;
+    uint32_t fs;
+    uint32_t gs;
 
     /* interrupt stack */
     uint32_t error;
@@ -82,6 +82,8 @@ struct regs {
 } __packed;
 
 #endif  /* CONFIG_ARCH_X86_64 */
+
+#ifndef __SYMBOL__
 
 static inline unsigned long eflags_get(void)
 {
@@ -110,6 +112,66 @@ static inline void eflags_set(unsigned long flags)
         "popf      \n"
         :: "rm" (flags)
         : "memory"
+    );
+}
+
+static inline void *gdt_get(void)
+{
+    void *addr;
+
+    asm volatile (
+        "sgdt (%0)\n"
+        : "=r"(addr)
+    );
+
+    return addr;
+}
+
+static inline void gdt_set(void *addr)
+{
+    asm volatile (
+        "lgdt (%0)\n"
+        :: "r"(addr)
+    );
+}
+
+static inline void *idt_get(void)
+{
+    void *addr;
+
+    asm volatile (
+        "sidt (%0)\n"
+        : "=r"(addr)
+    );
+
+    return addr;
+}
+
+static inline void idt_set(void *addr)
+{
+    asm volatile (
+        "lidt (%0)\n"
+        :: "r"(addr)
+    );
+}
+
+static inline unsigned long tss_get(void)
+{
+    unsigned long seg;
+
+    asm volatile (
+        "str %0\n"
+        : "=r"(seg)
+    );
+
+    return seg;
+}
+
+static inline void tss_set(unsigned long seg)
+{
+    asm volatile (
+        "ltr %0\n"
+        :: "r"(seg)
     );
 }
 
@@ -163,7 +225,7 @@ static inline void cpuid_asm(uint32_t *eax, uint32_t *ebx,
     );
 }
 
-static inline void cpuid(uint32_t op,
+static inline void cpuid(const uint32_t op,
                          uint32_t *eax, uint32_t *ebx,
                          uint32_t *ecx, uint32_t *edx)
 {
@@ -172,7 +234,8 @@ static inline void cpuid(uint32_t op,
     cpuid_asm(eax, ebx, ecx, edx);
 }
 
-static inline void cpuid_count(uint32_t op, uint32_t count,
+static inline void cpuid_count(const uint32_t op,
+                               const uint32_t count,
                                uint32_t *eax, uint32_t *ebx,
                                uint32_t *ecx, uint32_t *edx)
 {
@@ -181,7 +244,7 @@ static inline void cpuid_count(uint32_t op, uint32_t count,
     cpuid_asm(eax, ebx, ecx, edx);
 }
 
-static inline bool cpuid_support(uint64_t code)
+static inline bool cpuid_support(const uint64_t code)
 {
     uint32_t eax, ebx, ecx, edx;
 
@@ -321,5 +384,6 @@ REG_SET_OP(size_t, db7)
 #define dr6_set generic_set_db6
 #define dr7_set generic_set_db7
 
+#endif /* __SYMBOL__ */
 #endif /* __ASSEMBLY__ */
 #endif /* _ASM_X86_REGS_H_ */
