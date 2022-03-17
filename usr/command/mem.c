@@ -173,6 +173,7 @@ static uint64_t convert_val(char *str)
     if (!strncmp(str, "BIT(", 4)) {
         type = VALUE_BIT;
         str += 4;
+        va = 0;
         goto skip_va;
     }
 

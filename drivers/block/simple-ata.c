@@ -246,7 +246,7 @@ static state atasim_enqueue(struct block_device *bdev, struct block_request *bre
 {
     struct atasim_port *port = block_to_atasim(bdev);
     struct atasim_host *host = port->host;
-    struct atasim_cmd atacmd;
+    struct atasim_cmd atacmd = {};
     sector_t lba = breq->sector;
     irqflags_t irqflags;
     state retval = -ENOERR;
@@ -376,8 +376,8 @@ static state atasim_probe(struct pci_device *pdev, const void *pdata)
     unsigned int hostc, portc, online = 0;
     struct atasim_host *host;
     resource_size_t size;
+    state ret = -ENOERR;
     uint32_t val;
-    state ret;
 
     /* legacy mode ATA controllers have fixed addresses */
     val = pci_config_readb(pdev, PCI_CLASS_PROG);

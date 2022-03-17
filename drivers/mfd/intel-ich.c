@@ -968,6 +968,7 @@ static state intel_ich_probe(struct pci_device *pdev, const void *pdata)
     struct ich_device *idev;
     state ret1, ret2, ret3;
 
+    ret1 = ret2 = ret3 = -ENOERR;
     dev_info(&pdev->dev, "chipset %s detect\n", info->name);
 
     idev = dev_kzalloc(&pdev->dev, sizeof(*idev), GFP_KERNEL);

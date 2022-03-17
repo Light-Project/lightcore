@@ -38,6 +38,7 @@ struct font *font_suitable(unsigned int xres, unsigned int yres,
     struct font *font, *sui = NULL;
     unsigned int fontg, suig, val;
 
+    suig = -10000;
     slist_for_each_entry(font, &font_head, list) {
         fontg = font->pref;
 

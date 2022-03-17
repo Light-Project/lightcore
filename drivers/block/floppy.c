@@ -363,7 +363,7 @@ out:
 
 static state fdc_status_dump(struct fdc_device *fdc, uint8_t *status)
 {
-    state ret;
+    state ret = -ENOERR;
 
     if (status[0] & ~(FLOPPY_ST0_INTR | FLOPPY_ST0_DS)) {
         dev_err(fdc->dev, "st0: error code (0x%02x)\n", status[0]);

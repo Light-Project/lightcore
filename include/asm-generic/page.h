@@ -14,8 +14,8 @@
 # define va_to_pa(va) ((va) - CONFIG_PAGE_OFFSET + CONFIG_RAM_BASE)
 # define pa_to_va(pa) ((pa) - CONFIG_RAM_BASE + CONFIG_PAGE_OFFSET)
 #else
-# define va_to_pa(va) ((phys_addr_t)((void *)(va) - CONFIG_PAGE_OFFSET + CONFIG_RAM_BASE))
-# define pa_to_va(pa) ((void *)((phys_addr_t)(pa) - CONFIG_RAM_BASE + CONFIG_PAGE_OFFSET))
+# define va_to_pa(va) ((phys_addr_t)(va) - CONFIG_PAGE_OFFSET + CONFIG_RAM_BASE)
+# define pa_to_va(pa) ((void *)(pa) - CONFIG_RAM_BASE + CONFIG_PAGE_OFFSET)
 #endif
 
 #if !defined(CONFIG_ARCH_HAS_IOMAP)
@@ -25,8 +25,8 @@
 # define io_to_pa(va) ((va) - CONFIG_IOREMAP_OFFSET + CONFIG_RAM_BASE)
 # define pa_to_io(pa) ((pa) - CONFIG_RAM_BASE + CONFIG_IOREMAP_OFFSET)
 #else
-# define io_to_pa(va) ((phys_addr_t)((void *)(va) - CONFIG_IOREMAP_OFFSET + CONFIG_RAM_BASE))
-# define pa_to_io(pa) ((void *)((phys_addr_t)(pa) - CONFIG_RAM_BASE + CONFIG_IOREMAP_OFFSET))
+# define io_to_pa(va) ((phys_addr_t)(va) - CONFIG_IOREMAP_OFFSET + CONFIG_RAM_BASE)
+# define pa_to_io(pa) ((void *)(pa) - CONFIG_RAM_BASE + CONFIG_IOREMAP_OFFSET)
 #endif
 
 #endif /* _ASM_GENERIC_PAGE_H_ */

@@ -12,7 +12,7 @@ extern uint32_t dt_crc32;
 
 static inline uint64_t dt_read(const be32 *cell, int size)
 {
-    uint64_t ret;
+    uint64_t ret = 0;
 
     while (size--)
         ret = (ret << 32) | be32_to_cpu(*cell++);

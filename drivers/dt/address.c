@@ -28,10 +28,10 @@ static __init void fdt_address_cell(const void *blob, int parentoffset,
 
 __init void *fdt_address(const void *blob, unsigned int node)
 {
+	int sizec, addrc = 0;
 	int parent, len;
 	const be32 *reg;
     be32 addr[4];
-	int addrc, sizec;
 
     reg = fdt_getprop(blob, node, "reg", &len);
 	if (!reg)
@@ -42,7 +42,6 @@ __init void *fdt_address(const void *blob, unsigned int node)
         return NULL;
 
 	fdt_address_cell(blob, parent, &addrc, &sizec);
-
     memcpy(addr, reg, addrc * 4);
 
     return NULL;

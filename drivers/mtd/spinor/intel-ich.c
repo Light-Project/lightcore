@@ -128,7 +128,7 @@ static state ich_spi_wait_busy(struct ich_device *idev)
 static state ich_spi_read(struct spinor_device *nor, loff_t pos, void *buf, uint64_t len)
 {
     struct ich_device *idev = spinor_to_idev(nor);
-    uint32_t xfer, val, count = 0;
+    uint32_t val, xfer = 1, count = 0;
 
     for (count = 0; xfer; pos += xfer, count += xfer, len -= xfer, buf += xfer) {
         xfer = min(len, ICH_SPI_BUFFER_SIZE);
@@ -166,7 +166,7 @@ static state ich_spi_read(struct spinor_device *nor, loff_t pos, void *buf, uint
 static state ich_spi_write(struct spinor_device *nor, loff_t pos, void *buf, uint64_t len)
 {
     struct ich_device *idev = spinor_to_idev(nor);
-    uint32_t xfer, val, count = 0;
+    uint32_t val, xfer = 1, count = 0;
 
     for (count = 0; xfer; pos += xfer, count += xfer, len -= xfer, buf += xfer) {
         xfer = min(len, ICH_SPI_BUFFER_SIZE);

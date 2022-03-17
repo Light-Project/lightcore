@@ -3,6 +3,9 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
+#undef MODULE_NAME
+#define MODULE_NAME "bochs-video"
+
 #include <initcall.h>
 #include <driver/pci.h>
 
@@ -44,24 +47,32 @@ static state bochs_hw_init(struct pci_device *pdev)
             return -ENOMEM;
         vesa->vgabase = base + 0x400;
         vesa->mmio = base + 0x500;
-    } else if (ret != RESOURCE_PMIO)
+    } else if (ret == RESOURCE_PMIO) {
+        ioaddr = VBE_DISPI_IOPORT_INDEX;
+        iosize = 2;
+    } else
         return -ENODEV;
 
+    /* check bochs vesa id */
     ret = vesa_read(vesa, VBE_DISPI_INDEX_ID);
-    if ((ret & 0xfff0) != VBE_DISPI_ID0)
+    if ((ret &= 0xfff0) != VBE_DISPI_ID0) {
+        pci_err(pdev, "id mismatch (%04x->%04lx)", VBE_DISPI_ID0, ret);
         return -ENODEV;
+    }
 
     /* mapping framebuffer space */
     mem = vesa_read(vesa, VBE_DISPI_INDEX_VIDEO_MEMORY_64K) * 64 * 1024;
 
     if (pci_resource_type(pdev, 0) != RESOURCE_MMIO)
         return -ENODEV;
+
     addr = pci_resource_start(pdev, 0);
     size = pci_resource_size(pdev, 0);
     if (!addr)
         return -ENODEV;
+
     if (mem != size) {
-        dev_info(&pdev->dev, "size mismatch: pci=%ld, bochs=%ld\n", size, mem);
+        pci_info(pdev, "size mismatch: pci=%ld, bochs=%ld\n", size, mem);
         size = min(mem, size);
     }
 
@@ -71,12 +82,12 @@ static state bochs_hw_init(struct pci_device *pdev)
     if (!vesa->video.framebuffer)
         return -ENOMEM;
 
-    dev_info(&pdev->dev, "framebuffer size 0x%lx @ 0x%lx\n", size, addr);
+    pci_info(pdev, "framebuffer size 0x%lx @ 0x%lx\n", size, addr);
 
     if (vesa->mmio && pdev->revision >= 2) {
         ret = readl(vesa->mmio + 0x100);
         if (8 <= ret && ret < iosize) {
-            dev_info(&pdev->dev, "found ext regs, size %ld\n", ret);
+            pci_info(pdev, "found ext regs, size %ld\n", ret);
             bochs_set_endian(vesa);
         }
     }

@@ -64,7 +64,7 @@ bool bitmap_comp_and(unsigned long *dest, const unsigned long *src1,
                 const unsigned long *src2, unsigned int bits)
 {
     unsigned int index, len = BITS_DIV_LONG(bits);
-    unsigned long result;
+    unsigned long result = 0;
 
     for (index = 0; index < len; ++index)
         result |= (dest[index] = src1[index] & src2[index]);
@@ -80,7 +80,7 @@ bool bitmap_comp_andnot(unsigned long *dest, const unsigned long *src1,
                 const unsigned long *src2, unsigned int bits)
 {
     unsigned int index, len = BITS_DIV_LONG(bits);
-    unsigned long result;
+    unsigned long result = 0;
 
     for (index = 0; index < len; ++index)
         result |= (dest[index] = src1[index] & ~src2[index]);
