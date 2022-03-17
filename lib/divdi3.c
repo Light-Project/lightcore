@@ -567,6 +567,40 @@ UDWtype __weak __udivmoddi4(UDWtype n, UDWtype d, UDWtype *rp)
     return ww.ll;
 }
 
+DWtype __weak __divmoddi4(DWtype u, DWtype v, DWtype *rp)
+{
+    Wtype c1 = 0, c2 = 0;
+    DWunion uu = {.ll = u};
+    DWunion vv = {.ll = v};
+    DWtype w;
+    DWtype r;
+
+    if (uu.s.high < 0)
+        c1 = ~c1, c2 = ~c2,
+        uu.ll = -uu.ll;
+
+    if (vv.s.high < 0)
+        c1 = ~c1,
+        vv.ll = -vv.ll;
+
+    w = __udivmoddi4 (uu.ll, vv.ll, (UDWtype*)&r);
+    if (c1)
+        w = -w;
+
+    if (c2)
+        r = -r;
+
+    *rp = r;
+    return w;
+}
+EXPORT_SYMBOL(__divmoddi4);
+
+UDWtype __weak __udivdi3(UDWtype u, UDWtype v)
+{
+    return __udivmoddi4(u, v, NULL);
+}
+EXPORT_SYMBOL(__udivdi3);
+
 DWtype __weak __divdi3(DWtype u, DWtype v)
 {
     Wtype c = 0;
@@ -587,11 +621,13 @@ DWtype __weak __divdi3(DWtype u, DWtype v)
 }
 EXPORT_SYMBOL(__divdi3);
 
-UDWtype __weak __udivdi3(UDWtype u, UDWtype v)
+UDWtype __weak __umoddi3(UDWtype u, UDWtype v)
 {
-    return __udivmoddi4(u, v, NULL);
+    UDWtype w;
+    __udivmoddi4(u, v, &w);
+    return w;
 }
-EXPORT_SYMBOL(__udivdi3);
+EXPORT_SYMBOL(__umoddi3);
 
 DWtype __weak __moddi3(DWtype u, DWtype v)
 {
@@ -610,11 +646,3 @@ DWtype __weak __moddi3(DWtype u, DWtype v)
     return c ? -w : w;
 }
 EXPORT_SYMBOL(__moddi3);
-
-UDWtype __weak __umoddi3(UDWtype u, UDWtype v)
-{
-    UDWtype w;
-    __udivmoddi4(u, v, &w);
-    return w;
-}
-EXPORT_SYMBOL(__umoddi3);

@@ -58,7 +58,7 @@ endif
 
 ifdef CONFIG_LD_DEAD_CODE_DATA_ELIMINATION
 acflags-y += -ffunction-sections -fdata-sections
-lightcore-flags-y += -Wl,--gc-sections
+lightcore-flags-y += --gc-sections
 endif
 
 export CROSS_COMPILE include-direct-y
