@@ -50,6 +50,8 @@ config BUILTIN_DTB_PATH
     string "Builtin DTB path"
     depends on BUILTIN_DTB
 
+source "kernel/irq/Kconfig"
+
 endmenu
 
 config VERSION

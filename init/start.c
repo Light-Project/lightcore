@@ -12,6 +12,7 @@
 #include <memory.h>
 #include <idr.h>
 #include <task.h>
+#include <softirq.h>
 #include <kcoro.h>
 #include <filesystem.h>
 
@@ -65,7 +66,7 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
     idr_init();
 
     sched_init();
-    kcoro_init();
+    softirq_init();
 
     /* basic driver */
     device_init();
@@ -75,7 +76,9 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
     irq_local_enable();
 
     console_init();
+
     fork_init();
+    kcoro_init();
 
     /* late init */
     vfl_init();

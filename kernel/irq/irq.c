@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "irq: " fmt
+#define MODULE_NAME "irq"
+#define pr_fmt(fmt) ": " fmt
 
 #include <irq.h>
 #include <string.h>
@@ -11,6 +12,7 @@
 #include <printk.h>
 #include <export.h>
 
+DEFINE_PERCPU(struct irq_cpustat, irq_stat);
 static struct kcache *channel_cache;
 
 struct irq_desc irq_desc[IRQ_NR_MAX] = {

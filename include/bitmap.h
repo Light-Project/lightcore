@@ -2,10 +2,9 @@
 #ifndef _BITMAP_H_
 #define _BITMAP_H_
 
-#include <types.h>
-#include <limits.h>
 #include <string.h>
 #include <bitops.h>
+#include <kernel.h>
 
 #ifdef CONFIG_ARCH_LITTLE_ENDIAN
 # define BITMAP_MEM_ALIGNMENT BITS_PER_BYTE

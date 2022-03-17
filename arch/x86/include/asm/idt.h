@@ -45,7 +45,9 @@ __visible noinline void                                             \
 trap_##handle(struct regs *regs, unsigned long error_code)          \
 {                                                                   \
     entry_irqhandle_enter(regs);                                    \
+    softirq_entry();                                                \
     __##trap_##handle(regs, error_code);                            \
+    softirq_exit();                                                 \
     entry_irqhandle_exit(regs);                                     \
 }                                                                   \
                                                                     \

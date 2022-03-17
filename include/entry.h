@@ -5,6 +5,9 @@
 #include <asm/regs.h>
 #include <asm/traps.h>
 
+extern noinline void softirq_entry(void);
+extern noinline void softirq_exit(void);
+
 extern noinline void entry_irqhandle_enter_form_user(struct regs *regs);
 extern noinline void entry_irqhandle_exit_to_user(struct regs *regs);
 extern noinline void entry_irqhandle_enter(struct regs *regs);

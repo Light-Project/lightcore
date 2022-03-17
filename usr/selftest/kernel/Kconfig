@@ -8,4 +8,8 @@ config SELFTEST_KERNEL_RANDOM
     bool "Random Test"
     default y
 
+config SELFTEST_KERNEL_SOFTIRQ
+    bool "Softirq Test"
+    default y
+
 endif
