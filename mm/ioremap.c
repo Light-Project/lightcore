@@ -24,6 +24,7 @@ struct ioremap_node {
     struct rb_node rb;
     struct vmem_area vm_area;
     phys_addr_t addr;
+    gvm_t flags;
     unsigned int count;
 };
 
@@ -39,12 +40,16 @@ struct ioremap_node {
 struct ioremap_find {
     phys_addr_t addr;
     size_t size;
+    gvm_t flags;
 };
 
 static long ioremap_rb_cmp(const struct rb_node *rba, const struct rb_node *rbb)
 {
     struct ioremap_node *node_a = rb_to_ioremap(rba);
     struct ioremap_node *node_b = rb_to_ioremap(rbb);
+
+    if (node_a->flags != node_b->flags)
+        return node_a->flags < node_b->flags ? -1 : 1;
 
     if (node_a->addr != node_b->addr)
         return node_a->addr < node_b->addr ? -1 : 1;
@@ -65,22 +70,26 @@ static long ioremap_rb_find(const struct rb_node *rb, const void *key)
     node_end = node->addr + node->vm_area.size - 1;
     cmp_end = cmp->addr + cmp->size - 1;
 
-    if (node->addr <= cmp->addr && cmp_end <= node_end)
+    if (node->flags == cmp->flags &&
+        node->addr <= cmp->addr && cmp_end <= node_end)
         return 0;
 
+    if (node->flags != cmp->flags)
+        return node->flags > cmp->flags ? -1 : 1;
+
     if (node->addr != cmp->addr)
-        return node->addr < cmp->addr ? -1 : 1;
+        return node->addr > cmp->addr ? -1 : 1;
 
     if (node->vm_area.size != cmp->size)
-        return node->vm_area.size < cmp->size ? -1 : 1;
+        return node->vm_area.size > cmp->size ? -1 : 1;
 
     return LONG_MIN;
 }
 
-static struct ioremap_node *phys_addr_find(phys_addr_t start, phys_addr_t end)
+static struct ioremap_node *phys_addr_find(phys_addr_t start, size_t size, gvm_t flags)
 {
     struct rb_node *rb;
-    rb = rb_find(&ioremap_root, &(struct ioremap_find){start, end - start}, ioremap_rb_find);
+    rb = rb_find(&ioremap_root, &(struct ioremap_find){start, size, flags}, ioremap_rb_find);
     return rb_to_ioremap_safe(rb);
 }
 
@@ -102,7 +111,9 @@ static struct ioremap_node *ioremap_alloc(phys_addr_t pa, size_t size, gvm_t fla
         goto error_vmfree;
 
     node->addr = pa;
+    node->flags = flags;
     rb_insert(&ioremap_root, &node->rb, ioremap_rb_cmp);
+
     return node;
 
 error_vmfree:
@@ -130,7 +141,7 @@ void *ioremap_node(phys_addr_t pa, size_t size, gvm_t flags)
 
     spin_lock(&ioremap_lock);
 
-    node = phys_addr_find(pa, pa + size);
+    node = phys_addr_find(pa, size, flags);
     if (node)
         goto done;
 
