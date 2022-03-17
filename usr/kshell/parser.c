@@ -155,7 +155,7 @@ state kshell_parser(char *cmdline, char **pos, int *argc, char ***argv)
         ++(*argc);
     }
 
-    count = *argc * sizeof(**argv);
+    count = (*argc + 1) * sizeof(**argv);
     *argv = kmalloc(count + (tmp - buff), GFP_KERNEL);
     if (!*argv) {
         kfree(buff);
@@ -172,6 +172,8 @@ state kshell_parser(char *cmdline, char **pos, int *argc, char ***argv)
         var++;
     }
 
+    (*argv)[count] = NULL;
     kfree(buff);
+
     return -ENOERR;
 }
