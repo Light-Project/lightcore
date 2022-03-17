@@ -1,0 +1,80 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
+/dts-v1/;
+#include "nationalchip/gx6605s.dtsi"
+#include <dt-bindings/gpio.h>
+#include <dt-bindings/input-event-codes.h>
+
+/ {
+    model = "immortal-sword";
+
+    gpio_buttons {
+        compatible = "gpio-keys-polled";
+        poll-interval = <100>;
+        autorepeat;
+        button0 {
+            label = "button8";
+            linux,code = <KEY_LEFT>;
+            gpios = <&gpio0 8 GPIO_ACTIVE_LOW>;
+        };
+        button1 {
+            label = "button6";
+            linux,code = <KEY_RIGHT>;
+            gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
+        };
+        button2 {
+            label = "button5";
+            linux,code = <KEY_UP>;
+            gpios = <&gpio0 5 GPIO_ACTIVE_LOW>;
+        };
+        button3 {
+            label = "button9";
+            linux,code = <KEY_DOWN>;
+            gpios = <&gpio0 9 GPIO_ACTIVE_LOW>;
+        };
+        button4 {
+            label = "button7";
+            linux,code = <KEY_ENTER>;
+            gpios = <&gpio0 7 GPIO_ACTIVE_LOW>;
+        };
+    };
+
+    gpio_leds {
+        compatible = "gpio-leds";
+        led0 {
+            label = "led10";
+            gpios = <&gpio0 10 GPIO_ACTIVE_LOW>;
+            linux,default-trigger = "heartbeat";
+        };
+        led1 {
+            label = "led11";
+            gpios = <&gpio0 11 GPIO_ACTIVE_LOW>;
+            linux,default-trigger = "timer";
+        };
+        led2 {
+            label = "led12";
+            gpios = <&gpio0 12 GPIO_ACTIVE_LOW>;
+            linux,default-trigger = "default-on";
+        };
+        led3 {
+            label = "led13";
+            gpios = <&gpio0 13 GPIO_ACTIVE_LOW>;
+            linux,default-trigger = "default-on";
+        };
+    };
+};
+
+&spi {
+    status = "disabled";
+
+    flash@0 {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        compatible = "winband,mx25l1606e", "jedec,spi-nor";
+        reg = <0>;
+        spi-max-frequency = <40000000>;
+    };
+};

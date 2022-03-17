@@ -3,12 +3,13 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-/dts-v1/;
+#include <dt-bindings/clk/gx6605s.h>
 
 / {
     #address-cells = <1>;
     #size-cells = <1>;
     model = "NationalChip,gx6605s";
+    interrupt-parent = <&intc>;
 
     chosen { };
 
@@ -30,39 +31,41 @@
         #address-cells = <1>;
         #size-cells = <1>;
         compatible = "amba-bus";
-        interrupt-parent = <&intc>;
+        ranges;
 
         cir@204000 {
             compatible = "nationalchip,gx6605s-irr";
-            reg = <0x00204000 0x400>;
+            reg = <0x00204000 0x1000>;
         };
 
-        i2c0: i2c@205000 {
+        i2c: i2c@205000 {
             compatible = "nationalchip,gx6605s-i2c";
-            reg = <0x00205000 0x400>;
+            reg = <0x00205000 0x1000>;
         };
 
         rtc@209000 {
             compatible = "nationalchip,gx6605s-rtc";
-            reg = <0x00209000 0x400>;
+            reg = <0x00209000 0x1000>;
             clocks = <&osc27M>;
         };
 
         timer@20a000 {
             compatible = "nationalchip,gx6605s-timer";
-            reg = <0x0020a000 0x400>;
+            reg = <0x0020a000 0x1000>;
             interrupts = <10>;
         };
 
         wdt: watchdog@20b000 {
             compatible = "nationalchip,gx6605s-wdt";
-            reg = <0x0020b000 0x400>;
+            reg = <0x0020b000 0x1000>;
             clocks = <&osc27M>;
         };
 
-        spi0: spi@302000 {
+        spi: spi@302000 {
+            #address-cells = <1>;
+            #size-cells = <0>;
             compatible = "nationalchip,gx6605s-spi";
-            reg = <0x00302000 0x400>;
+            reg = <0x00302000 0x1000>;
         };
 
         gpio0: gpio@305000 {
@@ -76,7 +79,7 @@
 
         serial@403000 {
             compatible = "ns16550a";
-            reg = <0x00403000 0x400>;
+            reg = <0x00403000 0x1000>;
             interrupts = <15>;
             clock-frequency = <29491200>;
             baud = <115200>;
@@ -85,41 +88,39 @@
         };
 
         gctl: chip-config@40a000 {
-            #clock-cells = <1>;
             compatible = "nationalchip,gx6605s-gctl";
-            reg = <0x0040a000 0x400>;
-            clocks = <&osc27M>;
+            reg = <0x0040a000 0x1000>;
         };
 
         intc: interrupt-controller@500000 {
             #interrupt-cells = <1>;
             #address-cells = <0>;
             compatible = "nationalchip,gx6605s-intc";
-            reg = <0x00500000 0x400>;
+            reg = <0x00500000 0x1000>;
             interrupt-controller;
         };
 
         ehci-hcd@900000 {
             compatible = "generic-ehci";
-            reg = <0x00900000 0x400>;
+            reg = <0x00900000 0x1000>;
             interrupts = <59>;
         };
 
         ohci-hcd0@a00000 {
             compatible = "generic-ohci";
-            reg = <0x00a00000 0x400>;
+            reg = <0x00a00000 0x1000>;
             interrupts = <58>;
         };
 
         ohci-hcd1@b00000 {
             compatible = "generic-ohci";
-            reg = <0x00b00000 0x400>;
+            reg = <0x00b00000 0x1000>;
             interrupts = <57>;
         };
 
         otp@f80000 {
             compatible = "nationalchip,gx6605s-otp";
-            reg = <0x00f80000 0x400>;
+            reg = <0x00f80000 0x1000>;
         };
 
         jpeg@4400000 {
