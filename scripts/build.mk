@@ -22,7 +22,7 @@ include $(build-file)
 # Include                           #
 #####################################
 
-targets 	:= $(addprefix $(obj)/,$(targets))
+targets     := $(addprefix $(obj)/,$(targets))
 always      := $(addprefix $(obj)/,$(always-y))
 
 include_y   := $(include-y)

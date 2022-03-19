@@ -9,7 +9,7 @@ include $(build_home)/modules/dump_rule.mk
 dump-flags-y ?= --source --demangle --disassemble \
                 --line-numbers --reloc --syms --wide
 
-quiet_cmd_build_dump = $(ECHO_DUMP)  $@
+quiet_cmd_build_dump = $(ECHO_DUMP) $@
       cmd_build_dump = $(OBJDUMP)                           \
                        $(dump-flags-y)                      \
                        $($(@F)-flags-y)                     \

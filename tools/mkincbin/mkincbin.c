@@ -8,8 +8,7 @@
 
 static void error(const char *str)
 {
-    fprintf(stderr, str);
-    fprintf(stderr, "\n");
+    fprintf(stderr, "%s\n", str);
     exit(1);
 }
 

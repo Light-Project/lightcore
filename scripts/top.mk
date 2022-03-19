@@ -163,12 +163,12 @@ mrproper-files  := $(addprefix _mrproper_,$(rm-files))
 
 PHONY += $(mrproper-dirs)
 $(mrproper-dirs):
-	$(Q)$(ECHO) "  $(ECHO_RMDIR) $(patsubst _mrproper_%,%,$@)"
+	$(Q)$(ECHO) "$(ECHO_RMDIR) $(patsubst _mrproper_%,%,$@)"
 	$(Q)$(RMDIR) $(patsubst _mrproper_%,%,$@)
 
 PHONY += $(mrproper-files)
 $(mrproper-files):
-	$(Q)$(ECHO) "  $(ECHO_RM) $(patsubst _mrproper_%,%,$@)"
+	$(Q)$(ECHO) "$(ECHO_RM) $(patsubst _mrproper_%,%,$@)"
 	$(Q)$(RM) $(patsubst _mrproper_%,%,$@)
 
 PHONY += mrproper
