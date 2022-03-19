@@ -383,7 +383,7 @@ static void __init vmem_free_space_init(void)
     struct vmem_area *vma;
 
     if (vmem_start < vmem_end) {
-        vma = kcache_alloc(vmem_cache, GFP_KERNEL);
+        vma = kcache_zalloc(vmem_cache, GFP_KERNEL);
         if (WARN_ON(!vma))
             return;
         vma->addr = vmem_start;

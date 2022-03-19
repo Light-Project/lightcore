@@ -138,6 +138,7 @@ void dev_kfree(struct device *dev, void *block)
         return;
     }
 
+    list_del(&devres->list);
     devres_release(devres);
 }
 EXPORT_SYMBOL(dev_kfree);
@@ -185,6 +186,7 @@ void dev_vfree(struct device *dev, void *block)
         return;
     }
 
+    list_del(&devres->list);
     devres_release(devres);
 }
 EXPORT_SYMBOL(dev_vfree);
@@ -285,6 +287,7 @@ void dev_iounmap(struct device *dev, void *block)
         return;
     }
 
+    list_del(&devres->list);
     devres_release(devres);
 }
 EXPORT_SYMBOL(dev_iounmap);
@@ -337,6 +340,7 @@ void dev_irq_release(struct device *dev, irqnr_t vector)
         return;
     }
 
+    list_del(&devres->list);
     devres_release(devres);
 }
 EXPORT_SYMBOL(dev_irq_release);
