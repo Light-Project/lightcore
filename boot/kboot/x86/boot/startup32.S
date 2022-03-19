@@ -19,15 +19,8 @@ ENTRY(startup32)
     movl    %eax, %ss
 
 /*
- * Clear the BSS region
+ * Initialization protection mode stack
  */
-    leal    _ld_bss_start(%ebx), %edi
-    leal    _ld_bss_end(%ebx), %ecx
-    subl    %edi, %ecx
-    shrl    $2, %ecx
-    xorl    %eax, %eax
-    rep;    stosl %eax, %es:(%edi)
-
     movl    $_ld_stack_end, %esp
     addl    %ebx, %esp
 

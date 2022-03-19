@@ -11,8 +11,9 @@ kboot-asflags-y  += -D__ASSEMBLY__
 kboot-ccflags-y  += -std=gnu11 -Wall -Werror
 kboot-acflags-y  += -ffreestanding -nostdinc
 kboot-acflags-y  += -fPIE -fno-stack-protector -fno-common
+kboot-acflags-y  += -ffunction-sections -fdata-sections
 kboot-ldsflags-y += -D__ASSEMBLY__
-kboot-elfflags-y += -pie -nostdlib
+kboot-elfflags-y += -pie -nostdlib --gc-sections
 kboot-elfflags-y += $(call ld-option, --no-dynamic-linker)
 kboot-elfflags-y += -T $(obj)/$(arch)/boot.lds -Map=$@.map
 

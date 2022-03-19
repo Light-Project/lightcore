@@ -4,14 +4,25 @@
  */
 
 #include <linkage.h>
+#include <kboot16.h>
 #include <arch/x86/seg.h>
 
 #define IO_DELAY \
-    outb %al, $0x80
+    outb    %al, $0x80
 
 #define printf(str) \
-    movw $str, %si; \
-    call Service_printf
+    movw    $str, %si; \
+    call    Service_printf
+
+#define int_safe(num)                   \
+    movw    %sp, %gs;                   \
+    movw    $(BIOS_STACK >> 4), %sp;    \
+    movw    %sp, %ss;                   \
+    movw    $(BIOS_STACK & 0xf), %sp;   \
+    int     $num;                       \
+    movw    %cs, %sp;                   \
+    movw    %sp, %ss;                   \
+    movw    %gs, %sp
 
     .code16
     .section    .startup, "ax"
@@ -34,6 +45,7 @@ GLOBAL(startup16)
 
     movw    %ax, %ds
     movw    %ax, %es
+    movw    %ax, %ss
     movw    %ax, 1f
 
     .byte   0x66, 0xea  /* ljmpl opcode */
@@ -44,27 +56,110 @@ GLOBAL(startup16)
     /* Save boot_offset */
     movl    %ebx, boot_offset
 
-    /* Initialization real mode stack */
-    leal    _ld_stack_start(%ebx), %eax
-    movl    %eax, %edx
-    andl    $0xf, %edx
-    shrl    $4, %eax
-    movl    %eax, %ss
+/*
+ * Check whether there is enough
+ * space in the stack.
+ */
+    leal    _ld_stack_end(%ebx), %eax
+    cmpl    $EBDA_START, %eax
+    jle     1f
+    printf(TXT_BOOTBIG)
+    jmp     halt_16
+1:
 
-    movl    $_ld_stack_end, %eax
-    subl    $_ld_stack_start, %eax
-    movl    %eax, %esp
-    addl    %edx, %esp
+/*
+ * Enable the big real mode.
+ */
+    /* load gdt and idt table */
+    addl    %ebx, gdt_fix
+    lgdtl   gdt_struct
+
+    /* enable pe mode */
+    movl    %cr0, %eax
+    orl     $(1<<0), %eax
+    movl    %eax, %cr0
+
+    /* tell 386/486 not crash */
+    jmp     1f
+1:
+
+    /* select descriptor */
+    movw    $GDT_ENTRY_BOOT_DS_BASE, %ax
+    movw    %ax, %fs
+
+    /* disable pe mode */
+    movl    %cr0, %eax
+    xorl    $(1<<0), %eax
+    movl    %eax, %cr0
+
+/*
+ * We need to turn on A20 before we can load
+ * the kernel into high-level memory
+ */
+#if 0
+    printf(TXT_A20ENABLE)
+    calll   a20_enable
+    cmpl    $0, %eax
+    je      1f
+
+    printf(TXT_A20ERROR)
+    jmp     halt_16
+1:
+#endif
+
+/*
+ * Check whether the kernel is loaded.
+ */
+    movl    boot_offset, %ebx
+    movl    %fs:_ld_header_end(%ebx), %eax
+    cmpl    $PIGGY_MAGIC, %eax
+    jne     3f
+
+/*
+ * If there is enough memory, copy the
+ * kernel to the specified area.
+ */
+    leal    _ld_kernel_size(%ebx), %eax
+    cmpl    $EBDA_START, %eax
+    jle     1f
+
+    printf(TXT_PIGGYBIG)
+    jmp     halt_16
+1:
+
+    leal    _ld_header_end(%ebx), %esi
+    movl    $_ld_piggy_magic, %edi
+    movl    $_ld_kernel_size, %ecx
+    shrl    $2, %ecx
+
+2:
+    movl    %fs:(%esi), %edx
+    movl    %edx, %fs:(%edi)
+    addl    $4, %esi
+    addl    $4, %edi
+    loopl   2b
+3:
+
+/*
+ * From this point on, bss and
+ * stack can be used.
+ */
+
+    /* Initialization real mode stack */
+    movl    $_ld_stack_end, %esp
 
     /* Clean screen */
     movb    $0x00, %ah
     movb    $0x02, %al
     int     $0x10
 
-    /* Disable NMI */
-    movb    $0x80, %al
-    outb    %al, $0x70
-    IO_DELAY
+    /* Clear the BSS region */
+    leal    _ld_bss_start, %edi
+    leal    _ld_bss_end, %ecx
+    subl    %edi, %ecx
+    shrl    $2, %ecx
+    xorl    %eax, %eax
+    rep;    stosl %eax, %es:(%edi)
 
 /*
  * The startup header is meaningless
@@ -72,16 +167,14 @@ GLOBAL(startup16)
  * temporary stack.
  */
     printf(TXT_MEMDETECT)
-    movl    $sentinel, %esp
     calll   memdetect
 
-    printf(TXT_A20ENABLE)
-    calll   a20_enable
-    cmpl    $0, %eax
-    je      1f
-    printf(TXT_A20ERROR)
-    jmp     halt_16
-1:
+/*
+ * Disable NMI
+ */
+    movb    $0x80, %al
+    outb    %al, $0x70
+    IO_DELAY
 
 /*
  * Reset Coprocessor
@@ -104,8 +197,6 @@ GLOBAL(startup16)
     IO_DELAY
 
     /* load gdt table */
-    movl    boot_offset, %ebx
-    addl    %ebx, gdt_fix
     lgdtl   gdt_struct
 
     /* load idt table */
@@ -120,6 +211,9 @@ GLOBAL(startup16)
     movl    %ds, %eax
     shll    $4, %eax
     addl    %eax, 1f
+
+    /* pass offset to protected mode */
+    movl    boot_offset, %ebx
 
     .byte   0x66, 0xea              /* ljmpl opcode */
 1:  .long   startup32               /* offset */
@@ -225,6 +319,8 @@ boot_offset:
     .long   0x00000000
 
     .align  4
+TXT_BOOTBIG:    .asciz "[HEAD]: Boot head to big...\n\r"
+TXT_PIGGYBIG:   .asciz "[HEAD]: Piggy data to big...\n\r"
 TXT_MEMDETECT:  .asciz "[HEAD]: Detect memory...\n\r"
 TXT_A20ENABLE:  .asciz "[HEAD]: Try to open a20\n\r"
 TXT_A20ERROR:   .asciz "[HEAD]: Fail to open a20\n\r"

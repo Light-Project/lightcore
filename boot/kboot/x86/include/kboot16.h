@@ -2,9 +2,13 @@
 #ifndef _KBOOT16_H_
 #define _KBOOT16_H_
 
-#include <asm/header.h>
+#define PIGGY_MAGIC     0x55aa00ff
+#define EBDA_START      0x9fc00
+#define BIOS_STACK      0x10000
 
-extern struct bootparam bootparam;
+#ifndef __ASSEMBLY__
+
+#include <asm/header.h>
 
 struct bios_reg {
     union {
@@ -88,11 +92,73 @@ SEGMENT_WRITE_OPS(writel, uint32_t, l, "r")
 #define segment_writew      segment_generic_writew
 #define segment_writel      segment_generic_writel
 
+#define BIGREAL_READ_OPS(name, type, size, reg)         \
+static __always_inline type                             \
+bigreal_generic_##name(const volatile void *addr)       \
+{                                                       \
+    type val;                                           \
+    asm volatile (                                      \
+        "mov"#size"  %%fs:%1, %0\n"                     \
+        : reg(val) : "m" (*(volatile type *)addr)       \
+        : "memory"                                      \
+    );                                                  \
+    return val;                                         \
+}
+
+#define BIGREAL_WRITE_OPS(name, type, size, reg)        \
+static __always_inline void                             \
+bigreal_generic_##name(volatile void *addr, type val)   \
+{                                                       \
+    asm volatile (                                      \
+        "mov"#size" %1, %%fs:%0\n"                      \
+        : "+m" (*(volatile type *)addr) : reg (val)     \
+        : "memory"                                      \
+    );                                                  \
+}
+
+BIGREAL_READ_OPS(readb, uint8_t, b, "=q")
+BIGREAL_READ_OPS(readw, uint16_t, w, "=r")
+BIGREAL_READ_OPS(readl, uint32_t, l, "=r")
+BIGREAL_WRITE_OPS(writeb, uint8_t, b, "qi")
+BIGREAL_WRITE_OPS(writew, uint16_t, w, "ri")
+BIGREAL_WRITE_OPS(writel, uint32_t, l, "ri")
+
+#define bigreal_readb       bigreal_generic_readb
+#define bigreal_readw       bigreal_generic_readw
+#define bigreal_readl       bigreal_generic_readl
+#define bigreal_writeb      bigreal_generic_writeb
+#define bigreal_writew      bigreal_generic_writew
+#define bigreal_writel      bigreal_generic_writel
+
+static inline void copy_to_bitreal(void *dest, const void *src, size_t len)
+{
+    const uint8_t * restrict nsrc = src;
+    uint8_t value;
+
+    while (len--) {
+        value = *nsrc++;
+        bigreal_writeb(dest++, value);
+    }
+}
+
+static inline void copy_form_bitreal(void *dest, const void *src, size_t len)
+{
+    uint8_t * restrict ndest = dest;
+    uint8_t value;
+
+    while (len--) {
+        value = bigreal_readb(src++);
+        *ndest++ = value;
+    }
+}
+
 static inline void io_delay(void)
 {
     asm volatile("outb %al, $0x80");
 }
 
+extern struct bootparam bootparam;
 extern void bios_int(char nr, struct bios_reg *in, struct bios_reg *out);
 
+#endif  /* __ASSEMBLY__ */
 #endif  /* _KBOOT16_H_ */

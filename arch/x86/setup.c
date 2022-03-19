@@ -11,7 +11,6 @@
 #include <asm/tsc.h>
 #include <asm/pgtable.h>
 #include <asm/header.h>
-#include <asm-generic/header.h>
 
 void cpu_setup(void)
 {

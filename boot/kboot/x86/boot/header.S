@@ -82,8 +82,8 @@ bugger_off_msg:
     EFI_HEADER
 #endif
 
-    .org        kboot_header + 0x1ef
-sentinel:                   .byte       0xff, 0xff
+    .org kboot_header + 0x1ef
+sentinel:                   .byte       0xff, 0xff                  /*  */
 kboot_params:
 setup_sects:                .byte       _ld_header_sects            /*  */
 root_flags:                 .word       ROOT_RDONLY                 /*  */
@@ -92,13 +92,8 @@ ram_size:                   .word       0                           /*  */
 vid_mode:                   .word       SVGA_MODE                   /*  */
 root_dev:                   .word       0                           /*  */
 boot_flag:                  .word       0xaa55                      /*  */
-
-    .global  _start
-_start:
-    .byte   0xeb
-    .byte   startup16 - 1f
-1:
-
+_start:                     .byte       0xeb                        /*  */
+                            .byte       startup16 - header
 header:                     .ascii      "HdrS"                      /* Header signature */
 version:                    .word       0x020f                      /* Header version number */
 realmode_swtch:             .word       0, 0                        /* default_switch, SETUPSEG */
@@ -142,6 +137,7 @@ END(kboot_header)
 .global vid_mode
 .global root_dev
 .global boot_flag
+.global _start
 .global header
 .global version
 .global realmode_swtch

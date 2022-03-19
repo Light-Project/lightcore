@@ -361,7 +361,7 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
 #define PERCPU_SECTION(cacheline, pagealign)                \
     . = ALIGN(pagealign);                                   \
     .percpu :                                               \
-    AT(ADDR(.data) - LOAD_OFFSET) {                         \
+    AT(ADDR(.percpu) - LOAD_OFFSET) {                       \
     }
 
 #define INIT_TEXT_SECTION(pagealign)                        \
@@ -394,7 +394,7 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
 #define EXIT_TEXT_SECTION(pagealign)                        \
     . = ALIGN(pagealign);                                   \
     .exit.text :                                            \
-    AT(ADDR(.init.text) - LOAD_OFFSET) {                    \
+    AT(ADDR(.exit.text) - LOAD_OFFSET) {                    \
         _ld_exittext_start = .;                             \
         EXIT_TEXT                                           \
         _ld_exittext_end = .;                               \
@@ -403,7 +403,7 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
 #define EXIT_DATA_SECTION(pagealign)                        \
     . = ALIGN(pagealign);                                   \
     .exit.data :                                            \
-    AT(ADDR(.init.data) - LOAD_OFFSET) {                    \
+    AT(ADDR(.exit.data) - LOAD_OFFSET) {                    \
         _ld_exitdata_start = .;                             \
         EXIT_DATA                                           \
         _ld_exitdata_end = .;                               \

@@ -4,6 +4,7 @@
  */
 
 #include <size.h>
+#include <kboot16.h>
 #include <asm-generic/kernel.lds.h>
 
 #if defined(CONFIG_ARCH_X86_32)
@@ -16,8 +17,9 @@ OUTPUT_ARCH(i386:x86-64)
 
 ENTRY(_start)
 
-#define stack_size  (SZ_1KiB * 8)
-#define heap_size   (SZ_1KiB * 64)
+#define STACK_SIZE      (SZ_1KiB * 8)
+#define HEAP_SIZE       (SZ_1KiB * 128)
+#define KERNEL_OFFSET   0x100000
 
 SECTIONS {
     . = 0;
@@ -76,21 +78,8 @@ SECTIONS {
         *(.rela_*)
     }
 
+    . = ALIGN(512);
     _ld_header_end = .;
-
-    .piggydata : {
-        _ld_piggy_start = .;
-        KEEP(*(.piggydata))
-        _ld_piggy_end = .;
-    }
-
-    .align : {
-        _ld_align = .;
-        SHORT(0xaa55)
-        . = ALIGN(512);
-    }
-
-    _ld_kernel_end = .;
 
     .bss (NOLOAD) : {
         . = ALIGN(4);
@@ -105,14 +94,38 @@ SECTIONS {
     .stack (NOLOAD) : {
         . = ALIGN(4);
         _ld_stack_start = .;
-        . = _ld_stack_start + stack_size;
+        . = _ld_stack_start + STACK_SIZE;
         _ld_stack_end = .;
     }
+
+    . = KERNEL_OFFSET;
+
+#undef LOAD_OFFSET
+#define LOAD_OFFSET (KERNEL_OFFSET - _ld_header_end)
+
+    _ld_kernel_start = .;
+
+    .piggymagic : \
+    AT(ADDR(.piggymagic) - LOAD_OFFSET) {
+        _ld_piggy_magic = .;
+        LONG(PIGGY_MAGIC)
+    }
+
+    .piggydata : \
+    AT(ADDR(.piggydata) - LOAD_OFFSET) {
+        _ld_piggy_start = .;
+        KEEP(*(.piggydata))
+        _ld_piggy_end = .;
+    }
+
+    _ld_kernel_end = .;
+
+#undef LOAD_OFFSET
 
     .heap (NOLOAD) : {
         . = ALIGN(4);
         _ld_heap_start = .;
-        . = _ld_heap_start + heap_size;
+        . = _ld_heap_start + HEAP_SIZE;
         . = ALIGN(4);
         _ld_heap_end = .;
     }
@@ -120,8 +133,8 @@ SECTIONS {
     STABS_DEBUG
     DWARF_DEBUG
     ELF_DETAILS
-
     DISCARDS
+
     /DISCARD/ : {
         *(.dynamic) *(.dynsym) *(.dynstr) *(.dynbss)
         *(.hash) *(.gnu.hash)
@@ -130,6 +143,8 @@ SECTIONS {
 }
 
 PROVIDE(_ld_header_size = _ld_header_end - _ld_header_start);
-PROVIDE(_ld_kernel_size = _ld_kernel_end - _ld_header_end);
+PROVIDE(_ld_memory_size = _ld_stack_end - _ld_header_start);
+PROVIDE(_ld_kernel_size = _ld_kernel_end - _ld_kernel_start);
 PROVIDE(_ld_header_sects = _ld_header_size / 512);
 PROVIDE(_ld_kernel_sects = _ld_kernel_size / 512);
+ASSERT(_ld_memory_size < 0x10000, "Boot head too big! (64KiB)");

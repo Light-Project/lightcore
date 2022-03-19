@@ -52,17 +52,15 @@ extern uint8_t _ld_piggy_end;
 extern uint8_t _ld_heap_start;
 extern uint8_t _ld_heap_end;
 
-#define piggy_start ((void *)&_ld_piggy_start)
-#define piggy_end   ((void *)&_ld_piggy_end)
+#define piggy_start ((void *)&_ld_piggy_start - (size_t)&kboot_header)
+#define piggy_end   ((void *)&_ld_piggy_end - (size_t)&kboot_header)
 #define piggy_size  ((size_t)piggy_end - (size_t)piggy_start)
 
-#define heap_start  ((void *)&_ld_heap_start)
-#define heap_end    ((void *)&_ld_heap_end)
+#define heap_start  ((void *)&_ld_heap_start - (size_t)&kboot_header)
+#define heap_end    ((void *)&_ld_heap_end - (size_t)&kboot_header)
 #define heap_size   ((size_t)heap_end - (size_t)heap_start)
 
-extern struct e820_table e820_table;
-extern struct kboot_params kboot_params;
-
+extern void kboot_header(void);
 extern void __noreturn kernel_start(uint16_t segment, uint32_t offset);
 extern void __noreturn halt(void);
 extern void kernel_map(void);

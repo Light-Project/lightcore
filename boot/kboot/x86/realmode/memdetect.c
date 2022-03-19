@@ -7,7 +7,7 @@
 #include <asm/regs.h>
 
 #define SMAP 0x534d4150
-struct bootparam bootparam __section(".startup");
+struct bootparam bootparam;
 
 static void reg_init(struct bios_reg *reg)
 {
@@ -24,9 +24,9 @@ void memdetect(void)
 
     reg_init(&ireg);
     ireg.ax  = 0xe820;
-    ireg.cx  = sizeof(buf);
     ireg.edx = SMAP;
     ireg.di  = (size_t)&buf;
+    ireg.cx  = sizeof(buf);
 
     do {
         bios_int(0x15, &ireg, &oreg);

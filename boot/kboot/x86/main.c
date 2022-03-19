@@ -8,13 +8,22 @@
 #include <kboot.h>
 #include <arch/x86/seg.h>
 
+
+
 asmlinkage void main(void)
 {
     struct boot_head *head;
+    uint32_t magic;
 
     /* Init console */
     console_clear();
     pr_init(console_print);
+
+    magic = *(uint32_t *)code32_start;
+    if (magic != PIGGY_MAGIC)
+        panic("bad kernel image");
+
+    pr_boot("%#08x\n", heap_start);
 
     /* Init Memory */
     heap_init(heap_start, heap_size);
@@ -22,7 +31,7 @@ asmlinkage void main(void)
     kernel_map();
 
     /* Extract kernel */
-    extract_kernel(pa_to_va(NORMAL_OFFSET), piggy_start, piggy_size);
+    extract_kernel(pa_to_va(NORMAL_OFFSET), (void *)code32_start + 4, piggy_size);
     head = pa_to_va(NORMAL_OFFSET);
     head->params = (size_t)pa_to_va(&bootparam);
 
