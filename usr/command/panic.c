@@ -18,7 +18,7 @@ static state panic_main(int argc, char *argv[])
         usage();
         return -EINVAL;
     }
-    panic(argv[1]);
+    panic("%s", argv[1]);
 }
 
 static struct kshell_command panic_cmd = {

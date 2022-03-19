@@ -372,9 +372,12 @@ static bool readline_getcode(struct readline_state *state, char *code)
                                 return true;
 
                             default:
+                                break;
                         }
                         break;
+                       
                     default:
+                        break;
                 }
             }
             break;
@@ -397,6 +400,7 @@ static bool readline_getcode(struct readline_state *state, char *code)
 
         default:
             state->esc_state = READLINE_ESC_NORM;
+            break;
     }
 
     return false;
