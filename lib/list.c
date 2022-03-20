@@ -13,19 +13,23 @@
 bool list_debug_add_check(struct list_head *prev, struct list_head *next, struct list_head *new)
 {
     if (DEBUG_DATA_CHECK(prev->next != next,
-        "list_add corruption prev->next should point to next\n"))
+        "list_add corruption (%p) prev->next should be next (%p), but was (%p)\n",
+        prev, next, prev->next))
         return false;
 
     if (DEBUG_DATA_CHECK(next->prev != prev,
-        "list_add corruption next->prev should point to prev\n"))
+        "list_add corruption (%p) next->prev should be prev (%p), but was (%p)\n",
+        next, prev, next->prev))
         return false;
 
     if (DEBUG_DATA_CHECK(new->next == next,
-        "list_add corruption new->next should not point to next\n"))
+        "list_add corruption (%p) new->next should not be next (%p)\n",
+        new, next))
         return false;
 
     if (DEBUG_DATA_CHECK(new->prev == prev,
-        "list_add corruption new->prev should not point to prev\n"))
+        "list_add corruption (%p) new->prev should not be prev (%p)\n",
+        new, prev))
         return false;
 
     return true;
@@ -34,12 +38,14 @@ EXPORT_SYMBOL(list_debug_add_check);
 
 bool list_debug_del_check(struct list_head *node)
 {
-    if (DEBUG_DATA_CHECK(node->next == NULL,
-        "list_del corruption node->next should not be NULL\n"))
+    if (DEBUG_DATA_CHECK(node->next == POISON_LIST1,
+        "list_del corruption (%p) node->next should not be POISON_LIST1 (%p)\n",
+        node, POISON_LIST1))
         return false;
 
-    if (DEBUG_DATA_CHECK(node->prev == NULL,
-        "list_del corruption node->prev should not be NULL\n"))
+    if (DEBUG_DATA_CHECK(node->prev == POISON_LIST2,
+        "list_del corruption (%p) node->prev should not be POISON_LIST2 (%p)\n",
+        node, POISON_LIST2))
         return false;
 
     return true;

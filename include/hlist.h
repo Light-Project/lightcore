@@ -5,6 +5,7 @@
 #include <types.h>
 #include <stddef.h>
 #include <kernel.h>
+#include <poison.h>
 
 struct hlist_node {
     struct hlist_node *next;
@@ -107,24 +108,57 @@ static inline void hlist_prev_add(struct hlist_node *node, struct hlist_node *ne
 }
 
 /**
- * hlist_del - delete the specified hlist_node from its list.
+ * hlist_del_uc - delete the specified hlist_node from its list (unsafe).
  * @node: the element to delete from the list.
  */
-static inline void hlist_del(struct hlist_node *node)
+static inline void hlist_del_uc(struct hlist_node *node)
 {
     struct hlist_node **pprev = node->pprev;
     struct hlist_node *next = node->next;
-
-#ifdef DEBUG_HLIST
-    if (unlikely(!hlist_debug_del_check(node)))
-        return;
-#endif
 
     if (next)
         next->pprev = pprev;
 
     *pprev = next;
-    node->next = ERR_PTR(-EFAULT);
+}
+
+/**
+ * hlist_del - delete the specified hlist_node from its list.
+ * @node: the element to delete from the list.
+ */
+static inline void hlist_del(struct hlist_node *node)
+{
+#ifdef DEBUG_HLIST
+    if (unlikely(!hlist_debug_del_check(node)))
+        return;
+#endif
+
+    hlist_del_uc(node);
+    node->next = POISON_HLIST1;
+    node->pprev = POISON_HLIST2;
+}
+
+/**
+ * hlist_del_init - delete the specified hlist_node from its list and initialize.
+ * @node: the element to delete from the list.
+ */
+static inline void hlist_del_init(struct hlist_node *node)
+{
+    hlist_del_uc(node);
+    hlist_node_init(node);
+}
+
+/**
+ * hlist_move_list - move an hlist.
+ * @old: hlist_head for old list.
+ * @new: hlist_head for new list.
+ */
+static inline void hlist_move_list(struct hlist_head *old, struct hlist_head *new)
+{
+    new->node = old->node;
+    old->node = NULL;
+    if (new->node)
+        new->node->pprev = &new->node;
 }
 
 /**
@@ -186,7 +220,7 @@ static inline bool hlist_check_unhashed(struct hlist_node *node)
  * @pos: the &struct hlist_node to use as a loop cursor.
  */
 #define hlist_for_each_from(pos) \
-    for ((pos) = (pos)->next; (pos); (pos) = (pos)->next)
+    for (; (pos); (pos) = (pos)->next)
 
 /**
  * hlist_for_each_continue - continue iteration over a hlist.

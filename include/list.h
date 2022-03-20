@@ -5,6 +5,7 @@
 #include <types.h>
 #include <stddef.h>
 #include <kernel.h>
+#include <poison.h>
 
 struct list_head {
     struct list_head *prev, *next;
@@ -80,7 +81,8 @@ static inline void list_del(struct list_head *node)
 #endif
     node->prev->next = node->next;
     node->next->prev = node->prev;
-    node->prev = node->next = NULL;
+    node->next = POISON_LIST1;
+    node->prev = POISON_LIST2;
 }
 
 /**

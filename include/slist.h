@@ -5,6 +5,7 @@
 #include <types.h>
 #include <stddef.h>
 #include <kernel.h>
+#include <poison.h>
 
 typedef struct slist_head {
     struct slist_head *next;
@@ -64,7 +65,7 @@ static inline void slist_del(struct slist_head *head, struct slist_head *node)
         walk = walk->next;
 
     walk->next = node->next;
-    node->next = ERR_PTR(-EFAULT);
+    node->next = POISON_SLIST;
 }
 
 /**

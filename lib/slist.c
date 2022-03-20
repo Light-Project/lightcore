@@ -13,7 +13,8 @@
 bool slist_debug_add_check(struct slist_head *node, struct slist_head *new)
 {
     if (DEBUG_DATA_CHECK(new->next && new->next == node->next,
-        "list_add corruption new->next should not point to next\n"))
+        "slist_add corruption (%p) new->next should not be next (%p)\n",
+        new, node))
         return false;
 
     return true;
@@ -22,8 +23,9 @@ EXPORT_SYMBOL(slist_debug_add_check);
 
 bool slist_debug_del_check(struct slist_head *node)
 {
-    if (DEBUG_DATA_CHECK(node->next == ERR_PTR(-EFAULT),
-        "list_add corruption new->next should point to ERR_PTR(-EFAULT)\n"))
+    if (DEBUG_DATA_CHECK(node->next == POISON_SLIST,
+        "slist_del corruption (%p) node->next should not be POISON_SLIST (%p)\n",
+        node, POISON_SLIST))
         return false;
 
     return true;
