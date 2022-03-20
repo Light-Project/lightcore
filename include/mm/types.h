@@ -46,8 +46,8 @@ struct page {
     };
 };
 
-#define slob_to_page(slob) \
-    container_of(slob, struct page, slob)
+#define slob_to_page(ptr) \
+    container_of(ptr, struct page, slob)
 
 /**
  * memory - describes the memory information of a task

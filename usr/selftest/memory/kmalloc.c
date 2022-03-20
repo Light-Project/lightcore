@@ -76,18 +76,20 @@ static state kmalloc_testing(void *pdata)
 
 err_p3:
     for (count = 0; count < count3; ++count) {
-        printk("free size ("__stringify(TEST_SIZE3)") test%02u\n", count);
+        printk("kmalloc free size ("__stringify(TEST_SIZE3)") test%02u\n", count);
         kfree(test_pool3[count]);
     }
+
 err_p2:
     for (count = 0; count < count2; ++count) {
-        printk("free size ("__stringify(TEST_SIZE2)") test%02u\n", count);
+        printk("kmalloc free size ("__stringify(TEST_SIZE2)") test%02u\n", count);
         kfree(test_pool2[count]);
     }
+
 err_p1:
     for (count = 0; count < count1; ++count) {
-        printk("free size ("__stringify(TEST_SIZE1)") test%02u\n", count);
-        kfree(test_pool3[count]);
+        printk("kmalloc free size ("__stringify(TEST_SIZE1)") test%02u\n", count);
+        kfree(test_pool1[count]);
     }
 
     return ret;

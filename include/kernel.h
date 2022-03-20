@@ -139,7 +139,7 @@
 })
 
 #define align_ptr_check(ptr, align) ({                  \
-    align_check((size_t)(ptr), align)                   \
+    align_check((size_t)(ptr), align);                  \
 })
 
 /**

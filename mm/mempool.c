@@ -165,15 +165,13 @@ struct mempool *mempool_create_node(mempool_alloc_t alloc, mempool_free_t free, 
         object = pool->alloc(flags, data);
         if (unlikely(!object)) {
             mempool_release(pool);
-            goto error_area;
+            goto error_mempool;
         }
         mempool_push(pool, object);
     }
 
     return pool;
 
-error_area:
-    kfree(pool->objects);
 error_mempool:
     kfree(pool);
     return NULL;

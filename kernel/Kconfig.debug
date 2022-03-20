@@ -19,4 +19,9 @@ config DEBUG_SLIST
     bool "Single List Debugging Support"
     default y
 
+config DEBUG_SLOB
+    bool "Slob Debugging Support"
+    depends on MM_SLOB
+    default y
+
 endmenu

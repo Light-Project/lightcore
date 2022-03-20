@@ -27,8 +27,11 @@ extern char _ld_romdisk_start;
 extern char _ld_romdisk_end;
 #endif
 
-#define page_align(addr) align_high(addr, PAGE_SIZE)
-#define page_aligned(addr) align_check(addr, PAGE_SIZE)
+#define page_align(addr)        align_high(addr, PAGE_SIZE)
+#define page_aligned(addr)      align_check(addr, PAGE_SIZE)
+#define page_ptr_align(addr)    align_ptr_high(addr, PAGE_SIZE)
+#define page_ptr_aligned(addr)  align_ptr_check(addr, PAGE_SIZE)
+
 #define IMAGE_SIZE page_align(va_to_pa(&_ld_image_end) - NORMAL_OFFSET)
 
 static inline void memory_get(struct memory *mem)

@@ -5,6 +5,7 @@
 
 #include <size.h>
 #include <initcall.h>
+#include <memory.h>
 #include <ioremap.h>
 #include <string.h>
 #include <random.h>
@@ -23,8 +24,9 @@ static state ioremap_testing(void *pdata)
     size_t size;
 
     for (count = 0; count < TEST_LOOP; ++count) {
-        phys = random_long();
-        size = ((unsigned int)random_long() % TEST_SIZE) + TEST_SIZE;
+        phys = page_align(clamp(random_long(), CONFIG_HIGHMEM_OFFSET,
+                            PHYS_MASK - (TEST_SIZE * 2)));
+        size = page_align(random_long() % TEST_SIZE + TEST_SIZE);
         printk("ioremap test%02u addr (%#lx) size (%#lx): ", count, phys, size);
         test_pool[count] = ioremap(phys, size);
         if (!test_pool[count]) {
