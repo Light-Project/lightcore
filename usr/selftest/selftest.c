@@ -94,20 +94,27 @@ static state selftest_one(struct selftest_command *cmd, unsigned int count, int 
     return ret;
 }
 
-static void selftest_all(unsigned int count)
+static state selftest_all(unsigned int count)
 {
     struct selftest_command *cmd;
+    state ret;
 
     spin_lock(&selftest_lock);
-    list_for_each_entry(cmd, &selftest_list, list)
-        selftest_one(cmd, count, 0, NULL);
+    list_for_each_entry(cmd, &selftest_list, list) {
+        ret = selftest_one(cmd, count, 0, NULL);
+        if (ret)
+            break;
+    }
     spin_unlock(&selftest_lock);
+
+    return ret;
 }
 
 static state selftest_main(int argc, char *argv[])
 {
     struct selftest_command *cmd;
     unsigned int count, loop = 1;
+    state ret;
 
     for (count = 1; count < argc; ++count) {
         char *para = argv[count];
@@ -130,19 +137,19 @@ static state selftest_main(int argc, char *argv[])
     }
 
     if (count == argc)
-        selftest_all(loop);
+        ret = selftest_all(loop);
 
     else if (count < argc) {
         cmd = selftest_find(argv[count]);
         if (!cmd)
             goto usage;
-        selftest_one(cmd, loop, argc - count + 1, &argv[count]);
+        ret = selftest_one(cmd, loop, argc - count + 1, &argv[count]);
     }
 
     else
         goto usage;
 
-    return -ENOERR;
+    return ret;
 
 usage:
     usage();
