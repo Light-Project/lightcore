@@ -3,9 +3,10 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <limits.h>
 #include <bitops.h>
+#include <kernel.h>
 #include <export.h>
+#include <lightcore/swab.h>
 
 /**
  * comp_find_first_bit - find first bit in a region
@@ -23,7 +24,7 @@ unsigned int comp_find_first_bit(const unsigned long *block, unsigned int bits)
             return base + ffsuf(*block);
     }
 
-    return ULONG_MAX;
+    return bits;
 }
 EXPORT_SYMBOL(comp_find_first_bit);
 
@@ -44,7 +45,8 @@ unsigned int comp_find_last_bit(const unsigned long *block, unsigned int bits)
             val = ULONG_MAX;
         } while (idx--);
     }
-    return ULONG_MAX;
+
+    return bits;
 }
 EXPORT_SYMBOL(comp_find_last_bit);
 
@@ -64,7 +66,7 @@ unsigned int comp_find_first_zero(const unsigned long *block, unsigned int bits)
             return base + ffzuf(*block);
     }
 
-    return ULONG_MAX;
+    return bits;
 }
 EXPORT_SYMBOL(comp_find_first_zero);
 
@@ -85,6 +87,85 @@ unsigned int comp_find_last_zero(const unsigned long *block, unsigned int bits)
             val = ULONG_MAX;
         } while (idx--);
     }
-    return ULONG_MAX;
+
+    return bits;
 }
 EXPORT_SYMBOL(comp_find_last_zero);
+
+unsigned int comp_find_next_bit(const unsigned long *addr1, const unsigned long *addr2,
+                                unsigned int bits, unsigned int start,
+                                unsigned long invert, bool le)
+{
+    unsigned long tmp, mask;
+
+    if (unlikely(start >= bits))
+        return bits;
+
+    tmp = addr1[start / BITS_PER_LONG];
+    if (addr2)
+        tmp &= addr2[start / BITS_PER_LONG];
+    tmp ^= invert;
+
+    mask = BIT_HIGH_MASK(start);
+    if (le)
+        mask = swab(mask);
+
+    tmp &= mask;
+    start = round_down(start, BITS_PER_LONG);
+
+    while (!tmp) {
+        start += BITS_PER_LONG;
+        if (start >= bits)
+            return bits;
+
+        tmp = addr1[start / BITS_PER_LONG];
+        if (addr2)
+            tmp &= addr2[start / BITS_PER_LONG];
+        tmp ^= invert;
+    }
+
+    if (le)
+        tmp = swab(tmp);
+
+    return min(start + ffsuf(tmp), bits);
+}
+EXPORT_SYMBOL(comp_find_next_bit);
+
+unsigned int comp_find_prev_bit(const unsigned long *addr1, const unsigned long *addr2,
+                                unsigned int bits, unsigned int start,
+                                unsigned long invert, bool le)
+{
+    unsigned long tmp, mask;
+
+    if (unlikely(start >= bits))
+        return bits;
+
+    tmp = addr1[start / BITS_PER_LONG];
+    if (addr2)
+        tmp &= addr2[start / BITS_PER_LONG];
+    tmp ^= invert;
+
+    mask = BIT_HIGH_MASK(start);
+    if (le)
+        mask = swab(mask);
+
+    tmp &= mask;
+    start = round_down(start, BITS_PER_LONG);
+
+    while (!tmp) {
+        start -= BITS_PER_LONG;
+        if (start >= bits)
+            return bits;
+
+        tmp = addr1[start / BITS_PER_LONG];
+        if (addr2)
+            tmp &= addr2[start / BITS_PER_LONG];
+        tmp ^= invert;
+    }
+
+    if (le)
+        tmp = swab(tmp);
+
+    return min(start + flsuf(tmp), bits);
+}
+EXPORT_SYMBOL(comp_find_prev_bit);
