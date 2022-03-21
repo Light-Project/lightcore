@@ -17,11 +17,11 @@ static void softirq_handle(void *pdata)
 
 static state softirq_testing(void *pdata)
 {
-    spinlock_t lock = SPIN_LOCK_UNLOCK;
     unsigned int count;
     state ret;
 
-    DEFINE_SOFTIRQ(softirq_test, softirq_handle, &lock);
+    SPIN_LOCK(lock);
+    DEFINE_SOFTIRQ(softirq_test, softirq_handle, &lock, 0);
 
     ret = softirq_regsiter(&softirq_test);
     if (ret)
