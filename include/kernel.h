@@ -9,6 +9,9 @@
 #include <error.h>
 #include <state.h>
 #include <size.h>
+#include <range.h>
+#include <align.h>
+#include <container.h>
 #include <math.h>
 #include <log2.h>
 
@@ -17,6 +20,10 @@
 
 #define REPEAT_BYTE(char) (                             \
     (~0UL / 0xff) * char                                \
+)
+
+#define COND_PTR(cond, ptr) (                           \
+    (cond) ? (ptr) : NULL                               \
 )
 
 /**
@@ -44,40 +51,6 @@
  */
 #define skzalloc(size) (                                \
     (void *)(char [size]){}                             \
-)
-
-/**
- * min - return minimum of two values of the same or compatible types
- * @a: first value
- * @b: second value
- */
-#define min(a, b) ({                                    \
-    typeof(a) _amin = (a);                              \
-    typeof(a) _bmin = (b);                              \
-    (void)(&_amin == &_bmin);                           \
-    _amin < _bmin ? _amin : _bmin;                      \
-})
-
-/**
- * max - return maximum of two values of the same or compatible types
- * @a: first value
- * @b: second value
- */
-#define max(a, b) ({                                    \
-    typeof(a) _amax = (a);                              \
-    typeof(a) _bmax = (b);                              \
-    (void)(&_amax == &_bmax);                           \
-    _amax > _bmax ? _amax : _bmax;                      \
-})
-
-/**
- * clamp - return a value clamped to a given range with strict typechecking.
- * @val: current value.
- * @lo: lowest allowable value.
- * @hi: highest allowable value.
- */
-#define clamp(val, lo, hi) (                            \
-    min(max(val, lo), hi)                               \
 )
 
 /**
@@ -111,52 +84,6 @@
 #define lower_16_bits(val) (                            \
     (uint16_t)((val) & 0xffff)                          \
 )
-
-/**
- * align_low/high - aligned address.
- * @size: address to aligned.
- * @align: alignment size.
- */
-#define align_low(size, align) ({                       \
-    (size) & ~((align) - 1);                            \
-})
-
-#define align_high(size, align) ({                      \
-    typeof(align) _align = (align);                     \
-    ((size) + (_align - 1)) & ~(_align - 1);            \
-})
-
-#define align_check(size, align) (                      \
-    !(size & ((align) - 1))                             \
-)
-
-#define align_ptr_low(ptr, align) ({                    \
-    (typeof(ptr))align_low((size_t)(ptr), align);       \
-})
-
-#define align_ptr_high(ptr, align) ({                   \
-    (typeof(ptr))align_high((size_t)(ptr), align);      \
-})
-
-#define align_ptr_check(ptr, align) ({                  \
-    align_check((size_t)(ptr), align);                  \
-})
-
-/**
- * container_of - cast a member of a structure out to the containing structure.
- * @ptr: the pointer to the member.
- * @type: the type of the container struct this is embedded in.
- * @member: the name of the member within the struct.
- */
-#define container_of(ptr, type, member) ({              \
-    const typeof(((type *)0)->member) *__mptr = (ptr);  \
-    (type *)((char *)__mptr - offsetof(type,member));   \
-})
-
-#define container_of_safe(ptr, type, member) ({         \
-    typeof(ptr) _ptr = (ptr);                           \
-    _ptr ? container_of(_ptr, type, member) : NULL;     \
-})
 
 extern int atoi(const char *nptr);
 extern unsigned long strtoul(const char *nptr);

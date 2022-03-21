@@ -92,8 +92,8 @@ do {                                                    \
 
 #define _raw_generic_unlock_irq(lock)                   \
 do {                                                    \
-    irq_local_enable();                                 \
     _raw_generic_unlock(lock);                          \
+    irq_local_enable();                                 \
 } while (0)
 
 #define _raw_generic_lock_irqsave(lock, flags)          \
@@ -104,8 +104,8 @@ do {                                                    \
 
 #define _raw_generic_unlock_irqrestore(lock, flags)     \
 do {                                                    \
-    irq_local_restore(*flags);                          \
     _raw_generic_unlock(lock);                          \
+    irq_local_restore(*flags);                          \
 } while (0)
 
 #define _raw_spin_lock(lock)                        _raw_generic_lock(lock)
