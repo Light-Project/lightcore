@@ -71,6 +71,7 @@ typedef uint32_t        dev_t;
 typedef uint16_t        umode_t;
 typedef int64_t         time_t;
 typedef int64_t         ktime_t;
+typedef uint64_t        ttime_t;
 
 typedef __key_t         key_t;
 typedef __mqd_t         mqd_t;

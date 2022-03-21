@@ -3,6 +3,7 @@
 #define _TIMERKEEPING_H_
 
 #include <ktime.h>
+#include <ticktime.h>
 #include <seqlock.h>
 
 struct clocksource_device;
@@ -53,14 +54,6 @@ struct timekeeper {
     uint64_t second_cycle;
     uint64_t rsecs;
 };
-
-#define SYSTICK_NSEC        \
-    DIV_ROUND_CLOSEST(      \
-        NSEC_PER_SEC,       \
-        CONFIG_SYSTICK_FREQ \
-)
-
-extern volatile uint64_t ticktime;
 
 /* kernel time get */
 extern ktime_t timekeeping_get_time(void);

@@ -17,19 +17,23 @@
     extern typeof(type) name
 
 #ifdef CONFIG_SMP
-# define
+# define percpu_ptr(cpu, ptr)
 #else
-# define percpu_ptr(cpu, ptr) ({ (void)(cpu); (typeof(*(ptr))*) (ptr);})
+# define percpu_ptr(cpu, ptr) ({ (void)(cpu); (typeof(*(ptr))*) (ptr); })
 #endif
 
 #define percpu(cpu, name)  (*percpu_ptr(cpu, &(name)))
 
 #ifdef CONFIG_SMP
-# define
+# define thiscpu_ptr(name) percpu_ptr(smp_processor_id(), name)
 #else
 # define thiscpu_ptr(name) percpu_ptr(0, name)
 #endif
 
-#define thiscpu(name) percpu(0, name)
+#ifdef CONFIG_SMP
+# define thiscpu(name) percpu(smp_processor_id(), name)
+#else
+# define thiscpu(name) percpu(0, name)
+#endif
 
 #endif  /* _ASM_GENERIC_PERCPU_H_ */

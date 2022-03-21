@@ -28,10 +28,10 @@ static inline bool cpu_active(unsigned int cpu)
     return cpu_online(cpu);
 }
 
-# define cpu_for_each(cpu) for (cpu = 0; cpu < 1; ++cpu)
-# define cpu_for_each_online(cpu) for_each_cpu(cpu)
-# define cpu_for_each_present(cpu) for_each_cpu(cpu)
-# define cpu_for_each_possible(cpu) for_each_cpu(cpu)
+# define cpu_for_each(cpu)              for (cpu = 0; cpu < 1; ++cpu)
+# define cpu_for_each_online(cpu)       cpu_for_each(cpu)
+# define cpu_for_each_present(cpu)      cpu_for_each(cpu)
+# define cpu_for_each_possible(cpu)     cpu_for_each(cpu)
 #endif  /* CONFIG_SMP */
 
 #define cpu_offline(cpu) unlikely(!cpu_online(cpu))

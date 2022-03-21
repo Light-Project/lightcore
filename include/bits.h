@@ -72,7 +72,7 @@
  * BIT_LOW_MASK - create a low position mask
  * @nbits: mask length
  * For example:
- * BIT_LOW_MASK(16) gives us the vector 0x0000ffff
+ * BIT_LOW_MASK(8) gives us the vector 0x000000ff
  */
 #define BIT_LOW_MASK(nbits) (                   \
     ULONG_MAX >>                                \
@@ -83,7 +83,7 @@
  * BIT_HIGH_MASK - create a high position mask
  * @nbits: mask length
  * For example:
- * BIT_LOW_MASK(16) gives us the vector 0xffff0000
+ * BIT_LOW_MASK(8) gives us the vector 0xffffff00
  */
 #define BIT_HIGH_MASK(nbits) (                  \
     ULONG_MAX <<                                \
