@@ -128,13 +128,11 @@
     likely(status);                                             \
 })
 
-#define xchg(ptr, val) __xchg_op(xchg, ptr, val, "")
-#define xadd(ptr, val) __xchg_op(xadd, ptr, val, LOCK_PREFIX)
-
-#define cmpxchg(ptr, old, new) __cmpxchg(ptr, old, new, LOCK_PREFIX)
-#define cmpxchg_sync(ptr, old, new) __cmpxchg(ptr, old, new, "lock; ")
-#define cmpxchg_local(ptr, old, new) __cmpxchg(ptr, old, new, "")
-
-#define try_cmpxchg(ptr, pold, new) __try_cmpxchg(ptr, pold, new, LOCK_PREFIX)
+#define arch_xchg(ptr, val)                 __xchg_op(xchg, ptr, val, "")
+#define arch_xadd(ptr, val)                 __xchg_op(xadd, ptr, val, LOCK_PREFIX)
+#define arch_cmpxchg(ptr, old, new)         __cmpxchg(ptr, old, new, LOCK_PREFIX)
+#define arch_cmpxchg_sync(ptr, old, new)    __cmpxchg(ptr, old, new, "lock; ")
+#define arch_cmpxchg_local(ptr, old, new)   __cmpxchg(ptr, old, new, "")
+#define arch_try_cmpxchg(ptr, pold, new)    __try_cmpxchg(ptr, pold, new, LOCK_PREFIX)
 
 #endif  /* _ASM_X86_CMPXCHG_H_ */

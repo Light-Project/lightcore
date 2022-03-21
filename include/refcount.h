@@ -3,7 +3,7 @@
 #define _REFCOUNT_H_
 
 #include <types.h>
-#include <asm/atomic.h>
+#include <atomic.h>
 
 typedef struct refcount {
     atomic_t count;
