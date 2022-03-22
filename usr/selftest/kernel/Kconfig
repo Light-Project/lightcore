@@ -4,6 +4,10 @@ menuconfig SELFTEST_KERNEL
     default y
 if SELFTEST_KERNEL
 
+config SELFTEST_KERNEL_KCORO
+    bool "Random Unit Tests"
+    default y
+
 config SELFTEST_KERNEL_RANDOM
     bool "Random Test"
     default y

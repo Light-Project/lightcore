@@ -17,7 +17,7 @@ static state random_testing(void *pdata)
 
     for (count = 0; count < TEST_LOOP; ++count) {
         value = random_long();
-        printk("test%02u: %lx\n", count, value);
+        printk("random test%02u: %lx\n", count, value);
     }
 
     return -ENOERR;
@@ -26,7 +26,7 @@ static state random_testing(void *pdata)
 static struct selftest_command random_command = {
     .group = "kernel",
     .name = "random",
-    .desc = "benchmark random",
+    .desc = "random unit test",
     .testing = random_testing,
 };
 

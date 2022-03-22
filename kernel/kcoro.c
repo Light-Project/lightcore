@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "kcoro: " fmt
+#define MODULE_NAME "kcoro"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <kcoro.h>
 #include <panic.h>
@@ -90,7 +91,8 @@ static inline void kcoro_worker_update(struct kcoro_worker *worker)
 
 /**
  * kcoro_worker_enqueue - enqueue work to a worker
- *
+ * @worker: the worker pointer
+ * @work: the work to be enqueue
  */
 static void kcoro_worker_enqueue(struct kcoro_worker *worker, struct kcoro_work *work)
 {
@@ -101,6 +103,8 @@ static void kcoro_worker_enqueue(struct kcoro_worker *worker, struct kcoro_work 
 
 /**
  * kcoro_worker_dequeue - dequeue work form a worker
+ * @worker: the worker pointer
+ * @work: the work to be dequeue
  */
 static void kcoro_worker_dequeue(struct kcoro_worker *worker, struct kcoro_work *work)
 {
@@ -111,6 +115,7 @@ static void kcoro_worker_dequeue(struct kcoro_worker *worker, struct kcoro_work 
 
 /**
  * kcoro_work_prio - coroutine scheduling core
+ * @prio: new priority to replace
  */
 void kcoro_work_prio(int prio)
 {
@@ -130,9 +135,6 @@ void kcoro_work_prio(int prio)
 }
 EXPORT_SYMBOL(kcoro_work_prio);
 
-/**
- * kcoro_yield - yield the current worker to other coroutine
- */
 void kcoro_yield(void)
 {
     struct kcoro_worker *worker = current->pdata;
@@ -176,9 +178,6 @@ void kcoro_yield(void)
 }
 EXPORT_SYMBOL(kcoro_yield);
 
-/**
- * kcoro_exit - exit the current coroutine
- */
 void kcoro_exit(void)
 {
     struct kcoro_worker *worker = current->pdata;
@@ -188,14 +187,50 @@ void kcoro_exit(void)
 }
 EXPORT_SYMBOL(kcoro_exit);
 
+void kcoro_nsleep(unsigned int nsec)
+{
+    ktime_t timeout = ktime_add_ns(timekeeping_get_time(), nsec);
+    struct kcoro_work *work = ((struct kcoro_worker *)current->pdata)->curr;
+    while (ktime_before(timekeeping_get_time(), timeout)) {
+        kcoro_dyprio_inc(work);
+        kcoro_yield();
+    }
+    kcoro_dyprio_reset(work);
+}
+
+void kcoro_usleep(unsigned int usec)
+{
+    ktime_t timeout = ktime_add_us(timekeeping_get_time(), usec);
+    struct kcoro_work *work = ((struct kcoro_worker *)current->pdata)->curr;
+    while (ktime_before(timekeeping_get_time(), timeout)) {
+        kcoro_dyprio_inc(work);
+        kcoro_yield();
+    }
+    kcoro_dyprio_reset(work);
+}
+
+void kcoro_msleep(unsigned int msec)
+{
+    ktime_t timeout = ktime_add_ms(timekeeping_get_time(), msec);
+    struct kcoro_work *work = ((struct kcoro_worker *)current->pdata)->curr;
+    while (ktime_before(timekeeping_get_time(), timeout)) {
+        kcoro_dyprio_inc(work);
+        kcoro_yield();
+    }
+    kcoro_dyprio_reset(work);
+}
+
 /**
  * kcoro_dispatch - coroutine scheduler
+ * @pdata: the worker pointer
  */
-void kcoro_dispatch(void)
+void kcoro_dispatch(void *pdata)
 {
-    struct kcoro_worker *worker = current->pdata;
+    struct kcoro_worker *worker = pdata;
     struct kcoro_work *next, *curr;
     struct kcontext *context;
+
+    current->pdata = worker;
 
     while ((next = kcoro_work_pick(worker))) {
         kcoro_worker_dequeue(worker, next);
@@ -208,9 +243,8 @@ void kcoro_dispatch(void)
 }
 EXPORT_SYMBOL(kcoro_dispatch);
 
-static struct kcoro_work *kcoro_work_vcreate(struct kcoro_worker *worker,
-                                             kcoro_entry_t entry, void *pdata,
-                                             const char *namefmt, va_list args)
+struct kcoro_work *kcoro_work_vcreate(struct kcoro_worker *worker, kcoro_entry_t entry,
+                                      void *pdata, const char *namefmt, va_list args)
 {
     struct kcoro_work *work;
     void *stack;
@@ -240,7 +274,15 @@ static struct kcoro_work *kcoro_work_vcreate(struct kcoro_worker *worker,
 
     return work;
 }
+EXPORT_SYMBOL(kcoro_work_vcreate);
 
+/**
+ * kcoro_work_create - create a kcoroutine work
+ * @worker: the worker pointer
+ * @entry: the work handle entry
+ * @pdata: handle entry pdata
+ * @namefmt: name format for the work
+ */
 struct kcoro_work *kcoro_work_create(struct kcoro_worker *worker,
                                      kcoro_entry_t entry, void *pdata,
                                      const char *namefmt, ...)
@@ -256,6 +298,10 @@ struct kcoro_work *kcoro_work_create(struct kcoro_worker *worker,
 }
 EXPORT_SYMBOL(kcoro_work_create);
 
+/**
+ * kcoro_work_destroy - destroy a kcoroutine work
+ * @work: the work to destroy
+ */
 void kcoro_work_destroy(struct kcoro_work *work)
 {
     struct kcoro_worker *worker = work->worker;
@@ -269,7 +315,7 @@ void kcoro_work_destroy(struct kcoro_work *work)
 }
 EXPORT_SYMBOL(kcoro_work_destroy);
 
-static struct kcoro_worker *kcoro_worker_vcreate(int cpu, const char *name, va_list args)
+struct kcoro_worker *kcoro_worker_vcreate(const char *name, va_list args)
 {
     struct kcoro_worker *worker;
 
@@ -282,10 +328,11 @@ static struct kcoro_worker *kcoro_worker_vcreate(int cpu, const char *name, va_l
 
     return worker;
 }
+EXPORT_SYMBOL(kcoro_worker_vcreate);
 
 /**
  * kthread_create_worker - create a kcoroutine worker
- * @namefmt: name format for the kcoroutine worker
+ * @namefmt: name format for the worker
  */
 struct kcoro_worker *kcoro_worker_create(const char *namefmt, ...)
 {
@@ -293,7 +340,7 @@ struct kcoro_worker *kcoro_worker_create(const char *namefmt, ...)
     va_list args;
 
     va_start(args, namefmt);
-    worker = kcoro_worker_vcreate(-1, namefmt, args);
+    worker = kcoro_worker_vcreate(namefmt, args);
     va_end(args);
 
     return worker;
@@ -301,23 +348,9 @@ struct kcoro_worker *kcoro_worker_create(const char *namefmt, ...)
 EXPORT_SYMBOL(kcoro_worker_create);
 
 /**
- * kthread_create_worker - create a kcoroutine worker on specific CPU
- * @cpu: CPU number
- * @namefmt: name format for the kcoroutine worker
+ * kcoro_worker_destroy - destroy a kcoroutine worker
+ * @worker: the worker to destroy
  */
-struct kcoro_worker *kcoro_worker_create_on_cpu(int cpu, const char *namefmt, ...)
-{
-    struct kcoro_worker *worker;
-    va_list args;
-
-    va_start(args, namefmt);
-    worker = kcoro_worker_vcreate(cpu, namefmt, args);
-    va_end(args);
-
-    return worker;
-}
-EXPORT_SYMBOL(kcoro_worker_create_on_cpu);
-
 void kcoro_worker_destroy(struct kcoro_worker *worker)
 {
     kfree(worker);
