@@ -299,7 +299,7 @@ generic_get_##reg(void)                 \
     type val;                           \
                                         \
     asm volatile (                      \
-        "mov    %%"#reg", %0\n"         \
+        _ASM_MOV " %%"#reg", %0\n"      \
         :"=Na"(val)                     \
     );                                  \
                                         \
@@ -311,7 +311,7 @@ static __always_inline void             \
 generic_set_##reg(type value)           \
 {                                       \
     asm volatile (                      \
-        "mov    %0, %%"#reg"\n"         \
+        _ASM_MOV " %0, %%"#reg"\n"      \
         ::"Na"(value)                   \
     );                                  \
 }

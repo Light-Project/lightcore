@@ -18,6 +18,7 @@ subdir-$(CONFIG_SMP) += smpboot/
 $(obj)/smp.o: $(obj)/smpboot/
 
 $(obj)/setup.o: $(obj)/asm-offset.h
+$(obj)/entry32.o: $(obj)/asm-offset.h
 $(obj)/lib: $(obj)/asm-offset.h
 
 extra-y += asm-offset.h kernel.lds

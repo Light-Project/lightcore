@@ -12,8 +12,14 @@
 # define __ASM_FORM_COMMA(x)    " " __stringify(x) ","
 #endif
 
-#define __ASM_SEL(a,b)          __ASM_FORM(a)
-#define __ASM_SEL_RAW(a,b)      __ASM_FORM_RAW(a)
+#ifdef CONFIG_ARCH_X86_32
+# define __ASM_SEL(a, b)        __ASM_FORM(a)
+# define __ASM_SEL_RAW(a, b)    __ASM_FORM_RAW(a)
+#else
+# define __ASM_SEL(a, b)        __ASM_FORM(b)
+# define __ASM_SEL_RAW(a, b)    __ASM_FORM_RAW(b)
+#endif
+
 #define __ASM_SIZE(inst, ...)   __ASM_SEL(inst##l##__VA_ARGS__, inst##q##__VA_ARGS__)
 #define __ASM_REG(reg)          __ASM_SEL_RAW(e##reg, r##reg)
 

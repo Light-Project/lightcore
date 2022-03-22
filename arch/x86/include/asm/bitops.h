@@ -45,17 +45,17 @@ static __always_inline void arch_bit_flip(volatile unsigned long *addr, long bit
 #define arch_bit_test arch_bit_test
 static __always_inline bool arch_bit_test(volatile unsigned long *addr, long bit)
 {
-    bool ret;
+    bool oldbit;
 
     asm volatile (
         __ASM_SIZE(bt) " %2,%1"
         CC_SET(c)
-        : CC_OUT(c)(ret)
+        : CC_OUT(c) (oldbit)
         : ADDR(addr), "Ir"(bit)
         : "memory"
     );
 
-    return ret;
+    return oldbit;
 }
 
 #define arch_bit_test_set arch_bit_test_set
@@ -67,7 +67,8 @@ static __always_inline bool arch_bit_test_set(volatile unsigned long *addr, long
         __ASM_SIZE(bts) " %2,%1"
         CC_SET(c)
         : CC_OUT(c) (oldbit)
-        : ADDR(addr), "Ir" (bit) : "memory"
+        : ADDR(addr), "Ir" (bit)
+        : "memory"
     );
 
     return oldbit;
@@ -117,7 +118,7 @@ static __always_inline void arch_bit_atomic_clr(volatile unsigned long *addr, lo
     } else {
         asm volatile (
             LOCK_PREFIX __ASM_SIZE(btr) " %1,%0"
-            :: RLONG_ADDR(addr), "Ir" (bit)
+            : : RLONG_ADDR(addr), "Ir" (bit)
             : "memory"
         );
     }
@@ -136,7 +137,7 @@ static __always_inline void arch_bit_atomic_set(volatile unsigned long *addr, lo
     } else {
         asm volatile (
             LOCK_PREFIX __ASM_SIZE(bts) " %1,%0"
-            :: RLONG_ADDR(addr), "Ir" (bit)
+            : : RLONG_ADDR(addr), "Ir" (bit)
             : "memory"
         );
     }
