@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menu "Timer config"
+config TIMER_SHIFT
+    int "Timer level divisor shift"
+    default 3
+
+config TIMER_LEVEL
+    int "Timer level size shift"
+    default 6
+
+config TIMER_DEPTH
+    int "Timer level depth"
+    default 8
+
+choice
+    prompt "Timer tick handling"
+
+config TICK_PERIODIC
+    bool "Periodic timer ticks"
+
+config TICK_DYNAMIC
+    bool "Idle dynticks system"
+
+endchoice
+endmenu

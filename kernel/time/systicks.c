@@ -3,11 +3,13 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
+#include <timer.h>
 #include <timekeeping.h>
 #include <driver/clockevent.h>
 
 static void systick_periodic(void)
 {
+    timer_update();
     timekeeping_tick();
 }
 

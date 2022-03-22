@@ -108,10 +108,10 @@ static inline void hlist_prev_add(struct hlist_node *node, struct hlist_node *ne
 }
 
 /**
- * hlist_del_uc - delete the specified hlist_node from its list (unsafe).
+ * hlist_deluf - delete the specified hlist_node from its list (unsafe).
  * @node: the element to delete from the list.
  */
-static inline void hlist_del_uc(struct hlist_node *node)
+static inline void hlist_deluf(struct hlist_node *node)
 {
     struct hlist_node **pprev = node->pprev;
     struct hlist_node *next = node->next;
@@ -133,7 +133,7 @@ static inline void hlist_del(struct hlist_node *node)
         return;
 #endif
 
-    hlist_del_uc(node);
+    hlist_deluf(node);
     node->next = POISON_HLIST1;
     node->pprev = POISON_HLIST2;
 }
@@ -144,7 +144,7 @@ static inline void hlist_del(struct hlist_node *node)
  */
 static inline void hlist_del_init(struct hlist_node *node)
 {
-    hlist_del_uc(node);
+    hlist_deluf(node);
     hlist_node_init(node);
 }
 

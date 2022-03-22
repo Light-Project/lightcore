@@ -52,6 +52,8 @@ config BUILTIN_DTB_PATH
 
 source "kernel/irq/Kconfig"
 
+source "kernel/time/Kconfig"
+
 endmenu
 
 config VERSION

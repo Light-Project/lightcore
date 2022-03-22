@@ -13,6 +13,7 @@
 #include <idr.h>
 #include <task.h>
 #include <softirq.h>
+#include <timer.h>
 #include <kcoro.h>
 #include <filesystem.h>
 
@@ -67,6 +68,7 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
 
     sched_init();
     softirq_init();
+    timer_init();
 
     /* basic driver */
     device_init();

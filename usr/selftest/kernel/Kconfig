@@ -12,4 +12,8 @@ config SELFTEST_KERNEL_SOFTIRQ
     bool "Softirq Test"
     default y
 
+config SELFTEST_KERNEL_TIMER
+    bool "Timer Test"
+    default y
+
 endif

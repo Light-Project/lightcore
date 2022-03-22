@@ -7,7 +7,7 @@
 
 typedef void (*softirq_entry_t)(void *pdata);
 
-enum timer_flags {
+enum sofirq_flags {
     __SOFTIRQ_IRQ_SAFE      = 0,
     __SOFTIRQ_PERIODIC      = 1,
 };
