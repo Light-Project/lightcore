@@ -13,7 +13,7 @@
 #define TEST_LOOP 100
 
 struct idr_test_pdata {
-    struct idr *idr;
+    struct idr_root *idr;
     struct idr_node node[TEST_LOOP];
 };
 

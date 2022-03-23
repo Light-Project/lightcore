@@ -31,13 +31,13 @@ static long idr_rb_find(const struct rb_node *rb, const void *key)
  * @max: maximum id to get
  * @nextp: return the next linked list node
  */
-static unsigned long idr_get_free_range(struct idr *idr, unsigned long min, unsigned long max, struct list_head **nextp)
+static unsigned long idr_get_free_range(struct idr_root *idr, unsigned long min, unsigned long max, struct list_head **nextp)
 {
     unsigned long walk;
     struct idr_node *node;
     struct rb_node *rb;
 
-    min = max(max(min, 1), idr->id_base);
+    min = max(min, 1);
 
     rb = rb_find(&idr->root, (void *)min, idr_rb_find);
     if (unlikely(!(node = rb_to_idr_safe(rb)))) {
@@ -69,7 +69,7 @@ finish:
  * @min: minimum id
  * @max: maximum id
  */
-unsigned long idr_node_alloc_range(struct idr *idr, struct idr_node *node, void *pdata, unsigned long min, unsigned long max)
+unsigned long idr_node_alloc_range(struct idr_root *idr, struct idr_node *node, void *pdata, unsigned long min, unsigned long max)
 {
     struct list_head *next;
     unsigned long id;
@@ -87,7 +87,7 @@ unsigned long idr_node_alloc_range(struct idr *idr, struct idr_node *node, void 
 
 finish:
     spin_unlock(&idr->lock);
-    return id;
+    return id + idr->id_base;
 }
 EXPORT_SYMBOL(idr_node_alloc_range);
 
@@ -99,7 +99,7 @@ EXPORT_SYMBOL(idr_node_alloc_range);
  * @min: minimum id
  * @max: maximum id
  */
-unsigned long idr_node_alloc_cyclic_range(struct idr *idr, struct idr_node *node, void *pdata, unsigned long min, unsigned long max)
+unsigned long idr_node_alloc_cyclic_range(struct idr_root *idr, struct idr_node *node, void *pdata, unsigned long min, unsigned long max)
 {
     unsigned long next;
     unsigned long id;
@@ -114,9 +114,36 @@ unsigned long idr_node_alloc_cyclic_range(struct idr *idr, struct idr_node *node
         return id;
 
     idr->id_next = id + 1;
-    return id;
+    return id + idr->id_base;
 }
 EXPORT_SYMBOL(idr_node_alloc_cyclic_range);
+
+/**
+ * idr_node_free - remove an id from the idr
+ * @idr: the idr handle
+ * @id: the id to release
+ */
+struct idr_node *idr_node_free(struct idr_root *idr, unsigned long id)
+{
+    struct idr_node *node;
+    struct rb_node *rb;
+
+    id -= idr->id_base;
+
+    spin_lock(&idr->lock);
+
+    rb = rb_find(&idr->root, (void *)id, idr_rb_find);
+    if (!(node = rb_to_idr_safe(rb)))
+        goto finish;
+
+    list_del(&node->list);
+    rb_delete(&idr->root, &node->rb);
+
+finish:
+    spin_unlock(&idr->lock);
+    return node;
+}
+EXPORT_SYMBOL(idr_node_free);
 
 /**
  * idr_alloc_range - alloc a node and sequence add the id to idr
@@ -126,7 +153,7 @@ EXPORT_SYMBOL(idr_node_alloc_cyclic_range);
  * @max: maximum id
  * @flags: gfp flags
  */
-unsigned long idr_alloc_range(struct idr *idr, void *pdata, unsigned long min, unsigned long max, gfp_t flags)
+unsigned long idr_alloc_range(struct idr_root *idr, void *pdata, unsigned long min, unsigned long max, gfp_t flags)
 {
     struct idr_node *node;
     unsigned long id;
@@ -151,7 +178,7 @@ EXPORT_SYMBOL(idr_alloc_range);
  * @max: maximum id
  * @flags: gfp flags
  */
-unsigned long idr_alloc_cyclic_range(struct idr *idr, void *pdata, unsigned long min, unsigned long max, gfp_t flags)
+unsigned long idr_alloc_cyclic_range(struct idr_root *idr, void *pdata, unsigned long min, unsigned long max, gfp_t flags)
 {
     struct idr_node *node;
     unsigned long id;
@@ -169,36 +196,11 @@ unsigned long idr_alloc_cyclic_range(struct idr *idr, void *pdata, unsigned long
 EXPORT_SYMBOL(idr_alloc_cyclic_range);
 
 /**
- * idr_node_free - remove an id from the idr
- * @idr: the idr handle
- * @id: the id to release
- */
-struct idr_node *idr_node_free(struct idr *idr, unsigned long id)
-{
-    struct idr_node *node;
-    struct rb_node *rb;
-
-    spin_lock(&idr->lock);
-
-    rb = rb_find(&idr->root, (void *)id, idr_rb_find);
-    if (!(node = rb_to_idr_safe(rb)))
-        goto finish;
-
-    list_del(&node->list);
-    rb_delete(&idr->root, &node->rb);
-
-finish:
-    spin_unlock(&idr->lock);
-    return node;
-}
-EXPORT_SYMBOL(idr_node_free);
-
-/**
  * idr_free - remove id from the idr and free
  * @idr: the idr handle
  * @id: the id to release
  */
-void idr_free(struct idr *idr, unsigned long id)
+void idr_free(struct idr_root *idr, unsigned long id)
 {
     struct idr_node *node;
 
@@ -213,7 +215,7 @@ EXPORT_SYMBOL(idr_free);
  * @idr: the idr handle
  * @id: the id to find
  */
-void *idr_find(struct idr *idr, unsigned long id)
+void *idr_find(struct idr_root *idr, unsigned long id)
 {
     struct idr_node *node;
     struct rb_node *rb;
@@ -232,7 +234,7 @@ EXPORT_SYMBOL(idr_find);
  * idr_release - remove id from the idr and free
  * @idr: the idr handle
  */
-void idr_release(struct idr *idr)
+void idr_release(struct idr_root *idr)
 {
     struct idr_node *node, *next;
 
@@ -245,21 +247,29 @@ void idr_release(struct idr *idr)
 EXPORT_SYMBOL(idr_release);
 
 /**
- * idr_create - create an idr
+ * idr_root_init - create an idr
  * @base: id number base
  */
-struct idr *idr_create(unsigned long base)
+void idr_root_init(struct idr_root *idr, unsigned long base)
 {
-    struct idr *idr;
-
-    idr = kcache_alloc(idr_cache, GFP_KERNEL);
-    if (!idr)
-        return idr;
-
     idr->id_base = base;
     idr->root = RB_INIT;
     list_head_init(&idr->list);
     spin_lock_init(&idr->lock);
+}
+EXPORT_SYMBOL(idr_root_init);
+
+/**
+ * idr_create - create an idr
+ * @base: id number base
+ */
+struct idr_root *idr_create(unsigned long base)
+{
+    struct idr_root *idr;
+
+    idr = kcache_alloc(idr_cache, GFP_KERNEL);
+    if (idr)
+        idr_root_init(idr, base);
 
     return idr;
 }
@@ -269,7 +279,7 @@ EXPORT_SYMBOL(idr_create);
  * idr_delete - delete an idr
  * @idr: the idr handle
  */
-void idr_delete(struct idr *idr)
+void idr_delete(struct idr_root *idr)
 {
     idr_release(idr);
     kcache_free(idr_cache, idr);
@@ -278,6 +288,6 @@ EXPORT_SYMBOL(idr_delete);
 
 void __init idr_init(void)
 {
-    idr_cache = KCACHE_CREATE(struct idr, KCACHE_PANIC);
+    idr_cache = KCACHE_CREATE(struct idr_root, KCACHE_PANIC);
     idrn_cache = KCACHE_CREATE(struct idr_node, KCACHE_PANIC);
 }

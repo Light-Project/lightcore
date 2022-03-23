@@ -9,7 +9,7 @@
 
 #define IDR_NONE 0
 
-struct idr {
+struct idr_root {
     spinlock_t lock;
     struct rb_root root;
     struct list_head list;
@@ -33,51 +33,52 @@ struct idr_node {
 #define list_to_idr(ptr) \
     list_entry(ptr, struct idr_node, list)
 
-extern unsigned long idr_node_alloc_range(struct idr *idr, struct idr_node *node, void *pdata, unsigned long min, unsigned long max);
-extern unsigned long idr_node_alloc_cyclic_range(struct idr *idr, struct idr_node *node, void *pdata, unsigned long min, unsigned long max);
-extern unsigned long idr_alloc_range(struct idr *idr, void *pdata, unsigned long min, unsigned long max, gfp_t flags);
-extern unsigned long idr_alloc_cyclic_range(struct idr *idr, void *pdata, unsigned long min, unsigned long max, gfp_t flags);
-extern struct idr_node *idr_node_free(struct idr *idr, unsigned long id);
-extern void idr_free(struct idr *idr, unsigned long id);
-extern void *idr_find(struct idr *idr, unsigned long id);
-extern struct idr *idr_create(unsigned long base);
-extern void idr_release(struct idr *idr);
-extern void idr_delete(struct idr *idr);
+extern unsigned long idr_node_alloc_range(struct idr_root *idr, struct idr_node *node, void *pdata, unsigned long min, unsigned long max);
+extern unsigned long idr_node_alloc_cyclic_range(struct idr_root *idr, struct idr_node *node, void *pdata, unsigned long min, unsigned long max);
+extern struct idr_node *idr_node_free(struct idr_root *idr, unsigned long id);
+extern unsigned long idr_alloc_range(struct idr_root *idr, void *pdata, unsigned long min, unsigned long max, gfp_t flags);
+extern unsigned long idr_alloc_cyclic_range(struct idr_root *idr, void *pdata, unsigned long min, unsigned long max, gfp_t flags);
+extern void idr_free(struct idr_root *idr, unsigned long id);
+extern void *idr_find(struct idr_root *idr, unsigned long id);
+extern void idr_root_init(struct idr_root *idr, unsigned long base);
+extern struct idr_root *idr_create(unsigned long base);
+extern void idr_release(struct idr_root *idr);
+extern void idr_delete(struct idr_root *idr);
 extern void __init idr_init(void);
 
 #define IDR_ALLOC_OP(name, function)                                                                        \
 static inline unsigned long                                                                                 \
-generic_idr_node_##name(struct idr *idr, struct idr_node *node, void *pdata)                                \
+generic_idr_node_##name(struct idr_root *idr, struct idr_node *node, void *pdata)                           \
 {                                                                                                           \
     return idr_node_##function(idr, node, pdata, ULONG_MIN, ULONG_MAX);                                     \
 }                                                                                                           \
                                                                                                             \
 static inline unsigned long                                                                                 \
-generic_idr_node_##name##_min(struct idr *idr, struct idr_node *node, void *pdata, unsigned long min)       \
+generic_idr_node_##name##_min(struct idr_root *idr, struct idr_node *node, void *pdata, unsigned long min)  \
 {                                                                                                           \
     return idr_node_##function(idr, node, pdata, min, ULONG_MAX);                                           \
 }                                                                                                           \
                                                                                                             \
 static inline unsigned long                                                                                 \
-generic_idr_node_##name##_max(struct idr *idr, struct idr_node *node, void *pdata, unsigned long max)       \
+generic_idr_node_##name##_max(struct idr_root *idr, struct idr_node *node, void *pdata, unsigned long max)  \
 {                                                                                                           \
     return idr_node_##function(idr, node, pdata, ULONG_MIN, max);                                           \
 }                                                                                                           \
                                                                                                             \
 static inline unsigned long                                                                                 \
-generic_idr_##name(struct idr *idr, void *pdata, gfp_t flags)                                               \
+generic_idr_##name(struct idr_root *idr, void *pdata, gfp_t flags)                                          \
 {                                                                                                           \
     return idr_##function(idr, pdata, ULONG_MIN, ULONG_MAX, flags);                                         \
 }                                                                                                           \
                                                                                                             \
 static inline unsigned long                                                                                 \
-generic_idr_##name##_min(struct idr *idr, void *pdata, unsigned long min, gfp_t flags)                      \
+generic_idr_##name##_min(struct idr_root *idr, void *pdata, unsigned long min, gfp_t flags)                 \
 {                                                                                                           \
     return idr_##function(idr, pdata, min, ULONG_MAX, flags);                                               \
 }                                                                                                           \
                                                                                                             \
 static inline unsigned long                                                                                 \
-generic_idr_##name##_max(struct idr *idr, void *pdata, unsigned long max, gfp_t flags)                      \
+generic_idr_##name##_max(struct idr_root *idr, void *pdata, unsigned long max, gfp_t flags)                 \
 {                                                                                                           \
     return idr_##function(idr, pdata, ULONG_MIN, max, flags);                                               \
 }

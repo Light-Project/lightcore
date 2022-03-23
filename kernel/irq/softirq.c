@@ -16,7 +16,7 @@
 #define SOFTIRQ_RETRY   16
 
 static struct kcache *softirq_cache;
-static struct idr *softirq_idr;
+static struct idr_root *softirq_idr;
 
 asmlinkage __visible __softirq_entry void softirq_handle(void)
 {
