@@ -47,12 +47,12 @@ bool hlist_debug_del_check(struct hlist_node *node)
 {
     if (DEBUG_DATA_CHECK(node->next == POISON_HLIST1,
         "hlist_del corruption (%p) node->next should not be POISON_HLIST1 (%p)",
-        node, POISON_LIST1))
+        node, POISON_HLIST1))
         return false;
 
     if (DEBUG_DATA_CHECK(node->pprev == POISON_HLIST2,
         "hlist_del corruption (%p) node->pprev should not be POISON_HLIST2 (%p)",
-        node, POISON_LIST2))
+        node, POISON_HLIST2))
         return false;
 
     return true;

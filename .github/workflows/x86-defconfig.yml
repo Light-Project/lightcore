@@ -22,6 +22,6 @@ jobs:
     - name: make x86_defconfig
       run:  make x86_defconfig
     - name: make
-      run:  make -j$(($(nproc --all) * 2))
+      run:  make
     - name: make distclean
       run:  make distclean

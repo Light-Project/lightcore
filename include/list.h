@@ -186,7 +186,8 @@ static inline bool list_check_empty(const struct list_head *head)
  */
 static inline bool list_check_outsize(const struct list_head *node)
 {
-    return !node->prev && !node->next;
+    return node->next == POISON_LIST1 &&
+           node->prev == POISON_LIST2;
 }
 
 /**
