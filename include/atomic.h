@@ -202,7 +202,7 @@ static __always_inline bool atomic_try_cmpxchg(atomic_t *atomic, atomic_t *old, 
 {
     instrument_atomic_read_write(atomic, sizeof(*atomic));
 	instrument_atomic_read_write(old, sizeof(*old));
-    return atomic_try_cmpxchg(atomic, old, new);
+    return arch_atomic_try_cmpxchg(atomic, old, new);
 }
 
 #define xchg(ptr, ...) ({                                   \

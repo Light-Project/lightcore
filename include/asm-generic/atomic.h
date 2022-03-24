@@ -237,7 +237,7 @@ ATOMIC_RETURN_OP(xor, ^=)
 #ifndef arch_atomic_add_test
 static __always_inline bool arch_atomic_add_test(atomic_t *atomic, atomic_t val)
 {
-    return !!arch_atomic_add_return(atomic, val);
+    return !arch_atomic_add_return(atomic, val);
 }
 #endif
 
@@ -249,7 +249,7 @@ static __always_inline bool arch_atomic_add_test(atomic_t *atomic, atomic_t val)
 #ifndef arch_atomic_sub_test
 static __always_inline bool arch_atomic_sub_test(atomic_t *atomic, atomic_t val)
 {
-    return !!arch_atomic_sub_return(atomic, val);
+    return !arch_atomic_sub_return(atomic, val);
 }
 #endif
 
@@ -261,7 +261,7 @@ static __always_inline bool arch_atomic_sub_test(atomic_t *atomic, atomic_t val)
 #ifndef arch_atomic_and_test
 static __always_inline bool arch_atomic_and_test(atomic_t *atomic, atomic_t val)
 {
-    return !!arch_atomic_and_return(atomic, val);
+    return !arch_atomic_and_return(atomic, val);
 }
 #endif
 
@@ -273,7 +273,7 @@ static __always_inline bool arch_atomic_and_test(atomic_t *atomic, atomic_t val)
 #ifndef arch_atomic_or_test
 static __always_inline bool arch_atomic_or_test(atomic_t *atomic, atomic_t val)
 {
-    return !!arch_atomic_or_return(atomic, val);
+    return !arch_atomic_or_return(atomic, val);
 }
 #endif
 
@@ -285,7 +285,7 @@ static __always_inline bool arch_atomic_or_test(atomic_t *atomic, atomic_t val)
 #ifndef arch_atomic_xor_test
 static __always_inline bool arch_atomic_xor_test(atomic_t *atomic, atomic_t val)
 {
-    return !!arch_atomic_xor_return(atomic, val);
+    return !arch_atomic_xor_return(atomic, val);
 }
 #endif
 
@@ -362,7 +362,7 @@ static __always_inline atomic_t arch_atomic_dec_return(atomic_t *atomic)
 #ifndef arch_atomic_inc_test
 static __always_inline bool arch_atomic_inc_test(atomic_t *atomic)
 {
-    return !!arch_atomic_inc_return(atomic);
+    return !arch_atomic_inc_return(atomic);
 }
 #endif
 
@@ -373,7 +373,7 @@ static __always_inline bool arch_atomic_inc_test(atomic_t *atomic)
 #ifndef arch_atomic_dec_test
 static __always_inline bool arch_atomic_dec_test(atomic_t *atomic)
 {
-    return !!arch_atomic_dec_return(atomic);
+    return !arch_atomic_dec_return(atomic);
 }
 #endif
 

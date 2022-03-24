@@ -3,25 +3,49 @@ menu "Kernel Hacking"
 
 source "kernel/printk/Kconfig"
 
-config DEBUG_SPINLOCK
-    bool "Spinlock Debugging Support"
+config DEBUG_KERNEL
+    bool "Kernel debugging"
     default y
 
+menu "Debug Lockups"
+
+config DEBUG_SPINLOCK
+    bool "Debug spinlock deadlock"
+    depends on DEBUG_KERNEL
+    default y
+
+endmenu # Debug Lockups
+
+menu "Memory Debugging"
+
+config DEBUG_SLOB
+    bool "Debug slob out of bounds"
+    depends on DEBUG_KERNEL && MM_SLOB
+    default y
+
+endmenu # Memory Debugging
+
+menu "Debugging data structures"
+
 config DEBUG_LIST
-    bool "List Debugging Support"
+    bool "Debug list manipulation"
+    depends on DEBUG_KERNEL
     default y
 
 config DEBUG_HLIST
-    bool "Hash List Debugging Support"
+    bool "Debug hash List manipulation"
+    depends on DEBUG_KERNEL
     default y
 
 config DEBUG_SLIST
-    bool "Single List Debugging Support"
+    bool "Debug single List manipulation"
+    depends on DEBUG_KERNEL
     default y
 
-config DEBUG_SLOB
-    bool "Slob Debugging Support"
-    depends on MM_SLOB
+config DEBUG_REFCOUNT
+    bool "Debug refcount saturation"
+    depends on DEBUG_KERNEL
     default y
 
-endmenu
+endmenu # Debug data structures
+endmenu # Kernel Hacking
