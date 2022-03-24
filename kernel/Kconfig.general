@@ -50,6 +50,10 @@ config BUILTIN_DTB_PATH
     string "Builtin DTB path"
     depends on BUILTIN_DTB
 
+config PID_MAX_DEFAULT
+    int "Default maximum pid numbers"
+    default 4096
+
 source "kernel/irq/Kconfig"
 
 source "kernel/time/Kconfig"

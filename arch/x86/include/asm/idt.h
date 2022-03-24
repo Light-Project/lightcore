@@ -137,8 +137,8 @@ DECLARE_IDTENTRY_DEBUG(TRAP_DB, debug)
 
 #ifndef __ASSEMBLY__
 
-extern asmlinkage void entry_thread_return(void);
-extern asmlinkage void entry_switch_stack(void **prev, void **next);
+extern asmlinkage void entry_kthread_return(state (*entry)(void *arg), void *arg);
+extern asmlinkage void entry_fork_return(void);
 extern asmlinkage void entry_syscall_80(void);
 extern asmlinkage void entry_irq_vector(void);
 

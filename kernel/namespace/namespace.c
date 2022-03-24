@@ -5,11 +5,11 @@
 
 #include <namespace.h>
 
-static struct kcache *ns_cache;
 struct namespace root_ns = {
     .pid = &root_pid,
-    .ipc = &root_ipc,
 };
+
+static struct kcache *ns_cache;
 
 struct namespace *namespace_create(struct sched_task *task)
 {
@@ -24,5 +24,8 @@ struct namespace *namespace_create(struct sched_task *task)
 
 void __init namespace_init(void)
 {
-    ns_cache = ("namespace", sizeof(root_ns), KCACHE_PANIC);
+    ns_cache = kcache_create(
+        "namespace",
+        sizeof(root_ns), KCACHE_PANIC
+    );
 }

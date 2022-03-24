@@ -10,6 +10,7 @@
 #include <ncache.h>
 #include <kmalloc.h>
 #include <vmalloc.h>
+#include <timekeeping.h>
 #include <memory.h>
 #include <proc.h>
 
@@ -51,7 +52,11 @@ static void task_stack_ncache_free(void *stack, void *pdata)
 
 void *task_stack_alloc(void)
 {
-    void *stack = ncache_get(stack_cache);
+    void *stack= ncache_get(stack_cache);
+
+    if (!stack)
+        return NULL;
+
     memset(stack, 0, THREAD_SIZE);
     return stack;
 }
@@ -96,37 +101,13 @@ EXPORT_SYMBOL(task_memory_free);
 
 /***  Allocate task and sub struct  ***/
 
-static struct sched_task *task_alloc(struct task_clone_args *args, struct sched_task *curr)
+static state copy_memory(struct task_clone_args *args, struct sched_task *child)
 {
-    struct sched_task *child;
-    void *stack;
-
-    child = sched_task_create();
-    if (child)
-        return NULL;
-
-    stack = task_stack_alloc();
-    if (!stack)
-        goto err_task;
-
-    child->stack = stack;
-    task_stack_magic(child);
-
-    return child;
-
-err_task:
-    sched_task_destroy(child);
-    return NULL;
-}
-
-static state copy_mem(struct task_clone_args *args, struct sched_task *child)
-{
-    struct sched_task *curr = args->curr;
     enum clone_flags flags = args->flags;
     struct memory *mem, *omem;
 
     /* clone a kernel thread */
-    if (!(omem = curr->mem)) {
+    if (!(omem = current->mem)) {
         child->mem = NULL;
         child->active_mem = NULL;
         return -ENOERR;
@@ -149,48 +130,91 @@ static state copy_mem(struct task_clone_args *args, struct sched_task *child)
     return -ENOERR;
 }
 
-static struct sched_task *task_copy(struct task_clone_args *args)
+static struct sched_task *task_alloc(struct task_clone_args *args)
 {
-    struct sched_task *curr = args->curr;
+    struct sched_task *child;
+    void *stack;
+
+    child = sched_task_create();
+    if (!child)
+        return NULL;
+
+    stack = task_stack_alloc();
+    if (!stack)
+        goto err_task;
+
+    memcpy(child, current, sizeof(*child));
+
+    child->stack = stack;
+    task_stack_magic(child);
+
+    return child;
+
+err_task:
+    sched_task_destroy(child);
+    return NULL;
+}
+
+static struct sched_task *task_copy(struct task_clone_args *args, struct pid *pid)
+{
     enum clone_flags flags = args->flags;
     struct sched_task *child;
     state ret;
 
-    child = task_alloc(args, curr);
+    child = task_alloc(args);
     if (!child)
         return NULL;
 
-    ret = copy_mem(args, child);
-    if (ret)
+    ret = sched_task_clone(child, flags);
+    if (unlikely(ret))
+        goto err_sched_clone;
+
+    ret = copy_memory(args, child);
+    if (unlikely(ret))
         goto err_copy_mem;
 
-    ret = proc_thread_copy(flags, curr, child, args->arg);
-    if (ret)
+    ret = proc_thread_copy(args, child);
+    if (unlikely(ret))
         goto err_copy_proc;
+
+    if (pid != &init_task_pid) {
+        pid = pid_alloc(child->namespace->pid, args->tid, args->tid_size);
+        if ((ret = PTR_ERR(pid)))
+            goto err_alloc_pid;
+    }
+
+    child->start_time = timekeeping_get_time_ns();
 
     return child;
 
-err_copy_mem:
+err_alloc_pid:
 err_copy_proc:
-    return NULL;
+err_copy_mem:
+err_sched_clone:
+    return ERR_PTR(ret);
 }
 
 pid_t task_clone(struct task_clone_args *args)
 {
-    struct sched_task *curr = sched_current();
-    struct namespace *ns = curr->ns;
-    struct sched_task *new;
+    struct sched_task *child;
+    pid_t pid;
 
-    new = task_copy(args);
-    pid_alloc_node(ns->pid, &new->pid);
+    child = task_copy(args, NULL);
+    if (unlikely(pid = PTR_ERR(child)))
+        return pid;
 
-    return new->pid.pid;
+    sched_task_wake_up(child);
+
+    return pid;
 }
 
-state fork_thread(enum clone_flags flags, int (*fn)(void *), void *arg)
+state kernel_clone(enum clone_flags flags, int (*fn)(void *), void *arg)
 {
     struct task_clone_args args = {
-
+        .flags = (flags | CLONE_VM) & ~CLONE_SIGNAL,
+        .exit_signal = flags & CLONE_SIGNAL,
+        .entry = fn,
+        .arg = arg,
     };
 
     return task_clone(&args);
@@ -198,32 +222,40 @@ state fork_thread(enum clone_flags flags, int (*fn)(void *), void *arg)
 
 long syscall_fork(void)
 {
+#ifdef CONFIG_MMU
     struct task_clone_args args = {
-
+        .exit_signal = SIGCHLD,
     };
 
     return task_clone(&args);
+#else
+    return -EINVAL;
+#endif
 }
 
 long syscall_vfork(void)
 {
     struct task_clone_args args = {
-
+        .flags = CLONE_VM | CLONE_VFORK,
+        .exit_signal = SIGCHLD,
     };
 
     return task_clone(&args);
 }
 
-long syscall_clone(void)
+long syscall_clone(unsigned long clone_flags, unsigned long newsp,
+                   int *ptidptr, int *ctidptr, unsigned long tls)
 {
     struct task_clone_args args = {
-
+        .flags = clone_flags & ~CLONE_SIGNAL,
+        .exit_signal = clone_flags & CLONE_SIGNAL,
+        .stack = newsp,
     };
 
     return task_clone(&args);
 }
 
-void __init fork_init(void)
+void __init clone_init(void)
 {
     stack_cache = ncache_create(task_stack_ncache_alloc,
         task_stack_ncache_free, STACK_CACHE_NR, NCACHE_PANIC, NULL);
@@ -231,7 +263,7 @@ void __init fork_init(void)
         sizeof(struct memory), KCACHE_PANIC);
 }
 
-EXPORT_SYMBOL(fork_thread);
+EXPORT_SYMBOL(kernel_clone);
 SYSCALL_ENTRY(SYSCALL_NR_FORK, syscall_fork, 0);
 SYSCALL_ENTRY(SYSCALL_NR_VFORK, syscall_vfork, 0);
 SYSCALL_ENTRY(SYSCALL_NR_CLONE, syscall_clone, 5);

@@ -5,10 +5,14 @@
 #include <types.h>
 #include <kmalloc.h>
 #include <refcount.h>
+#include <idr.h>
 
 struct namespace_pid {
+    struct namespace_pid *parent;
     refcount_t refcount;
+    unsigned int level;
     struct kcache *cache;
+    struct idr_root pids;
 };
 
 struct namespace_ipc {

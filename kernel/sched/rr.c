@@ -116,21 +116,6 @@ static struct sched_task *rr_task_create(int numa)
     return &rr_task->task;
 }
 
-static struct sched_task *rr_task_fork(struct sched_queue *queue)
-{
-    struct rr_task *rr_curr = task_to_rr(queue->curr);
-    struct rr_task *rr_task;
-
-    rr_task = kcache_zalloc(rr_cache, GFP_KERNEL);
-    if (!rr_task)
-        return NULL;
-
-    rr_task->task.priority = rr_curr->task.priority;
-    rr_task->timeslice = RR_TIMESLICE;
-
-    return &rr_task->task;
-}
-
 static void rr_task_destroy(struct sched_task *task)
 {
     struct rr_task *rr_task = task_to_rr(task);
@@ -151,6 +136,7 @@ static void rr_task_tick(struct sched_queue *queue, struct sched_task *task)
         list_move_tail(&rr_queue->task[prio], &rr_task->list);
 
     rr_task->timeslice = RR_TIMESLICE;
+    queue_set_resched(queue);
 }
 
 static void rr_task_next(struct sched_queue *queue, struct sched_task *task)
@@ -200,7 +186,6 @@ static struct sched_type rr_sched = {
     .task_dequeue = rr_task_dequeue,
 
     .task_create  = rr_task_create,
-    .task_fork  = rr_task_fork,
     .task_destroy = rr_task_destroy,
     .task_tick = rr_task_tick,
     .task_next = rr_task_next,
@@ -214,7 +199,7 @@ static state rr_sched_init(void)
 #ifdef CONFIG_SCHED_DEF_RR
     default_sched = &rr_sched;
 #endif
-    rr_cache = kcache_create(MODULE_NAME, sizeof(struct rr_task), KCACHE_PANIC);
+    rr_cache = KCACHE_CREATE(struct rr_task, KCACHE_PANIC);
     return sched_register(&rr_sched);
 }
 scheduler_initcall(rr_sched_init);

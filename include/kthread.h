@@ -4,21 +4,31 @@
 
 #include <sched.h>
 
-typedef void (*kcoro_entry_t)(struct kcoro_work *, void *data);
+typedef state (*kthread_entry_t)(void *pdata);
 
 struct kthread_worker {
-    struct list_head work;
+    spinlock_t lock;
+    struct list_head list;
+    struct list_head works;
+    struct kthread_work *curr;
 };
 
 struct kthread_work {
-    struct kthread_worker *worker;
     struct list_head list;
-    void *data;
+    struct kthread_worker *worker;
+    kthread_entry_t entry;
+    void *pdata;
 };
 
-typedef state (*kthread_t)(void *data);
+extern struct kthread_worker *kthread_worker_vcreate(const char *namefmt, va_list args);
+extern struct kthread_worker *kthread_worker_create(const char *namefmt, ...);
+extern void kthread_worker_destroy(struct kthread_worker *worker);
 
-extern struct sched_task *
-kthread_create(kthread_t kthread, void *data, const char *name);
+extern struct kthread_work *kthread_work_create(kthread_entry_t entry, void *pdata);
+extern void kthread_work_destroy(struct kthread_work *work);
+extern state kthread_work_enqueue(struct kthread_worker *worker, struct kthread_work *work);
+extern void kthread_work_dequeue(struct kthread_worker *worker, struct kthread_work *work);
+
+extern state kthread_daemon(void *pdata);
 
 #endif  /* _KTHREAD_H_ */

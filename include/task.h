@@ -10,10 +10,12 @@ extern unsigned long init_stack[THREAD_SIZE / BYTES_PER_LONG];
 
 struct task_clone_args {
     enum clone_flags flags;
-    struct sched_task *curr;
+    unsigned int exit_signal;
+    pid_t *tid;
+    size_t tid_size;
     union {
         struct {
-            state (*fn)(void *arg);
+            state (*entry)(void *arg);
             void *arg;
         };
         struct {
@@ -39,8 +41,7 @@ extern void *task_stack_alloc(void);
 extern void task_stack_free(void *stack);
 extern struct memory *task_memory_alloc(void);
 extern void task_memory_free(struct memory *mem);
-
-extern state fork_thread(enum clone_flags flags, int (*fn)(void *), void *arg);
-extern void __init fork_init(void);
+extern state kernel_clone(enum clone_flags flags, int (*fn)(void *), void *arg);
+extern void __init clone_init(void);
 
 #endif  /* _TASK_H_ */

@@ -3,6 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
+#include <task.h>
 #include <timer.h>
 #include <timekeeping.h>
 #include <driver/clockevent.h>
@@ -11,6 +12,7 @@ static void systick_periodic(void)
 {
     timer_update();
     timekeeping_tick();
+    scheduler_tick();
 }
 
 static void systick_handle(struct clockevent_device *cdev)

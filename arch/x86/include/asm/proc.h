@@ -9,6 +9,7 @@
 
 enum clone_flags;
 struct sched_task;
+struct task_clone_args;
 
 struct proc_inactive_frame {
 #ifdef CONFIG_ARCH_X86_64
@@ -41,7 +42,7 @@ struct proc_context {
 
 static __always_inline struct regs *stack_regs(void *stack)
 {
-    void *stack_start = stack + THREAD_SIZE - 1;
+    void *stack_start = stack + THREAD_SIZE;
     return ((struct regs *)stack_start) - 1;
 }
 
@@ -55,8 +56,8 @@ static __always_inline void cpu_relax(void)
 }
 
 extern void proc_thread_setup(struct regs *regs, size_t ip, size_t sp);
-extern state proc_thread_copy(enum clone_flags flags, struct sched_task *curr, struct sched_task *child, void *arg);
-extern state proc_thread_switch(struct sched_task *prev, struct sched_task *next);
+extern state proc_thread_copy(struct task_clone_args *args, struct sched_task *child);
+extern state proc_thread_switch(struct sched_task *prev);
 extern void __noreturn proc_halt(void);
 extern void __noreturn proc_reset(void);
 

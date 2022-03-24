@@ -5,9 +5,7 @@
 #include <types.h>
 
 #define boot_args_size 1024
-
 extern char boot_args[boot_args_size];
-extern struct sched_task init_task;
 
 extern void __init arch_setup(void);
 extern state __init mount_rootfs(void);

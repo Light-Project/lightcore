@@ -14,7 +14,10 @@
 #include <task.h>
 #include <softirq.h>
 #include <timer.h>
+#include <pid.h>
 #include <kcoro.h>
+#include <kthread.h>
+#include <namespace.h>
 #include <filesystem.h>
 
 #include <logo.h>
@@ -31,6 +34,9 @@
 
 struct sched_task init_task = {
     .stack = init_stack,
+    .namespace = &root_ns,
+    .sched_type = &idle_sched,
+    .flags = SCHED_TASK_KTHREAD,
 };
 
 static void __init command_setup(void)
@@ -43,8 +49,8 @@ static void __init command_setup(void)
 
 static noinline __noreturn void kernel_main(void)
 {
-    user_init(NULL);
-    fork_thread(0, user_init, NULL);
+    kernel_clone(0, user_init, NULL);
+    kernel_clone(0, kthread_daemon, NULL);
     idle_task_entry();
 }
 
@@ -53,7 +59,6 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
     task_stack_magic(&init_task);
     irq_local_disable();
 
-    /* early arch */
     pre_console_init();
     terminal_logo();
     early_device_init();
@@ -70,7 +75,6 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
     softirq_init();
     timer_init();
 
-    /* basic driver */
     device_init();
     irqchip_init();
     clk_init();
@@ -79,12 +83,12 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
 
     console_init();
 
-    fork_init();
+    namespace_init();
+    pid_init();
+
+    clone_init();
     kcoro_init();
 
-    /* late init */
     vfl_init();
-
-    /* init task */
     kernel_main();
 }

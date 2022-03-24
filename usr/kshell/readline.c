@@ -5,6 +5,7 @@
 
 #include "kshell.h"
 #include <string.h>
+#include <sched.h>
 #include <ascii.h>
 #include <kmalloc.h>
 #include <asm/proc.h>
@@ -375,7 +376,7 @@ static bool readline_getcode(struct readline_state *state, char *code)
                                 break;
                         }
                         break;
-                       
+
                     default:
                         break;
                 }
@@ -420,7 +421,7 @@ char *readline(struct readline_state *state, const char *prompt)
 
     for (;;) {
         if (!readline_getcode(state, &code)) {
-            cpu_relax();
+            scheduler_yield();
         } else {
             if (readline_handle(state, code))
                 break;

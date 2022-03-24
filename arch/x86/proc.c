@@ -5,9 +5,10 @@
 
 #include <kernel.h>
 #include <task.h>
-#include <asm/proc.h>
-#include <asm/idt.h>
+#include <proc.h>
+#include <kcontext.h>
 #include <irqflags.h>
+#include <asm/idt.h>
 
 void proc_thread_setup(struct regs *regs, size_t ip, size_t sp)
 {
@@ -20,17 +21,24 @@ void proc_thread_setup(struct regs *regs, size_t ip, size_t sp)
     regs->flags = EFLAGS_IF;
 }
 
-state proc_thread_copy(enum clone_flags flags, struct sched_task *curr, struct sched_task *child, void *arg)
+state proc_thread_copy(struct task_clone_args *args, struct sched_task *child)
 {
     struct proc_inactive_frame *inactive;
     struct proc_frame *frame;
     struct regs *childregs;
 
+    if (child->flags & SCHED_TASK_KTHREAD) {
+        child->kcontext.stack = child->stack;
+        child->kcontext.ssize = THREAD_SIZE;
+        makecontext(&child->kcontext, (state (*)(void))entry_kthread_return, 2, args->entry, args->arg);
+        return -ENOERR;
+    }
+
     childregs   = stack_regs(child->stack);
     frame       = container_of(childregs, struct proc_frame, regs);
     inactive    = &frame->frame;
 
-    inactive->ret       = (size_t) entry_thread_return;
+    inactive->ret       = (size_t) entry_fork_return;
     inactive->bp        = (size_t) 0;
     child->proc.sp      = (size_t) frame;
     child->proc.flags   = EFLAGS_FIXED;
@@ -38,15 +46,13 @@ state proc_thread_copy(enum clone_flags flags, struct sched_task *curr, struct s
     return -ENOERR;
 }
 
-state proc_thread_switch(struct sched_task *prev, struct sched_task *next)
+state proc_thread_switch(struct sched_task *prev)
 {
+    struct proc_context *nproc = &current->proc;
     struct proc_context *pproc = &prev->proc;
-    struct proc_context *nproc = &next->proc;
-
-    entry_switch_stack(&prev->stack, next->stack);
 
     pproc->gs = gs_get();
-    if (pproc->gs | nproc->gs)
+    if (pproc->gs || nproc->gs)
         gs_set(nproc->gs);
 
     return -ENOERR;

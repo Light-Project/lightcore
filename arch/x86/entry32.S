@@ -51,11 +51,21 @@
     addl    $(4 + \pop), %esp
 .endm
 
-SYM_CODE_START(entry_thread_return)
-SYM_CODE_END(entry_thread_return)
+SYM_CODE_START(entry_kthread_return)
+    pushl   %ebp
+    movl    %esp, %ebp
 
-SYM_CODE_START(entry_switch_stack)
-SYM_CODE_END(entry_switch_stack)
+    call    sched_switch_tail
+    pushl   12(%ebp)
+    call    *8(%ebp)
+
+    leave
+    ret
+SYM_CODE_END(entry_kthread_return)
+
+SYM_CODE_START(entry_fork_return)
+
+SYM_CODE_END(entry_fork_return)
 
 SYM_CODE_START_LOCAL_NOALIGN(exception_handle)
     SAVE_REGS switch_stacks=1 skip_gs=1

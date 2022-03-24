@@ -9,14 +9,17 @@
 #include <sched.h>
 #include <string.h>
 #include <cpu.h>
+#include <init.h>
 #include <initcall.h>
 #include <export.h>
 #include <printk.h>
 
 struct kcache *task_cache;
 struct sched_type *default_sched;
+
 LIST_HEAD(sched_list);
 DEFINE_PERCPU(struct sched_queue, sched_queues);
+DEFINE_PERCPU(unsigned long, sched_preempt_count);
 
 static long sched_sort(struct list_head *a, struct list_head *b, void *data)
 {
@@ -114,7 +117,81 @@ static void __init sched_initcall(void)
 
 static void __init queue_setup(struct sched_queue *queue)
 {
-    list_head_init(&queue->run_list);
+    list_head_init(&queue->tasks);
+}
+
+#ifdef CONFIG_PREEMPT_DYNAMIC
+
+const char *sched_preempt_name[SCHED_PREEMPT_NR_MAX] = {
+    [SCHED_PREEMPT_UNINIT]      = "uninit",
+    [SCHED_PREEMPT_NONE]        = "none",
+    [SCHED_PREEMPT_VOLUNTARY]   = "voluntary",
+    [SCHED_PREEMPT_FULL]        = "full",
+};
+
+enum sched_preempt sched_preempt_mode;
+
+DEFINE_STATIC_CALL_RET0(sched_cond_resched, sched_cond_resched_handle);
+DEFINE_STATIC_CALL_RET0(sched_might_resched, sched_cond_resched_handle);
+DEFINE_STATIC_CALL(sched_preempt, sched_preempt_handle);
+
+state sched_preempt_updata(enum sched_preempt mode)
+{
+    switch (mode) {
+        case SCHED_PREEMPT_NONE:
+            static_call_update(sched_cond_resched, sched_cond_resched_handle);
+            static_call_update(sched_might_resched, (void *)__static_call_ret0);
+            static_call_update(sched_preempt, NULL);
+            break;
+
+        case SCHED_PREEMPT_VOLUNTARY:
+            static_call_update(sched_cond_resched, sched_cond_resched_handle);
+            static_call_update(sched_might_resched, sched_cond_resched_handle);
+            static_call_update(sched_preempt, NULL);
+            break;
+
+        case SCHED_PREEMPT_FULL:
+            static_call_update(sched_cond_resched, (void *)__static_call_ret0);
+            static_call_update(sched_might_resched, (void *)__static_call_ret0);
+            static_call_update(sched_preempt, sched_preempt_handle);
+            break;
+
+        default:
+            return -EINVAL;
+    }
+
+    pr_info("Dynamic Preempt: %s\n", sched_preempt_name[mode]);
+    sched_preempt_mode = mode;
+
+    return -ENOERR;
+}
+
+static void __init preempt_dynamic_init(void)
+{
+    if (sched_preempt_mode != SCHED_PREEMPT_UNINIT)
+        return;
+
+    if (IS_ENABLED(CONFIG_PREEMPT_NONE))
+        sched_preempt_updata(SCHED_PREEMPT_NONE);
+
+    else if (IS_ENABLED(CONFIG_PREEMPT_VOLUNTARY))
+        sched_preempt_updata(SCHED_PREEMPT_VOLUNTARY);
+
+    else if (IS_ENABLED(CONFIG_PREEMPT_FULL)) {
+        pr_info("Dynamic Preempt: full\n");
+        sched_preempt_mode = SCHED_PREEMPT_FULL;
+    }
+}
+
+#else /* !CONFIG_PREEMPT_DYNAMIC */
+
+static void __init preempt_dynamic_init(void) {}
+
+#endif /* CONFIG_PREEMPT_DYNAMIC */
+
+static void __init idle_init(struct sched_queue *queue, struct sched_task *task)
+{
+    queue->idle = task;
 }
 
 void __init sched_init(void)
@@ -130,5 +207,10 @@ void __init sched_init(void)
         queue_setup(queue);
     }
 
+    queue = thiscpu_ptr(&sched_queues);
+    queue->curr = &init_task;
+
     sched_initcall();
+    preempt_dynamic_init();
+    idle_init(current_queue, current);
 }
