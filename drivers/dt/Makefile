@@ -7,4 +7,6 @@ quiet_cmd_mkincbin = $(ECHO_INCBIN) $@
       cmd_mkincbin = $(objtree)/tools/mkincbin/mkincbin .init.dtb $< > $@
 $(obj)/dtb.S: $(subst ",,$(objtree)/$(CONFIG_BUILTIN_DTB_PATH)) FORCE
 	$(call if_changed,mkincbin)
+
 targets += dtb.S
+clean-y += dtb.S

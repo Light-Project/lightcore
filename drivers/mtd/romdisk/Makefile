@@ -5,4 +5,6 @@ quiet_cmd_mkincbin = $(ECHO_INCBIN) $@
       cmd_mkincbin = $(objtree)/tools/mkincbin/mkincbin .init.dtb $< > $@
 $(obj)/data.S: $(objtree)/boot/romdisk.cpio FORCE
 	$(call if_changed,mkincbin)
+
 targets += data.S
+clean-y += data.S
