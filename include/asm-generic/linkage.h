@@ -2,4 +2,6 @@
 #ifndef _ASM_GENERIC_LINKAGE_H_
 #define _ASM_GENERIC_LINKAGE_H_
 
+/* Nothing */
+
 #endif  /* _ASM_GENERIC_LINKAGE_H_ */

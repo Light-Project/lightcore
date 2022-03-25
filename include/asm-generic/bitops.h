@@ -102,7 +102,7 @@ static inline void arch_bit_atomic_flip(volatile unsigned long *addr, long bit)
 static inline bool arch_bit_atomic_test(volatile unsigned long *addr, long bit)
 {
     addr += BITS_WORD(bit);
-    return !!(atomic_read((atomic_t *)addr) & BIT(bit));
+    return !!(arch_atomic_read((atomic_t *)addr) & BIT(bit));
 }
 #endif
 

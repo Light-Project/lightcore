@@ -3,6 +3,7 @@
 #define _KASAN_CHECK_H_
 
 #include <types.h>
+#include <stddef.h>
 
 #ifndef CONFIG_KASAN
 

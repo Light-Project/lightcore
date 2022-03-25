@@ -125,7 +125,7 @@ EXPORT_SYMBOL(strnlen);
 __weak int strcmp(const char *s1, const char *s2)
 {
     int cp = 0;
-    while((!(cp = *s1++ - *s2++)) && (*s1 != '\0'));
+    while ((!(cp = *s1++ - *s2++)) && (*s1 != '\0'));
     return cp;
 }
 EXPORT_SYMBOL(strcmp);
@@ -376,12 +376,12 @@ __weak char *strim(char *s)
     char *e;
 
     if (s) {
-        while(isspace(*s))
+        while (isspace(*s))
             s++;
-        if(*s == 0)
+        if (*s == 0)
             return s;
         e = s + strlen(s) - 1;
-        while((e > s) && isspace(*e))
+        while ((e > s) && isspace(*e))
             e--;
         *(e + 1) = 0;
     }

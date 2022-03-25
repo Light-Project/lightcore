@@ -18,7 +18,7 @@
     printk("Generic BUG: failure at %s:%d/%s()\n",  \
             __FILE__, __LINE__, __func__);          \
     barrier_before_unreachable();                   \
-    panic();                                        \
+    panic("Generic BUG");                           \
 } while (0)
 #endif
 
