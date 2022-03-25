@@ -7,7 +7,7 @@
    viewBox="0 0 338.66667 190.5"
    version="1.1"
    id="svg5"
-   inkscape:version="1.1 (c4e8f9ed74, 2021-05-24)"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04, custom)"
    sodipodi:docname="model.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -26,12 +26,12 @@
      units="px"
      inkscape:snap-text-baseline="true"
      inkscape:zoom="1.1759259"
-     inkscape:cx="800.64569"
-     inkscape:cy="476.64568"
+     inkscape:cx="678.18899"
+     inkscape:cy="463.46458"
      inkscape:window-width="1920"
-     inkscape:window-height="1033"
+     inkscape:window-height="1021"
      inkscape:window-x="0"
-     inkscape:window-y="24"
+     inkscape:window-y="30"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1" />
   <defs
@@ -117,6 +117,41 @@
        height="24.560528"
        x="229.76569"
        y="26.599741" />
+    <rect
+       style="fill:#aade87;stroke-width:1.93517"
+       id="rect6086-6-0-5-3"
+       width="42"
+       height="24.560528"
+       x="172.92641"
+       y="100.80195" />
+    <rect
+       style="fill:#aade87;stroke-width:1.93517"
+       id="rect6086-6-0-5-3-7"
+       width="42"
+       height="24.560528"
+       x="229.76601"
+       y="100.80195" />
+    <rect
+       style="fill:#aade87;stroke-width:1.93517"
+       id="rect6086-6-0-5-3-7-6"
+       width="42"
+       height="24.560528"
+       x="229.76601"
+       y="137.22701" />
+    <rect
+       style="fill:#aade87;stroke-width:1.93517"
+       id="rect6086-6-0-5-3-6"
+       width="42"
+       height="24.560528"
+       x="229.76569"
+       y="62.455002" />
+    <rect
+       style="fill:#aade87;stroke-width:1.93517"
+       id="rect6086-6-0-5-3-6-5"
+       width="42"
+       height="24.560528"
+       x="172.92639"
+       y="137.22655" />
     <rect
        style="fill:#31655a;fill-opacity:1;stroke-width:2.15145"
        id="rect6086-6-1"
@@ -210,14 +245,95 @@
     <text
        xml:space="preserve"
        style="font-size:4.77427px;line-height:1.25;font-family:sans-serif;stroke-width:0.198928"
-       x="185.08711"
+       x="186.74567"
        y="76.65271"
        id="text970-7-3-2-7-6-9"><tspan
          sodipodi:role="line"
          style="font-size:4.77427px;stroke-width:0.198928"
-         x="185.08711"
+         x="186.74567"
          y="76.65271"
          id="tspan49931-3">buddy</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.77427px;line-height:1.25;font-family:sans-serif;stroke-width:0.198928"
+       x="183.37508"
+       y="114.17406"
+       id="text970-7-3-2-7-6-9-6"><tspan
+         sodipodi:role="line"
+         style="font-size:4.77427px;stroke-width:0.198928"
+         x="183.37508"
+         y="114.17406"
+         id="tspan4770">slab/slob</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:4.77427px;stroke-width:0.198928"
+         x="183.37508"
+         y="120.14189"
+         id="tspan11794" /></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.77427px;line-height:1.25;font-family:sans-serif;stroke-width:0.198928"
+       x="241.16679"
+       y="114.17406"
+       id="text970-7-3-2-7-6-9-6-0"><tspan
+         sodipodi:role="line"
+         style="font-size:4.77427px;stroke-width:0.198928"
+         x="241.16679"
+         y="114.17406"
+         id="tspan17817">kcache</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.77427px;line-height:1.25;font-family:sans-serif;stroke-width:0.198928"
+       x="185.25294"
+       y="151.38033"
+       id="text970-7-3-2-7-6-9-6-1"><tspan
+         sodipodi:role="line"
+         style="font-size:4.77427px;stroke-width:0.198928"
+         x="185.25294"
+         y="151.38033"
+         id="tspan11086">ncache</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.77427px;line-height:1.25;font-family:sans-serif;stroke-width:0.198928"
+       x="240.31148"
+       y="152.13818"
+       id="text970-7-3-2-7-6-9-6-1-0"><tspan
+         sodipodi:role="line"
+         style="font-size:4.77427px;stroke-width:0.198928"
+         x="240.31148"
+         y="152.13818"
+         id="tspan11086-6">memblock</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.77427px;line-height:1.25;font-family:sans-serif;stroke-width:0.198928"
+       x="243.13951"
+       y="40.758816"
+       id="text970-7-3-2-7-6-5"><tspan
+         sodipodi:role="line"
+         style="font-size:4.77427px;stroke-width:0.198928"
+         x="243.13951"
+         y="40.758816"
+         id="tspan49931-4">vmem</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:4.77427px;stroke-width:0.198928"
+         x="243.13951"
+         y="46.726654"
+         id="tspan52402" /></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.77427px;line-height:1.25;font-family:sans-serif;stroke-width:0.198928"
+       x="243.13951"
+       y="76.405754"
+       id="text970-7-3-2-7-6-9-75"><tspan
+         sodipodi:role="line"
+         style="font-size:4.77427px;stroke-width:0.198928"
+         x="243.13951"
+         y="76.405754"
+         id="tspan49931-3-3">vmap</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:4.77427px;stroke-width:0.198928"
+         x="243.13951"
+         y="82.373589"
+         id="tspan1653" /></text>
     <text
        xml:space="preserve"
        style="font-size:4.77427px;line-height:1.25;font-family:sans-serif;stroke-width:0.198928"
@@ -273,22 +389,6 @@
          x="135.16145"
          y="120.7758"
          id="tspan49931-3-2">Hole</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:4.77427px;line-height:1.25;font-family:sans-serif;stroke-width:0.198928"
-       x="243.13951"
-       y="40.758816"
-       id="text970-7-3-2-7-6-5"><tspan
-         sodipodi:role="line"
-         style="font-size:4.77427px;stroke-width:0.198928"
-         x="243.13951"
-         y="40.758816"
-         id="tspan49931-4">vmem</tspan><tspan
-         sodipodi:role="line"
-         style="font-size:4.77427px;stroke-width:0.198928"
-         x="243.13951"
-         y="46.726654"
-         id="tspan52402" /></text>
     <text
        xml:space="preserve"
        style="font-size:4.77427px;line-height:1.25;font-family:sans-serif;stroke-width:0.198928"
