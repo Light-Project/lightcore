@@ -4,7 +4,7 @@
 
 #include <irqflags.h>
 
-#define xchg(ptr, new) ({                                       \
+#define arch_xchg(ptr, new) ({                                  \
     irqflags_t flags = irq_local_save();                        \
     typeof(*(ptr)) __new = (new);                               \
     typeof(*(ptr)) tmp;                                         \
@@ -30,7 +30,7 @@
     tmp;                                                        \
 })
 
-#define cmpxchg(ptr, old, new) ({                               \
+#define arch_cmpxchg(ptr, old, new) ({                          \
     irqflags_t flags = irq_local_save();                        \
     typeof(*(ptr)) __new = (new);                               \
     typeof(*(ptr)) __old = (old);                               \

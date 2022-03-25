@@ -78,7 +78,7 @@ static inline bool arch_bit_test_flip(volatile unsigned long *addr, long bit)
 static inline void arch_bit_atomic_clr(volatile unsigned long *addr, long bit)
 {
     addr += BITS_WORD(bit);
-    atomic_and((atomic_t *)addr, ~BIT(bit));
+    arch_atomic_and((atomic_t *)addr, ~BIT(bit));
 }
 #endif
 
@@ -86,7 +86,7 @@ static inline void arch_bit_atomic_clr(volatile unsigned long *addr, long bit)
 static inline void arch_bit_atomic_set(volatile unsigned long *addr, long bit)
 {
     addr += BITS_WORD(bit);
-    atomic_or((atomic_t *)addr, BIT(bit));
+    arch_atomic_or((atomic_t *)addr, BIT(bit));
 }
 #endif
 
@@ -94,7 +94,7 @@ static inline void arch_bit_atomic_set(volatile unsigned long *addr, long bit)
 static inline void arch_bit_atomic_flip(volatile unsigned long *addr, long bit)
 {
     addr += BITS_WORD(bit);
-    atomic_xor((atomic_t *)addr, BIT(bit));
+    arch_atomic_xor((atomic_t *)addr, BIT(bit));
 }
 #endif
 
@@ -112,7 +112,7 @@ static inline bool arch_bit_atomic_test_clr(volatile unsigned long *addr, long b
     unsigned long old;
     addr += BITS_WORD(bit);
     if ((READ_ONCE(*addr) & BIT(bit)) == 0) return 0;
-    old = atomic_fetch_and((atomic_t *)addr, ~BIT(bit));
+    old = arch_atomic_fetch_and((atomic_t *)addr, ~BIT(bit));
     return !!(old & BIT(bit));
 }
 #endif
@@ -123,7 +123,7 @@ static inline bool arch_bit_atomic_test_set(volatile unsigned long *addr, long b
     unsigned long old;
     addr += BITS_WORD(bit);
     if ((READ_ONCE(*addr) & BIT(bit)) != 0) return 1;
-    old = atomic_fetch_or((atomic_t *)addr, BIT(bit));
+    old = arch_atomic_fetch_or((atomic_t *)addr, BIT(bit));
     return !!(old & BIT(bit));
 }
 #endif
@@ -133,7 +133,7 @@ static inline bool arch_bit_atomic_test_flip(volatile unsigned long *addr, long 
 {
     unsigned long old;
     addr += BITS_WORD(bit);
-    old = atomic_fetch_xor((atomic_t *)addr, BIT(bit));
+    old = arch_atomic_fetch_xor((atomic_t *)addr, BIT(bit));
     return !!(old & BIT(bit));
 }
 #endif

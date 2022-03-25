@@ -3,6 +3,7 @@
 #define _ASM_GENERIC_PGTABLE_NOP4D_H_
 
 #include <types.h>
+#include <stddef.h>
 #include <state.h>
 
 typedef pgd_t p4d_t;
