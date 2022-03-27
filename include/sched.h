@@ -9,6 +9,7 @@
 #include <time.h>
 #include <proc.h>
 #include <percpu.h>
+#include <preempt.h>
 #include <fstype.h>
 #include <static-call.h>
 #include <kcontext.h>
@@ -196,17 +197,10 @@ extern const char *sched_preempt_name[SCHED_PREEMPT_NR_MAX];
 
 extern struct list_head sched_list;
 DECLARE_PERCPU(struct sched_queue, sched_queues);
-DECLARE_PERCPU(unsigned long, sched_preempt_count);
 
 extern struct kcache *task_cache;
 extern const unsigned int sched_prio_to_weight[40];
 extern const unsigned int sched_prio_to_wmult[40];
-
-#define preempt_count sched_get_preempt()
-static inline unsigned long sched_get_preempt(void)
-{
-    return thiscpu(sched_preempt_count);
-}
 
 #define current_queue sched_current_queue()
 static inline struct sched_queue *sched_current_queue(void)

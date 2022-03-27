@@ -31,4 +31,5 @@ noinline void entry_irqhandle_exit(struct regs *regs)
         entry_irqhandle_exit_to_user(regs);
         return;
     }
+    sched_preempt();
 }

@@ -9,6 +9,7 @@
 
 #include <linkage.h>
 #include <entry.h>
+#include <hardirq.h>
 
 #define DEFINE_IDTENTRY_NORMAL(handle)                              \
 static __always_inline void __##trap_##handle(struct regs *regs);   \
@@ -45,9 +46,9 @@ __visible noinline void                                             \
 trap_##handle(struct regs *regs, unsigned long error_code)          \
 {                                                                   \
     entry_irqhandle_enter(regs);                                    \
-    softirq_entry();                                                \
+    hardirq_entry();                                                \
     __##trap_##handle(regs, error_code);                            \
-    softirq_exit();                                                 \
+    hardirq_exit();                                                 \
     entry_irqhandle_exit(regs);                                     \
 }                                                                   \
                                                                     \

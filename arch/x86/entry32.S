@@ -88,7 +88,7 @@ exception_handle_ret:
     movl    REGS_CS(%esp), %ebx
     andl    $SEGMENT_RPL_MASK, %ebx
     cmpl    $USER_RPL, %eax
-    jnb     ret_to_user
+    je      ret_to_user
 
     REC_REGS 4
     iret

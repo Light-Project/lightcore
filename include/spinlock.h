@@ -6,6 +6,7 @@
 #include <stddef.h>
 #include <proc.h>
 #include <irqflags.h>
+#include <bottom-half.h>
 #include <asm/mmiowb.h>
 #include <asm/barrier.h>
 
@@ -76,12 +77,14 @@ do {                                                    \
 
 #define _raw_generic_lock_bh(lock)                      \
 do {                                                    \
+    bh_local_lock();                                    \
     _raw_generic_lock(lock);                            \
 } while (0)
 
 #define _raw_generic_unlock_bh(lock)                    \
 do {                                                    \
     _raw_generic_unlock(lock);                          \
+    bh_local_unlock();                                  \
 } while (0)
 
 #define _raw_generic_lock_irq(lock)                     \

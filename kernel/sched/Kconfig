@@ -1,12 +1,17 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 menu "Scheduler Config"
 
 config PREEMPT_DYNAMIC
     bool "Preemption behaviour defined on boot"
+    select PREEMPTION
     default y
+
+config PREEMPTION
+    bool
 
 choice
     prompt "Preemption Model"
-    default PREEMPT_NONE
+    default PREEMPT_REALTIME
 
 config PREEMPT_NONE
     bool "None Preemption"
@@ -16,14 +21,21 @@ config PREEMPT_VOLUNTARY
 
 config PREEMPT_FORCE
     bool "Force Preemption"
+    select PREEMPTION
 
-endchoice
+config PREEMPT_REALTIME
+    bool "Real Time Preemption"
+    select PREEMPTION
+
+endchoice # Preemption Model
 
 config SCHED_RR
     bool "Round Robin (RR) Scheduler Support"
+    default y
 
 config SCHED_FIFO
     bool "First In First Out (FIFO) Scheduler Support"
+    default y
 
 config SCHED_DL
     bool "Dead Line (DL) Scheduler Support"
@@ -51,7 +63,7 @@ config SCHED_DEF_FAIR
     bool "Fair"
     select SCHED_FAIR
 
-endchoice
+endchoice # Default Scheduler Choice
 
 config RR_TIMESLICE
     int "Round Robin Time Slice (ms)"
@@ -59,4 +71,4 @@ config RR_TIMESLICE
     range 10 1000
     default 50
 
-endmenu
+endmenu # Scheduler Config

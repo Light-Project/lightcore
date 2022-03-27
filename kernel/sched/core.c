@@ -115,7 +115,7 @@ static void __sched sched_dispatch(bool preempt)
 
 static void __sched preempt_handle(void)
 {
-    BUG_ON(preempt_count || !irq_local_disabled());
+    BUG_ON(preempt_count() || !irq_local_disabled());
 
     do {
         irq_local_enable();
@@ -185,10 +185,11 @@ bool sched_cond_resched_handle(void)
 
 void sched_preempt_handle(void)
 {
-    if (!preempt_count)
+    if (preempt_count())
         return;
 
-    preempt_handle();
+    if (current_need_resched())
+        preempt_handle();
 }
 
 long syscall_sched_yield(void)

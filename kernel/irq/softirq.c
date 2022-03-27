@@ -9,23 +9,34 @@
 #include <linkage.h>
 #include <kmalloc.h>
 #include <softirq.h>
+#include <bottom-half.h>
 #include <export.h>
 #include <panic.h>
 
-#define SOFTIRQ_LIMIT   CONFIG_SOFTIRQ_LIMIT
-#define SOFTIRQ_RETRY   16
+#define SOFTIRQ_LIMIT CONFIG_SOFTIRQ_LIMIT
 
 static struct kcache *softirq_cache;
 static struct idr_root *softirq_idr;
 
-asmlinkage __visible __softirq_entry void softirq_handle(void)
+static inline void bh_handle_entry(void)
 {
-    unsigned int max_restart = SOFTIRQ_RETRY;
+    bh_local_enable_count(SOFTIRQ_OFFSET);
+}
+
+static inline void bh_handle_exit(void)
+{
+    bh_local_disable_count(SOFTIRQ_OFFSET);
+    BUG_ON(in_hardirq());
+}
+
+asmlinkage __visible __softirq_entry void softirq_irq_entry(void)
+{
     struct irq_cpustat *stat = thiscpu_ptr(&irq_stat);
     unsigned long *pending = stat->softirq_pending;
     unsigned int softirq_bit;
 
-restart:
+    bh_handle_entry();
+
     while ((softirq_bit = find_first_bit(pending, SOFTIRQ_LIMIT)) < SOFTIRQ_LIMIT) {
         struct softirq *softirq;
 
@@ -36,7 +47,7 @@ restart:
         if (!softirq_test_periodic(softirq))
             bit_clr(pending, softirq_bit);
 
-        if (!softirq_test_irq_safe(softirq))
+        if (softirq_test_irq_safe(softirq))
             softirq->entry(softirq->pdata);
         else {
             irq_local_enable();
@@ -45,20 +56,16 @@ restart:
         }
     }
 
-    if (!bitmap_empty(stat->softirq_pending, SOFTIRQ_LIMIT)) {
-        if (max_restart--)
-            goto restart;
-    }
+    bh_handle_exit();
 }
 
-void noinline softirq_entry(void)
+void noinline softirq_handle(void)
 {
+    struct irq_cpustat *stat = thiscpu_ptr(&irq_stat);
+    unsigned long *pending = stat->softirq_pending;
 
-}
-
-void noinline softirq_exit(void)
-{
-    softirq_handle();
+    if (!in_irq() && !bitmap_empty(pending, SOFTIRQ_LIMIT))
+        softirq_irq_entry();
 }
 
 static inline void raise_softirq(unsigned int irqnr)

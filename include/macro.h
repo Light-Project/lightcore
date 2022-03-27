@@ -2,6 +2,8 @@
 #ifndef _MACRO_H_
 #define _MACRO_H_
 
+#include <stddef.h>
+
 /**
  * ARRAY_SIZE - get the number of elements in array.
  * @arr: array to be sized.

@@ -7,6 +7,15 @@ config DEBUG_KERNEL
     bool "Kernel debugging"
     default y
 
+menu "Scheduler Debugging"
+
+config DEBUG_PREEMPT
+    bool "preemptible kernel"
+    depends on DEBUG_KERNEL && PREEMPTION
+    default y
+
+endmenu #Scheduler Debugging
+
 menu "Debug Lockups"
 
 config DEBUG_SPINLOCK
@@ -48,4 +57,5 @@ config DEBUG_REFCOUNT
     default y
 
 endmenu # Debug data structures
+
 endmenu # Kernel Hacking
