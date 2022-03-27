@@ -9,6 +9,7 @@
 #include <error.h>
 #include <state.h>
 #include <size.h>
+#include <macro.h>
 #include <range.h>
 #include <align.h>
 #include <container.h>
@@ -17,41 +18,6 @@
 
 #define KMAGIC  0x4c434d4bU
 #define MSIZE   (sizeof(void *))
-
-#define REPEAT_BYTE(char) (                             \
-    (~0UL / 0xff) * char                                \
-)
-
-#define COND_PTR(cond, ptr) (                           \
-    (cond) ? (ptr) : NULL                               \
-)
-
-/**
- * ARRAY_SIZE - get the number of elements in array.
- * @arr: array to be sized.
- */
-#define ARRAY_SIZE(arr) (                               \
-    sizeof(arr) / sizeof((arr)[0])                      \
-)
-
-/**
- * swap - swap values
- * @a: first value
- * @b: second value
- */
-#define swap(a, b) ({                                   \
-    typeof(a) _a = (a);                                 \
-    (a) = (b);                                          \
-    (b) = _a;                                           \
-})
-
-/**
- * skzalloc - static alloc zeroed memory in stack
- * @size: memory size to alloc
- */
-#define skzalloc(size) (                                \
-    (void *)(char [size]){}                             \
-)
 
 /**
  * upper_32_bits - return bits 32-63 of a number

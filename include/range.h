@@ -36,4 +36,32 @@
     min(max(val, lo), hi)                               \
 )
 
+/**
+ * min_adj - Adjust the minimum value of @val.
+ * @val: value to adjust.
+ * @min: lowest allowable value.
+ */
+#define min_adj(val, min) ({                            \
+    (val) = min(val, min);                              \
+})
+
+/**
+ * max_adj - Adjust the maximum value of @val.
+ * @val: value to adjust.
+ * @max: highest allowable value.
+ */
+#define max_adj(val, max) ({                            \
+    (val) = max(val, max);                              \
+})
+
+/**
+ * clamp_adj - Adjust the clamped value of @val.
+ * @val: value to adjust.
+ * @lo: lowest allowable value.
+ * @hi: highest allowable value.
+ */
+#define clamp_adj(val, lo, hi) ({                       \
+    (val) = clamp(val, lo, hi);                         \
+})
+
 #endif  /* _RANGE_H_ */
