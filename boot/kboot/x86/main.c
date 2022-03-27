@@ -8,8 +8,6 @@
 #include <kboot.h>
 #include <arch/x86/seg.h>
 
-
-
 asmlinkage void main(void)
 {
     struct boot_head *head;
@@ -22,8 +20,6 @@ asmlinkage void main(void)
     magic = *(uint32_t *)code32_start;
     if (magic != PIGGY_MAGIC)
         panic("bad kernel image");
-
-    pr_boot("%#08x\n", heap_start);
 
     /* Init Memory */
     heap_init(heap_start, heap_size);
