@@ -121,7 +121,7 @@ static void __sched preempt_handle(void)
         irq_local_enable();
         sched_dispatch(true);
         irq_local_disable();
-    } while (current_need_resched());
+    } while (current_test_resched());
 }
 
 void __sched scheduler_resched(void)
@@ -130,7 +130,7 @@ void __sched scheduler_resched(void)
         irq_local_disable();
         sched_dispatch(false);
         irq_local_enable();
-    } while (current_need_resched());
+    } while (current_test_resched());
 }
 EXPORT_SYMBOL(scheduler_resched);
 
@@ -140,7 +140,7 @@ void __sched scheduler_idle(void)
 
     do {
         sched_dispatch(false);
-    } while (current_need_resched());
+    } while (current_test_resched());
 }
 
 void __noreturn scheduler_kill(void)
@@ -188,7 +188,7 @@ void sched_preempt_handle(void)
     if (preempt_count())
         return;
 
-    if (current_need_resched())
+    if (current_test_resched())
         preempt_handle();
 }
 

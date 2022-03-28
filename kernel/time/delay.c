@@ -8,6 +8,8 @@
 
 #include <delay.h>
 #include <proc.h>
+#include <kcoro.h>
+#include <kthread.h>
 #include <timekeeping.h>
 #include <driver/clocksource.h>
 #include <printk.h>
@@ -73,6 +75,7 @@ void delay_change(struct clocksource_device *cdev)
 
 void msleep(unsigned int msecs)
 {
-
+    if (current_test_kcoro())
+        kcoro_msleep(msecs);
 }
 EXPORT_SYMBOL(msleep);

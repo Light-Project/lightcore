@@ -42,11 +42,13 @@ enum sched_task_state {
 
 enum sched_task_flags {
     __SCHED_TASK_KTHREAD,
+    __SCHED_TASK_KCORO,
     __SCHED_TASK_IDLE,
     __SCHED_TASK_NRESCHED,
 };
 
 #define SCHED_TASK_KTHREAD      BIT(__SCHED_TASK_KTHREAD)
+#define SCHED_TASK_KCORO        BIT(__SCHED_TASK_KCORO)
 #define SCHED_TASK_IDLE         BIT(__SCHED_TASK_IDLE)
 #define SCHED_TASK_NRESCHED     BIT(__SCHED_TASK_NRESCHED)
 
@@ -234,17 +236,56 @@ GENERIC_STRUCT_BITOPS(task, struct sched_task, queued);
 #define task_queued_clr(task, bit)  generic_task_queued_clr(task, bit)
 #define task_queued_test(task, bit) generic_task_queued_test(task, bit)
 
-#define task_set_resched(task)      task_flags_set(task, __SCHED_TASK_NRESCHED)
-#define task_clr_resched(task)      task_flags_clr(task, __SCHED_TASK_NRESCHED)
-#define task_need_resched(task)     task_flags_test(task, __SCHED_TASK_NRESCHED)
+#define SCHED_TASK_FLAG_OPS(ops, name, bit)                                     \
+static inline void task_set_##name(struct sched_task *task)                     \
+{                                                                               \
+    ops##_set(task, bit);                                                       \
+}                                                                               \
+                                                                                \
+static inline void task_clr_##name(struct sched_task *task)                     \
+{                                                                               \
+    ops##_clr(task, bit);                                                       \
+}                                                                               \
+                                                                                \
+static inline bool task_test_##name(struct sched_task *task)                    \
+{                                                                               \
+    return ops##_test(task, bit);                                               \
+}                                                                               \
+                                                                                \
+static inline void queue_set_##name(struct sched_queue *queue)                  \
+{                                                                               \
+    task_set_##name(queue->curr);                                               \
+}                                                                               \
+                                                                                \
+static inline void queue_clr_##name(struct sched_queue *queue)                  \
+{                                                                               \
+    task_clr_##name(queue->curr);                                               \
+}                                                                               \
+                                                                                \
+static inline bool queue_test_##name(struct sched_queue *queue)                 \
+{                                                                               \
+    return task_test_##name(queue->curr);                                       \
+}                                                                               \
+                                                                                \
+static inline void current_set_##name(void)                                     \
+{                                                                               \
+    task_set_##name(current);                                                   \
+}                                                                               \
+                                                                                \
+static inline void current_clr_##name(void)                                     \
+{                                                                               \
+    task_clr_##name(current);                                                   \
+}                                                                               \
+                                                                                \
+static inline bool current_test_##name(void)                                    \
+{                                                                               \
+    return task_test_##name(current);                                           \
+}
 
-#define queue_set_resched(queue)    task_set_resched(queue->curr)
-#define queue_clr_resched(queue)    task_clr_resched(queue->curr)
-#define queue_need_resched(queue)   task_need_resched(queue->curr)
-
-#define current_set_resched()       task_set_resched(current)
-#define current_clr_resched()       task_clr_resched(current)
-#define current_need_resched()      task_need_resched(current)
+SCHED_TASK_FLAG_OPS(task_flags, kthread, __SCHED_TASK_KTHREAD)
+SCHED_TASK_FLAG_OPS(task_flags, kcoro, __SCHED_TASK_KCORO)
+SCHED_TASK_FLAG_OPS(task_flags, idle, __SCHED_TASK_IDLE)
+SCHED_TASK_FLAG_OPS(task_flags, resched, __SCHED_TASK_NRESCHED)
 
 extern bool sched_cond_resched_handle(void);
 extern void sched_preempt_handle(void);

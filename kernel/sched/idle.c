@@ -19,7 +19,7 @@ static void idle_loop(void)
 {
     // unsigned int cpu = smp_processor_id();
 
-    // while (!current_need_resched()) {
+    // while (!current_test_resched()) {
     //     rmb();
     //     irq_local_disable();
 
