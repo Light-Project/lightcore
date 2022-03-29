@@ -4,16 +4,21 @@
  */
 
 #include <linkage.h>
+#include <asm/header.h>
 #include "efi-header.S"
 
-#define BOOTSEG             0x07C0  /* original address of boot-sector */
-#define SYSSEG              0x1000  /* historical load address >> 4 */
-
-#define NORMAL_VGA          0xffff  /* 80x25 mode */
-#define EXTENDED_VGA        0xfffe  /* 80x50 mode */
-#define ASK_VGA             0xfffd  /* ask for it at bootup */
+#define DEFAULT_MAJOR_ROOT  0
+#define DEFAULT_MINOR_ROOT  0
+#define DEFAULT_ROOT_DEV    (DEFAULT_MAJOR_ROOT << 8 | DEFAULT_MINOR_ROOT)
 
 #define COMMAND_LINE_SIZE   2048
+
+#define BOOTSEG         0x07C0  /* original address of boot-sector */
+#define SYSSEG          0x1000  /* historical load address >> 4 */
+
+#define NORMAL_VGA      0xffff  /* 80x25 mode */
+#define EXTENDED_VGA    0xfffe  /* 80x50 mode */
+#define ASK_VGA         0xfffd  /* ask for it at bootup */
 
 #ifndef SVGA_MODE
 # define SVGA_MODE NORMAL_VGA
@@ -83,48 +88,48 @@ bugger_off_msg:
 #endif
 
     .org kboot_header + 0x1ef
-sentinel:                   .byte       0xff, 0xff                  /*  */
-kboot_params:
-setup_sects:                .byte       _ld_header_sects            /*  */
-root_flags:                 .word       ROOT_RDONLY                 /*  */
-syssize:                    .long       _ld_kernel_size             /* Obsolete */
-ram_size:                   .word       0                           /*  */
-vid_mode:                   .word       SVGA_MODE                   /*  */
-root_dev:                   .word       0                           /*  */
-boot_flag:                  .word       0xaa55                      /*  */
-_start:                     .byte       0xeb                        /*  */
-                            .byte       startup16 - header
-header:                     .ascii      "HdrS"                      /* Header signature */
-version:                    .word       0x020f                      /* Header version number */
-realmode_swtch:             .word       0, 0                        /* default_switch, SETUPSEG */
-start_sys_seg:              .word       SYSSEG                      /* Obsolete */
-kernel_version:             .word       kernel_version_msg - 512    /* Pointing to kernel version string */
-type_of_loader:             .byte       0                           /*  */
-loadflags:                  .byte       0                           /* The kernel is to be loaded high */
-setup_move_size:            .word       0x8000                      /*  */
-code32_start:               .long       0x100000                    /* Start address for 32-bit code */
-ramdisk_image:              .long       0                           /* Address of loaded ramdisk image */
-ramdisk_size:               .long       0                           /* Ramdisk size in bytes */
-bootsect_kludge:            .long       0                           /* Obsolete */
-heap_end_ptr:               .word       0                           /*  */
-ext_loader_ver:             .byte       0                           /* Extended boot loader version */
-ext_loader_type:            .byte       0                           /* Extended boot loader type */
-cmd_line_ptr:               .long       0                           /*  */
-initrd_addr_max:            .long       0x7fffffff                  /*  */
-kernel_alignment:           .long       0                           /*  */
-min_alignment:              .byte       0                           /*  */
-relocatable_kernel:         .byte       0                           /*  */
-xloadflags:                 .word       0                           /*  */
-cmdline_size:               .long       COMMAND_LINE_SIZE - 1       /* Length of the command line */
-hardware_subarch:           .long       0                           /* Subarchitecture, 0 for normal x86 PC */
-hardware_subarch_data:      .quad       0                           /*  */
-payload_offset:             .long       0                           /*  */
-payload_length:             .long       0                           /*  */
-setup_data:                 .quad       0                           /*  */
-pref_address:               .quad       0                           /* Preferred load addr */
-init_size:                  .long       0                           /* Kernel initialization size */
-handover_offset:            .long       0                           /*  */
-kernel_info_offset:         .long       0                           /*  */
+sentinel:                   .byte       0xff, 0xff                  /* 0x1ef: Used to detect broken loaders */
+kboot_params:                                                       /* linux header params: */
+setup_sects:                .byte       _ld_header_sects            /* 0x1f1: Kboot header sectors */
+root_flags:                 .word       ROOT_RDONLY                 /* 0x1f2: Rootfs flags */
+syssize:                    .long       _ld_sys_size                /* 0x1f4: Piggy data */
+ram_size:                   .word       0                           /* 0x1f8: Obsolete */
+vid_mode:                   .word       SVGA_MODE                   /* 0x1fa: Video mode */
+root_dev:                   .word       DEFAULT_ROOT_DEV            /* 0x1fc: Default root device */
+boot_flag:                  .word       0xaa55                      /* 0x1fe: MBR boot magic */
+_start:                     .byte       0xeb                        /* 0x200: Offset 512, entry point */
+                            .byte       startup16 - header          /* 0x201: Short (2-byte) jump */
+header:                     .ascii      "HdrS"                      /* 0x202: Header signature */
+version:                    .word       0x020f                      /* 0x206: Header version number */
+realmode_swtch:             .word       0, 0                        /* 0x208: default_switch, SETUPSEG */
+start_sys_seg:              .word       SYSSEG                      /* 0x20c: Obsolete */
+kernel_version:             .word       kernel_version_msg - 512    /* 0x20e: Pointing to kernel version string */
+type_of_loader:             .byte       0                           /* 0x210: 0 means ancient bootloader */
+loadflags:                  .byte       LOADED_HIGH                 /* 0x211: The kernel is to be loaded high */
+setup_move_size:            .word       0x8000                      /* 0x212: size to move, when setup is not, loaded at 0x90000 */
+code32_start:               .long       0x100000                    /* 0x214: Start address for 32-bit code */
+ramdisk_image:              .long       0                           /* 0x218: Address of loaded ramdisk image */
+ramdisk_size:               .long       0                           /* 0x21c: Ramdisk size in bytes */
+bootsect_kludge:            .long       0                           /* 0x220: Obsolete */
+heap_end_ptr:               .word       0                           /* 0x224:  */
+ext_loader_ver:             .byte       0                           /* 0x226: Extended boot loader version */
+ext_loader_type:            .byte       0                           /* 0x227: Extended boot loader type */
+cmd_line_ptr:               .long       0                           /* 0x228: Pointer to the kernel command line */
+initrd_addr_max:            .long       0x7fffffff                  /* 0x22c: The highest safe address for the contents of an initrd */
+kernel_alignment:           .long       0x200000                    /* 0x230: Physical addr alignment */
+relocatable_kernel:         .byte       0                           /* 0x234: Relocatable kernel */
+min_alignment:              .byte       0                           /* 0x235: Minimum alignment */
+xloadflags:                 .word       0                           /* 0x236:  */
+cmdline_size:               .long       COMMAND_LINE_SIZE - 1       /* 0x238: Length of the command line */
+hardware_subarch:           .long       0                           /* 0x23c: Subarchitecture, 0 for normal x86 PC */
+hardware_subarch_data:      .quad       0                           /* 0x240: Subarchitecture data */
+payload_offset:             .long       0                           /* 0x248:  */
+payload_length:             .long       0                           /* 0x24c:  */
+setup_data:                 .quad       0                           /* 0x250: Single linked list of struct setup_data */
+pref_address:               .quad       0                           /* 0x258: Preferred load addr */
+init_size:                  .long       0                           /* 0x260: Kernel initialization size */
+handover_offset:            .long       0                           /* 0x264: EFI stub entry */
+kernel_info_offset:         .long       0                           /* 0x268: Kernel info offset */
 kernel_version_msg:         .ascii      CONFIG_VERSION
 END(kboot_header)
 

@@ -2,6 +2,17 @@
 #ifndef _ASM_X86_BOOTPARAM_H_
 #define _ASM_X86_BOOTPARAM_H_
 
+#include <bits.h>
+
+/* loadflags */
+#define LOADED_HIGH     BIT(0)
+#define KASLR_FLAG      BIT(1)
+#define QUIET_FLAG      BIT(5)
+#define KEEP_SEGMENTS   BIT(6)
+#define CAN_USE_HEAP    BIT(7)
+
+#ifndef __ASSEMBLY__
+
 #include <asm/e820.h>
 
 struct kboot_params {
@@ -53,4 +64,5 @@ struct bootparam {
 
 #include <asm-generic/header.h>
 
+#endif  /* __ASSEMBLY__ */
 #endif  /* _ASM_X86_BOOTPARAM_H_ */

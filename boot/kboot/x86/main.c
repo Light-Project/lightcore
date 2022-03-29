@@ -17,6 +17,8 @@ asmlinkage void main(void)
     console_clear();
     pr_init(console_print);
 
+    pr_boot("%#08x\n", *(uint32_t *)code32_start);
+
     magic = *(uint32_t *)code32_start;
     if (magic != PIGGY_MAGIC)
         panic("bad kernel image");
@@ -29,6 +31,7 @@ asmlinkage void main(void)
     /* Extract kernel */
     extract_kernel(pa_to_va(NORMAL_OFFSET), (void *)code32_start + 4, piggy_size);
     head = pa_to_va(NORMAL_OFFSET);
+    head->cmd = (size_t)pa_to_va(cmd_line_ptr);
     head->params = (size_t)pa_to_va(&bootparam);
 
     /* Boot kernel */

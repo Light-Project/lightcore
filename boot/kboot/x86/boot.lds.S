@@ -35,8 +35,6 @@ SECTIONS {
         KEEP(*(.startup.*))
     }
 
-    _ld_startup_end = .;
-
     .text : {
         . = ALIGN(4);
         *(.text)
@@ -118,6 +116,7 @@ SECTIONS {
         _ld_piggy_end = .;
     }
 
+    . = ALIGN(512);
     _ld_kernel_end = .;
 
 #undef LOAD_OFFSET
@@ -145,6 +144,6 @@ SECTIONS {
 PROVIDE(_ld_header_size = _ld_header_end - _ld_header_start);
 PROVIDE(_ld_memory_size = _ld_stack_end - _ld_header_start);
 PROVIDE(_ld_kernel_size = _ld_kernel_end - _ld_kernel_start);
-PROVIDE(_ld_header_sects = _ld_header_size / 512);
-PROVIDE(_ld_kernel_sects = _ld_kernel_size / 512);
-ASSERT(_ld_memory_size < 0x10000, "Boot head too big! (64KiB)");
+PROVIDE(_ld_header_sects = (_ld_header_size / 512) - 1);
+PROVIDE(_ld_sys_size = _ld_kernel_size / 16);
+ASSERT(_ld_memory_size < 0xfc00, "Boot head too big! (64KiB)");

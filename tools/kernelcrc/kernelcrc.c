@@ -23,14 +23,6 @@ static void error(const char *str)
     exit(1);
 }
 
-static uint32_t crc32(const uint8_t *src, int len, uint32_t crc)
-{
-    uint32_t tmp = crc;
-    while (len--)
-        tmp = (tmp >> 8) ^ crc32_table[(tmp & 0xff) ^ *src++];
-    return tmp ^ crc;
-}
-
 int main(int argc, char *argv[])
 {
     struct boot_head *boot_head;
@@ -56,7 +48,7 @@ int main(int argc, char *argv[])
 
     boot_head->size = stat.st_size - sizeof(struct boot_head);
     old_crc = boot_head->crc;
-    new_crc = crc32((void *)(boot_head + 1), boot_head->size, ~0);
+    new_crc = crc32_inline((void *)(boot_head + 1), boot_head->size, ~0);
     if (old_crc != new_crc) {
         boot_head->crc = new_crc;
         printf("kernel crc has been fixed: 0x%x\n", boot_head->crc);
@@ -66,7 +58,7 @@ int main(int argc, char *argv[])
     boot_head->hsize = sizeof(struct boot_head);
     old_crc = boot_head->hcrc;
     boot_head->hcrc = 0;
-    new_crc = crc32((void *)boot_head, sizeof(struct boot_head), ~0);
+    new_crc = crc32_inline((void *)boot_head, sizeof(struct boot_head), ~0);
     if (old_crc != new_crc) {
         boot_head->hcrc = new_crc;
         printf("header crc has been fixed: 0x%x\n", boot_head->hcrc);

@@ -63,6 +63,7 @@ GLOBAL(startup16)
     leal    _ld_stack_end(%ebx), %eax
     cmpl    $EBDA_START, %eax
     jle     1f
+
     printf(TXT_BOOTBIG)
     jmp     halt_16
 1:
@@ -110,15 +111,16 @@ GLOBAL(startup16)
 /*
  * Check whether the kernel is loaded.
  */
-    movl    boot_offset, %ebx
-    movl    %fs:_ld_header_end(%ebx), %eax
+    movl    code32_start, %ebx
+    movl    %fs:(%ebx), %eax
     cmpl    $PIGGY_MAGIC, %eax
-    jne     3f
+    je      3f
 
 /*
  * If there is enough memory, copy the
  * kernel to the specified area.
  */
+    movl    boot_offset, %ebx
     leal    _ld_kernel_size(%ebx), %eax
     cmpl    $EBDA_START, %eax
     jle     1f
@@ -319,8 +321,8 @@ boot_offset:
     .long   0x00000000
 
     .align  4
-TXT_BOOTBIG:    .asciz "[HEAD]: Boot head to big...\n\r"
-TXT_PIGGYBIG:   .asciz "[HEAD]: Piggy data to big...\n\r"
+TXT_BOOTBIG:    .asciz "[HEAD]: Boot head too big...\n\r"
+TXT_PIGGYBIG:   .asciz "[HEAD]: Piggy data too big...\n\r"
 TXT_MEMDETECT:  .asciz "[HEAD]: Detect memory...\n\r"
 TXT_A20ENABLE:  .asciz "[HEAD]: Try to open a20\n\r"
 TXT_A20ERROR:   .asciz "[HEAD]: Fail to open a20\n\r"

@@ -4,7 +4,7 @@ $(obj)/%.bmp: $(obj)/%.svg
 	$(Q)$(BASH) $(src)/logogen.sh
 
 $(obj)/logo.c: $(obj)/logo.bmp
-	$(Q)$(MAKE) $(build)=tools/logo/
+	$(Q)$(MAKE) $(build)=tools/logo
 	$(Q)tools/logo/bmp2c $^ -o $@
 
 obj-y += logo.o terminal-logo.o
