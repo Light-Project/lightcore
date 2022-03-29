@@ -40,8 +40,8 @@ the qq gurp number is :763756024
 Notice:This is only one offcial group (please keep your wallet , prevent being cheated )
 ```
 
-##Lightcore developers
-John-sanpe  (sanpe)
-ffashion    (ffashion)
-xiaopan24   (bapie)
-WOTMSHIFW   (ChengQi Liu)
+## Lightcore developers
+<p>John-sanpe  (sanpe)</p>
+<p>ffashion    (ffashion)</p>
+<p>xiaopan24   (bapie)   </p>
+<p>WOTMSHIFW   (ChengQi Liu) </p>
