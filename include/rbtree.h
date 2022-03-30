@@ -8,12 +8,12 @@
 #define RB_BLACK    (1)
 #define RB_NSET     (2)
 
-typedef struct rb_node {
+struct rb_node {
     struct rb_node *parent;
     struct rb_node *left;
     struct rb_node *right;
     bool color;
-} rb_node_t;
+};
 
 struct rb_root {
     struct rb_node *rb_node;
@@ -56,6 +56,7 @@ extern void rb_erase(struct rb_root *root, struct rb_node *parent);
 extern struct rb_node *rb_remove(struct rb_root *root, struct rb_node *node);
 extern void rb_replace(struct rb_root *root, struct rb_node *old, struct rb_node *new);
 extern struct rb_node *rb_find(const struct rb_root *root, const void *key, rb_find_t);
+extern struct rb_node *rb_find_last(struct rb_root *root, const void *key, rb_find_t cmp, struct rb_node **parentp, struct rb_node ***linkp);
 extern struct rb_node **rb_parent(struct rb_root *root, struct rb_node **parentp, struct rb_node *node, rb_cmp_t, bool *leftmost);
 
 /* Middle iteration (Sequential) - find logical next and previous nodes */
@@ -167,7 +168,7 @@ static inline void rb_delete(struct rb_root *root, struct rb_node *node)
  * rb_cached_fixup - balance after insert cached node.
  * @cached: rbtree cached root of node.
  * @node: new inserted node.
- * @leftmost:
+ * @leftmost: is it the leftmost node.
  */
 static inline void rb_cached_fixup(struct rb_root_cached *cached,
                                    struct rb_node *node, bool leftmost)
@@ -184,7 +185,7 @@ static inline void rb_cached_fixup(struct rb_root_cached *cached,
  * @parent: parent node of node.
  * @link: point to pointer to child node.
  * @node: new node to link.
- * @leftmost: new node to link.
+ * @leftmost: is it the leftmost node.
  */
 static inline void rb_cached_insert_node(struct rb_root_cached *cached, struct rb_node *parent,
                                          struct rb_node **link, struct rb_node *node, bool leftmost)

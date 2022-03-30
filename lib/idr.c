@@ -31,17 +31,23 @@ static long idr_rb_find(const struct rb_node *rb, const void *key)
  * @max: maximum id to get
  * @nextp: return the next linked list node
  */
-static unsigned long idr_get_free_range(struct idr_root *idr, unsigned long min, unsigned long max, struct list_head **nextp)
+static unsigned long idr_get_free_range(struct idr_root *idr, unsigned long min, unsigned long max, bool *fusep,
+                                        struct list_head **nextp, struct rb_node **parentp, struct rb_node ***linkp)
 {
-    unsigned long walk;
     struct idr_node *node;
     struct rb_node *rb;
+    unsigned long walk;
 
     min = max(min, 1);
 
-    rb = rb_find(&idr->root, (void *)min, idr_rb_find);
+    *fusep = !!(rb = rb_find_last(&idr->root, (void *)min, idr_rb_find, parentp, linkp));
     if (unlikely(!(node = rb_to_idr_safe(rb)))) {
-        *nextp = idr->list.next;
+        if (!*parentp)
+            *nextp = idr->list.next;
+        else if (*linkp == &(*parentp)->left)
+            *nextp = &rb_to_idr(*parentp)->list;
+        else if (*linkp == &(*parentp)->right)
+            *nextp = rb_to_idr(*parentp)->list.next;
         return min;
     }
 
@@ -71,19 +77,25 @@ finish:
  */
 unsigned long idr_node_alloc_range(struct idr_root *idr, struct idr_node *node, void *pdata, unsigned long min, unsigned long max)
 {
+    struct rb_node *parent, **link;
     struct list_head *next;
     unsigned long id;
+    bool fuse;
 
     spin_lock(&idr->lock);
 
-    id = idr_get_free_range(idr, min, max, &next);
+    id = idr_get_free_range(idr, min, max, &fuse, &next, &parent, &link);
     if (unlikely(id == IDR_NONE))
         goto finish;
 
     node->index = id;
     node->pdata = pdata;
     list_add_prev(next, &node->list);
-    rb_insert(&idr->root, &node->rb, idr_rb_cmp);
+
+    if (!fuse && parent)
+        rb_insert_node(&idr->root, parent, link, &node->rb);
+    else
+        rb_insert(&idr->root, &node->rb, idr_rb_cmp);
 
 finish:
     spin_unlock(&idr->lock);

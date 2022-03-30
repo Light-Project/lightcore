@@ -535,6 +535,41 @@ struct rb_node *rb_find(const struct rb_root *root, const void *key, rb_find_t c
 EXPORT_SYMBOL(rb_find);
 
 /**
+ * rb_find_parent - find @key in tree @root and return parent.
+ * @root: rbtree want to search.
+ * @key: key to match.
+ * @cmp: operator defining the node order.
+ * @parentp: used to save the last found node.
+ * @last_ret: used to save the last returned value.
+ */
+struct rb_node *rb_find_last(struct rb_root *root, const void *key, rb_find_t cmp,
+                             struct rb_node **parentp, struct rb_node ***linkp)
+{
+    long ret;
+
+    *linkp = &root->rb_node;
+    if (unlikely(!**linkp)) {
+        *parentp = NULL;
+        return NULL;
+    }
+
+    do {
+        ret = cmp((*parentp = **linkp), key);
+        if (ret == LONG_MIN)
+            return NULL;
+        else if (ret < 0)
+            *linkp = &(**linkp)->left;
+        else if (ret > 0)
+            *linkp = &(**linkp)->right;
+        else
+            return **linkp;
+    } while (**linkp);
+
+    return NULL;
+}
+EXPORT_SYMBOL(rb_find_last);
+
+/**
  * rb_parent - find the parent node.
  * @root: rbtree want to search.
  * @parentp: pointer used to modify the parent node pointer.

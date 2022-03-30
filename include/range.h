@@ -39,19 +39,19 @@
 /**
  * min_adj - Adjust the minimum value of @val.
  * @val: value to adjust.
- * @min: lowest allowable value.
+ * @lo: lowest allowable value.
  */
-#define min_adj(val, min) ({                            \
-    (val) = min(val, min);                              \
+#define min_adj(val, lo) ({                             \
+    (val) = min(val, lo);                               \
 })
 
 /**
  * max_adj - Adjust the maximum value of @val.
  * @val: value to adjust.
- * @max: highest allowable value.
+ * @hi: highest allowable value.
  */
-#define max_adj(val, max) ({                            \
-    (val) = max(val, max);                              \
+#define max_adj(val, hi) ({                             \
+    (val) = max(val, hi);                               \
 })
 
 /**
