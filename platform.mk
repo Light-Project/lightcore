@@ -3,6 +3,12 @@
 # Platform configure
 # ==========================================================================
 
+ifdef CONFIG_ARCH_X86
+KBOOT_IMAGE := $(objtree)/boot/kboot/boot.bin
+else
+KBOOT_IMAGE := $(objtree)/boot/uImage
+endif
+
 ifdef CONFIG_ARCH_ARM
 CROSS_COMPILE       := arm-none-eabi-
 arch                := arm

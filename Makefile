@@ -162,8 +162,9 @@ run install uninsall: FORCE
 else
 run: FORCE
 	$(Q)$(SHELL) $(srctree)/boot/run/$(run_shell)
-%install: FORCE
-	$(Q)$(SHELL) $(srctree)/boot/install $@
+install: FORCE
+	$(Q)$(SHELL) $(srctree)/boot/install.sh \
+		$(KERNELVERSION) $(KBOOT_IMAGE) $(INSTALL_PATH)
 endif
 
 clean-subdir-y += boot/
