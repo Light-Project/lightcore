@@ -13,7 +13,7 @@
  * @pref: font priority
  */
 struct font {
-    slist_t list;
+    struct slist_head list;
     const void *name;
     unsigned int width;
     unsigned int height;

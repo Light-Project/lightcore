@@ -7,9 +7,9 @@
 #include <kernel.h>
 #include <poison.h>
 
-typedef struct slist_head {
+struct slist_head {
     struct slist_head *next;
-} slist_t;
+};
 
 #define SLIST_HEAD_INIT \
     (struct slist_head) { NULL }
@@ -105,6 +105,16 @@ static inline bool slist_check_next(struct slist_head *node)
 }
 
 /**
+ * slist_check_another - check whether has another node.
+ * @head: slist head to check.
+ * @node: the unique node.
+ */
+static inline bool slist_check_another(const struct slist_head *head, const struct slist_head *node)
+{
+    return head->next == node && node->next == NULL;
+}
+
+/**
  * slist_entry - get the struct for this entry.
  * @ptr: the &struct slist_head pointer.
  * @type: the type of the struct this is embedded in.
@@ -153,7 +163,7 @@ static inline bool slist_check_next(struct slist_head *node)
     for ((pos) = (pos)->next; (pos); (pos) = (pos)->next)
 
 /**
- * list_for_each_safe - iterate over a slist safe against removal of slist entry.
+ * slist_for_each_safe - iterate over a slist safe against removal of slist entry.
  * @pos: the &struct slist_head to use as a loop cursor.
  * @tmp: another slist_head to use as temporary storage.
  * @head: the head for your slist.

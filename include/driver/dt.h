@@ -24,7 +24,7 @@ struct dt_attribute {
     const char *name;
     const void *value;
     int len;
-    slist_t list;
+    struct slist_head list;
 };
 
 struct dt_node {

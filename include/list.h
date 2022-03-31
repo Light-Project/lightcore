@@ -181,6 +181,16 @@ static inline bool list_check_empty(const struct list_head *head)
 }
 
 /**
+ * list_check_another - check whether has another node.
+ * @head: list head to check.
+ * @node: the unique node.
+ */
+static inline bool list_check_another(const struct list_head *head, const struct list_head *node)
+{
+    return head->next == node && head->prev == node;
+}
+
+/**
  * list_check_outsize - check whether the node is outside the linked list.
  * @node: list entry to check.
  */
@@ -277,7 +287,7 @@ static inline bool list_check_outsize(const struct list_head *node)
     for ((pos) = (head)->prev; (pos) != (head); (pos) = (pos)->prev)
 
 /**
- * list_for_each - iterate over a list from the current point.
+ * list_for_each_from - iterate over a list from the current point.
  * @head: the head for your list.
  * @pos: the &struct list_head to use as a loop cursor.
  */
@@ -285,7 +295,7 @@ static inline bool list_check_outsize(const struct list_head *node)
     for (; !list_check_head(pos, head); (pos) = (pos)->next)
 
 /**
- * list_for_each_reverse - iterate over a list backwards from the current point.
+ * list_for_each_reverse_from - iterate over a list backwards from the current point.
  * @pos: the &struct list_head to use as a loop cursor.
  * @head: the head for your list.
  */
@@ -333,7 +343,7 @@ static inline bool list_check_outsize(const struct list_head *node)
          (pos) = (tmp), (tmp) = (tmp)->prev)
 
 /**
- * list_for_each_reverse_safe - iterate over a list safe against removal of list entry from the current point.
+ * list_for_each_from_safe - iterate over a list safe against removal of list entry from the current point.
  * @pos: the &struct list_head to use as a loop cursor.
  * @tmp: another list_head to use as temporary storage.
  * @head: the head for your list.
@@ -344,7 +354,7 @@ static inline bool list_check_outsize(const struct list_head *node)
          (pos) = (tmp), (tmp) = (tmp)->next)
 
 /**
- * list_for_each_reverse_safe - iterate backwards over list safe against removal from the current point.
+ * list_for_each_reverse_from_safe - iterate backwards over list safe against removal from the current point.
  * @pos: the &struct list_head to use as a loop cursor.
  * @tmp: another list_head to use as temporary storage.
  * @head: the head for your list.
@@ -467,7 +477,7 @@ static inline bool list_check_outsize(const struct list_head *node)
          (pos) = (tmp), (tmp) = list_prev_entry(tmp, member))
 
 /**
- * list_for_each_entry_continue_safe - iterate over list from current point safe against removal.
+ * list_for_each_entry_from_safe - iterate over list from current point safe against removal.
  * @pos: the type * to use as a loop cursor.
  * @tmp: another type * to use as temporary storage.
  * @head: the head for your list.
@@ -479,7 +489,7 @@ static inline bool list_check_outsize(const struct list_head *node)
          (pos) = (tmp), (tmp) = list_next_entry(tmp, member))
 
 /**
- * list_for_each_entry_continue_safe - iterate backwards over list from current point safe against removal.
+ * list_for_each_entry_reverse_from_safe - iterate backwards over list from current point safe against removal.
  * @pos: the type * to use as a loop cursor.
  * @tmp: another type * to use as temporary storage.
  * @head: the head for your list.
@@ -504,7 +514,7 @@ static inline bool list_check_outsize(const struct list_head *node)
          (pos) = (tmp), (tmp) = list_next_entry(tmp, member))
 
 /**
- * list_for_each_entry_continue_safe - continue backwards over list iteration safe against removal.
+ * list_for_each_entry_reverse_continue_safe - continue backwards over list iteration safe against removal.
  * @pos: the type * to use as a loop cursor.
  * @tmp: another type * to use as temporary storage.
  * @head: the head for your list.

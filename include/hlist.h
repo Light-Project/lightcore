@@ -180,6 +180,16 @@ static inline bool hlist_check_unhashed(struct hlist_node *node)
 }
 
 /**
+ * hlist_check_another - check whether has another node.
+ * @head: slist head to check.
+ * @node: the unique node.
+ */
+static inline bool hlist_check_another(const struct hlist_head *head, const struct hlist_node *node)
+{
+    return head->node == node && node->next == NULL;
+}
+
+/**
  * hlist_entry - get the struct for this entry.
  * @ptr: the &struct hlist_node pointer.
  * @type: the type of the struct this is embedded in.
@@ -216,7 +226,7 @@ static inline bool hlist_check_unhashed(struct hlist_node *node)
     for ((pos) = (head)->node; (pos); (pos) = (pos)->next)
 
 /**
- * hlist_for_each - iterate over a hlist from the current point.
+ * hlist_for_each_from - iterate over a hlist from the current point.
  * @pos: the &struct hlist_node to use as a loop cursor.
  */
 #define hlist_for_each_from(pos) \
@@ -268,7 +278,7 @@ static inline bool hlist_check_unhashed(struct hlist_node *node)
          (pos); (pos) = hlist_next_entry(pos, member))
 
 /**
- * hlist_for_each_entry_continue - continue iteration over hlist of given type from the current point.
+ * hlist_for_each_entry_from - continue iteration over hlist of given type from the current point.
  * @pos: the type * to use as a loop cursor.
  * @member: the name of the hlist_node within the struct.
  */
@@ -285,7 +295,7 @@ static inline bool hlist_check_unhashed(struct hlist_node *node)
          (pos); (pos) = hlist_next_entry(pos, member))
 
 /**
- * slist_for_each_entry_safe - iterate over hlist of given type safe against removal of hlist entry
+ * hlist_for_each_entry_safe - iterate over hlist of given type safe against removal of hlist entry
  * @pos: the type * to use as a loop cursor.
  * @tmp: another type * to use as temporary storage
  * @head: the head for your hlist.
