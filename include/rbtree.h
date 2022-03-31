@@ -59,6 +59,11 @@ extern struct rb_node *rb_find(const struct rb_root *root, const void *key, rb_f
 extern struct rb_node *rb_find_last(struct rb_root *root, const void *key, rb_find_t cmp, struct rb_node **parentp, struct rb_node ***linkp);
 extern struct rb_node **rb_parent(struct rb_root *root, struct rb_node **parentp, struct rb_node *node, rb_cmp_t, bool *leftmost);
 
+extern struct rb_node *rb_left_far(const struct rb_node *node);
+extern struct rb_node *rb_right_far(const struct rb_node *node);
+extern struct rb_node *rb_left_deep(const struct rb_node *node);
+extern struct rb_node *rb_right_deep(const struct rb_node *node);
+
 /* Middle iteration (Sequential) - find logical next and previous nodes */
 extern struct rb_node *rb_first(const struct rb_root *root);
 extern struct rb_node *rb_last(const struct rb_root *root);

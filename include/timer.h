@@ -3,6 +3,7 @@
 #define _TIMER_H_
 
 #include <hlist.h>
+#include <ticktime.h>
 
 typedef void (*timer_entry_t)(void *pdata);
 

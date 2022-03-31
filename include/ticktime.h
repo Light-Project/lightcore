@@ -3,6 +3,7 @@
 #define _TICKTIME_H_
 
 #include <types.h>
+#include <time.h>
 
 extern volatile ttime_t ticktime;
 
@@ -11,6 +12,44 @@ extern volatile ttime_t ticktime;
         NSEC_PER_SEC,       \
         CONFIG_SYSTICK_FREQ \
 )
+
+/**
+ * ttime_to_ns/us/ms - convert ttime to time
+ * @time: the ttime to convert
+ */
+static inline int64_t ttime_to_ns(ttime_t time)
+{
+    return time * SYSTICK_NSEC;
+}
+
+static inline int64_t ttime_to_us(ttime_t time)
+{
+    return ttime_to_ns(time) / NSEC_PER_USEC;
+}
+
+static inline int64_t ttime_to_ms(ttime_t time)
+{
+    return ttime_to_ns(time) / NSEC_PER_MSEC;
+}
+
+/**
+ * ns/us/ms_to_ttime - convert time to ttime
+ * @time: the ns/us/ms to convert
+ */
+static inline ttime_t ns_to_ttime(int64_t time)
+{
+    return DIV_ROUND_UP(time, SYSTICK_NSEC);
+}
+
+static inline ttime_t us_to_ttime(int64_t time)
+{
+    return ns_to_ttime(time * NSEC_PER_USEC);
+}
+
+static inline ttime_t ms_to_ttime(int64_t time)
+{
+    return ns_to_ttime(time * NSEC_PER_MSEC);
+}
 
 /**
  * ttime_compare - compares two ttime_t variables

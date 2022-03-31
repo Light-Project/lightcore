@@ -78,7 +78,7 @@ finish:
 unsigned long idr_node_alloc_range(struct idr_root *idr, struct idr_node *node, void *pdata, unsigned long min, unsigned long max)
 {
     struct rb_node *parent, **link;
-    struct list_head *next;
+    struct list_head *next = NULL;
     unsigned long id;
     bool fuse;
 

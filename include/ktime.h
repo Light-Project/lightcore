@@ -3,6 +3,7 @@
 #define _KTIME_H_
 
 #include <types.h>
+#include <math.h>
 #include <time.h>
 
 #define ktime_to_timespec(ns)   ns_to_timespec(ns)

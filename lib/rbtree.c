@@ -535,12 +535,12 @@ struct rb_node *rb_find(const struct rb_root *root, const void *key, rb_find_t c
 EXPORT_SYMBOL(rb_find);
 
 /**
- * rb_find_parent - find @key in tree @root and return parent.
+ * rb_find_last - find @key in tree @root and return parent.
  * @root: rbtree want to search.
  * @key: key to match.
  * @cmp: operator defining the node order.
- * @parentp: used to save the last found node.
- * @last_ret: used to save the last returned value.
+ * @parentp: pointer used to modify the parent node pointer.
+ * @linkp: pointer used to modify the point to pointer to child node.
  */
 struct rb_node *rb_find_last(struct rb_root *root, const void *key, rb_find_t cmp,
                              struct rb_node **parentp, struct rb_node ***linkp)
@@ -607,37 +607,36 @@ struct rb_node **rb_parent(struct rb_root *root, struct rb_node **parentp,
 EXPORT_SYMBOL(rb_parent);
 
 /**
- * left_far - go left as we can.
+ * rb_left_far - go left as we can.
  * @node: node to go left.
  */
-static __always_inline
-struct rb_node *left_far(const struct rb_node *node)
+struct rb_node *rb_left_far(const struct rb_node *node)
 {
     while (node->left)
         node = node->left;
 
     return (struct rb_node *)node;
 }
+EXPORT_SYMBOL(rb_left_far);
 
 /**
- * right_far - go right as we can.
+ * rb_right_far - go right as we can.
  * @node: node to go right.
  */
-static __always_inline
-struct rb_node *right_far(const struct rb_node *node)
+struct rb_node *rb_right_far(const struct rb_node *node)
 {
     while (node->right)
         node = node->right;
 
     return (struct rb_node *)node;
 }
+EXPORT_SYMBOL(rb_right_far);
 
 /**
- * left_deep - go left deep as we can.
+ * rb_left_deep - go left deep as we can.
  * @node: node to go left deep.
  */
-static __always_inline
-struct rb_node *left_deep(const struct rb_node *node)
+struct rb_node *rb_left_deep(const struct rb_node *node)
 {
     while (node) {
         if (node->left)
@@ -650,13 +649,13 @@ struct rb_node *left_deep(const struct rb_node *node)
 
     return NULL;
 }
+EXPORT_SYMBOL(rb_left_deep);
 
 /**
- * right_deep - go right deep as we can.
+ * rb_right_deep - go right deep as we can.
  * @node: node to go right deep.
  */
-static __always_inline
-struct rb_node *right_deep(const struct rb_node *node)
+struct rb_node *rb_right_deep(const struct rb_node *node)
 {
     while (node) {
         if (node->right)
@@ -669,6 +668,7 @@ struct rb_node *right_deep(const struct rb_node *node)
 
     return NULL;
 }
+EXPORT_SYMBOL(rb_right_deep);
 
 /**
  * rb_first/last/prev/next - Middle iteration (Sequential)
@@ -682,7 +682,7 @@ struct rb_node *rb_first(const struct rb_root *root)
         return NULL;
 
     /* Get the leftmost node */
-    node = left_far(node);
+    node = rb_left_far(node);
     return node;
 }
 EXPORT_SYMBOL(rb_first);
@@ -695,7 +695,7 @@ struct rb_node *rb_last(const struct rb_root *root)
         return NULL;
 
     /* Get the rightmost node */
-    node = right_far(node);
+    node = rb_right_far(node);
     return node;
 }
 EXPORT_SYMBOL(rb_last);
@@ -713,7 +713,7 @@ struct rb_node *rb_prev(const struct rb_node *node)
      */
     if (node->left) {
         node = node->left;
-        return right_far(node);
+        return rb_right_far(node);
     }
 
     /*
@@ -740,7 +740,7 @@ struct rb_node *rb_next(const struct rb_node *node)
      */
     if (node->right) {
         node = node->right;
-        return left_far(node);
+        return rb_left_far(node);
     }
 
     /*
@@ -765,7 +765,7 @@ struct rb_node *rb_post_first(const struct rb_root *root)
     if (!root || !node)
         return NULL;
 
-    node = left_deep(node);
+    node = rb_left_deep(node);
     return node;
 }
 EXPORT_SYMBOL(rb_post_first);
@@ -780,7 +780,7 @@ struct rb_node *rb_post_next(const struct rb_node *node)
     parent = node->parent;
 
     if (parent && node == parent->left && parent->right)
-        return left_deep(parent->right);
+        return rb_left_deep(parent->right);
     else
         return (struct rb_node *)parent;
 }

@@ -17,8 +17,6 @@ asmlinkage void main(void)
     console_clear();
     pr_init(console_print);
 
-    pr_boot("%#08x\n", *(uint32_t *)code32_start);
-
     magic = *(uint32_t *)code32_start;
     if (magic != PIGGY_MAGIC)
         panic("bad kernel image");
