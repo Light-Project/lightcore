@@ -283,7 +283,7 @@ EXPORT_SYMBOL(platform_driver_unregister);
  */
 struct platform_device *platform_unified_register(struct platform_driver *pdrv, struct resource *res, unsigned int nres)
 {
-    struct platform_device_id *pid;
+    struct platform_device_id *pids;
     struct platform_device *pdev;
     state ret;
 
@@ -291,16 +291,17 @@ struct platform_device *platform_unified_register(struct platform_driver *pdrv, 
     if (!pdev)
         return NULL;
 
-    pid = kcache_zalloc(platform_devid_cache, GFP_KERNEL);
-    if (!pid)
+    pids = kcache_alloc(platform_devid_cache, GFP_KERNEL);
+    if (!pids)
         goto error_pid;
 
     pdev->resource = res;
     pdev->resources_nr = nres;
     pdev->dev.name = pdrv->driver.name;
 
-    strncpy(pid->name, pdrv->driver.name, PLATFORM_NAME_LEN);
-    pdrv->platform_table = pid;
+    strncpy(pids[0].name, pdrv->driver.name, PLATFORM_NAME_LEN);
+    memset(&pids[1], 0, sizeof(struct platform_device_id));
+    pdrv->platform_table = pids;
 
     ret = platform_device_register(pdev);
     if (ret)
@@ -315,9 +316,9 @@ struct platform_device *platform_unified_register(struct platform_driver *pdrv, 
 error_pdrv:
     platform_device_unregister(pdev);
 error_pdev:
-    kfree(pdev);
+    kcache_free(platform_devid_cache, pids);
 error_pid:
-    kfree(pdev);
+    kcache_free(platform_device_cache, pdev);
     return NULL;
 }
 EXPORT_SYMBOL(platform_unified_register);
@@ -332,7 +333,7 @@ void __init platform_bus_init(void)
 
     platform_devid_cache = kcache_create(
         "platform devid",
-        sizeof(struct platform_device_id),
+        sizeof(struct platform_device_id) * 2,
         KCACHE_PANIC
     );
 
