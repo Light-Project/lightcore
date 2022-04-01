@@ -17,19 +17,19 @@ struct watchdog_device {
 };
 
 struct watchdog_ops {
-    state (*start)(struct watchdog_device *);
-    state (*stop)(struct watchdog_device *);
-    state (*feed)(struct watchdog_device *);
-    state (*timeleft_get)(struct watchdog_device *, unsigned int *secs);
-    state (*timeout_get)(struct watchdog_device *, unsigned int *secs);
-    state (*timeout_set)(struct watchdog_device *, unsigned int secs);
+    state (*start)(struct watchdog_device *wdev);
+    state (*stop)(struct watchdog_device *wdev);
+    state (*feed)(struct watchdog_device *wdev);
+    state (*timeleft_get)(struct watchdog_device *wdev, unsigned int *secs);
+    state (*timeout_get)(struct watchdog_device *wdev, unsigned int *secs);
+    state (*timeout_set)(struct watchdog_device *wdev, unsigned int secs);
 };
 
-state watchdog_start(struct watchdog_device *);
-state watchdog_stop(struct watchdog_device *);
-state watchdog_feed(struct watchdog_device *);
+extern state watchdog_start(struct watchdog_device *wdev);
+extern state watchdog_stop(struct watchdog_device *wdev);
+extern state watchdog_feed(struct watchdog_device *wdev);
 
-state watchdog_register(struct watchdog_device *);
-void watchdog_unregister(struct watchdog_device *);
+extern state watchdog_register(struct watchdog_device *wdev);
+extern void watchdog_unregister(struct watchdog_device *wdev);
 
 #endif /* _DRIVER_WATCHDOG_H_ */
