@@ -2,7 +2,7 @@
 obj-y += libc/ font/ crypto/
 obj-y += bitops.o bitmap.o
 obj-y += rbtree.o sort.o klist.o
-obj-y += kfifo.o ncache.o
+obj-y += kfifo.o ncache.o ilist.o
 obj-y += size.o time.o idr.o
 obj-$(CONFIG_DEBUG_LIST) += list.o
 obj-$(CONFIG_DEBUG_HLIST) += hlist.o

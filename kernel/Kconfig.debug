@@ -14,7 +14,7 @@ config DEBUG_PREEMPT
     depends on DEBUG_KERNEL && PREEMPTION
     default y
 
-endmenu #Scheduler Debugging
+endmenu # Scheduler Debugging
 
 menu "Debug Lockups"
 
@@ -48,6 +48,11 @@ config DEBUG_HLIST
 
 config DEBUG_SLIST
     bool "Debug single List manipulation"
+    depends on DEBUG_KERNEL
+    default y
+
+config DEBUG_ILIST
+    bool "Debug index List manipulation"
     depends on DEBUG_KERNEL
     default y
 
