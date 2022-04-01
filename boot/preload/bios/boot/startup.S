@@ -127,7 +127,22 @@ TXT_INT13_2_ERR:    .asciz "[MBR] INT13/2 ERR!\n\r"
 
     .section .text,"ax"
 ENTRY(init)
+    /* clear the bss region */
+    movl    $_ld_bss_start, %edi
+    movl    $_ld_bss_end, %ecx
+    subl    %edi, %ecx
+    shrl    $2, %ecx
+    xorl    %eax, %eax
+    rep;    stosl %eax, %es:(%edi)
 
+    /* setup stack */
+    movl    $_ld_stack_end, %esp
+    xorl    %ebp, %ebp
+
+    jmp     main
+END(init)
+
+GLOBAL(setup_bigreal)
     /* load gdt and idt table */
     lgdtl   gdt_struct
 
@@ -149,20 +164,8 @@ ENTRY(init)
     xorl    $(1<<0), %eax
     movl    %eax, %cr0
 
-    /* clear the bss region */
-    movl    $_ld_bss_start, %edi
-    movl    $_ld_bss_end, %ecx
-    subl    %edi, %ecx
-    shrl    $2, %ecx
-    xorl    %eax, %eax
-    rep;    stosl %eax, %es:(%edi)
-
-    /* setup stack */
-    movl    $_ld_stack_end, %esp
-    xorl    %ebp, %ebp
-
-    jmp     main
-END(init)
+    retl
+END(setup_bigreal)
 
 GLOBAL(kboot_start)
     movl    8(%esp), %ebx

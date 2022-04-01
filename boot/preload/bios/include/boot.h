@@ -142,6 +142,7 @@ static inline void io_delay(void)
     asm volatile("outb %al, $0x80");
 }
 
+extern void setup_bigreal(void);
 extern __noreturn void halt(void);
 extern __noreturn void kboot_start(uint16_t segment, uint32_t offset);
 extern void bios_int(char nr, struct bios_reg *ir, struct bios_reg *or);

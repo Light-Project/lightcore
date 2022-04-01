@@ -32,6 +32,7 @@ static inline void vga_cursor(const char pos_x, const char pos_y)
 
 static inline void vga_flush(void)
 {
+    setup_bigreal();
     bigreal_memcpy(vram_base, buff, sizeof(buff));
 }
 

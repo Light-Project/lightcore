@@ -63,6 +63,7 @@ static state legacy_read(char dev, void *buf, uint32_t lba, int count)
         }
 
         /* Bounce back to real address */
+        setup_bigreal();
         bigreal_memcpy(buf, bound, 512);
         buf += 512;
         ++lba;
@@ -111,6 +112,7 @@ static state lba_read(char dev, void *buf, uint32_t lba, int count)
         }
 
         /* Bounce back to real address */
+        setup_bigreal();
         bigreal_memcpy(buf, bound, 512);
         buf += 512;
         ++lba;
