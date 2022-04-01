@@ -82,7 +82,7 @@ static struct gdt_entry gdt_entry[GDT_ENTRY_MAX] = {
 
 struct gdt_table gdt_table = {
     .gdt = gdt_entry,
-    .limit = sizeof(gdt_entry),
+    .limit = sizeof(gdt_entry) - 1,
 };
 
 void gdte_seg_set(int index, char dpl, char type, size_t base, uint64_t limit)

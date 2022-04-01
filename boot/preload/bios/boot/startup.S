@@ -239,8 +239,8 @@ END(bios_int)
 gdt_table:
     .long   0x00000000  /* 0x00: NULL ENTRY                     */
     .long   0x00000000  /* 0x04: NULL                           */
-    .long   0x0000ffff  /* 0x08: DS ENTRY                       */
+    .long   0x0000ffff  /* 0x08: FS ENTRY                       */
     .long   0x00cf9300  /* 0x0c: data, read/write, 4GB, base=0  */
 gdt_struct:
-    .word   0x0010      /* GDT Limit    */
+    .word   0x000f      /* GDT Limit    */
     .long   gdt_table   /* GDT Addr     */

@@ -308,7 +308,7 @@ gdt_table:
     .long   0x0000ffff      /* 0x10: DS ENTRY                       */
     .long   0x00cf9300      /* 0x14: data, read/write, 4GB, base=0  */
 gdt_struct:
-    .word   0x0018          /* GDT Limit    */
+    .word   0x0017          /* GDT Limit    */
 gdt_fix: .long gdt_table    /* GDT Addr     */
 
     .align  16

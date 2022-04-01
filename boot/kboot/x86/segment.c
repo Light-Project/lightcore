@@ -47,7 +47,7 @@ struct gdt_table gdt_table;
 
 void segment_init(void)
 {
-    gdt_table.limit = sizeof(gdt_entry);
+    gdt_table.limit = sizeof(gdt_entry) - 1;
     gdt_table.gdt = gdt_entry;
 
     GDT_SET_DEFAULTS_BOOTLOADER_CS(gdt_entry);
