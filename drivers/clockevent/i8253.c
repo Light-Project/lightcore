@@ -66,8 +66,8 @@ static state i8253_next_event(struct clockevent_device *cdev, uint64_t delta)
 
     spin_lock(&i8253_lock);
 
-    i8253_out(idev, I8253_COUNTER0, delta & 0xff);
-    i8253_out(idev, I8253_COUNTER0, delta >> 8);
+    i8253_out(idev, I8253_LATCH0, delta & 0xff);
+    i8253_out(idev, I8253_LATCH0, delta >> 8);
 
     spin_unlock(&i8253_lock);
     return -ENOERR;
@@ -104,8 +104,8 @@ static state i8253_state_periodic(struct clockevent_device *cdev, uint64_t delta
      * Binary/BCD Select: Binary countdown is used
      */
     i8253_out(idev, I8253_MODE, I8253_MODE_ACCESS_WORD | I8253_MODE_MOD_RATE);
-    i8253_out(idev, I8253_COUNTER0, delta & 0xff);
-    i8253_out(idev, I8253_COUNTER0, delta >> 8);
+    i8253_out(idev, I8253_LATCH0, delta & 0xff);
+    i8253_out(idev, I8253_LATCH0, delta >> 8);
 
     spin_unlock(&i8253_lock);
     return -ENOERR;
@@ -118,8 +118,8 @@ static state i8253_state_shutdown(struct clockevent_device *cdev)
     spin_lock(&i8253_lock);
 
     i8253_out(idev, I8253_MODE, I8253_MODE_ACCESS_WORD);
-    i8253_out(idev, I8253_COUNTER0, 0);
-    i8253_out(idev, I8253_COUNTER0, 0);
+    i8253_out(idev, I8253_LATCH0, 0);
+    i8253_out(idev, I8253_LATCH0, 0);
 
     spin_unlock(&i8253_lock);
     return -ENOERR;
@@ -145,7 +145,7 @@ static uint64_t i8253_read(struct clocksource_device *cdev)
     tick = ticktime;
 
     /* latched the count then read count */
-    i8253_out(idev, I8253_MODE, I8253_MODE_ACCESS_WORD | I8253_MODE_MOD_RATE);
+    i8253_out(idev, I8253_MODE, 0x00);
     count = i8253_in(idev, I8253_COUNTER0);
     count |= i8253_in(idev, I8253_COUNTER0) << 8;
 
@@ -155,8 +155,8 @@ static uint64_t i8253_read(struct clocksource_device *cdev)
      */
     if (count > (latch = I8253_LATCH(CONFIG_SYSTICK_FREQ))) {
         i8253_out(idev, I8253_MODE, I8253_MODE_ACCESS_WORD | I8253_MODE_MOD_RATE);
-        i8253_out(idev, I8253_COUNTER0, latch & 0xff);
-        i8253_out(idev, I8253_COUNTER0, latch >> 8);
+        i8253_out(idev, I8253_LATCH0, latch & 0xff);
+        i8253_out(idev, I8253_LATCH0, latch >> 8);
         count = latch - 1;
     }
 
@@ -230,7 +230,10 @@ static state i8253_probe(struct platform_device *pdev, const void *pdata)
     ret = irqchip_pass(idev->irqchip);
     BUG_ON(ret);
 
+#ifdef CONFIG_CLKEVT_HPET
 skip_clkevt:
+#endif
+
 #ifdef CONFIG_CLKSRC_I8253
     idev->clksrc.device = &pdev->dev;
     idev->clksrc.rating = 110;

@@ -41,6 +41,8 @@ static void pcspkr_panic(const void *data)
 
 static void pcspkr_hwinit(struct pcspkr_device *sdev)
 {
+    spin_lock(&i8253_lock);
+
     /*
      * Counter Select: Counter 2 select
      * Read/Write Select: Read/Write LSB then MSB
@@ -48,8 +50,10 @@ static void pcspkr_hwinit(struct pcspkr_device *sdev)
      * Binary/BCD Select: Binary countdown is used
      */
     i8253_out(sdev, I8253_MODE, I8253_MODE_SEL_TIMER2 | I8253_MODE_ACCESS_WORD | I8253_MODE_MOD_WAVE);
-    i8253_out(sdev, I8253_COUNTER2, I8253_LATCH(1000) & 0xff);
-    i8253_out(sdev, I8253_COUNTER2, I8253_LATCH(1000) >> 8);
+    i8253_out(sdev, I8253_LATCH2, I8253_LATCH(1000) & 0xff);
+    i8253_out(sdev, I8253_LATCH2, I8253_LATCH(1000) >> 8);
+
+    spin_unlock(&i8253_lock);
 }
 
 static state pcspkr_probe(struct platform_device *pdev, const void *pdata)
