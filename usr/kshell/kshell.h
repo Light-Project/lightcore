@@ -30,6 +30,7 @@ struct readline_state {
     char *buff;
     const char *workspace;
     unsigned int worklen;
+    unsigned int worksize;
     unsigned int bsize;
     const char *prompt;
     unsigned int plen;

@@ -12,19 +12,24 @@
 
 static state readline_save_workspace(struct readline_state *rstate, const char *cmd, unsigned int len)
 {
-    if (rstate->workspace) {
-        kfree(rstate->workspace);
-        rstate->workspace = NULL;
-    }
+    if (len > rstate->worksize) {
+        unsigned int nbsize = rstate->worksize;
+        void *nblk;
 
-    if (len) {
-        rstate->workspace = kmalloc(len, GFP_KERNEL);
-        if (!rstate->workspace)
+        while (len > nbsize)
+            nbsize *= 2;
+
+        nblk = kmalloc(nbsize, GFP_KERNEL);
+        if (!nblk)
             return -ENOMEM;
 
-        rstate->worklen = len;
-        memcpy((char *)rstate->workspace, cmd, len);
+        kfree(rstate->workspace);
+        rstate->workspace = nblk;
+        rstate->worksize = nbsize;
     }
+
+    rstate->worklen = len;
+    memcpy((char *)rstate->workspace, cmd, len);
 
     return -ENOERR;
 }
@@ -33,10 +38,8 @@ static state readline_history_add(struct readline_state *rstate, const char *cmd
 {
     struct readline_history *history;
 
-    if (rstate->workspace) {
-        kfree(rstate->workspace);
-        rstate->workspace = NULL;
-    }
+    if (rstate->worklen)
+        rstate->worklen = 0;
 
     history = list_first_entry(&rstate->history, struct readline_history, list);
     if (!memcmp(history->cmd, cmd, len))
@@ -64,7 +67,7 @@ static struct readline_history *readline_history_prev(struct readline_state *rst
             return ERR_PTR(retval);
     }
 
-    if (rstate->workspace) {
+    if (rstate->worklen) {
         if (rstate->curr) for (prev = list_next_entry(rstate->curr, list);
                                !list_entry_check_head(prev, &rstate->history, list);
                                prev = list_next_entry(rstate->curr, list)) {
@@ -101,7 +104,7 @@ static struct readline_history *readline_history_next(struct readline_state *rst
     if (!rstate->curr)
         return NULL;
 
-    if (rstate->workspace) {
+    if (rstate->worklen) {
         for (next = list_prev_entry(rstate->curr, list);
              !list_entry_check_head(next, &rstate->history, list);
              next = list_prev_entry(rstate->curr, list)) {
@@ -189,14 +192,19 @@ static void readline_fill(struct readline_state *state, unsigned int len)
 
 static state readline_insert(struct readline_state *state, const char *str, unsigned int len)
 {
-    void *nblk;
-
     if (state->len + len >= state->bsize) {
-        state->bsize *= 2;
-        nblk = krealloc(state->buff, state->bsize, GFP_KERNEL);
+        unsigned int nbsize = state->bsize;
+        void *nblk;
+
+        while (state->len + len >= nbsize)
+            state->bsize *= 2;
+
+        nblk = krealloc(state->buff, nbsize, GFP_KERNEL);
         if (!nblk)
             return -ENOMEM;
+
         state->buff = nblk;
+        state->bsize = nbsize;
     }
 
     memmove(state->buff + state->pos + len, state->buff + state->pos, state->len - state->pos + 1);
@@ -301,7 +309,7 @@ static bool readline_handle(struct readline_state *state, char code)
             readline_delete(state, state->len);
             if (history)
                 readline_insert(state, history->cmd, history->len);
-            else if (state->workspace)
+            else if (state->worklen)
                 readline_insert(state, state->workspace, state->worklen);
             break;
 
@@ -527,6 +535,11 @@ struct readline_state *readline_alloc(readline_read_t read, readline_write_t wri
     state->bsize = 512;
     state->buff = kmalloc(512, GFP_KERNEL);
     if (!state->buff)
+        return NULL;
+
+    state->worksize = 512;
+    state->workspace = kmalloc(512, GFP_KERNEL);
+    if (!state->workspace)
         return NULL;
 
     list_head_init(&state->history);
