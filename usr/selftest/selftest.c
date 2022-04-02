@@ -14,22 +14,15 @@
 static LIST_HEAD(selftest_list);
 static SPIN_LOCK(selftest_lock);
 
-static struct selftest_command *selftest_find(const char *name)
+static struct selftest_command *selftest_find(const char *group, const char *name)
 {
     struct selftest_command *cmd, *find = NULL;
-    char *separate;
-
-    if (strcount(name, ':') != 1)
-        return NULL;
-
-    separate = strchr(name, ':');
-    *separate++ = '\0';
 
     spin_lock(&selftest_lock);
     list_for_each_entry(cmd, &selftest_list, list) {
-        if (strcmp(cmd->group, name))
+        if (strcmp(cmd->group, group))
             continue;
-        if (strcmp(cmd->name, separate))
+        if (strcmp(cmd->name, name))
             continue;
         find = cmd;
         break;
@@ -42,6 +35,9 @@ static struct selftest_command *selftest_find(const char *name)
 state selftest_register(struct selftest_command *cmd)
 {
     if (!cmd->testing || !cmd->group || !cmd->name)
+        return -EINVAL;
+
+    if (selftest_find(cmd->group, cmd->name))
         return -EINVAL;
 
     spin_lock(&selftest_lock);
@@ -69,6 +65,38 @@ static void usage(void)
         printk("  %s:%s\t- %s\n", cmd->group, cmd->name, cmd->desc);
     }
     spin_unlock(&selftest_lock);
+}
+
+static struct selftest_command *selftest_iter(const char *name, struct selftest_command *prev)
+{
+    struct selftest_command *cmd, *find = NULL;
+    char *separate = NULL;
+
+    if (!strchr(name, ':'))
+        goto skip;
+
+    separate = strchr(name, ':');
+    *separate++ = '\0';
+
+skip:
+    spin_lock(&selftest_lock);
+
+    if (!prev)
+        prev = container_of(&selftest_list, struct selftest_command, list);
+
+    for (cmd = list_next_entry(prev, list);
+         !list_check_head(&selftest_list, &cmd->list);
+         cmd = list_next_entry(cmd, list)) {
+        if (strcmp(cmd->group, name))
+            continue;
+        if (separate && strcmp(cmd->name, separate))
+            continue;
+        find = cmd;
+        break;
+    }
+
+    spin_unlock(&selftest_lock);
+    return find;
 }
 
 static state selftest_one(struct selftest_command *cmd, unsigned int count, int argc, char *argv[])
@@ -112,9 +140,9 @@ static state selftest_all(unsigned int count)
 
 static state selftest_main(int argc, char *argv[])
 {
-    struct selftest_command *cmd;
+    struct selftest_command *cmd = NULL;
     unsigned int count, loop = 1;
-    state ret;
+    state ret = -ENOERR;
 
     for (count = 1; count < argc; ++count) {
         char *para = argv[count];
@@ -139,15 +167,10 @@ static state selftest_main(int argc, char *argv[])
     if (count == argc)
         ret = selftest_all(loop);
 
-    else if (count < argc) {
-        cmd = selftest_find(argv[count]);
-        if (!cmd)
-            goto usage;
+    else for ((void)((cmd = selftest_iter(argv[count], cmd)) || ({goto usage; 1;}));
+              cmd && !ret; cmd = selftest_iter(argv[count], cmd)) {
         ret = selftest_one(cmd, loop, argc - count + 1, &argv[count]);
     }
-
-    else
-        goto usage;
 
     return ret;
 

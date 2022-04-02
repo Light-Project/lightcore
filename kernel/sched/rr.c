@@ -110,8 +110,8 @@ static struct sched_task *rr_task_create(int numa)
     if (!rr_task)
         return NULL;
 
-    rr_task->task.priority = RR_PRIO_MAX >> 1;
     rr_task->timeslice = RR_TIMESLICE;
+    list_head_init(&rr_task->list);
 
     return &rr_task->task;
 }

@@ -42,7 +42,7 @@ static state readline_history_add(struct readline_state *rstate, const char *cmd
         rstate->worklen = 0;
 
     history = list_first_entry(&rstate->history, struct readline_history, list);
-    if (!memcmp(history->cmd, cmd, len))
+    if (!strcmp(history->cmd, cmd))
         return -ENOERR;
 
     history = kmalloc(sizeof(*history) + len, GFP_KERNEL);
@@ -50,6 +50,8 @@ static state readline_history_add(struct readline_state *rstate, const char *cmd
         return -ENOMEM;
 
     history->len = len;
+    list_head_init(&history->list);
+
     memcpy(history->cmd, cmd, len);
     list_add(&rstate->history, &history->list);
 
@@ -70,13 +72,13 @@ static struct readline_history *readline_history_prev(struct readline_state *rst
     if (rstate->worklen) {
         if (rstate->curr) for (prev = list_next_entry(rstate->curr, list);
                                !list_entry_check_head(prev, &rstate->history, list);
-                               prev = list_next_entry(rstate->curr, list)) {
+                               prev = list_next_entry(prev, list)) {
             if (!strncmp(rstate->workspace, prev->cmd, rstate->worklen))
                 goto finish;
 
         } else for (prev = list_first_entry(&rstate->history, struct readline_history, list);
                     !list_entry_check_head(prev, &rstate->history, list);
-                    prev = list_next_entry(rstate->curr, list)) {
+                    prev = list_next_entry(prev, list)) {
             if (!strncmp(rstate->workspace, prev->cmd, rstate->worklen))
                 goto finish;
         }
@@ -107,7 +109,7 @@ static struct readline_history *readline_history_next(struct readline_state *rst
     if (rstate->worklen) {
         for (next = list_prev_entry(rstate->curr, list);
              !list_entry_check_head(next, &rstate->history, list);
-             next = list_prev_entry(rstate->curr, list)) {
+             next = list_prev_entry(next, list)) {
             if (!strncmp(rstate->workspace, next->cmd, rstate->worklen))
                 goto finish;
         }
@@ -556,5 +558,6 @@ void readline_free(struct readline_state *state)
     }
 
     kfree(state->buff);
+    kfree(state->workspace);
     kfree(state);
 }

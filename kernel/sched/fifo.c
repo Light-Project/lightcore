@@ -108,7 +108,8 @@ static struct sched_task *fifo_task_create(int numa)
     if (!fifo_task)
         return NULL;
 
-    fifo_task->task.priority = FIFO_PRIO_MAX >> 1;
+    list_head_init(&fifo_task->list);
+
     return &fifo_task->task;
 }
 

@@ -170,7 +170,7 @@ unsigned long idr_alloc_range(struct idr_root *idr, void *pdata, unsigned long m
     struct idr_node *node;
     unsigned long id;
 
-    node = kcache_alloc(idrn_cache, flags);
+    node = kcache_zalloc(idrn_cache, flags);
     if (!node)
         return IDR_NONE;
 
@@ -195,7 +195,7 @@ unsigned long idr_alloc_cyclic_range(struct idr_root *idr, void *pdata, unsigned
     struct idr_node *node;
     unsigned long id;
 
-    node = kcache_alloc(idrn_cache, flags);
+    node = kcache_zalloc(idrn_cache, flags);
     if (!node)
         return IDR_NONE;
 

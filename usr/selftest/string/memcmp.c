@@ -33,7 +33,7 @@ static state memcmp_testing(void *pdata)
     ));
 
     gsize(sbuff, count * SZ_1MiB);
-    printk("memcpy bandwidth: %s/s\n", sbuff);
+    printk("memcmp bandwidth: %s/s\n", sbuff);
     return -ENOERR;
 }
 

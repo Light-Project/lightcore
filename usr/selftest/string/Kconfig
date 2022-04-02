@@ -4,6 +4,10 @@ menuconfig SELFTEST_STRING
     default y
 if SELFTEST_STRING
 
+config SELFTEST_STRING_MEMCHR
+    bool "Memchr Test"
+    default y
+
 config SELFTEST_STRING_MEMCMP
     bool "Memcmp Test"
     default y
@@ -14,6 +18,10 @@ config SELFTEST_STRING_MEMCPY
 
 config SELFTEST_STRING_MEMMOVE
     bool "Memmove Test"
+    default y
+
+config SELFTEST_STRING_MEMSCAN
+    bool "Memscan Test"
     default y
 
 config SELFTEST_STRING_MEMSET
