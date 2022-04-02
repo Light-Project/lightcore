@@ -7,6 +7,8 @@ if KUSR_SELFTEST
 
 source "usr/selftest/kernel/Kconfig"
 
+source "usr/selftest/kshell/Kconfig"
+
 source "usr/selftest/lib/Kconfig"
 
 source "usr/selftest/memory/Kconfig"

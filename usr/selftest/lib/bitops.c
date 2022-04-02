@@ -15,6 +15,8 @@ static state bitops_test_testing(void *pdata)
     unsigned long *bitops_tests = pdata;
     unsigned int count;
 
+    memset(pdata, 0, BITS_PER_LONG * BYTES_PER_LONG);
+
     for (count = 0; count < BITS_PER_LONG; ++count)
         bit_set(&bitops_tests[count], count);
 
@@ -141,7 +143,7 @@ static state bitops_test_testing(void *pdata)
 
 static void *bitops_test_prepare(int argc, char *argv[])
 {
-    return kzalloc(BITS_PER_LONG * BYTES_PER_LONG, GFP_KERNEL);
+    return kmalloc(BITS_PER_LONG * BYTES_PER_LONG, GFP_KERNEL);
 }
 
 static void bitops_test_release(void *pdata)

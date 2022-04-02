@@ -10,13 +10,129 @@
 #include <kmalloc.h>
 #include <proc.h>
 
-static state readline_save_workspace(struct readline_state *rstate, const char *cmd, unsigned int len)
+#define READLINE_BUFFER_DEF     64
+#define READLINE_WORKSPACE_DEF  64
+
+static void readline_state_setup(struct readline_state *rstate)
 {
-    if (len > rstate->worksize) {
+    rstate->pos = 0;
+    rstate->len = 0;
+    rstate->curr = NULL;
+    rstate->esc_state = READLINE_ESC_NORM;
+}
+
+static __always_inline unsigned int
+readline_read(struct readline_state *rstate, char *str, unsigned int len)
+{
+    return rstate->read(str, len, rstate->data);
+}
+
+static __always_inline void
+readline_write(struct readline_state *rstate, const char *str, unsigned int len)
+{
+    rstate->write(str, len, rstate->data);
+}
+
+static inline void readline_cursor_save(struct readline_state *rstate)
+{
+    readline_write(rstate, "\e[s", 3);
+}
+
+static inline void readline_cursor_restore(struct readline_state *rstate)
+{
+    readline_write(rstate, "\e[u", 3);
+}
+
+static void readline_cursor_left(struct readline_state *rstate)
+{
+    if (rstate->pos) {
+        readline_write(rstate, "\e[D", 3);
+        --rstate->pos;
+    }
+}
+
+static void readline_cursor_right(struct readline_state *rstate)
+{
+    if (rstate->pos < rstate->len) {
+        readline_write(rstate, "\e[C", 3);
+        ++rstate->pos;
+    }
+}
+
+static void readline_cursor_home(struct readline_state *rstate)
+{
+    while (rstate->pos)
+        readline_cursor_left(rstate);
+}
+
+static void readline_cursor_end(struct readline_state *rstate)
+{
+    while (rstate->pos < rstate->len)
+        readline_cursor_right(rstate);
+}
+
+static void readline_fill(struct readline_state *rstate, unsigned int len)
+{
+    while (len--)
+        readline_write(rstate, " ", 1);
+}
+
+static state readline_insert(struct readline_state *rstate, const char *str, unsigned int len)
+{
+    if (rstate->len + len >= rstate->bsize) {
+        unsigned int nbsize = rstate->bsize;
+        void *nblk;
+
+        while (rstate->len + len >= nbsize)
+            nbsize *= 2;
+
+        nblk = krealloc(rstate->buff, nbsize, GFP_KERNEL);
+        if (!nblk)
+            return -ENOMEM;
+
+        rstate->buff = nblk;
+        rstate->bsize = nbsize;
+    }
+
+    memmove(rstate->buff + rstate->pos + len, rstate->buff + rstate->pos, rstate->len - rstate->pos + 1);
+    memmove(rstate->buff + rstate->pos, str, len);
+    rstate->pos += len;
+    rstate->len += len;
+
+    readline_write(rstate, &rstate->buff[rstate->pos - len], len);
+    readline_cursor_save(rstate);
+    readline_write(rstate, &rstate->buff[rstate->pos], rstate->len - rstate->pos);
+    readline_cursor_restore(rstate);
+    return -ENOERR;
+}
+
+static void readline_delete(struct readline_state *rstate, unsigned int len)
+{
+    len = min(len, rstate->len - rstate->pos);
+
+    memmove(rstate->buff + rstate->pos, rstate->buff + rstate->pos + len, rstate->len - rstate->pos + 1);
+    rstate->len -= len;
+
+    readline_cursor_save(rstate);
+    readline_write(rstate, &rstate->buff[rstate->pos], rstate->len - rstate->pos);
+    readline_fill(rstate, len);
+    readline_cursor_restore(rstate);
+}
+
+static void readline_clear(struct readline_state *rstate)
+{
+    readline_state_setup(rstate);
+    readline_write(rstate, "\e[2J\e[1;1H", 10);
+    readline_write(rstate, rstate->prompt, rstate->plen);
+}
+
+static state readline_save_workspace(struct readline_state *rstate)
+{
+    if (rstate->len > rstate->worksize) {
         unsigned int nbsize = rstate->worksize;
         void *nblk;
 
-        while (len > nbsize)
+        while (rstate->len > nbsize)
             nbsize *= 2;
 
         nblk = kmalloc(nbsize, GFP_KERNEL);
@@ -28,10 +144,16 @@ static state readline_save_workspace(struct readline_state *rstate, const char *
         rstate->worksize = nbsize;
     }
 
-    rstate->worklen = len;
-    memcpy((char *)rstate->workspace, cmd, len);
+    rstate->worklen = rstate->len;
+    memcpy((char *)rstate->workspace, rstate->buff, rstate->len);
 
     return -ENOERR;
+}
+
+static void readline_restory_workspace(struct readline_state *rstate)
+{
+    if (rstate->worklen)
+        readline_insert(rstate, rstate->workspace, rstate->worklen);
 }
 
 static state readline_history_add(struct readline_state *rstate, const char *cmd, unsigned int len)
@@ -64,7 +186,7 @@ static struct readline_history *readline_history_prev(struct readline_state *rst
     state retval;
 
     if (!rstate->curr) {
-        retval = readline_save_workspace(rstate, cmd, len);
+        retval = readline_save_workspace(rstate);
         if (retval)
             return ERR_PTR(retval);
     }
@@ -128,117 +250,57 @@ finish:
     return next;
 }
 
-static void readline_state_setup(struct readline_state *state)
+static state readline_complete(struct readline_state *rstate)
 {
-    state->pos = 0;
-    state->len = 0;
-    state->curr = NULL;
-    state->esc_state = READLINE_ESC_NORM;
-}
+    struct kshell_command *cmd, *tmp;
+    unsigned int line, count = 0;
+    state retval;
 
-static __always_inline unsigned int
-readline_read(struct readline_state *state, char *str, unsigned int len)
-{
-    return state->read(str, len, state->data);
-}
+    LIST_HEAD(complete);
 
-static __always_inline void
-readline_write(struct readline_state *state, const char *str, unsigned int len)
-{
-    state->write(str, len, state->data);
-}
-
-static inline void readline_cursor_save(struct readline_state *state)
-{
-    readline_write(state, "\e[s", 3);
-}
-
-static inline void readline_cursor_restore(struct readline_state *state)
-{
-    readline_write(state, "\e[u", 3);
-}
-
-static void readline_cursor_left(struct readline_state *state)
-{
-    if (state->pos) {
-        readline_write(state, "\e[D", 3);
-        --state->pos;
+    spin_lock(&kshell_lock);
+    list_for_each_entry(cmd, &kshell_list, list) {
+        if (strncmp(cmd->name, rstate->buff, rstate->len))
+            continue;
+        count++;
+        list_add(&complete, &cmd->complete);
     }
-}
+    spin_unlock(&kshell_lock);
 
-static void readline_cursor_right(struct readline_state *state)
-{
-    if (state->pos < state->len) {
-        readline_write(state, "\e[C", 3);
-        ++state->pos;
-    }
-}
+    if (count == 0)
+        return -ENOERR;
 
-static void readline_cursor_home(struct readline_state *state)
-{
-    while (state->pos)
-        readline_cursor_left(state);
-}
+    cmd = list_first_entry(&complete, struct kshell_command, complete);
+    readline_save_workspace(rstate);
 
-static void readline_cursor_end(struct readline_state *state)
-{
-    while (state->pos < state->len)
-        readline_cursor_right(state);
-}
-
-static void readline_fill(struct readline_state *state, unsigned int len)
-{
-    while (len--)
-        readline_write(state, " ", 1);
-}
-
-static state readline_insert(struct readline_state *state, const char *str, unsigned int len)
-{
-    if (state->len + len >= state->bsize) {
-        unsigned int nbsize = state->bsize;
-        void *nblk;
-
-        while (state->len + len >= nbsize)
-            state->bsize *= 2;
-
-        nblk = krealloc(state->buff, nbsize, GFP_KERNEL);
-        if (!nblk)
-            return -ENOMEM;
-
-        state->buff = nblk;
-        state->bsize = nbsize;
+    if (count == 1) {
+        readline_cursor_home(rstate);
+        readline_delete(rstate, rstate->len);
+        retval = readline_insert(rstate, cmd->name, strlen(cmd->name));
+        readline_insert(rstate, " ", 1);
+        goto finish;
     }
 
-    memmove(state->buff + state->pos + len, state->buff + state->pos, state->len - state->pos + 1);
-    memmove(state->buff + state->pos, str, len);
-    state->pos += len;
-    state->len += len;
+    readline_write(rstate, "\n", 1);
 
-    readline_write(state, &state->buff[state->pos - len], len);
-    readline_cursor_save(state);
-    readline_write(state, &state->buff[state->pos], state->len - state->pos);
-    readline_cursor_restore(state);
-    return -ENOERR;
-}
+    while (count) {
+        for (line = 4; count && line; --count, --line) {
+            readline_write(rstate, cmd->name, strlen(cmd->name));
+            readline_write(rstate, "\t", 1);
+            cmd = list_next_entry(cmd, complete);
+        }
+        readline_write(rstate, "\n", 1);
+    }
 
-static void readline_delete(struct readline_state *state, unsigned int len)
-{
-    len = min(len, state->len - state->pos);
+    readline_state_setup(rstate);
+    readline_write(rstate, rstate->prompt, rstate->plen);
+    readline_restory_workspace(rstate);
 
-    memmove(state->buff + state->pos, state->buff + state->pos + len, state->len - state->pos + 1);
-    state->len -= len;
+finish:
+    list_for_each_entry_safe(cmd, tmp, &complete, complete)
+        list_del(&cmd->complete);
 
-    readline_cursor_save(state);
-    readline_write(state, &state->buff[state->pos], state->len - state->pos);
-    readline_fill(state, len);
-    readline_cursor_restore(state);
-}
-
-static void readline_clear(struct readline_state *state)
-{
-    readline_state_setup(state);
-    readline_write(state, "\e[2J\e[1;1H", 10);
-    readline_write(state, state->prompt, state->plen);
+    return retval;
 }
 
 static bool readline_handle(struct readline_state *state, char code)
@@ -265,7 +327,7 @@ static bool readline_handle(struct readline_state *state, char code)
         case ASCII_EOT: /* ^D : End of Transmission */
             if (state->pos < state->len)
                 readline_delete(state, 1);
-            readline_save_workspace(state, state->buff, state->len);
+            readline_save_workspace(state);
             state->curr = NULL;
             break;
 
@@ -285,11 +347,13 @@ static bool readline_handle(struct readline_state *state, char code)
                 readline_cursor_left(state);
                 readline_delete(state, 1);
             }
-            readline_save_workspace(state, state->buff, state->len);
+            readline_save_workspace(state);
             state->curr = NULL;
             break;
 
         case ASCII_HT: /* ^I : Horizontal TAB */
+            if (state->len)
+                readline_complete(state);
             break;
 
         case ASCII_VT: /* ^K : Vertical Tab */
@@ -311,8 +375,8 @@ static bool readline_handle(struct readline_state *state, char code)
             readline_delete(state, state->len);
             if (history)
                 readline_insert(state, history->cmd, history->len);
-            else if (state->worklen)
-                readline_insert(state, state->workspace, state->worklen);
+            else
+                readline_restory_workspace(state);
             break;
 
         case ASCII_SI: /* ^O : Shift In / X-Off */
@@ -345,7 +409,7 @@ static bool readline_handle(struct readline_state *state, char code)
                 readline_cursor_home(state);
                 readline_delete(state, tmp);
             }
-            readline_save_workspace(state, state->buff, state->len);
+            readline_save_workspace(state);
             state->curr = NULL;
             break;
 
@@ -366,7 +430,7 @@ static bool readline_handle(struct readline_state *state, char code)
 
         default:
             readline_insert(state, &code, 1);
-            readline_save_workspace(state, state->buff, state->len);
+            readline_save_workspace(state);
             state->curr = NULL;
     }
 
@@ -534,13 +598,13 @@ struct readline_state *readline_alloc(readline_read_t read, readline_write_t wri
     state->write = write;
     state->data = data;
 
-    state->bsize = 512;
-    state->buff = kmalloc(512, GFP_KERNEL);
+    state->bsize = READLINE_BUFFER_DEF;
+    state->buff = kmalloc(state->bsize, GFP_KERNEL);
     if (!state->buff)
         return NULL;
 
-    state->worksize = 512;
-    state->workspace = kmalloc(512, GFP_KERNEL);
+    state->worksize = READLINE_WORKSPACE_DEF;
+    state->workspace = kmalloc(state->worksize, GFP_KERNEL);
     if (!state->workspace)
         return NULL;
 

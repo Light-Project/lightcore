@@ -25,6 +25,20 @@ static void readline_write(const char *str, unsigned int len, void *data)
     console_write(str, len);
 }
 
+void kshell_printf(const char *str, ...)
+{
+    char strbuf[512];
+    va_list para;
+    int len;
+
+    va_start(para,str);
+    len = vsnprintf(strbuf, sizeof(strbuf), str, para);
+    va_end(para);
+
+    console_write(str, len);
+}
+EXPORT_SYMBOL(kshell_printf);
+
 static state do_system(char *cmdline, jmp_buf *buff)
 {
     struct kshell_command *cmd;
@@ -33,7 +47,7 @@ static state do_system(char *cmdline, jmp_buf *buff)
     state ret;
 
     while (cmdline) {
-        ret = kshell_parser(cmdline, &cmdline, &argc, &argv);
+        ret = kshell_parser(cmdline, (const char **)&cmdline, &argc, &argv);
         if (ret)
             return ret;
 
@@ -96,6 +110,16 @@ state kshell_main(int argc, char *argv[])
     return ret;
 }
 
+state env_main(int argc, char *argv[])
+{
+    struct kshell_env *env;
+    spin_lock(&kshell_env_lock);
+    list_for_each_entry(env, &kshell_env_list, list)
+        printk("%s=%s\n", env->name, env->val);
+    spin_unlock(&kshell_env_lock);
+    return -ENOERR;
+}
+
 state help_main(int argc, char *argv[])
 {
     struct kshell_command *cmd;
@@ -112,6 +136,12 @@ static struct kshell_command kshell_cmd = {
     .exec = kshell_main,
 };
 
+static struct kshell_command env_cmd = {
+    .name = "env",
+    .desc = "displays all environment variable",
+    .exec = env_main,
+};
+
 static struct kshell_command help_cmd = {
     .name = "help",
     .desc = "displays all available instructions",
@@ -125,9 +155,9 @@ static struct kshell_command exit_cmd = {
 
 static state kshell_init(void)
 {
-    kshell_register(&kshell_cmd);
-    kshell_register(&help_cmd);
-    kshell_register(&exit_cmd);
-    return -ENOERR;
+    return kshell_register(&kshell_cmd)
+        || kshell_register(&env_cmd)
+        || kshell_register(&help_cmd)
+        || kshell_register(&exit_cmd);
 }
 kshell_initcall(kshell_init);

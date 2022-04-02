@@ -11,14 +11,9 @@
 #include <printk.h>
 
 LIST_HEAD(kshell_list);
+LIST_HEAD(kshell_env_list);
 SPIN_LOCK(kshell_lock);
-static LIST_HEAD(kshell_env_list);
-static SPIN_LOCK(kshell_env_lock);
-
-struct kshell_env {
-    struct list_head list;
-    char *val, name[];
-};
+SPIN_LOCK(kshell_env_lock);
 
 static struct kshell_env *kshell_env_find(const char *name)
 {
@@ -79,6 +74,8 @@ state kshell_setenv(const char *name, const char *val, bool overwrite)
         return -ENOMEM;
 
     env->val = env->name + nlen;
+    list_head_init(&env->list);
+
     strcpy(env->val, val);
     strcpy(env->name, name);
 
@@ -127,7 +124,7 @@ static long kshell_sort(struct list_head *a, struct list_head *b, void *pdata)
 {
     struct kshell_command *ca = list_to_kshell(a);
     struct kshell_command *cb = list_to_kshell(b);
-    return *ca->name - *cb->name;
+    return strcmp(ca->name, cb->name);
 }
 
 struct kshell_command *kshell_find(const char *name)

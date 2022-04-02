@@ -42,14 +42,21 @@ struct readline_state {
     struct readline_history *curr;
 };
 
+struct kshell_env {
+    struct list_head list;
+    char *val, name[];
+};
+
 extern struct list_head kshell_list;
+extern struct list_head kshell_env_list;
 extern struct spinlock kshell_lock;
+extern struct spinlock kshell_env_lock;
 
 extern char *readline(struct readline_state *state, const char *prompt);
 extern struct readline_state *readline_alloc(readline_read_t read, readline_write_t write, void *data);
 extern void readline_free(struct readline_state *state);
 
-extern state kshell_parser(char *cmdline, char **pos, int *argc, char ***argv);
+extern state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***argv);
 extern state kshell_main(int argc, char *argv[]);
 extern struct kshell_command *kshell_find(const char *name);
 

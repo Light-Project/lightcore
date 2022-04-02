@@ -7,8 +7,8 @@
 #include <string.h>
 #include <kmalloc.h>
 
-#define PASER_TEXT_MAX  512
-#define PASER_VARN_MAX  64
+#define PASER_TEXT_DEF  64
+#define PASER_VARN_DEF  32
 
 struct paser_transition {
     int form, to;
@@ -92,16 +92,18 @@ static enum paser_state parser_state(enum paser_state state, char code, char *re
     return major ? major->to : state;
 }
 
-state kshell_parser(char *cmdline, char **pos, int *argc, char ***argv)
+state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***argv)
 {
     enum paser_state nstate, cstate = KSHELL_STATE_TEXT;
-    char code, *tmp, *buff;
-    char *var, *vp, *vbuff;
+    unsigned int tpos = 0, tsize = PASER_TEXT_DEF;
+    unsigned int vpos = 0, vsize = PASER_VARN_DEF;
+    char code, *tbuff;
+    char *var, *vbuff;
     unsigned int count;
 
-    tmp = buff = kmalloc(PASER_TEXT_MAX + PASER_VARN_MAX, GFP_KERNEL);
-    vp = vbuff = buff + PASER_TEXT_MAX;
-    if (!buff)
+    tbuff = kmalloc(tsize + vsize, GFP_KERNEL);
+    vbuff = tbuff + tsize;
+    if (!tbuff)
         return -ENOMEM;
 
     *argc = 0;
@@ -109,62 +111,85 @@ state kshell_parser(char *cmdline, char **pos, int *argc, char ***argv)
 
     for (cstate = KSHELL_STATE_TEXT; *cmdline; ++cmdline) {
         nstate = parser_state(cstate, *cmdline, &code);
+
         if (is_variable(cstate) && !is_variable(nstate)) {
-            *vp++ = '\0';
-            vp = vbuff;
+            vbuff[vpos] = '\0';
+            vpos = 0;
             var = kshell_getenv(vbuff);
-            if (var) {
-                for(; *var; var++)
-                    *tmp++ = *var;
+            if (var) for (; *var; var++) {
+                tbuff[tpos++] = *var;
             }
         }
+
         if (is_variable(nstate)) {
             if (code)
-                *vp++ = code;
+                vbuff[vpos++] = code;
         } else if (is_text(nstate, cstate) && code == ' ') {
-            if (tmp != buff && *(tmp - 1)) {
-                *tmp++ = '\0';
+            if (tpos != 0 && tbuff[tpos - 1]) {
+                tbuff[tpos++] = '\0';
                 ++(*argc);
             }
         } else if (is_text(nstate, cstate) && code == ';') {
-            if (tmp != buff && *(tmp - 1)) {
-                *tmp++ = '\0';
+            if (tpos != 0 && tbuff[tpos - 1]) {
+                tbuff[tpos++] = '\0';
                 ++(*argc);
             }
             *pos = cmdline + 1;
             if (is_end(cstate))
                 break;
         } else if (code) {
-            *tmp++ = code;
+            tbuff[tpos++] = code;
         }
+
+        count = 0;
+
+        if ((tpos > tsize) && (count |= 1))
+            tsize *= 2;
+
+        if ((vpos > vsize) && (count |= 2))
+            vsize *= 2;
+
+        if (count) {
+            var = krealloc(tbuff, tsize + vsize, GFP_KERNEL);
+            if (!var) {
+                kfree(tbuff);
+                return -ENOMEM;
+            }
+            tbuff = var;
+            vbuff = var + tsize;
+        }
+
         cstate = nstate;
     }
 
+    /* If the last one is a variable, parse it out */
     if (is_variable(cstate)) {
-        *vp++ = '\0';
-        vp = vbuff;
+        vbuff[vpos] = '\0';
         var = kshell_getenv(vbuff);
-        if (var) {
-            for(; *var; var++)
-                *tmp++ = *var;
+        if (var) for (; *var; var++) {
+            tbuff[tpos++] = *var;
         }
     }
 
-    if (!*cmdline && cstate != ' ' && cstate != ';') {
-        *tmp++ = '\0';
+    /* if there is no end flag, end it */
+    if (!*cmdline && code != ' ' && code != ';') {
+        tbuff[tpos++] = '\0';
         ++(*argc);
     }
 
+    /* allocate an argv area */
     count = (*argc + 1) * sizeof(**argv);
-    *argv = kmalloc(count + (tmp - buff), GFP_KERNEL);
+    *argv = kmalloc(count + tpos, GFP_KERNEL);
     if (!*argv) {
-        kfree(buff);
+        kfree(tbuff);
         return -ENOMEM;
     }
 
+    /* use unified memory to store parameters */
     var = (char *)*argv + count;
-    memcpy(var, buff, tmp - buff);
+    memcpy(var, tbuff, tpos);
 
+    /* generate argv pointer */
     for (count = 0; count < *argc; ++count) {
         (*argv)[count] = var;
         while (*var)
@@ -173,7 +198,7 @@ state kshell_parser(char *cmdline, char **pos, int *argc, char ***argv)
     }
 
     (*argv)[count] = NULL;
-    kfree(buff);
+    kfree(tbuff);
 
     return -ENOERR;
 }

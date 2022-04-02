@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig SELFTEST_KSHELL
+    bool "Test Kshell Unit"
+    default y
+if SELFTEST_KSHELL
+
+config SELFTEST_KSHELL_PARSER
+    bool "Kshell Parser Unit Tests"
+    default y
+
+endif

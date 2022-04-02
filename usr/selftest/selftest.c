@@ -96,7 +96,11 @@ skip:
     }
 
     spin_unlock(&selftest_lock);
-    return find;
+
+    if (separate)
+        *--separate = ':';
+
+    return (!prev && separate) ? NULL : find;
 }
 
 static state selftest_one(struct selftest_command *cmd, unsigned int count, int argc, char *argv[])
