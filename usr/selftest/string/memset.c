@@ -9,7 +9,6 @@
 #include <vmalloc.h>
 #include <string.h>
 #include <selftest.h>
-#include <printk.h>
 
 struct memset_pdata {
     uint8_t mempool[SZ_1MiB];
@@ -31,7 +30,7 @@ static state memset_testing(void *pdata)
     ));
 
     gsize(sbuff, count * SZ_1MiB);
-    printk("memset bandwidth: %s/s\n", sbuff);
+    kshell_printf("memset bandwidth: %s/s\n", sbuff);
     return -ENOERR;
 }
 

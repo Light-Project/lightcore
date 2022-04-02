@@ -7,8 +7,8 @@
 #include <string.h>
 #include <initcall.h>
 #include <kmalloc.h>
-#include <export.h>
 #include <printk.h>
+#include <export.h>
 
 LIST_HEAD(kshell_list);
 LIST_HEAD(kshell_env_list);

@@ -7,7 +7,6 @@
 #include <kmalloc.h>
 #include <slist.h>
 #include <selftest.h>
-#include <printk.h>
 
 #define TEST_LOOP 10
 
@@ -38,7 +37,7 @@ static state slist_test_testing(void *pdata)
 
     slist_for_each(list, &test_head) {
         node = slist_to_test(list);
-        printk("slist 'slist_for_each' test: %lu\n", node->num);
+        kshell_printf("slist 'slist_for_each' test: %lu\n", node->num);
         if (node->num == TEST_LOOP / 2)
             break;
     }
@@ -46,18 +45,18 @@ static state slist_test_testing(void *pdata)
     tlist = list;
     slist_for_each_continue(list) {
         node = slist_to_test(list);
-        printk("slist 'slist_for_each_continue' test: %lu\n", node->num);
+        kshell_printf("slist 'slist_for_each_continue' test: %lu\n", node->num);
     }
 
     list = tlist;
     slist_for_each_from(list) {
         node = slist_to_test(list);
-        printk("slist 'slist_for_each_from' test: %lu\n", node->num);
+        kshell_printf("slist 'slist_for_each_from' test: %lu\n", node->num);
     }
 
     slist_for_each_safe(list, nlist, &test_head) {
         node = slist_to_test(list);
-        printk("slist 'slist_for_each_safe' test: %lu\n", node->num);
+        kshell_printf("slist 'slist_for_each_safe' test: %lu\n", node->num);
         if (node->num == TEST_LOOP / 2)
             break;
     }
@@ -65,33 +64,33 @@ static state slist_test_testing(void *pdata)
     tlist = list;
     slist_for_each_continue_safe(list, nlist) {
         node = slist_to_test(list);
-        printk("slist 'slist_for_each_continue_safe' test: %lu\n", node->num);
+        kshell_printf("slist 'slist_for_each_continue_safe' test: %lu\n", node->num);
     }
 
     list = tlist;
     slist_for_each_from_safe(list, nlist) {
         node = slist_to_test(list);
-        printk("slist 'slist_for_each_from_safe' test: %lu\n", node->num);
+        kshell_printf("slist 'slist_for_each_from_safe' test: %lu\n", node->num);
     }
 
     slist_for_each_entry(node, &test_head, list) {
-        printk("slist 'slist_for_each_entry' test: %lu\n", node->num);
+        kshell_printf("slist 'slist_for_each_entry' test: %lu\n", node->num);
         if (node->num == TEST_LOOP / 2)
             break;
     }
 
     tnode = node;
     slist_for_each_entry_continue(node, list) {
-        printk("slist 'slist_for_each_entry_continue' test: %lu\n", node->num);
+        kshell_printf("slist 'slist_for_each_entry_continue' test: %lu\n", node->num);
     }
 
     node = tnode;
     slist_for_each_entry_from(node, list) {
-        printk("slist 'slist_for_each_entry_from' test: %lu\n", node->num);
+        kshell_printf("slist 'slist_for_each_entry_from' test: %lu\n", node->num);
     }
 
     slist_for_each_entry_safe(node, nnode, &test_head, list) {
-        printk("slist 'slist_for_each_entry_safe' test: %lu\n", node->num);
+        kshell_printf("slist 'slist_for_each_entry_safe' test: %lu\n", node->num);
         if (node->num == TEST_LOOP / 2)
             break;
         slist_del(&test_head, &node->list);
@@ -99,12 +98,12 @@ static state slist_test_testing(void *pdata)
 
     tnode = node;
     slist_for_each_entry_continue_safe(node, nnode, list) {
-        printk("slist 'slist_for_each_entry_continue_safe' test: %lu\n", node->num);
+        kshell_printf("slist 'slist_for_each_entry_continue_safe' test: %lu\n", node->num);
     }
 
     node = tnode;
     slist_for_each_entry_from_safe(node, nnode, list) {
-        printk("slist 'slist_for_each_entry_from_safe' test: %lu\n", node->num);
+        kshell_printf("slist 'slist_for_each_entry_from_safe' test: %lu\n", node->num);
         slist_del(&test_head, &node->list);
     }
 

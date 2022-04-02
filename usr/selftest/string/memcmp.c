@@ -9,7 +9,6 @@
 #include <vmalloc.h>
 #include <string.h>
 #include <selftest.h>
-#include <printk.h>
 
 struct memcmp_pdata {
     uint8_t mempool_a[SZ_1MiB];
@@ -33,7 +32,7 @@ static state memcmp_testing(void *pdata)
     ));
 
     gsize(sbuff, count * SZ_1MiB);
-    printk("memcmp bandwidth: %s/s\n", sbuff);
+    kshell_printf("memcmp bandwidth: %s/s\n", sbuff);
     return -ENOERR;
 }
 

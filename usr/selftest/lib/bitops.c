@@ -8,7 +8,6 @@
 #include <bitops.h>
 #include <string.h>
 #include <selftest.h>
-#include <printk.h>
 
 static state bitops_test_testing(void *pdata)
 {
@@ -23,68 +22,68 @@ static state bitops_test_testing(void *pdata)
     for (count = 0; count < BITS_PER_LONG; ++count) {
         unsigned int bit;
 
-        printk("bitops 'ffsuf' test%u: ", count);
+        kshell_printf("bitops 'ffsuf' test%u: ", count);
         if (count != (bit = ffsuf(bitops_tests[count]))) {
-            printk("failed (%#08lx->%u)\n", bitops_tests[count], bit);
+            kshell_printf("failed (%#08lx->%u)\n", bitops_tests[count], bit);
             return -EFAULT;
         }
-        printk("passed (%#08lx->%u)\n", bitops_tests[count], bit);
+        kshell_printf("passed (%#08lx->%u)\n", bitops_tests[count], bit);
 
-        printk("bitops 'ffs' test%u: ", count);
+        kshell_printf("bitops 'ffs' test%u: ", count);
         if (count + 1 != (bit = ffs(bitops_tests[count]))) {
-            printk("failed (%#08lx->%u)\n", bitops_tests[count], bit);
+            kshell_printf("failed (%#08lx->%u)\n", bitops_tests[count], bit);
             return -EFAULT;
         }
-        printk("passed (%#08lx->%u)\n", bitops_tests[count], bit);
+        kshell_printf("passed (%#08lx->%u)\n", bitops_tests[count], bit);
 
-        printk("bitops 'ffzuf' test%u: ", count);
+        kshell_printf("bitops 'ffzuf' test%u: ", count);
         if (count != (bit = ffzuf(~bitops_tests[count]))) {
-            printk("failed (%#08lx->%u)\n", bitops_tests[count], bit);
+            kshell_printf("failed (%#08lx->%u)\n", bitops_tests[count], bit);
             return -EFAULT;
         }
-        printk("passed (%#08lx->%u)\n", bitops_tests[count], bit);
+        kshell_printf("passed (%#08lx->%u)\n", bitops_tests[count], bit);
 
-        printk("bitops 'ffz' test%u: ", count);
+        kshell_printf("bitops 'ffz' test%u: ", count);
         if (count + 1 != (bit = ffz(~bitops_tests[count]))) {
-            printk("failed (%#08lx->%u)\n", bitops_tests[count], bit);
+            kshell_printf("failed (%#08lx->%u)\n", bitops_tests[count], bit);
             return -EFAULT;
         }
-        printk("passed (%#08lx->%u)\n", bitops_tests[count], bit);
+        kshell_printf("passed (%#08lx->%u)\n", bitops_tests[count], bit);
 
-        printk("bitops 'flsuf' test%u: ", count);
+        kshell_printf("bitops 'flsuf' test%u: ", count);
         if (count != (bit = flsuf(bitops_tests[count]))) {
-            printk("failed (%#08lx->%u)\n", bitops_tests[count], bit);
+            kshell_printf("failed (%#08lx->%u)\n", bitops_tests[count], bit);
             return -EFAULT;
         }
-        printk("passed (%#08lx->%u)\n", bitops_tests[count], bit);
+        kshell_printf("passed (%#08lx->%u)\n", bitops_tests[count], bit);
 
-        printk("bitops 'fls' test%u: ", count);
+        kshell_printf("bitops 'fls' test%u: ", count);
         if (count + 1 != (bit = fls(bitops_tests[count]))) {
-            printk("failed (%#08lx->%u)\n", bitops_tests[count], bit);
+            kshell_printf("failed (%#08lx->%u)\n", bitops_tests[count], bit);
             return -EFAULT;
         }
-        printk("passed (%#08lx->%u)\n", bitops_tests[count], bit);
+        kshell_printf("passed (%#08lx->%u)\n", bitops_tests[count], bit);
 
-        printk("bitops 'flzuf' test%u: ", count);
+        kshell_printf("bitops 'flzuf' test%u: ", count);
         if (count != (bit = flzuf(~bitops_tests[count]))) {
-            printk("failed (%#08lx->%u)\n", bitops_tests[count], bit);
+            kshell_printf("failed (%#08lx->%u)\n", bitops_tests[count], bit);
             return -EFAULT;
         }
-        printk("passed (%#08lx->%u)\n", bitops_tests[count], bit);
+        kshell_printf("passed (%#08lx->%u)\n", bitops_tests[count], bit);
 
-        printk("bitops 'flz' test%u: ", count);
+        kshell_printf("bitops 'flz' test%u: ", count);
         if (count + 1 != (bit = flz(~bitops_tests[count]))) {
-            printk("failed (%#08lx->%u)\n", bitops_tests[count], bit);
+            kshell_printf("failed (%#08lx->%u)\n", bitops_tests[count], bit);
             return -EFAULT;
         }
-        printk("passed (%#08lx->%u)\n", bitops_tests[count], bit);
+        kshell_printf("passed (%#08lx->%u)\n", bitops_tests[count], bit);
     }
 
     for (count = 0; count < BITS_PER_LONG; ++count)
         bit_clr(bitops_tests, count * BITS_PER_LONG + count);
 
     if (memdiff(bitops_tests, 0, BYTES_PER_LONG)) {
-        printk("bitops 'bit_clr' test failed\n");
+        kshell_printf("bitops 'bit_clr' test failed\n");
         return -EFAULT;
     }
 
@@ -93,21 +92,21 @@ static state bitops_test_testing(void *pdata)
 
         bit_set(bitops_tests, count);
 
-        printk("bitops 'find_first_bit' test%u: ", count);
+        kshell_printf("bitops 'find_first_bit' test%u: ", count);
         bit = find_first_bit(bitops_tests, BITS_PER_LONG * BITS_PER_LONG);
         if (bit != count) {
-            printk("failed (%u)\n", bit);
+            kshell_printf("failed (%u)\n", bit);
             return -EFAULT;
         }
-        printk("passed (%u)\n", bit);
+        kshell_printf("passed (%u)\n", bit);
 
-        printk("bitops 'find_last_bit' test%u: ", count);
+        kshell_printf("bitops 'find_last_bit' test%u: ", count);
         bit = find_last_bit(bitops_tests, BITS_PER_LONG * BITS_PER_LONG);
         if (bit != count) {
-            printk("failed (%u)\n", bit);
+            kshell_printf("failed (%u)\n", bit);
             return -EFAULT;
         }
-        printk("passed (%u)\n", bit);
+        kshell_printf("passed (%u)\n", bit);
 
         bit_clr(bitops_tests, count);
     }
@@ -119,21 +118,21 @@ static state bitops_test_testing(void *pdata)
 
         bit_clr(bitops_tests, count);
 
-        printk("bitops 'find_first_zero' test%u: ", count);
+        kshell_printf("bitops 'find_first_zero' test%u: ", count);
         bit = find_first_zero(bitops_tests, BITS_PER_LONG * BITS_PER_LONG);
         if (bit != count) {
-            printk("failed (%u)\n", bit);
+            kshell_printf("failed (%u)\n", bit);
             return -EFAULT;
         }
-        printk("passed (%u)\n", bit);
+        kshell_printf("passed (%u)\n", bit);
 
-        printk("bitops 'find_last_zero' test%u: ", count);
+        kshell_printf("bitops 'find_last_zero' test%u: ", count);
         bit = find_last_zero(bitops_tests, BITS_PER_LONG * BITS_PER_LONG);
         if (bit != count) {
-            printk("failed (%u)\n", bit);
+            kshell_printf("failed (%u)\n", bit);
             return -EFAULT;
         }
-        printk("passed (%u)\n", bit);
+        kshell_printf("passed (%u)\n", bit);
 
         bit_set(bitops_tests, count);
     }

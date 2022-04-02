@@ -8,7 +8,6 @@
 #include <kmalloc.h>
 #include <idr.h>
 #include <selftest.h>
-#include <printk.h>
 
 #define TEST_LOOP 100
 
@@ -36,7 +35,7 @@ static state idr_test_testing(void *pdata)
         (timekeeping_get_time(), 1000)
     ));
 
-    printk("idr sequential: %lu/s\n", count * TEST_LOOP);
+    kshell_printf("idr sequential: %lu/s\n", count * TEST_LOOP);
 
     count = 0;
     do {
@@ -50,7 +49,7 @@ static state idr_test_testing(void *pdata)
         (timekeeping_get_time(), 2000)
     ));
 
-    printk("idr cyclic: %lu/s\n", count * TEST_LOOP);
+    kshell_printf("idr cyclic: %lu/s\n", count * TEST_LOOP);
 
     return -ENOERR;
 }

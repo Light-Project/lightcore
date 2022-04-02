@@ -6,11 +6,10 @@
 #include <kshell.h>
 #include <initcall.h>
 #include <delay.h>
-#include <printk.h>
 
 static void usage(void)
 {
-	printk("usage: sleep [millisecond]\n");
+	kshell_printf("usage: sleep [millisecond]\n");
 }
 
 static state delay_main(int argc, char *argv[])

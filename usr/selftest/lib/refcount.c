@@ -8,7 +8,6 @@
 #include <kmalloc.h>
 #include <refcount.h>
 #include <selftest.h>
-#include <printk.h>
 
 #define TEST_LOOP 100
 

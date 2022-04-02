@@ -3,9 +3,6 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define MODULE_NAME "mem"
-#define pr_fmt(fmt) MODULE_NAME ": " fmt
-
 #include <ctype.h>
 #include <string.h>
 #include <kernel.h>
@@ -13,7 +10,6 @@
 #include <ioremap.h>
 #include <asm/io.h>
 #include <kshell.h>
-#include <printk.h>
 
 static int number_table[] = {
     [0] = 8, [1] = 4, [2] = 4, [4] = 2,
@@ -229,18 +225,18 @@ skip_type:
 
 static void mem_read_usage(void)
 {
-    printk("usage: mem -r /nfu <addr>               \n");
-    printk("  /n - length                           \n");
-    printk("  /o - octal                            \n");
-    printk("  /x - hexadecimal                      \n");
-    printk("  /d - decimal                          \n");
-    printk("  /u - unsigned decimal                 \n");
-    printk("  /a - address                          \n");
-    printk("  /c - char                             \n");
-    printk("  /b - byte (8-bit)                     \n");
-    printk("  /h - halfword (16-bit)                \n");
-    printk("  /w - word (32-bit)                    \n");
-    printk("  /g - giant word (64-bit)              \n");
+    kshell_printf("usage: mem -r /nfu <addr>\n");
+    kshell_printf("  /n - length\n");
+    kshell_printf("  /o - octal\n");
+    kshell_printf("  /x - hexadecimal\n");
+    kshell_printf("  /d - decimal\n");
+    kshell_printf("  /u - unsigned decimal\n");
+    kshell_printf("  /a - address\n");
+    kshell_printf("  /c - char\n");
+    kshell_printf("  /b - byte (8-bit)\n");
+    kshell_printf("  /h - halfword (16-bit)\n");
+    kshell_printf("  /w - word (32-bit)\n");
+    kshell_printf("  /g - giant word (64-bit)\n");
 }
 
 static state mem_read(int argc, char *argv[])
@@ -324,33 +320,33 @@ exit:
     phys = strtoul(argv[argc - 1]);
     addr = block = ioremap(phys, num * byte);
     if (!addr) {
-        pr_err("failed to remapio\n");
+        kshell_printf("failed to remapio\n");
         return -ENOMEM;
     }
 
     for (; (count = min(num, number_table[byte / 2])); num -= count) {
         unsigned int tmp;
-        printk("0x%08lx: ", phys);
+        kshell_printf("0x%08lx: ", phys);
         for (tmp = 0; tmp < count; ++tmp) {
             switch (byte) {
                 case 1:
-                    printk(buff, readb(addr), readb(addr));
+                    kshell_printf(buff, readb(addr), readb(addr));
                     break;
                 case 2:
-                    printk(buff, readw(addr));
+                    kshell_printf(buff, readw(addr));
                     break;
                 case 4:
-                    printk(buff, readl(addr));
+                    kshell_printf(buff, readl(addr));
                     break;
                 case 8: default:
-                    printk(buff, readq(addr));
+                    kshell_printf(buff, readq(addr));
                     break;
             }
             phys += byte;
             addr += byte;
-            printk("  ");
+            kshell_printf("  ");
         }
-        printk("\n");
+        kshell_printf("\n");
     }
 
     iounmap(block);
@@ -363,12 +359,12 @@ usage:
 
 static void mem_write_usage(void)
 {
-    printk("usage: mem -w /nu <addr> <operator> <value> \n");
-    printk("  /n - length                               \n");
-    printk("  /b - byte (8-bit)                         \n");
-    printk("  /h - halfword (16-bit)                    \n");
-    printk("  /w - word (32-bit)                        \n");
-    printk("  /g - giant word (64-bit)                  \n");
+    kshell_printf("usage: mem -w /nu <addr> <operator> <value>\n");
+    kshell_printf("  /n - length\n");
+    kshell_printf("  /b - byte (8-bit)\n");
+    kshell_printf("  /h - halfword (16-bit)\n");
+    kshell_printf("  /w - word (32-bit)\n");
+    kshell_printf("  /g - giant word (64-bit)\n");
 }
 
 static state mem_write(int argc, char *argv[])
@@ -444,7 +440,7 @@ pass:
     value = convert_val(argv[argc - 1]);
     addr = block = ioremap(phys, num * byte);
     if (!addr) {
-        pr_err("failed to remapio\n");
+        kshell_printf("failed to remapio\n");
         return -ENOMEM;
     }
 
@@ -487,17 +483,17 @@ usage:
 
 static void ioport_in_usage(void)
 {
-    printk("usage: mem -i /nfu <addr>               \n");
-    printk("  /n - length                           \n");
-    printk("  /o - octal                            \n");
-    printk("  /x - hexadecimal                      \n");
-    printk("  /d - decimal                          \n");
-    printk("  /u - unsigned decimal                 \n");
-    printk("  /a - address                          \n");
-    printk("  /c - char                             \n");
-    printk("  /b - byte (8-bit)                     \n");
-    printk("  /h - halfword (16-bit)                \n");
-    printk("  /w - word (32-bit)                    \n");
+    kshell_printf("usage: mem -i /nfu <addr>\n");
+    kshell_printf("  /n - length\n");
+    kshell_printf("  /o - octal\n");
+    kshell_printf("  /x - hexadecimal\n");
+    kshell_printf("  /d - decimal\n");
+    kshell_printf("  /u - unsigned decimal\n");
+    kshell_printf("  /a - address\n");
+    kshell_printf("  /c - char\n");
+    kshell_printf("  /b - byte (8-bit)\n");
+    kshell_printf("  /h - halfword (16-bit)\n");
+    kshell_printf("  /w - word (32-bit)\n");
 }
 
 static state ioport_in(int argc, char *argv[])
@@ -577,23 +573,23 @@ exit:
 
     for (; (count = min(num, number_table[byte / 2])); num -= count) {
         unsigned int tmp;
-        printk("0x%04lx: ", base);
+        kshell_printf("0x%04lx: ", base);
         for (tmp = 0; tmp < count; ++tmp) {
             switch (byte) {
                 case 1:
-                    printk(buff, inb(base), inb(base));
+                    kshell_printf(buff, inb(base), inb(base));
                     break;
                 case 2:
-                    printk(buff, inw(base));
+                    kshell_printf(buff, inw(base));
                     break;
                 case 4: default:
-                    printk(buff, inl(base));
+                    kshell_printf(buff, inl(base));
                     break;
             }
             base += byte;
-            printk("  ");
+            kshell_printf("  ");
         }
-        printk("\n");
+        kshell_printf("\n");
     }
 
     return -ENOERR;
@@ -605,11 +601,11 @@ usage:
 
 static void ioport_out_usage(void)
 {
-    printk("usage: mem -o /nu <addr> <operator> <value> \n");
-    printk("  /n - length                               \n");
-    printk("  /b - byte (8-bit)                         \n");
-    printk("  /h - halfword (16-bit)                    \n");
-    printk("  /w - word (32-bit)                        \n");
+    kshell_printf("usage: mem -o /nu <addr> <operator> <value>\n");
+    kshell_printf("  /n - length\n");
+    kshell_printf("  /b - byte (8-bit)\n");
+    kshell_printf("  /h - halfword (16-bit)\n");
+    kshell_printf("  /w - word (32-bit)\n");
 }
 
 static state ioport_out(int argc, char *argv[])
@@ -711,13 +707,13 @@ usage:
 
 static void usage(void)
 {
-    printk("usage: mem [option] ...                 \n");
-    printk("  -r   memory read (default)            \n");
-    printk("  -w   memory write                     \n");
-    printk("  -i   iomem input                      \n");
-    printk("  -o   iomem output                     \n");
-    printk("  -s   show after modification          \n");
-    printk("  -h   display this message             \n");
+    kshell_printf("usage: mem [option] ...\n");
+    kshell_printf("  -r   memory read (default)\n");
+    kshell_printf("  -w   memory write\n");
+    kshell_printf("  -i   iomem input\n");
+    kshell_printf("  -o   iomem output\n");
+    kshell_printf("  -s   show after modification\n");
+    kshell_printf("  -h   display this message\n");
 }
 
 static state mem_main(int argc, char *argv[])

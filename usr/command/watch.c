@@ -7,14 +7,13 @@
 #include <initcall.h>
 #include <console.h>
 #include <delay.h>
-#include <printk.h>
 
 static void usage(void)
 {
-    printk("usage: watch [option] \"command\"                       \n");
-    printk("  -n <millisecond>  millisecond to wait between updates \n");
-    printk("  -t  turn off header message                           \n");
-    printk("  -h  display this message                              \n");
+    kshell_printf("usage: watch [option] \"command\"\n");
+    kshell_printf("  -n <millisecond>  millisecond to wait between updates \n");
+    kshell_printf("  -t  turn off header message\n");
+    kshell_printf("  -h  display this message\n");
 }
 
 static state delay_main(int argc, char *argv[])
@@ -58,10 +57,10 @@ static state delay_main(int argc, char *argv[])
     cmd = argv[argc - 1];
 
     for (;;) {
-        printk("\e[2J\e[1;1H");
+        kshell_printf("\e[2J\e[1;1H");
 
         if (title)
-            printk("Every %dms: %s\n\n", delay, cmd);
+            kshell_printf("Every %dms: %s\n\n", delay, cmd);
 
         ret = kshell_system(cmd);
         if (ret)

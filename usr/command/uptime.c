@@ -6,7 +6,6 @@
 #include <kshell.h>
 #include <initcall.h>
 #include <timekeeping.h>
-#include <printk.h>
 
 static state uptime_main(int argc, char *argv[])
 {

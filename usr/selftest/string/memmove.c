@@ -9,7 +9,6 @@
 #include <vmalloc.h>
 #include <string.h>
 #include <selftest.h>
-#include <printk.h>
 
 struct memmove_pdata {
     uint8_t mempool_a[SZ_1MiB];
@@ -32,7 +31,7 @@ static state memmove_testing(void *pdata)
     ));
 
     gsize(sbuff, count * SZ_1MiB);
-    printk("memmove bandwidth: %s/s\n", sbuff);
+    kshell_printf("memmove bandwidth: %s/s\n", sbuff);
     return -ENOERR;
 }
 

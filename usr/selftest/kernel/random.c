@@ -6,7 +6,6 @@
 #include <initcall.h>
 #include <random.h>
 #include <selftest.h>
-#include <printk.h>
 
 #define TEST_LOOP 100
 
@@ -17,7 +16,7 @@ static state random_testing(void *pdata)
 
     for (count = 0; count < TEST_LOOP; ++count) {
         value = random_long();
-        printk("random test%02u: %lx\n", count, value);
+        kshell_printf("random test%02u: %lx\n", count, value);
     }
 
     return -ENOERR;

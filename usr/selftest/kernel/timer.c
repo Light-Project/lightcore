@@ -7,7 +7,6 @@
 #include <spinlock.h>
 #include <timer.h>
 #include <selftest.h>
-#include <printk.h>
 
 #define TEST_LOOP   10
 #define TEST_DELAY  100
@@ -26,10 +25,10 @@ static state timer_testing(void *pdata)
 
     spin_lock(&lock);
     for (count = 0; count < TEST_LOOP; ++count) {
-        printk("timer test%02u: ", count);
+        kshell_printf("timer test%02u: ", count);
         timer_pending(&timer);
         spin_lock(&lock);
-        printk("lock ack\n");
+        kshell_printf("lock ack\n");
     }
 
     return -ENOERR;

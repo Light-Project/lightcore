@@ -97,17 +97,17 @@ state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***ar
     enum paser_state nstate, cstate = KSHELL_STATE_TEXT;
     unsigned int tpos = 0, tsize = PASER_TEXT_DEF;
     unsigned int vpos = 0, vsize = PASER_VARN_DEF;
-    char code, *tbuff;
-    char *var, *vbuff;
+    char *tbuff, code = 0;
+    char *vbuff, *var;
     unsigned int count;
+
+    *argc = 0;
+    *pos = NULL;
 
     tbuff = kmalloc(tsize + vsize, GFP_KERNEL);
     vbuff = tbuff + tsize;
     if (!tbuff)
         return -ENOMEM;
-
-    *argc = 0;
-    *pos = NULL;
 
     for (cstate = KSHELL_STATE_TEXT; *cmdline; ++cmdline) {
         nstate = parser_state(cstate, *cmdline, &code);

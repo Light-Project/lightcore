@@ -6,18 +6,17 @@
 #include <kshell.h>
 #include <initcall.h>
 #include <power.h>
-#include <printk.h>
 
 static void usage(void)
 {
-    printk("usage: reboot [option] ...              \n");
-    printk("  -H  halt the machine                  \n");
-    printk("  -S  switch off the machine            \n");
-    printk("  -R  cold restart the machine          \n");
-    printk("  -r  warn restart the machine          \n");
-    printk("  -s  soft restart the machine          \n");
-    printk("  -f  hard restart the machine          \n");
-    printk("  -h  display this message              \n");
+    kshell_printf("usage: reboot [option] ...\n");
+    kshell_printf("  -H  halt the machine\n");
+    kshell_printf("  -S  switch off the machine\n");
+    kshell_printf("  -R  cold restart the machine\n");
+    kshell_printf("  -r  warn restart the machine\n");
+    kshell_printf("  -s  soft restart the machine\n");
+    kshell_printf("  -f  hard restart the machine\n");
+    kshell_printf("  -h  display this message\n");
 }
 
 static state reset_main(int argc, char *argv[])

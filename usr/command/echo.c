@@ -5,13 +5,12 @@
 
 #include <kshell.h>
 #include <initcall.h>
-#include <printk.h>
 
 static void usage(void)
 {
-    printk("usage: echo [option]...                 \n");
-    printk("  -n  not output the trailing newline   \n");
-    printk("  -h  show this help                    \n");
+    kshell_printf("usage: echo [option]...\n");
+    kshell_printf("  -n  not output the trailing newline\n");
+    kshell_printf("  -h  show this help\n");
 }
 
 static state echo_main(int argc, char *argv[])
@@ -36,13 +35,13 @@ static state echo_main(int argc, char *argv[])
     }
 
     while (argc--) {
-        printk("%s", *argv++);
+        kshell_printf("%s", *argv++);
         if (*argv)
-            printk(" ");
+            kshell_printf(" ");
     }
 
     if (!nflag)
-        printk("\n");
+        kshell_printf("\n");
 
     return -ENOERR;
 }

@@ -30,6 +30,14 @@ config KCMD_SLEEP
     bool "Sleep Command Support"
     default y
 
+config KCMD_TIME
+    bool "Time Command Support"
+    default y
+
+config KCMD_UPTIME
+    bool "Uptime Command Support"
+    default y
+
 config KCMD_WATCH
     bool "Watch Command Support"
     default y

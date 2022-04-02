@@ -8,7 +8,6 @@
 #include <kmalloc.h>
 #include <ncache.h>
 #include <selftest.h>
-#include <printk.h>
 
 #define TEST_DEEPTH 100
 
@@ -39,7 +38,7 @@ static state ncache_testing(void *pdata)
         (timekeeping_get_time(), 1000)
     ));
 
-    printk("ncache interlaced: %lu/s\n", count);
+    kshell_printf("ncache interlaced: %lu/s\n", count);
 
     count = 0;
     do {
@@ -53,7 +52,7 @@ static state ncache_testing(void *pdata)
         (timekeeping_get_time(), 2000)
     ));
 
-    printk("ncache multilayer: %lu/s\n", count * TEST_DEEPTH);
+    kshell_printf("ncache multilayer: %lu/s\n", count * TEST_DEEPTH);
 
     return -ENOERR;
 }

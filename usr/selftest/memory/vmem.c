@@ -8,7 +8,6 @@
 #include <mm/vmem.h>
 #include <random.h>
 #include <selftest.h>
-#include <printk.h>
 
 #define TEST_LOOP   100
 #define TEST_SIZE   SZ_1MiB
@@ -24,19 +23,19 @@ static state vmem_testing(void *pdata)
     for (count = 0; count < TEST_LOOP; ++count) {
         size = ((unsigned int)random_long() % TEST_SIZE) + TEST_SIZE;
         gsize(sbuff, size);
-        printk("vmem alloc test%02u size (%s): ", count, sbuff);
+        kshell_printf("vmem alloc test%02u size (%s): ", count, sbuff);
         test_pool[count] = vmem_alloc(size);
         if (!test_pool[count]) {
-            printk("failed\n");
+            kshell_printf("failed\n");
             ret = -ENOMEM;
             goto error;
         }
-        printk("pass\n");
+        kshell_printf("pass\n");
     }
 
 error:
     for (tmp = 0; tmp < count; ++tmp) {
-        printk("vmem free test%02u\n", tmp);
+        kshell_printf("vmem free test%02u\n", tmp);
         vmem_free(test_pool[tmp]);
     }
 

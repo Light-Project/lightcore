@@ -5,11 +5,10 @@
 
 #include <kshell.h>
 #include <initcall.h>
-#include <printk.h>
 
 static state clear_main(int argc, char *argv[])
 {
-    printk("\e[2J");
+    kshell_printf("\e[2J");
     return -ENOERR;
 }
 

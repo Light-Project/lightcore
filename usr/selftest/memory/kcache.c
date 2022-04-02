@@ -8,7 +8,6 @@
 #include <string.h>
 #include <random.h>
 #include <selftest.h>
-#include <printk.h>
 
 #define TEST_LOOP   100
 #define TEST_SIZE   128
@@ -22,20 +21,20 @@ static state kcache_testing(void *pdata)
 
     cache = kcache_create("kcache-test", TEST_SIZE, 0);
     if (!cache) {
-        printk("kcache create failed\n");
+        kshell_printf("kcache create failed\n");
         return -ENOMEM;
     }
 
     for (count = 0; count < TEST_LOOP; ++count) {
         test_pool[count] = kcache_alloc(cache, GFP_KERNEL);
-        printk("kcache alloc size ("__stringify(TEST_SIZE)") test%02u: ", count);
+        kshell_printf("kcache alloc size ("__stringify(TEST_SIZE)") test%02u: ", count);
         if (!test_pool[count]) {
-            printk("failed\n");
+            kshell_printf("failed\n");
             ret = -ENOMEM;
             goto error;
         }
         memset(test_pool[count], 0, TEST_SIZE);
-        printk("pass\n");
+        kshell_printf("pass\n");
     }
 
 error:

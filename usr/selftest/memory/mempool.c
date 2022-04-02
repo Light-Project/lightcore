@@ -8,7 +8,6 @@
 #include <string.h>
 #include <random.h>
 #include <selftest.h>
-#include <printk.h>
 
 #define TEST_LOOP   100
 #define TEST_SIZE   SZ_32KiB
@@ -25,20 +24,20 @@ static state mempool_testing(void *pdata)
         return -ENOMEM;
 
     for (count = 0; count < TEST_LOOP; ++count) {
-        printk("mempool alloc test%02u: ", count);
+        kshell_printf("mempool alloc test%02u: ", count);
         test_pool[count] = mempool_alloc(pool, GFP_KERNEL);
         if (!test_pool[count]) {
-            printk("failed\n");
+            kshell_printf("failed\n");
             ret = -ENOMEM;
             goto error;
         }
         memset(test_pool[count], 0, TEST_SIZE);
-        printk("pass\n");
+        kshell_printf("pass\n");
     }
 
 error:
     for (tmp = 0; tmp < count; ++tmp) {
-        printk("mempool free test%02u\n", tmp);
+        kshell_printf("mempool free test%02u\n", tmp);
         mempool_free(pool, test_pool[tmp]);
     }
 

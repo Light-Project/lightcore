@@ -3,7 +3,7 @@ menu "Compile Config"
 
 choice
     prompt "Compiler Optimization Level"
-    default CC_OPTIMIZE_FOR_DEBUG
+    default CC_OPTIMIZE_FOR_PERFORMANCE
 
 config CC_OPTIMIZE_FOR_DEBUG
     bool "Optimize for Debug (-O0)"
@@ -14,7 +14,7 @@ config CC_OPTIMIZE_FOR_PERFORMANCE
 config CC_OPTIMIZE_FOR_SIZE
     bool "Optimize for Size (-Os)"
 
-endchoice
+endchoice # Compiler Optimization Level
 
 config STRICT
     bool "Compiling Kernel with Strict mode"
@@ -25,7 +25,7 @@ config STRICT
 
 config KERNEL_DEBUG
     bool "Kernel Generate Debug File"
-    depends on CC_OPTIMIZE_FOR_DEBUG
+    depends on CC_OPTIMIZE_FOR_DEBUG || CC_OPTIMIZE_FOR_PERFORMANCE
     default y
 
 config KERNEL_MAP
@@ -40,4 +40,4 @@ config LD_DEAD_CODE_DATA_ELIMINATION
     bool "Dead Code and Data Elimination"
     depends on EXPERT
 
-endmenu
+endmenu # Compile Config

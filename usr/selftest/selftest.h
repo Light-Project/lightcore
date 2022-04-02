@@ -2,8 +2,8 @@
 #ifndef _LOCAL_SELFTEST_H_
 #define _LOCAL_SELFTEST_H_
 
-#include <list.h>
 #include <error.h>
+#include <kshell.h>
 
 struct selftest_command {
     struct list_head list;

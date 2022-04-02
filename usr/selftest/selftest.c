@@ -8,7 +8,6 @@
 #include <spinlock.h>
 #include <kshell.h>
 #include <selftest.h>
-#include <printk.h>
 #include <export.h>
 
 static LIST_HEAD(selftest_list);
@@ -62,7 +61,7 @@ static void usage(void)
 
     spin_lock(&selftest_lock);
     list_for_each_entry(cmd, &selftest_list, list) {
-        printk("  %s:%s\t- %s\n", cmd->group, cmd->name, cmd->desc);
+        kshell_printf("  %s:%s\t- %s\n", cmd->group, cmd->name, cmd->desc);
     }
     spin_unlock(&selftest_lock);
 }
@@ -70,15 +69,11 @@ static void usage(void)
 static struct selftest_command *selftest_iter(const char *name, struct selftest_command *prev)
 {
     struct selftest_command *cmd, *find = NULL;
-    char *separate = NULL;
+    char *separate;
 
-    if (!strchr(name, ':'))
-        goto skip;
+    if ((separate = strchr(name, ':')))
+        separate[1] = '\0';
 
-    separate = strchr(name, ':');
-    *separate++ = '\0';
-
-skip:
     spin_lock(&selftest_lock);
 
     if (!prev)
@@ -89,7 +84,7 @@ skip:
          cmd = list_next_entry(cmd, list)) {
         if (strcmp(cmd->group, name))
             continue;
-        if (separate && strcmp(cmd->name, separate))
+        if (separate && strcmp(cmd->name, &separate[1]))
             continue;
         find = cmd;
         break;
@@ -98,7 +93,7 @@ skip:
     spin_unlock(&selftest_lock);
 
     if (separate)
-        *--separate = ':';
+        separate[0] = ':';
 
     return (!prev && separate) ? NULL : find;
 }

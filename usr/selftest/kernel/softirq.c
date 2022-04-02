@@ -6,7 +6,6 @@
 #include <initcall.h>
 #include <softirq.h>
 #include <selftest.h>
-#include <printk.h>
 
 #define TEST_LOOP 100
 
@@ -29,10 +28,10 @@ static state softirq_test_testing(void *pdata)
 
     spin_lock(&lock);
     for (count = 0; count < TEST_LOOP; ++count) {
-        printk("softirq test%02u: ", count);
+        kshell_printf("softirq test%02u: ", count);
         softirq_pending(&softirq_test);
         spin_lock(&lock);
-        printk("lock ack\n");
+        kshell_printf("lock ack\n");
     }
 
     softirq_unregister(&softirq_test);

@@ -9,7 +9,6 @@
 #include <string.h>
 #include <random.h>
 #include <selftest.h>
-#include <printk.h>
 
 #define TEST_LOOP   100
 #define TEST_SIZE   SZ_1MiB
@@ -25,20 +24,20 @@ static state vmalloc_testing(void *pdata)
     for (count = 0; count < TEST_LOOP; ++count) {
         size = ((unsigned int)random_long() % TEST_SIZE) + TEST_SIZE;
         gsize(sbuff, size);
-        printk("vmalloc alloc test%02u size (%s): ", count, sbuff);
+        kshell_printf("vmalloc alloc test%02u size (%s): ", count, sbuff);
         test_pool[count] = vmalloc(size);
         if (!test_pool[count]) {
-            printk("failed\n");
+            kshell_printf("failed\n");
             ret = -ENOMEM;
             goto error;
         }
         memset(test_pool[count], 0, size);
-        printk("pass\n");
+        kshell_printf("pass\n");
     }
 
 error:
     for (tmp = 0; tmp < count; ++tmp) {
-        printk("vmalloc free test%02u\n", tmp);
+        kshell_printf("vmalloc free test%02u\n", tmp);
         vfree(test_pool[tmp]);
     }
 

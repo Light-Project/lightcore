@@ -7,7 +7,6 @@
 #include <string.h>
 #include <initcall.h>
 #include <selftest.h>
-#include <printk.h>
 
 static const char parser_string[] = {
     "TEST " "'QUOTE' " "\"DQUOTE\" "
@@ -46,13 +45,13 @@ static state parser_testing(void *pdata)
     if (retval)
         goto exit;
 
-    printk("TEST: %s\n",            argv[0]);
-    printk("QUOTE: %s\n",           argv[1]);
-    printk("DQUOTE: %s\n",          argv[2]);
-    printk("TEST_VARNAME: %s\n",    argv[3]);
-    printk("TEST_LVARNAME: %s\n",   argv[4]);
-    printk("TEST_QVARNAME: %s\n",   argv[5]);
-    printk("TEST_LQVARNAME: %s\n",  argv[6]);
+    kshell_printf("TEST: %s\n",            argv[0]);
+    kshell_printf("QUOTE: %s\n",           argv[1]);
+    kshell_printf("DQUOTE: %s\n",          argv[2]);
+    kshell_printf("TEST_VARNAME: %s\n",    argv[3]);
+    kshell_printf("TEST_LVARNAME: %s\n",   argv[4]);
+    kshell_printf("TEST_QVARNAME: %s\n",   argv[5]);
+    kshell_printf("TEST_LQVARNAME: %s\n",  argv[6]);
 
     if (strcmp(argv[0], "TEST") ||
         strcmp(argv[1], "QUOTE") ||
@@ -69,7 +68,7 @@ static state parser_testing(void *pdata)
     if (retval)
         goto exit;
 
-    printk("ESC: %s\n", argv[0]);
+    kshell_printf("ESC: %s\n", argv[0]);
 
     if (strcmp(argv[0], "ESC"))
         retval = -EINVAL;

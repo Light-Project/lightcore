@@ -7,7 +7,6 @@
 #include <kcoro.h>
 #include <delay.h>
 #include <selftest.h>
-#include <printk.h>
 
 #define TEST_LOOP 100
 
@@ -16,7 +15,7 @@ static state kcoro_task_a(void *pdata)
     unsigned int count = TEST_LOOP;
 
     while (count--) {
-        printk("kcoro task a running...\n");
+        kshell_printf("kcoro task a running...\n");
         kcoro_yield();
     }
 
@@ -29,7 +28,7 @@ static state kcoro_task_b(void *pdata)
     unsigned int count = TEST_LOOP;
 
     while (count--) {
-        printk("kcoro task b running...\n");
+        kshell_printf("kcoro task b running...\n");
         mdelay(10);
         kcoro_yield();
     }
@@ -43,7 +42,7 @@ static state kcoro_task_c(void *pdata)
     unsigned int count = TEST_LOOP;
 
     while (count--) {
-        printk("kcoro task c running...\n");
+        kshell_printf("kcoro task c running...\n");
         kcoro_msleep(10);
         kcoro_yield();
     }

@@ -9,7 +9,7 @@
 
 static void usage(void)
 {
-    printk("usage: panic \"message\"\n");
+    kshell_printf("usage: panic \"message\"\n");
 }
 
 static state panic_main(int argc, char *argv[])

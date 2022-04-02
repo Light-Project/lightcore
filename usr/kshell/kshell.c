@@ -3,9 +3,6 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define MODULE_NAME "ksh"
-#define pr_fmt(fmt) MODULE_NAME ": " fmt
-
 #include "kshell.h"
 #include <string.h>
 #include <setjmp.h>
@@ -13,7 +10,6 @@
 #include <initcall.h>
 #include <console.h>
 #include <export.h>
-#include <printk.h>
 
 static unsigned int readline_read(char *str, unsigned int len, void *data)
 {
@@ -27,7 +23,7 @@ static void readline_write(const char *str, unsigned int len, void *data)
 
 void kshell_printf(const char *str, ...)
 {
-    char strbuf[512];
+    char strbuf[256];
     va_list para;
     int len;
 
@@ -35,16 +31,16 @@ void kshell_printf(const char *str, ...)
     len = vsnprintf(strbuf, sizeof(strbuf), str, para);
     va_end(para);
 
-    console_write(str, len);
+    console_write(strbuf, len);
 }
 EXPORT_SYMBOL(kshell_printf);
 
 static state do_system(char *cmdline, jmp_buf *buff)
 {
     struct kshell_command *cmd;
+    state ret = -EINVAL;
     char **argv;
     int argc;
-    state ret;
 
     while (cmdline) {
         ret = kshell_parser(cmdline, (const char **)&cmdline, &argc, &argv);
@@ -53,7 +49,7 @@ static state do_system(char *cmdline, jmp_buf *buff)
 
         cmd = kshell_find(argv[0]);
         if (!cmd) {
-            pr_err("command not found: %s\n", argv[0]);
+            kshell_printf("command not found: %s\n", argv[0]);
             return -EBADF;
         }
 
@@ -65,7 +61,9 @@ static state do_system(char *cmdline, jmp_buf *buff)
 
         ret = cmd->exec(argc, argv);
         if (ret)
-            return ret;
+            break;
+
+        kfree(argv);
     }
 
     return ret;
@@ -75,6 +73,11 @@ state kshell_system(const char *cmdline)
 {
     char *new;
     state ret;
+
+    if (!cmdline) {
+        kshell_printf("command inval\n");
+        return -EINVAL;
+    }
 
     new = strdup(cmdline);
     ret = do_system(new, NULL);
@@ -115,7 +118,7 @@ state env_main(int argc, char *argv[])
     struct kshell_env *env;
     spin_lock(&kshell_env_lock);
     list_for_each_entry(env, &kshell_env_list, list)
-        printk("%s=%s\n", env->name, env->val);
+        kshell_printf("  %s=%s\n", env->name, env->val);
     spin_unlock(&kshell_env_lock);
     return -ENOERR;
 }
@@ -125,7 +128,7 @@ state help_main(int argc, char *argv[])
     struct kshell_command *cmd;
     spin_lock(&kshell_lock);
     list_for_each_entry(cmd, &kshell_list, list)
-        printk("%s\t- %s\n", cmd->name, cmd->desc);
+        kshell_printf("  %-10s - %s\n", cmd->name, cmd->desc);
     spin_unlock(&kshell_lock);
     return -ENOERR;
 }

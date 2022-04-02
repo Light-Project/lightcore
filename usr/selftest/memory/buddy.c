@@ -8,7 +8,6 @@
 #include <string.h>
 #include <random.h>
 #include <selftest.h>
-#include <printk.h>
 
 #define TEST_LOOP 100
 
@@ -20,20 +19,20 @@ static state buddy_testing(void *pdata)
 
     for (count = 0; count < TEST_LOOP; ++count) {
         tmp = (unsigned int)random_long() % PAGE_ORDER_MAX;
-        printk("buddy alloc test%02u order (%02u): ", count, tmp);
+        kshell_printf("buddy alloc test%02u order (%02u): ", count, tmp);
         test_pool[count] = page_alloc(tmp, GFP_KERNEL);
         if (!test_pool[count]) {
-            printk("failed\n");
+            kshell_printf("failed\n");
             ret = -ENOMEM;
             goto error;
         }
         memset(page_address(test_pool[count]), 0, page_size(test_pool[count]));
-        printk("pass\n");
+        kshell_printf("pass\n");
     }
 
 error:
     for (tmp = 0; tmp < count; ++tmp) {
-        printk("buddy free test%02u: order (%02u)\n", tmp, page_order(test_pool[tmp]));
+        kshell_printf("buddy free test%02u: order (%02u)\n", tmp, page_order(test_pool[tmp]));
         page_free(test_pool[tmp]);
     }
 

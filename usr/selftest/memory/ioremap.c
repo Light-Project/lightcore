@@ -10,7 +10,6 @@
 #include <string.h>
 #include <random.h>
 #include <selftest.h>
-#include <printk.h>
 
 #define TEST_LOOP   100
 #define TEST_SIZE   SZ_1MiB
@@ -27,19 +26,19 @@ static state ioremap_testing(void *pdata)
         phys = page_align(clamp(random_long(), CONFIG_HIGHMEM_OFFSET,
                             PHYS_MASK - (TEST_SIZE * 2)));
         size = page_align(random_long() % TEST_SIZE + TEST_SIZE);
-        printk("ioremap test%02u addr (%#lx) size (%#lx): ", count, phys, size);
+        kshell_printf("ioremap test%02u addr (%#lx) size (%#lx): ", count, phys, size);
         test_pool[count] = ioremap(phys, size);
         if (!test_pool[count]) {
-            printk("failed\n");
+            kshell_printf("failed\n");
             ret = -ENOMEM;
             goto error;
         }
-        printk("%p\n", test_pool[count]);
+        kshell_printf("%p\n", test_pool[count]);
     }
 
 error:
     for (tmp = 0; tmp < count; ++tmp) {
-        printk("iounmap test%02u: %p\n", tmp, test_pool[tmp]);
+        kshell_printf("iounmap test%02u: %p\n", tmp, test_pool[tmp]);
         iounmap(test_pool[tmp]);
     }
 

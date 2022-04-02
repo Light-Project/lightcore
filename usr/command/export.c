@@ -6,11 +6,10 @@
 #include <kshell.h>
 #include <string.h>
 #include <initcall.h>
-#include <printk.h>
 
 static void usage(void)
 {
-    printk("usage: export [name=value] ...\n");
+    kshell_printf("usage: export [name=value] ...\n");
 }
 
 static state export_main(int argc, char *argv[])
