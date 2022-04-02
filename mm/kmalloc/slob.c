@@ -470,7 +470,7 @@ void *kmalloc(size_t size, gfp_t flags)
 }
 EXPORT_SYMBOL(kmalloc);
 
-void kfree(void *block)
+void kfree(const void *block)
 {
     slob_free(block);
 }
@@ -501,7 +501,7 @@ void *kcache_alloc(struct kcache *cache, gfp_t flags)
 }
 EXPORT_SYMBOL(kcache_alloc);
 
-void kcache_free(struct kcache *cache, void *block)
+void kcache_free(struct kcache *cache, const void *block)
 {
     slob_free(block);
 }

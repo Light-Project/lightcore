@@ -11,7 +11,7 @@
 #include <export.h>
 #include <printk.h>
 
-void *krealloc(void *block, size_t rsize, gfp_t flags)
+void *krealloc(const void *block, size_t rsize, gfp_t flags)
 {
     size_t size;
     void *ret;

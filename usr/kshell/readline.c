@@ -8,11 +8,39 @@
 #include <sched.h>
 #include <ascii.h>
 #include <kmalloc.h>
-#include <asm/proc.h>
+#include <proc.h>
 
-static state readline_history_add(struct readline_state *state, const char *cmd, unsigned int len)
+static state readline_save_workspace(struct readline_state *rstate, const char *cmd, unsigned int len)
+{
+    if (rstate->workspace) {
+        kfree(rstate->workspace);
+        rstate->workspace = NULL;
+    }
+
+    if (len) {
+        rstate->workspace = kmalloc(len, GFP_KERNEL);
+        if (!rstate->workspace)
+            return -ENOMEM;
+
+        rstate->worklen = len;
+        memcpy((char *)rstate->workspace, cmd, len);
+    }
+
+    return -ENOERR;
+}
+
+static state readline_history_add(struct readline_state *rstate, const char *cmd, unsigned int len)
 {
     struct readline_history *history;
+
+    if (rstate->workspace) {
+        kfree(rstate->workspace);
+        rstate->workspace = NULL;
+    }
+
+    history = list_first_entry(&rstate->history, struct readline_history, list);
+    if (!memcmp(history->cmd, cmd, len))
+        return -ENOERR;
 
     history = kmalloc(sizeof(*history) + len, GFP_KERNEL);
     if (!history)
@@ -20,38 +48,79 @@ static state readline_history_add(struct readline_state *state, const char *cmd,
 
     history->len = len;
     memcpy(history->cmd, cmd, len);
-    list_add(&state->history, &history->list);
+    list_add(&rstate->history, &history->list);
+
     return -ENOERR;
 }
 
-static struct readline_history *readline_history_prev(struct readline_state *state)
+static struct readline_history *readline_history_prev(struct readline_state *rstate, const char *cmd, unsigned int len)
 {
     struct readline_history *prev;
+    state retval;
 
-    if (state->curr) {
-        prev = list_next_entry(state->curr, list);
-        if (list_entry_check_head(prev, &state->history, list))
+    if (!rstate->curr) {
+        retval = readline_save_workspace(rstate, cmd, len);
+        if (retval)
+            return ERR_PTR(retval);
+    }
+
+    if (rstate->workspace) {
+        if (rstate->curr) for (prev = list_next_entry(rstate->curr, list);
+                               !list_entry_check_head(prev, &rstate->history, list);
+                               prev = list_next_entry(rstate->curr, list)) {
+            if (!strncmp(rstate->workspace, prev->cmd, rstate->worklen))
+                goto finish;
+
+        } else for (prev = list_first_entry(&rstate->history, struct readline_history, list);
+                    !list_entry_check_head(prev, &rstate->history, list);
+                    prev = list_next_entry(rstate->curr, list)) {
+            if (!strncmp(rstate->workspace, prev->cmd, rstate->worklen))
+                goto finish;
+        }
+        return NULL;
+    }
+
+    else if (rstate->curr) {
+        prev = list_next_entry(rstate->curr, list);
+        if (list_entry_check_head(prev, &rstate->history, list))
             return NULL;
     } else {
-        prev = list_first_entry_or_null(&state->history,
+        prev = list_first_entry_or_null(&rstate->history,
                     struct readline_history, list);
     }
 
-    return (state->curr = prev);
+finish:
+    rstate->curr = prev;
+    return prev;
 }
 
-static struct readline_history *readline_history_next(struct readline_state *state)
+static struct readline_history *readline_history_next(struct readline_state *rstate)
 {
     struct readline_history *next;
 
-    if (!state->curr)
+    if (!rstate->curr)
         return NULL;
 
-    next = list_prev_entry(state->curr, list);
-    if (list_entry_check_head(next, &state->history, list))
+    if (rstate->workspace) {
+        for (next = list_prev_entry(rstate->curr, list);
+             !list_entry_check_head(next, &rstate->history, list);
+             next = list_prev_entry(rstate->curr, list)) {
+            if (!strncmp(rstate->workspace, next->cmd, rstate->worklen))
+                goto finish;
+        }
         next = NULL;
+        goto finish;
+    }
 
-    return (state->curr = next);
+    else {
+        next = list_prev_entry(rstate->curr, list);
+        if (list_entry_check_head(next, &rstate->history, list))
+            next = NULL;
+    }
+
+finish:
+    rstate->curr = next;
+    return next;
 }
 
 static void readline_state_setup(struct readline_state *state)
@@ -118,7 +187,7 @@ static void readline_fill(struct readline_state *state, unsigned int len)
         readline_write(state, " ", 1);
 }
 
-static state readline_insert(struct readline_state *state, char *str, unsigned int len)
+static state readline_insert(struct readline_state *state, const char *str, unsigned int len)
 {
     void *nblk;
 
@@ -184,8 +253,10 @@ static bool readline_handle(struct readline_state *state, char code)
             return true;
 
         case ASCII_EOT: /* ^D : End of Transmission */
-            if(state->pos < state->len)
+            if (state->pos < state->len)
                 readline_delete(state, 1);
+            readline_save_workspace(state, state->buff, state->len);
+            state->curr = NULL;
             break;
 
         case ASCII_ENQ: /* ^E : Enquiry */
@@ -204,6 +275,8 @@ static bool readline_handle(struct readline_state *state, char code)
                 readline_cursor_left(state);
                 readline_delete(state, 1);
             }
+            readline_save_workspace(state, state->buff, state->len);
+            state->curr = NULL;
             break;
 
         case ASCII_HT: /* ^I : Horizontal TAB */
@@ -228,13 +301,15 @@ static bool readline_handle(struct readline_state *state, char code)
             readline_delete(state, state->len);
             if (history)
                 readline_insert(state, history->cmd, history->len);
+            else if (state->workspace)
+                readline_insert(state, state->workspace, state->worklen);
             break;
 
         case ASCII_SI: /* ^O : Shift In / X-Off */
             break;
 
         case ASCII_DLE: /* ^P : Data Line Escape */
-            history = readline_history_prev(state);
+            history = readline_history_prev(state, state->buff, state->len);
             if (history) {
                 readline_cursor_home(state);
                 readline_delete(state, state->len);
@@ -260,6 +335,8 @@ static bool readline_handle(struct readline_state *state, char code)
                 readline_cursor_home(state);
                 readline_delete(state, tmp);
             }
+            readline_save_workspace(state, state->buff, state->len);
+            state->curr = NULL;
             break;
 
         case ASCII_SYN: /* ^V : Synchronous Idle */
@@ -279,6 +356,8 @@ static bool readline_handle(struct readline_state *state, char code)
 
         default:
             readline_insert(state, &code, 1);
+            readline_save_workspace(state, state->buff, state->len);
+            state->curr = NULL;
     }
 
     return false;

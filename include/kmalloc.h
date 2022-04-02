@@ -25,13 +25,13 @@ extern void __malloc *kmalloc(size_t size, gfp_t flags);
 extern void __malloc *kmalloc_numa(size_t size, gfp_t flags, int numa);
 extern void __malloc *kmalloc_align(size_t size, gfp_t flags, size_t align);
 extern void __malloc *kmalloc_numa_align(size_t size, gfp_t flags, int numa, size_t align);
-extern void __malloc *krealloc(void *block, size_t rsize, gfp_t flags);
-extern void kfree(void *mem);
+extern void __malloc *krealloc(const void *block, size_t rsize, gfp_t flags);
+extern void kfree(const void *mem);
 
 /* kernel cache allocator */
 extern void __malloc *kcache_alloc(struct kcache *, gfp_t flags);
 extern void __malloc *kcache_alloc_numa(struct kcache *, gfp_t flags, int numa);
-extern void kcache_free(struct kcache *, void *block);
+extern void kcache_free(struct kcache *, const void *block);
 extern struct kcache *kcache_create(const char *name, size_t size, enum kcache_flags flags);
 extern void kcache_release(struct kcache *);
 extern void kcache_delete(struct kcache *);

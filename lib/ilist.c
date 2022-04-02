@@ -56,8 +56,8 @@ static bool ilist_head_check(struct ilist_head *ihead)
  */
 void ilist_add(struct ilist_head *ihead, struct ilist_node *inode)
 {
-    struct ilist_node *walk, *first, *prev;
-    struct list_head *next;
+    struct ilist_node *walk, *first, *prev = NULL;
+    struct list_head *next = &ihead->node_list;
 
 #ifdef CONFIG_DEBUG_ILIST
     if (unlikely(!ilist_head_check(ihead)))
@@ -69,10 +69,8 @@ void ilist_add(struct ilist_head *ihead, struct ilist_node *inode)
     WARN_ON(!list_check_empty(&inode->index_list));
 
     /* Direct insertion of new nodes */
-    if (ilist_head_empty(ihead)) {
-        next = &ihead->node_list;
+    if (ilist_head_empty(ihead))
         goto finish;
-    }
 
     /* Traverse to find a suitable insertion point */
     first = walk = ilist_first(ihead);
