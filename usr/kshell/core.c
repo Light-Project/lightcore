@@ -158,6 +158,7 @@ state kshell_register(struct kshell_command *cmd)
     spin_lock(&kshell_lock);
     list_add(&kshell_list, &cmd->list);
     spin_unlock(&kshell_lock);
+
     return -ENOERR;
 }
 EXPORT_SYMBOL(kshell_register);
@@ -169,6 +170,72 @@ void kshell_unregister(struct kshell_command *cmd)
     spin_unlock(&kshell_lock);
 }
 EXPORT_SYMBOL(kshell_unregister);
+
+void kshell_printf(const char *str, ...)
+{
+    char strbuf[256];
+    va_list para;
+    int len;
+
+    va_start(para,str);
+    len = vsnprintf(strbuf, sizeof(strbuf), str, para);
+    va_end(para);
+
+    console_write(strbuf, len);
+}
+EXPORT_SYMBOL(kshell_printf);
+
+state kshell_exec(const struct kshell_command *cmd, int argc, char *argv[])
+{
+    unsigned int count;
+    char **vbuff;
+    state retval;
+
+    if (!cmd->exec)
+        return -ENXIO;
+
+    vbuff = kzalloc(sizeof(char *) * (argc + 1), GFP_KERNEL);
+    if (!vbuff)
+        return -ENOMEM;
+
+    for (count = 0; count < argc; ++count) {
+        unsigned int len;
+        char *string;
+
+        len = strlen(argv[count]);
+        string = kmalloc(len + 1, GFP_KERNEL);
+        if (!string) {
+            retval = -ENOMEM;
+            goto finish;
+        }
+
+        strcpy(string, argv[count]);
+        vbuff[count] = string;
+    }
+
+    vbuff[argc] = NULL;
+    retval = cmd->exec(argc, vbuff);
+
+finish:
+    for (count = 0; vbuff[count]; ++count)
+        kfree(vbuff[count]);
+
+    kfree(vbuff);
+    return retval;
+}
+EXPORT_SYMBOL(kshell_exec);
+
+state kshell_execv(const char *name, int argc, char *argv[])
+{
+    struct kshell_command *cmd;
+
+    cmd = kshell_find(name);
+    if (!cmd)
+        return -EBADF;
+
+    return kshell_exec(cmd, argc, argv);
+}
+EXPORT_SYMBOL(kshell_execv);
 
 static void __init ksh_initcall(void)
 {

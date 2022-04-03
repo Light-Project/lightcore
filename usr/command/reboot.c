@@ -10,13 +10,13 @@
 static void usage(void)
 {
     kshell_printf("usage: reboot [option] ...\n");
-    kshell_printf("  -H  halt the machine\n");
-    kshell_printf("  -S  switch off the machine\n");
-    kshell_printf("  -R  cold restart the machine\n");
-    kshell_printf("  -r  warn restart the machine\n");
-    kshell_printf("  -s  soft restart the machine\n");
-    kshell_printf("  -f  hard restart the machine\n");
-    kshell_printf("  -h  display this message\n");
+    kshell_printf("\t-H  halt the machine\n");
+    kshell_printf("\t-S  switch off the machine\n");
+    kshell_printf("\t-R  cold restart the machine\n");
+    kshell_printf("\t-r  warn restart the machine\n");
+    kshell_printf("\t-s  soft restart the machine\n");
+    kshell_printf("\t-f  hard restart the machine\n");
+    kshell_printf("\t-h  display this message\n");
 }
 
 static state reset_main(int argc, char *argv[])

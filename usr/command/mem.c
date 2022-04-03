@@ -226,17 +226,17 @@ skip_type:
 static void mem_read_usage(void)
 {
     kshell_printf("usage: mem -r /nfu <addr>\n");
-    kshell_printf("  /n - length\n");
-    kshell_printf("  /o - octal\n");
-    kshell_printf("  /x - hexadecimal\n");
-    kshell_printf("  /d - decimal\n");
-    kshell_printf("  /u - unsigned decimal\n");
-    kshell_printf("  /a - address\n");
-    kshell_printf("  /c - char\n");
-    kshell_printf("  /b - byte (8-bit)\n");
-    kshell_printf("  /h - halfword (16-bit)\n");
-    kshell_printf("  /w - word (32-bit)\n");
-    kshell_printf("  /g - giant word (64-bit)\n");
+    kshell_printf("\t/n - length\n");
+    kshell_printf("\t/o - octal\n");
+    kshell_printf("\t/x - hexadecimal\n");
+    kshell_printf("\t/d - decimal\n");
+    kshell_printf("\t/u - unsigned decimal\n");
+    kshell_printf("\t/a - address\n");
+    kshell_printf("\t/c - char\n");
+    kshell_printf("\t/b - byte (8-bit)\n");
+    kshell_printf("\t/h - halfword (16-bit)\n");
+    kshell_printf("\t/w - word (32-bit)\n");
+    kshell_printf("\t/g - giant word (64-bit)\n");
 }
 
 static state mem_read(int argc, char *argv[])
@@ -360,11 +360,11 @@ usage:
 static void mem_write_usage(void)
 {
     kshell_printf("usage: mem -w /nu <addr> <operator> <value>\n");
-    kshell_printf("  /n - length\n");
-    kshell_printf("  /b - byte (8-bit)\n");
-    kshell_printf("  /h - halfword (16-bit)\n");
-    kshell_printf("  /w - word (32-bit)\n");
-    kshell_printf("  /g - giant word (64-bit)\n");
+    kshell_printf("\t/n - length\n");
+    kshell_printf("\t/b - byte (8-bit)\n");
+    kshell_printf("\t/h - halfword (16-bit)\n");
+    kshell_printf("\t/w - word (32-bit)\n");
+    kshell_printf("\t/g - giant word (64-bit)\n");
 }
 
 static state mem_write(int argc, char *argv[])
@@ -484,16 +484,16 @@ usage:
 static void ioport_in_usage(void)
 {
     kshell_printf("usage: mem -i /nfu <addr>\n");
-    kshell_printf("  /n - length\n");
-    kshell_printf("  /o - octal\n");
-    kshell_printf("  /x - hexadecimal\n");
-    kshell_printf("  /d - decimal\n");
-    kshell_printf("  /u - unsigned decimal\n");
-    kshell_printf("  /a - address\n");
-    kshell_printf("  /c - char\n");
-    kshell_printf("  /b - byte (8-bit)\n");
-    kshell_printf("  /h - halfword (16-bit)\n");
-    kshell_printf("  /w - word (32-bit)\n");
+    kshell_printf("\t/n - length\n");
+    kshell_printf("\t/o - octal\n");
+    kshell_printf("\t/x - hexadecimal\n");
+    kshell_printf("\t/d - decimal\n");
+    kshell_printf("\t/u - unsigned decimal\n");
+    kshell_printf("\t/a - address\n");
+    kshell_printf("\t/c - char\n");
+    kshell_printf("\t/b - byte (8-bit)\n");
+    kshell_printf("\t/h - halfword (16-bit)\n");
+    kshell_printf("\t/w - word (32-bit)\n");
 }
 
 static state ioport_in(int argc, char *argv[])
@@ -602,10 +602,10 @@ usage:
 static void ioport_out_usage(void)
 {
     kshell_printf("usage: mem -o /nu <addr> <operator> <value>\n");
-    kshell_printf("  /n - length\n");
-    kshell_printf("  /b - byte (8-bit)\n");
-    kshell_printf("  /h - halfword (16-bit)\n");
-    kshell_printf("  /w - word (32-bit)\n");
+    kshell_printf("\t/n - length\n");
+    kshell_printf("\t/b - byte (8-bit)\n");
+    kshell_printf("\t/h - halfword (16-bit)\n");
+    kshell_printf("\t/w - word (32-bit)\n");
 }
 
 static state ioport_out(int argc, char *argv[])
@@ -708,12 +708,12 @@ usage:
 static void usage(void)
 {
     kshell_printf("usage: mem [option] ...\n");
-    kshell_printf("  -r   memory read (default)\n");
-    kshell_printf("  -w   memory write\n");
-    kshell_printf("  -i   iomem input\n");
-    kshell_printf("  -o   iomem output\n");
-    kshell_printf("  -s   show after modification\n");
-    kshell_printf("  -h   display this message\n");
+    kshell_printf("\t-r  memory read (default)\n");
+    kshell_printf("\t-w  memory write\n");
+    kshell_printf("\t-i  iomem input\n");
+    kshell_printf("\t-o  iomem output\n");
+    kshell_printf("\t-s  show after modification\n");
+    kshell_printf("\t-h  display this message\n");
 }
 
 static state mem_main(int argc, char *argv[])

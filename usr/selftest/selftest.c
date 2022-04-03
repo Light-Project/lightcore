@@ -58,10 +58,14 @@ EXPORT_SYMBOL(selftest_unregister);
 static void usage(void)
 {
     struct selftest_command *cmd;
+    char buff[64];
 
     spin_lock(&selftest_lock);
     list_for_each_entry(cmd, &selftest_list, list) {
-        kshell_printf("  %s:%s\t- %s\n", cmd->group, cmd->name, cmd->desc);
+        strncpy(buff, cmd->group, sizeof(buff));
+        strncat(buff, ":", sizeof(buff));
+        strncat(buff, cmd->name, sizeof(buff));
+        kshell_printf("\t%-16s - %s\n", buff, cmd->desc);
     }
     spin_unlock(&selftest_lock);
 }
@@ -72,7 +76,7 @@ static struct selftest_command *selftest_iter(const char *name, struct selftest_
     char *separate;
 
     if ((separate = strchr(name, ':')))
-        separate[1] = '\0';
+        separate[0] = '\0';
 
     spin_lock(&selftest_lock);
 

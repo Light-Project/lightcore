@@ -25,9 +25,11 @@ extern state kshell_putenv(char *string);
 extern state kshell_setenv(const char *name, const char *val, bool overwrite);
 extern state kshell_unsetenv(const char *name);
 
-extern void __printf(1, 2) kshell_printf(const char *str, ...);
+extern state kshell_exec(const struct kshell_command *cmd, int argc, char *argv[]);
+extern state kshell_execv(const char *name, int argc, char *argv[]);
 extern state kshell_system(const char *cmdline);
 
+extern void __printf(1, 2) kshell_printf(const char *str, ...);
 extern state kshell_register(struct kshell_command *);
 extern void kshell_unregister(struct kshell_command *);
 extern void ksh_init(void);

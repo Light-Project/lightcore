@@ -10,19 +10,19 @@
 
 static void usage(void)
 {
-    kshell_printf("usage: watch [option] \"command\"\n");
-    kshell_printf("  -n <millisecond>  millisecond to wait between updates \n");
-    kshell_printf("  -t  turn off header message\n");
-    kshell_printf("  -h  display this message\n");
+    kshell_printf("usage: watch [option] command\n");
+    kshell_printf("\t-n  <millisecond>  millisecond to wait between updates \n");
+    kshell_printf("\t-t  turn off header message\n");
+    kshell_printf("\t-h  display this message\n");
 }
 
 static state delay_main(int argc, char *argv[])
 {
-    unsigned int delay = 500;
+    unsigned int tmp, delay = 500;
     unsigned int count, len;
     bool title = true;
-    char *cmd, buff[10];
-    state ret;
+    char buff[10];
+    state retval;
 
     if (argc < 2)
         goto usage;
@@ -54,19 +54,17 @@ static state delay_main(int argc, char *argv[])
     if (argc == count)
         goto usage;
 
-    cmd = argv[argc - 1];
-
     for (;;) {
         kshell_printf("\e[2J\e[1;1H");
 
         if (title)
-            kshell_printf("Every %dms: %s\n\n", delay, cmd);
+            kshell_printf("Every %dms: %s\n\n", delay, argv[count]);
 
-        ret = kshell_system(cmd);
-        if (ret)
-            return ret;
+        retval = kshell_execv(argv[count], argc - count, &argv[count]);
+        if (retval)
+            return retval;
 
-        for (count = 0; count < delay; ++count) {
+        for (tmp = 0; tmp < delay; ++tmp) {
             len = console_read(buff, 10);
             if (len && *buff == 'q')
                 goto exit;
