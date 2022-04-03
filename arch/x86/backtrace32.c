@@ -69,7 +69,7 @@ void backtrace(size_t *bp)
 
 void oops(struct regs *regs, unsigned long error_code, const char *str)
 {
-    printk("Oops: %s\n", str);
+    printk("Kernel Oops: %s\n", str);
 
     show_regs(regs, error_code);
     dump_stack((size_t *)regs->sp);

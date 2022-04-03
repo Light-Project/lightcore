@@ -13,8 +13,10 @@
 #include <asm/bug.h>
 #include <asm/backtrace.h>
 
-static bool trap_bug(struct regs *regs)
+static bool trap_crash(struct regs *regs)
 {
+    bool warn = false;
+
     if (regs->ip < CONFIG_PAGE_OFFSET)
         return false;
 
@@ -24,12 +26,15 @@ static bool trap_bug(struct regs *regs)
     if (regs->flags & EFLAGS_IF)
         irq_local_enable();
 
-    regs->ip += BUG_LEN;
+    if (crash_report(regs->ip, regs) == CRASH_TYPE_WARN) {
+        regs->ip += BUG_LEN;
+        warn = true;
+    }
 
     if (regs->flags & EFLAGS_IF)
         irq_local_disable();
 
-    return true;
+    return warn;
 }
 
 static bool kernel_trap(struct regs *regs, unsigned long error_code,
@@ -51,8 +56,11 @@ static void generic_trap(struct regs *regs, unsigned long error_code,
 
 DEFINE_IDTENTRY_RAW(invalid_opcode)
 {
-    if (!trap_user_mode(regs) && trap_bug(regs))
+    if (!trap_user_mode(regs)
+        && trap_crash(regs))
         return;
+
+    generic_trap(regs, 0, TRAP_UD, "invalid opcode");
 }
 
 DEFINE_IDTENTRY_RAW(breakpoint)

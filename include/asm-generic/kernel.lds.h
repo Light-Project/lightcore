@@ -158,6 +158,13 @@
     . = ALIGN(align);                                       \
     _ld_data_read_mostly_end = .;
 
+#define BUG_TABLE(align)                                    \
+    . = ALIGN(align);                                       \
+    _ld_data_bug_table_start = .;                           \
+    *(.data.bug_table*)                                     \
+    . = ALIGN(align);                                       \
+    _ld_data_bug_table_end = .;
+
 /*
  * Init Text Segment
  */
@@ -355,6 +362,7 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
         _ld_data_start = .;                                 \
         *(DATA_MAIN)                                        \
         READ_MOSTLY(cacheline)                              \
+        BUG_TABLE(cacheline)                                \
         _ld_data_end = .;                                   \
     }
 

@@ -13,6 +13,8 @@ extern char _ld_rodata_rodata_start;
 extern char _ld_rodata_rodata_end;
 extern char _ld_data_section_start;
 extern char _ld_data_section_end;
+extern char _ld_data_bug_table_start;
+extern char _ld_data_bug_table_end;
 extern char _ld_bss_start;
 extern char _ld_bss_end;
 extern char _ld_image_end;

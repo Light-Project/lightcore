@@ -3,8 +3,16 @@
 #define _ASM_GENERIC_BUG_H_
 
 #ifndef __ASSEMBLY__
-#include <printk.h>
-#include <panic.h>
+# include <printk.h>
+# include <panic.h>
+
+#define GENERIC_CLASH_OP(opcode, type, extra) ({    \
+    __label__ __here;                               \
+    __here: asm volatile(BUG_OPCODE"\n"extra);      \
+    static const struct crash_entry crash __used    \
+    __section(".data.bug_table") = {(unsigned long) \
+    &&__here, type, __FILE__, __func__, __LINE__};  \
+})
 
 #ifndef WARN
 # define WARN() do {                                \

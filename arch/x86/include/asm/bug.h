@@ -6,14 +6,18 @@
 #define BUG_VALUE   0x0b0f
 #define BUG_LEN     2
 
-#define WARN() ({               \
-    asm volatile(BUG_OPCODE);   \
+#ifndef __ASSEMBLY__
+
+#define WARN_FLAGS(flags) ({                            \
+    GENERIC_CLASH_OP(BUG_OPCODE, flags, "");            \
 })
 
-#define BUG() ({                \
-    asm volatile(BUG_OPCODE);   \
-    unreachable();              \
+#define BUG() ({                                        \
+    GENERIC_CLASH_OP(BUG_OPCODE, CRASH_TYPE_BUG, "");   \
+    unreachable();                                      \
 })
+
+#endif  /* __ASSEMBLY__ */
 
 #include <asm-generic/bug.h>
 

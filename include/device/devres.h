@@ -51,86 +51,72 @@ extern void __init devres_init(void);
 static __always_inline void __malloc *                                          \
 busn##_kmalloc(type *bdev, size_t size, gfp_t flags)                            \
 {                                                                               \
-    BUG_ON(!bdev);                                                              \
     return dev_kmalloc(&bdev->member, size, flags);                             \
 }                                                                               \
 static __always_inline void __malloc *                                          \
 busn##_kzalloc(type *bdev, size_t size, gfp_t flags)                            \
 {                                                                               \
-    BUG_ON(!bdev);                                                              \
     return dev_kzalloc(&bdev->member, size, flags);                             \
 }                                                                               \
 static __always_inline void __malloc *                                          \
 busn##_kmalloc_node(type *bdev, size_t size, gfp_t flags, size_t align)         \
 {                                                                               \
-    BUG_ON(!bdev);                                                              \
     return dev_kmalloc_align(&bdev->member, size, flags, align);                \
 }                                                                               \
 static __always_inline void __malloc *                                          \
 busn##_kzalloc_align(type *bdev, size_t size, gfp_t flags, size_t align)        \
 {                                                                               \
-    BUG_ON(!bdev);                                                              \
     return dev_kzalloc_align(&bdev->member, size, flags, align);                \
 }                                                                               \
 static __always_inline void                                                     \
 busn##_kfree(type *bdev, void *block)                                           \
 {                                                                               \
-    BUG_ON(!bdev);                                                              \
     return dev_kfree(&bdev->member, block);                                     \
 }                                                                               \
 static __always_inline void __malloc *                                          \
 busn##_ioremap_wc(type *bdev, phys_addr_t addr, size_t size)                    \
 {                                                                               \
-    BUG_ON(!bdev);                                                              \
     return dev_ioremap_wc(&bdev->member, addr, size);                           \
 }                                                                               \
 static __always_inline void __malloc *                                          \
 busn##_ioremap_wt(type *bdev, phys_addr_t addr, size_t size)                    \
 {                                                                               \
-    BUG_ON(!bdev);                                                              \
     return dev_ioremap_wt(&bdev->member, addr, size);                           \
 }                                                                               \
 static __always_inline void __malloc *                                          \
 busn##_ioremap(type *bdev, phys_addr_t addr, size_t size)                       \
 {                                                                               \
-    BUG_ON(!bdev);                                                              \
     return dev_ioremap(&bdev->member, addr, size);                              \
 }                                                                               \
 static __always_inline void __malloc *                                          \
 busn##_ioremap_resource(type *bdev, struct resource *res)                       \
 {                                                                               \
-    BUG_ON(!bdev);                                                              \
     return dev_ioremap_resource(&bdev->member, res);                            \
 }                                                                               \
 static __always_inline void                                                     \
 busn##_iounmap(type *bdev, void *block)                                         \
 {                                                                               \
-    BUG_ON(!bdev);                                                              \
     return dev_iounmap(&bdev->member, block);                                   \
 }                                                                               \
 static __always_inline void __malloc *                                          \
 busn##_vmalloc(type *bdev, size_t size)                                         \
 {                                                                               \
-    BUG_ON(!bdev);                                                              \
     return dev_vmalloc(&bdev->member, size);                                    \
 }                                                                               \
 static __always_inline void                                                     \
 busn##_vfree(type *bdev, void *block)                                           \
 {                                                                               \
-    BUG_ON(!bdev);                                                              \
     return dev_kfree(&bdev->member, block);                                     \
 }                                                                               \
 static __always_inline state                                                    \
 busn##_irq_request(type *bdev, irqnr_t vector, enum irq_flags flags,            \
                    irq_handler_t handler, void *data, const char *name)         \
 {                                                                               \
-    BUG_ON(!bdev);                                                              \
     return dev_irq_request(&bdev->member, vector, flags, handler, data, name);  \
 }                                                                               \
 static __always_inline void                                                     \
 busn##_irq_release(type *bdev, irqnr_t vector)                                  \
 {                                                                               \
-    BUG_ON(!bdev);                                                              \
     return dev_irq_release(&bdev->member, vector);                              \
 }
 
