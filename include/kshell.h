@@ -28,6 +28,7 @@ extern state kshell_unsetenv(const char *name);
 extern state kshell_exec(const struct kshell_command *cmd, int argc, char *argv[]);
 extern state kshell_execv(const char *name, int argc, char *argv[]);
 extern state kshell_system(const char *cmdline);
+extern bool kshell_ctrlc(void);
 
 extern void __printf(1, 2) kshell_printf(const char *str, ...);
 extern state kshell_register(struct kshell_command *);

@@ -19,9 +19,8 @@ static void usage(void)
 static state delay_main(int argc, char *argv[])
 {
     unsigned int tmp, delay = 500;
-    unsigned int count, len;
+    unsigned int count;
     bool title = true;
-    char buff[10];
     state retval;
 
     if (argc < 2)
@@ -65,8 +64,7 @@ static state delay_main(int argc, char *argv[])
             return retval;
 
         for (tmp = 0; tmp < delay; ++tmp) {
-            len = console_read(buff, 10);
-            if (len && *buff == 'q')
+            if (kshell_ctrlc())
                 goto exit;
             mdelay(1);
         }

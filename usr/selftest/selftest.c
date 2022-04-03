@@ -115,7 +115,7 @@ static state selftest_one(struct selftest_command *cmd, unsigned int count, int 
 
     while (count--) {
         ret = cmd->testing(pdata);
-        if (ret)
+        if (ret || kshell_ctrlc())
             break;
     }
 
@@ -131,13 +131,14 @@ static state selftest_all(unsigned int count)
     state ret;
 
     spin_lock(&selftest_lock);
+
     list_for_each_entry(cmd, &selftest_list, list) {
         ret = selftest_one(cmd, count, 0, NULL);
-        if (ret)
+        if (ret || kshell_ctrlc())
             break;
     }
-    spin_unlock(&selftest_lock);
 
+    spin_unlock(&selftest_lock);
     return ret;
 }
 

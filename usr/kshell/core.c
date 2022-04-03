@@ -112,7 +112,7 @@ state kshell_unsetenv(const char *name)
         return -EINVAL;
 
     env = kshell_env_find(name);
-    if (env)
+    if (!env)
         return -ENODATA;
 
     kshell_env_release(env);

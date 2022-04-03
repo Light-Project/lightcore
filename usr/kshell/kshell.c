@@ -5,6 +5,7 @@
 
 #include "kshell.h"
 #include <string.h>
+#include <ascii.h>
 #include <setjmp.h>
 #include <kmalloc.h>
 #include <initcall.h>
@@ -70,6 +71,21 @@ state kshell_system(const char *cmdline)
 }
 EXPORT_SYMBOL(kshell_system);
 
+bool kshell_ctrlc(void)
+{
+    unsigned int len;
+    char buff[32];
+
+    len = console_read(buff, sizeof(buff));
+    while (len--) {
+        if (buff[len] == ASCII_ETX)
+            return true;
+    }
+
+    return false;
+}
+EXPORT_SYMBOL(kshell_ctrlc);
+
 state kshell_main(int argc, char *argv[])
 {
     struct readline_state *rstate;
@@ -96,7 +112,7 @@ state kshell_main(int argc, char *argv[])
     return ret;
 }
 
-state env_main(int argc, char *argv[])
+static state env_main(int argc, char *argv[])
 {
     struct kshell_env *env;
     spin_lock(&kshell_env_lock);
@@ -106,7 +122,7 @@ state env_main(int argc, char *argv[])
     return -ENOERR;
 }
 
-state help_main(int argc, char *argv[])
+static state help_main(int argc, char *argv[])
 {
     struct kshell_command *cmd;
     spin_lock(&kshell_lock);
