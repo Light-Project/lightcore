@@ -28,4 +28,24 @@ config SELFTEST_STRING_MEMSET
     bool "Memset Test"
     default y
 
+config SELFTEST_STRING_STRCMP
+    bool "Strcmp Test"
+    default y
+
+config SELFTEST_STRING_STRLEN
+    bool "Strlen Test"
+    default y
+
+config SELFTEST_STRING_STRNCMP
+    bool "Strncmp Test"
+    default y
+
+config SELFTEST_STRING_STRNICMP
+    bool "Strnicmp Test"
+    default y
+
+config SELFTEST_STRING_STRNLEN
+    bool "Strnlen Test"
+    default y
+
 endif

@@ -11,7 +11,7 @@
 static void usage(void)
 {
     kshell_printf("usage: watch [option] command\n");
-    kshell_printf("\t-n  <millisecond>  millisecond to wait between updates \n");
+    kshell_printf("\t-n  <millisecond>  millisecond to wait between updates\n");
     kshell_printf("\t-t  turn off header message\n");
     kshell_printf("\t-h  display this message\n");
 }

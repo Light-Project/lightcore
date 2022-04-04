@@ -171,17 +171,28 @@ void kshell_unregister(struct kshell_command *cmd)
 }
 EXPORT_SYMBOL(kshell_unregister);
 
-void kshell_printf(const char *str, ...)
+int kshell_vprintf(const char *str, va_list args)
 {
     char strbuf[256];
-    va_list para;
     int len;
 
-    va_start(para,str);
-    len = vsnprintf(strbuf, sizeof(strbuf), str, para);
-    va_end(para);
-
+    len = vsnprintf(strbuf, sizeof(strbuf), str, args);
     console_write(strbuf, len);
+
+    return len;
+}
+EXPORT_SYMBOL(kshell_vprintf);
+
+int kshell_printf(const char *str, ...)
+{
+    va_list args;
+    int len;
+
+    va_start(args,str);
+    len = kshell_vprintf(str, args);
+    va_end(args);
+
+    return len;
 }
 EXPORT_SYMBOL(kshell_printf);
 
