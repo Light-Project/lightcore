@@ -110,7 +110,7 @@ void __init console_init(void)
     }
 }
 
-static state console_bootarg(const char *arg)
+static state console_bootarg(char *arg)
 {
     return -ENOERR;
 }

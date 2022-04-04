@@ -28,7 +28,7 @@ static state __init dt_scan_chosen(unsigned long node, const char *uname, int de
     /* Retrieve command line */
     args = dt_get_prop(node, "bootargs", &len);
     if (args != NULL && len > 0 && (!*(char *)data))
-        strlcpy(data, args, min(len, boot_args_size));
+        strlcpy(data, args, min(len, BOOT_PARAM_SIZE));
 
     rng_seed = dt_get_prop(node, "rng-seed", &len);
     if (rng_seed && len > 0) {

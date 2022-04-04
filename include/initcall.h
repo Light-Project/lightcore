@@ -113,12 +113,12 @@ extern initcall_entry_t _ld_kshell_initcall_end[];
 #define kshell_initcall(fn)             ___define_initcall(fn, ksh, .kshell_initcall)
 
 #define initcall_for_each_fn(fn, sec)                   \
-    for (fn = (initcall_entry_t *)&_ld_##sec##_start;   \
-         fn < (initcall_entry_t *)&_ld_##sec##_end; ++fn)
+    for (fn = (initcall_entry_t *)_ld_##sec##_start;    \
+         fn < (initcall_entry_t *)_ld_##sec##_end; ++fn)
 
 struct bootarg {
     const char *args;
-    state (*fn)(const char *);
+    state (*fn)(char *);
 };
 
 extern struct bootarg _ld_boot_param_start[];
@@ -132,10 +132,7 @@ extern struct bootarg _ld_boot_param_end[];
 #define bootarg_initcall(str, fn) define_bootarg(str, fn, fn)
 
 #define initcall_for_each_args(args, sec)               \
-    for(args = (struct bootarg *)&_ld_##sec##_start;    \
-        args < (struct bootarg *)&_ld_##sec##_end; ++args)
-
-extern void initcalls(void);
-extern void bootargs_setup(void);
+    for(args = (struct bootarg *)_ld_##sec##_start;     \
+        args < (struct bootarg *)_ld_##sec##_end; ++args)
 
 #endif  /* _INITCALL_H_ */

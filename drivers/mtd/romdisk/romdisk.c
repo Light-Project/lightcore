@@ -13,12 +13,11 @@
 #include <driver/platform.h>
 #include <driver/mtd.h>
 
-#define romdisk_size (&_ld_romdisk_end - &_ld_romdisk_start)
 struct platform_device *romdisk_device;
 
 static state romdisk_read(struct mtd_device *mtd, loff_t pos, void *buf, uint64_t len, uint64_t *retlen)
 {
-    memcpy(buf, &_ld_romdisk_start + pos, len);
+    memcpy(buf, _ld_romdisk_start + pos, len);
     *retlen = len;
     return -ENOERR;
 }
@@ -41,8 +40,8 @@ static state romdisk_probe(struct platform_device *pdev, const void *pdata)
 
     mdev->dev = &pdev->dev;
     mdev->ops = &romdisk_ops;
-    mdev->size = romdisk_size;
-    romdisk_part.size = romdisk_size;
+    mdev->size = ROMDISK_SIZE;
+    romdisk_part.size = ROMDISK_SIZE;
 
     return mtd_register(mdev, &romdisk_part, 1);
 }

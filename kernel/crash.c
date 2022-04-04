@@ -32,7 +32,7 @@ state panic_work_register(struct panic_work *work)
     return -ENOERR;
 }
 
-void __noreturn panic(const char* fmt, ...)
+void __noreturn panic(const char *fmt, ...)
 {
     char buf[256];
     va_list args;
@@ -55,8 +55,8 @@ struct crash_entry *crash_find(uintptr_t addr)
 {
     struct crash_entry *walk;
 
-    for (walk = (struct crash_entry *)&_ld_data_bug_table_start;
-         walk < (struct crash_entry *)&_ld_data_bug_table_end; ++walk) {
+    for (walk = (struct crash_entry *)_ld_data_bug_table_start;
+         walk < (struct crash_entry *)_ld_data_bug_table_end; ++walk) {
         if (walk->addr == addr)
             return walk;
     }

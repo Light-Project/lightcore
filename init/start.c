@@ -44,7 +44,7 @@ static void __init command_setup(void)
     const char *args = (void *)(size_t)boot_head.cmd;
     if (!args)
         return;
-    strlcpy(boot_args, args, boot_args_size);
+    strlcpy(boot_args, args, BOOT_PARAM_SIZE);
 }
 
 static noinline __noreturn void kernel_main(void)
@@ -67,6 +67,7 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
 
     pr_info("kernel version: "CONFIG_VERSION"\n");
     pr_info("kernel command: %s\n", boot_args);
+    bootargs_init(boot_args);
 
     mem_init();
     idr_init();

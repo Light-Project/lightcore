@@ -6,11 +6,13 @@
 #define pr_fmt(fmt) "init: " fmt
 
 #include <kernel.h>
+#include <string.h>
 #include <init.h>
+#include <param.h>
 #include <initcall.h>
 #include <printk.h>
 
-char boot_args[boot_args_size];
+char boot_args[BOOT_PARAM_SIZE];
 
 static __initdata initcall_entry_t *initcall_levels[] = {
     _ld_initcall_start,
@@ -56,7 +58,22 @@ void __init initcalls(void)
     }
 }
 
+static state __init bootargs_entry(char *param, char *val, void *pdata)
+{
+    struct bootarg *arg;
+
+    for (arg = _ld_boot_param_start;
+         arg < _ld_boot_param_end; arg++) {
+        if (!strcmp(param, arg->args))
+            return arg->fn(val);
+    }
+
+    return -ENOENT;
+}
+
 void __init bootargs_init(const char *cmd)
 {
-
+    char args_buff[BOOT_PARAM_SIZE];
+    strncpy(args_buff, boot_args, BOOT_PARAM_SIZE);
+    param_parser(args_buff, bootargs_entry, NULL);
 }

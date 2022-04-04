@@ -4,11 +4,14 @@
 
 #include <types.h>
 
-#define boot_args_size 1024
-extern char boot_args[boot_args_size];
+#define BOOT_PARAM_SIZE 512
+extern char boot_args[BOOT_PARAM_SIZE];
 
 extern void __init arch_setup(void);
 extern state __init mount_rootfs(void);
 extern int __noreturn user_init(void *arg);
+
+extern void initcalls(void);
+extern void __init bootargs_init(const char *cmd);
 
 #endif  /* _INIT_H_ */
