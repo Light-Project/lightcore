@@ -16,7 +16,7 @@ static void usage(void)
     kshell_printf("\t-h  display this message\n");
 }
 
-static state delay_main(int argc, char *argv[])
+static state watch_main(int argc, char *argv[])
 {
     unsigned int tmp, delay = 500;
     unsigned int count;
@@ -81,7 +81,7 @@ usage:
 static struct kshell_command watch_cmd = {
     .name = "watch",
     .desc = "execute a program periodically",
-    .exec = delay_main,
+    .exec = watch_main,
 };
 
 static state watch_init(void)
