@@ -53,7 +53,6 @@ extern int memcmp(const void *s1, const void *s2, size_t n);
 /*
  * Extend Helper
  */
-
 extern int strcount(const char *str, char c);
 extern int strncount(const char *str, char c, size_t size);
 extern int memcount(const void *addr, int c, size_t size);

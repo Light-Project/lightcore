@@ -184,48 +184,6 @@ size_t strlen(const char *s)
     return ~res - 1;
 }
 
-void *memchr(const void *cs, int c, size_t count)
-{
-    int d0;
-    void *res;
-
-    if (!count)
-        return NULL;
-
-    asm volatile (
-        "repne          \n"
-        "scasb          \n"
-        "je     1f      \n"
-        "movl   $1, %0  \n"
-        "1:             \n"
-        "decl   %0      \n"
-        : "=D"(res), "=&c"(d0)
-        : "a"(c), "0"(cs), "1"(count)
-        : "memory"
-    );
-
-    return res;
-}
-
-void *memscan(void *addr, int c, size_t size)
-{
-    if (!size)
-        return addr;
-
-    asm volatile (
-        "repnz          \n"
-        "scasb          \n"
-        "jnz    1f      \n"
-        "dec    %%edi   \n"
-        "1:             \n"
-        : "=D"(addr), "=c"(size)
-        : "0"(addr), "1"(size), "a"(c)
-        : "memory"
-    );
-
-    return addr;
-}
-
 size_t strnlen(const char *s, size_t count)
 {
     int d0;
@@ -247,6 +205,49 @@ size_t strnlen(const char *s, size_t count)
         : "=a"(res), "=&d"(d0)
         : "c"(s), "1"(count)
         : "memory"
+    );
+
+    return res;
+}
+
+char *strstr(const char *cs, const char *ct)
+{
+    register char *res;
+    int	d0, d1;
+
+    asm volatile (
+        "movl   %6, %%edi       \n"
+        "repne                  \n"
+        "scasb                  \n"
+        "notl   %%ecx           \n"
+
+        /*
+         * NOTE! This also sets Z if
+         * searchstring=''
+         */
+        "decl   %%ecx           \n"
+        "movl   %%ecx, %%edx    \n"
+        "1:                     \n"
+        "movl   %6, %%edi       \n"
+        "movl   %%esi, %%eax    \n"
+        "movl   %%edx, %%ecx    \n"
+        "repe                   \n"
+        "cmpsb                  \n"
+
+        /*
+         * also works for empty string,
+         * see above
+         */
+        "je     2f              \n"
+        "xchgl  %%eax, %%esi    \n"
+        "incl   %%esi           \n"
+        "cmpb   $0, -1(%%eax)   \n"
+        "jne    1b              \n"
+        "xorl   %%eax, %%eax    \n"
+        "2:                     \n"
+        : "=a"(res), "=&c"(d0), "=&S"(d1)
+        : "0"(0), "1"(0xffffffff), "2"(cs), "g"(ct)
+        : "dx", "di"
     );
 
     return res;

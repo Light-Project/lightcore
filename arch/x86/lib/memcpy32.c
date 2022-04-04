@@ -61,6 +61,48 @@ void *memcpy(void *to, const void *from, size_t n)
     return to;
 }
 
+void *memchr(const void *cs, int c, size_t count)
+{
+    int d0;
+    void *res;
+
+    if (!count)
+        return NULL;
+
+    asm volatile (
+        "repne          \n"
+        "scasb          \n"
+        "je     1f      \n"
+        "movl   $1, %0  \n"
+        "1:             \n"
+        "decl   %0      \n"
+        : "=D"(res), "=&c"(d0)
+        : "a"(c), "0"(cs), "1"(count)
+        : "memory"
+    );
+
+    return res;
+}
+
+void *memscan(void *addr, int c, size_t size)
+{
+    if (!size)
+        return addr;
+
+    asm volatile (
+        "repnz          \n"
+        "scasb          \n"
+        "jnz    1f      \n"
+        "dec    %%edi   \n"
+        "1:             \n"
+        : "=D"(addr), "=c"(size)
+        : "0"(addr), "1"(size), "a"(c)
+        : "memory"
+    );
+
+    return addr;
+}
+
 void *memmove(void *dest, const void *src, size_t n)
 {
     int d0, d1, d2, d3, d4, d5;
