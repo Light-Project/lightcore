@@ -353,6 +353,7 @@ EXPORT_SYMBOL(kcoro_worker_create);
  */
 void kcoro_worker_destroy(struct kcoro_worker *worker)
 {
+    list_del(&worker->list);
     kfree(worker);
 }
 EXPORT_SYMBOL(kcoro_worker_destroy);

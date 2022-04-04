@@ -1,3 +1,3 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-obj-y += clone.o exit.o exec.o
-obj-y += pid.o waitpid.o
+obj-y += pid.o clone.o exec.o
+obj-y += exit.o sleep.o

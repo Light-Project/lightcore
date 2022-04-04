@@ -51,13 +51,31 @@
     addl    $(4 + \pop), %esp
 .endm
 
+/**
+ * entry_kthread_return - Kthread start entry.
+ * %esi: prev task we switched from
+ * %edi: kernel thread func
+ * arg1: kernel thread arg
+ */
 SYM_CODE_START(entry_kthread_return)
     pushl   %ebp
     movl    %esp, %ebp
 
+    /**
+     * Notify the scheduler that we have
+     * completed the process switching.
+     */
+    pushl   %esi
     call    sched_switch_tail
-    pushl   12(%ebp)
-    call    *8(%ebp)
+    addl    $4, %esp
+
+    /**
+     * Enter the kernel thread after
+     * loading the parameters.
+     */
+    pushl   8(%ebp)
+    call    *%edi
+    addl    $4, %esp
 
     leave
     ret

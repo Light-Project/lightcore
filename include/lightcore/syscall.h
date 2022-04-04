@@ -15,6 +15,7 @@ enum syscall_number {
     SYSCALL_NR_WAITPID      = 7,
     SYSCALL_NR_CREAT        = 8,
     SYSCALL_NR_LINK         = 9,
+    SYSCALL_NR_UNLINK       = 10,
     SYSCALL_NR_CLONE        = 120,
     SYACALL_NR_SCHED_YIELD  = 158,
     SYSCALL_NR_VFORK        = 190,

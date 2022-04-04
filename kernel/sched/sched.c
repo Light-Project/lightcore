@@ -141,13 +141,13 @@ state sched_preempt_updata(enum sched_preempt mode)
         case SCHED_PREEMPT_NONE:
             static_call_update(sched_cond_resched, sched_cond_resched_handle);
             static_call_update(sched_might_resched, (void *)__static_call_ret0);
-            static_call_update(sched_preempt, NULL);
+            static_call_update(sched_preempt, (void *)__static_call_nop);
             break;
 
         case SCHED_PREEMPT_VOLUNTARY:
             static_call_update(sched_cond_resched, sched_cond_resched_handle);
             static_call_update(sched_might_resched, sched_cond_resched_handle);
-            static_call_update(sched_preempt, NULL);
+            static_call_update(sched_preempt, (void *)__static_call_nop);
             break;
 
         case SCHED_PREEMPT_FULL:

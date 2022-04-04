@@ -34,14 +34,21 @@ static inline void *stack_end(void *stack)
 #endif
 }
 
-/* task resource operations */
+/* Task stack operations */
 extern void task_stack_magic(struct sched_task *task);
 extern bool task_stack_check(struct sched_task *task);
 extern void *task_stack_alloc(void);
 extern void task_stack_free(void *stack);
+
+/* Task memory struct operations */
 extern struct memory *task_memory_alloc(void);
 extern void task_memory_free(struct memory *mem);
+
+/* Kernel task operations */
 extern state kernel_clone(enum clone_flags flags, int (*fn)(void *), void *arg);
+extern state kernel_wait(pid_t pid, state *exit_code);
+extern void __noreturn kernel_exit(state exit_code);
+
 extern void __init clone_init(void);
 
 #endif  /* _TASK_H_ */

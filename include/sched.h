@@ -19,46 +19,67 @@
 struct namespace;
 
 enum sched_preempt {
-    SCHED_PREEMPT_UNINIT    = 0,
-    SCHED_PREEMPT_NONE      = 1,
-    SCHED_PREEMPT_VOLUNTARY = 2,
-    SCHED_PREEMPT_FULL      = 3,
+    SCHED_PREEMPT_UNINIT        = 0,
+    SCHED_PREEMPT_NONE          = 1,
+    SCHED_PREEMPT_VOLUNTARY     = 2,
+    SCHED_PREEMPT_FULL          = 3,
     SCHED_PREEMPT_NR_MAX,
 };
 
 enum sched_prio {
-    SCHED_PRIO_DL           = 10,
-    SCHED_PRIO_FIFO         = 20,
-    SCHED_PRIO_RR           = 25,
-    SCHED_PRIO_FAIR         = 30,
-    SCHED_PRIO_IDLE         = 31,
+    SCHED_PRIO_DL               = 10,
+    SCHED_PRIO_FIFO             = 20,
+    SCHED_PRIO_RR               = 25,
+    SCHED_PRIO_FAIR             = 30,
+    SCHED_PRIO_IDLE             = 31,
     SCHED_PRIO_MAX,
 };
 
 enum sched_task_state {
-    SCHED_TASK_RUNNING      = 0x0000,
-    SCHED_TASK_NEW          = 0x0001,
+    __SCHED_TASK_INTERRUPTIBLE,
+    __SCHED_TASK_UNINTERRUPTIBLE,
+    __SCHED_TASK_NEW,
+    __SCHED_TASK_STOPPED,
+    __SCHED_TASK_KILL,
 };
+
+#define SCHED_TASK_RUNNING          0
+#define SCHED_TASK_INTERRUPTIBLE    BIT(__SCHED_TASK_INTERRUPTIBLE)
+#define SCHED_TASK_UNINTERRUPTIBLE  BIT(__SCHED_TASK_UNINTERRUPTIBLE)
+#define SCHED_TASK_NEW              BIT(__SCHED_TASK_NEW)
+#define SCHED_TASK_STOPPED          BIT(__SCHED_TASK_STOPPED)
+#define SCHED_TASK_KILL             BIT(__SCHED_TASK_KILL)
+#define SCHED_TASK_BLOCKED (SCHED_TASK_INTERRUPTIBLE | SCHED_TASK_UNINTERRUPTIBLE)
+
+enum sched_task_exit {
+    __SCHED_TASK_DEAD,
+    __SCHED_TASK_ZOMBIE,
+};
+
+#define SCHED_TASK_DEAD             BIT(__SCHED_TASK_DEAD)
+#define SCHED_TASK_ZOMBIE           BIT(__SCHED_TASK_ZOMBIE)
 
 enum sched_task_flags {
     __SCHED_TASK_KTHREAD,
     __SCHED_TASK_KCORO,
     __SCHED_TASK_IDLE,
     __SCHED_TASK_NRESCHED,
+    __SCHED_TASK_SIGNAL,
 };
 
-#define SCHED_TASK_KTHREAD      BIT(__SCHED_TASK_KTHREAD)
-#define SCHED_TASK_KCORO        BIT(__SCHED_TASK_KCORO)
-#define SCHED_TASK_IDLE         BIT(__SCHED_TASK_IDLE)
-#define SCHED_TASK_NRESCHED     BIT(__SCHED_TASK_NRESCHED)
+#define SCHED_TASK_KTHREAD          BIT(__SCHED_TASK_KTHREAD)
+#define SCHED_TASK_KCORO            BIT(__SCHED_TASK_KCORO)
+#define SCHED_TASK_IDLE             BIT(__SCHED_TASK_IDLE)
+#define SCHED_TASK_NRESCHED         BIT(__SCHED_TASK_NRESCHED)
+#define SCHED_TASK_SIGNAL           BIT(__SCHED_TASK_SIGNAL)
 
 enum sched_task_queued {
     __SCHED_TASK_QUEUED,
     __SCHED_TASK_MIGRATING,
 };
 
-#define SCHED_TASK_QUEUED       BIT(__SCHED_TASK_QUEUED)
-#define SCHED_TASK_MIGRATING    BIT(__SCHED_TASK_MIGRATING)
+#define SCHED_TASK_QUEUED           BIT(__SCHED_TASK_QUEUED)
+#define SCHED_TASK_MIGRATING        BIT(__SCHED_TASK_MIGRATING)
 
 enum sched_queue_flags {
     __SCHED_QUEUE_SAVE,
@@ -69,12 +90,12 @@ enum sched_queue_flags {
     __SCHED_DEQUEUE_SLEEP,
 };
 
-#define SCHED_QUEUE_SAVE        BIT(__SCHED_QUEUE_SAVE)
-#define SCHED_QUEUE_MOVE        BIT(__SCHED_QUEUE_MOVE)
-#define SCHED_QUEUE_NOCLOCK     BIT(__SCHED_QUEUE_NOCLOCK)
-#define SCHED_ENQUEUE_HEAD      BIT(__SCHED_ENQUEUE_HEAD)
-#define SCHED_ENQUEUE_WEAKUP    BIT(__SCHED_ENQUEUE_WEAKUP)
-#define SCHED_DEQUEUE_SLEEP     BIT(__SCHED_DEQUEUE_SLEEP)
+#define SCHED_QUEUE_SAVE            BIT(__SCHED_QUEUE_SAVE)
+#define SCHED_QUEUE_MOVE            BIT(__SCHED_QUEUE_MOVE)
+#define SCHED_QUEUE_NOCLOCK         BIT(__SCHED_QUEUE_NOCLOCK)
+#define SCHED_ENQUEUE_HEAD          BIT(__SCHED_ENQUEUE_HEAD)
+#define SCHED_ENQUEUE_WEAKUP        BIT(__SCHED_ENQUEUE_WEAKUP)
+#define SCHED_DEQUEUE_SLEEP         BIT(__SCHED_DEQUEUE_SLEEP)
 
 /**
  * sched_task - basic task structure
@@ -88,6 +109,9 @@ struct sched_task {
     struct sched_task *parent;
     struct namespace *namespace;
     char name[TASK_NAME_LEN];
+
+    struct list_head ptraced;
+    struct list_head ptrace_sibling;
 
     /* context informations */
     struct kcontext kcontext;
@@ -110,8 +134,11 @@ struct sched_task {
     uint64_t nvcsw;
 
     unsigned long state;
+    unsigned long exit;
     unsigned long flags;
     unsigned long queued;
+
+    state exit_code;
 
 #ifdef CONFIG_SMP
     struct sched_queue *queue;
@@ -226,6 +253,30 @@ static inline void sched_current_task_set(struct sched_task *task)
 }
 #endif
 
+#ifndef current_get_state
+static inline unsigned long current_get_state(void)
+{
+    return READ_ONCE(current->state);
+}
+#endif
+
+#ifndef current_set_state
+static inline void current_set_state(unsigned long state)
+{
+    WRITE_ONCE(current->state, state);
+}
+#endif
+
+static inline unsigned long task_get_state(struct sched_task *task)
+{
+    return READ_ONCE(task->state);
+}
+
+static inline void task_set_state(struct sched_task *task, unsigned long state)
+{
+    WRITE_ONCE(task->state, state);
+}
+
 GENERIC_STRUCT_BITOPS(task, struct sched_task, flags)
 #define task_flags_set(task, bit)   generic_task_flags_set(task, bit)
 #define task_flags_clr(task, bit)   generic_task_flags_clr(task, bit)
@@ -286,6 +337,7 @@ SCHED_TASK_FLAG_OPS(task_flags, kthread, __SCHED_TASK_KTHREAD)
 SCHED_TASK_FLAG_OPS(task_flags, kcoro, __SCHED_TASK_KCORO)
 SCHED_TASK_FLAG_OPS(task_flags, idle, __SCHED_TASK_IDLE)
 SCHED_TASK_FLAG_OPS(task_flags, resched, __SCHED_TASK_NRESCHED)
+SCHED_TASK_FLAG_OPS(task_flags, notify_signal, __SCHED_TASK_SIGNAL)
 
 extern bool sched_cond_resched_handle(void);
 extern void sched_preempt_handle(void);
@@ -301,20 +353,29 @@ DECLARE_STATIC_CALL(sched_preempt, sched_preempt_handle);
 /* idle task */
 extern void __noreturn idle_task_entry(void);
 
-/* scheduler operation */
-extern void scheduler_resched(void);
-extern void scheduler_kill(void);
-extern void scheduler_tick(void);
+/* scheduler context */
+extern void __noreturn scheduler_kill(void);
 extern void scheduler_idle(void);
+extern void scheduler_tick(void);
+extern void scheduler_resched(void);
 extern void scheduler_yield(void);
 
-/* scheduler task */
-extern void sched_task_wake_up(struct sched_task *task);
+/* scheduler wakeup */
+extern void sched_wake_up(struct sched_task *task);
+extern void sched_wake_up_new(struct sched_task *task);
+
+/* scheduler front end */
 extern state sched_task_clone(struct sched_task *task, enum clone_flags flags);
 extern struct sched_task *sched_task_create(void);
 extern void sched_task_destroy(struct sched_task *task);
 
-/* scheduler queue */
+/* scheduler block timeout */
+extern long schedule_timeout(ttime_t timeout);
+extern long schedule_timeout_interruptible(ttime_t timeout);
+extern long schedule_timeout_uninterruptible(ttime_t timeout);
+extern void schedule_msleep(unsigned long msecs);
+
+/* scheduler framework */
 extern struct sched_type *sched_find(const char *name, unsigned char prio);
 extern state sched_register(struct sched_type *sched);
 extern void sched_unregister(struct sched_type *sched);

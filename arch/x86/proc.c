@@ -30,7 +30,9 @@ state proc_thread_copy(struct task_clone_args *args, struct sched_task *child)
     if (child->flags & SCHED_TASK_KTHREAD) {
         child->kcontext.stack = child->stack;
         child->kcontext.ssize = THREAD_SIZE;
-        makecontext(&child->kcontext, (state (*)(void))entry_kthread_return, 2, args->entry, args->arg);
+        child->kcontext.mcontext.regs[KC_BUF_SI] = (long)current;
+        child->kcontext.mcontext.regs[KC_BUF_DI] = (long)args->entry;
+        makecontext(&child->kcontext, (state (*)(void))entry_kthread_return, 1, args->arg);
         return -ENOERR;
     }
 

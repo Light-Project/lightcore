@@ -125,17 +125,14 @@ L(context_ret):
     movl    %edx, %eax
 
     /* load address of next context data structure */
-    movl    KCONTEXT_LINK(%edx), %edx
-    cmpl    $0, %edx
-    je      L(bug)
+    movl    KCONTEXT_LINK(%edx), %ecx
+    testl   %ecx, %ecx
+    jz      L(exit)
 
     pushl   %edx
     call    setcontext
 
-L(bug):
-    .word   BUG_VALUE
-
-L(halt):
-    rep;    nop
-    jmp     L(halt)
+L(exit):
+    pushl   KCONTEXT_RET(%edx)
+    call    kernel_exit
 SYM_CODE_END(makecontext)

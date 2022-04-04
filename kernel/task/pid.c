@@ -21,6 +21,10 @@ static SPIN_LOCK(pid_lock);
 static pid_t pid_min = PID_RESERVED + 1;
 static pid_t pid_max = CONFIG_PID_MAX_DEFAULT;
 
+/**
+ * pid_get - Get a PID node
+ * @pid:
+ */
 void pid_get(struct pid *pid)
 {
     if (!pid)
@@ -29,6 +33,10 @@ void pid_get(struct pid *pid)
 }
 EXPORT_SYMBOL(pid_get);
 
+/**
+ * pid_put - Put a PID node
+ * @pid:
+ */
 void pid_put(struct pid *pid)
 {
     struct namespace_pid *ns;
@@ -42,6 +50,12 @@ void pid_put(struct pid *pid)
 }
 EXPORT_SYMBOL(pid_put);
 
+/**
+ * pid_alloc - Allocation a PID node
+ * @ns: the namespace to allocation in.
+ * @tid: array to specify PID.
+ * @tid_size: array size of @tid.
+ */
 struct pid *pid_alloc(struct namespace_pid *ns, pid_t *tid, size_t tid_size)
 {
     struct namespace_pid *walk;
@@ -50,7 +64,7 @@ struct pid *pid_alloc(struct namespace_pid *ns, pid_t *tid, size_t tid_size)
     struct upid *upid;
     state ret = -ENOERR;
 
-    pid = kcache_alloc(ns->cache, GFP_KERNEL);
+    pid = kcache_zalloc(ns->cache, GFP_KERNEL);
     if (!pid)
         return NULL;
 
@@ -109,7 +123,11 @@ error_free:
 }
 EXPORT_SYMBOL(pid_alloc);
 
-void pid_release(struct pid *pid)
+/**
+ * pid_free -  Release a PID node
+ * @pid:
+ */
+void pid_free(struct pid *pid)
 {
     struct namespace_pid *ns;
     struct upid *upid;
@@ -122,9 +140,8 @@ void pid_release(struct pid *pid)
         idr_free(&ns->pids, upid->pid);
     }
     spin_unlock(&pid_lock);
-
 }
-EXPORT_SYMBOL(pid_release);
+EXPORT_SYMBOL(pid_free);
 
 state pid_namespace_clone(struct namespace_pid *new, struct namespace_pid *old)
 {

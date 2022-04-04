@@ -7,6 +7,7 @@
 #define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <sched.h>
+#include <task.h>
 #include <linkage.h>
 #include <string.h>
 #include <irqflags.h>
@@ -29,13 +30,48 @@ task_pick_next(struct sched_queue *queue, struct sched_task *curr)
             return task;
     }
 
-    return NULL;
+    BUG();
+}
+
+static inline void
+task_enqueue(struct sched_queue *queue, struct sched_task *task, enum sched_queue_flags flags)
+{
+    task->sched_type->task_enqueue(queue, task, flags);
+}
+
+static inline void
+task_dequeue(struct sched_queue *queue, struct sched_task *task, enum sched_queue_flags flags)
+{
+    task->sched_type->task_dequeue(queue, task, flags);
+}
+
+static inline void
+task_activate(struct sched_queue *queue, struct sched_task *task, enum sched_queue_flags flags)
+{
+    task->queued = SCHED_TASK_QUEUED;
+    task_enqueue(queue, task, flags);
+}
+
+static inline void
+task_deactivate(struct sched_queue *queue, struct sched_task *task, enum sched_queue_flags flags)
+{
+    task->queued = (SCHED_DEQUEUE_SLEEP & flags) ? 0 : SCHED_TASK_MIGRATING;
+    task_dequeue(queue, task, flags);
 }
 
 static __always_inline void
 context_switch_finish(struct sched_task *prev)
 {
+    unsigned long state = READ_ONCE(prev->state);
 
+    /**
+     * Now that we have finished task switching,
+     * we can release the previous task.
+     */
+    if (unlikely(state == SCHED_TASK_KILL)) {
+        task_stack_free(prev->stack);
+        sched_task_destroy(prev);
+    }
 }
 
 asmlinkage __visible void
@@ -88,6 +124,7 @@ static void __sched sched_dispatch(bool preempt)
     struct sched_task *curr, *next;
     struct sched_queue *queue;
     uint64_t *task_switch;
+    unsigned long state;
 
     queue = current_queue;
     curr = queue->curr;
@@ -95,8 +132,10 @@ static void __sched sched_dispatch(bool preempt)
     irq_local_disable();
 
     task_switch = &curr->nivcsw;
+    state = READ_ONCE(curr->state);
 
-    if (!preempt) {
+    if (state != SCHED_TASK_RUNNING && !preempt) {
+        task_deactivate(queue, curr, SCHED_DEQUEUE_SLEEP | SCHED_QUEUE_NOCLOCK);
         task_switch = &curr->nvcsw;
     }
 
@@ -104,8 +143,10 @@ static void __sched sched_dispatch(bool preempt)
     task_clr_resched(curr);
 
     /* No context switching is required */
-    if (unlikely(curr == next))
+    if (unlikely(curr == next)) {
+        irq_local_enable();
         return;
+    }
 
     ++queue->context_switches;
     ++*task_switch;
@@ -145,6 +186,11 @@ void __sched scheduler_idle(void)
 
 void __noreturn scheduler_kill(void)
 {
+    /**
+     * Set the exit flag bit and it will be
+     * released in the next switching.
+     */
+    current_set_state(SCHED_TASK_KILL);
 
     sched_dispatch(false);
     BUG();
@@ -177,8 +223,10 @@ void scheduler_tick(void)
 
 bool sched_cond_resched_handle(void)
 {
-
-
+    if (preempt_count()) {
+        preempt_handle();
+        return true;
+    }
 
     return false;
 }
@@ -198,30 +246,45 @@ long syscall_sched_yield(void)
     return 0;
 }
 
-static void task_enqueue(struct sched_queue *queue, struct sched_task *task, enum sched_queue_flags flags)
+static inline void
+wake_up_task(struct sched_queue *queue, struct sched_task *task, unsigned long flags)
 {
-    task->sched_type->task_enqueue(queue, task, flags);
+    task_set_state(task, SCHED_TASK_RUNNING);
 }
 
-static void task_activate(struct sched_queue *queue, struct sched_task *task, enum sched_queue_flags flags)
+static void wake_up_queue(struct sched_task *task, int cpu, unsigned long flags)
 {
-    task_enqueue(queue, task, flags);
-    task->queued = SCHED_TASK_QUEUED;
+    struct sched_queue *queue = percpu_ptr(cpu, &sched_queues);
+    enum sched_queue_flags queue_flags = SCHED_ENQUEUE_WEAKUP | SCHED_QUEUE_NOCLOCK;
+
+    task_activate(queue, task, queue_flags);
+    wake_up_task(queue, task, flags);
 }
 
-void sched_task_wake_up(struct sched_task *task)
+static void wake_up_state_wake(struct sched_task *task, unsigned long flags)
+{
+    wake_up_queue(task, 0, flags);
+}
+
+void sched_wake_up(struct sched_task *task)
+{
+    wake_up_state_wake(task, SCHED_TASK_BLOCKED);
+}
+EXPORT_SYMBOL(sched_wake_up);
+
+void sched_wake_up_new(struct sched_task *task)
 {
     struct sched_queue *queue;
+    task_set_state(task, SCHED_TASK_RUNNING);
     queue = thiscpu_ptr(&sched_queues);
     task_activate(queue, task, SCHED_QUEUE_NOCLOCK);
 }
-EXPORT_SYMBOL(sched_task_wake_up);
+EXPORT_SYMBOL(sched_wake_up_new);
 
 state sched_task_clone(struct sched_task *task, enum clone_flags flags)
 {
-
+    task->state = SCHED_TASK_NEW;
     task->sched_type = default_sched;
-
     return -ENOERR;
 }
 EXPORT_SYMBOL(sched_task_clone);

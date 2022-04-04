@@ -203,7 +203,7 @@ pid_t task_clone(struct task_clone_args *args)
     if (unlikely(pid = PTR_ERR(child)))
         return pid;
 
-    sched_task_wake_up(child);
+    sched_wake_up_new(child);
 
     return pid;
 }
