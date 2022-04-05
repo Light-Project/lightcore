@@ -8,13 +8,12 @@
 
 #include <initcall.h>
 #include <printk.h>
+#include <delay.h>
+#include <proc.h>
+#include <ioops.h>
 #include <driver/block.h>
 #include <driver/pci.h>
 #include <driver/ata.h>
-#include <driver/ata/atareg.h>
-#include <delay.h>
-#include <asm/proc.h>
-#include <asm/io.h>
 
 #define ATASIM_NR       2
 #define ATASIM_PORTS    2
@@ -138,6 +137,23 @@ static inline bool atasim_delay_wait_busy(struct atasim_host *host)
     return atasim_wait_busy(host);
 }
 
+static inline state atasim_wait_data(struct atasim_host *host)
+{
+    uint8_t val;
+
+    if (!atasim_delay_wait_busy(host))
+        return -EBUSY;
+
+    val = atasim_cmd_in(host, ATA_REG_STATUS);
+    if (val & ATA_STATUS_ERR)
+        return -EFAULT;
+
+    if (!(val & ATA_STATUS_DRQ))
+        return -ENODATA;
+
+    return -ENOERR;
+}
+
 static state atasim_reset(struct atasim_host *host)
 {
     /* pulse reset device */
@@ -242,6 +258,34 @@ static state atasim_transfer(struct atasim_host *host, void *buffer,
     return val ? -EIO : -ENOERR;
 }
 
+static state atasim_identity(struct atasim_port *port, void *buffer, uint8_t cmd)
+{
+    struct atasim_host *host = port->host;
+    struct atasim_cmd atacmd = {};
+    state retval;
+
+    memset(buffer, 0, 512);
+    atacmd.command = cmd;
+
+    /* disable interrupt */
+    atasim_ctl_out(host, ATA_REG_DEVCTL, ATA_DEVCTL_HD15 | ATA_DEVCTL_NIEN);
+
+    retval = atasim_cmd(port, &atacmd);
+    if (retval)
+        goto exit;
+
+    retval = atasim_wait_data(host);
+    if (retval)
+        goto exit;
+
+    atasim_transfer(host, buffer, 1, false);
+
+exit:
+    /* enable interrupt */
+    atasim_ctl_out(host, ATA_REG_DEVCTL, ATA_DEVCTL_HD15);
+    return retval;
+}
+
 static state atasim_enqueue(struct block_device *bdev, struct block_request *breq)
 {
     struct atasim_port *port = block_to_atasim(bdev);
@@ -287,10 +331,9 @@ static state atasim_enqueue(struct block_device *bdev, struct block_request *bre
     if (retval)
         goto exit;
 
-    if(!atasim_delay_wait_busy(host)) {
-        retval = -EBUSY;
+    retval = atasim_wait_data(host);
+    if (retval)
         goto exit;
-    }
 
     atasim_transfer(host, breq->buffer, breq->length, breq->type == REQ_WRITE);
 
@@ -304,6 +347,30 @@ exit:
 static struct block_ops atasim_ops = {
     .enqueue = atasim_enqueue,
 };
+
+static bool atasim_check_atapi(struct atasim_port *port)
+{
+    struct ata_identify_table table;
+    state retval;
+
+    retval = atasim_identity(port, &table, ATA_CMD_IDENTIFY_PACKET);
+    if (retval)
+        return false;
+
+    return true;
+}
+
+static bool atasim_check_devata(struct atasim_port *port)
+{
+    struct ata_identify_table table;
+    state retval;
+
+    retval = atasim_identity(port, &table, ATA_CMD_IDENTIFY_DEVICE);
+    if (retval)
+        return false;
+
+    return true;
+}
 
 static bool atasim_port_setup(struct atasim_port *port)
 {
@@ -327,6 +394,10 @@ static bool atasim_port_setup(struct atasim_port *port)
     if ((atasim_cmd_in(host, ATA_REG_NSECT) != 0x55) ||
         (atasim_cmd_in(host, ATA_REG_LBAL) != 0xaa)  ||
         (atasim_cmd_in(host, ATA_REG_DEVSEL) != val))
+        return false;
+
+    if (!(atasim_check_atapi(port) ||
+        atasim_check_devata(port)))
         return false;
 
     pci_info(host->pdev, "host%d:port%d detected\n", host->host, port->port);

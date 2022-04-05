@@ -2,7 +2,8 @@
 #ifndef _DRIVER_ATA_H_
 #define _DRIVER_ATA_H_
 
-#include <bits.h>
+#include <driver/ata/atareg.h>
+#include <driver/ata/identify.h>
 
 enum ata_command {
     ATA_CMD_NOP                                     = 0x00,
