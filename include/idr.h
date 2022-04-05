@@ -39,6 +39,7 @@ extern struct idr_node *idr_node_free(struct idr_root *idr, unsigned long id);
 extern unsigned long idr_alloc_range(struct idr_root *idr, void *pdata, unsigned long min, unsigned long max, gfp_t flags);
 extern unsigned long idr_alloc_cyclic_range(struct idr_root *idr, void *pdata, unsigned long min, unsigned long max, gfp_t flags);
 extern void idr_free(struct idr_root *idr, unsigned long id);
+extern struct idr_node *idr_find_node(struct idr_root *idr, unsigned long id);
 extern void *idr_find(struct idr_root *idr, unsigned long id);
 extern void idr_root_init(struct idr_root *idr, unsigned long base);
 extern struct idr_root *idr_create(unsigned long base);

@@ -223,11 +223,11 @@ void idr_free(struct idr_root *idr, unsigned long id)
 EXPORT_SYMBOL(idr_free);
 
 /**
- * idr_find - remove id from the idr and free
+ * idr_find_node - find an idr node from the idr tree.
  * @idr: the idr handle
  * @id: the id to find
  */
-void *idr_find(struct idr_root *idr, unsigned long id)
+struct idr_node *idr_find_node(struct idr_root *idr, unsigned long id)
 {
     struct idr_node *node;
     struct rb_node *rb;
@@ -238,6 +238,19 @@ void *idr_find(struct idr_root *idr, unsigned long id)
     node = rb_to_idr_safe(rb);
 
     spin_unlock(&idr->lock);
+    return node;
+}
+EXPORT_SYMBOL(idr_find_node);
+
+/**
+ * idr_find - Look for the data of an IDR from the idr tree.
+ * @idr: the idr handle
+ * @id: the id to find
+ */
+void *idr_find(struct idr_root *idr, unsigned long id)
+{
+    struct idr_node *node;
+    node = idr_find_node(idr, id);
     return node ? node->pdata : NULL;
 }
 EXPORT_SYMBOL(idr_find);
