@@ -1,6 +1,18 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#include <driver/rtc.h>
+#include <kernel.h>
+#include <librtc.h>
 #include <export.h>
+
+const char *rtc_month_name[] = {
+    "jan", "feb", "mar", "apr", "may", "jun",
+    "jul", "aug", "sep", "oct", "nov", "dec",
+};
+EXPORT_SYMBOL(rtc_month_name);
+
+const char *rtc_wday_name[] = {
+    "mon", "tue", "wed", "thur", "fri", "sat", "sun"
+};
+EXPORT_SYMBOL(rtc_wday_name);
 
 static const unsigned int rtc_days_in_month[12] = {
     31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31

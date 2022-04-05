@@ -32,7 +32,7 @@
  * @val: the value we're accessing
  */
 #define lower_32_bits(val) (                            \
-    (u32)((val) & 0xffffffff)                           \
+    (uint32_t)((val) & 0xffffffff)                      \
 )
 
 /**
