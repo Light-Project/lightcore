@@ -9,8 +9,8 @@
 unsigned int pcibios_max_latency = 255;
 
 /**
- * pcibios_master_set -
- *
+ * pcibios_master_set - enable PCI bus-mastering for device dev.
+ * @pdev: the PCI device to enable.
  */
 void __weak pcibios_master_set(struct pci_device *pdev)
 {
@@ -35,7 +35,7 @@ void __weak pcibios_master_set(struct pci_device *pdev)
  */
 void __weak pcibios_device_add(struct pci_device *pdev)
 {
-
+    /* Nothing */
 }
 EXPORT_SYMBOL(pcibios_device_add);
 
@@ -45,9 +45,21 @@ EXPORT_SYMBOL(pcibios_device_add);
  */
 void __weak pcibios_device_remove(struct pci_device *pdev)
 {
-
+    /* Nothing */
 }
 EXPORT_SYMBOL(pcibios_device_remove);
+
+state __weak pcibios_device_enable(struct pci_device *pdev, uint16_t bars)
+{
+    return pci_resource_enable(pdev, bars);
+}
+EXPORT_SYMBOL(pcibios_device_enable);
+
+void __weak pcibios_device_disable(struct pci_device *pdev, uint16_t bars)
+{
+    /* Nothing */
+}
+EXPORT_SYMBOL(pcibios_device_disable);
 
 /**
  * pcibios_bus_add - assign irq when probing device.
@@ -55,7 +67,7 @@ EXPORT_SYMBOL(pcibios_device_remove);
  */
 void __weak pcibios_bus_add(struct pci_bus *pbus)
 {
-
+    /* Nothing */
 }
 EXPORT_SYMBOL(pcibios_bus_add);
 
@@ -65,7 +77,7 @@ EXPORT_SYMBOL(pcibios_bus_add);
  */
 void __weak pcibios_bus_remove(struct pci_bus *pbus)
 {
-
+    /* Nothing */
 }
 EXPORT_SYMBOL(pcibios_bus_remove);
 
@@ -85,6 +97,6 @@ EXPORT_SYMBOL(pcibios_irq_alloc);
  */
 void __weak pcibios_irq_free(struct pci_device *pdev)
 {
-
+    /* Nothing */
 }
 EXPORT_SYMBOL(pcibios_irq_free);

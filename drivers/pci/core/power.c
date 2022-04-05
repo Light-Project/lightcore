@@ -49,8 +49,9 @@ state pci_power_on(struct pci_device *pdev)
 {
     return pci_power_real_set(pdev, PCI_POWER_D0);
 }
+EXPORT_SYMBOL(pci_power_on);
 
-state pci_power_set(struct pci_device *pdev, enum pci_power power)
+state pci_power_state_set(struct pci_device *pdev, enum pci_power power)
 {
     power = clamp(power, PCI_POWER_D0, PCI_POWER_D3C);
     if ((power == PCI_POWER_D1 || power == PCI_POWER_D2) && pci_no_d1d2(pdev))
@@ -61,18 +62,25 @@ state pci_power_set(struct pci_device *pdev, enum pci_power power)
 
     return -ENOERR;
 }
+EXPORT_SYMBOL(pci_power_state_set);
 
-state pci_device_enable(struct pci_device *pdev, int bar)
+/**
+ * pci_update_current_state - read power state of given device and cache it.
+ * @pdev: pci device to handle.
+ * @power: state to cache in case the device doesn't have the pm capability.
+ */
+void pci_power_update_state(struct pci_device *pdev, enum pci_power power)
 {
+    uint16_t pmcsr;
 
-    return -ENOERR;
+    if (pdev->pm_cap) {
+        pmcsr = pci_config_readw(pdev, pdev->pm_cap + PCI_PM_CTRL);
+        pdev->power_state = (pmcsr & PCI_PM_CTRL_STATE_MASK);
+    } else {
+        pdev->power_state = power;
+    }
 }
-
-state pci_enable(struct pci_device *pdev)
-{
-
-    return -ENOERR;
-}
+EXPORT_SYMBOL(pci_power_update_state);
 
 void pci_power_setup(struct pci_device *pdev)
 {
@@ -116,3 +124,4 @@ void pci_power_setup(struct pci_device *pdev)
     pdev->d3h_delay = PCI_PM_D3H_WAIT;
     pdev->d3c_delay = PCI_PM_D3C_WAIT;
 }
+EXPORT_SYMBOL(pci_power_setup);

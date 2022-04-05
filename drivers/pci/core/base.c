@@ -172,25 +172,95 @@ state pci_cacheline_size(struct pci_device *pdev)
 }
 EXPORT_SYMBOL(pci_cacheline_size);
 
-/**
- * pci_mwi_clear - memory-write-invalidate PCI transaction disables
- * @pdev: device to disable
- */
-void pci_mwi_disable(struct pci_device *pdev)
+static state pci_device_set_enable(struct pci_device *pdev, uint16_t bars)
 {
+    state retval;
     uint16_t cmd;
+    uint8_t intpin;
 
-    cmd = pci_config_readw(pdev, PCI_COMMAND);
-    if (cmd & PCI_COMMAND_INVALIDATE) {
-        cmd &= ~PCI_COMMAND_INVALIDATE;
-        pci_config_writew(pdev, PCI_COMMAND, cmd);
+    retval = pci_power_on(pdev);
+    if (retval)
+        return retval;
+
+    retval = pcibios_device_enable(pdev, bars);
+    if (retval)
+        return retval;
+
+    /* If we use MSI, we don't need to enable the interrupt pin */
+    if (pdev->msi_enabled || pdev->msix_enabled)
+        return -ENOERR;
+
+    intpin = pci_config_readb(pdev, PCI_INTERRUPT_PIN);
+    if (intpin) {
+        cmd = pci_config_readw(pdev, PCI_COMMAND);
+        if (cmd & PCI_COMMAND_INTX_DISABLE)
+            pci_config_writew(pdev, PCI_COMMAND, cmd & ~PCI_COMMAND_INTX_DISABLE);
     }
+
+    return -ENOERR;
 }
-EXPORT_SYMBOL(pci_mwi_disable);
+
+state pci_device_enable_type(struct pci_device *pdev, enum resource_type type)
+{
+    unsigned int count;
+    uint16_t bars = 0;
+
+    /*
+     * Power state could be unknown at this point, either due to a fresh
+     * boot or a device removal call.  So get the current power state
+     * so that things like MSI message writing will behave as expected
+     * (e.g. if the device really is in D0 at enable time).
+     */
+    pci_power_update_state(pdev, pdev->power_state);
+
+    /* skip sriov related */
+    for (count = 0; count <= PCI_ROM_RESOURCE; ++count) {
+        if (pdev->resource[count].type & type)
+            bars |= BIT(count);
+    }
+
+    for (count = PCI_BRIDGE_RESOURCES; count <= PCI_RESOURCE_MAX; ++count) {
+        if (pdev->resource[count].type & type)
+            bars |= BIT(count);
+    }
+
+    return pci_device_set_enable(pdev, bars);
+}
+EXPORT_SYMBOL(pci_device_enable_type);
 
 /**
- * pci_mwi_enable - memory-write-invalidate PCI transaction enables
- * @pdev: device to enable
+ * pci_device_enable_mmio - initialize a device for use with memory space.
+ * @dev: pci device to be initialized.
+ */
+state pci_device_enable_mmio(struct pci_device *pdev)
+{
+    return pci_device_enable_type(pdev, RESOURCE_MMIO);
+}
+EXPORT_SYMBOL(pci_device_enable_mmio);
+
+/**
+ * pci_device_enable_pmio - initialize a device for use with io space.
+ * @pdev: pci device to be initialized.
+ */
+state pci_device_enable_pmio(struct pci_device *pdev)
+{
+    return pci_device_enable_type(pdev, RESOURCE_PMIO);
+}
+EXPORT_SYMBOL(pci_device_enable_pmio);
+
+/**
+ * pci_device_enable - initialize device before it's used by a driver.
+ * @dev: pci device to be initialized.
+ */
+state pci_device_enable(struct pci_device *pdev)
+{
+    return pci_device_enable_type(pdev, RESOURCE_MMIO | RESOURCE_PMIO);
+}
+EXPORT_SYMBOL(pci_device_enable);
+
+/**
+ * pci_mwi_enable - memory-write-invalidate PCI transaction enables.
+ * @pdev: device to enable.
  */
 state pci_mwi_enable(struct pci_device *pdev)
 {
@@ -206,8 +276,24 @@ state pci_mwi_enable(struct pci_device *pdev)
 EXPORT_SYMBOL(pci_mwi_enable);
 
 /**
- * pcix_mmrbc_get - set PCI-X maximum memory read byte count
- *
+ * pci_mwi_clear - memory-write-invalidate PCI transaction disables.
+ * @pdev: device to disable.
+ */
+void pci_mwi_disable(struct pci_device *pdev)
+{
+    uint16_t cmd;
+
+    cmd = pci_config_readw(pdev, PCI_COMMAND);
+    if (cmd & PCI_COMMAND_INVALIDATE) {
+        cmd &= ~PCI_COMMAND_INVALIDATE;
+        pci_config_writew(pdev, PCI_COMMAND, cmd);
+    }
+}
+EXPORT_SYMBOL(pci_mwi_disable);
+
+/**
+ * pcix_mmrbc_get - get PCI-X maximum memory read byte count.
+ * @pdev: pci device to query.
  */
 uint32_t pcix_mmrbc_get(struct pci_device *pdev)
 {
@@ -221,8 +307,9 @@ uint32_t pcix_mmrbc_get(struct pci_device *pdev)
 EXPORT_SYMBOL(pcix_mmrbc_get);
 
 /**
- * pcix_mmrbc_set - set PCI-X maximum memory read byte count
- *
+ * pcix_mmrbc_set - set PCI-X maximum memory read byte count.
+ * @pdev: pci device to query.
+ * @mmrbc: maximum memory read count in bytes.
  */
 state pcix_mmrbc_set(struct pci_device *pdev, uint32_t mmrbc)
 {
@@ -250,6 +337,10 @@ static void pci_set_master(struct pci_device *pdev, bool enable)
     pdev->busmaster = enable;
 }
 
+/**
+ * pci_master_enable - enables bus-mastering for device dev.
+ * @pdev: the pci device to enable.
+ */
 void pci_master_enable(struct pci_device *pdev)
 {
     pci_set_master(pdev, true);
@@ -257,6 +348,10 @@ void pci_master_enable(struct pci_device *pdev)
 }
 EXPORT_SYMBOL(pci_master_enable);
 
+/**
+ * pci_clear_master - disables bus-mastering for device dev.
+ * @pdev: the pci device to disable.
+ */
 void pci_master_disable(struct pci_device *pdev)
 {
     pci_set_master(pdev, false);

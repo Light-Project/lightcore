@@ -34,6 +34,8 @@ extern struct bus_type pci_bus_type;
 #define PCI_CB_BRIDGE_MEM_0_WINDOW  (PCI_BRIDGE_RESOURCES + 2)
 #define PCI_CB_BRIDGE_MEM_1_WINDOW  (PCI_BRIDGE_RESOURCES + 3)
 
+#define PCI_COMMAND_DECODE_ENABLE   (PCI_COMMAND_MEMORY | PCI_COMMAND_IO)
+
 enum pci_resource {
     /* Standard PCI resources */
     PCI_STD_RESOURCES,
@@ -141,6 +143,9 @@ struct pci_device {
 
     /* PCI device flags */
     uint32_t io_windows:1;      /* Bridge has io window */
+    uint32_t mmio_always:1;     /* Disallow turning off io/mem */
+	uint32_t msi_enabled:1;     /* MSI is enabled */
+	uint32_t msix_enabled:1;    /* MSIX is enabled */
     uint32_t pref_window:1;     /* Bridge has pref window */
     uint32_t pref64_window:1;   /* Bridge has pref64 window */
     uint32_t multifunction:1;   /* Multi-function device */
@@ -299,7 +304,7 @@ static inline bool pci_no_d1d2(struct pci_device *pdev)
     return pdev->power_no_d1d2 || pstate;
 }
 
-/* PCI resource helper */
+/* PCI iomap helper */
 extern void __malloc *pci_resource_ioremap_range(struct pci_device *pdev, unsigned int bar, size_t offset, size_t limit);
 extern void __malloc *pci_resource_ioremap_range_wc(struct pci_device *pdev, unsigned int bar, size_t offset, size_t limit);
 extern void __malloc *pci_resource_ioremap(struct pci_device *pdev, unsigned int bar, size_t limit);
@@ -330,6 +335,10 @@ extern void pci_config_writel(struct pci_device *pdev, unsigned int reg, uint32_
 
 extern uint8_t pci_capability_find(struct pci_device *pdev, int cap);
 extern state pci_cacheline_size(struct pci_device *pdev);
+extern state pci_device_enable_type(struct pci_device *pdev, enum resource_type type);
+extern state pci_device_enable_mmio(struct pci_device *pdev);
+extern state pci_device_enable_pmio(struct pci_device *pdev);
+extern state pci_device_enable(struct pci_device *pdev);
 extern state pci_mwi_enable(struct pci_device *pdev);
 extern void pci_mwi_disable(struct pci_device *pdev);
 extern uint32_t pcix_mmrbc_get(struct pci_device *pdev);
@@ -341,6 +350,8 @@ extern void pci_master_disable(struct pci_device *pdev);
 extern void pcibios_master_set(struct pci_device *pdev);
 extern void pcibios_device_add(struct pci_device *pdev);
 extern void pcibios_device_remove(struct pci_device *pdev);
+extern state pcibios_device_enable(struct pci_device *pdev, uint16_t bars);
+extern void pcibios_device_disable(struct pci_device *pdev, uint16_t bars);
 extern void pcibios_bus_add(struct pci_bus *pbus);
 extern void pcibios_bus_remove(struct pci_bus *pbus);
 extern state pcibios_irq_alloc(struct pci_device *pdev);
@@ -355,6 +366,9 @@ extern struct pci_device *pci_find_device(const struct pci_device_id *id, struct
 extern struct pci_bus *pci_bus_find_ancestor(const struct pci_bus *bus);
 extern struct pci_host *pci_bus_find_host(const struct pci_bus *bus);
 
+/* PCI resource */
+extern state pci_resource_enable(struct pci_device *pdev, uint16_t bars);
+
 /* PCI bus driver */
 extern void pci_bus_devices_probe(const struct pci_bus *bus);
 extern state pci_driver_register(struct pci_driver *);
@@ -362,6 +376,9 @@ extern void pci_driver_unregiste(struct pci_driver *);
 extern void pci_irq_setup(struct pci_device *);
 
 /* PCI power management */
+extern void pci_power_update_state(struct pci_device *pdev, enum pci_power power);
+extern state pci_power_on(struct pci_device *pdev);
+extern state pci_power_state_set(struct pci_device *pdev, enum pci_power power);
 extern void pci_power_setup(struct pci_device *pdev);
 
 /* PCI core */

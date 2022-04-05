@@ -158,8 +158,16 @@ bool pci_resource_set(struct pci_device *pdev, enum pci_bar type,
 {
     uint32_t l, sz, mask;
     uint64_t l64, sz64, mask64;
+    uint16_t val;
 
-    mask = type ? PCI_ROM_ADDRESS_MASK : 0xffffffff;
+    if (!pdev->mmio_always) {
+        val = pci_config_readw(pdev, PCI_COMMAND);
+        if (val & PCI_COMMAND_DECODE_ENABLE)
+            pci_config_writew(pdev , PCI_COMMAND,
+                val & ~PCI_COMMAND_DECODE_ENABLE);
+    }
+
+    mask = type ? PCI_ROM_ADDRESS_MASK : ~0;
 
     l = pci_config_readl(pdev, reg);
     pci_config_writel(pdev, reg, l | mask);
@@ -183,8 +191,8 @@ bool pci_resource_set(struct pci_device *pdev, enum pci_bar type,
             mask64 = (uint32_t)PCI_BASE_ADDRESS_MEM_MASK;
         }
     } else {
-        if (l & PCI_ROM_ADDRESS_ENABLE);
-            // res->flags |= IORESOURCE_ROM_ENABLE;
+        if (l & PCI_ROM_ADDRESS_ENABLE)
+            res->type |= RESOURCE_PCI_ROM_ENABLE;
         l64 = l & PCI_ROM_ADDRESS_MASK;
         sz64 = sz & PCI_ROM_ADDRESS_MASK;
         mask64 = PCI_ROM_ADDRESS_MASK;
@@ -201,6 +209,9 @@ bool pci_resource_set(struct pci_device *pdev, enum pci_bar type,
         mask64 |= ((uint64_t)~0 << 32);
     }
 
+    if (!pdev->mmio_always && val & PCI_COMMAND_DECODE_ENABLE)
+        pci_config_writew(pdev , PCI_COMMAND, val);
+
     if (!sz64)
         goto error;
 
@@ -215,7 +226,7 @@ bool pci_resource_set(struct pci_device *pdev, enum pci_bar type,
 error:
     res->type = RESOURCE_NONE;
 exit:
-    return res->type & RESOURCE_MEM64;
+    return (res->type & RESOURCE_MEM64) ? 1 : 0;
 }
 
 /**
