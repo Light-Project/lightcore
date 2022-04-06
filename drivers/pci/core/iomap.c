@@ -4,14 +4,14 @@
  */
 
 #include <driver/pci.h>
-#include <asm/io.h>
+#include <ioops.h>
 #include <export.h>
 
-void __weak *pci_ioport_map(struct pci_device *pdev, resource_size_t port, size_t len)
+void __weak *pci_mpio_map(struct pci_device *pdev, resource_size_t port, size_t len)
 {
-    return ioport_map(port, len);
+    return mpio_map(port, len);
 }
-EXPORT_SYMBOL(pci_ioport_map);
+EXPORT_SYMBOL(pci_mpio_map);
 
 void *pci_resource_ioremap_range(struct pci_device *pdev, unsigned int bar, size_t offset, size_t limit)
 {
@@ -29,7 +29,7 @@ void *pci_resource_ioremap_range(struct pci_device *pdev, unsigned int bar, size
         size = limit;
 
     if (type == RESOURCE_PMIO)
-        return pci_ioport_map(pdev, addr, size);
+        return pci_mpio_map(pdev, addr, size);
     else if (type == RESOURCE_MMIO)
         return pci_ioremap(pdev, addr, size);
 

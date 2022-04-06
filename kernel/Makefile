@@ -6,3 +6,4 @@ obj-y += kthread.o kcoro.o entry.o
 obj-y += random.o pevent.o
 obj-y += crash.o syscall.o
 obj-y += resource.o power.o
+obj-$(CONFIG_GENERIC_MPIO) += mpio.o

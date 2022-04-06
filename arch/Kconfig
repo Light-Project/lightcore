@@ -24,6 +24,7 @@ config ARCH_X86_32
     select ARCH_HAS_MMU
     select ARCH_HAS_PMIO
     select ARCH_HAS_KASAN
+    select GENERIC_MPIO
 
 config ARCH_X86_64
     bool "X86_64"
@@ -35,6 +36,7 @@ config ARCH_X86_64
     select ARCH_HAS_PMIO
     select ARCH_HAS_KASAN
     select PGTABLE_LEVEL5
+    select GENERIC_MPIO
 
 config ARCH_XTENSA
     bool "Xtensa"

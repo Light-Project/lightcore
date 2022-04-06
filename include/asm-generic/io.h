@@ -7,6 +7,10 @@
 #include <asm/barrier.h>
 #include <lightcore/asm/byteorder.h>
 
+#ifdef CONFIG_GENERIC_MPIO
+#include <asm-generic/mpio.h>
+#endif
+
 #ifndef raw_readb
 #define raw_readb raw_readb
 static inline uint8_t raw_readb(const volatile void *addr)
@@ -473,15 +477,6 @@ static inline void outsl(unsigned long addr, const void *buffer, unsigned int co
 }
 #endif
 
-#ifndef ioport_map
-#define ioport_map ioport_map
-static inline void *ioport_map(unsigned long port, unsigned int nr)
-{
-    port &= IO_SPACE_LIMIT;
-    return IO_SPACE_BASE + port;
-}
-#endif
-
 #ifndef readq
 #define readq readq
 static inline uint64_t readq(const volatile void *addr)
@@ -525,6 +520,73 @@ static inline void writeq_relax(volatile void *addr, uint64_t val)
     writel_relax(addr + 4, val >> 32);
 }
 #endif
+
+#ifndef CONFIG_GENERIC_MPIO
+#ifndef mpio_readb
+#define mpio_readb mpio_readb
+static inline uint8_t mpio_readb(const void *addr)
+{
+    return readb(addr);
+}
+#endif
+
+#ifndef mpio_readw
+#define mpio_readw mpio_readw
+static inline uint16_t mpio_readw(const void *addr)
+{
+    return readw(addr);
+}
+#endif
+
+#ifndef mpio_readl
+#define mpio_readl mpio_readl
+static inline uint32_t mpio_readl(const void *addr)
+{
+    return readl(addr);
+}
+#endif
+
+#ifndef mpio_writeb
+#define mpio_writeb mpio_writeb
+static inline void mpio_writeb(const void *addr, uint8_t val)
+{
+    writeb(addr, val);
+}
+#endif
+
+#ifndef mpio_writew
+#define mpio_writew mpio_writew
+static inline void mpio_writew(const void *addr, uint16_t val)
+{
+    writew(addr, val);
+}
+#endif
+
+#ifndef mpio_writel
+#define mpio_writel mpio_writel
+static inline void mpio_writel(const void *addr, uint32_t val)
+{
+    writel(addr, val);
+}
+#endif
+
+#ifndef mpio_map
+#define mpio_map mpio_map
+static inline void *mpio_map(unsigned long port, unsigned int nr)
+{
+    port &= IO_SPACE_LIMIT;
+    return IO_SPACE_BASE + port;
+}
+#endif
+
+#ifndef mpio_unmap
+#define mpio_unmap mpio_unmap
+static inline void mpio_unmap(void *addr)
+{
+    /* Nothing */
+}
+#endif
+#endif  /* CONFIG_GENERIC_MPIO */
 
 #ifndef CONFIG_ARCH_HAS_PMIO
 # define ioreadb(addr) readb(addr)

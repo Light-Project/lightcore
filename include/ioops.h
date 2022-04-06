@@ -3,5 +3,7 @@
 #define _IOOPS_H_
 
 #include <asm/io.h>
+#include <asm/page.h>
+#include <ioremap.h>
 
 #endif  /* _IOOPS_H_ */

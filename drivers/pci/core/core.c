@@ -158,7 +158,7 @@ bool pci_resource_set(struct pci_device *pdev, enum pci_bar type,
 {
     uint32_t l, sz, mask;
     uint64_t l64, sz64, mask64;
-    uint16_t val;
+    uint16_t val = 0;
 
     if (!pdev->mmio_always) {
         val = pci_config_readw(pdev, PCI_COMMAND);

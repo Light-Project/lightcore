@@ -63,3 +63,7 @@ endmenu
 config VERSION
     string
     default $(KERNELVERSION)
+
+config GENERIC_MPIO
+    bool
+    depends on ARCH_HAS_PMIO
