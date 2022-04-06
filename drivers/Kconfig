@@ -47,6 +47,8 @@ source "drivers/parallel/Kconfig"
 
 source "drivers/pci/Kconfig"
 
+source "drivers/platform/Kconfig"
+
 source "drivers/power/Kconfig"
 
 source "drivers/serio/Kconfig"

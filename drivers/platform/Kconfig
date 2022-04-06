@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig PLATFORM
+    bool "Platform Device Support"
+if PLATFORM
+
+source "drivers/platform/pvpanic/Kconfig"
+
+endif

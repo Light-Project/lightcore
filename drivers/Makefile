@@ -17,6 +17,7 @@ obj-$(CONFIG_MFD)           += mfd/
 obj-$(CONFIG_MTD)           += mtd/
 obj-$(CONFIG_PARALLEL)	    += parallel/
 obj-$(CONFIG_PCI)           += pci/
+obj-$(CONFIG_PLATFORM)      += platform/
 obj-$(CONFIG_POWER)         += power/
 obj-$(CONFIG_SERIO)         += serio/
 obj-$(CONFIG_NETD)          += net/

@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+config PVPANIC
+    bool "Pvpanic device support"
+
+config PVPANIC_PLATFORM
+    depends on PVPANIC && (ACPI || DT)
+    bool "Pvpanic platform support"
+
+config PVPANIC_PCI
+    depends on PVPANIC && PCI
+    bool "Pvpanic PCI support"

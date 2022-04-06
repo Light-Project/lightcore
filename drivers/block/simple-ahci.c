@@ -350,6 +350,7 @@ static void ahcisim_host_setup(struct pci_device *pdev)
     struct ahcisim_host *host = pci_get_devdata(pdev);
     uint32_t val;
 
+    pci_device_enable(pdev);
     pci_master_enable(pdev);
 
     val = ahcisim_host_read(host, AHCI_HCTL);
