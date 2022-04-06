@@ -154,7 +154,7 @@ fdc_out(struct fdc_device *fdc, int reg, uint8_t value)
 static __always_inline uint8_t
 dor_mask(struct fdc_device *fdc, uint8_t off, uint8_t on)
 {
-    fdc->dor = (fdc->dor & ~off) | on;
+    fdc->dor = (fdc_in(fdc, FLOPPY_DOR) & ~off) | on;
     fdc_out(fdc, FLOPPY_DOR, fdc->dor);
     return fdc->dor;
 }
@@ -211,166 +211,12 @@ static void floppy_speed(struct fdd_device *fdd)
     fdc_out(fdc, FLOPPY_CCR, fdd->type->rate);
 }
 
-static irqreturn_t floppy_interrupt(irqnr_t intnr, void *fdc)
-{
-    if (!current_fdc)
-        return IRQ_RET_NONE;
-    current_fdc->irq_occur = true;
-    return IRQ_RET_HANDLED;
-}
-
-static state floppy_wait_irq(struct fdc_device *fdc)
-{
-    unsigned int timeout = 50000;
-    current_fdc = fdc;
-
-    while (!fdc->irq_occur && --timeout)
-        udelay(100);
-
-    if (!timeout)
-        return -EBUSY;
-
-    fdc->irq_occur = false;
-    return -ENOERR;
-}
-
-static state floppy_transmit(struct fdc_device *fdc, struct floppy_cmd *cmd)
-{
-    unsigned int timeout, count;
-    uint8_t val, residue;
-    state ret = -ENOERR;
-
-    if (cmd->retry)
-        residue = cmd->retry + 1;
-    else
-        residue = FD_RESIDUE;
-
-retry:
-    if (residue-- != FD_RESIDUE)
-        fdc_reset(fdc);
-
-    if (!residue) {
-        dev_debug(fdc->dev, "abort transmit after several attempts\n");
-        return -EBUSY;
-    }
-
-    if (cmd->type & CMD_DIRVER) {
-        motor_power(cmd->fdd, true);
-        driver_select(cmd->fdd);
-        floppy_speed(cmd->fdd);
-    }
-
-    if (cmd->type & CMD_DMA) {
-
-    }
-
-    /* sends command to the fdc */
-    for (count = 0; cmd->txlen != count; ++count) {
-        timeout = 50;
-
-        while (--timeout) {
-            val = fdc_in(fdc, FLOPPY_MSR) &
-                (FLOPPY_MSR_RQM | FLOPPY_MSR_DIO);
-            if (val == FLOPPY_MSR_RQM)
-                break;
-            mdelay(1);
-        } if (!timeout) {
-            dev_debug(fdc->dev, "timeout while send data\n");
-            goto retry;
-        }
-
-        fdc_out(fdc, FLOPPY_FIFO, cmd->txcmd[count]);
-    }
-
-    if (cmd->type & CMD_PIO) /* not a pio command */
-        if (!(fdc_in(fdc, FLOPPY_MSR) & FLOPPY_MSR_NDMA))
-            goto out;
-
-wait:
-    /* wait for command to complete */
-    if (cmd->type & CMD_WAIT_IRQ) {
-        if ((ret = floppy_wait_irq(fdc))) {
-            dev_debug(fdc->dev, "timeout while wait handle\n");
-            goto retry;
-        }
-    }
-
-    if (cmd->type & CMD_DMA) {
-
-    } else if (cmd->type & CMD_PIO) {
-        timeout = 50;
-
-        while (--timeout) {
-            val = fdc_in(fdc, FLOPPY_MSR) &
-                (FLOPPY_MSR_RQM | FLOPPY_MSR_NDMA);
-            if (val == (FLOPPY_MSR_RQM | FLOPPY_MSR_NDMA))
-                break;
-            mdelay(1);
-        } if (!timeout) {
-            dev_debug(fdc->dev, "timeout while transfer data\n");
-            goto retry;
-        }
-
-        if (cmd->buffersize) {
-            if (cmd->write)
-                fdc_out(fdc, FLOPPY_FIFO, *cmd->buffer++);
-            else
-                *cmd->buffer++ = fdc_in(fdc, FLOPPY_FIFO);
-            cmd->buffersize--;
-        } else {
-            if (cmd->write)
-                fdc_out(fdc, FLOPPY_FIFO, 0x00);
-            else
-                fdc_in(fdc, FLOPPY_FIFO);
-            ret = -ENOMEM;
-        }
-
-        goto wait;
-    }
-
-out:
-    /* get response from the fdc */
-    while (cmd->rxlen != cmd->replen) {
-        timeout = 50;
-
-        while (--timeout) {
-            val = fdc_in(fdc, FLOPPY_MSR) & (FLOPPY_MSR_RQM |
-                FLOPPY_MSR_DIO | FLOPPY_MSR_NDMA | FLOPPY_MSR_CB);
-            if (val & FLOPPY_MSR_RQM)
-                break;
-            mdelay(1);
-        } if (!timeout) {
-            dev_debug(fdc->dev, "wait timeout while receive cmd\n");
-            goto retry;
-        }
-
-        if ((val & ~FLOPPY_MSR_CB) == FLOPPY_MSR_RQM)
-            break;
-
-        if (val == (FLOPPY_MSR_RQM | FLOPPY_MSR_DIO | FLOPPY_MSR_CB))
-            cmd->rxcmd[cmd->replen++] = fdc_in(fdc, FLOPPY_FIFO);
-        else
-            goto retry;
-    }
-
-    val = fdc_in(fdc, FLOPPY_MSR) & (FLOPPY_MSR_RQM |
-        FLOPPY_MSR_DIO | FLOPPY_MSR_NDMA | FLOPPY_MSR_CB);
-    if (FLOPPY_MSR_RQM != val)
-        goto retry;
-
-    return ret;
-}
-
 static state fdc_status_dump(struct fdc_device *fdc, uint8_t *status)
 {
     state ret = -ENOERR;
 
-    if (status[0] & ~(FLOPPY_ST0_INTR | FLOPPY_ST0_DS)) {
+    if (status[0] & ~(FLOPPY_ST0_INTR | FLOPPY_ST0_DS | FLOPPY_ST0_SE)) {
         dev_err(fdc->dev, "st0: error code (0x%02x)\n", status[0]);
-        if (status[0] & FLOPPY_ST0_SE) {
-            dev_err(fdc->dev, "  seek end\n");
-            ret = -ESPIPE;
-        }
         if (status[0] & FLOPPY_ST0_ECE) {
             dev_err(fdc->dev, "  equipment check error\n");
             ret = -ENODEV;
@@ -448,9 +294,169 @@ static state fdc_status_dump(struct fdc_device *fdc, uint8_t *status)
     return ret;
 }
 
+static irqreturn_t floppy_interrupt(irqnr_t intnr, void *fdc)
+{
+    if (!current_fdc)
+        return IRQ_RET_NONE;
+    current_fdc->irq_occur = true;
+    return IRQ_RET_HANDLED;
+}
+
+static state floppy_wait_irq(struct fdc_device *fdc)
+{
+    unsigned int timeout = 50000;
+
+    while (!fdc->irq_occur && --timeout)
+        udelay(100);
+
+    if (!timeout)
+        return -EBUSY;
+
+    fdc->irq_occur = false;
+    return -ENOERR;
+}
+
+static state floppy_transmit(struct fdc_device *fdc, struct floppy_cmd *cmd)
+{
+    unsigned int timeout, count;
+    uint8_t val, residue;
+    state ret = -ENOERR;
+
+    current_fdc = fdc;
+    fdc->irq_occur = false;
+
+    if (cmd->retry)
+        residue = cmd->retry + 1;
+    else
+        residue = FD_RESIDUE;
+
+retry:
+    if (residue-- != FD_RESIDUE)
+        fdc_reset(fdc);
+
+    if (!residue) {
+        dev_debug(fdc->dev, "abort transmit after several attempts\n");
+        return -EBUSY;
+    }
+
+    if (cmd->type & CMD_DIRVER) {
+        motor_power(cmd->fdd, true);
+        driver_select(cmd->fdd);
+        floppy_speed(cmd->fdd);
+    }
+
+    if (cmd->type & CMD_DMA) {
+
+    }
+
+    /* sends command to the fdc */
+    for (count = 0; cmd->txlen != count; ++count) {
+        timeout = 50;
+
+        while (--timeout) {
+            val = fdc_in(fdc, FLOPPY_MSR) &
+                (FLOPPY_MSR_RQM | FLOPPY_MSR_DIO);
+            if (val == FLOPPY_MSR_RQM)
+                break;
+            mdelay(1);
+        } if (!timeout) {
+            dev_debug(fdc->dev, "timeout while send data\n");
+            goto retry;
+        }
+
+        fdc_out(fdc, FLOPPY_FIFO, cmd->txcmd[count]);
+    }
+
+    if (cmd->type & CMD_PIO) /* not a pio command */
+        if (!(fdc_in(fdc, FLOPPY_MSR) & FLOPPY_MSR_NDMA))
+            goto out;
+
+    /* wait for command to complete */
+    if (cmd->type & CMD_WAIT_IRQ) {
+        if ((ret = floppy_wait_irq(fdc))) {
+            dev_debug(fdc->dev, "timeout while wait handle\n");
+            goto retry;
+        }
+    }
+
+    if (cmd->type & CMD_DMA) {
+
+    } else if (cmd->type & CMD_PIO) {
+        for (count = 0; ; count++) {
+            val = fdc_in(fdc, FLOPPY_MSR) &
+                (FLOPPY_MSR_RQM | FLOPPY_MSR_NDMA);
+            if (val != (FLOPPY_MSR_RQM | FLOPPY_MSR_NDMA))
+                break;
+
+            if (cmd->buffersize) {
+                if (cmd->write)
+                    fdc_out(fdc, FLOPPY_FIFO, *cmd->buffer++);
+                else
+                    *cmd->buffer++ = fdc_in(fdc, FLOPPY_FIFO);
+                cmd->buffersize--;
+            } else {
+                if (cmd->write)
+                    fdc_out(fdc, FLOPPY_FIFO, 0x00);
+                else
+                    fdc_in(fdc, FLOPPY_FIFO);
+                ret = -ENOMEM;
+            }
+        }
+    }
+
+out:
+    /* get response from the fdc */
+    while (cmd->rxlen != cmd->replen) {
+        timeout = 50;
+
+        while (--timeout) {
+            val = fdc_in(fdc, FLOPPY_MSR) & (FLOPPY_MSR_RQM |
+                FLOPPY_MSR_DIO | FLOPPY_MSR_NDMA | FLOPPY_MSR_CB);
+            if (val & FLOPPY_MSR_RQM)
+                break;
+            mdelay(1);
+        } if (!timeout) {
+            dev_debug(fdc->dev, "wait timeout while receive cmd\n");
+            goto retry;
+        }
+
+        if ((val & ~FLOPPY_MSR_CB) == FLOPPY_MSR_RQM)
+            break;
+
+        if (val == (FLOPPY_MSR_RQM | FLOPPY_MSR_DIO | FLOPPY_MSR_CB))
+            cmd->rxcmd[cmd->replen++] = fdc_in(fdc, FLOPPY_FIFO);
+        else
+            goto retry;
+    }
+
+    val = fdc_in(fdc, FLOPPY_MSR) & (FLOPPY_MSR_RQM |
+        FLOPPY_MSR_DIO | FLOPPY_MSR_NDMA | FLOPPY_MSR_CB);
+    if (FLOPPY_MSR_RQM != val)
+        goto retry;
+
+    if (cmd->type & CMD_WAIT_IRQ && !cmd->rxlen) {
+        struct floppy_cmd cmd;
+
+        memset(&cmd, 0, sizeof(cmd));
+        cmd.txlen = 1;
+        cmd.rxlen = FD_MAX_REPLY_SIZE;
+        cmd.txcmd[0] = FLOPPY_CMD_SENSE_INTERRUPT;
+
+        ret = floppy_transmit(fdc, &cmd);
+        if (ret)
+            dev_debug(fdc->dev, "failed to check irq after cmd\n");
+
+        /* clear irrelevant registers */
+        cmd.rxcmd[1] = 0x00;
+        cmd.rxcmd[2] = 0x00;
+        ret = fdc_status_dump(fdc, cmd.rxcmd);
+    }
+
+    return ret;
+}
+
 static inline state fdc_enable(struct fdc_device *fdc)
 {
-    unsigned int count = 4;
     struct floppy_cmd cmd;
     state ret;
 
@@ -475,15 +481,13 @@ static inline state fdc_enable(struct fdc_device *fdc)
     cmd.rxlen = FD_MAX_REPLY_SIZE;
     cmd.txcmd[0] = FLOPPY_CMD_SENSE_INTERRUPT;
 
-    while (count--) {
-        ret = floppy_transmit(fdc, &cmd);
-        if (ret) {
-            dev_err(fdc->dev, "failed to enable controller\n");
-            return ret;
-        }
-    }
+    ret = floppy_transmit(fdc, &cmd);
+    if (ret)
+        dev_err(fdc->dev, "failed to enable controller\n");
 
-    return -ENOERR;
+    cmd.rxcmd[1] = 0;
+    cmd.rxcmd[2] = 0;
+    return fdc_status_dump(fdc, cmd.rxcmd);
 }
 
 static enum fdc_version fdc_version(struct fdc_device *fdc)
@@ -688,7 +692,7 @@ static state floppy_enqueue(struct block_device *blk, struct block_request *req)
     cmd.buffer = req->buffer;
     cmd.buffersize = req->length * 512;
 
-    cmd.txcmd[0] = FLOPPY_CMD_READ_TRACK;       /* Transfer Command */
+    cmd.txcmd[0] = FLOPPY_CMD_READ_DATA;        /* Transfer Command */
     cmd.txcmd[1] = (head << 2) | fdd->port;     /* HD:US1:US0 = Head and drive */
     cmd.txcmd[2] = cylinder;                    /* Cylinder */
     cmd.txcmd[3] = head;                        /* First head (should match with above) */

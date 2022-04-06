@@ -30,8 +30,8 @@ enum floppy_commands {
     FLOPPY_CMD_READ_TRACK           = 0x02, /* generates IRQ6 */
     FLOPPY_CMD_SPECIFY              = 0x03, /* set drive parameters */
     FLOPPY_CMD_SENSE_DRIVE_STATUS   = 0x04, /* read ST3 */
-    FLOPPY_CMD_WRITE_DATA           = 0xc5, /* write to the disk */
-    FLOPPY_CMD_READ_DATA            = 0xe6, /* read from the disk */
+    FLOPPY_CMD_WRITE_DATA           = 0x45, /* write to the disk */
+    FLOPPY_CMD_READ_DATA            = 0x66, /* read from the disk */
     FLOPPY_CMD_RECALIBRATE          = 0x07, /* seek to cylinder 0 */
     FLOPPY_CMD_SENSE_INTERRUPT      = 0x08, /* ack IRQ6, get status of last command */
     FLOPPY_CMD_WRITE_DELETED_DATA   = 0x09, /* */
@@ -174,8 +174,9 @@ enum fdc_version {
 #define FLOPPY_CCR_RATE_500K    BIT_SHIFT(0, 0) /* Data Rates: 500 Kbps */
 
 #define FLOPPY_ST0_INTR         BIT_RANGE(7, 6) /* Interrupt code mask */
-#define FLOPPY_ST0_INTR1        BIT(7)          /* */
-#define FLOPPY_ST0_INTR0        BIT(6)          /* */
+#define FLOPPY_ST0_RDYCHG       BIT_SHIFT(6, 3) /* */
+#define FLOPPY_ST0_INVCMD       BIT_SHIFT(6, 2) /* */
+#define FLOPPY_ST0_INTR0        BIT_SHIFT(6, 1) /* */
 #define FLOPPY_ST0_SE           BIT(5)          /* Seek end */
 #define FLOPPY_ST0_ECE          BIT(4)          /* Equipment check error */
 #define FLOPPY_ST0_NR           BIT(3)          /* Not Ready */
