@@ -504,7 +504,7 @@ __weak int strncount(const char *str, char c, size_t size)
 }
 EXPORT_SYMBOL(strncount);
 
-__weak int memcount(const void *addr, int c, size_t size)
+__weak int memcount(const void *addr, long c, size_t size)
 {
     const unsigned char *p = addr;
     int count = 0;
@@ -515,7 +515,7 @@ __weak int memcount(const void *addr, int c, size_t size)
 }
 EXPORT_SYMBOL(memcount);
 
-__weak void *memdiff(const void *addr, int c, size_t size)
+__weak void *memdiff(const void *addr, long c, size_t size)
 {
     const unsigned char *p = addr;
 

@@ -3,7 +3,7 @@ menu "Compile Config"
 
 choice
     prompt "Compiler Optimization Level"
-    default CC_OPTIMIZE_FOR_PERFORMANCE
+    default CC_OPTIMIZE_FOR_DEBUG
 
 config CC_OPTIMIZE_FOR_DEBUG
     bool "Optimize for Debug (-O0)"

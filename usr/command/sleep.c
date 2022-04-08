@@ -19,7 +19,7 @@ static state delay_main(int argc, char *argv[])
         return -EINVAL;
     }
 
-    mdelay(atoi(argv[1]));
+    msleep(atoi(argv[1]));
     return -ENOERR;
 }
 

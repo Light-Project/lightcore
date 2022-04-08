@@ -55,8 +55,8 @@ extern int memcmp(const void *s1, const void *s2, size_t n);
  */
 extern int strcount(const char *str, char c);
 extern int strncount(const char *str, char c, size_t size);
-extern int memcount(const void *addr, int c, size_t size);
-extern void *memdiff(const void *addr, int c, size_t size);
+extern int memcount(const void *addr, long c, size_t size);
+extern void *memdiff(const void *addr, long c, size_t size);
 extern char *skip_spaces(const char *path);
 extern char *basename(const char *path);
 

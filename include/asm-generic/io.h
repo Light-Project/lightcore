@@ -548,7 +548,7 @@ static inline uint32_t mpio_readl(const void *addr)
 
 #ifndef mpio_writeb
 #define mpio_writeb mpio_writeb
-static inline void mpio_writeb(const void *addr, uint8_t val)
+static inline void mpio_writeb(void *addr, uint8_t val)
 {
     writeb(addr, val);
 }
@@ -556,7 +556,7 @@ static inline void mpio_writeb(const void *addr, uint8_t val)
 
 #ifndef mpio_writew
 #define mpio_writew mpio_writew
-static inline void mpio_writew(const void *addr, uint16_t val)
+static inline void mpio_writew(void *addr, uint16_t val)
 {
     writew(addr, val);
 }
@@ -564,7 +564,7 @@ static inline void mpio_writew(const void *addr, uint16_t val)
 
 #ifndef mpio_writel
 #define mpio_writel mpio_writel
-static inline void mpio_writel(const void *addr, uint32_t val)
+static inline void mpio_writel(void *addr, uint32_t val)
 {
     writel(addr, val);
 }
