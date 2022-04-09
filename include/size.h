@@ -2,6 +2,8 @@
 #ifndef _SIZE_H_
 #define _SIZE_H_
 
+#include <const.h>
+
 #define SZ_1Byte            0x00000001
 #define SZ_2Byte            0x00000002
 #define SZ_4Byte            0x00000004
@@ -34,5 +36,27 @@
 #define SZ_128MiB           0x08000000
 #define SZ_256MiB           0x10000000
 #define SZ_512MiB           0x20000000
+
+#define SZ_1GiB             _AC(0x0010000000, ULL)
+#define SZ_2GiB             _AC(0x0020000000, ULL)
+#define SZ_4GiB             _AC(0x0040000000, ULL)
+#define SZ_8GiB             _AC(0x0080000000, ULL)
+#define SZ_16GiB            _AC(0x0100000000, ULL)
+#define SZ_32GiB            _AC(0x0200000000, ULL)
+#define SZ_64GiB            _AC(0x0400000000, ULL)
+#define SZ_128GiB           _AC(0x0800000000, ULL)
+#define SZ_256GiB           _AC(0x1000000000, ULL)
+#define SZ_512GiB           _AC(0x2000000000, ULL)
+
+#define SZ_1TiB             _AC(0x0010000000000, ULL)
+#define SZ_2TiB             _AC(0x0020000000000, ULL)
+#define SZ_4TiB             _AC(0x0040000000000, ULL)
+#define SZ_8TiB             _AC(0x0080000000000, ULL)
+#define SZ_16TiB            _AC(0x0100000000000, ULL)
+#define SZ_32TiB            _AC(0x0200000000000, ULL)
+#define SZ_64TiB            _AC(0x0400000000000, ULL)
+#define SZ_128TiB           _AC(0x0800000000000, ULL)
+#define SZ_256TiB           _AC(0x1000000000000, ULL)
+#define SZ_512TiB           _AC(0x2000000000000, ULL)
 
 #endif  /* _SIZE_H_ */
