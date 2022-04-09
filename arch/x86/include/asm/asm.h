@@ -33,6 +33,9 @@
 #define _ASM_SUB                __ASM_SIZE(sub)
 #define _ASM_XADD               __ASM_SIZE(xadd)
 #define _ASM_MUL                __ASM_SIZE(mul)
+#define _ASM_AND                __ASM_SIZE(and)
+#define _ASM_OR                 __ASM_SIZE(or)
+#define _ASM_XOR                __ASM_SIZE(xor)
 
 #define _ASM_AX                 __ASM_REG(ax)
 #define _ASM_BX                 __ASM_REG(bx)
@@ -51,14 +54,14 @@
 # define CC_OUT(c) [_cc_ ## c] "=qm"
 #endif
 
-#ifdef CONFIG_ARCH_X86_64
-# define DECLARE_ARGS(val, low, high)   unsigned long low, high
-# define EAX_EDX_VAL(val, low, high)    ((low) | (high) << 32)
-# define EAX_EDX_RET(val, low, high)    "=a" (low), "=d" (high)
-#else
+#ifdef CONFIG_ARCH_X86_32
 # define DECLARE_ARGS(val, low, high)   unsigned long long val
 # define EAX_EDX_VAL(val, low, high)    (val)
 # define EAX_EDX_RET(val, low, high)    "=A" (val)
+#else
+# define DECLARE_ARGS(val, low, high)   unsigned long long low, high
+# define EAX_EDX_VAL(val, low, high)    ((low) | (high) << 32)
+# define EAX_EDX_RET(val, low, high)    "=a" (low), "=d" (high)
 #endif
 
 #endif /* _ASM_X86_ASM_H_ */

@@ -42,20 +42,26 @@
 # define PAGE_MASK          (~(PAGE_SIZE - 1))
 
 # define PMD_SHIFT          21
-# define PMD_SIZE           (_AC(1,UL) << PAGE_SHIFT)
-# define PMD_MASK           (~(PAGE_SIZE - 1))
+# define PMD_SIZE           (_AC(1,UL) << PMD_SHIFT)
+# define PMD_MASK           (~(PMD_SIZE - 1))
 
 # define PUD_SHIFT          30
-# define PUD_SIZE           (_AC(1,UL) << PAGE_SHIFT)
-# define PUD_MASK           (~(PAGE_SIZE - 1))
+# define PUD_SIZE           (_AC(1,UL) << PUD_SHIFT)
+# define PUD_MASK           (~(PUD_SIZE - 1))
 
+#ifndef CONFIG_PGTABLE_LEVEL5
+# define PGDIR_SHIFT        39
+# define PGDIR_SIZE         (_AC(1,UL) << PGDIR_SHIFT)
+# define PGDIR_MASK         (~(PGDIR_SIZE - 1))
+#else
 # define P4D_SHIFT          39
-# define P4D_SIZE           (_AC(1,UL) << PAGE_SHIFT)
-# define P4D_MASK           (~(PAGE_SIZE - 1))
+# define P4D_SIZE           (_AC(1,UL) << P4D_SHIFT)
+# define P4D_MASK           (~(P4D_SIZE - 1))
 
 # define PGDIR_SHIFT        pgdir_shift
 # define PGDIR_SIZE         (_AC(1,UL) << PGDIR_SHIFT)
 # define PGDIR_MASK         (~(PGDIR_SIZE - 1))
+#endif
 
 # define THREAD_ORDER       1
 # define THREAD_SHIFT       (PAGE_SHIFT + THREAD_ORDER)

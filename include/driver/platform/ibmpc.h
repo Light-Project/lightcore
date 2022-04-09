@@ -2,6 +2,8 @@
 #ifndef _DRIVER_PLATFORM_IBMPC_H_
 #define _DRIVER_PLATFORM_IBMPC_H_
 
+#include <bits.h>
+
 #define IBMPC_NMISC_BASE    0x61
 #define IBMPC_FA20_BASE     0x92
 #define IBMPC_QA20_BASE     0xee

@@ -16,5 +16,5 @@ extern void gdte_seg_set(int index, char dpl, char type, size_t base, uint64_t l
 extern void gdte_sys_set(int index, char type, size_t base, uint64_t limit);
 extern void __init gdt_setup(void);
 
-#endif	/* __ASSEMBLY__ */
-#endif /* _ASM_X86_SEGMENT_H_ */
+#endif  /* __ASSEMBLY__ */
+#endif  /* _ASM_X86_SEGMENT_H_ */

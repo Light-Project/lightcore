@@ -16,13 +16,10 @@ struct gdt_entry {
     uint64_t p:1;           /* Segment present (0:non-existent 1:In memory) */
     uint64_t limith:4;      /* Segment limit high */
     uint64_t avl:1;         /* Available for use by system software (hardware retention) */
-    uint64_t L:1;           /* 64-bit code segment (IA-32e mode only) */
+    uint64_t l:1;           /* 64-bit code segment (IA-32e mode only) */
     uint64_t db:1;          /* Defaults type (0:16bit 1:32bit) */
     uint64_t g:1;           /* Granularity (0:1byte 1:4KiB) */
     uint64_t baseh:8;       /* Segment Base address high */
-#ifdef CONFIG_ARCH_X86_64
-    uint64_t basee:32;
-#endif
 } __packed;
 
 struct gdt_table {
@@ -72,18 +69,18 @@ struct gdt_table {
 #define GDT_TYPE_INT        0x0e    /* 32-bit Interrupt Gate */
 #define GDT_TYPE_TARP       0x0f    /* 32-bit Trap Gate */
 
-#define GDT_S_SYSTEM        0x00    /*  */
-#define GDT_S_CODEDATA      0x01    /*  */
+#define GDT_S_SYSTEM        0x00    /* descriptor type is a system descriptor */
+#define GDT_S_CODEDATA      0x01    /* descriptor is for either a code or a data segment */
 
-#define GDT_DPL_RING0       0x00    /*  */
-#define GDT_DPL_RING1       0x01    /*  */
-#define GDT_DPL_RING2       0x02    /*  */
-#define GDT_DPL_RING3       0x03    /*  */
+#define GDT_DPL_RING0       0x00    /* Descriptor privilege level0 */
+#define GDT_DPL_RING1       0x01    /* Descriptor privilege level1 */
+#define GDT_DPL_RING2       0x02    /* Descriptor privilege level2 */
+#define GDT_DPL_RING3       0x03    /* Descriptor privilege level3 */
 
-#define GDT_DB_16           0x00    /*  */
-#define GDT_DB_32           0x01    /*  */
+#define GDT_DB_16           0x00    /* 16-bit code and data segments */
+#define GDT_DB_32           0x01    /* 32-bit code and data segments */
 
-#define GDT_G_1BYTE         0x00    /*  */
-#define GDT_G_4KiB          0x01    /*  */
+#define GDT_G_1BYTE         0x00    /* Segments granularity 1Byte */
+#define GDT_G_4KiB          0x01    /* Segments granularity 1KiB */
 
 #endif  /* _ARCH_X86_SEGMENT_H_ */

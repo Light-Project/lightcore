@@ -6,6 +6,8 @@
 
 #define E820_MAX_ENTRIES 128
 
+#ifndef __ASSEMBLY__
+
 enum e820_type {
     E820_TYPE_RAM               = 1,
     E820_TYPE_RESERVED          = 2,
@@ -29,4 +31,5 @@ struct e820_table {
 
 extern void e820_init(struct e820_table *);
 
+#endif  /* __ASSEMBLY__ */
 #endif  /* _ASM_X86_E820_H_ */

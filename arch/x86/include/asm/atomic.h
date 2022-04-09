@@ -60,7 +60,7 @@ static __always_inline bool arch_atomic_try_cmpxchg(atomic_t *atomic, atomic_t *
 static __always_inline void arch_atomic_add(atomic_t *atomic, atomic_t val)
 {
     asm volatile (
-        LOCK_PREFIX "addl %1,%0"
+        LOCK_PREFIX _ASM_ADD "%1,%0"
         : "+m"(atomic)
         : "ir"(val)
         : "memory"
@@ -76,7 +76,7 @@ static __always_inline void arch_atomic_add(atomic_t *atomic, atomic_t val)
 static __always_inline void arch_atomic_sub(atomic_t *atomic, atomic_t val)
 {
     asm volatile (
-        LOCK_PREFIX "subl %1,%0"
+        LOCK_PREFIX _ASM_SUB "%1, %0"
         : "+m"(atomic)
         : "ir"(val)
         : "memory"
@@ -91,7 +91,7 @@ static __always_inline void arch_atomic_sub(atomic_t *atomic, atomic_t val)
 static __always_inline void arch_atomic_inc(atomic_t *atomic)
 {
     asm volatile (
-        LOCK_PREFIX "incl %0"
+        LOCK_PREFIX _ASM_INC "%0"
         : "+m"(atomic)
         :: "memory"
     );
@@ -105,7 +105,7 @@ static __always_inline void arch_atomic_inc(atomic_t *atomic)
 static __always_inline void arch_atomic_dec(atomic_t *atomic)
 {
     asm volatile (
-        LOCK_PREFIX "decl %0"
+        LOCK_PREFIX _ASM_DEC "%0"
         : "+m"(atomic)
         :: "memory"
     );
@@ -120,7 +120,7 @@ static __always_inline void arch_atomic_dec(atomic_t *atomic)
 static __always_inline void arch_atomic_and(atomic_t *atomic, atomic_t val)
 {
     asm volatile (
-        LOCK_PREFIX "andl %1,%0"
+        LOCK_PREFIX _ASM_AND "%1, %0"
         : "+m" (atomic)
         : "ir" (val)
         : "memory"
@@ -136,7 +136,7 @@ static __always_inline void arch_atomic_and(atomic_t *atomic, atomic_t val)
 static __always_inline void arch_atomic_or(atomic_t *atomic, atomic_t val)
 {
     asm volatile (
-        LOCK_PREFIX "orl %1,%0"
+        LOCK_PREFIX _ASM_OR "%1, %0"
         : "+m"(atomic)
         : "ir"(val)
         : "memory"
@@ -152,7 +152,7 @@ static __always_inline void arch_atomic_or(atomic_t *atomic, atomic_t val)
 static __always_inline void arch_atomic_xor(atomic_t *atomic, atomic_t val)
 {
     asm volatile (
-        LOCK_PREFIX "xorl %1,%0"
+        LOCK_PREFIX _ASM_XOR "%1, %0"
         : "+m"(atomic)
         : "ir"(val)
         : "memory"
@@ -228,7 +228,7 @@ static __always_inline atomic_t arch_atomic_fetch_xor(atomic_t *atomic, atomic_t
 #define arch_atomic_sub_test arch_atomic_sub_test
 static __always_inline bool arch_atomic_sub_test(atomic_t *atomic, atomic_t val)
 {
-    return GEN_BINARY_RMWcc(LOCK_PREFIX "subl", atomic, e, "er", val);
+    return GEN_BINARY_RMWcc(LOCK_PREFIX _ASM_SUB, atomic, e, "er", val);
 }
 
 /**
@@ -238,7 +238,7 @@ static __always_inline bool arch_atomic_sub_test(atomic_t *atomic, atomic_t val)
 #define arch_atomic_inc_test arch_atomic_inc_test
 static __always_inline bool arch_atomic_inc_test(atomic_t *atomic)
 {
-    return GEN_UNARY_RMWcc(LOCK_PREFIX "incl", atomic, e);
+    return GEN_UNARY_RMWcc(LOCK_PREFIX _ASM_INC, atomic, e);
 }
 
 /**
@@ -248,7 +248,7 @@ static __always_inline bool arch_atomic_inc_test(atomic_t *atomic)
 #define arch_atomic_dec_test arch_atomic_dec_test
 static __always_inline bool arch_atomic_dec_test(atomic_t *atomic)
 {
-    return GEN_UNARY_RMWcc(LOCK_PREFIX "decl", atomic, e);
+    return GEN_UNARY_RMWcc(LOCK_PREFIX _ASM_DEC, atomic, e);
 }
 
 #include <asm-generic/atomic.h>

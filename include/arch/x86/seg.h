@@ -48,53 +48,73 @@
 
 /* Use for bootloader only */
 
-#define GDT_ENTRY_BOOT_CS           1
-#define GDT_ENTRY_BOOT_DS           2
-#define GDT_ENTRY_BOOT_TSS          3
+#define GDT_ENTRY_BOOT_CS                   1
+#define GDT_ENTRY_BOOT_DS                   2
+#define GDT_ENTRY_BOOT_TSS                  3
 
-#define GDT_ENTRY_BOOT_CS_BASE      (GDT_ENTRY_BOOT_CS  * 8)
-#define GDT_ENTRY_BOOT_DS_BASE      (GDT_ENTRY_BOOT_DS  * 8)
-#define GDT_ENTRY_BOOT_TSS_BASE     (GDT_ENTRY_BOOT_TSS * 8)
+#define GDT_ENTRY_BOOT_CS_BASE              (GDT_ENTRY_BOOT_CS  * 8)
+#define GDT_ENTRY_BOOT_DS_BASE              (GDT_ENTRY_BOOT_DS  * 8)
+#define GDT_ENTRY_BOOT_TSS_BASE             (GDT_ENTRY_BOOT_TSS * 8)
 
-#define GDT_ENTRY_KERNEL_CS         12
-#define GDT_ENTRY_KERNEL_DS         13
-#define GDT_ENTRY_USER_CS           14
-#define GDT_ENTRY_USER_DS           15
-#define GDT_ENTRY_TSS               16
-#define GDT_ENTRY_LDT               17
+#define GDT_ENTRY_KERNEL_CS                 12
+#define GDT_ENTRY_KERNEL_DS                 13
+#define GDT_ENTRY_USER_CS                   14
+#define GDT_ENTRY_USER_DS                   15
+#define GDT_ENTRY_TSS                       16
+#define GDT_ENTRY_LDT                       17
 
-#define GDT_ENTRY_KERNEL_CS_BASE    (GDT_ENTRY_KERNEL_CS * 8)
-#define GDT_ENTRY_KERNEL_DS_BASE    (GDT_ENTRY_KERNEL_DS * 8)
-#define GDT_ENTRY_USER_CS_BASE      (GDT_ENTRY_USER_CS   * 8)
-#define GDT_ENTRY_USER_DS_BASE      (GDT_ENTRY_USER_DS   * 8)
-#define GDT_ENTRY_TSS_BASE          (GDT_ENTRY_TSS       * 8)
-#define GDT_ENTRY_LDT_BASE          (GDT_ENTRY_LDT       * 8)
+#define GDT_ENTRY_KERNEL_CS_BASE            (GDT_ENTRY_KERNEL_CS * 8)
+#define GDT_ENTRY_KERNEL_DS_BASE            (GDT_ENTRY_KERNEL_DS * 8)
+#define GDT_ENTRY_USER_CS_BASE              (GDT_ENTRY_USER_CS   * 8)
+#define GDT_ENTRY_USER_DS_BASE              (GDT_ENTRY_USER_DS   * 8)
+#define GDT_ENTRY_TSS_BASE                  (GDT_ENTRY_TSS       * 8)
+#define GDT_ENTRY_LDT_BASE                  (GDT_ENTRY_LDT       * 8)
 
-#define GDT_ENTRY_PNPBIOS_CS32      18
-#define GDT_ENTRY_PNPBIOS_CS16      19
-#define GDT_ENTRY_PNPBIOS_DS        20
-#define GDT_ENTRY_PNPBIOS_TS1       21
-#define GDT_ENTRY_PNPBIOS_TS2       22
-#define GDT_ENTRY_APMBIOS_CS32      23
-#define GDT_ENTRY_APMBIOS_CS16      24
-#define GDT_ENTRY_APMBIOS_DS        25
+#define GDT_ENTRY_PNPBIOS_CS32              18
+#define GDT_ENTRY_PNPBIOS_CS16              19
+#define GDT_ENTRY_PNPBIOS_DS                20
+#define GDT_ENTRY_PNPBIOS_TS1               21
+#define GDT_ENTRY_PNPBIOS_TS2               22
+#define GDT_ENTRY_APMBIOS_CS32              23
+#define GDT_ENTRY_APMBIOS_CS16              24
+#define GDT_ENTRY_APMBIOS_DS                25
 
-#define GDT_ENTRY_PNPBIOS_CS32_BASE (GDT_ENTRY_PNPBIOS_CS32 * 8)
-#define GDT_ENTRY_PNPBIOS_CS16_BASE (GDT_ENTRY_PNPBIOS_CS16 * 8)
-#define GDT_ENTRY_PNPBIOS_DS_BASE   (GDT_ENTRY_PNPBIOS_DS   * 8)
-#define GDT_ENTRY_PNPBIOS_TS1_BASE  (GDT_ENTRY_PNPBIOS_TS1  * 8)
-#define GDT_ENTRY_PNPBIOS_TS2_BASE  (GDT_ENTRY_PNPBIOS_TS2  * 8)
-#define GDT_ENTRY_APMBIOS_BASE_BASE (GDT_ENTRY_APMBIOS_BASE * 8)
-#define GDT_ENTRY_APMBIOS_CS32_BASE (GDT_ENTRY_APMBIOS_CS32 * 8)
-#define GDT_ENTRY_APMBIOS_CS16_BASE (GDT_ENTRY_APMBIOS_CS16 * 8)
-#define GDT_ENTRY_APMBIOS_DS_BASE   (GDT_ENTRY_APMBIOS_DS   * 8)
+#define GDT_ENTRY_PNPBIOS_CS32_BASE         (GDT_ENTRY_PNPBIOS_CS32 * 8)
+#define GDT_ENTRY_PNPBIOS_CS16_BASE         (GDT_ENTRY_PNPBIOS_CS16 * 8)
+#define GDT_ENTRY_PNPBIOS_DS_BASE           (GDT_ENTRY_PNPBIOS_DS   * 8)
+#define GDT_ENTRY_PNPBIOS_TS1_BASE          (GDT_ENTRY_PNPBIOS_TS1  * 8)
+#define GDT_ENTRY_PNPBIOS_TS2_BASE          (GDT_ENTRY_PNPBIOS_TS2  * 8)
+#define GDT_ENTRY_APMBIOS_BASE_BASE         (GDT_ENTRY_APMBIOS_BASE * 8)
+#define GDT_ENTRY_APMBIOS_CS32_BASE         (GDT_ENTRY_APMBIOS_CS32 * 8)
+#define GDT_ENTRY_APMBIOS_CS16_BASE         (GDT_ENTRY_APMBIOS_CS16 * 8)
+#define GDT_ENTRY_APMBIOS_DS_BASE           (GDT_ENTRY_APMBIOS_DS   * 8)
 
-#define GDT_ENTRY_PERCPU            27
-#define GDT_ENTRY_DF_TSS            31
+#define GDT_ENTRY_PERCPU                    27
+#define GDT_ENTRY_DF_TSS                    31
 
-#define GDT_ENTRY_PERCPU_BASE       (GDT_ENTRY_PERCPU * 8)
-#define GDT_ENTRY_DF_TSS_BASE       (GDT_ENTRY_DF_TSS * 8)
+#define GDT_ENTRY_PERCPU_BASE               (GDT_ENTRY_PERCPU * 8)
+#define GDT_ENTRY_DF_TSS_BASE               (GDT_ENTRY_DF_TSS * 8)
 
-#define GDT_ENTRY_MAX               64
+#define GDT_LENTRY_KERNEL32_CS              1
+#define GDT_LENTRY_KERNEL_CS                2
+#define GDT_LENTRY_KERNEL_DS                3
+
+#define GDT_LENTRY_KERNEL32_CS_BASE         (GDT_LENTRY_KERNEL32_CS * 8)
+#define GDT_LENTRY_KERNEL_CS_BASE           (GDT_LENTRY_KERNEL_CS * 8)
+#define GDT_LENTRY_KERNEL_DS_BASE           (GDT_LENTRY_KERNEL_DS * 8)
+
+#define GDT_LENTRY_DEFAULT_USER32_CS        4
+#define GDT_LENTRY_DEFAULT_USER_DS          5
+#define GDT_LENTRY_DEFAULT_USER_CS          6
+
+#define GDT_LENTRY_DEFAULT_USER32_CS_BASE   (GDT_LENTRY_DEFAULT_USER32_CS * 8)
+#define GDT_LENTRY_DEFAULT_USER_DS_BASE     (GDT_LENTRY_DEFAULT_USER_DS * 8)
+#define GDT_LENTRY_DEFAULT_USER_CS_BASE     (GDT_LENTRY_DEFAULT_USER_CS * 8)
+
+#ifdef CONFIG_ARCH_X86_32
+#define GDT_ENTRY_MAX 64
+#else
+#define GDT_ENTRY_MAX 16
+#endif
 
 #endif  /* _ARCH_X86_SEG_H_ */
