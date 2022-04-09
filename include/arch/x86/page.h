@@ -28,44 +28,43 @@
 
 #ifndef __ASSEMBLY__
 
-typedef unsigned long pgdval_t;
-typedef unsigned long p4dval_t;
-typedef unsigned long pudval_t;
-typedef unsigned long pmdval_t;
-typedef unsigned long pteval_t;
 
 #if defined(CONFIG_ARCH_X86_32)
+
+typedef unsigned long pgdval_t;
+typedef unsigned long pmdval_t;
+typedef unsigned long pteval_t;
 
 struct pgd {
     union {
         struct {                /* 4KiB page */
-            pgdval_t p:1;       /* Page present (0:non-existent 1:In memory) */
-            pgdval_t rw:1;      /* Read/write if 0, writes may not be allowed */
-            pgdval_t us:1;      /* User/supervisor: if 0, user-mode accesses are not allowed */
-            pgdval_t pwt:1;     /* Page-level write-through */
-            pgdval_t pcd:1;     /* Page-level cache disable */
-            pgdval_t a:1;       /* Accessed indicates whether software has accessed */
-            pgdval_t d:1;       /* Dirty indicates whether software has written (4MB page only) */
-            pgdval_t ps:1;      /* Page size (0:4KB 1:4MB) */
-            pgdval_t g:1;       /* Global; if CR4.PGE = 1, determines whether the translation is global */
-            pgdval_t res0:3;    /* Ignored */
-            pgdval_t addr:20;   /* Physical address of 4-KByte aligned page table referenced by this entry */
+            pgdval_t p:1;       /* 00: Page present (0:non-existent 1:In memory) */
+            pgdval_t rw:1;      /* 01: Read/write if 0, writes may not be allowed */
+            pgdval_t us:1;      /* 02: User/supervisor: if 0, user-mode accesses are not allowed */
+            pgdval_t pwt:1;     /* 03: Page-level write-through */
+            pgdval_t pcd:1;     /* 04: Page-level cache disable */
+            pgdval_t a:1;       /* 05: Accessed indicates whether software has accessed */
+            pgdval_t d:1;       /* 06: Dirty indicates whether software has written (huge page only) */
+            pgdval_t ps:1;      /* 07: Page size */
+            pgdval_t g:1;       /* 08: Global; if CR4.PGE = 1, determines whether the translation is global */
+            pgdval_t res0:3;    /* 09: Ignored */
+            pgdval_t addr:20;   /* 12: Physical address of 4-KByte aligned page table referenced by this entry */
         };
         struct {                /* Huge page */
-            pgdval_t __p:1;     /* Page present (0:non-existent 1:In memory) */
-            pgdval_t __rw:1;    /* Read/write if 0, writes may not be allowed */
-            pgdval_t __us:1;    /* User/supervisor: if 0, user-mode accesses are not allowed */
-            pgdval_t __pwt:1;   /* Page-level write-through */
-            pgdval_t __pcd:1;   /* Page-level cache disable */
-            pgdval_t __a:1;     /* Accessed indicates whether software has accessed */
-            pgdval_t __d:1;     /* Dirty indicates whether software has written (4MB page only) */
-            pgdval_t __ps:1;    /* Page size (0:4KB 1:4MB) */
-            pgdval_t __g:1;     /* Global; if CR4.PGE = 1, determines whether the translation is global */
-            pgdval_t __res0:3;  /* Ignored */
-            pgdval_t pat:1;     /* Ignored */
-            pgdval_t addrh:4;   /* Physical address of 4-KByte aligned page table referenced by this entry */
-            pgdval_t res1:5;    /* Ignored */
-            pgdval_t addrl:10;  /* Physical address of 4-KByte aligned page table referenced by this entry */
+            pgdval_t __p:1;     /* 00: Page present (0:non-existent 1:In memory) */
+            pgdval_t __rw:1;    /* 01: Read/write if 0, writes may not be allowed */
+            pgdval_t __us:1;    /* 02: User/supervisor: if 0, user-mode accesses are not allowed */
+            pgdval_t __pwt:1;   /* 03: Page-level write-through */
+            pgdval_t __pcd:1;   /* 04: Page-level cache disable */
+            pgdval_t __a:1;     /* 05: Accessed indicates whether software has accessed */
+            pgdval_t __d:1;     /* 06: Dirty indicates whether software has written (huge page only) */
+            pgdval_t __ps:1;    /* 07: Page size */
+            pgdval_t __g:1;     /* 08: Global; if CR4.PGE = 1, determines whether the translation is global */
+            pgdval_t __res0:3;  /* 09: Ignored */
+            pgdval_t pat:1;     /* 12: Indirectly determines the memory type used to access the page referenced by this entry */
+            pgdval_t addrh:4;   /* 13: Physical address of 4-KByte aligned page table referenced by this entry */
+            pgdval_t res1:5;    /* 17: Indirectly determines the memory type used to access the 4-KByte page referenced by this entry */
+            pgdval_t addrl:10;  /* 22: Physical address of 4-KByte aligned page table referenced by this entry */
         };
         pgdval_t val;
     };
@@ -74,17 +73,17 @@ struct pgd {
 struct pte {
     union {
         struct {
-            pteval_t p:1;       /* Page present (0:non-existent 1:In memory) */
-            pteval_t rw:1;      /* Read/write if 0, writes may not be allowed */
-            pteval_t us:1;      /* User/supervisor: if 0, user-mode accesses are not allowed */
-            pteval_t pwt:1;     /* Page-level write-through */
-            pteval_t pcd:1;     /* Page-level cache disable */
-            pteval_t a:1;       /* Accessed indicates whether software has accessed */
-            pteval_t d:1;       /* Dirty indicates whether software has written (4MB page only) */
-            pteval_t pat:1;     /* Page size (0:4KB 1:4MB) */
-            pteval_t g:1;       /* Global; if CR4.PGE = 1, determines whether the translation is global */
-            pteval_t RES0:3;    /* Ignored */
-            pteval_t addr:20;   /* Physical address of the 4-KByte page referenced by this entry */
+            pteval_t p:1;       /* 00: Page present (0:non-existent 1:In memory) */
+            pteval_t rw:1;      /* 01: Read/write if 0, writes may not be allowed */
+            pteval_t us:1;      /* 02: User/supervisor: if 0, user-mode accesses are not allowed */
+            pteval_t pwt:1;     /* 03: Page-level write-through */
+            pteval_t pcd:1;     /* 04: Page-level cache disable */
+            pteval_t a:1;       /* 05: Accessed indicates whether software has accessed */
+            pteval_t d:1;       /* 06: Dirty indicates whether software has written (4MB page only) */
+            pteval_t pat:1;     /* 07: Indirectly determines the memory type used to access the page referenced by this entry */
+            pteval_t g:1;       /* 08: Global; if CR4.PGE = 1, determines whether the translation is global */
+            pteval_t RES0:3;    /* 09: Ignored */
+            pteval_t addr:20;   /* 12: Physical address of the 4-KByte page referenced by this entry */
         };
         pteval_t val;
     };
@@ -92,55 +91,66 @@ struct pte {
 
 #elif defined(CONFIG_ARCH_X86_64)
 
+typedef unsigned long long pgdval_t;
+typedef unsigned long long p4dval_t;
+typedef unsigned long long pudval_t;
+typedef unsigned long long pmdval_t;
+typedef unsigned long long pteval_t;
+
 struct pgd {
     union {
         struct {                /* Normal Page */
-            pgdval_t p:1;       /* Page present (0:non-existent 1:In memory) */
-            pgdval_t rw:1;      /* Read/write if 0, writes may not be allowed */
-            pgdval_t us:1;      /* User/supervisor: if 0, user-mode accesses are not allowed */
-            pgdval_t pwt:1;     /* Page-level write-through */
-            pgdval_t pcd:1;     /* Page-level cache disable */
-            pgdval_t a:1;       /* Accessed indicates whether software has accessed */
-            pgdval_t d:1;       /* Dirty indicates whether software has written (4MB page only) */
-            pgdval_t ps:1;      /* Page size (0:4KB 1:4MB) */
-            pgdval_t g:1;       /* Global; if CR4.PGE = 1, determines whether the translation is global */
-            pgdval_t res0:3;    /* Ignored */
-            pgdval_t addr:20;   /* Physical address of 4-KByte aligned page table referenced by this entry */
+            pgdval_t p:1;       /* 00: Page present (0:non-existent 1:In memory) */
+            pgdval_t rw:1;      /* 01: Read/write if 0, writes may not be allowed */
+            pgdval_t us:1;      /* 02: User/supervisor: if 0, user-mode accesses are not allowed */
+            pgdval_t pwt:1;     /* 03: Page-level write-through */
+            pgdval_t pcd:1;     /* 04: Page-level cache disable */
+            pgdval_t a:1;       /* 05: Accessed indicates whether software has accessed */
+            pgdval_t d:1;       /* 06: Dirty indicates whether software has written (huge page only) */
+            pgdval_t ps:1;      /* 07: Page size */
+            pgdval_t g:1;       /* 08: Global; if CR4.PGE = 1, determines whether the translation is global */
+            pgdval_t res0:3;    /* 09: Ignored */
+            pgdval_t addr:40;   /* 12: Physical address of 4-KByte aligned page table referenced by this entry */
         };
         struct {                /* Huge Page */
-            pgdval_t __p:1;     /* Page present (0:non-existent 1:In memory) */
-            pgdval_t __rw:1;    /* Read/write if 0, writes may not be allowed */
-            pgdval_t __us:1;    /* User/supervisor: if 0, user-mode accesses are not allowed */
-            pgdval_t __pwt:1;   /* Page-level write-through */
-            pgdval_t __pcd:1;   /* Page-level cache disable */
-            pgdval_t __a:1;     /* Accessed indicates whether software has accessed */
-            pgdval_t __d:1;     /* Dirty indicates whether software has written (4MB page only) */
-            pgdval_t __ps:1;    /* Page size (0:4KB 1:4MB) */
-            pgdval_t __g:1;     /* Global; if CR4.PGE = 1, determines whether the translation is global */
-            pgdval_t __res0:3;  /* Ignored */
-            pgdval_t pat:1;     /* Ignored */
-            pgdval_t addrh:4;   /* Physical address of 4-KByte aligned page table referenced by this entry */
-            pgdval_t res1:5;    /* Ignored */
-            pgdval_t addrl:10;  /* Physical address of 4-KByte aligned page table referenced by this entry */
+            pgdval_t __p:1;     /* 00: Page present (0:non-existent 1:In memory) */
+            pgdval_t __rw:1;    /* 01: Read/write if 0, writes may not be allowed */
+            pgdval_t __us:1;    /* 02: User/supervisor: if 0, user-mode accesses are not allowed */
+            pgdval_t __pwt:1;   /* 03: Page-level write-through */
+            pgdval_t __pcd:1;   /* 04: Page-level cache disable */
+            pgdval_t __a:1;     /* 05: Accessed indicates whether software has accessed */
+            pgdval_t __d:1;     /* 06: Dirty indicates whether software has written (huge page only) */
+            pgdval_t __ps:1;    /* 07: Page size */
+            pgdval_t __g:1;     /* 08: Global; if CR4.PGE = 1, determines whether the translation is global */
+            pgdval_t __res0:3;  /* 09: Ignored */
+            pgdval_t pat:1;     /* 12: Indirectly determines the memory type used to access the page referenced by this entry */
+            pgdval_t __res1:8;  /* 13: Ignored */
+            pgdval_t addrl:31;  /* 21: Physical address of 4-KByte aligned page table referenced by this entry */
+            pgdval_t __res2:7;  /* 52: Ignored */
+            pgdval_t prot:4;    /* 59: Protection key; if CR4.PKE = 1 or CR4.PKS = 1 */
+            pgdval_t xd:1;      /* 63: If IA32_EFER.NXE = 1, execute-disable */
         };
         pgdval_t val;
     };
-};
+} __packed;
 
 struct pte {
     union {
         struct {
-            pteval_t p:1;       /* Page present (0:non-existent 1:In memory) */
-            pteval_t rw:1;      /* Read/write if 0, writes may not be allowed */
-            pteval_t us:1;      /* User/supervisor: if 0, user-mode accesses are not allowed */
-            pteval_t pwt:1;     /* Page-level write-through */
-            pteval_t pcd:1;     /* Page-level cache disable */
-            pteval_t a:1;       /* Accessed indicates whether software has accessed */
-            pteval_t d:1;       /* Dirty indicates whether software has written (4MB page only) */
-            pteval_t pat:1;     /* Page size (0:4KB 1:4MB) */
-            pteval_t g:1;       /* Global; if CR4.PGE = 1, determines whether the translation is global */
-            pteval_t res0:3;    /* Ignored */
-            pteval_t addr:40;   /* Physical address of the 4-KByte page referenced by this entry */
+            pteval_t p:1;       /* 00: Page present (0:non-existent 1:In memory) */
+            pteval_t rw:1;      /* 01: Read/write if 0, writes may not be allowed */
+            pteval_t us:1;      /* 02: User/supervisor: if 0, user-mode accesses are not allowed */
+            pteval_t pwt:1;     /* 03: Page-level write-through */
+            pteval_t pcd:1;     /* 04: Page-level cache disable */
+            pteval_t a:1;       /* 05: Accessed indicates whether software has accessed */
+            pteval_t d:1;       /* 06: Dirty indicates whether software has written (4MB page only) */
+            pteval_t pat:1;     /* 07: Indirectly determines the memory type used to access the page referenced by this entry */
+            pteval_t g:1;       /* 08: Global; if CR4.PGE = 1, determines whether the translation is global */
+            pteval_t res0:3;    /* 09: Ignored */
+            pteval_t addr:40;   /* 12: Physical address of the 4-KByte page referenced by this entry */
+            pteval_t res1:7;    /* 52: Ignored */
+            pteval_t prot:4;    /* 59: Protection key; if CR4.PKE = 1 or CR4.PKS = 1 */
+            pteval_t xd:1;      /* 63: If IA32_EFER.NXE = 1, execute-disable */
         };
         pteval_t val;
     };
@@ -157,8 +167,8 @@ struct pte {
 #define PAGE_PWT_THROUGH    0x01
 #define PAGE_PCD_CACHEON    0x00
 #define PAGE_PCD_CACHEOFF   0x01
-#define PAGE_PS_4K          0x00
-#define PAGE_PS_4M          0x01
+#define PAGE_PS_NORMAL      0x00
+#define PAGE_PS_HUGE        0x01
 #define PAGE_PDT_OFF        0x00
 #define PAGE_PDT_ON         0x01
 

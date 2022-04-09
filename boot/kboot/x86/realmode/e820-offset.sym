@@ -1,0 +1,9 @@
+-- SPDX-License-Identifier: GPL-2.0-or-later
+#include <types.h>
+#include <stddef.h>
+#include <asm/header.h>
+
+#define bootparam(member) offsetof(struct bootparam, member)
+
+E820_NUM    bootparam(e820_table.entry_nr)
+E820_ENTRY  bootparam(e820_table.entry)

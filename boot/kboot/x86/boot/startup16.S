@@ -4,29 +4,21 @@
  */
 
 #include <linkage.h>
-#include <kboot16.h>
+#include <kboot.h>
 #include <arch/x86/seg.h>
+#include <arch/x86/regs.h>
 
-#define IO_DELAY \
+#define io_delay \
     outb    %al, $0x80
 
 #define printf(str) \
     movw    $str, %si; \
     call    Service_printf
 
-#define int_safe(num)                   \
-    movw    %sp, %gs;                   \
-    movw    $(BIOS_STACK >> 4), %sp;    \
-    movw    %sp, %ss;                   \
-    movw    $(BIOS_STACK & 0xf), %sp;   \
-    int     $num;                       \
-    movw    %cs, %sp;                   \
-    movw    %sp, %ss;                   \
-    movw    %gs, %sp
-
     .code16
-    .section    .startup, "ax"
-GLOBAL(startup16)
+    .section .startup, "ax"
+
+SYM_FUNC_START(startup16)
     cli
     cld
 
@@ -45,7 +37,6 @@ GLOBAL(startup16)
 
     movw    %ax, %ds
     movw    %ax, %es
-    movw    %ax, %ss
     movw    %ax, 1f
 
     .byte   0x66, 0xea  /* ljmpl opcode */
@@ -53,14 +44,30 @@ GLOBAL(startup16)
 1:  .word   0x00        /* segment */
 2:
 
-    /* Save boot_offset */
+    /* Save boot_offset first */
     movl    %ebx, boot_offset
+
+    /* Clean screen */
+    movb    $0x00, %ah
+    movb    $0x02, %al
+    int     $0x10
+
+#ifdef CONFIG_ARCH_X86_64
+/*
+ * Tell the BIOS what CPU mode
+ * we intend to run in.
+ */
+    movw    $0xec00, %ax
+    movw    $0x0002, %bx
+    int     $0x15
+#endif
 
 /*
  * Check whether there is enough
- * space in the stack.
+ * space in the bootparam.
  */
-    leal    _ld_stack_end(%ebx), %eax
+    movl    boot_offset, %ebx
+    leal    _ld_bootparam_end(%ebx), %eax
     cmpl    $EBDA_START, %eax
     jle     1f
 
@@ -69,61 +76,72 @@ GLOBAL(startup16)
 1:
 
 /*
- * Enable the big real mode.
+ * We need to turn on A20 before we can load
+ * the kernel into high-level memory
  */
-    /* load gdt and idt table */
-    addl    %ebx, gdt_fix
+    printf(TXT_A20ENABLE)
+    call    a20_enable
+    testw   %ax, %ax
+    jnz     1f
+
+    printf(TXT_A20ERROR)
+    jmp     halt_16
+1:
+
+/*
+ * We need to probe memory in real mode.
+ */
+    printf(TXT_MEMDETECT)
+    call    memdetect
+
+/*
+ * We will use flat mode in later copies,
+ * so we Enable the big real mode here.
+ */
+
+    /* Load GDT table */
+    movl    boot_offset, %ebx
+    addl    %ebx, gdt_struct + 2
     lgdtl   gdt_struct
 
-    /* enable pe mode */
+    /* Enable PE mode */
     movl    %cr0, %eax
     orl     $(1<<0), %eax
     movl    %eax, %cr0
 
-    /* tell 386/486 not crash */
+    /* Tell 386/486 not crash */
     jmp     1f
 1:
 
-    /* select descriptor */
+    /* Select descriptor */
     movw    $GDT_ENTRY_BOOT_DS_BASE, %ax
-    movw    %ax, %fs
+    movw    %ax, %es
 
-    /* disable pe mode */
+    /* Disable PE mode */
     movl    %cr0, %eax
     xorl    $(1<<0), %eax
     movl    %eax, %cr0
 
 /*
- * We need to turn on A20 before we can load
- * the kernel into high-level memory
- */
-#if 0
-    printf(TXT_A20ENABLE)
-    calll   a20_enable
-    cmpl    $0, %eax
-    je      1f
-
-    printf(TXT_A20ERROR)
-    jmp     halt_16
-1:
-#endif
-
-/*
  * Check whether the kernel is loaded.
  */
-    movl    code32_start, %ebx
-    movl    %fs:(%ebx), %eax
+    movl    code32_start, %edx
+    movl    %es:(%edx), %eax
     cmpl    $PIGGY_MAGIC, %eax
-    je      3f
+    je      2f
 
 /*
- * If there is enough memory, copy the
- * kernel to the specified area.
+ * Running here shows that bootloader does not load
+ * the kernel dispersedly. We manually split the kernel
+ * to the specified address.
  */
     movl    boot_offset, %ebx
     leal    _ld_kernel_size(%ebx), %eax
     cmpl    $EBDA_START, %eax
     jle     1f
+
+    movw    %ds, %ax
+    movw    %ax, %es
 
     printf(TXT_PIGGYBIG)
     jmp     halt_16
@@ -133,105 +151,68 @@ GLOBAL(startup16)
     movl    $_ld_piggy_magic, %edi
     movl    $_ld_kernel_size, %ecx
     shrl    $2, %ecx
-
+    rep;    movsl %es:(%esi), %es:(%edi)
 2:
-    movl    %fs:(%esi), %edx
-    movl    %edx, %fs:(%edi)
-    addl    $4, %esi
-    addl    $4, %edi
-    loopl   2b
-3:
 
 /*
- * From this point on, bss and
- * stack can be used.
+ * Because of some problems with the compiler,
+ * we can't use location independent, so we
+ * copy the code to the absolute address.
  */
-
-    /* Initialization real mode stack */
-    movl    $_ld_stack_end, %esp
-
-    /* Clean screen */
-    movb    $0x00, %ah
-    movb    $0x02, %al
-    int     $0x10
-
-    /* Clear the BSS region */
-    leal    _ld_bss_start, %edi
-    leal    _ld_bss_end, %ecx
-    subl    %edi, %ecx
+    movl    boot_offset, %esi
+    movl    $_ld_header_start, %edi
+    movl    $_ld_header_size, %ecx
     shrl    $2, %ecx
-    xorl    %eax, %eax
-    rep;    stosl %eax, %es:(%edi)
+    rep;    movsl %es:(%esi), %es:(%edi)
 
-/*
- * The startup header is meaningless
- * after boot, so we use it as a
- * temporary stack.
- */
-    printf(TXT_MEMDETECT)
-    calll   memdetect
-
-/*
- * Disable NMI
- */
+    /* Disable NMI */
     movb    $0x80, %al
     outb    %al, $0x70
-    IO_DELAY
+    io_delay
 
-/*
- * Reset Coprocessor
- */
+    /* Reset Coprocessor */
     mov     $0xf0, %al
     outb    %al, $0xa1
-    IO_DELAY
+    io_delay
     mov     $0xf1, %al
     outb    %al, $0xa1
-    IO_DELAY
+    io_delay
 
-/*
- * Mask PIC Channel
- */
+    /* Mask PIC Channel */
     movb    $0xff, %al
     outb    %al, $0xa1
-    IO_DELAY
+    io_delay
     movb    $0xfb, %al
     outb    %al, $0x21
-    IO_DELAY
+    io_delay
 
-    /* load gdt table */
+    /* Load GDT table */
     lgdtl   gdt_struct
 
-    /* load idt table */
+    /* Load IDT table */
     lidtl   idt_table
 
-    /* enable pe mode */
+    /* Enable PE mode */
     movl    %cr0, %eax
-    orl     $(1<<0), %eax
+    orl     $CR0_PE, %eax
     movl    %eax, %cr0
 
-    /* jmp to 32 */
-    movl    %ds, %eax
-    shll    $4, %eax
-    addl    %eax, 1f
+    /* Jump to protected mode */
+    ljmpl   $GDT_ENTRY_BOOT_CS_BASE, $startup32
 
-    /* pass offset to protected mode */
-    movl    boot_offset, %ebx
+SYM_FUNC_END(startup16)
 
-    .byte   0x66, 0xea              /* ljmpl opcode */
-1:  .long   startup32               /* offset */
-    .word   GDT_ENTRY_BOOT_CS_BASE  /* segment */
-END(startup16)
-
-halt_16:
+SYM_FUNC_START(halt_16)
     cli
     rep;    hlt
     jmp     halt_16
+SYM_FUNC_END(halt_16)
 
 /*
  * Screen Print Service:
  *  String Pointer: %SI
  */
-Service_printf:
+SYM_FUNC_START(Service_printf)
     movb    $0x0e, %ah
     movb    $0x03, %bl
     jmp     printf_loop
@@ -242,83 +223,31 @@ printf_loop:
     cmpb    $0, %al
     jne     1b
     ret
-
-GLOBAL(bios_int)
-    pushl   %ebp
-    movl    %esp, %ebp
-
-    pushfl
-    pushw   %ds
-    pushw   %es
-    pushal
-
-    /* arg0: call number */
-    movl    8(%ebp), %eax
-    movb    %al, intnr
-
-    /* arg2: save regs */
-    movl    16(%ebp), %eax
-    addl    $0x28, %eax
-    pushl   %eax
-
-    /* arg1: load regs */
-    movl    %esp, %gs
-    movl    12(%ebp), %esp
-
-    /* pop register form ir */
-    popal
-    popw    %es
-    popw    %ds
-    popfl
-
-    /* recovery sp */
-    movl    %gs, %esp
-
-    /* int imm8 */
-    .byte   0xcd
-intnr:  .byte  0
-
-    /* pop save regs */
-    popl    %esp
-
-    /* push register to or */
-    pushfl
-    pushw   %ds
-    pushw   %es
-    pushal
-
-    movl    %gs, %esp
-    addl    $0x4, %esp
-
-    popal
-    popw    %es
-    popw    %ds
-    popfl
-
-    leavel
-    ret
-END(bios_int)
+SYM_FUNC_END(Service_printf)
 
     .align  16
-gdt_table:
+SYM_DATA_START_LOCAL(gdt_table)
     .long   0x00000000      /* 0x00: NULL ENTRY                     */
     .long   0x00000000      /* 0x04: NULL                           */
     .long   0x0000ffff      /* 0x08: CS ENTRY                       */
-    .long   0x00cf9b00      /* 0x0c: code, read/exe, 4GB, base=0    */
+    .long   0x00cf9a00      /* 0x0c: code, read/exe, 4GB, base=0    */
     .long   0x0000ffff      /* 0x10: DS ENTRY                       */
-    .long   0x00cf9300      /* 0x14: data, read/write, 4GB, base=0  */
+    .long   0x00cf9200      /* 0x14: data, read/write, 4GB, base=0  */
 gdt_struct:
     .word   0x0017          /* GDT Limit    */
-gdt_fix: .long gdt_table    /* GDT Addr     */
+    .long gdt_table         /* GDT Addr     */
+SYM_DATA_END(gdt_table)
 
     .align  16
-idt_table:
+SYM_DATA_START_LOCAL(idt_table)
     .word   0x0000          /* IDT Limit    */
     .long   0x00000000      /* IDT Addr     */
+SYM_DATA_END(idt_table)
 
     .align  4
-boot_offset:
+SYM_DATA_START(boot_offset)
     .long   0x00000000
+SYM_DATA_END(boot_offset)
 
     .align  4
 TXT_BOOTBIG:    .asciz "[HEAD]: Boot head too big...\n\r"

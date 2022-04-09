@@ -4,7 +4,7 @@
  */
 
 #include <size.h>
-#include <kboot16.h>
+#include <kboot.h>
 #include <asm-generic/kernel.lds.h>
 
 #if defined(CONFIG_ARCH_X86_32)
@@ -53,48 +53,16 @@ SECTIONS {
         *(.data.*)
     }
 
-    .got.plt (INFO) : {
-        *(.got.plt)
-    }
-
-    .got : {
-        *(.got)
-    }
-
-    .plt : {
-        *(.plt)
-        *(.plt.*)
-    }
-
-    .rel.dyn : {
-        *(.rel.*)
-        *(.rel_*)
-    }
-
-    .rela.dyn : {
-        *(.rela.*)
-        *(.rela_*)
+    .bootparam (NOLOAD) : {
+        . = ALIGN(4);
+        _ld_bootparam_start = .;
+        *(.bootparam)
+        *(.bootparam.*)
+        _ld_bootparam_end = .;
     }
 
     . = ALIGN(512);
     _ld_header_end = .;
-
-    .bss (NOLOAD) : {
-        . = ALIGN(4);
-        _ld_bss_start = .;
-        *(.bss)
-        *(.bss.*)
-        *(COMMON)
-        . = ALIGN(4);
-        _ld_bss_end = .;
-    }
-
-    .stack (NOLOAD) : {
-        . = ALIGN(4);
-        _ld_stack_start = .;
-        . = _ld_stack_start + STACK_SIZE;
-        _ld_stack_end = .;
-    }
 
     . = KERNEL_OFFSET;
 
@@ -121,6 +89,23 @@ SECTIONS {
 
 #undef LOAD_OFFSET
 
+    .bss (NOLOAD) : {
+        . = ALIGN(4);
+        _ld_bss_start = .;
+        *(.bss)
+        *(.bss.*)
+        *(COMMON)
+        . = ALIGN(4);
+        _ld_bss_end = .;
+    }
+
+    .stack (NOLOAD) : {
+        . = ALIGN(4);
+        _ld_stack_start = .;
+        . = _ld_stack_start + STACK_SIZE;
+        _ld_stack_end = .;
+    }
+
     .heap (NOLOAD) : {
         . = ALIGN(4);
         _ld_heap_start = .;
@@ -142,8 +127,7 @@ SECTIONS {
 }
 
 PROVIDE(_ld_header_size = _ld_header_end - _ld_header_start);
-PROVIDE(_ld_memory_size = _ld_stack_end - _ld_header_start);
 PROVIDE(_ld_kernel_size = _ld_kernel_end - _ld_kernel_start);
 PROVIDE(_ld_header_sects = (_ld_header_size / 512) - 1);
 PROVIDE(_ld_sys_size = _ld_kernel_size / 16);
-ASSERT(_ld_memory_size < 0xfc00, "Boot head too big! (64KiB)");
+ASSERT(_ld_header_size < 0xfc00, "Boot head too big! (64KiB)");

@@ -28,8 +28,8 @@ sys-ccflags-$(CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE)   += -O2
 sys-ccflags-$(CONFIG_CC_OPTIMIZE_FOR_SIZE)          += -Os
 sys-ccflags-$(CONFIG_STRICT) += -Werror
 
-sys-ccflags-y  += -nostdinc -fno-builtin
-sys-ccflags-y  += -static -fno-pic
+sys-acflags-y  += -fno-pic -fno-pie
+sys-ccflags-y  += -nostdinc -fno-builtin -static
 sys-ccflags-y  += -fno-common -fno-stack-protector
 sys-ccflags-y  += -ffreestanding -std=gnu11
 

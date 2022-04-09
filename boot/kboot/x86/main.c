@@ -6,7 +6,16 @@
 #include <linkage.h>
 #include <memory.h>
 #include <kboot.h>
+#include <asm/io.h>
 #include <arch/x86/seg.h>
+
+#ifdef CONFIG_ARCH_X86_32
+#define KERNEL_SEGMENT GDT_ENTRY_KERNEL_CS_BASE
+#else
+#define KERNEL_SEGMENT GDT_LENTRY_KERNEL_CS_BASE
+#endif
+
+struct bootparam bootparam __bootparam;
 
 asmlinkage void main(void)
 {
@@ -17,7 +26,7 @@ asmlinkage void main(void)
     console_clear();
     pr_init(console_print);
 
-    magic = *(uint32_t *)code32_start;
+    magic = readl(piggy_load);
     if (magic != PIGGY_MAGIC)
         panic("bad kernel image");
 
@@ -27,12 +36,12 @@ asmlinkage void main(void)
     kernel_map();
 
     /* Extract kernel */
-    extract_kernel(pa_to_va(NORMAL_OFFSET), (void *)code32_start + 4, piggy_size);
+    extract_kernel(pa_to_va(NORMAL_OFFSET), piggy_load + 4, piggy_size);
     head = pa_to_va(NORMAL_OFFSET);
-    head->cmd = (size_t)pa_to_va(cmd_line_ptr);
-    head->params = (size_t)pa_to_va(&bootparam);
+    head->cmd = (uintptr_t)pa_to_va(cmd_line_ptr);
+    head->params = (uintptr_t)pa_to_va(&bootparam);
 
     /* Boot kernel */
     pr_boot("boot to kernel...\n");
-    kernel_start(GDT_ENTRY_KERNEL_CS_BASE, (size_t)pa_to_va(NORMAL_OFFSET));
+    kernel_start(KERNEL_SEGMENT, pa_to_va(NORMAL_OFFSET));
 }

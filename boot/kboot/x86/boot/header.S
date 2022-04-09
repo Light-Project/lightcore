@@ -30,7 +30,8 @@
 
     .code16
     .section .head, "ax"
-GLOBAL(kboot_header)
+
+SYM_CODE_START(kboot_header)
 
 #ifdef CONFIG_EFI_STUB
     .word    MZ_MAGIC
@@ -98,7 +99,7 @@ vid_mode:                   .word       SVGA_MODE                   /* 0x1fa: Vi
 root_dev:                   .word       DEFAULT_ROOT_DEV            /* 0x1fc: Default root device */
 boot_flag:                  .word       0xaa55                      /* 0x1fe: MBR boot magic */
 _start:                     .byte       0xeb                        /* 0x200: Offset 512, entry point */
-                            .byte       startup16 - header          /* 0x201: Short (2-byte) jump */
+_start2:                    .byte       startup16 - header          /* 0x201: Short (2-byte) jump */
 header:                     .ascii      "HdrS"                      /* 0x202: Header signature */
 version:                    .word       0x020f                      /* 0x206: Header version number */
 realmode_swtch:             .word       0, 0                        /* 0x208: default_switch, SETUPSEG */
@@ -131,7 +132,8 @@ init_size:                  .long       0                           /* 0x260: Ke
 handover_offset:            .long       0                           /* 0x264: EFI stub entry */
 kernel_info_offset:         .long       0                           /* 0x268: Kernel info offset */
 kernel_version_msg:         .ascii      CONFIG_VERSION
-END(kboot_header)
+
+SYM_CODE_END(kboot_header)
 
 .global sentinel
 .global kboot_params

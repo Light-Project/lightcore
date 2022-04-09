@@ -2,7 +2,11 @@
 #ifndef _KBOOT_H_
 #define _KBOOT_H_
 
-#include <kboot16.h>
+#define PIGGY_MAGIC     0x55aa00ff
+#define EBDA_START      0x9fc00
+
+#ifndef __ASSEMBLY__
+
 #include <lib.h>
 #include <asm/header.h>
 
@@ -52,20 +56,25 @@ extern uint8_t _ld_piggy_end;
 extern uint8_t _ld_heap_start;
 extern uint8_t _ld_heap_end;
 
-#define piggy_start ((void *)&_ld_piggy_start - (size_t)&kboot_header)
-#define piggy_end   ((void *)&_ld_piggy_end - (size_t)&kboot_header)
-#define piggy_size  ((size_t)piggy_end - (size_t)piggy_start)
+#define __bootparam __section(".bootparam")
+extern struct bootparam bootparam;
 
-#define heap_start  ((void *)&_ld_heap_start - (size_t)&kboot_header)
-#define heap_end    ((void *)&_ld_heap_end - (size_t)&kboot_header)
-#define heap_size   ((size_t)heap_end - (size_t)heap_start)
+#define piggy_start ((void *)&_ld_piggy_start - (uintptr_t)&kboot_header)
+#define piggy_end   ((void *)&_ld_piggy_end - (uintptr_t)&kboot_header)
+#define piggy_size  ((uintptr_t)piggy_end - (uintptr_t)piggy_start)
+#define piggy_load  ((void *)(uintptr_t)code32_start)
+
+#define heap_start  ((void *)&_ld_heap_start - (uintptr_t)&kboot_header)
+#define heap_end    ((void *)&_ld_heap_end - (uintptr_t)&kboot_header)
+#define heap_size   ((uintptr_t)heap_end - (uintptr_t)heap_start)
 
 extern void kboot_header(void);
-extern void __noreturn kernel_start(uint16_t segment, uint32_t offset);
+extern void __noreturn kernel_start(uint16_t segment, void *offset);
 extern void __noreturn halt(void);
 extern void kernel_map(void);
 extern void segment_init(void);
 extern void console_print(const char *str);
 extern void console_clear(void);
 
+#endif  /* __ASSEMBLY__ */
 #endif  /* _KBOOT_H_ */
