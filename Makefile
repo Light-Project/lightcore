@@ -129,18 +129,17 @@ elf-always-y += lightcore
 lightcore.dump-obj += lightcore
 dump-always-$(CONFIG_KERNEL_DUMP) += lightcore.dump
 
-build/boot/kboot: build
-build/boot/preload: build
-disk: preload
+build/boot/kboot: build FORCE
+build/boot/preload: asm-generic FORCE
 
-kboot:      build/boot/kboot FORCE
-preload:    build/boot/preload FORCE
-tools:      build/tools/kernelcrc build/tools/mkincbin FORCE
+kboot: build/boot/kboot FORCE
+preload: build/boot/preload FORCE
+tools: build/tools/kernelcrc build/tools/mkincbin FORCE
 
 build: asm-generic scripts_basic tools FORCE
 	$(Q)$(MAKE) $(build)=$(srctree)
 
-disk uboot: kboot FORCE
+disk uboot: kboot preload FORCE
 	$(Q)$(MAKE) $(build)=$(srctree)/boot $@
 
 ifdef CONFIG_PRELOAD

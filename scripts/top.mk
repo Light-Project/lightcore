@@ -19,15 +19,22 @@ include $(build_home)/include/warn.mk
 MAKEFLAGS   += -rR
 MAKEFLAGS   += --no-print-directory
 
-ifneq ("$(origin V)", "command line")
+ifeq ("$(origin V)", "command line")
+BUILD_VERBOSE = $(V)
+else
+BUILD_VERBOSE = 0
+endif
+
+ifeq ($(BUILD_VERBOSE),1)
+quiet       =
+Q           =
+else
 MAKEFLAGS   += -s
 quiet       = quiet_
 Q           = @
-else
-quiet       =
-Q           =
 endif
-export quiet Q
+
+export quiet Q BUILD_VERBOSE
 
 ifeq ($(CONFIG_KERNEL_DEBUG),y)
 export G = 1
@@ -187,17 +194,17 @@ distclean: mrproper FORCE
 help: FORCE
 	$(Q)$(ECHO) 'Generic targets:'
 	$(Q)$(ECHO) '  all              - Build all targets marked with [*]'
-	$(Q)$(ECHO) '  kboot            - Build all targets marked with [*]'
-	$(Q)$(ECHO) '  uboot            - Build all targets marked with [*]'
-	$(Q)$(ECHO) '  preload          - Build all targets marked with [*]'
-	$(Q)$(ECHO) '  disk             - Build all targets marked with [*]'
+	$(Q)$(ECHO) '  disk             - Build kboot preload and generate a disk image'
+	$(Q)$(ECHO) '  uboot            - Build kboot and generate a uboot image'
+	$(Q)$(ECHO) '  preload          - Build the preload section only'
+	$(Q)$(ECHO) '  kboot            - Build kboot and kernel'
 	$(Q)$(ECHO) ''
 	$(Q)$(ECHO) 'Other generic targets:'
-	$(Q)$(ECHO) '  build/dir        - Build all files in dir and below'
-	$(Q)$(ECHO) '  build/dir/file.o - Build one files in dir'
+	$(Q)$(ECHO) '  build/dir        - Build all targets in dir and below'
+	$(Q)$(ECHO) '  build/dir/file.* - Build one target in dir'
 	$(Q)$(ECHO) '  dtbs             - Build all DTB'
 	$(Q)$(ECHO) '  file.dtb         - Build one specific DTB'
-	$(Q)$(ECHO) '  build/dir        - Build all files in dir and below'
+	$(Q)$(ECHO) '  clean/dir        - Clean all targets in dir and below'
 	$(Q)$(ECHO) ''
 	$(Q)$(ECHO) 'Cleaning targets:'
 	$(Q)$(ECHO) '  clean            - Remove most generated files but keep the config'
@@ -217,6 +224,7 @@ help: FORCE
 	$(Q)$(MAKE) -f scripts/kconfig/Makefile help
 	$(Q)$(ECHO) ''
 	$(Q)$(ECHO) 'Other targets:'
+	$(Q)$(ECHO) '  install          - Install the kernel to the specified path (INSTALL_PATH)'
 	$(Q)$(ECHO) '  run              - Execute (download or simulation) the selected platform'
 
 # We are always building only modules.

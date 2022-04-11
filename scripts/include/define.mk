@@ -422,7 +422,7 @@ if_changed_rule = $(if $(newer-prereqs)$(cmd-check),$(rule_$(1)),@:)
 # (5) No dir/.target.cmd file (used to store command line)
 # (6) No dir/.target.cmd file and target not listed in $(targets)
 #     This is a good hint that there is a bug in the kbuild file
-ifeq ($(KBUILD_VERBOSE),2)
+ifeq ($(BUILD_VERBOSE),2)
 why =                                                                       \
     $(if $(filter $@, $(PHONY)),- due to target is PHONY,                   \
         $(if $(wildcard $@),                                                \

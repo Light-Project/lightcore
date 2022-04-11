@@ -86,6 +86,7 @@ $(clean_subdir):
 
 PHONY += _clean
 _clean: $(clean_subdir) $(clean_files) $(clean_dirs)
+	@:
 
 # We are always building only modules.
 PHONY += FORCE
