@@ -1,6 +1,11 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 menu "IRQ Chip Device Support"
 
+config IRQCHIP_DT
+    bool "IRQ Chip Device Tree Linkage"
+    depends on DT
+    default y
+
 config IRQCHIP_8259
     bool "I8259 Interrupt Controller"
     depends on ARCH_X86

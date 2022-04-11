@@ -75,3 +75,15 @@ struct irqchip_channel *dt_irqchip_channel_name(struct dt_node *node, const char
 
     return dt_irqchip_channel(node, index);
 }
+
+void __init dt_irqchip_slave_setup(void)
+{
+    struct irqchip_device *idev;
+    struct irqchip_channel *channel;
+
+    list_for_each_entry(idev, &irqchip_list, list) {
+        if (!(channel = dt_irqchip_channel(idev->dt_node, 0)))
+            continue;
+        irqchip_slave_add(channel, idev);
+    }
+}

@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "irqchip: " fmt
+#define MODULE_NAME "irqchip"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <kmalloc.h>
 #include <initcall.h>
@@ -11,76 +12,6 @@
 #include <printk.h>
 
 LIST_HEAD(irqchip_list);
-
-state irqchip_pass(struct irqchip_channel *channel)
-{
-    struct irqchip_device *idev = channel->irqchip;
-
-    if (!idev->ops->pass)
-        return -ENXIO;
-
-    return idev->ops->pass(idev, channel->index);
-}
-
-state irqchip_mask(struct irqchip_channel *channel)
-{
-    struct irqchip_device *idev = channel->irqchip;
-
-    if (!idev->ops->mask)
-        return -ENXIO;
-
-    return idev->ops->mask(idev, channel->index);
-}
-
-state irqchip_ack(struct irqchip_channel *channel)
-{
-    struct irqchip_device *idev = channel->irqchip;
-
-    if (!idev->ops->ack)
-        return -ENXIO;
-
-    return idev->ops->ack(idev, channel->index);
-}
-
-state irqchip_eoi(struct irqchip_channel *channel)
-{
-    struct irqchip_device *idev = channel->irqchip;
-
-    if (!idev->ops->eoi)
-        return -ENXIO;
-
-    return idev->ops->eoi(idev, channel->index);
-}
-
-state irqchip_slave_add(struct irqchip_channel *channel, struct irqchip_device *slave)
-{
-    struct irqchip_device *idev = channel->irqchip;
-    state ret;
-
-    if (!idev->ops->slave_add)
-        return -ENXIO;
-
-    if ((ret = idev->ops->slave_add(idev, channel->index)))
-        return ret;
-
-    list_add(&idev->child, &slave->sibling);
-    return -ENOERR;
-}
-
-state irqchip_slave_del(struct irqchip_channel *channel, struct irqchip_device *slave)
-{
-    struct irqchip_device *idev = channel->irqchip;
-    state ret;
-
-    if (!idev->ops->slave_del)
-        return -ENXIO;
-
-    if ((ret = idev->ops->slave_del(idev, channel->index)))
-        return ret;
-
-    list_del(&slave->sibling);
-    return -ENOERR;
-}
 
 static struct irqchip_channel *irqchip_alloc_channel(struct irqchip_device *idev, irqnr_t chnr)
 {
@@ -120,6 +51,10 @@ void irqchip_channel_release(struct irqchip_channel *channel)
     dev_kfree(idev->dev, channel);
 }
 
+/**
+ * irqchip_register - Register an irqchip controller.
+ * @idev: controller to register.
+ */
 state irqchip_register(struct irqchip_device *idev)
 {
     if (!idev->dev || !idev->ops)
@@ -127,11 +62,15 @@ state irqchip_register(struct irqchip_device *idev)
 
     list_head_init(&idev->child);
     list_head_init(&idev->channel);
-
     list_add(&irqchip_list, &idev->list);
+
     return -ENOERR;
 }
 
+/**
+ * irqchip_register - Unregister an irqchip controller.
+ * @idev: controller to unregister.
+ */
 void irqchip_unregister(struct irqchip_device *idev)
 {
     struct irqchip_device *child;
@@ -146,18 +85,6 @@ void irqchip_unregister(struct irqchip_device *idev)
     list_del(&idev->list);
 }
 
-static void irqchip_slave_setup(void)
-{
-    struct irqchip_device *idev;
-    struct irqchip_channel *channel;
-
-    list_for_each_entry(idev, &irqchip_list, list) {
-        if (!(channel = dt_irqchip_channel(idev->dt_node, 0)))
-            continue;
-        irqchip_slave_add(channel, idev);
-    }
-}
-
 void __init irqchip_init(void)
 {
     initcall_entry_t *fn;
@@ -169,5 +96,7 @@ void __init irqchip_init(void)
             pr_err("%s startup failed", fn->name);
     }
 
-    irqchip_slave_setup();
+#ifdef CONFIG_IRQCHIP_DT
+    dt_irqchip_slave_setup();
+#endif
 }

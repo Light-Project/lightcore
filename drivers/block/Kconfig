@@ -7,7 +7,7 @@ source "drivers/block/partitions/Kconfig"
 
 config BLK_FLOPPY
     bool "Floppy Disk Device Support"
-    depends on ARCH_X86
+    depends on ARCH_X86 && IRQCHIP_DT
 
 config BLK_AHCISIM
     bool "Simple AHCI Controller Support"

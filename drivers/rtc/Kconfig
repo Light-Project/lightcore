@@ -12,5 +12,6 @@ config RTC_GX6605S
 
 config RTC_MC146818
     tristate "MC146818 RTC Support"
+    depends on IRQCHIP_DT
 
 endif
