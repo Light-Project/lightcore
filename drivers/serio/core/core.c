@@ -42,7 +42,7 @@ static state serio_match(struct device *dev, struct driver *drv)
     if (!sid)
         return -ENODEV;
 
-    device_set_pdata(dev, sid->data);
+    device_set_pdata(dev, (void *)sid->data);
     return -ENOERR;
 }
 
@@ -50,13 +50,15 @@ static state serio_probe(struct device *dev)
 {
     struct serio_device *sdev = device_to_serio_device(dev);
     struct serio_driver *sdrv = driver_to_serio_driver(dev->driver);
+    const void *pdata;
 
     if (unlikely(!sdrv->probe)) {
         pr_warn("probe not supported\n");
         return -ENXIO;
     }
 
-    return sdrv->probe(sdev, device_get_pdata(dev));
+    pdata = device_get_pdata(dev);
+    return sdrv->probe(sdev, pdata);
 }
 
 static state serio_remove(struct device *dev)

@@ -34,6 +34,4 @@ enum atkbd_command {
     ATKBD_RET_ERR           = 0xff,
 };
 
-#define ATKBD_MATCH_ID  "atkbd"
-
 #endif  /* _DRIVER_INPUT_ATKBD_H_ */
