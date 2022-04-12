@@ -56,6 +56,7 @@ static state piix_power_probe(struct platform_device *pdev, const void *pdata)
 
     piix->base = platform_resource_start(pdev, 0);
     piix->power.ops = &piix_power_ops;
+    piix->power.dev = &pdev->dev;
     return power_register(&piix->power);
 }
 

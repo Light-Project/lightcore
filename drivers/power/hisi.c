@@ -48,7 +48,8 @@ static state hisi_power_probe(struct platform_device *pdev, const void *pdata)
 
     hisi->reset = (void *)platform_resource_start(pdev, 0) + offset;
     hisi->power.ops = &hisi_power_ops;
-    return power_register(&hisi->power);;
+    hisi->power.dev = &pdev->dev;
+    return power_register(&hisi->power);
 }
 
 static const struct dt_device_id hisi_power_ids[] = {

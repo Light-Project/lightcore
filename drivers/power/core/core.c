@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "power: " fmt
+#define MODULE_NAME "power-dev"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <driver/power.h>
 
@@ -11,40 +12,49 @@ static LIST_HEAD(power_list);
 
 /**
  * power_shutdown - warm restart by power device.
+ * Try warm restart with all power supplies.
  */
 void power_restart(void)
 {
     struct power_device *pdev;
 
     list_for_each_entry(pdev, &power_list, list) {
-        if (pdev->ops->restart)
+        if (pdev->ops->restart) {
+            pr_emerg("trying to restart using '%s'\n", pdev->dev->name);
             pdev->ops->restart(pdev);
+        }
     }
 }
 
 /**
  * power_shutdown - cold reset by power device.
+ * Try cold reset with all power supplies.
  */
 void power_reset(void)
 {
     struct power_device *pdev;
 
     list_for_each_entry(pdev, &power_list, list) {
-        if (pdev->ops->reset)
+        if (pdev->ops->reset) {
+            pr_emerg("trying to reset using '%s'\n", pdev->dev->name);
             pdev->ops->reset(pdev);
+        }
     }
 }
 
 /**
  * power_shutdown - shutdown by power device.
+ * Try shutting down with all power supplies.
  */
 void power_shutdown(void)
 {
     struct power_device *pdev;
 
     list_for_each_entry(pdev, &power_list, list) {
-        if (pdev->ops->shutdown)
+        if (pdev->ops->shutdown) {
+            pr_emerg("trying to shutdown using '%s'\n", pdev->dev->name);
             pdev->ops->shutdown(pdev);
+        }
     }
 }
 
@@ -54,10 +64,12 @@ void power_shutdown(void)
  */
 state power_register(struct power_device *pdev)
 {
-    if (!pdev->ops)
+    if (!pdev->ops || !pdev->dev)
         return -EINVAL;
 
+    pr_debug("register device '%s'\n", pdev->dev->name);
     list_add(&power_list, &pdev->list);
+
     return -ENOERR;
 }
 
@@ -67,5 +79,6 @@ state power_register(struct power_device *pdev)
  */
 void power_unregister(struct power_device *pdev)
 {
+    pr_debug("unregister device '%s'\n", pdev->dev->name);
     list_del(&pdev->list);
 }
