@@ -3,6 +3,7 @@
 #define _DRIVER_PS2_i8042_H_
 
 #include <bits.h>
+#include <driver/serio/ps2.h>
 
 enum i8042_registers {
     I8042_DATA              = 0x00, /* (RW) Data Port */
@@ -11,26 +12,26 @@ enum i8042_registers {
 };
 
 enum i8042_cmd {
-    I8042_CMD_CTL_RCTR      = 0x20 | (0x01 << 8),
-    I8042_CMD_CTL_WCTR      = 0x60 | (0x10 << 8),
-    I8042_CMD_CTL_TEST      = 0xaa | (0x01 << 8),
+    I8042_CMD_CTL_RCTR      = PS2_CMD(1, 0, 0x20),
+    I8042_CMD_CTL_WCTR      = PS2_CMD(0, 1, 0x60),
+    I8042_CMD_CTL_TEST      = PS2_CMD(1, 0, 0xaa),
 
-    I8042_CMD_PORT_INPUT    = 0xd0 | (0x01 << 8),
-    I8042_CMD_PORT_OUTPUT   = 0xd1 | (0x01 << 12),
+    I8042_CMD_PORT_INPUT    = PS2_CMD(1, 0, 0xd0),
+    I8042_CMD_PORT_OUTPUT   = PS2_CMD(1, 0, 0xd1),
 
-    I8042_CMD_KBD_DISABLE   = 0xad | (0x00 << 8),
-    I8042_CMD_KBD_ENABLE    = 0xae | (0x00 << 8),
-    I8042_CMD_KBD_TEST      = 0xab | (0x01 << 8),
-    I8042_CMD_KBD_LOOP      = 0xd2 | (0x11 << 8),
+    I8042_CMD_KBD_DISABLE   = PS2_CMD(0, 0, 0xad),
+    I8042_CMD_KBD_ENABLE    = PS2_CMD(0, 0, 0xae),
+    I8042_CMD_KBD_TEST      = PS2_CMD(1, 0, 0xab),
+    I8042_CMD_KBD_LOOP      = PS2_CMD(1, 1, 0xd2),
 
-    I8042_CMD_AUX_DISABLE   = 0xa7 | (0x00 << 8),
-    I8042_CMD_AUX_ENABLE    = 0xa8 | (0x00 << 8),
-    I8042_CMD_AUX_TEST      = 0xa9 | (0x01 << 8),
-    I8042_CMD_AUX_SEND      = 0xd4 | (0x10 << 8),
-    I8042_CMD_AUX_LOOP      = 0xd3 | (0x11 << 8),
+    I8042_CMD_AUX_DISABLE   = PS2_CMD(0, 0, 0xa7),
+    I8042_CMD_AUX_ENABLE    = PS2_CMD(0, 0, 0xa8),
+    I8042_CMD_AUX_TEST      = PS2_CMD(1, 0, 0xa9),
+    I8042_CMD_AUX_SEND      = PS2_CMD(0, 1, 0xd4),
+    I8042_CMD_AUX_LOOP      = PS2_CMD(1, 1, 0xd3),
 
-    I8042_CMD_MUX_PFX       = 0x90 | (0x00 << 8),
-    I8042_CMD_MUX_SEND      = 0x90 | (0x10 << 8),
+    I8042_CMD_MUX_PFX       = PS2_CMD(0, 0, 0x90),
+    I8042_CMD_MUX_SEND      = PS2_CMD(0, 1, 0x90),
 };
 
 /*************************************************************************************/
@@ -38,18 +39,19 @@ enum i8042_cmd {
 
 #define I8042_STATUS_PARITY         BIT(7)  /* Parity error (0: no error 1: parity error) */
 #define I8042_STATUS_TIMEOUT        BIT(6)  /* Time-out error (0: no error 1: time-out error) */
-#define I8042_STATUS_AUXDATA        BIT(5)  /* */
-#define I8042_STATUS_KEYLOCK        BIT(4)  /* Keyboard Inhibited */
+#define I8042_STATUS_AUXDATA        BIT(5)  /* Chip Specific: Receive Time-out */
+#define I8042_STATUS_KEYLOCK        BIT(4)  /* Chip Specific: Keyboard Inhibited */
 #define I8042_STATUS_CMDDAT         BIT(3)  /* Command/data: (0: write data 2: write cmd) */
 #define I8042_STATUS_SFLAG          BIT(2)  /* Meant to be cleared on reset and set by firmware */
 #define I8042_STATUS_IBF            BIT(1)  /* Input Buffer Full */
 #define I8042_STATUS_OBF            BIT(0)  /* Output Buffer Full */
 
-#define I8042_CTRL_XLATE            BIT(6)
-#define I8042_CTRL_AUXDIS           BIT(5)
-#define I8042_CTRL_KBDDIS           BIT(4)
-#define I8042_CTRL_IGNKEYLOCK       BIT(3)
-#define I8042_CTRL_AUXINT           BIT(1)
-#define I8042_CTRL_KBDINT           BIT(0)
+#define I8042_CTRL_XLATE            BIT(6)  /* First PS/2 port translation */
+#define I8042_CTRL_AUXDIS           BIT(5)  /* Second PS/2 port clock */
+#define I8042_CTRL_KBDDIS           BIT(4)  /* First PS/2 port clock */
+#define I8042_CTRL_IGNKEYLOCK       BIT(3)  /* Handle keylock */
+#define I8042_CTRL_SYSTEM           BIT(2)  /* System Flag */
+#define I8042_CTRL_AUXINT           BIT(1)  /* Second PS/2 port interrupt */
+#define I8042_CTRL_KBDINT           BIT(0)  /* First PS/2 port interrupt */
 
 #endif /* _DRIVER_PS2_i8042_H_ */

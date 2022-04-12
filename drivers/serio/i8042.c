@@ -10,17 +10,14 @@
 #include <kmalloc.h>
 #include <initcall.h>
 #include <irq.h>
+#include <delay.h>
+#include <ioops.h>
 #include <driver/platform.h>
 #include <driver/irqchip.h>
 #include <driver/power.h>
 #include <driver/serio.h>
 #include <driver/serio/i8042.h>
-#include <driver/input/atkbd.h>
-#include <driver/input/psmse.h>
 #include <printk.h>
-
-#include <delay.h>
-#include <asm/io.h>
 
 #define I8042_BUFFER_SIZE   16
 #define I8042_MUX_PORTS     4
@@ -86,8 +83,8 @@ static inline bool i8042_flush(struct i8042_device *idev)
 
 static state i8042_command(struct i8042_device *idev, uint16_t cmd, uint8_t *para)
 {
-    int receive = (cmd >> 8) & 0x0f;
-    int send = (cmd >> 12) & 0x0f;
+    int receive = ps2_cmd_recv(cmd);
+    int send = ps2_cmd_send(cmd);
     uint8_t *buff = para;
 
     if (!i8042_write_wait(idev))
@@ -141,8 +138,8 @@ static state i8042_hw_init(struct i8042_device *idev)
     uint8_t ctrl[2];
     state ret;
 
-    while (--timeout && (timeout > 7 || ctrl[0] != ctrl[1])) {
-        if ((ret = i8042_command(idev, I8042_CMD_CTL_RCTR, &ctrl[timeout++ % 2]))) {
+    while (timeout && (timeout > 7 || ctrl[0] != ctrl[1])) {
+        if ((ret = i8042_command(idev, I8042_CMD_CTL_RCTR, &ctrl[timeout-- % 2]))) {
             dev_err(idev->kbd.dev, "unable to read ctrl while initializing\n");
             return ret;
         }
@@ -161,7 +158,7 @@ static state i8042_hw_init(struct i8042_device *idev)
         return ret;
     }
 
-    return i8042_flush(idev) ? -EBUSY : -ENOERR;
+    return i8042_flush(idev) ? -ENOERR : -EBUSY;
 }
 
 static void i8042_hw_deinit(struct i8042_device *idev)
@@ -202,7 +199,7 @@ static state i8042_aux_port_enable(struct i8042_device *idev)
     return -ENOERR;
 }
 
-static state i8042_mux_enable(struct i8042_device *idev)
+static state i8042_mux_port_enable(struct i8042_device *idev)
 {
     uint8_t para;
     int count;
@@ -225,20 +222,21 @@ static state i8042_mux_mode(struct i8042_device *idev, bool mux, uint8_t *versio
 
     /* internal loopback test */
     *version = para = 0xf0;
-    if ((ret = i8042_command(idev, I8042_CMD_AUX_LOOP, version)) ||
+    if ((ret = i8042_command(idev, I8042_CMD_AUX_LOOP, &val)) ||
         (ret = val != para ? -EIO : -ENOERR))
         return ret;
 
     *version = para = mux ? 0x56 : 0xf6;
-    if ((ret = i8042_command(idev, I8042_CMD_AUX_LOOP, version)) ||
+    if ((ret = i8042_command(idev, I8042_CMD_AUX_LOOP, &val)) ||
         (ret = val != para ? -EIO : -ENOERR))
         return ret;
 
     *version = para = mux ? 0xa4 : 0xa5;
-    if ((ret = i8042_command(idev, I8042_CMD_AUX_LOOP, version)) ||
+    if ((ret = i8042_command(idev, I8042_CMD_AUX_LOOP, &val)) ||
         (ret = val != para ? -EIO : -ENOERR))
         return ret;
 
+    /* Workaround for interference with USB Legacy */
     if (*version == 0xac)
         return -ENODEV;
 
@@ -253,6 +251,7 @@ static state i8042_mux_detect(struct i8042_device *idev)
     if ((ret = i8042_mux_mode(idev, true, &version)))
         return ret;
 
+    /* Disable all muxed ports by disabling AUX */
     idev->ctrl |= I8042_CTRL_AUXDIS;
     idev->ctrl &= ~I8042_CTRL_AUXINT;
 
@@ -325,7 +324,7 @@ static irqreturn_t i8042_handle(irqnr_t vector, void *data)
     if ((status & I8042_STATUS_AUXDATA) && idev->mux_present) {
 
     } else {
-        shost = status & I8042_STATUS_AUXDATA ? &idev->aux : &idev->kbd;
+        shost = status & I8042_STATUS_AUXDATA ? idev->aux[0] : &idev->kbd;
     }
 
     val = i8042_in(idev, I8042_DATA);
@@ -339,11 +338,15 @@ static state i8042_kbd_setup(struct platform_device *pdev)
     state ret;
 
     /* request irq handle */
-    irq_request(ATKBD_IRQ, 0, i8042_handle, idev, DRIVER_NAME);
+    ret = irq_request(ATKBD_IRQ, 0, i8042_handle, idev, DRIVER_NAME);
+    if (ret) {
+        dev_err(&pdev->dev, "unable to request irq\n");
+        return ret;
+    }
 
     irqchip = dt_irqchip_channel_name(pdev->dt_node, "kbd");
     if (!irqchip) {
-        dev_err(&pdev->dev, "unable to request irq\n");
+        dev_err(&pdev->dev, "unable to request irqchip\n");
         return -EINVAL;
     }
 
@@ -353,31 +356,32 @@ static state i8042_kbd_setup(struct platform_device *pdev)
     if ((ret = i8042_kbd_port_enable(idev)))
         return ret;
 
-    /* Resister main port */
-    idev->kbd.port.name = ATKBD_MATCH_ID;
+    /* Register main port */
+    idev->kbd.port.id.type = SERIO_TYPE_PS2;
     idev->kbd.ops = &i8042_kbd_ops;
     idev->kbd.dev = &pdev->dev;
     return serio_host_register(&idev->kbd);
 }
 
-static i8042_aux_create(struct platform_device *pdev, unsigned int nr)
+static state i8042_aux_create(struct platform_device *pdev, unsigned int nr)
 {
     struct i8042_device *idev = platform_get_devdata(pdev);
     struct serio_host *aux;
-    unsigned int count;
 
     aux = dev_kzalloc(&pdev->dev, sizeof(*idev->aux) * nr, GFP_KERNEL);
     if (!aux)
         return -ENOMEM;
 
     while (nr--) {
-        idev->aux[nr]->port.name = PSMSE_MATCH_ID;
+        idev->aux[nr]->port.id.type = SERIO_TYPE_PS2;
         idev->aux[nr]->ops = &i8042_aux_ops;
         idev->aux[nr]->dev = &pdev->dev;
     }
+
+    return serio_host_register(idev->aux[nr]);
 }
 
-static i8042_aux_free(struct platform_device *pdev)
+static void i8042_aux_free(struct platform_device *pdev)
 {
     struct i8042_device *idev = platform_get_devdata(pdev);
     unsigned int count;
@@ -392,7 +396,9 @@ static i8042_aux_free(struct platform_device *pdev)
 static state i8042_aux_setup(struct platform_device *pdev)
 {
     struct i8042_device *idev = platform_get_devdata(pdev);
+    state (*enable)(struct i8042_device *);
     struct irqchip_channel *irqchip;
+    unsigned int count;
     state ret;
 
     /* request irq handle */
@@ -408,14 +414,28 @@ static state i8042_aux_setup(struct platform_device *pdev)
     irqchip_pass(irqchip);
 
     if (i8042_mux_detect(idev)) {
-        if ((ret = i8042_aux_port_enable(idev)))
-            return ret;
+        ret = i8042_aux_create(pdev, 0);
+        if (ret)
+            goto error;
+        enable = i8042_aux_port_enable;
     } else {
-
+        for (count = 0; count < I8042_MUX_PORTS; ++count) {
+            ret = i8042_aux_create(pdev, 0);
+            if (ret)
+                goto error;
+        }
+        enable = i8042_mux_port_enable;
     }
 
-    /* Resister aux port */
-    return serio_host_register(&idev->aux);
+    ret = enable(idev);
+    if (ret)
+        goto error;
+
+    return -ENOERR;
+
+error:
+    i8042_aux_free(pdev);
+    return ret;
 }
 
 static void i8042_irqfree(struct platform_device *pdev)
@@ -456,15 +476,16 @@ static state i8042_probe(struct platform_device *pdev, const void *pdata)
     if ((ret = i8042_aux_setup(pdev)))
         goto err_aux;
 
-    /* Resister power device */
+    /* Register power device */
     idev->power.dev = &pdev->dev;
     idev->power.ops = &i8042_power_ops;
     if ((ret = power_register(&idev->power)))
         goto err_pwr;
 
     return -ENOERR;
+
 err_pwr:
-    serio_host_unregister(&idev->aux);
+    i8042_aux_free(pdev);
 err_aux:
     serio_host_unregister(&idev->kbd);
 err_kbd:
@@ -479,7 +500,7 @@ static void i8042_remove(struct platform_device *pdev)
     i8042_irqfree(pdev);
     i8042_hw_deinit(idev);
     serio_host_unregister(&idev->kbd);
-    serio_host_unregister(&idev->aux);
+    i8042_aux_free(pdev);
 }
 
 static struct dt_device_id i8042_ids[] = {
