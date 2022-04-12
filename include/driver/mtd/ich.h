@@ -32,6 +32,9 @@ enum ich_spi_registers {
 /********************************************************************************************/
 /*      Mnemonic                        value               meaning/usage                   */
 
+#define ICH_SPI_BFPR_PRL                BIT_RANGE(28, 16)   /* BIOS Flash Primary Region Limit */
+#define ICH_SPI_BFPR_PRB                BIT_RANGE(12, 0)    /* BIOS Flash Primary Region Base */
+
 #define ICH_SPI_HSFS_FLOCKDN            BIT(15)             /* Flash Configuration Lock-Down */
 #define ICH_SPI_HSFS_FDV                BIT(14)             /* Flash Descriptor Valid */
 #define ICH_SPI_HSFS_FDOPSS             BIT(13)             /* Flash Descriptor Override Pin-Strap Status */
@@ -72,6 +75,7 @@ enum ich_spi_registers {
 #define ICH_SPI_FDOC_FDSI               BIT_RANGE(11, 2)    /* Flash Descriptor Section Index */
 
 #define ICH_SPI_BUFFER_SIZE             64
+#define INTEL_SPI_LEG_MATCH_ID          "intel,spi-leg"
 #define INTEL_SPI_ICH_MATCH_ID          "intel,spi-ich"
 
 #endif  /* _DRIVER_MTD_ICH_H_ */

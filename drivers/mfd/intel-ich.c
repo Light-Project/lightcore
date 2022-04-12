@@ -40,7 +40,7 @@ const char ich_gpio_v10cp[] = INTEL_GPIO_V10CP;
 const char ich_gpio_v10cs[] = INTEL_GPIO_V10CS;
 const char ich_gpio_avn[]   = INTEL_GPIO_V10CS;
 
-const char ich_spi_leg[] = INTEL_SPI_ICH_MATCH_ID;
+const char ich_spi_leg[] = INTEL_SPI_LEG_MATCH_ID;
 const char ich_spi_ich[] = INTEL_SPI_ICH_MATCH_ID;
 const char ich_spi_byt[] = INTEL_SPI_BYT_MATCH_ID;
 const char ich_spi_lpt[] = INTEL_SPI_LPT_MATCH_ID;

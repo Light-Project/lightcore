@@ -153,7 +153,7 @@ static state ich_spi_read(struct spinor_device *nor, loff_t pos, void *buf, uint
             dev_err(nor->device, "read cycle error\n");
             return -EIO;
         } else if (val & ICH_SPI_HSFS_AEL) {
-            dev_err(nor->device, "read access Error\n");
+            dev_err(nor->device, "read access error\n");
             return -EACCES;
         }
 
@@ -193,7 +193,7 @@ static state ich_spi_write(struct spinor_device *nor, loff_t pos, void *buf, uin
             dev_err(nor->device, "write cycle error\n");
             return -EIO;
         } else if (val & ICH_SPI_HSFS_AEL) {
-            dev_err(nor->device, "write access Error\n");
+            dev_err(nor->device, "write access error\n");
             return -EACCES;
         }
     }
@@ -225,7 +225,7 @@ static state ich_spi_erase(struct spinor_device *nor, loff_t pos, uint64_t len)
             dev_err(nor->device, "erase cycle error\n");
             return -EIO;
         } else if (val & ICH_SPI_HSFS_AEL) {
-            dev_err(nor->device, "erase access Error\n");
+            dev_err(nor->device, "erase access error\n");
             return -EACCES;
         }
     }
@@ -247,6 +247,11 @@ static void ich_spi_hwinit(struct ich_device *idev)
     val = readw(idev->base + ICH_SPI_HSFC);
     val &= ~ICH_SPI_HSFC_FSMIE;
     writew(idev->base + ICH_SPI_HSFC, val);
+
+    /* Disable #SMI generation from SW sequencer */
+    val = readw(idev->base + ICH_SPI_SSFC);
+    val &= ~ICH_SPI_SSFC_SME;
+    writew(idev->base + ICH_SPI_SSFC, val);
 }
 
 static state ich_spi_probe(struct platform_device *pdev, const void *pdata)

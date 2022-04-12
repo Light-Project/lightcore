@@ -63,10 +63,9 @@ enum intel_spi_resisters {
 #define INTEL_SPI_HSCTL_WRSDIS          BIT(11)             /* Flash Descriptor Valid */
 
 #define INTEL_SPI_BUFFER_SIZE           64
-
-#define INTEL_SPI_BYT_MATCH_ID      "intel,spi-byt"
-#define INTEL_SPI_LPT_MATCH_ID      "intel,spi-lpt"
-#define INTEL_SPI_BXT_MATCH_ID      "intel,spi-bxt"
-#define INTEL_SPI_CNL_MATCH_ID      "intel,spi-cnl"
+#define INTEL_SPI_BYT_MATCH_ID          "intel,spi-byt"
+#define INTEL_SPI_LPT_MATCH_ID          "intel,spi-lpt"
+#define INTEL_SPI_BXT_MATCH_ID          "intel,spi-bxt"
+#define INTEL_SPI_CNL_MATCH_ID          "intel,spi-cnl"
 
 #endif  /* _DRIVER_MTD_INTEL_ */
