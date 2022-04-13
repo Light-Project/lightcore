@@ -20,7 +20,7 @@ platform_device_match_one(const struct platform_device_id *id, struct platform_d
     return !strncmp(id->name, pdev->name, PLATFORM_NAME_LEN);
 }
 
-static inline const struct platform_device_id *
+const struct platform_device_id *
 platform_device_match(struct platform_driver *pdrv, struct platform_device *pdev)
 {
     const struct platform_device_id *pids = pdrv->platform_table;
@@ -209,9 +209,9 @@ EXPORT_SYMBOL(platform_resource_name_ioremap);
 /**
  * platform_alloc_device - Allocating for a new platform device
  * @name: device name
- * @id: device id
+ * @index: device index
  */
-struct platform_device *platform_device_alloc(const char *name, int id)
+struct platform_device *platform_device_alloc(const char *name, unsigned int index)
 {
     struct platform_device *pdev;
 
@@ -220,7 +220,7 @@ struct platform_device *platform_device_alloc(const char *name, int id)
         return NULL;
 
     pdev->name = name;
-    pdev->id = id;
+    pdev->index = index;
     pdev->dev.bus = &platform_bus;
 
     return pdev;

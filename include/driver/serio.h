@@ -13,7 +13,7 @@ enum serio_type {
 };
 
 /**
- * struct serio_device - Describe a serio device.
+ * struct serio_device - describe a serio device.
  * @dev: kernel infrastructure device architecture.
  * @id: id signature for matching driver.
  */
@@ -26,14 +26,14 @@ struct serio_device {
     container_of(devp, struct serio_device, dev)
 
 /**
- * struct serio_driver - Describe a serio driver.
+ * struct serio_driver - describe a serio driver.
  * @driver: kernel infrastructure driver architecture.
- * @id_table: id signature table for matching devices.
- * @probe: serio device connection detection.
- * @remove: serio device disconnected.
- * @shutdown: serio device shutdown.
- * @reconnect: serio device reconnect.
- * @interrupt: serio device interrupt.
+ * @id_table: list of devices types supported by the driver.
+ * @probe: binds this driver to the serio device.
+ * @remove: unbinds this driver from the serio device.
+ * @shutdown: shutdown serio device with this driver.
+ * @reconnect: reconnect serio device with this driver.
+ * @interrupt: serio device interrupt for this driver.
  */
 struct serio_driver {
     struct driver driver;
@@ -51,7 +51,7 @@ struct serio_driver {
     container_of(drv, struct serio_driver, driver)
 
 /**
- * struct serio_host - Describe a serio host.
+ * struct serio_host - describe a serio host.
  * @dev: points to the parent device of the serio host.
  * @lock: resource lock for serio host.
  * @ops: operations method of serio host.
@@ -68,7 +68,7 @@ struct serio_host {
     container_of(dev, struct serio_driver, port)
 
 /**
- * struct serio_ops - Describe the operations of a serio host.
+ * struct serio_ops - describe the operations of a serio host.
  * @enable: enable a serio host port after connecting.
  * @disable: disable a serio host port after connecting.
  * @write: write data to the serio host port after connecting.
@@ -81,10 +81,22 @@ struct serio_ops {
     state (*write)(struct serio_host *shost, uint8_t cmd);
 };
 
+/* serio registration */
 extern state serio_driver_register(struct serio_driver *sdev);
 extern void serio_driver_unregister(struct serio_driver *sdev);
 extern irqreturn_t serio_interrupt(struct serio_host *host, uint32_t data, const void *pdata);
 extern state serio_host_register(struct serio_host *host);
 extern void serio_host_unregister(struct serio_host *host);
+
+/* convenience logging macros */
+#define serio_emerg(sdev, fmt, ...)     dev_emerg(&(sdev)->dev, fmt, ##__VA_ARGS__)
+#define serio_alert(sdev, fmt, ...)     dev_alert(&(sdev)->dev, fmt, ##__VA_ARGS__)
+#define serio_crit(sdev, fmt, ...)      dev_crit(&(sdev)->dev, fmt, ##__VA_ARGS__)
+#define serio_err(sdev, fmt, ...)       dev_err(&(sdev)->dev, fmt, ##__VA_ARGS__)
+#define serio_warn(sdev, fmt, ...)      dev_warn(&(sdev)->dev, fmt, ##__VA_ARGS__)
+#define serio_notice(sdev, fmt, ...)    dev_notice(&(sdev)->dev, fmt, ##__VA_ARGS__)
+#define serio_info(sdev, fmt, ...)      dev_info(&(sdev)->dev, fmt, ##__VA_ARGS__)
+#define serio_debug(sdev, fmt, ...)     dev_debug(&(sdev)->dev, fmt, ##__VA_ARGS__)
+BUS_DEVRES_GENERIC(serio, struct serio_device, dev)
 
 #endif  /* _DRIVER_SERIO_H_ */

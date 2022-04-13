@@ -6,25 +6,29 @@
 #include <resource.h>
 #include <devtable.h>
 
-extern struct bus_type platform_bus;
-
+/**
+ * struct platform_device - describe a platform device.
+ * @dev: kernel infrastructure device architecture.
+ * @name: name used to match dt_device_id.
+ * @acpi_node: acpi node for the device.
+ * @dt_node: device tree node for the device.
+ * @resource: list of all device resource.
+ * @resources_nr: device resource number.
+ */
 struct platform_device {
-    struct device dev;      /* Generic device */
-    const char *name;       /* Match witch driver */
-    unsigned int id;
-    bool id_auto;
-    uint64_t platform_dma_mask;
+    struct device dev;
+    const char *name;
+    unsigned int index;
 
     struct acpi_node *acpi_node;
     struct dt_node *dt_node;
 
-    /* I/O resource */
     struct resource *resource;
     unsigned int resources_nr;
 };
 
-#define device_to_platform(devp)	\
-    container_of((devp), struct platform_device, dev)
+#define device_to_platform(ptr) \
+    container_of(ptr, struct platform_device, dev)
 
 static inline void *platform_get_devdata(const struct platform_device *pdev)
 {
@@ -36,6 +40,18 @@ static inline void platform_set_devdata(struct platform_device *pdev, void *data
     return device_set_pdata(&pdev->dev, data);
 }
 
+/**
+ * struct platform_driver - describe a platform driver.
+ * @driver: kernel infrastructure driver architecture.
+ * @dt_table: list of dt devices types supported by the driver.
+ * @acpi_table: list of acpi devices types supported by the driver.
+ * @platform_table: list of platform devices types supported by the driver.
+ * @probe: binds this driver to the platform device.
+ * @remove: unbinds this driver from the platform device.
+ * @shutdown: shutdown platform device with this driver.
+ * @suspend: suspend platform device with this driver.
+ * @resume: resume platform device with this driver.
+ */
 struct platform_driver {
     struct driver driver;
     const struct dt_device_id *dt_table;
@@ -49,16 +65,15 @@ struct platform_driver {
     state (*resume)(struct platform_device *pdev);
 };
 
-#define driver_to_platform_driver(drv) \
-    container_of(drv, struct platform_driver, driver)
+#define driver_to_platform_driver(ptr) \
+    container_of(ptr, struct platform_driver, driver)
 
-#ifdef CONFIG_DT
-const struct dt_device_id *platform_dt_match(struct platform_driver *pdrv, struct platform_device *pdev);
-#endif
+extern struct bus_type platform_bus;
 
-#ifdef CONFIG_ACPI
-const struct acpi_device_id *platform_acpi_match(struct platform_driver *pdrv, struct platform_device *pdev);
-#endif
+/* platform device matching */
+extern const struct dt_device_id *platform_dt_match(struct platform_driver *pdrv, struct platform_device *pdev);
+extern const struct acpi_device_id *platform_acpi_match(struct platform_driver *pdrv, struct platform_device *pdev);
+extern const struct platform_device_id *platform_device_match(struct platform_driver *pdrv, struct platform_device *pdev);
 
 /* platform resource helper */
 extern resource_size_t platform_resource_start(struct platform_device *pdev, unsigned int index);
@@ -70,8 +85,8 @@ extern struct resource *platform_name_resource(struct platform_device *pdev, con
 extern void __malloc *platform_resource_ioremap(struct platform_device *pdev, unsigned int index);
 extern void __malloc *platform_resource_name_ioremap(struct platform_device *pdev, const char *name);
 
-/* platform core */
-extern struct platform_device *platform_device_alloc(const char *name, int id);
+/* platform registration */
+extern struct platform_device *platform_device_alloc(const char *name, unsigned int index);
 extern void platform_device_free(struct platform_device *pdev);
 extern state platform_device_register(struct platform_device *pdev);
 extern void platform_device_unregister(struct platform_device *pdev);
@@ -79,10 +94,11 @@ extern state platform_driver_register(struct platform_driver *pdrv);
 extern void platform_driver_unregister(struct platform_driver *pdrv);
 extern struct platform_device *platform_unified_register(struct platform_driver *pdrv, struct resource *res, unsigned int nres);
 
+/* platform initialization */
 extern void __init platform_dt_init(void);
 extern void __init platform_bus_init(void);
 
-/* Convenience logging macros */
+/* convenience logging macros */
 #define platform_emerg(pdev, fmt, ...)  dev_emerg(&(pdev)->dev, fmt, ##__VA_ARGS__)
 #define platform_alert(pdev, fmt, ...)  dev_alert(&(pdev)->dev, fmt, ##__VA_ARGS__)
 #define platform_crit(pdev, fmt, ...)   dev_crit(&(pdev)->dev, fmt, ##__VA_ARGS__)
