@@ -6,7 +6,7 @@
 #include <driver/platform.h>
 
 const struct acpi_device_id *
-platform_acpi_match(struct platform_driver *pdrv, struct platform_device *pdev)
+platform_acpi_match(const struct acpi_device_id *table, const struct acpi_node *node)
 {
     return NULL;
 }

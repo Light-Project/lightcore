@@ -71,9 +71,9 @@ struct platform_driver {
 extern struct bus_type platform_bus;
 
 /* platform device matching */
-extern const struct dt_device_id *platform_dt_match(struct platform_driver *pdrv, struct platform_device *pdev);
-extern const struct acpi_device_id *platform_acpi_match(struct platform_driver *pdrv, struct platform_device *pdev);
-extern const struct platform_device_id *platform_device_match(struct platform_driver *pdrv, struct platform_device *pdev);
+extern const struct dt_device_id *platform_dt_match(const struct dt_device_id *table, const struct dt_node *node);
+extern const struct acpi_device_id *platform_acpi_match(const struct acpi_device_id *table, const struct acpi_node *node);
+extern const struct platform_device_id *platform_device_match(const struct platform_device_id *table, const char *name);
 
 /* platform resource helper */
 extern resource_size_t platform_resource_start(struct platform_device *pdev, unsigned int index);

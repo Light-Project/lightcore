@@ -14,24 +14,16 @@
 static struct kcache *platform_device_cache;
 static struct kcache *platform_devid_cache;
 
-static __always_inline bool
-platform_device_match_one(const struct platform_device_id *id, struct platform_device *pdev)
-{
-    return !strncmp(id->name, pdev->name, PLATFORM_NAME_LEN);
-}
-
 const struct platform_device_id *
-platform_device_match(struct platform_driver *pdrv, struct platform_device *pdev)
+platform_device_match(const struct platform_device_id *table, const char *name)
 {
-    const struct platform_device_id *pids = pdrv->platform_table;
-
-    if (!pdev->name || !pdrv->platform_table)
+    if (!table || !name)
         return NULL;
 
-    while (pids->name && pids->name[0]) {
-        if (platform_device_match_one(pids, pdev))
-            return pids;
-        ++pids;
+    while (table->name && table->name[0]) {
+        if (!strncmp(table->name, name, PLATFORM_NAME_LEN))
+            return table;
+        ++table;
     }
 
     return NULL;
@@ -45,7 +37,7 @@ static state platform_match(struct device *dev, struct driver *drv)
 
 #ifdef CONFIG_DT
     const struct dt_device_id *dt;
-    dt = platform_dt_match(pdrv, pdev);
+    dt = platform_dt_match(pdrv->dt_table, pdev->dt_node);
     if (dt) {
         if (!device_get_pdata(dev))
             device_set_pdata(dev, (void *)dt->data);
@@ -55,7 +47,7 @@ static state platform_match(struct device *dev, struct driver *drv)
 
 #ifdef CONFIG_ACPI
     const struct acpi_device_id *acpi;
-    acpi = platform_acpi_match(pdrv, pdev);
+    acpi = platform_acpi_match(pdrv->acpi_table, pdev->acpi_node);
     if (acpi) {
         if (!device_get_pdata(dev))
             device_set_pdata(dev, (void *)acpi->data);
@@ -63,7 +55,7 @@ static state platform_match(struct device *dev, struct driver *drv)
     }
 #endif
 
-    platform = platform_device_match(pdrv, pdev);
+    platform = platform_device_match(pdrv->platform_table, pdev->name);
     if (platform) {
         if (!device_get_pdata(dev))
             device_set_pdata(dev, (void *)platform->data);
@@ -120,7 +112,7 @@ struct bus_type platform_bus = {
 
 resource_size_t platform_resource_start(struct platform_device *pdev, unsigned int index)
 {
-    if (index > pdev->resources_nr)
+    if (index >= pdev->resources_nr)
         return 0;
     return pdev->resource[index].start;
 }
@@ -128,7 +120,7 @@ EXPORT_SYMBOL(platform_resource_start);
 
 resource_size_t platform_resource_size(struct platform_device *pdev, unsigned int index)
 {
-    if (index > pdev->resources_nr)
+    if (index >= pdev->resources_nr)
         return 0;
     return pdev->resource[index].size;
 }
@@ -136,7 +128,7 @@ EXPORT_SYMBOL(platform_resource_size);
 
 resource_size_t platform_resource_end(struct platform_device *pdev, unsigned int index)
 {
-    if (index > pdev->resources_nr)
+    if (index >= pdev->resources_nr)
         return 0;
     return resource_end(&pdev->resource[index]);
 }
@@ -144,7 +136,7 @@ EXPORT_SYMBOL(platform_resource_end);
 
 enum resource_type platform_resource_type(struct platform_device *pdev, unsigned int index)
 {
-    if (index > pdev->resources_nr)
+    if (index >= pdev->resources_nr)
         return RESOURCE_NONE;
     return resource_type(&pdev->resource[index]);
 }
@@ -207,9 +199,9 @@ void *platform_resource_name_ioremap(struct platform_device *pdev, const char *n
 EXPORT_SYMBOL(platform_resource_name_ioremap);
 
 /**
- * platform_alloc_device - Allocating for a new platform device
- * @name: device name
- * @index: device index
+ * platform_alloc_device - allocating for a new platform device.
+ * @name: device name.
+ * @index: device index.
  */
 struct platform_device *platform_device_alloc(const char *name, unsigned int index)
 {
@@ -221,7 +213,6 @@ struct platform_device *platform_device_alloc(const char *name, unsigned int ind
 
     pdev->name = name;
     pdev->index = index;
-    pdev->dev.bus = &platform_bus;
 
     return pdev;
 }
@@ -234,8 +225,8 @@ void platform_device_free(struct platform_device *pdev)
 EXPORT_SYMBOL(platform_device_free);
 
 /**
- * platform_device_add - register a device to the platform bus
- * @pdev: registering platform device
+ * platform_device_add - register a device to the platform bus.
+ * @pdev: registering platform device.
  */
 state platform_device_register(struct platform_device *pdev)
 {
@@ -245,8 +236,8 @@ state platform_device_register(struct platform_device *pdev)
 EXPORT_SYMBOL(platform_device_register);
 
 /**
- * platform_device_add - unregister a device to the platform bus
- * @pdev: unregistering platform device
+ * platform_device_add - unregister a device to the platform bus.
+ * @pdev: unregistering platform device.
  */
 void platform_device_unregister(struct platform_device *pdev)
 {
@@ -255,8 +246,8 @@ void platform_device_unregister(struct platform_device *pdev)
 EXPORT_SYMBOL(platform_device_unregister);
 
 /**
- * platform_driver_register - register a driver to the platform bus
- * @pdev: registering platform driver
+ * platform_driver_register - register a driver to the platform bus.
+ * @pdev: registering platform driver.
  */
 state platform_driver_register(struct platform_driver *pdrv)
 {
@@ -266,8 +257,8 @@ state platform_driver_register(struct platform_driver *pdrv)
 EXPORT_SYMBOL(platform_driver_register);
 
 /**
- * platform_driver_unregister - unregister a driver to the platform bus
- * @pdev: unregistering platform driver
+ * platform_driver_unregister - unregister a driver to the platform bus.
+ * @pdev: unregistering platform driver.
  */
 void platform_driver_unregister(struct platform_driver *pdrv)
 {
@@ -276,10 +267,10 @@ void platform_driver_unregister(struct platform_driver *pdrv)
 EXPORT_SYMBOL(platform_driver_unregister);
 
 /**
- * platform_unified_register - register driver and create corresponding device
- * @pdrv: the platform driver structure
- * @reg: the platform driver resources
- * @nres: the platform driver resource number
+ * platform_unified_register - register driver and create corresponding device.
+ * @pdrv: the platform driver structure.
+ * @reg: the platform driver resources.
+ * @nres: the platform driver resource number.
  */
 struct platform_device *platform_unified_register(struct platform_driver *pdrv, struct resource *res, unsigned int nres)
 {
