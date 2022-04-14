@@ -17,7 +17,7 @@
 #define I8255_TIMEOUT   500
 
 struct i8255_device {
-    struct parallel_device parallel;
+    struct parallel_host parallel;
     resource_size_t base;
 };
 
@@ -56,9 +56,9 @@ static inline bool i8255_wait_busy(struct i8255_device *idev)
     return i8042_wait(idev, I8255_STATUS_BUSY, 0);
 }
 
-static state i8255_data_read(struct parallel_device *pdev, uint8_t *data)
+static state i8255_data_read(struct parallel_host *host, uint8_t *data)
 {
-    struct i8255_device *idev = parallel_to_idev(pdev);
+    struct i8255_device *idev = parallel_to_idev(host);
 
     if (!i8255_wait_busy(idev))
         return -EBUSY;
@@ -67,9 +67,9 @@ static state i8255_data_read(struct parallel_device *pdev, uint8_t *data)
     return -ENOERR;
 }
 
-static state i8255_data_write(struct parallel_device *pdev, uint8_t data)
+static state i8255_data_write(struct parallel_host *host, uint8_t data)
 {
-    struct i8255_device *idev = parallel_to_idev(pdev);
+    struct i8255_device *idev = parallel_to_idev(host);
 
     if (!i8255_wait_busy(idev))
         return -EBUSY;
@@ -122,13 +122,14 @@ static state i8255_probe(struct platform_device *pdev, const void *pdata)
     idev->base = platform_resource_start(pdev, 0);
     idev->parallel.dev = &pdev->dev;
     idev->parallel.ops = &i8255_ops;
+    idev->parallel.dt_node = pdev->dt_node;
     platform_set_devdata(pdev, idev);
 
     if (!i8255_detect(idev))
         return -ENODEV;
 
     platform_debug(pdev, "detected port\n");
-    parallel_register(&idev->parallel);
+    parallel_host_register(&idev->parallel);
     return -ENOERR;
 }
 
