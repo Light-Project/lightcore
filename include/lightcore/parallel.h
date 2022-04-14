@@ -1,0 +1,16 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#ifndef _LIGHTCORE_PARALLEL_H_
+#define _LIGHTCORE_PARALLEL_H_
+
+#define PARALLEL_CONTROL_STROBE     0x01
+#define PARALLEL_CONTROL_AUTOFD     0x02
+#define PARALLEL_CONTROL_INIT       0x04
+#define PARALLEL_CONTROL_SELECT     0x08
+
+#define PARALLEL_STATUS_ERROR       0x08
+#define PARALLEL_STATUS_SELECT      0x10
+#define PARALLEL_STATUS_PAPEROUT    0x20
+#define PARALLEL_STATUS_ACK         0x40
+#define PARALLEL_STATUS_BUSY        0x80
+
+#endif  /* _LIGHTCORE_PARALLEL_H_ */

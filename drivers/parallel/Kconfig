@@ -3,6 +3,11 @@ menuconfig PARALLEL
     bool "Parallel Device (IEEE1284) Support"
 if PARALLEL
 
+config PARALLEL_DT
+    bool "Parallel Device Tree Linkage"
+    depends on DT
+    default y
+
 config PARALLEL_I8255
     bool "I8255 Parallel Support"
 
