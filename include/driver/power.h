@@ -8,7 +8,7 @@
 #include <device.h>
 
 /**
- * struct power_device - Describe a power supply.
+ * struct power_device - describe a power supply.
  * @dev: points to the parent device of the power supply.
  * @list: linked list for centralized management of power supply.
  * @ops: operations method of power supply.
@@ -20,7 +20,7 @@ struct power_device {
 };
 
 /**
- * struct power_ops - Describe the operations of a power supply.
+ * struct power_ops - describe the operations of a power supply.
  * @restart: Use the device to reset the power of the cpu.
  * @reset: Use the device to reset the power of the whole machine.
  * @shutdown: Use the device to switch off the power of the whole machine.

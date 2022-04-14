@@ -83,7 +83,7 @@
  * BIT_HIGH_MASK - create a high position mask
  * @nbits: mask length
  * For example:
- * BIT_LOW_MASK(8) gives us the vector 0xffffff00
+ * BIT_HIGH_MASK(8) gives us the vector 0xffffff00
  */
 #define BIT_HIGH_MASK(nbits) (                  \
     ULONG_MAX <<                                \

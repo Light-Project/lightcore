@@ -225,7 +225,7 @@ void platform_device_free(struct platform_device *pdev)
 EXPORT_SYMBOL(platform_device_free);
 
 /**
- * platform_device_add - register a device to the platform bus.
+ * platform_device_register - register a device to the platform bus.
  * @pdev: registering platform device.
  */
 state platform_device_register(struct platform_device *pdev)
@@ -236,7 +236,7 @@ state platform_device_register(struct platform_device *pdev)
 EXPORT_SYMBOL(platform_device_register);
 
 /**
- * platform_device_add - unregister a device to the platform bus.
+ * platform_device_unregister - unregister a device to the platform bus.
  * @pdev: unregistering platform device.
  */
 void platform_device_unregister(struct platform_device *pdev)

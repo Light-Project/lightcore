@@ -52,7 +52,7 @@ extern const void *dt_attribute_get(const struct dt_node *node, const char *name
     for (node = dt_for_each_all_node(NULL); node; node = dt_for_each_all_node(node))
 
 #define dt_have_child(node) \
-    slist_first_entry_or_null(&prev->child, struct dt_node, sibling)
+    slist_first_entry(&prev->child, struct dt_node, sibling)
 
 #define dt_for_each_child(_child, bus) \
     slist_for_each_entry(_child, &bus->child, sibling)
