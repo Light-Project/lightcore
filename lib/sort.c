@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <list.h>
+#include <export.h>
 
 static __always_inline struct list_head *
 list_merge(list_cmp_t cmp, void *data,
@@ -58,6 +59,7 @@ list_finish(list_cmp_t cmp, void *data, struct list_head *head,
     }
 
     tail->next = b;
+
     do {
         if (unlikely(!++count))
             cmp(b, b, data);
@@ -70,7 +72,7 @@ list_finish(list_cmp_t cmp, void *data, struct list_head *head,
     head->prev = tail;
 }
 
-void list_sort(struct list_head *head, list_cmp_t cmp, void *data)
+void list_qsort(struct list_head *head, list_cmp_t cmp, void *data)
 {
     struct list_head *pending = NULL, *node = head->next;
     unsigned int count = 0;
@@ -109,9 +111,30 @@ void list_sort(struct list_head *head, list_cmp_t cmp, void *data)
 
         if (!next)
             break;
+
         node = list_merge(cmp, data, pending, node);
         pending = next;
     }
 
     list_finish(cmp, data, head, pending, node);
 }
+EXPORT_SYMBOL(list_qsort);
+
+void list_bsort(struct list_head *head, list_cmp_t cmp, void *data)
+{
+    struct list_head *walk, *prev;
+    bool swap;
+
+    for (swap = true; swap && ({swap = false; true;}); ) {
+        prev = walk = head->next;
+        list_for_each_continue(walk, head) {
+            if (cmp(prev, walk, data) > 0) {
+                list_del(prev);
+                list_add(walk, prev);
+                swap = true;
+            }
+            prev = walk;
+        }
+    }
+}
+EXPORT_SYMBOL(list_bsort);

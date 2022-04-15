@@ -81,7 +81,7 @@ state sched_register(struct sched_type *sched)
 
     pr_info("register scheduler %s\n", sched->name);
     list_add(&sched_list, &sched->list);
-    list_sort(&sched_list, sched_sort, NULL);
+    list_qsort(&sched_list, sched_sort, NULL);
 
     return -ENOERR;
 }

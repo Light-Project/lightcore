@@ -266,7 +266,7 @@ void ksh_init(void)
     printk("Welcome to lightcore shell\n");
 
     ksh_initcall();
-    list_sort(&kshell_list, kshell_sort, NULL);
+    list_bsort(&kshell_list, kshell_sort, NULL);
 
     printk("Have a lot of fun..\n");
     kshell_main(0, NULL);

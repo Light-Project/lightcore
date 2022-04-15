@@ -45,7 +45,7 @@ static state list_test_testing(void *pdata)
             list_add(&test_head, &ldata->nodes[count].list);
     }
 
-    list_sort(&test_head, list_test_sort, NULL);
+    list_qsort(&test_head, list_test_sort, NULL);
 
     list_for_each(list, &test_head) {
         node = list_to_test(list);
