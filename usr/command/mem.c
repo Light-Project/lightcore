@@ -500,7 +500,7 @@ static state ioport_in(int argc, char *argv[])
 {
     char buff[10], cstr[20] = {}, fmt = 'x';
     unsigned int count = 0;
-    int num, byte = 4;
+    int num, byte = 1;
     resource_size_t base;
 
     if (argc == 2 && *argv[0] == '/' && isdigit(*argv[1])) {
@@ -614,10 +614,10 @@ static state ioport_out(int argc, char *argv[])
     unsigned int count = 0;
     unsigned long long value, tmp;
     enum write_operator oper;
-    int num, byte = 4;
+    int num, byte = 1;
     phys_addr_t base;
 
-    if (argc == 4 && *argv[0] == '/' && isdigit(*argv[1]) && isdigit(*argv[3])) {
+    if (argc == 4 && *argv[0] == '/' && isdigit(*argv[1]) && legal_val(argv[3])) {
         char *para = argv[0] + 1;
 
         if (!*para)
@@ -654,7 +654,7 @@ static state ioport_out(int argc, char *argv[])
         }
     }
 
-    else if (argc == 3 && isdigit(*argv[0]) && isdigit(*argv[2]))
+    else if (argc == 3 && isdigit(*argv[0]) && legal_val(argv[2]))
         goto pass;
 
     else

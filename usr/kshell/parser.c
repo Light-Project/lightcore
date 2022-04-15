@@ -29,7 +29,7 @@ enum paser_state {
     KSHELL_STATE_LQVARNAME  = 9,
 };
 
-struct paser_transition trans_table[] = {
+static const struct paser_transition trans_table[] = {
     { KSHELL_STATE_TEXT,       KSHELL_STATE_ESC,        '\\',  false },
     { KSHELL_STATE_TEXT,       KSHELL_STATE_QUOTE,      '\'',  false },
     { KSHELL_STATE_TEXT,       KSHELL_STATE_DQUOTE,      '"',  false },
@@ -68,7 +68,7 @@ static inline bool is_end(enum paser_state state)
 
 static enum paser_state parser_state(enum paser_state state, char code, char *result)
 {
-    struct paser_transition *major, *minor = NULL;
+    const struct paser_transition *major, *minor = NULL;
     unsigned int count;
 
     for (count = 0; count < ARRAY_SIZE(trans_table); ++count) {
