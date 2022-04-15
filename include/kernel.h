@@ -51,6 +51,7 @@
     (uint16_t)((val) & 0xffff)                          \
 )
 
+extern char *itoa(int val, char *str, int base);
 extern int atoi(const char *nptr);
 extern unsigned long strtoul(const char *nptr);
 extern unsigned long long strtoull(const char *nptr);

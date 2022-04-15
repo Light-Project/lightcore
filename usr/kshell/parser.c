@@ -43,6 +43,7 @@ struct paser_transition trans_table[] = {
     { KSHELL_STATE_QVARIABLE,  KSHELL_STATE_QVARNAME,      0,   true },
     { KSHELL_STATE_QVARIABLE,  KSHELL_STATE_LQVARNAME,   '{',  false },
     { KSHELL_STATE_VARNAME,    KSHELL_STATE_TEXT,        ' ',   true },
+    { KSHELL_STATE_VARNAME,    KSHELL_STATE_TEXT,        ';',   true },
     { KSHELL_STATE_LVARNAME,   KSHELL_STATE_TEXT,        '}',  false },
     { KSHELL_STATE_QVARNAME,   KSHELL_STATE_TEXT,        '"',  false },
     { KSHELL_STATE_QVARNAME,   KSHELL_STATE_DQUOTE,      ' ',   true },

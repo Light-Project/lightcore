@@ -163,8 +163,8 @@ static state readline_history_add(struct readline_state *rstate, const char *cmd
     if (rstate->worklen)
         rstate->worklen = 0;
 
-    history = list_first_entry(&rstate->history, struct readline_history, list);
-    if (!strcmp(history->cmd, cmd))
+    history = list_first_entry_or_null(&rstate->history, struct readline_history, list);
+    if (history && history->len == len && !strncmp(history->cmd, cmd, len))
         return -ENOERR;
 
     history = kmalloc(sizeof(*history) + len, GFP_KERNEL);

@@ -59,7 +59,7 @@ state kshell_system(const char *cmdline)
     state ret;
 
     if (!cmdline) {
-        kshell_printf("command inval\n");
+        kshell_printf("kshell: command inval\n");
         return -EINVAL;
     }
 

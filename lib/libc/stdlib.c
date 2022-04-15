@@ -3,6 +3,48 @@
 #include <ctype.h>
 #include <export.h>
 
+char *itoa(int val, char *str, int base)
+{
+    char conv[] = "0123456789abcdef";
+    unsigned char count = 0, tmp[32];
+    bool sub = false, hex = false;
+
+    if (val < 0) {
+        sub = true;
+        val = -val;
+    }
+
+    if (base == 16)
+        hex = true;
+
+    if (!val) {
+        tmp[0] = '0';
+        count++;
+    }
+
+    while (val != 0) {
+        tmp[count] = conv[val % base];
+        val /= base;
+        count++;
+    }
+
+    if (sub && !hex)
+        *str++ = '-';
+
+    if (hex) {
+        *str++ = '0';
+        *str++ = 'x';
+    }
+
+    while (count--)
+        *str++ = tmp[count];
+
+    *str++ = '\0';
+
+    return str;
+}
+EXPORT_SYMBOL(itoa);
+
 int atoi(const char *nptr)
 {
     int total = 0;
