@@ -14,6 +14,10 @@ config KCMD_EXPORT
     bool "Export Command Support"
     default y
 
+config KCMD_FALSE
+    bool "False Command Support"
+    default y
+
 config KCMD_GOTO
     bool "Goto Command Support"
     default y
@@ -40,6 +44,10 @@ config KCMD_SLEEP
 
 config KCMD_TIME
     bool "Time Command Support"
+    default y
+
+config KCMD_TRUE
+    bool "True Command Support"
     default y
 
 config KCMD_UPTIME
