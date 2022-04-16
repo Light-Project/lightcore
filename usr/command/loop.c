@@ -15,13 +15,13 @@ static void usage(void)
     kshell_printf("\t-V  does not generate environment variables\n");
     kshell_printf("\t-x  hexadecimal format output\n");
     kshell_printf("\t-X  decimal format output (default)\n");
+    kshell_printf("\t-h  display this message\n");
 }
 
 static state loop_main(int argc, char *argv[])
 {
-    unsigned int var, count, min, max, step = 1;
-    char *varname, *str, *tmp;
-    char buff[32];
+    unsigned int index, count;
+    char *varname;
     bool vflag = true;
     bool xflag = false;
     state retval = -ENOERR;
@@ -54,7 +54,7 @@ static state loop_main(int argc, char *argv[])
         }
     }
 
-    if (argc != count + (vflag ? 4 : 2))
+    if (argc < count + (vflag ? 4 : 2))
         goto usage;
 
     if (vflag) {
@@ -64,44 +64,72 @@ static state loop_main(int argc, char *argv[])
         count += 2;
     }
 
-    for (var = 0, str = argv[count]; *str; var++, str = ++tmp) {
-        if (*str == '{' && var == 0) {
-            if (!(tmp = strstr(++str, "..")))
-                goto usage;
-            if (!isdigit(*str))
-                goto usage;
-            *tmp = '\0';
-            min = strtoul(str);
-        } else if (*str == '.' && var == 1) {
-            if (!(tmp = strstr(++str, "..")) && !(tmp = strchr(str, '}')))
-                goto usage;
-            if (!isdigit(*str))
-                goto usage;
-            *tmp = '\0';
-            max = strtoul(str);
-        } else if (*str == '.' && var == 2) {
-            if (!(tmp = strchr(++str, '}')))
-                goto usage;
-            if (!isdigit(*str))
-                goto usage;
-            *tmp = '\0';
-            step = strtoul(str);
-        } else
-            goto usage;
-    }
+    for (index = count; index < argc - 1; ++index) {
+        unsigned int var, min, max, step = 1;
+        bool textmode = false;
+        const char *str, *tmp;
+        char buff[32];
 
-    for (var = min; var <= max; var += step) {
-        if (vflag) {
-            itoa(var, buff, xflag ? 16 : 10);
-            kshell_setenv(varname, buff, true);
+        for (var = 0, str = argv[index]; *str; var++, str = ++tmp) {
+            if (*str == '{' && var == 0) {
+                if (!(tmp = strstr(++str, ".."))) {
+                    textmode = true;
+                    break;
+                }
+                if (!isdigit(*str)) {
+                    textmode = true;
+                    break;
+                }
+                min = strntoul(str, tmp - str);
+            } else if (*str == '.' && var == 1) {
+                if (!(tmp = strstr(++str, "..")) && !(tmp = strchr(str, '}'))) {
+                    textmode = true;
+                    break;
+                }
+                if (!isdigit(*str)) {
+                    textmode = true;
+                    break;
+                }
+                max = strntoul(str, tmp - str);
+            } else if (*str == '.' && var == 2) {
+                if (!(tmp = strchr(++str, '}'))) {
+                    textmode = true;
+                    break;
+                }
+                if (!isdigit(*str)) {
+                    textmode = true;
+                    break;
+                }
+                step = strntoul(str, tmp - str);
+            } else {
+                textmode = true;
+                break;
+            }
         }
-        if (kshell_ctrlc())
-            break;
-        retval = kshell_system(argv[count + 1]);
-        if (retval)
-            break;
+
+        if (textmode) {
+            min = max = 0;
+            step = 1;
+            tmp = argv[index];
+        }
+
+        for (var = min; var <= max; var += step) {
+            if (vflag) {
+                if (!textmode) {
+                    itoa(var, buff, xflag ? 16 : 10);
+                    tmp = buff;
+                }
+                kshell_setenv(varname, tmp, true);
+            }
+            if (kshell_ctrlc())
+                goto exit;
+            retval = kshell_system(argv[argc -1]);
+            if (retval)
+                goto exit;
+        }
     }
 
+exit:
     if (vflag)
         kshell_unsetenv(varname);
 
