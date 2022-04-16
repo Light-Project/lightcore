@@ -35,7 +35,7 @@ static state __PASTE(PROGRAM_NAME, main)(int argc, char *argv[])
 
 static struct kshell_command watch_cmd = {
     .name = __stringify(PROGRAM_NAME),
-    .desc = "execute a program periodically",
+    .desc = PROGRAM_DESC,
     .exec = __PASTE(PROGRAM_NAME, main),
 };
 

@@ -22,11 +22,12 @@ enum paser_state {
     KSHELL_STATE_QUOTE      = 2,
     KSHELL_STATE_DQUOTE     = 3,
     KSHELL_STATE_VARIABLE   = 4,
-    KSHELL_STATE_QVARIABLE  = 5,
-    KSHELL_STATE_VARNAME    = 6,
-    KSHELL_STATE_LVARNAME   = 7,
-    KSHELL_STATE_QVARNAME   = 8,
-    KSHELL_STATE_LQVARNAME  = 9,
+    KSHELL_STATE_BRACKETS   = 5,
+    KSHELL_STATE_QVARIABLE  = 6,
+    KSHELL_STATE_VARNAME    = 7,
+    KSHELL_STATE_LVARNAME   = 8,
+    KSHELL_STATE_QVARNAME   = 9,
+    KSHELL_STATE_LQVARNAME  = 10,
 };
 
 static const struct paser_transition trans_table[] = {
@@ -38,8 +39,10 @@ static const struct paser_transition trans_table[] = {
     { KSHELL_STATE_QUOTE,      KSHELL_STATE_TEXT,       '\'',  false },
     { KSHELL_STATE_DQUOTE,     KSHELL_STATE_TEXT,        '"',  false },
     { KSHELL_STATE_DQUOTE,     KSHELL_STATE_QVARIABLE,   '$',  false },
+    { KSHELL_STATE_VARIABLE,   KSHELL_STATE_BRACKETS,    '(',  false },
     { KSHELL_STATE_VARIABLE,   KSHELL_STATE_VARNAME,       0,   true },
     { KSHELL_STATE_VARIABLE,   KSHELL_STATE_LVARNAME,    '{',  false },
+    { KSHELL_STATE_BRACKETS,   KSHELL_STATE_TEXT,        ')',  false },
     { KSHELL_STATE_QVARIABLE,  KSHELL_STATE_QVARNAME,      0,   true },
     { KSHELL_STATE_QVARIABLE,  KSHELL_STATE_LQVARNAME,   '{',  false },
     { KSHELL_STATE_VARNAME,    KSHELL_STATE_TEXT,        ' ',   true },
@@ -50,6 +53,11 @@ static const struct paser_transition trans_table[] = {
     { KSHELL_STATE_LQVARNAME,  KSHELL_STATE_DQUOTE,      '}',  false },
     { KSHELL_STATE_LQVARNAME,  KSHELL_STATE_DQUOTE,      ' ',   true },
 };
+
+static inline bool is_brackets(enum paser_state state)
+{
+    return state == KSHELL_STATE_BRACKETS;
+}
 
 static inline bool is_variable(enum paser_state state)
 {
@@ -93,14 +101,36 @@ static enum paser_state parser_state(enum paser_state state, char code, char *re
     return major ? major->to : state;
 }
 
+#define PARSER_EXPANSION(texp, vexp) {                          \
+    void *nblock;                                               \
+    int flags = 0;                                              \
+                                                                \
+    while (unlikely(((texp) >= tsize) && (flags |= 1)))         \
+        tsize *= 2;                                             \
+                                                                \
+    while (unlikely(((vexp) >= vsize) && (flags |= 2)))         \
+        vsize *= 2;                                             \
+                                                                \
+    if (unlikely(flags)) {                                      \
+        nblock = krealloc(tbuff, tsize + vsize, GFP_KERNEL);    \
+        if (!var) {                                             \
+            kfree(tbuff);                                       \
+            return -ENOMEM;                                     \
+        }                                                       \
+        tbuff = nblock;                                         \
+        vbuff = nblock + tsize;                                 \
+    }                                                           \
+}
+
 state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***argv)
 {
     enum paser_state nstate, cstate = KSHELL_STATE_TEXT;
     unsigned int tpos = 0, tsize = PASER_TEXT_DEF;
     unsigned int vpos = 0, vsize = PASER_VARN_DEF;
-    char *tbuff, code = 0;
+    char *tbuff, code = 0, brack_buff[20];
     char *vbuff, *var;
     unsigned int count;
+    state retval;
 
     *argc = 0;
     *pos = NULL;
@@ -117,12 +147,23 @@ state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***ar
             vbuff[vpos] = '\0';
             vpos = 0;
             var = kshell_getenv(vbuff);
-            if (var) for (; *var; var++) {
-                tbuff[tpos++] = *var;
-            }
+            count = strlen(var);
+            PARSER_EXPANSION(tpos + count + 1, 0)
+            strcpy(tbuff + tpos, var);
+            tpos += count;
         }
 
-        if (is_variable(nstate)) {
+        if (is_brackets(cstate) && !is_brackets(nstate)) {
+            vbuff[vpos] = '\0';
+            vpos = 0;
+            retval = kshell_system(vbuff);
+            count = scnprintf(brack_buff, sizeof(brack_buff), "%d", retval);
+            PARSER_EXPANSION(tpos + count + 1, 0)
+            strcpy(tbuff + tpos, brack_buff);
+            tpos += count;
+        }
+
+        if (is_variable(nstate) || is_brackets(nstate)) {
             if (code)
                 vbuff[vpos++] = code;
         } else if (is_text(nstate, cstate) && code == ' ') {
@@ -142,24 +183,7 @@ state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***ar
             tbuff[tpos++] = code;
         }
 
-        count = 0;
-
-        if ((tpos > tsize) && (count |= 1))
-            tsize *= 2;
-
-        if ((vpos > vsize) && (count |= 2))
-            vsize *= 2;
-
-        if (count) {
-            var = krealloc(tbuff, tsize + vsize, GFP_KERNEL);
-            if (!var) {
-                kfree(tbuff);
-                return -ENOMEM;
-            }
-            tbuff = var;
-            vbuff = var + tsize;
-        }
-
+        PARSER_EXPANSION(tpos, vpos)
         cstate = nstate;
     }
 
@@ -167,9 +191,10 @@ state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***ar
     if (is_variable(cstate)) {
         vbuff[vpos] = '\0';
         var = kshell_getenv(vbuff);
-        if (var) for (; *var; var++) {
-            tbuff[tpos++] = *var;
-        }
+        count = strlen(var);
+        PARSER_EXPANSION(tpos + count + 1, 0)
+        strcpy(tbuff + tpos, var);
+        tpos += count;
     }
 
     /* if there is no end flag, end it */
