@@ -53,6 +53,13 @@
 
 extern char *itoa(int val, char *str, int base);
 extern int atoi(const char *nptr);
+
+extern long strntol(const char *nptr, unsigned int len);
+extern long long strntoll(const char *nptr, unsigned int len);
+extern unsigned long strntoul(const char *nptr, unsigned int len);
+extern unsigned long long strntoull(const char *nptr, unsigned int len);
+extern long strtol(const char *nptr);
+extern long long strtoll(const char *nptr);
 extern unsigned long strtoul(const char *nptr);
 extern unsigned long long strtoull(const char *nptr);
 

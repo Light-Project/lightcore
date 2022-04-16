@@ -72,74 +72,73 @@ int atoi(const char *nptr)
 }
 EXPORT_SYMBOL(atoi);
 
-unsigned long strtoul(const char *nptr)
-{
-    unsigned long total = 0;
-    char div, c;
-
-    if (!nptr || !*nptr)
-        return 0;
-
-    while (isspace((int)*nptr))
-        ++nptr;
-
-    c = *nptr++;
-    if (c == '0' && tolower(*nptr) == 'x') {
-        div = 16;
-        c = *(++nptr);
-        nptr++;
-    } else {
-        div = 10;
-    }
-
-    while (c) {
-        if (isdigit(c))
-            total = div * total + (c - '0');
-        else if (div == 16 && c >= 'a' && c <= 'f')
-            total = div * total + (c - 'a' + 10);
-        else if (div == 16 && c >= 'A' && c <= 'F')
-            total = div * total + (c - 'A' + 10);
-        else
-            return 0;
-        c = *nptr++;
-    }
-
-    return total;
+#define GENERIC_STRNTOX_OPS(name, type, signed)                         \
+type name(const char *nptr, unsigned int len)                           \
+{                                                                       \
+    type total = 0;                                                     \
+    char sign, c, div = 10;                                             \
+                                                                        \
+    if (!nptr || !*nptr)                                                \
+        return 0;                                                       \
+                                                                        \
+    while (isspace((int)*nptr) && len--)                                \
+        ++nptr;                                                         \
+                                                                        \
+    if (!len)                                                           \
+        return 0;                                                       \
+                                                                        \
+    c = sign = *nptr++;                                                 \
+    if (signed && (c == '-' || c == '+') && len--) {                    \
+        c = *nptr++;                                                    \
+        if (!len)                                                       \
+            return 0;                                                   \
+    }                                                                   \
+                                                                        \
+    if (c == '0' && tolower(*nptr) == 'x' && len > 2) {                 \
+        div = 16;                                                       \
+        c = *(++nptr);                                                  \
+        nptr++;                                                         \
+        len -= 2;                                                       \
+    }                                                                   \
+                                                                        \
+    while (c && len--) {                                                \
+        if (isdigit(c))                                                 \
+            total = div * total + (c - '0');                            \
+        else if (div == 16 && tolower(c) >= 'a' && tolower(c) <= 'f')   \
+            total = div * total + (tolower(c) - 'a' + 10);              \
+        else                                                            \
+            return 0;                                                   \
+        c = *nptr++;                                                    \
+    }                                                                   \
+                                                                        \
+    if (signed && sign == '-' && div == 10)                             \
+        return -total;                                                  \
+                                                                        \
+    return total;                                                       \
 }
+
+GENERIC_STRNTOX_OPS(strntol, long, true)
+GENERIC_STRNTOX_OPS(strntoll, long long, true)
+GENERIC_STRNTOX_OPS(strntoul, unsigned long, false)
+GENERIC_STRNTOX_OPS(strntoull, unsigned long long, false)
+
+EXPORT_SYMBOL(strntol);
+EXPORT_SYMBOL(strntoll);
+EXPORT_SYMBOL(strntoul);
+EXPORT_SYMBOL(strntoull);
+
+#define GENERIC_STRTOX_OPS(name, func, type)                            \
+type name(const char *nptr)                                             \
+{                                                                       \
+    return func(nptr, UINT_MAX);                                        \
+}
+
+GENERIC_STRTOX_OPS(strtol, strntol, long)
+GENERIC_STRTOX_OPS(strtoll, strntoll, long long)
+GENERIC_STRTOX_OPS(strtoul, strntoul, unsigned long)
+GENERIC_STRTOX_OPS(strtoull, strntoull, unsigned long long)
+
+EXPORT_SYMBOL(strtol);
+EXPORT_SYMBOL(strtoll);
 EXPORT_SYMBOL(strtoul);
-
-unsigned long long strtoull(const char *nptr)
-{
-    unsigned long long total = 0;
-    char div, c;
-
-    if (!nptr || !*nptr)
-        return 0;
-
-    while (isspace((int)*nptr))
-        ++nptr;
-
-    c = *nptr++;
-    if (c == '0' && tolower(*nptr) == 'x') {
-        div = 16;
-        c = *(++nptr);
-        nptr++;
-    } else {
-        div = 10;
-    }
-
-    while (c) {
-        if (isdigit(c))
-            total = div * total + (c - '0');
-        else if (div == 16 && c >= 'a' && c <= 'f')
-            total = div * total + (c - 'a' + 10);
-        else if (div == 16 && c >= 'A' && c <= 'F')
-            total = div * total + (c - 'A' + 10);
-        else
-            return 0;
-        c = *nptr++;
-    }
-
-    return total;
-}
 EXPORT_SYMBOL(strtoull);
