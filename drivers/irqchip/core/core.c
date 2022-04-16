@@ -10,6 +10,7 @@
 #include <initcall.h>
 #include <driver/irqchip.h>
 #include <printk.h>
+#include <export.h>
 
 LIST_HEAD(irqchip_list);
 
@@ -32,6 +33,9 @@ struct irqchip_channel *irqchip_channel_get(struct irqchip_device *idev, irqnr_t
 {
     struct irqchip_channel *channel;
 
+    if (chnr >= idev->channel_nr)
+        return NULL;
+
     list_for_each_entry(channel, &idev->channel, list) {
         if (channel->index == chnr)
             return channel;
@@ -39,6 +43,7 @@ struct irqchip_channel *irqchip_channel_get(struct irqchip_device *idev, irqnr_t
 
     return irqchip_alloc_channel(idev, chnr);
 }
+EXPORT_SYMBOL(irqchip_channel_get);
 
 void irqchip_channel_release(struct irqchip_channel *channel)
 {
@@ -50,6 +55,7 @@ void irqchip_channel_release(struct irqchip_channel *channel)
     list_del(&channel->list);
     dev_kfree(idev->dev, channel);
 }
+EXPORT_SYMBOL(irqchip_channel_release);
 
 /**
  * irqchip_register - Register an irqchip controller.

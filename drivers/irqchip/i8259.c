@@ -196,6 +196,7 @@ static state i8259_probe(struct platform_device *pdev, const void *pdata)
     idev->irqchip.ops = &pic_ops;
     idev->irqchip.dev = &pdev->dev;
     idev->irqchip.dt_node = pdev->dt_node;
+    idev->irqchip.channel_nr = I8259_IRQ_NR;
     platform_set_devdata(pdev, idev);
 
     i8250_hw_init(pdev);

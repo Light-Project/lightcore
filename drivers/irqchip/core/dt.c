@@ -5,6 +5,7 @@
 
 #include <driver/dt.h>
 #include <driver/irqchip.h>
+#include <export.h>
 
 static struct dt_node *dt_get_channel(struct dt_node *node, int index, uint32_t *irq_nr)
 {
@@ -56,6 +57,7 @@ struct irqchip_channel *dt_irqchip_channel(struct dt_node *node, int index)
 
     return irqchip_channel_get(idev, chnr);
 }
+EXPORT_SYMBOL(dt_irqchip_channel);
 
 /**
  * dt_get_irq - Get interrupt number form device tree
@@ -75,6 +77,7 @@ struct irqchip_channel *dt_irqchip_channel_name(struct dt_node *node, const char
 
     return dt_irqchip_channel(node, index);
 }
+EXPORT_SYMBOL(dt_irqchip_channel_name);
 
 void __init dt_irqchip_slave_setup(void)
 {
