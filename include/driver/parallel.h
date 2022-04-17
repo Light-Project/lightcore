@@ -85,6 +85,7 @@ struct parallel_ops {
     state (*data_write)(struct parallel_host *host, uint8_t data);
     state (*ctrl_read)(struct parallel_host *host, uint8_t *data);
     state (*ctrl_write)(struct parallel_host *host, uint8_t data);
+    state (*status_read)(struct parallel_host *host, uint8_t *data);
 
     state (*epp_data_read)(struct parallel_host *host, const void *buff, unsigned int len, enum parallel_flags flags);
     state (*epp_data_write)(struct parallel_host *host, void *buff, unsigned int len, enum parallel_flags flags);
@@ -104,8 +105,15 @@ extern void dt_populate_parallel(struct parallel_host *host);
 /* parallel operations */
 extern state parallel_host_data_read(struct parallel_host *host, uint8_t *data);
 extern state parallel_host_data_write(struct parallel_host *host, uint8_t data);
+extern state parallel_host_ctrl_read(struct parallel_host *host, uint8_t *data);
+extern state parallel_host_ctrl_write(struct parallel_host *host, uint8_t data);
+extern state parallel_host_status_read(struct parallel_host *host, uint8_t *data);
+
 extern state parallel_data_read(struct parallel_device *pdev, uint8_t *data);
 extern state parallel_data_write(struct parallel_device *pdev, uint8_t data);
+extern state parallel_ctrl_read(struct parallel_device *host, uint8_t *data);
+extern state parallel_ctrl_write(struct parallel_device *host, uint8_t data);
+extern state parallel_status_read(struct parallel_device *host, uint8_t *data);
 
 /* parallel registration */
 extern struct parallel_device *parallel_device_alloc(struct parallel_host *host, const char *name);
