@@ -3,8 +3,6 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-/dts-v1/;
-
 / {
     model = "X86 IBM compatible computer";
     #address-cells = <1>;
@@ -12,41 +10,11 @@
 
     chosen { };
 
-    memory@0 {
-        device_type = "memory";
-        reg = <0x00000000 0x02000000>;
-    };
-
     clocks {
         timclk: clk-i8253 {
             #clock-cells = <0>;
             compatible = "fixed-clock";
             clock-frequency = <1193182>;
-        };
-    };
-
-    core {
-        compatible = "core-bus";
-        tsc {
-            compatible = "intel,tsc";
-        };
-    };
-
-    simple {
-        #address-cells = <1>;
-        #size-cells = <1>;
-        compatible = "simple-bus";
-
-        apic@fec00000 {
-            compatible = "intel,apic";
-            reg = <0xfec00000 0x50>;
-        };
-
-        hpet@fed00000 {
-            compatible = "intel,hpet";
-            reg = <0xfed00000 0x400>;
-            interrupt-parent = <&pic0>;
-            interrupts = <0>;
         };
     };
 
@@ -71,7 +39,7 @@
             interrupt-controller;
         };
 
-        timer@42 {
+        timer@41 {
             compatible = "intel,i8253";
             reg = <0x0040 0x20>;
             interrupt-parent = <&pic0>;
@@ -79,7 +47,7 @@
             clocks = <&timclk>;
         };
 
-        pcspkr@44 {
+        pcspkr@43 {
             compatible = "ibm,pcspkr";
             reg = <0x0040 0x20>;
             clocks = <&timclk>;
@@ -87,14 +55,14 @@
 
         ps2@60 {
             compatible = "intel,i8042";
-            reg = <0x0060 0x08>;
+            reg = <0x0060 0x10>;
             interrupt-names = "kbd", "aux";
             interrupts-extended = <&pic0 1>, <&pic1 4>;
         };
 
-        rtc@71 {
+        rtc@70 {
             compatible = "motorola,mc146818";
-            reg = <0x0070 0x08>;
+            reg = <0x0070 0x10>;
             interrupt-parent = <&pic1>;
             interrupts = <0>;
         };
@@ -122,6 +90,8 @@
             reg = <0x0278 0x08>;
             interrupt-parent = <&pic0>;
             interrupts = <5>;
+            #address-cells = <1>;
+            #size-cells = <0>;
         };
 
         uart3: serial@2e8 {
@@ -151,11 +121,15 @@
             reg = <0x0378 0x08>;
             interrupt-parent = <&pic0>;
             interrupts = <7>;
+            #address-cells = <1>;
+            #size-cells = <0>;
         };
 
         lpt2: parallel@3bc {
             compatible = "intel,i8255";
             reg = <0x03bc 0x08>;
+            #address-cells = <1>;
+            #size-cells = <0>;
         };
 
         uart2: serial@3e8 {
@@ -178,16 +152,6 @@
             reg = <0x03f8 0x08>;
             interrupt-parent = <&pic0>;
             interrupts = <4>;
-        };
-
-        pci: pci@c00 {
-            compatible = "intel,i386-pci";
-            reg = <0x0c00 0x10>;
-        };
-
-        power@cf9 {
-            compatible = "intel,piix-power";
-            reg = <0x0cf9 0x01>;
         };
     };
 };

@@ -1,0 +1,53 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2022 Sanpe <sanpeqf@gmail.com>
+ */
+
+/dts-v1/;
+#include "ibmpc.dtsi"
+
+/ {
+    model = "X86 virtual computer";
+
+    memory@0 {
+        device_type = "memory";
+        reg = <0x00000000 0x02000000>;
+    };
+
+    core {
+        compatible = "core-bus";
+        tsc {
+            compatible = "intel,tsc";
+        };
+    };
+
+    simple {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        compatible = "simple-bus";
+
+        apic@fec00000 {
+            compatible = "intel,apic";
+            reg = <0xfec00000 0x50>;
+        };
+
+        hpet@fed00000 {
+            compatible = "intel,hpet";
+            reg = <0xfed00000 0x400>;
+            interrupt-parent = <&pic0>;
+            interrupts = <0>;
+        };
+    };
+
+    isa {
+        pci: pci@cf8 {
+            compatible = "intel,i386-pci";
+            reg = <0x0cf8 0x08>;
+        };
+
+        power@cf9 {
+            compatible = "intel,piix-power";
+            reg = <0x0cf9 0x01>;
+        };
+    };
+};
