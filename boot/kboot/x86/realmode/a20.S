@@ -130,7 +130,7 @@ bios_exit:
  * On some systems reading ioport 0xee enables A20,
  * and writing it disables A20.
  */
-    inb     $IBMPC_FA20_BASE, %al
+    inb     $0xee, %al
 
     movl    $A20_TEST_SLOW, %ecx
     call    a20_test
