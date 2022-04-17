@@ -36,33 +36,9 @@ i8255_out(struct i8255_device *idev, int reg, uint8_t val)
     outb(idev->base + reg, val);
 }
 
-static bool i8042_wait(struct i8255_device *idev, uint8_t mask, uint8_t pass)
-{
-    int timeout = I8255_TIMEOUT;
-    uint8_t val;
-
-    while (--timeout) {
-        val = i8255_in(idev, I8255_STATUS);
-        if ((val & mask) == pass)
-            break;
-        udelay(10);
-    }
-
-    return !!timeout;
-}
-
-static inline bool i8255_wait_busy(struct i8255_device *idev)
-{
-    return i8042_wait(idev, I8255_STATUS_BUSY, 0);
-}
-
 static state i8255_data_read(struct parallel_host *host, uint8_t *data)
 {
     struct i8255_device *idev = parallel_to_idev(host);
-
-    if (!i8255_wait_busy(idev))
-        return -EBUSY;
-
     *data = i8255_in(idev, I8255_DATA);
     return -ENOERR;
 }
@@ -70,41 +46,49 @@ static state i8255_data_read(struct parallel_host *host, uint8_t *data)
 static state i8255_data_write(struct parallel_host *host, uint8_t data)
 {
     struct i8255_device *idev = parallel_to_idev(host);
-
-    if (!i8255_wait_busy(idev))
-        return -EBUSY;
-
     i8255_out(idev, I8255_DATA, data);
+    return -ENOERR;
+}
+
+static state i8255_ctrl_read(struct parallel_host *host, uint8_t *data)
+{
+    struct i8255_device *idev = parallel_to_idev(host);
+    *data = i8255_in(idev, I8255_CTRL);
+    return -ENOERR;
+}
+
+static state i8255_ctrl_write(struct parallel_host *host, uint8_t data)
+{
+    struct i8255_device *idev = parallel_to_idev(host);
+    i8255_out(idev, I8255_CTRL, data);
+    return -ENOERR;
+}
+
+static state i8255_status_read(struct parallel_host *host, uint8_t *data)
+{
+    struct i8255_device *idev = parallel_to_idev(host);
+    *data = i8255_in(idev, I8255_STATUS);
     return -ENOERR;
 }
 
 static struct parallel_ops i8255_ops = {
     .data_read = i8255_data_read,
     .data_write = i8255_data_write,
+    .ctrl_read = i8255_ctrl_read,
+    .ctrl_write = i8255_ctrl_write,
+    .status_read = i8255_status_read,
 };
 
 static bool i8255_detect(struct i8255_device *idev)
 {
-    /* Reset Port */
-    i8255_out(idev, I8255_CTRL, 0);
-
-    if (!i8255_wait_busy(idev))
-        return false;
     i8255_out(idev, I8255_DATA, 0x55);
-
-    if (!i8255_wait_busy(idev) ||
-        i8255_in(idev, I8255_DATA) != 0x55)
+    if (i8255_in(idev, I8255_DATA) != 0x55)
         return false;
 
-    if (!i8255_wait_busy(idev))
-        return false;
     i8255_out(idev, I8255_DATA, 0xaa);
-
-    if (!i8255_wait_busy(idev) ||
-        i8255_in(idev, I8255_DATA) != 0xaa)
+    if (i8255_in(idev, I8255_DATA) != 0xaa)
         return false;
 
-    i8255_out(idev, I8255_DATA, 0x00);
     return true;
 }
 
@@ -129,8 +113,7 @@ static state i8255_probe(struct platform_device *pdev, const void *pdata)
         return -ENODEV;
 
     platform_debug(pdev, "detected port\n");
-    parallel_host_register(&idev->parallel);
-    return -ENOERR;
+    return parallel_host_register(&idev->parallel);
 }
 
 static struct dt_device_id i8255_ids[] = {
