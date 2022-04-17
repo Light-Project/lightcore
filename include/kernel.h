@@ -66,9 +66,11 @@ extern unsigned long long strtoull(const char *nptr);
 extern __printf(2, 3) int sprintf(char *buf, const char *fmt, ...);
 extern __printf(3, 4) int snprintf(char *buf, size_t n, const char *fmt, ...);
 extern __printf(3, 4) int scnprintf(char *buf, size_t n, const char *fmt, ...);
-extern int vsprintf(char *buf, const char *fmt, va_list args);
-extern int vsnprintf(char *buf, size_t n, const char *fmt, va_list args);
-extern int vscnprintf(char *buf, size_t n, const char *fmt, va_list args);
+extern __printf(2, 0) int vsprintf(char *buf, const char *fmt, va_list args);
+extern __printf(3, 0) int vsnprintf(char *buf, size_t n, const char *fmt, va_list args);
+extern __printf(3, 0) int vscnprintf(char *buf, size_t n, const char *fmt, va_list args);
+extern __printf(2, 0) __malloc char *kvasprintf(gfp_t flags, const char *fmt, va_list args);
+extern __printf(2, 3) __malloc char *kasprintf(gfp_t gfp, const char *fmt, ...);
 extern int gsize(char *buff, size_t size);
 
 #endif  /* _KERNEL_H_ */
