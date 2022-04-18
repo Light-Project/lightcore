@@ -3,34 +3,19 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <driver/dt.h>
-#include <driver/dt/libfdt.h>
 #include <string.h>
+#include <driver/dt.h>
 #include <export.h>
 
 struct dt_node *dt_root;
 struct dt_node *dt_chosen;
 struct dt_node *dt_stdout;
 
-struct dt_node *dt_for_each_all_node(struct dt_node *node)
-{
-    if (!node)
-        return dt_root;
-    else if (slist_check_next(&node->child))
-        return slist_first_entry(&node->child, struct dt_node, sibling);
-    else {
-        while (!slist_check_next(&node->sibling) && node->parent)
-            node = node->parent;
-        return slist_next_entry(node, sibling);
-    }
-}
-EXPORT_SYMBOL(dt_for_each_all_node);
-
 struct dt_node *dt_find_by_phandle(uint32_t phandle)
 {
     struct dt_node *node;
 
-    dt_for_each_all(node) {
+    slist_for_each_entry(node, &dt_phandle_list, phandle_node) {
         if (node->phandle == phandle)
             return node;
     }
@@ -189,6 +174,12 @@ state dt_attribute_string_index(const struct dt_node *node,
 }
 EXPORT_SYMBOL(dt_attribute_string_index);
 
+/**
+ * dt_search_up - search up until results are found.
+ * @node: node to start searching upwards.
+ * @name: name of the resource to search upwards.
+ * @value: pointer to return the resource value.
+ */
 struct dt_node *dt_search_up(const struct dt_node *node,
                              const char *name, uint32_t *value)
 {
@@ -200,6 +191,28 @@ struct dt_node *dt_search_up(const struct dt_node *node,
     return NULL;
 }
 EXPORT_SYMBOL(dt_search_up);
+
+/**
+ * dt_node_is_available - check if a device is available for use.
+ * @node: node to check for availability.
+ */
+bool dt_node_is_available(const struct dt_node *node)
+{
+    const char *status;
+    int statlen;
+
+    status = dt_attribute_get(node, "status", &statlen);
+    if (!status)
+        return false;
+
+    if (statlen > 0) {
+        if (!strcmp(status, "okay") || !!strcmp(status, "ok"))
+            return true;
+    }
+
+    return false;
+}
+EXPORT_SYMBOL(dt_node_is_available);
 
 /**
  * dt_addr_cell - read the address cell of the node
@@ -235,37 +248,24 @@ uint32_t dt_size_cell(const struct dt_node *node)
 }
 EXPORT_SYMBOL(dt_size_cell);
 
-/*** Function for matching ***/
-
-bool dt_attribute_match(const struct dt_node *node,
-                        const char *atname, const char *val)
+/**
+ * dt_node_check_available - check if a device is available for use.
+ * @node: node to check for availability.
+ */
+bool dt_node_check_available(const struct dt_node *node)
 {
-    struct dt_attribute *attribute;
-    attribute = dt_attribute_find(node, atname);
-    return attribute && !strcmp(attribute->value, val);
-}
-EXPORT_SYMBOL(dt_attribute_match);
+    const char *status;
+    int statlen;
 
-bool dt_match_name(const struct dt_node *node, const char *name)
-{
-    const char *node_name;
-    int len;
+    status = dt_attribute_get(node, "status", &statlen);
+    if (!status)
+        return false;
 
-    node_name = basename(node->path);
-	len = strchrnul(name, '@') - node_name;
-	return (strlen(node_name) == len) &&
-           (!strncmp(node_name, name, len));
-}
-EXPORT_SYMBOL(dt_match_name);
+    if (statlen > 0) {
+        if (!strcmp(status, "okay") || !!strcmp(status, "ok"))
+            return true;
+    }
 
-bool dt_match(const struct dt_device_id *id, const struct dt_node *node)
-{
-    if (dt_attribute_match(node, "compatible", id->compatible))
-        return true;
-    if (dt_attribute_match(node, "device_type", id->type))
-        return true;
-    if (dt_match_name(node, id->name))
-        return true;
     return false;
 }
-EXPORT_SYMBOL(dt_match);
+EXPORT_SYMBOL(dt_node_check_available);

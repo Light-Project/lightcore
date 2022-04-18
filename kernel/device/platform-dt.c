@@ -25,6 +25,36 @@ static const struct dt_device_id dt_skipped_table[] = {
     { }, /* NULL */
 };
 
+static bool dt_attribute_match(const struct dt_node *node,
+                        const char *atname, const char *val)
+{
+    struct dt_attribute *attribute;
+    attribute = dt_attribute_find(node, atname);
+    return attribute && !strcmp(attribute->value, val);
+}
+
+static bool dt_match_name(const struct dt_node *node, const char *name)
+{
+    const char *node_name;
+    int len;
+
+    node_name = basename(node->path);
+    len = strchrnul(name, '@') - node_name;
+    return (strlen(node_name) == len) &&
+           (!strncmp(node_name, name, len));
+}
+
+static bool dt_device_match(const struct dt_device_id *id, const struct dt_node *node)
+{
+    if (dt_attribute_match(node, "compatible", id->compatible))
+        return true;
+    if (dt_attribute_match(node, "device_type", id->type))
+        return true;
+    if (dt_match_name(node, id->name))
+        return true;
+    return false;
+}
+
 const struct dt_device_id *
 platform_dt_match(const struct dt_device_id *table, const struct dt_node *node)
 {
@@ -33,7 +63,7 @@ platform_dt_match(const struct dt_device_id *table, const struct dt_node *node)
 
     while ((table->name && table->name[0]) || (table->type && table->type[0]) ||
            (table->compatible && table->compatible[0])) {
-        if (dt_match(table, node))
+        if (dt_device_match(table, node))
             return table;
         ++table;
     }

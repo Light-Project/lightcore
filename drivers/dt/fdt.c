@@ -11,66 +11,9 @@
 #include <driver/dt/libfdt.h>
 #include <printk.h>
 
-#define DT_DEPTH_MAX    16
-
-uint32_t dt_crc32;
-void *dt_start_addr;
 unsigned int dt_root_addr_cells = DT_ROOT_ADDR_CELLS_DEFAULT;
 unsigned int dt_root_size_cells = DT_ROOT_SIZE_CELLS_DEFAULT;
-
-state __init dt_scan_node(state (*fn)(unsigned long node, const char *uname,
-                                      int depth, void *data), void *data)
-{
-    const void *node = dt_start_addr;
-    const char *uname;
-    int offset, rc = -1, depth = -1;
-
-    if (!node)
-        return -EINVAL;
-
-    for (offset = fdt_next_node(node, -1, &depth);
-         offset >= 0 && depth >= 0 && rc;
-         offset = fdt_next_node(node, offset, &depth)) {
-        uname = fdt_get_name(node, offset, NULL);
-        rc = fn(offset, uname, depth, data);
-    }
-
-    return rc;
-}
-
-/**
- * dt_scan_subnode - scan sub-nodes call callback on each.
- * @it: callback function
- * @data: context data pointer
- */
-int __init dt_scan_subnode(unsigned long parent, int (*it)(unsigned long node,
-                           const char *uname,void *data), void *data)
-{
-    const void *blob = dt_start_addr;
-    int node;
-
-    fdt_for_each_subnode(node, blob, parent) {
-        const char *pathp;
-        int rc;
-
-        pathp = fdt_get_name(blob, node, NULL);
-        rc = it(node, pathp, data);
-        if (rc)
-            return rc;
-    }
-
-    return 0;
-}
-
-int dt_get_subnode_by_name(unsigned long node, const char *uname)
-{
-    return fdt_subnode_offset(dt_start_addr, node, uname);
-}
-
-const void *dt_get_prop(unsigned long node, const char *name, int *size)
-{
-    return fdt_getprop(dt_start_addr, node, name, size);
-}
+SLIST_HEAD(dt_phandle_list);
 
 static state populate_attribute(const void *blob, int offset, struct dt_node *node)
 {
@@ -94,17 +37,27 @@ static state populate_attribute(const void *blob, int offset, struct dt_node *no
             continue;
         }
 
-        att = kzalloc(sizeof(*att), GFP_KERNEL);
-        if (!att)
-            goto error;
+        if (!strcmp(name, "name")) {
+            node->name = (char *)value;
+            if (!node->name)
+                node->name = "none";
+        }
 
-        if (!strcmp(name, "phandle"))
+        else if (!strcmp(name, "phandle")) {
             node->phandle = be32_to_cpup(value);
+            slist_add(&dt_phandle_list, &node->phandle_node);
+        }
 
-        att->name   = name;
-        att->len    = len;
-        att->value  = value;
-        slist_add(&node->attribute, &att->list);
+        else {
+            att = kzalloc(sizeof(*att), GFP_KERNEL);
+            if (!att)
+                goto error;
+
+            att->name   = name;
+            att->len    = len;
+            att->value  = value;
+            slist_add(&node->attribute, &att->list);
+        }
     }
 
     return -ENOERR;
@@ -126,9 +79,8 @@ static inline state __init populate_node(const void *blob, int offset,
     int len;
 
     path = fdt_get_name(blob, offset, &len);
-    if (!path) {
+    if (!path)
         return -ENOERR;
-    }
 
     *nodep = node = kzalloc(sizeof(*node) + (++len), GFP_KERNEL);
     if (!node)
@@ -147,10 +99,6 @@ static inline state __init populate_node(const void *blob, int offset,
         kfree(node);
         return ret;
     }
-
-    node->name = dt_attribute_get(node, "name", NULL);
-    if (!node->name)
-        node->name = "none";
 
     return -ENOERR;
 }

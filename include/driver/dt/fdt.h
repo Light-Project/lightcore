@@ -4,7 +4,6 @@
 
 #include <types.h>
 #include <state.h>
-
 #include <lightcore/asm/byteorder.h>
 
 extern void *dt_start_addr;
@@ -20,12 +19,13 @@ static inline uint64_t dt_read(const be32 *cell, int size)
     return ret;
 }
 
-/* fdt.c */
-state dt_scan_node(state (*fn)(unsigned long node, const char *uname, int depth, void *data), void *data);
-const void *dt_get_prop(unsigned long node, const char *name, int *size);
-void dt_init(void);
+/* device tree operations */
+extern __init void dt_init(void);
 
-/* early.c */
-state early_dt_scan(void *addr);
+/* device tree early operations */
+extern __init state dt_scan_node(state (*fn)(unsigned long node, const char *uname, int depth, void *data), void *data);
+extern __init state dt_get_subnode_by_name(unsigned long node, const char *uname);
+extern __init const void *dt_get_prop(unsigned long node, const char *name, int *size);
+extern __init state early_dt_scan(void *addr);
 
 #endif  /* _DRIVER_DT_LIBFDT_H_ */

@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt)	"efdt: " fmt
+#define MODULE_NAME "efdt"
+#define pr_fmt(fmt)	MODULE_NAME ": " fmt
 
 #include <init.h>
 #include <crypto.h>
@@ -13,6 +14,68 @@
 #include <driver/dt/fdt.h>
 #include <driver/dt/libfdt.h>
 #include <printk.h>
+
+uint32_t dt_crc32;
+void *dt_start_addr;
+
+/**
+ * dt_scan_node - scan flattened tree blob and call callback on each.
+ * @iter: callback function.
+ * @data: context data pointer.
+ */
+state __init dt_scan_node(state (*iter)(unsigned long node, const char *uname,
+                          int depth, void *data), void *data)
+{
+    const void *node = dt_start_addr;
+    const char *uname;
+    int offset, depth = -1;
+    state ret = -ENODATA;
+
+    if (!node)
+        return -EINVAL;
+
+    for (offset = fdt_next_node(node, -1, &depth);
+         offset >= 0 && depth >= 0 && ret;
+         offset = fdt_next_node(node, offset, &depth)) {
+        uname = fdt_get_name(node, offset, NULL);
+        ret = iter(offset, uname, depth, data);
+    }
+
+    return ret;
+}
+
+/**
+ * dt_scan_subnode - scan sub-nodes call callback on each.
+ * @iter: callback function.
+ * @data: context data pointer.
+ */
+state __init dt_scan_subnode(unsigned long parent, int (*iter)(unsigned long node,
+                             const char *uname,void *data), void *data)
+{
+    const void *blob = dt_start_addr;
+    const char *pathp;
+    int node;
+    state ret = -ENODATA;
+
+    fdt_for_each_subnode(node, blob, parent) {
+        pathp = fdt_get_name(blob, node, NULL);
+        ret = iter(node, pathp, data);
+        if (ret)
+            return ret;
+    }
+
+    return -ENOERR;
+}
+
+int __init dt_get_subnode_by_name(unsigned long node, const char *uname)
+{
+    return fdt_subnode_offset(dt_start_addr, node, uname);
+}
+
+const __init void *dt_get_prop(unsigned long node, const char *name, int *size)
+{
+    return fdt_getprop(dt_start_addr, node, name, size);
+}
 
 static state __init dt_scan_chosen(unsigned long node, const char *uname, int depth, void *data)
 {
@@ -32,7 +95,6 @@ static state __init dt_scan_chosen(unsigned long node, const char *uname, int de
 
     rng_seed = dt_get_prop(node, "rng-seed", &len);
     if (rng_seed && len > 0) {
-        // add_bootloader_randomness(rng_seed, l);
 
         /* try to clear seed so it won't be found :) */
         fdt_nop_property(dt_start_addr, node, "rng-seed");
@@ -120,11 +182,11 @@ state __init early_dt_scan(void *addr)
     pr_info("  size: 0x%08x\n", size);
     pr_info("  version: 0x%08x\n", version);
 
-    memblock_reserve("dts", va_to_pa(addr), size);
-
     dt_scan_node(dt_scan_chosen, boot_args);
     dt_scan_node(dt_scan_root, NULL);
     dt_scan_node(dt_scan_memory, NULL);
+
+    memblock_reserve("dts", va_to_pa(addr), size);
 
     return -ENOERR;
 }

@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 obj-y += fdt.o early.o base.o
+obj-y += iterator.o parser.o
 obj-y += address.o bus.o irq.o
 obj-$(CONFIG_BUILTIN_DTB) += dtb.o
 
