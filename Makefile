@@ -23,15 +23,17 @@ sys-include-y += arch/$(arch)/                          \
                  arch/$(arch)/include/                  \
                  arch/$(arch)/include/generated/
 
-sys-ccflags-$(CONFIG_CC_OPTIMIZE_FOR_DEBUG)         += -O0
-sys-ccflags-$(CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE)   += -O2
-sys-ccflags-$(CONFIG_CC_OPTIMIZE_FOR_SIZE)          += -Os
+sys-cxflags-$(CONFIG_CC_OPTIMIZE_FOR_DEBUG)         += -O0
+sys-cxflags-$(CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE)   += -O2
+sys-cxflags-$(CONFIG_CC_OPTIMIZE_FOR_SIZE)          += -Os
 sys-ccflags-$(CONFIG_STRICT) += -Werror
 
 sys-acflags-y  += -fno-pic -fno-pie
-sys-ccflags-y  += -nostdinc -fno-builtin -static
-sys-ccflags-y  += -fno-common -fno-stack-protector
-sys-ccflags-y  += -ffreestanding -std=gnu11
+sys-cxflags-y  += -nostdinc -fno-builtin -static
+sys-cxflags-y  += -fno-common -fno-stack-protector
+sys-cxflags-y  += -ffreestanding
+sys-ccflags-y  += -std=gnu11
+sys-cxxflags-y += -std=gnu++17 -fpermissive -Wno-pointer-arith
 
 sys-acflags-y  += -D__KERNEL__
 sys-asflags-y  += -D__ASSEMBLY__
@@ -40,7 +42,9 @@ sys-symflags-y += -D__SYMBOL__
 
 asflags-y  := $(strip $(sys-asflags-y) $(platform-asflags-y))
 ccflags-y  := $(strip $(sys-ccflags-y) $(platform-ccflags-y))
+cxxflags-y := $(strip $(sys-cxxflags-y) $(platform-cxxflags-y))
 acflags-y  := $(strip $(sys-acflags-y) $(platform-acflags-y))
+cxflags-y  := $(strip $(sys-cxflags-y) $(platform-cxflags-y))
 ldsflags-y := $(strip $(sys-ldsflags-y) $(platform-ldsflags-y))
 symflags-y := $(strip $(sys-symflags-y) $(platform-symflags-y))
 ldflags-y  := $(strip $(sys-ldflags-y) $(platform-ldflags-y))
@@ -62,7 +66,8 @@ lightcore-flags-y += --gc-sections
 endif
 
 export CROSS_COMPILE include-direct-y
-export asflags-y ccflags-y cppflags-y acflags-y
+export acflags-y cxflags-y cxxflags-y
+export ccflags-y asflags-y cppflags-y
 export symflags-y ldsflags-y ldflags-y
 
 #####################################

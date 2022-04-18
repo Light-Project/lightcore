@@ -19,6 +19,7 @@ include_path    := $(addprefix -I ,$(include_path))
 ########################################
 
 acflags_y   += $(acflags-y)
+cxflags_y   += $(cxflags-y)
 asflags_y   += $(asflags-y)
 ccflags_y   += $(ccflags-y)
 cxxflags_y  += $(cxxflags-y)
@@ -31,15 +32,15 @@ ccflags_y += $(if $(patsubst n%,, \
              $(CFLAGS_KASAN), $(CFLAGS_KASAN_NOSANITIZE))
 endif
 
-a_flags      = $(acflags_y) $(asflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y) $(gcc-warning)
-c_flags      = $(acflags_y) $(ccflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y) $(gcc-warning)
-cxx_flags    = $(cxxflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y) $(gcc-warning)
-cpp_flags    = $(cppflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y) $(gcc-warning)
+a_flags      = $(gcc-warning) $(acflags_y) $(asflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
+c_flags      = $(gcc-warning) $(acflags_y) $(cxflags_y) $(ccflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
+cxx_flags    = $(gcc-warning) $(acflags_y) $(cxflags_y) $(cxxflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
+cpp_flags    = $(gcc-warning) $(cppflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
 lds_flags    = $(ldsflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
 sym_flags    = $(symflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
 
-unexport asflags-y ccflags-y cppflags-y acflags-y ldsflags-y ldflags-y
-export acflags_y asflags_y ccflags_y cxxflags_y ldsflags_y symflags_y
+unexport asflags-y cxflags-y ccflags-y cppflags-y acflags-y ldsflags-y ldflags-y
+export acflags_y cxflags_y asflags_y ccflags_y cxxflags_y ldsflags_y symflags_y
 
 ########################################
 # Start rule                           #
