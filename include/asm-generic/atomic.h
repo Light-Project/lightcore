@@ -383,7 +383,7 @@ static __always_inline bool arch_atomic_dec_test(atomic_t *atomic)
  * @val: required value
  */
 #ifndef arch_atomic_xchg
-# define arch_atomic_xchg(atomic, new) arch_xchg(atomic, new)
+# define arch_atomic_xchg(atomic, val) arch_xchg(atomic, val)
 #endif
 
 /**
@@ -392,21 +392,21 @@ static __always_inline bool arch_atomic_dec_test(atomic_t *atomic)
  * @val: required value
  */
 #ifndef arch_atomic_cmpxchg
-# define arch_atomic_cmpxchg(atomic, old, new) arch_cmpxchg(atomic, old, new)
+# define arch_atomic_cmpxchg(atomic, old, val) arch_cmpxchg(atomic, old, val)
 #endif
 
 /**
  * arch_atomic_try_cmpxchg - try to cmp and xchg atomic variable
  * @atomic: pointer of type atomic_t
  * @old: required value
- * @new: required value
+ * @val: required value
  */
 #ifndef arch_atomic_try_cmpxchg
-static __always_inline bool arch_atomic_try_cmpxchg(atomic_t *atomic, atomic_t *old, atomic_t new)
+static __always_inline bool arch_atomic_try_cmpxchg(atomic_t *atomic, atomic_t *old, atomic_t val)
 {
     atomic_t ret, __old = *old;
 
-    ret = arch_atomic_cmpxchg(atomic, __old, new);
+    ret = arch_atomic_cmpxchg(atomic, __old, val);
     if (unlikely(ret != __old))
         *old = ret;
 

@@ -192,17 +192,17 @@ static __always_inline atomic_t atomic_xchg(atomic_t *atomic, atomic_t val)
     return arch_atomic_xchg(atomic, val);
 }
 
-static __always_inline atomic_t atomic_cmpxchg(atomic_t *atomic, atomic_t old, atomic_t new)
+static __always_inline atomic_t atomic_cmpxchg(atomic_t *atomic, atomic_t old, atomic_t val)
 {
     instrument_atomic_read_write(atomic, sizeof(*atomic));
-    return arch_atomic_cmpxchg(atomic, old, new);
+    return arch_atomic_cmpxchg(atomic, old, val);
 }
 
-static __always_inline bool atomic_try_cmpxchg(atomic_t *atomic, atomic_t *old, atomic_t new)
+static __always_inline bool atomic_try_cmpxchg(atomic_t *atomic, atomic_t *old, atomic_t val)
 {
     instrument_atomic_read_write(atomic, sizeof(*atomic));
 	instrument_atomic_read_write(old, sizeof(*old));
-    return arch_atomic_try_cmpxchg(atomic, old, new);
+    return arch_atomic_try_cmpxchg(atomic, old, val);
 }
 
 #define xchg(ptr, ...) ({                                   \

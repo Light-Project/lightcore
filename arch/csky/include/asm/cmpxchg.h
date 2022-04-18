@@ -1,11 +1,12 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _ASM_CSKY_CMPXCHG_H_
 #define _ASM_CSKY_CMPXCHG_H_
 
-#define __cmpxchg_relaxed(ptr, old, new, size)  \
+#define __cmpxchg_relaxed(ptr, old, val, size)  \
 ({                                              \
     __typeof__(ptr) __ptr = (ptr);              \
-    __typeof__(new) __new = (new);              \
-    __typeof__(new) __tmp;                      \
+    __typeof__(val) __new = (val);              \
+    __typeof__(val) __tmp;                      \
     __typeof__(old) __old = (old);              \
     __typeof__(*(ptr)) __ret;                   \
     switch (size) {                             \

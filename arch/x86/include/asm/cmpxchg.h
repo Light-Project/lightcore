@@ -31,8 +31,8 @@
     __ret;                                                      \
 })
 
-#define __cmpxchg(ptr, old, new, lock) ({                       \
-    typeof(*(ptr)) __new = (new);                               \
+#define __cmpxchg(ptr, old, val, lock) ({                       \
+    typeof(*(ptr)) __new = (val);                               \
     typeof(*(ptr)) __old = (old);                               \
     typeof(*(ptr)) __ret;                                       \
     switch (sizeof(*(ptr))) {                                   \
@@ -80,45 +80,45 @@
     switch (sizeof(*(_ptr))) {                                  \
         case 1: {                                               \
             volatile u8 *__ptr = (volatile u8 *)(_ptr);         \
-            asm volatile(lock "cmpxchgb %[new], %[ptr]"         \
+            asm volatile(lock "cmpxchgb %[val], %[ptr]"         \
                     CC_SET(z)                                   \
                     : CC_OUT(z) (status),                       \
                     [ptr] "+m" (*__ptr),                        \
                     [old] "+a" (__old)                          \
-                    : [new] "q" (__new)                         \
+                    : [val] "q" (__new)                         \
                     : "memory");                                \
             break;                                              \
         }                                                       \
         case 2: {                                               \
             volatile u16 *__ptr = (volatile u16 *)(_ptr);       \
-            asm volatile(lock "cmpxchgw %[new], %[ptr]"         \
+            asm volatile(lock "cmpxchgw %[val], %[ptr]"         \
                     CC_SET(z)                                   \
                     : CC_OUT(z) (status),                       \
                     [ptr] "+m" (*__ptr),                        \
                     [old] "+a" (__old)                          \
-                    : [new] "r" (__new)                         \
+                    : [val] "r" (__new)                         \
                     : "memory");                                \
             break;                                              \
         }                                                       \
         case 4: {                                               \
             volatile u32 *__ptr = (volatile u32 *)(_ptr);       \
-            asm volatile(lock "cmpxchgl %[new], %[ptr]"         \
+            asm volatile(lock "cmpxchgl %[val], %[ptr]"         \
                     CC_SET(z)                                   \
                     : CC_OUT(z) (status),                       \
                     [ptr] "+m" (*__ptr),                        \
                     [old] "+a" (__old)                          \
-                    : [new] "r" (__new)                         \
+                    : [val] "r" (__new)                         \
                     : "memory");                                \
             break;                                              \
         }                                                       \
         case 8: default: {                                      \
             volatile u64 *__ptr = (volatile u64 *)(_ptr);       \
-            asm volatile(lock "cmpxchgq %[new], %[ptr]"         \
+            asm volatile(lock "cmpxchgq %[val], %[ptr]"         \
                     CC_SET(z)                                   \
                     : CC_OUT(z) (status),                       \
                     [ptr] "+m" (*__ptr),                        \
                     [old] "+a" (__old)                          \
-                    : [new] "r" (__new)                         \
+                    : [val] "r" (__new)                         \
                     : "memory");                                \
             break;                                              \
         }                                                       \
@@ -130,9 +130,9 @@
 
 #define arch_xchg(ptr, val)                 __xchg_op(xchg, ptr, val, "")
 #define arch_xadd(ptr, val)                 __xchg_op(xadd, ptr, val, LOCK_PREFIX)
-#define arch_cmpxchg(ptr, old, new)         __cmpxchg(ptr, old, new, LOCK_PREFIX)
-#define arch_cmpxchg_sync(ptr, old, new)    __cmpxchg(ptr, old, new, "lock; ")
-#define arch_cmpxchg_local(ptr, old, new)   __cmpxchg(ptr, old, new, "")
-#define arch_try_cmpxchg(ptr, pold, new)    __try_cmpxchg(ptr, pold, new, LOCK_PREFIX)
+#define arch_cmpxchg(ptr, old, val)         __cmpxchg(ptr, old, val, LOCK_PREFIX)
+#define arch_cmpxchg_sync(ptr, old, val)    __cmpxchg(ptr, old, val, "lock; ")
+#define arch_cmpxchg_local(ptr, old, val)   __cmpxchg(ptr, old, val, "")
+#define arch_try_cmpxchg(ptr, pold, val)    __try_cmpxchg(ptr, pold, val, LOCK_PREFIX)
 
 #endif  /* _ASM_X86_CMPXCHG_H_ */

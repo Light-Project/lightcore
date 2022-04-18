@@ -40,15 +40,15 @@ static __always_inline atomic_t arch_atomic_xchg(atomic_t *atomic, atomic_t val)
  * @val: required value
  */
 #define arch_atomic_cmpxchg arch_atomic_cmpxchg
-static __always_inline atomic_t arch_atomic_cmpxchg(atomic_t *atomic, atomic_t old, atomic_t new)
+static __always_inline atomic_t arch_atomic_cmpxchg(atomic_t *atomic, atomic_t old, atomic_t val)
 {
-    return arch_cmpxchg(atomic, old, new);
+    return arch_cmpxchg(atomic, old, val);
 }
 
 #define arch_atomic_try_cmpxchg arch_atomic_try_cmpxchg
-static __always_inline bool arch_atomic_try_cmpxchg(atomic_t *atomic, atomic_t *old, atomic_t new)
+static __always_inline bool arch_atomic_try_cmpxchg(atomic_t *atomic, atomic_t *old, atomic_t val)
 {
-    return arch_try_cmpxchg(atomic, old, new);
+    return arch_try_cmpxchg(atomic, old, val);
 }
 
 /**
