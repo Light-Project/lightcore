@@ -31,7 +31,7 @@ state dt_address(const struct dt_node *node, unsigned int index,
 }
 EXPORT_SYMBOL(dt_address);
 
-unsigned int dt_address_nr(const struct dt_node *node)
+unsigned int dt_address_numbers(const struct dt_node *node)
 {
     uint32_t acell, scell, cell;
     int len;
@@ -45,4 +45,4 @@ unsigned int dt_address_nr(const struct dt_node *node)
 
     return len / cell;
 }
-EXPORT_SYMBOL(dt_address_nr);
+EXPORT_SYMBOL(dt_address_numbers);

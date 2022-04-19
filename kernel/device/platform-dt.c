@@ -79,8 +79,8 @@ static inline state dt_populate_resource(struct platform_device *pdev, int type)
     const char *name;
     state ret;
 
-    addr_nr = dt_address_nr(pdev->dt_node);
-    irq_nr = dt_irq_nr(pdev->dt_node);
+    addr_nr = dt_address_numbers(pdev->dt_node);
+    irq_nr = dt_irq_numbers(pdev->dt_node);
 
     if (!addr_nr && !irq_nr)
         return -ENOERR;

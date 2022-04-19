@@ -152,13 +152,14 @@ static inline state dt_parser_phandle_with_args(const struct dt_node *node, cons
     return dt_parser_phandle_with_args_count(node, list_name, cells_name, cell_count, index, args);
 }
 
-/* bus.c */
+/* device tree address parser */
 extern state dt_address(const struct dt_node *node, unsigned int index, resource_size_t *addr, resource_size_t *size);
-extern unsigned int dt_address_nr(const struct dt_node *node);
+extern unsigned int dt_address_numbers(const struct dt_node *node);
 
-/* irq.c */
+/* device tree interrupt parser */
 extern struct dt_node *dt_irq_parent(const struct dt_node *node);
-extern state dt_irq(const struct dt_node *node, unsigned int index, resource_size_t *irq);
-extern unsigned int dt_irq_nr(const struct dt_node *node);
+extern unsigned int dt_irq_numbers(const struct dt_node *node);
+extern state dt_irq_parse_raw(const be32 *addr, struct dt_phandle_args *args);
+extern state dt_irq_parse_one(struct dt_node *node, int index, struct dt_phandle_args *args);
 
 #endif
