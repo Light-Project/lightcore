@@ -47,22 +47,22 @@
         led0 {
             label = "led10";
             gpios = <&gpio0 10 GPIO_ACTIVE_LOW>;
-            linux,default-trigger = "heartbeat";
+            default-trigger = "heartbeat";
         };
         led1 {
             label = "led11";
             gpios = <&gpio0 11 GPIO_ACTIVE_LOW>;
-            linux,default-trigger = "timer";
+            default-trigger = "timer";
         };
         led2 {
             label = "led12";
             gpios = <&gpio0 12 GPIO_ACTIVE_LOW>;
-            linux,default-trigger = "default-on";
+            default-trigger = "default-on";
         };
         led3 {
             label = "led13";
             gpios = <&gpio0 13 GPIO_ACTIVE_LOW>;
-            linux,default-trigger = "default-on";
+            default-trigger = "default-on";
         };
     };
 };
