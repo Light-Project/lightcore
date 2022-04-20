@@ -139,17 +139,17 @@ extern uint32_t dt_size_cell(const struct dt_node *node);
 extern bool dt_node_check_available(const struct dt_node *node);
 
 /* device tree parameter parser */
-extern state dt_parser_phandle_with_args_count(const struct dt_node *node, const char *list_name, const char *cells_name, int cell_count, int index, struct dt_phandle_args *args);
-extern state dt_parser_phandle_with_args_map(const struct dt_node *node, const char *list_name, const char *stem_name, int index, struct dt_phandle_args *args);
+extern state dt_parse_phandle_with_args_count(const struct dt_node *node, const char *list_name, const char *cells_name, int cell_count, int index, struct dt_phandle_args *args);
+extern state dt_parse_phandle_with_args_map(const struct dt_node *node, const char *list_name, const char *stem_name, int index, struct dt_phandle_args *args);
 
-static inline state dt_parser_phandle_with_args(const struct dt_node *node, const char *list_name, const char *cells_name, int index, struct dt_phandle_args *args)
+static inline state dt_parse_phandle_with_args(const struct dt_node *node, const char *list_name, const char *cells_name, int index, struct dt_phandle_args *args)
 {
     int cell_count = 0;
 
     if (cells_name)
         cell_count = -1;
 
-    return dt_parser_phandle_with_args_count(node, list_name, cells_name, cell_count, index, args);
+    return dt_parse_phandle_with_args_count(node, list_name, cells_name, cell_count, index, args);
 }
 
 /* device tree address parser */

@@ -176,7 +176,7 @@ state dt_irq_parse_one(struct dt_node *node, int index, struct dt_phandle_args *
     addr = dt_attribute_get(node, "reg", NULL);
 
     /* New-style interrupts-extended first */
-    retval = dt_parser_phandle_with_args(node, "interrupts-extended", "#interrupt-cells", index, args);
+    retval = dt_parse_phandle_with_args(node, "interrupts-extended", "#interrupt-cells", index, args);
     if (!retval)
         return dt_irq_parse_raw(addr, args);
 
