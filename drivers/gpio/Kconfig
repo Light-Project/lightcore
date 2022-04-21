@@ -1,8 +1,17 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig GPIO
     bool "General Purpose Input/Output (GPIO) Support"
 if GPIO
 
+config GPIO_DT
+    bool "GPIO Device Tree Linkage"
+    depends on DT
+    default y
+
 config GPIO_GENERIC
     bool "Generic GPIO Support"
+
+config GPIO_PARALLEL
+    bool "Parallel GPIO Bridge"
 
 endif
