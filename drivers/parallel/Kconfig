@@ -10,5 +10,6 @@ config PARALLEL_DT
 
 config PARALLEL_I8255
     bool "I8255 Parallel Support"
+    depends on DT
 
 endif

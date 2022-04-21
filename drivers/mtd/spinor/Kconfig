@@ -4,8 +4,10 @@ if SPINOR
 
 config SPINOR_INTEL
     bool "intel PCH/PCU SPI flash driver support"
+    depends on ARCH_X86 && MFD_ICH
 
 config SPINOR_ICH
     bool "intel Legacy SPI flash driver support"
+    depends on ARCH_X86 && MFD_ICH
 
 endif

@@ -5,6 +5,6 @@ if RNG
 
 config RNG_INTEL
     bool "Intel RNG Support"
-    depends on ARCH_X86
+    depends on ARCH_X86 && PCI
 
 endif

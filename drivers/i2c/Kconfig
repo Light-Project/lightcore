@@ -5,5 +5,6 @@ if I2C
 
 config I2C_I801
     bool "Intel 82801 Support"
+    depends on ARCH_X86 && PCI
 
 endif

@@ -5,29 +5,29 @@ if POWER
 
 config POWER_CE4100
     bool "CE4100 Power Support"
-    depends on ARCH_X86
+    depends on ARCH_X86 && PCI
 
 config POWER_CS5530A
     bool "CS5530A Power Support"
-    depends on ARCH_X86
+    depends on ARCH_X86 && PCI
 
 config POWER_CS5536
     bool "CS5536 Power Support"
-    depends on ARCH_X86
+    depends on ARCH_X86 && PCI
 
 config POWER_HISI
     bool "HISI Power Support"
 
 config POWER_PIIX
     bool "PIIX Power Support"
-    depends on ARCH_X86
+    depends on ARCH_X86 && DT
 
 config POWER_PIIX4
     bool "PIIX4 Power Support"
-    depends on ARCH_X86
+    depends on ARCH_X86 && PCI
 
 config POWER_RDC321X
     bool "RDC321X Power Support"
-    depends on ARCH_X86
+    depends on ARCH_X86 && PCI
 
 endif

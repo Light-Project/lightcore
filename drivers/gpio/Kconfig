@@ -10,8 +10,10 @@ config GPIO_DT
 
 config GPIO_GENERIC
     bool "Generic GPIO Support"
+    depends on DT
 
 config GPIO_PARALLEL
     bool "Parallel GPIO Bridge"
+    depends on PARALLEL && DT
 
 endif

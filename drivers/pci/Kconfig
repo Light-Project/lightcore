@@ -5,9 +5,10 @@ if PCI
 
 config PCI_GENERIC
     bool "Generic PCI Support"
+    depends on DT
 
 config PCI_I386
     bool "I386 PCI Support"
-    depends on ARCH_X86
+    depends on ARCH_X86 && DT
 
 endif

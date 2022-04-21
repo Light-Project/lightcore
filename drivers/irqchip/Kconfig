@@ -8,17 +8,17 @@ config IRQCHIP_DT
 
 config IRQCHIP_8259
     bool "I8259 Interrupt Controller"
-    depends on ARCH_X86
+    depends on ARCH_X86 && DT
     default y
 
 config IRQCHIP_GX6605S
     bool "GX6605s Interrupt Controller"
-    depends on ARCH_CSKY
+    depends on ARCH_CSKY && DT
     default y
 
 config IRQCHIP_SUNIV
     bool "Suniv Interrupt Controller"
-    depends on ARCH_ARM
+    depends on ARCH_ARM && DT
     default y
 
 endmenu

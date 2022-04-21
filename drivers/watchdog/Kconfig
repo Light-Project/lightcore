@@ -12,6 +12,7 @@ config WATCHDOG_GX6605S
 
 config WATCHDOG_TCO
     bool "Intel TCO Watchdog Support"
+    depends on ARCH_X86 && MFD_ICH
 
 endif
 

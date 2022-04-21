@@ -3,4 +3,6 @@ menuconfig USB
     bool "Universal Serial Bus (USB) Support"
 if USB
 
+source "drivers/usb/host/Kconfig"
+
 endif

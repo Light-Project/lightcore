@@ -1,0 +1,44 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+comment "USB Host Controller Drivers"
+
+config USB_OHCI
+    bool "OHCI HCD (USB 1.1) Support"
+if USB_OHCI
+
+config USB_OHCI_PLATFORM
+    bool "OHCI Platform Support"
+    depends on DT
+
+config USB_OHCI_PCI
+    bool "OHCI PCI Support"
+    depends on PCI
+
+endif # USB_OHCI
+
+config USB_UHCI
+    bool "UHCI HCD (USB 1.1) Support"
+if USB_UHCI
+
+config USB_OHCI_PLATFORM
+    bool "UHCI Platform Support"
+    depends on DT
+
+config USB_UHCI_PCI
+    bool "UHCI PCI Support"
+    depends on PCI
+
+endif # USB_UHCI
+
+config USB_EHCI
+    bool "UHCI HCD (USB 1.0) Support"
+if USB_EHCI
+
+config USB_OHCI_PLATFORM
+    bool "EHCI Platform Support"
+    depends on DT
+
+config USB_EHCI_PCI
+    bool "EHCI PCI Support"
+    depends on PCI
+
+endif # USB_EHCI

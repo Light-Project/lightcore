@@ -11,9 +11,11 @@ config BLK_FLOPPY
 
 config BLK_AHCISIM
     bool "Simple AHCI Controller Support"
+    depends on PCI
 
 config BLK_ATASIM
     bool "Simple ATA Controller Support"
+    depends on PCI
 
 config BLK_ATASIM32
     bool "Simple ATA 32bit PIO"
@@ -21,5 +23,6 @@ config BLK_ATASIM32
 
 config BLK_NVMESIM
     bool "Simple NVME Controller Support"
+    depends on PCI
 
 endif
