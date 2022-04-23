@@ -25,17 +25,12 @@ config RAM_PAD
     help
         Memory pad for special memory model
 
-choice
-    prompt "Memory Model"
-    default SPARCEMEM
+config XIP
+    bool "Execute-In-Place from ROM"
 
-config FLATMEM
-    bool "Flat Memory Model"
-
-config SPARCEMEM
-    bool "Sparce Memory Model"
-
-endchoice
+config XIP_BASE
+    hex "Xip PHYSADDR(ROM)"
+    depends on XIP
 
 menu "Memory Region"
 
@@ -65,14 +60,23 @@ config HIGHMEM_OFFSET
     hex "HIMEM Offset"
     depends on REGION_HIMEM
 
-endmenu
+endmenu # Memory Region
 
-config XIP
-    bool "Execute-In-Place from ROM"
+choice
+    prompt "Memory Model"
+    default SPARCEMEM
 
-config XIP_BASE
-    hex "Xip PHYSADDR(ROM)"
-    depends on XIP
+config FLATMEM
+    bool "Flat Memory Model"
+
+config SPARCEMEM
+    bool "Sparce Memory Model"
+
+endchoice # Memory Model
+
+config SPARCE_SHIFT
+    int "Sparce Section Size Shift"
+    depends on SPARCEMEM
 
 config PAGE_OFFSET
     hex "Kernel Offset"
@@ -82,11 +86,15 @@ config IOREMAP_OFFSET
     depends on ARCH_HAS_IOMAP
 
 config HIGHMAP_OFFSET
-    hex "Hige Memory Offset"
+    hex "Highmap Memory Offset"
     depends on REGION_HIMEM
     help
         The virtual address to which the high-end memory
         will be mapped
+
+config HIGHMAP_SIZE
+    hex "Highmap Memory Size"
+    depends on REGION_HIMEM
 
 choice
     prompt "KMEM Allocator Select"
@@ -98,7 +106,7 @@ config MM_SLAB
 config MM_SLOB
     bool "SLOB (Simple SLAB)"
 
-endchoice
+endchoice # KMEM Allocator Select
 
 menu "SLOB Config"
     depends on MM_SLOB
@@ -111,7 +119,7 @@ config SLOB_HUGE_LINE
     int "Large Page Boundary (byte)"
     default 512
 
-endmenu
+endmenu # SLOB Config
 
 source "mm/kasan/Kconfig"
 
@@ -129,13 +137,15 @@ config MEMTEST
     bool "Memory Test Support"
     default y
 
-endmenu
+endmenu # Memory Management Options
 
 config PGTABLE_LEVEL5
     bool
+    select PGTABLE_LEVEL4
 
 config PGTABLE_LEVEL4
     bool
+    select PGTABLE_LEVEL3
 
 config PGTABLE_LEVEL3
     bool

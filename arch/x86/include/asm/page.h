@@ -33,8 +33,6 @@
 # define PTRS_PER_PTE       1024
 # define PTRS_PER_PGD       1024
 
-# define SPARCE_SHIFT       24
-
 #elif defined(CONFIG_ARCH_X86_64)
 
 # define PAGE_SHIFT         12
@@ -87,8 +85,6 @@
 # define PTRS_PER_PUD       512
 # define PTRS_PER_P4D       ptrs_per_p4d
 # define PTRS_PER_PGD       512
-
-# define SPARCE_SHIFT       24
 
 #endif  /* CONFIG_ARCH_X86_64 */
 

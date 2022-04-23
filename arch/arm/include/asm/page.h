@@ -28,8 +28,6 @@
 #define PTRS_PER_PGD    4096
 #define PTRS_PER_PTE    256
 
-#define SPARCE_SHIFT    24
-
 #include <asm-generic/page.h>
 
 #endif

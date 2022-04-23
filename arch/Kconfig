@@ -32,6 +32,8 @@ config ARCH_X86_64
     select ARCH_64BIT
     select ARCH_HAS_INT128
     select ARCH_LITTLE_ENDIAN
+    select ARCH_HAS_HUGE_PMD
+    select ARCH_HAS_HUGE_PUD
     select ARCH_HAS_MMU
     select ARCH_HAS_PMIO
     select ARCH_HAS_KASAN

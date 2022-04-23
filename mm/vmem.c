@@ -379,7 +379,7 @@ EXPORT_SYMBOL(vmem_free);
 static void __init vmem_free_space_init(void)
 {
     size_t vmem_start = CONFIG_HIGHMAP_OFFSET;
-    size_t vmem_end = ULONG_MAX;
+    size_t vmem_end = vmem_start + CONFIG_HIGHMAP_SIZE;
     struct vmem_area *vma;
 
     if (vmem_start < vmem_end) {

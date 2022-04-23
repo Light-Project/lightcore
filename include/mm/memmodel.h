@@ -20,6 +20,7 @@ static inline void memmodel_init(void) {}
 #elif CONFIG_SPARCEMEM
 /* Sparce Memory model */
 
+#define SPARCE_SHIFT CONFIG_SPARCE_SHIFT
 #define SECTIONS_WIDE (PHYS_SHIFT - SPARCE_SHIFT)
 #define SECTIONS_PFN_SHIFT (SPARCE_SHIFT - PAGE_SHIFT)
 
