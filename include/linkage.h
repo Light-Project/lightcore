@@ -9,13 +9,19 @@
 # define ASM_NL ;
 #endif
 
-#ifndef __ALIGN
-# define __ALIGN .align 4,0x90
-# define __ALIGN_STR ".align 4,0x90"
+#ifdef __cplusplus
+#define CPP_ASMLINKAGE extern "C"
+#else
+#define CPP_ASMLINKAGE
 #endif
 
 #ifndef asmlinkage
-# define asmlinkage
+# define asmlinkage CPP_ASMLINKAGE
+#endif
+
+#ifndef __ALIGN
+# define __ALIGN .align 4,0x90
+# define __ALIGN_STR ".align 4,0x90"
 #endif
 
 /*
@@ -39,8 +45,14 @@
 
 #else
 
+/* LOCAL_LABEL -- ELF-like local names start with `.L'. */
+#ifndef LOCAL_LABEL
+# define LOCAL_LABEL(name) .L##name
+#endif
+
+/* L -- Local label name for asm code. */
 #ifndef L
-# define L(body)            .L##body
+# define L(name) LOCAL_LABEL(name)
 #endif
 
 /* SYM_T_FUNC -- type used by assembler to mark functions */
