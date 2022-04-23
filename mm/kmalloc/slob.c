@@ -418,7 +418,7 @@ size_t ksize(const void *block)
     if (!node)
         return 0;
 
-    return node->size;
+    return node->size - SLOB_ALIGN;
 }
 EXPORT_SYMBOL(ksize);
 

@@ -122,12 +122,15 @@ static enum paser_state parser_state(enum paser_state state, char code, char *re
     }                                                           \
 }
 
+#define PARSER_EXP_TPOS(tpos) PARSER_EXPANSION((tpos) + 1, 0)
+#define PARSER_EXP_APOS(tpos, vops) PARSER_EXPANSION((tpos) + 1, (vops) + 1)
+
 state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***argv)
 {
     enum paser_state nstate, cstate = KSHELL_STATE_TEXT;
     unsigned int tpos = 0, tsize = PASER_TEXT_DEF;
     unsigned int vpos = 0, vsize = PASER_VARN_DEF;
-    char *tbuff, code = 0, brack_buff[20];
+    char *tbuff, code = 0, brack_buff[12];
     char *vbuff, *var;
     unsigned int count;
     state retval;
@@ -148,7 +151,7 @@ state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***ar
             vpos = 0;
             var = kshell_getenv(vbuff);
             count = strlen(var);
-            PARSER_EXPANSION(tpos + count + 1, 0)
+            PARSER_EXP_TPOS(tpos + count + 1)
             strcpy(tbuff + tpos, var);
             tpos += count;
         }
@@ -158,7 +161,7 @@ state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***ar
             vpos = 0;
             retval = kshell_system(vbuff);
             count = scnprintf(brack_buff, sizeof(brack_buff), "%d", retval);
-            PARSER_EXPANSION(tpos + count + 1, 0)
+            PARSER_EXP_TPOS(tpos + count + 1)
             strcpy(tbuff + tpos, brack_buff);
             tpos += count;
         }
@@ -183,7 +186,7 @@ state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***ar
             tbuff[tpos++] = code;
         }
 
-        PARSER_EXPANSION(tpos, vpos)
+        PARSER_EXP_APOS(tpos + 1, vpos + 1)
         cstate = nstate;
     }
 
@@ -192,7 +195,7 @@ state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***ar
         vbuff[vpos] = '\0';
         var = kshell_getenv(vbuff);
         count = strlen(var);
-        PARSER_EXPANSION(tpos + count + 1, 0)
+        PARSER_EXP_TPOS(tpos + count + 1)
         strcpy(tbuff + tpos, var);
         tpos += count;
     }
