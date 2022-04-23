@@ -8,6 +8,10 @@ config SELFTEST_LIB_BITOPS
     bool "Bitops Test"
     default y
 
+config SELFTEST_LIB_MEMDUMP
+    bool "Hexdump Test"
+    default y
+
 config SELFTEST_LIB_IDR
     bool "IDR Test"
     default y

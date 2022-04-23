@@ -18,7 +18,7 @@ char *kvasprintf(gfp_t flags, const char *fmt, va_list args)
     size1 = vsnprintf(NULL, 0, fmt, args);
     va_end(cargs);
 
-    block = kmalloc(size1, flags);
+    block = kmalloc(size1 + 1, flags);
     if (unlikely(!block))
         return NULL;
 

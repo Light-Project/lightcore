@@ -84,10 +84,16 @@ typedef __gid_t         gid_t;
 typedef __off_t         off_t;
 typedef __loff_t        loff_t;
 
-#define BYTES_PER_SHORT     sizeof(short)
-#define BYTES_PER_INT       sizeof(int)
-#define BYTES_PER_LONG      sizeof(long)
-#define BYTES_PER_LONG_LONG sizeof(long long)
+#define BYTES_PER_CHAR          sizeof(short)
+#define BYTES_PER_SHORT         sizeof(short)
+#define BYTES_PER_INT           sizeof(int)
+#define BYTES_PER_LONG          sizeof(long)
+#define BYTES_PER_LONG_LONG     sizeof(long long)
+
+#define BYTES_PER_U8            sizeof(uint8_t)
+#define BYTES_PER_U16           sizeof(uint16_t)
+#define BYTES_PER_U32           sizeof(uint32_t)
+#define BYTES_PER_U64           sizeof(uint64_t)
 
 #endif  /* __ASSEMBLY__ */
 #endif  /* _TYPES_H_ */
