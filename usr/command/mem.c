@@ -7,16 +7,20 @@
 #include <string.h>
 #include <kernel.h>
 #include <initcall.h>
-#include <ioremap.h>
-#include <asm/io.h>
+#include <ioops.h>
+#include <proc.h>
 #include <kshell.h>
 
 static int number_table[] = {
     [0] = 8, [1] = 4, [2] = 4, [4] = 2,
 };
 
-static int align_table[] = {
-    [0] = 3, [1] = 6, [2] = 11, [4] = 16,
+static int dec_align_table[] = {
+    [0] = 4, [1] = 6, [2] = 11, [4] = 20,
+};
+
+static int oct_align_table[] = {
+    [0] = 3, [1] = 6, [2] = 11, [4] = 22,
 };
 
 enum mem_action {
@@ -32,11 +36,12 @@ enum write_operator {
     OPERATOR_SUB    = 3,
     OPERATOR_MUL    = 4,
     OPERATOR_DIV    = 5,
-    OPERATOR_AND    = 6,
-    OPERATOR_OR     = 7,
-    OPERATOR_XOR    = 8,
-    OPERATOR_LEFT   = 9,
-    OPERATOR_RIGHT  = 10,
+    OPERATOR_MOD    = 6,
+    OPERATOR_AND    = 7,
+    OPERATOR_OR     = 8,
+    OPERATOR_XOR    = 9,
+    OPERATOR_LEFT   = 10,
+    OPERATOR_RIGHT  = 11,
 };
 
 enum value_type {
@@ -61,6 +66,9 @@ static enum write_operator get_operator(const char *str)
 
     else if (!strcmp(str, "/="))
         return OPERATOR_DIV;
+
+    else if (!strcmp(str, "%="))
+        return OPERATOR_MOD;
 
     else if (!strcmp(str, "&="))
         return OPERATOR_AND;
@@ -103,6 +111,12 @@ static uint64_t do_operator(enum write_operator oper, uint64_t va, uint64_t vb)
             if (!vb)
                 break;
             va /= vb;
+            break;
+
+        case OPERATOR_MOD:
+            if (!vb)
+                break;
+            va %= vb;
             break;
 
         case OPERATOR_AND:
@@ -304,10 +318,14 @@ static state mem_read(int argc, char *argv[])
         goto usage;
 
 pass:
-    if (fmt == 'x')
-        sprintf(buff, "0x%%0%d%c", byte * 2, fmt);
-    else
-        sprintf(buff, "%%-%d%c", align_table[byte / 2], fmt);
+    if (fmt == 'x') {
+        sprintf(buff, "0x%%0%d%s%c", byte * 2,
+                byte == 8 ? "ll" : "", fmt);
+    } else {
+        sprintf(buff, "%%-%d%s%c", (fmt == 'o' ?
+                oct_align_table : dec_align_table)[byte / 2],
+                byte == 8 ? "ll" : "", fmt);
+    }
 
 exit:
     if (count) {
@@ -333,13 +351,13 @@ exit:
                     kshell_printf(buff, readb(addr), readb(addr));
                     break;
                 case 2:
-                    kshell_printf(buff, readw(addr));
+                    kshell_printf(buff, unaligned_get_u16(addr));
                     break;
                 case 4:
-                    kshell_printf(buff, readl(addr));
+                    kshell_printf(buff, unaligned_get_u32(addr));
                     break;
                 case 8: default:
-                    kshell_printf(buff, readq(addr));
+                    kshell_printf(buff, unaligned_get_u64(addr));
                     break;
             }
             phys += byte;
@@ -357,6 +375,32 @@ usage:
     return -EINVAL;
 }
 
+static void operator_value_usage(void)
+{
+    kshell_printf("Operator types:\n");
+    kshell_printf("\t+=  - add target memory\n");
+    kshell_printf("\t-=  - sub target memory\n");
+    kshell_printf("\t*=  - mul target memory\n");
+    kshell_printf("\t/=  - div target memory\n");
+    kshell_printf("\t%%=  - mod target memory\n");
+    kshell_printf("\t&=  - and target memory\n");
+    kshell_printf("\t|=  - or  target memory\n");
+    kshell_printf("\t^=  - xor target memory\n");
+    kshell_printf("\t<<= - shl target memory\n");
+    kshell_printf("\t>>= - shr target memory\n");
+    kshell_printf("Value types:\n");
+    kshell_printf("\tBIT(shift)       - create a bitmask\n");
+    kshell_printf("\tSHIFT(shift,val) - create a shifted bitmask\n");
+    kshell_printf("\tRANGE(high,low)  - create a contiguous bitmask\n");
+    kshell_printf("\t~expression      - bit inversion\n");
+    kshell_printf("Expression example:\n");
+    kshell_printf("\taddr &= ~RANGE(7,0)    - 0x000012ff -> 0x00001200\n");
+    kshell_printf("\taddr <<= 16            - 0x00001200 -> 0x12000000\n");
+    kshell_printf("\taddr |= SHIFT(16,0x34) - 0x12000000 -> 0x12340000\n");
+    kshell_printf("\taddr += 0x5670         - 0x12340000 -> 0x12345670\n");
+    kshell_printf("\taddr |= BIT(3)         - 0x12345670 -> 0x12345678\n");
+}
+
 static void mem_write_usage(void)
 {
     kshell_printf("usage: mem -w /nu <addr> <operator> <value>\n");
@@ -365,6 +409,7 @@ static void mem_write_usage(void)
     kshell_printf("\t/h - halfword (16-bit)\n");
     kshell_printf("\t/w - word (32-bit)\n");
     kshell_printf("\t/g - giant word (64-bit)\n");
+    operator_value_usage();
 }
 
 static state mem_write(int argc, char *argv[])
@@ -453,21 +498,21 @@ pass:
                 break;
 
             case 2:
-                tmp = readw(addr);
+                tmp = unaligned_get_u16(addr);
                 tmp = do_operator(oper, tmp, (uint16_t)value);
-                writew(addr, tmp);
+                unaligned_set_u16(addr, tmp);
                 break;
 
             case 4:
-                tmp = readl(addr);
+                tmp = unaligned_get_u32(addr);
                 tmp = do_operator(oper, tmp, (uint32_t)value);
-                writel(addr, tmp);
+                unaligned_set_u32(addr, tmp);
                 break;
 
             case 8: default:
-                tmp = readq(addr);
+                tmp = unaligned_get_u64(addr);
                 tmp = do_operator(oper, tmp, (uint64_t)value);
-                writeq(addr, tmp);
+                unaligned_set_u64(addr, tmp);
                 break;
         }
         addr += byte;
@@ -558,8 +603,10 @@ static state ioport_in(int argc, char *argv[])
 pass:
     if (fmt == 'x')
         sprintf(buff, "0x%%0%d%c", byte * 2, fmt);
-    else
-        sprintf(buff, "%%-%d%c", align_table[byte / 2], fmt);
+    else {
+        sprintf(buff, "%%-%d%c", (fmt == 'o' ?
+                oct_align_table : dec_align_table)[byte / 2], fmt);
+    }
 
 exit:
     if (count) {
@@ -606,6 +653,7 @@ static void ioport_out_usage(void)
     kshell_printf("\t/b - byte (8-bit)\n");
     kshell_printf("\t/h - halfword (16-bit)\n");
     kshell_printf("\t/w - word (32-bit)\n");
+    operator_value_usage();
 }
 
 static state ioport_out(int argc, char *argv[])
