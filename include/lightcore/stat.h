@@ -29,6 +29,11 @@
 #define	S_ISGID     0002000     /* set group id on execution */
 #define S_ISVTX     0001000     /* save swapped text even after use */
 
+#define S_IRWXUGO   (S_IRWXU | S_IRWXG | S_IRWXO)
+#define S_IRUGO     (S_IRUSR | S_IRGRP | S_IRWXO)
+#define S_IWUGO     (S_IWUSR | S_IWGRP | S_IWOTH)
+#define S_IWUGO     (S_IWUSR | S_IWGRP | S_IWOTH)
+
 #define S_ISSOCK(m) (((m) & S_IFMT) == S_IFSOCK)
 #define S_ISLNK(m)  (((m) & S_IFMT) == S_IFLNK)
 #define S_ISREG(m)  (((m) & S_IFMT) == S_IFREG)
