@@ -16,4 +16,8 @@
 #define POISON_HLIST2   ((void *) POISON_OFFSET + 0x130)
 #define POISON_SLIST    ((void *) POISON_OFFSET + 0x140)
 
+#define POISON_RBNODE1  ((void *) POISON_OFFSET + 0x400)
+#define POISON_RBNODE2  ((void *) POISON_OFFSET + 0x410)
+#define POISON_RBNODE3  ((void *) POISON_OFFSET + 0x420)
+
 #endif  /* _POISON_H_ */

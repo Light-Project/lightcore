@@ -56,6 +56,11 @@ config DEBUG_ILIST
     depends on DEBUG_KERNEL
     default y
 
+config DEBUG_RBTREE
+    bool "Debug rbtree manipulation"
+    depends on DEBUG_KERNEL
+    default y
+
 config DEBUG_REFCOUNT
     bool "Debug refcount saturation"
     depends on DEBUG_KERNEL

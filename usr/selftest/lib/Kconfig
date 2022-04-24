@@ -8,28 +8,32 @@ config SELFTEST_LIB_BITOPS
     bool "Bitops Test"
     default y
 
-config SELFTEST_LIB_MEMDUMP
-    bool "Hexdump Test"
+config SELFTEST_LIB_HLIST
+    bool "Hash List Test"
     default y
 
 config SELFTEST_LIB_IDR
     bool "IDR Test"
     default y
 
-config SELFTEST_LIB_NCACHE
-    bool "Ncache Test"
+config SELFTEST_LIB_ILIST
+    bool "Index List Test"
     default y
 
 config SELFTEST_LIB_LIST
     bool "List Test"
     default y
 
-config SELFTEST_LIB_ILIST
-    bool "Index List Test"
+config SELFTEST_LIB_MEMDUMP
+    bool "Hexdump Test"
     default y
 
-config SELFTEST_LIB_HLIST
-    bool "Hash List Test"
+config SELFTEST_LIB_NCACHE
+    bool "Ncache Test"
+    default y
+
+config SELFTEST_LIB_RBTREE
+    bool "Rbtree Test"
     default y
 
 config SELFTEST_LIB_SLIST

@@ -3,6 +3,7 @@
 #define _RBTREE_H_
 
 #include <kernel.h>
+#include <poison.h>
 
 #define RB_RED      (0)
 #define RB_BLACK    (1)
@@ -48,6 +49,12 @@ struct rb_root_cached {
 #define rb_entry_safe(ptr, type, member) \
     container_of_safe(ptr, type, member)
 
+#if defined(__KERNEL__) && defined(CONFIG_DEBUG_RBTREE)
+extern bool rb_debug_link_check(struct rb_node *parent, struct rb_node **link, struct rb_node *node);
+extern bool rb_debug_delete_check(struct rb_node *node);
+#define DEBUG_RBTREE
+#endif
+
 typedef long (*rb_find_t)(const struct rb_node *, const void *key);
 typedef long (*rb_cmp_t)(const struct rb_node *, const struct rb_node *);
 
@@ -58,6 +65,7 @@ extern void rb_replace(struct rb_root *root, struct rb_node *old, struct rb_node
 extern struct rb_node *rb_find(const struct rb_root *root, const void *key, rb_find_t);
 extern struct rb_node *rb_find_last(struct rb_root *root, const void *key, rb_find_t cmp, struct rb_node **parentp, struct rb_node ***linkp);
 extern struct rb_node **rb_parent(struct rb_root *root, struct rb_node **parentp, struct rb_node *node, rb_cmp_t, bool *leftmost);
+extern struct rb_node **rb_parent_conflict(struct rb_root *root, struct rb_node **parentp, struct rb_node *node, rb_cmp_t, bool *leftmost);
 
 extern struct rb_node *rb_left_far(const struct rb_node *node);
 extern struct rb_node *rb_right_far(const struct rb_node *node);
@@ -107,6 +115,11 @@ extern struct rb_node *rb_post_next(const struct rb_node *node);
  */
 static inline void rb_link(struct rb_node *parent, struct rb_node **link, struct rb_node *node)
 {
+#ifdef DEBUG_RBTREE
+    if (unlikely(!rb_debug_link_check(parent, link, node)))
+        return;
+#endif
+
     /* link = &parent->left/right */
     *link = node;
     node->parent = parent;
@@ -143,14 +156,43 @@ static inline void rb_insert(struct rb_root *root, struct rb_node *node, rb_cmp_
 }
 
 /**
+ * rb_insert_conflict - find the parent node and insert new node or conflict.
+ * @root: rbtree root of node.
+ * @node: new node to insert.
+ * @cmp: operator defining the node order.
+ */
+static inline state rb_insert_conflict(struct rb_root *root, struct rb_node *node, rb_cmp_t cmp)
+{
+    struct rb_node *parent, **link;
+
+    link = rb_parent_conflict(root, &parent, node, cmp, NULL);
+    if (!link)
+        return -EFAULT;
+
+    rb_insert_node(root, parent, link, node);
+    return -ENOERR;
+}
+
+/**
  * rb_delete - delete node and fixup rbtree.
  * @root: rbtree root of node.
  * @node: node to delete.
  */
 static inline void rb_delete(struct rb_root *root, struct rb_node *node)
 {
-    if ((node = rb_remove(root, node)))
-        rb_erase(root, node);
+    struct rb_node *rebalance;
+
+#ifdef DEBUG_RBTREE
+    if (unlikely(!rb_debug_delete_check(node)))
+        return;
+#endif
+
+    if ((rebalance = rb_remove(root, node)))
+        rb_erase(root, rebalance);
+
+    node->left = POISON_RBNODE1;
+    node->right = POISON_RBNODE2;
+    node->parent = POISON_RBNODE3;
 }
 
 /* Same as rb_first(), but O(1) */
@@ -161,7 +203,7 @@ static inline void rb_delete(struct rb_root *root, struct rb_node *node)
 
 #define rb_cached_for_each_entry(pos, cached, member) \
     for (pos = rb_cached_first_entry(cached, typeof(*pos), member); \
-        pos; pos = rb_next_entry(pos, member))
+         pos; pos = rb_next_entry(pos, member))
 
 #define rb_cached_post_for_each_entry(pos, cached, member) \
     rb_post_for_each_entry(pos, &(cached)->root, member)
@@ -205,14 +247,32 @@ static inline void rb_cached_insert_node(struct rb_root_cached *cached, struct r
  * @node: new node to insert.
  * @cmp: operator defining the node order.
  */
-static inline void rb_cached_insert(struct rb_root_cached *cached, struct rb_node *node,
-                                    long (*cmp)(const struct rb_node *, const struct rb_node *))
+static inline void rb_cached_insert(struct rb_root_cached *cached, struct rb_node *node, rb_cmp_t cmp)
 {
     struct rb_node *parent, **link;
     bool leftmost = true;
 
     link = rb_parent(&cached->root, &parent, node, cmp, &leftmost);
     rb_cached_insert_node(cached, parent, link, node, leftmost);
+}
+
+/**
+ * rb_cached_insert_conflict - find the parent node and insert new cached node or conflict.
+ * @cached: rbtree cached root of node.
+ * @node: new node to insert.
+ * @cmp: operator defining the node order.
+ */
+static inline state rb_cached_insert_conflict(struct rb_root_cached *cached, struct rb_node *node, rb_cmp_t cmp)
+{
+    struct rb_node *parent, **link;
+    bool leftmost = true;
+
+    link = rb_parent_conflict(&cached->root, &parent, node, cmp, &leftmost);
+    if (!link)
+        return -EFAULT;
+
+    rb_cached_insert_node(cached, parent, link, node, leftmost);
+    return -ENOERR;
 }
 
 /**

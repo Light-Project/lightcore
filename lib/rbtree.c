@@ -575,6 +575,7 @@ EXPORT_SYMBOL(rb_find_last);
  * @parentp: pointer used to modify the parent node pointer.
  * @node: new node to insert.
  * @cmp: operator defining the node order.
+ * @leftmost: return whether it is the leftmost node.
  */
 struct rb_node **rb_parent(struct rb_root *root, struct rb_node **parentp,
                            struct rb_node *node, rb_cmp_t cmp, bool *leftmost)
@@ -605,6 +606,45 @@ struct rb_node **rb_parent(struct rb_root *root, struct rb_node **parentp,
     return link;
 }
 EXPORT_SYMBOL(rb_parent);
+
+/**
+ * rb_parent_conflict - find the parent node or conflict.
+ * @root: rbtree want to search.
+ * @parentp: pointer used to modify the parent node pointer.
+ * @node: new node to insert.
+ * @cmp: operator defining the node order.
+ * @leftmost: return whether it is the leftmost node.
+ */
+struct rb_node **rb_parent_conflict(struct rb_root *root, struct rb_node **parentp,
+                                    struct rb_node *node, rb_cmp_t cmp, bool *leftmost)
+{
+    struct rb_node **link;
+    bool leftmost_none;
+    long retval;
+
+    if (!leftmost)
+        leftmost = &leftmost_none;
+
+    link = &root->rb_node;
+    if (unlikely(!*link)) {
+        *parentp = NULL;
+        return link;
+    }
+
+    do {
+        retval = cmp(node, (*parentp = *link));
+        if (retval < 0)
+            link = &(*link)->left;
+        else if (retval > 0) {
+            link = &(*link)->right;
+            *leftmost = false;
+        } else
+            return NULL;
+    } while (*link);
+
+    return link;
+}
+EXPORT_SYMBOL(rb_parent_conflict);
 
 /**
  * rb_left_far - go left as we can.
