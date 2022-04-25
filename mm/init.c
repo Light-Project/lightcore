@@ -7,6 +7,7 @@
 #include <mm/memblock.h>
 #include <mm/region.h>
 #include <mm/pgtable.h>
+#include <mm/kmemleak.h>
 #include <mm/vmem.h>
 #include <kmalloc.h>
 #include <vmalloc.h>
@@ -24,12 +25,13 @@ void __init mem_init(void)
     memblock_reserve("ram-pad", CONFIG_RAM_BASE, CONFIG_RAM_PAD);
     memblock_reserve("kernel", NORMAL_OFFSET, IMAGE_SIZE);
 
-    memmodel_init();
     memblock_dump();
+    memmodel_init();
 
     region_init();
     kmem_init();
     kcache_init();
+    kmemleak_init();
 
     vmem_init();
     vmalloc_init();

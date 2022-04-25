@@ -3,7 +3,11 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <string.h>
+#define MODULE_NAME "mmodule"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
+
+#include <printk.h>
+#include <panic.h>
 #include <mm/memmodel.h>
 #include <mm/memblock.h>
 
@@ -19,15 +23,16 @@ static size_t sparce_nr;
 static bool sparce_present(struct memblock_region *reg)
 {
     struct sparce_block *sparce;
-    unsigned int count;
+    phys_addr_t addr;
+    size_t size;
 
-    sparce = &sparce_map[reg->addr >> SPARCE_SHIFT];
-    count = (reg->size >> SPARCE_SHIFT) + 1;
+    addr = align_low(reg->addr, SPARCE_SIZE);
+    size = align_high(reg->size, SPARCE_SIZE);
 
-    while (count--) {
+    for (sparce = base_sparce(addr); size; size -= SPARCE_SIZE, ++sparce) {
         if (sparce->present)
             continue;
-        sparce++->present = true;
+        sparce->present = true;
         sparce_nr++;
     }
 
@@ -50,6 +55,9 @@ static void sparce_alloc(void)
     size = sparce_nr * PAGES_PER_SECTION * sizeof(*page);
     page = memblock_alloc(size);
 
+    if (unlikely(!page))
+        panic("sparce alloc failed");
+
     for (count = 0; count < SECTIONS_NR; ++count) {
         if (!sparce_map[count].present)
             continue;
@@ -62,6 +70,8 @@ static void sparce_alloc(void)
 void memmodel_init(void)
 {
     memblock_takeover(MEMBLOCK_USABLE, sparce_present);
+    pr_info("sparce section number: %lu\n", sparce_nr);
+
     sparce_alloc();
 }
 

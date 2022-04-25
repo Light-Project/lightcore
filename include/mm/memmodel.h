@@ -8,24 +8,27 @@
 #ifdef CONFIG_FLATMEM
 /* Flat Memory model */
 
-#define PAGE_NR ((PAGE_MASK >> PAGE_SHIFT) + 1)
-#define PAGE_BITMAP_NR (PAGE_NR / MSIZE)
-extern struct page page_map[];
+#define PAGE_NR         ((PAGE_MASK >> PAGE_SHIFT) + 1)
+#define PAGE_BITMAP_NR  (PAGE_NR / MSIZE)
 
 #define page_to_nr(pg)  ((unsigned long)((pg) - page_map))
 #define nr_to_page(pnr) (&page_map[pnr])
 
+extern struct page page_map[];
 static inline void memmodel_init(void) {}
 
 #elif CONFIG_SPARCEMEM
 /* Sparce Memory model */
 
-#define SPARCE_SHIFT CONFIG_SPARCE_SHIFT
-#define SECTIONS_WIDE (PHYS_SHIFT - SPARCE_SHIFT)
-#define SECTIONS_PFN_SHIFT (SPARCE_SHIFT - PAGE_SHIFT)
+#define SPARCE_SHIFT        CONFIG_SPARCE_SHIFT
+#define SPARCE_SIZE         (1UL << SPARCE_SHIFT)
+#define SPARCE_MASK         (SPARCE_SIZE - 1)
 
-#define SECTIONS_NR (1UL << SECTIONS_WIDE)
-#define PAGES_PER_SECTION (1UL << SECTIONS_PFN_SHIFT)
+#define SECTIONS_WIDE       (PHYS_SHIFT - SPARCE_SHIFT)
+#define SECTIONS_PFN_SHIFT  (SPARCE_SHIFT - PAGE_SHIFT)
+
+#define SECTIONS_NR         (1UL << SECTIONS_WIDE)
+#define PAGES_PER_SECTION   (1UL << SECTIONS_PFN_SHIFT)
 
 struct sparce_block {
     struct page *page_map;
@@ -34,8 +37,11 @@ struct sparce_block {
 
 extern struct sparce_block sparce_map[];
 
+#define base_sparce(base) \
+    (sparce_map + ((base) >> SPARCE_SHIFT))
+
 #define sparce_base(sp) \
-    ((size_t)((sp) - sparce_map) << SECTIONS_PFN_SHIFT)
+    ((unsigned long)((sp) - sparce_map) << SECTIONS_PFN_SHIFT)
 
 static inline unsigned long
 sparce_page_nr(const struct sparce_block *sparce, const struct page *page)
@@ -61,13 +67,13 @@ sparce_nr_page(const struct sparce_block *sparce, unsigned long pnr)
     sparce_nr_page(&sparce_map[(__page_nr) >> SECTIONS_PFN_SHIFT], __page_nr);  \
 })
 
+extern void __init memmodel_init(void);
+
 #endif  /* CONFIG_SPARCEMEM */
 
 #define page_to_pa(page)    (page_to_nr(page) << PAGE_SHIFT)
 #define page_to_va(page)    (pa_to_va(page_to_pa(page)))
 #define pa_to_page(paddr)   (nr_to_page(paddr >> PAGE_SHIFT))
 #define va_to_page(vaddr)   (pa_to_page(va_to_pa(vaddr)))
-
-void memmodel_init(void);
 
 #endif  /* _MM_MEMMODEL_H_ */
