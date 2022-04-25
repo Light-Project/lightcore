@@ -15,7 +15,7 @@
 #include <asm/page.h>
 
 #define VMALLOC_START   (CONFIG_HIGHMAP_OFFSET)
-#define VMALLOC_END     (VIRTS_SIZE - PAGE_SIZE)
+#define VMALLOC_END     (VMALLOC_START + CONFIG_HIGHMAP_SIZE)
 
 static RB_ROOT(vm_area_root);
 static LIST_HEAD(vm_area_list);
@@ -233,7 +233,7 @@ insert:
     return -ENOERR;
 }
 
-static size_t vma_free_find(size_t size, unsigned int align, struct vmem_area **vma, size_t vstart)
+static size_t vma_free_find(size_t size, size_t align, struct vmem_area **vma, uintptr_t vstart)
 {
     struct vmem_area *va;
 
@@ -256,7 +256,7 @@ static size_t vma_free_find(size_t size, unsigned int align, struct vmem_area **
     return 0;
 }
 
-static state vma_free_alloc(size_t *raddr, size_t size, size_t align, size_t vstart, size_t vend)
+static state vma_free_alloc(size_t *raddr, size_t size, size_t align, uintptr_t vstart, uintptr_t vend)
 {
     struct vmem_area *free;
     size_t addr;
@@ -274,9 +274,9 @@ static state vma_free_alloc(size_t *raddr, size_t size, size_t align, size_t vst
     return -ENOERR;
 }
 
-state vmem_area_alloc_node(struct vmem_area *vma, size_t size, size_t align, size_t vstart, size_t vend)
+state vmem_area_alloc_node(struct vmem_area *vma, size_t size, size_t align, uintptr_t vstart, uintptr_t vend)
 {
-    size_t addr;
+    uintptr_t addr;
     state ret;
 
     if (BUG_ON(!vmem_initialized))

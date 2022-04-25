@@ -7,7 +7,6 @@
 #include <mm/memblock.h>
 #include <mm/region.h>
 #include <mm/pgtable.h>
-#include <mm/kmemleak.h>
 #include <mm/vmem.h>
 #include <kmalloc.h>
 #include <vmalloc.h>
@@ -31,7 +30,6 @@ void __init mem_init(void)
     region_init();
     kmem_init();
     kcache_init();
-    kmemleak_init();
 
     vmem_init();
     vmalloc_init();

@@ -8,14 +8,15 @@
 #include <mm/gfp.h>
 
 /**
- * struct vmem_area - describe a virtual space
- * @addr: addr of virtual space
- * @size: size of virtual space
- * @rb: address sorted rbtree
- * @list: address sorted list
+ * struct vmem_area - describe a virtual space.
+ * @addr: addr of virtual space.
+ * @size: size of virtual space.
+ * @rb: address sorted rbtree.
+ * @list: address sorted list.
  */
 struct vmem_area {
-    size_t addr, size;
+    uintptr_t addr;
+    size_t size;
     struct rb_node rb;
     struct list_head list;
 };
