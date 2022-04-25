@@ -82,8 +82,8 @@ void kernel_map(void)
 {
     uint64_t val;
 
-    section_link(0, 0, 0x0000000000000000, CONFIG_RAM_BASE, CONFIG_HIGHMEM_OFFSET);
-    section_link(1, 2, CONFIG_PAGE_OFFSET, CONFIG_RAM_BASE, CONFIG_HIGHMEM_OFFSET);
+    section_link(0, 0, 0x0000000000000000, CONFIG_RAM_BASE, PUD_SIZE * 2);
+    section_link(1, 2, CONFIG_PAGE_OFFSET, CONFIG_RAM_BASE, PUD_SIZE * 2);
 
     val = cr0_get();
     val &= ~(CR0_CD | CR0_NW);
