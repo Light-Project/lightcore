@@ -3,6 +3,7 @@ obj-y += clockevent/ clocksource/ irqchip/
 obj-$(CONFIG_ACPI)          += acpi/
 obj-$(CONFIG_ATA)           += ata/
 obj-$(CONFIG_BLOCK)         += block/
+obj-$(CONFIG_BUZZER)        += buzzer/
 obj-$(CONFIG_CHAR)          += char/
 obj-$(CONFIG_CLK)           += clk/
 obj-$(CONFIG_CPUFREQ)       += cpufreq/

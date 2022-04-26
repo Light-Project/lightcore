@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig BUZZER
+    bool "Buzzer Device Support"
+if BUZZER
+
+config BUZZER_PCSPKR
+    bool "PC-Speaker Sound Support"
+    depends on CLKEVT_I8253
+
+endif # BUZZER

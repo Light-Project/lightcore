@@ -8,10 +8,14 @@
 #include <sched.h>
 #include <ascii.h>
 #include <kmalloc.h>
+#include <driver/buzzer.h>
 #include <proc.h>
 
 #define READLINE_BUFFER_DEF     64
 #define READLINE_WORKSPACE_DEF  64
+
+#define READLINE_BELL_PITCH     750
+#define READLINE_BELL_DURATION	(CONFIG_SYSTICK_FREQ / 8)
 
 static void readline_state_setup(struct readline_state *rstate)
 {
@@ -340,6 +344,8 @@ static bool readline_handle(struct readline_state *state, char code)
             break;
 
         case ASCII_BEL: /* ^G : Bell */
+            buzzer_beep(READ_ONCE(default_buzzer),
+                READLINE_BELL_PITCH, READLINE_BELL_DURATION);
             break;
 
         case ASCII_BS: /* ^H : Back Space */
