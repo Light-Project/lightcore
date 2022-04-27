@@ -70,9 +70,9 @@ void __noreturn proc_halt(void)
 void __noreturn proc_reset(void)
 {
     irq_local_disable();
-    idt_int_gate(TRAP_PF, NULL);
-    idt_int_gate(TRAP_GP, NULL);
-    idt_int_gate(TRAP_DF, NULL);
+    arch_idt_int_gate(TRAP_PF, NULL);
+    arch_idt_int_gate(TRAP_GP, NULL);
+    arch_idt_int_gate(TRAP_DF, NULL);
     for (;;) /* Trigger triple fault */
     asm volatile("int $14");
 }

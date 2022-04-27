@@ -23,7 +23,7 @@ static __init const char *e820_to_name(enum e820_type type)
     }
 }
 
-void __init e820_init(struct e820_table *e820_table)
+void __init arch_e820_setup(struct e820_table *e820_table)
 {
     struct e820_entry *entry;
     unsigned int count;

@@ -9,56 +9,57 @@
 #include <asm-generic/header.h>
 
     .code64
-    .section    .startup, "ax"
+    .section .startup, "ax"
+
 GLOBAL(boot_head)
     jmp     init        /* 0x00: x86 jump */
     .align  16          /* ----: Reserved */
     KERNEL_HEADER
 END(boot_head)
 
-    .section    .init.text,"ax"
-ENTRY(init)
+    .section .init.text,"ax"
+
+SYM_CODE_START_LOCAL(init)
     xorq    %rax, %rax
-    movw    $(GDT_ENTRY_KERNEL_DS_BASE), %dx
 
     /* set segment selector */
-    movw    %dx, %ss    /* Stack segment    */
-    movw    %dx, %ds    /* Data segment     */
-    movw    %dx, %es    /* Extra segment    */
+    movw    %ax, %ds    /* Data segment     */
+    movw    %ax, %es    /* Extra segment    */
+    movw    %ax, %ss    /* Stack segment    */
     movw    %ax, %fs    /* File segment     */
     movw    %ax, %gs    /* Global segment   */
+
+    pushq   $GDT_LENTRY_KERNEL_CS_BASE
+    pushq   $L(kernel_cs)
+    lretq
+
+L(kernel_cs):
 
     /* clear bss first */
     movq    $(_ld_bss_start), %rdi
     movq    $(_ld_bss_end), %rcx
     subq    %rdi, %rcx
-    shrq    $4, %rcx
+    shrq    $3, %rcx
     rep;    stosq %rax, %es:(%rdi)
 
     movq    $init_thread_union, %rbx
-    leaq    THREAD_SIZE(%ebx), %rsp
+    leaq    THREAD_SIZE(%rbx), %rsp
 
     jmp     L(startup_kernel)
-END(init)
+SYM_CODE_END(init)
 
 SYM_FUNC_START(startup_smp)
-    xorl    %eax, %eax
-    movw    $(GDT_ENTRY_KERNEL_DS_BASE), %dx
-
     /* set segment selector */
-    movw    %dx, %ss    /* Stack segment    */
-    movw    %dx, %ds    /* Data segment     */
-    movw    %dx, %es    /* Extra segment    */
+    xorw    %ax, %ax
+    movw    %ax, %ds    /* Data segment     */
+    movw    %ax, %es    /* Extra segment    */
+    movw    %ax, %ss    /* Stack segment    */
     movw    %ax, %fs    /* File segment     */
     movw    %ax, %gs    /* Global segment   */
 
 L(startup_kernel):
     pushq   $0
     popfq
-
-    /* clear ldt */
-    xorw    %ax, %ax
-    lldt    %ax
 
     xorq    %rbp, %rbp
     call    kernel_start

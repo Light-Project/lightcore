@@ -12,48 +12,48 @@
 #include <hardirq.h>
 
 #define DEFINE_IDTENTRY_NORMAL(handle)                              \
-static __always_inline void __##trap_##handle(struct regs *regs);   \
+static __always_inline void __trap_##handle(struct regs *regs);     \
                                                                     \
 __visible noinline void trap_##handle(struct regs *regs)            \
 {                                                                   \
     entry_irqhandle_enter(regs);                                    \
-    __##trap_##handle(regs);                                        \
+    __trap_##handle(regs);                                          \
     entry_irqhandle_exit(regs);                                     \
 }                                                                   \
                                                                     \
-static __always_inline void __##trap_##handle(struct regs *regs)
+static __always_inline void __trap_##handle(struct regs *regs)
 
 #define DEFINE_IDTENTRY_ERRORCODE(handle)                           \
 static __always_inline void                                         \
-__##trap_##handle(struct regs *regs, unsigned long error_code);     \
+__trap_##handle(struct regs *regs, unsigned long error_code);       \
                                                                     \
 __visible noinline void                                             \
 trap_##handle(struct regs *regs, unsigned long error_code)          \
 {                                                                   \
     entry_irqhandle_enter(regs);                                    \
-    __##trap_##handle(regs, error_code);                            \
+    __trap_##handle(regs, error_code);                              \
     entry_irqhandle_exit(regs);                                     \
 }                                                                   \
                                                                     \
 static __always_inline void                                         \
-__##trap_##handle(struct regs *regs, unsigned long error_code)
+__trap_##handle(struct regs *regs, unsigned long error_code)
 
 #define DEFINE_IDTENTRY_IRQ(handle)                                 \
 static __always_inline void                                         \
-__##trap_##handle(struct regs *regs, unsigned long vector);         \
+__trap_##handle(struct regs *regs, unsigned long vector);           \
                                                                     \
 __visible noinline void                                             \
 trap_##handle(struct regs *regs, unsigned long error_code)          \
 {                                                                   \
     entry_irqhandle_enter(regs);                                    \
     hardirq_entry();                                                \
-    __##trap_##handle(regs, error_code);                            \
+    __trap_##handle(regs, error_code);                              \
     hardirq_exit();                                                 \
     entry_irqhandle_exit(regs);                                     \
 }                                                                   \
                                                                     \
 static __always_inline void                                         \
-__##trap_##handle(struct regs *regs, unsigned long vector)
+__trap_##handle(struct regs *regs, unsigned long vector)
 
 #define DEFINE_IDTENTRY_RAW(handle)                                 \
 __visible noinline void trap_##handle(struct regs *regs)
@@ -78,10 +78,45 @@ __visible noinline void trap_##handle(struct regs *regs, unsigned long error_cod
 #define DECLARE_IDTENTRY_RAW_ERRORCODE(vector, handle)              \
     DECLARE_IDTENTRY_ERRORCODE(vector, handle)
 
-#define DEFINE_IDTENTRY_NMI     DEFINE_IDTENTRY_RAW
-#define DECLARE_IDTENTRY_NMI    DECLARE_IDTENTRY_RAW
+#ifdef CONFIG_ARCH_X86_64
+
+#define DEFINE_IDTENTRY_IST(handle)                                 \
+    DEFINE_IDTENTRY_RAW(handle)
+
+#define DECLARE_IDTENTRY_IST(vector, handle)                        \
+    DECLARE_IDTENTRY_RAW(vector, handle);                           \
+    __visible void noist_##handle(struct regs *regs);
+
 #define DEFINE_IDTENTRY_DF      DEFINE_IDTENTRY_RAW_ERRORCODE
 #define DECLARE_IDTENTRY_DF     DECLARE_IDTENTRY_RAW_ERRORCODE
+
+#else /* !CONFIG_ARCH_X86_64 */
+
+#define DEFINE_IDTENTRY_DF(handle)                                  \
+__visible noinline void trap_##handle                               \
+(struct regs *regs, unsigned long address, unsigned long error_code)
+
+#define DECLARE_IDTENTRY_DF(vector, handle)                         \
+extern asmlinkage void entry_##handle(void);                        \
+__visible noinline void trap_##handle                               \
+(struct regs *regs, unsigned long address, unsigned long error_code);
+
+#endif /* CONFIG_ARCH_X86_64 */
+
+#ifdef CONFIG_ARCH_X86_64
+
+#define DEFINE_IDTENTRY_MCS         DEFINE_IDTENTRY_IST
+#define DECLARE_IDTENTRY_MCS        DECLARE_IDTENTRY_IST
+#define DECLARE_IDTENTRY_MCS_USER   DECLARE_IDTENTRY_NOIST
+
+#define DEFINE_IDTENTRY_DEBUG       DEFINE_IDTENTRY_IST
+#define DECLARE_IDTENTRY_DEBUG      DECLARE_IDTENTRY_IST
+#define DECLARE_IDTENTRY_DEBUG_USER DECLARE_IDTENTRY_NOIST
+
+#endif /* CONFIG_ARCH_X86_64 */
+
+#define DEFINE_IDTENTRY_NMI         DEFINE_IDTENTRY_RAW
+#define DECLARE_IDTENTRY_NMI        DECLARE_IDTENTRY_RAW
 
 #else /* __ASSEMBLY__ */
 
@@ -106,6 +141,15 @@ __visible noinline void trap_##handle(struct regs *regs, unsigned long error_cod
 #define DECLARE_IDTENTRY_DF(vector, handle)                         \
     idtentry_df vector entry_##handle trap_##handle
 
+#ifdef CONFIG_ARCH_X86_64
+
+#define DECLARE_IDTENTRY_MCE(vector, handle)                        \
+    idtentry_mce_db vector entry_##handle trap_##handle
+
+#define DECLARE_IDTENTRY_DEBUG(vector, handle)                      \
+    idtentry_mce_db vector entry_##handle trap_##handle
+
+#endif /* CONFIG_ARCH_X86_64 */
 #endif /* __ASSEMBLY__ */
 
 #ifdef CONFIG_ARCH_X86_32
@@ -143,8 +187,8 @@ extern asmlinkage void entry_fork_return(void);
 extern asmlinkage void entry_syscall_80(void);
 extern asmlinkage void entry_irq_vector(void);
 
-extern void idt_int_gate(irqnr_t nr, void *handle);
-extern void idt_setup(void);
+extern void arch_idt_int_gate(irqnr_t nr, void *handle);
+extern void arch_idt_setup(void);
 
 #endif  /* __ASSEMBLY__ */
 #endif  /* _ASM_X86_IDT_H_ */

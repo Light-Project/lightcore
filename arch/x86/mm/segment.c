@@ -8,6 +8,7 @@
 #include <asm/segment.h>
 
 static struct gdt_entry gdt_entry[GDT_ENTRY_MAX] = {
+#ifdef CONFIG_ARCH_X86_32
     [GDT_ENTRY_KERNEL_CS] = {
         .p = true, .s = GDT_S_CODEDATA, .dpl  = GDT_DPL_RING0,
         .db = GDT_DB_32, .g = GDT_G_4KiB, .type = GDT_TYPE_XR,
@@ -78,6 +79,26 @@ static struct gdt_entry gdt_entry[GDT_ENTRY_MAX] = {
         .db = GDT_DB_32, .g = GDT_G_1BYTE, .type = GDT_TYPE_XA,
         .basel = 0, .baseh = 0, .limitl = 0, .limith = 0x0,
     },
+#else
+    [GDT_LENTRY_KERNEL32_CS] = {
+
+    },
+    [GDT_LENTRY_KERNEL_CS] = {
+
+    },
+    [GDT_LENTRY_KERNEL_DS] = {
+
+    },
+    [GDT_LENTRY_DEFAULT_USER32_CS] = {
+
+    },
+    [GDT_LENTRY_DEFAULT_USER_DS] = {
+
+    },
+    [GDT_LENTRY_DEFAULT_USER_CS] = {
+
+    },
+#endif
 };
 
 struct gdt_table gdt_table = {
@@ -98,10 +119,6 @@ void gdte_seg_set(int index, char dpl, char type, size_t base, uint64_t limit)
     gdt_entry[index].s      = GDT_S_CODEDATA;
     gdt_entry[index].db     = GDT_DB_32;
     gdt_entry[index].g      = GDT_G_4KiB;
-
-#ifdef CONFIG_ARCH_X86_64
-    gdt_entry[index].basee  = base >> 32;
-#endif
 }
 
 void gdte_sys_set(int index, char type, size_t base, uint64_t limit)
@@ -116,13 +133,9 @@ void gdte_sys_set(int index, char type, size_t base, uint64_t limit)
     gdt_entry[index].s      = GDT_S_SYSTEM;
     gdt_entry[index].db     = GDT_DB_16;
     gdt_entry[index].g      = GDT_G_1BYTE;
-
-#ifdef CONFIG_ARCH_X86_64
-    gdt_entry[index].basee  = base >> 32;
-#endif
 }
 
-void __init gdt_setup(void)
+void __init arch_gdt_setup(void)
 {
     gdt_set(&gdt_table);
 }

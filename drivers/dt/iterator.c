@@ -115,13 +115,13 @@ state dt_iterative_phandle_next(struct dt_phandle_iterator *iter)
 
     if (unlikely(iter->curr + count > iter->list_end)) {
         if (iter->cells_name)
-            pr_err("node %p %s = %d found %d\n",
+            pr_err("node %p %s = %d found %ld\n",
                     iter->parent, iter->node->name,
-                    count, iter->list_end - iter->curr);
+                    count, (long)(iter->list_end - iter->curr));
         else
-            pr_err("node %p phandle %s needs %d, found %d\n",
+            pr_err("node %p phandle %s needs %d, found %ld\n",
                     iter->parent, iter->node->name,
-                    count, iter->list_end - iter->curr);
+                    count, (long)(iter->list_end - iter->curr));
         goto error;
     }
 

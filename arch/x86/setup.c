@@ -12,24 +12,27 @@
 #include <asm/pgtable.h>
 #include <asm/header.h>
 
-void cpu_setup(void)
-{
-
-}
-
 void arch_setup(void)
 {
     struct bootparam *parm = (void *)(size_t)boot_head.params;
 
-    idt_setup();
-    gdt_setup();
+    arch_idt_setup();
+    arch_gdt_setup();
 
-    arch_page_setup();
+#ifdef CONFIG_ARCH_X86_32
     doublefault_init();
+#endif
 
-    tsc_init();
+#ifdef CONFIG_ARCH_X86_64
+    arch_setup_nx();
+    arch_report_nx();
+#endif
 
-    e820_init(&parm->e820_table);
+    arch_tsc_setup();
+
+    arch_e820_setup(&parm->e820_table);
     memblock_reserve("bios", 0xa0000, 0x60000);
     memblock_reserve("isa-hole", 0xf00000, 0x100000);
+
+    arch_page_setup();
 }

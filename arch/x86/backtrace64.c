@@ -8,14 +8,14 @@
 #include <asm/backtrace.h>
 #include <asm/traps.h>
 
-void show_regs(struct regs *regs)
+void show_regs(struct regs *regs, unsigned long error_code)
 {
     uint32_t cr0, cr2, cr3, cr4;
     uint64_t dr0, dr1, dr2, dr3, dr6, dr7;
 
     printk("registers:\n");
-    printk(" RIP: 0x%016llx EFLAGS: 0x%08llx ERROR: %08llx\n",
-            regs->ip, regs->flags, regs->error);
+    printk(" RIP: 0x%016llx EFLAGS: 0x%08llx ERROR: %08lx\n",
+            regs->ip, regs->flags, error_code);
     printk(" RAX: 0x%016llx RBX: 0x%016llx RCX: 0x%016llx\n",
             regs->ax, regs->bx, regs->cx);
     printk(" RDX: 0x%016llx RSI: 0x%016llx RDI: 0x%016llx\n",
@@ -25,7 +25,7 @@ void show_regs(struct regs *regs)
     printk(" R09: 0x%016llx R10: 0x%016llx R11: 0x%016llx\n",
             regs->r9, regs->r10, regs->r11);
     printk(" R12: 0x%016llx R13: 0x%016llx R14: 0x%016llx\n",
-            regs->r12, regs->sp, regs->r8);
+            regs->r12, regs->r13, regs->r14);
 
     printk(" CS: 0x%04llx DS: 0x%04llx SS: 0x%04llx\n", regs->cs, regs->ds, regs->ss);
     printk(" ES: 0x%04llx FS: 0x%04llx GS: 0x%04llx\n", regs->es, regs->fs, regs->gs);
@@ -63,11 +63,11 @@ void dump_stack(size_t *sp)
     }
 }
 
-void oops(struct regs *regs, const char *str)
+void oops(struct regs *regs, unsigned long error_code, const char *str)
 {
-    printk("Oops %s\n", str);
+    printk("Kernel Oops: %s\n", str);
 
-    show_regs(regs);
+    show_regs(regs, error_code);
     dump_stack((size_t *)regs->sp);
 
     panic("fatal exception");

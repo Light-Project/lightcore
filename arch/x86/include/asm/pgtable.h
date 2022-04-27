@@ -256,6 +256,8 @@ X86_GENERIC_PGTABLE_OPS(pgd, pgd_t, pgdval_t, p4d_t)
 # define pgd_set_wrprotect  pgd_generic_set_wrprotect
 #endif
 
+extern void __init arch_report_nx(void);
+extern void __init arch_setup_nx(void);
 extern void __init arch_page_setup(void);
 
 #endif  /* _ASM_X86_PGTABLE_H_ */

@@ -29,7 +29,7 @@ struct e820_table {
     struct e820_entry entry[E820_MAX_ENTRIES];
 } __packed;
 
-extern void e820_init(struct e820_table *);
+extern void arch_e820_setup(struct e820_table *);
 
 #endif  /* __ASSEMBLY__ */
 #endif  /* _ASM_X86_E820_H_ */

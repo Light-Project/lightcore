@@ -36,7 +36,7 @@ struct slob_node {
 static LIST_HEAD(slob_free_small);
 static LIST_HEAD(slob_free_medium);
 static LIST_HEAD(slob_free_large);
-static SPIN_LOCK(lock);
+static SPIN_LOCK(slob_lock);
 
 static inline struct slob_node *slob_node_next(struct slob_node *node)
 {
@@ -254,7 +254,7 @@ static void *slob_alloc_node(struct list_head *slob_list, size_t size, size_t of
     irqflags_t irq_save;
     void *block = NULL;
 
-    spin_lock_irqsave(&lock, &irq_save);
+    spin_lock_irqsave(&slob_lock, &irq_save);
 
     list_for_each_entry_safe(slob_page, next, slob_list, list) {
         if (slob_page->node == SLOB_PAGEUSE)
@@ -282,7 +282,7 @@ static void *slob_alloc_node(struct list_head *slob_list, size_t size, size_t of
         break;
     }
 
-    spin_unlock_irqrestore(&lock, &irq_save);
+    spin_unlock_irqrestore(&slob_lock, &irq_save);
 
     /* No enough space in slob list */
     if (!block) {
@@ -294,7 +294,7 @@ static void *slob_alloc_node(struct list_head *slob_list, size_t size, size_t of
             return NULL;
 
         slob_page = &page->slob;
-        spin_lock_irqsave(&lock, &irq_save);
+        spin_lock_irqsave(&slob_lock, &irq_save);
 
         /* Setup new page */
         slob_page->head = slob_list;
@@ -310,7 +310,7 @@ static void *slob_alloc_node(struct list_head *slob_list, size_t size, size_t of
         list_add(slob_list, &slob_page->list);
 
         block = slob_page_alloc(slob_page, size, align, offset, bsize);
-        spin_unlock_irqrestore(&lock, &irq_save);
+        spin_unlock_irqrestore(&slob_lock, &irq_save);
     }
 
     if (flags & GFP_ZERO)
@@ -365,7 +365,7 @@ static void slob_free(const void *block)
         return;
     }
 
-    spin_lock_irqsave(&lock, &irq_save);
+    spin_lock_irqsave(&slob_lock, &irq_save);
 
     retval = slob_page_free(slob_page, block, SLOB_ALIGN);
     if (retval < 0)
@@ -381,7 +381,7 @@ static void slob_free(const void *block)
         if (!list_check_outsize(&slob_page->list))
             list_del(&slob_page->list);
 
-        spin_unlock_irqrestore(&lock, &irq_save);
+        spin_unlock_irqrestore(&slob_lock, &irq_save);
         page_free(page);
 
         return;
@@ -391,7 +391,7 @@ static void slob_free(const void *block)
         list_add(slob_page->head, &slob_page->list);
 
 finish:
-    spin_unlock_irqrestore(&lock, &irq_save);
+    spin_unlock_irqrestore(&slob_lock, &irq_save);
 }
 
 /*
