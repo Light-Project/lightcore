@@ -150,10 +150,12 @@ state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***ar
             vbuff[vpos] = '\0';
             vpos = 0;
             var = kshell_getenv(vbuff);
-            count = strlen(var);
-            PARSER_EXP_TPOS(tpos + count + 1)
-            strcpy(tbuff + tpos, var);
-            tpos += count;
+            if (var) {
+                count = strlen(var);
+                PARSER_EXP_TPOS(tpos + count + 1)
+                strcpy(tbuff + tpos, var);
+                tpos += count;
+            }
         }
 
         if (is_brackets(cstate) && !is_brackets(nstate)) {
@@ -194,10 +196,12 @@ state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***ar
     if (is_variable(cstate)) {
         vbuff[vpos] = '\0';
         var = kshell_getenv(vbuff);
-        count = strlen(var);
-        PARSER_EXP_TPOS(tpos + count + 1)
-        strcpy(tbuff + tpos, var);
-        tpos += count;
+        if (var) {
+            count = strlen(var);
+            PARSER_EXP_TPOS(tpos + count + 1)
+            strcpy(tbuff + tpos, var);
+            tpos += count;
+        }
     }
 
     /* if there is no end flag, end it */
