@@ -27,8 +27,8 @@
 
 #define LEVEL_SHIFT(lvl)    ((lvl) * CLOCK_SHIFT)
 #define LEVEL_GAIN(lvl)     (1UL << LEVEL_SHIFT(lvl))
-#define LEVEL_OFFS(lvl)     (LEVEL_MASK * (lvl))
-#define LEVEL_START(lvl)    (LEVEL_MASK << LEVEL_SHIFT((lvl) - 1))
+#define LEVEL_OFFS(lvl)     (LEVEL_SIZE * (lvl))
+#define LEVEL_START(lvl)    (LEVEL_SIZE << LEVEL_SHIFT((lvl) - 1))
 
 #define LEVEL_TIMEOUT_CUT   (LEVEL_START(LEVEL_DEPTH))
 #define LEVEL_TIMEOUT_MAX   (LEVEL_TIMEOUT_CUT - LEVEL_GAIN(LEVEL_DEPTH - 1))
@@ -44,7 +44,7 @@ struct timer_base {
 
     struct timer *running;
     DEFINE_BITMAP(pending_map, WHEEL_LEN);
-    struct hlist_head wheel[WHEEL_LEN];
+    struct hlist_head wheels[WHEEL_LEN];
 };
 
 static void timer_softirq_handle(void *pdata);
@@ -54,7 +54,7 @@ static struct kcache *timer_cache;
 
 static void base_enqueue(struct timer_base *base, struct timer *timer, unsigned int idx, ttime_t expiry)
 {
-    hlist_head_add(base->wheel + idx, &timer->list);
+    hlist_head_add(base->wheels + idx, &timer->list);
     bit_set(base->pending_map, idx);
 
     if (ttime_before(expiry, base->recent_timer)) {
@@ -82,7 +82,7 @@ static bool base_try_dequeue(struct timer_base *base, struct timer *timer, bool 
 
     base_dequeue(timer, clear);
 
-    if (hlist_check_empty(base->wheel + timer->index)) {
+    if (hlist_check_empty(base->wheels + timer->index)) {
         bit_clr(base->pending_map, timer->index);
         base->next_recalc = true;
     }
@@ -128,6 +128,22 @@ static void timer_insert(struct timer_base *base, struct timer *timer)
     base_enqueue(base, timer, index, expiry);
 }
 
+static void timer_forward(struct timer_base *base)
+{
+    ttime_t ticknow = ticktime;
+
+    if (ticknow <= base->current)
+        return;
+
+    if (ttime_before(ticknow, base->recent_timer))
+        base->current = ticknow;
+    else {
+        if (ttime_before(base->recent_timer, base->current))
+            return;
+        base->current = base->recent_timer;
+    }
+}
+
 static void expire_timers(struct timer_base *base, struct hlist_head *head)
 {
     while (!hlist_check_empty(head)) {
@@ -157,15 +173,15 @@ static void expire_timers(struct timer_base *base, struct hlist_head *head)
 
 static unsigned int collect_timers(struct timer_base *base, struct hlist_head *heads)
 {
-    unsigned int index, count, levels = 0;
-    ttime_t curr = base->current;
+    ttime_t curr = base->current = base->recent_timer;
+    unsigned int count, index, levels = 0;
     struct hlist_head *vector;
 
     for (count = 0; count < LEVEL_DEPTH; ++count) {
         index = (curr & LEVEL_MASK) + count * LEVEL_SIZE;
 
         if (bit_test_clr(base->pending_map, index)) {
-            vector = base->wheel + index;
+            vector = base->wheels + index;
             hlist_move_list(vector, heads++);
             levels++;
         }
@@ -239,6 +255,8 @@ static void base_do_timers(struct timer_base *base)
         unsigned int levels;
 
         levels = collect_timers(base, heads);
+        WARN_ON(!levels && !base->next_recalc && base->timers_pending);
+
         base->current++;
         base->recent_timer = next_recent_timer(base);
 
@@ -274,6 +292,7 @@ state timer_pending(struct timer *timer)
         return -EINVAL;
 
     spin_lock_irqsave(&base->lock, &irqflags);
+    timer_forward(base);
     timer_insert(base, timer);
     spin_unlock_irqrestore(&base->lock, &irqflags);
 

@@ -16,12 +16,13 @@ enum timer_flags {
 #define TIMER_PERIODIC      BIT(__TIMER_PERIODIC)
 
 /**
- * struct timer - Describe a timer node
- * @list:
- * @delta:
- * @flags: characteristics flags of nodes
- * @entry: entry function of timer interrupt
- * @pdata: parameters of the entry function
+ * struct timer - describe a timer node.
+ * @list: insert into the list node of the time wheel.
+ * @delta: time increment of timer node.
+ * @expires: expiration time of timer node.
+ * @flags: characteristics flags of nodes.
+ * @entry: entry function of timer interrupt.
+ * @pdata: parameters of the entry function.
  */
 struct timer {
     struct hlist_node list;
@@ -68,10 +69,10 @@ extern state timer_pending(struct timer *timer);
 extern state timer_clear(struct timer *timer);
 extern state timer_reduce(struct timer *timer, ttime_t delta);
 extern state timer_modified(struct timer *timer, ttime_t delta);
+extern void timer_update(void);
+
 extern struct timer *timer_create(timer_entry_t entry, void *pdata, ttime_t delta, enum timer_flags flags);
 extern void timer_destroy(struct timer *timer);
-
-extern void timer_update(void);
 extern void __init timer_init(void);
 
 #endif  /* _TIMER_H_ */
