@@ -5,6 +5,7 @@
 #include <math.h>
 #include <bits.h>
 #include <asm/bitops.h>
+#include <lightcore/swab.h>
 
 #define BITS_DIV_U8(nr)         ((nr) / BITS_PER_U8)
 #define BITS_DIV_U16(nr)        ((nr) / BITS_PER_U16)
@@ -116,50 +117,50 @@ static inline uint64_t ror64(uint64_t word, unsigned int shift)
     return (word >> (shift & 63)) | (word << ((-shift) & 63));
 }
 
-extern unsigned int comp_find_first_bit(const unsigned long *block, unsigned int bits);
-extern unsigned int comp_find_last_bit(const unsigned long *block, unsigned int bits);
-extern unsigned int comp_find_first_zero(const unsigned long *block, unsigned int bits);
-extern unsigned int comp_find_last_zero(const unsigned long *block, unsigned int bits);
-extern unsigned int comp_find_next_bit(const unsigned long *addr1, const unsigned long *addr2, unsigned int bits, unsigned int start, unsigned long invert, bool le);
-extern unsigned int comp_find_prev_bit(const unsigned long *addr1, const unsigned long *addr2, unsigned int bits, unsigned int start, unsigned long invert, bool le);
+extern unsigned int comp_find_first_bit(const unsigned long *block, unsigned int bits, bool swap);
+extern unsigned int comp_find_last_bit(const unsigned long *block, unsigned int bits, bool swap);
+extern unsigned int comp_find_first_zero(const unsigned long *block, unsigned int bits, bool swap);
+extern unsigned int comp_find_last_zero(const unsigned long *block, unsigned int bits, bool swap);
+extern unsigned int comp_find_next_bit(const unsigned long *addr1, const unsigned long *addr2, unsigned int bits, unsigned int start, unsigned long invert, bool swap);
+extern unsigned int comp_find_prev_bit(const unsigned long *addr1, const unsigned long *addr2, unsigned int bits, unsigned int start, unsigned long invert, bool swap);
 
 #ifndef find_first_bit
-static inline unsigned int find_first_bit(const unsigned long *block, unsigned int bits)
+static inline unsigned int find_first_bit(const unsigned long *addr, unsigned int bits)
 {
     if (small_const_nbits(bits))
-        return ffs(*block & BIT_LOW_MASK(bits)) - 1;
+        return *addr ? ffsuf(*addr & BIT_LOW_MASK(bits)) : bits;
     else
-        return comp_find_first_bit(block, bits);
+        return comp_find_first_bit(addr, bits, false);
 }
 #endif
 
 #ifndef find_last_bit
-static inline unsigned int find_last_bit(const unsigned long *block, unsigned int bits)
+static inline unsigned int find_last_bit(const unsigned long *addr, unsigned int bits)
 {
     if (small_const_nbits(bits))
-        return fls(*block & BIT_LOW_MASK(bits)) - 1;
+        return *addr ? ffsuf(*addr & BIT_LOW_MASK(bits)) : bits;
     else
-        return comp_find_last_bit(block, bits);
+        return comp_find_last_bit(addr, bits, false);
 }
 #endif
 
 #ifndef find_first_zero
-static inline unsigned int find_first_zero(const unsigned long *block, unsigned int bits)
+static inline unsigned int find_first_zero(const unsigned long *addr, unsigned int bits)
 {
     if (small_const_nbits(bits))
-        return ffz(*block | BIT_HIGH_MASK(bits)) - 1;
+        return *addr ? ffz(*addr | BIT_HIGH_MASK(bits)) : bits;
     else
-        return comp_find_first_zero(block, bits);
+        return comp_find_first_zero(addr, bits, false);
 }
 #endif
 
 #ifndef find_last_zero
-static inline unsigned int find_last_zero(const unsigned long *block, unsigned int bits)
+static inline unsigned int find_last_zero(const unsigned long *addr, unsigned int bits)
 {
     if (small_const_nbits(bits))
-        return flz(*block | BIT_HIGH_MASK(bits)) - 1;
+        return *addr ? flz(*addr | BIT_HIGH_MASK(bits)) : bits;
     else
-        return comp_find_last_zero(block, bits);
+        return comp_find_last_zero(addr, bits, false);
 }
 #endif
 
@@ -177,7 +178,7 @@ find_next_bit(const unsigned long *addr, unsigned int bits, unsigned int offset)
         return val ? ffsuf(val) : bits;
     }
 
-    return comp_find_next_bit(addr, NULL, bits, offset, 0UL, 0);
+    return comp_find_next_bit(addr, NULL, bits, offset, 0UL, false);
 }
 #endif
 
@@ -195,7 +196,7 @@ find_prev_bit(const unsigned long *addr, unsigned int bits, unsigned int offset)
         return val ? flsuf(val) : bits;
     }
 
-    return comp_find_prev_bit(addr, NULL, bits, offset, 0UL, 0);
+    return comp_find_prev_bit(addr, NULL, bits, offset, 0UL, false);
 }
 #endif
 
@@ -210,10 +211,10 @@ find_next_zero(const unsigned long *addr, unsigned int bits, unsigned int offset
             return bits;
 
         val = *addr | ~BIT_RANGE(bits - 1, offset);
-        return val ? ffsuf(val) : bits;
+        return val ? ffzuf(val) : bits;
     }
 
-    return comp_find_next_bit(addr, NULL, bits, offset, ~0UL, 0);
+    return comp_find_next_bit(addr, NULL, bits, offset, ~0UL, false);
 }
 #endif
 
@@ -228,14 +229,14 @@ find_prev_zero(const unsigned long *addr, unsigned int bits, unsigned int offset
             return bits;
 
         val = *addr | ~BIT_RANGE(bits - 1, offset);
-        return val ? flsuf(val) : bits;
+        return val ? flzuf(val) : bits;
     }
 
-    return comp_find_prev_bit(addr, NULL, bits, offset, ~0UL, 0);
+    return comp_find_prev_bit(addr, NULL, bits, offset, ~0UL, false);
 }
 #endif
 
-#ifndef find_next_bit
+#ifndef find_next_and_bit
 static inline unsigned int
 find_next_and_bit(const unsigned long *addr1, const unsigned long *addr2,
                   unsigned int bits, unsigned int offset)
@@ -250,7 +251,7 @@ find_next_and_bit(const unsigned long *addr1, const unsigned long *addr2,
         return val ? ffsuf(val) : bits;
     }
 
-    return comp_find_next_bit(addr1, addr2, bits, offset, 0UL, 0);
+    return comp_find_next_bit(addr1, addr2, bits, offset, 0UL, false);
 }
 #endif
 
@@ -269,9 +270,231 @@ find_prev_and_bit(const unsigned long *addr1, const unsigned long *addr2,
         return val ? flsuf(val) : bits;
     }
 
-    return comp_find_prev_bit(addr1, addr2, bits, offset, 0UL, 0);
+    return comp_find_prev_bit(addr1, addr2, bits, offset, 0UL, false);
 }
 #endif
+
+#define GENERIC_BIT_FIND_BYTEORDER_NONE_OPS(name)                                           \
+static inline unsigned int                                                                  \
+find_first_bit_##name(const unsigned long *addr, unsigned int bits)                         \
+{                                                                                           \
+    return find_first_bit(addr, bits);                                                      \
+}                                                                                           \
+                                                                                            \
+static inline unsigned int                                                                  \
+find_last_bit_##name(const unsigned long *addr, unsigned int bits)                          \
+{                                                                                           \
+    return find_last_bit(addr, bits);                                                       \
+}                                                                                           \
+                                                                                            \
+static inline unsigned int                                                                  \
+find_first_zero_##name(const unsigned long *addr, unsigned int bits)                        \
+{                                                                                           \
+    return find_first_zero(addr, bits);                                                     \
+}                                                                                           \
+                                                                                            \
+static inline unsigned int                                                                  \
+find_last_zero_##name(const unsigned long *addr, unsigned int bits)                         \
+{                                                                                           \
+    return find_last_zero(addr, bits);                                                      \
+}                                                                                           \
+                                                                                            \
+static inline unsigned int                                                                  \
+find_next_bit_##name(const unsigned long *addr, unsigned int bits, unsigned int offset)     \
+{                                                                                           \
+    return find_next_bit(addr, bits, offset);                                               \
+}                                                                                           \
+                                                                                            \
+static inline unsigned int                                                                  \
+find_prev_bit_##name(const unsigned long *addr, unsigned int bits, unsigned int offset)     \
+{                                                                                           \
+    return find_prev_bit(addr, bits, offset);                                               \
+}                                                                                           \
+                                                                                            \
+static inline unsigned int                                                                  \
+find_next_zero_##name(const unsigned long *addr, unsigned int bits, unsigned int offset)    \
+{                                                                                           \
+    return find_next_zero(addr, bits, offset);                                              \
+}                                                                                           \
+                                                                                            \
+static inline unsigned int                                                                  \
+find_prev_zero_##name(const unsigned long *addr, unsigned int bits, unsigned int offset)    \
+{                                                                                           \
+    return find_prev_zero(addr, bits, offset);                                              \
+}                                                                                           \
+
+#define GENERIC_BIT_FIND_BYTEORDER_SWAB_OPS(name)                                           \
+static inline unsigned int                                                                  \
+find_first_bit_##name(const unsigned long *addr, unsigned int bits)                         \
+{                                                                                           \
+    if (small_const_nbits(bits))                                                            \
+        return ffs(swab(*addr) & BIT_LOW_MASK(bits)) - 1;                                   \
+    else                                                                                    \
+        return comp_find_first_bit(addr, bits, true);                                       \
+}                                                                                           \
+                                                                                            \
+static inline unsigned int                                                                  \
+find_last_bit_##name(const unsigned long *addr, unsigned int bits)                          \
+{                                                                                           \
+    if (small_const_nbits(bits))                                                            \
+        return fls(swab(*addr) & BIT_LOW_MASK(bits)) - 1;                                   \
+    else                                                                                    \
+        return comp_find_last_bit(addr, bits, true);                                        \
+}                                                                                           \
+                                                                                            \
+static inline unsigned int                                                                  \
+find_first_zero_##name(const unsigned long *addr, unsigned int bits)                        \
+{                                                                                           \
+    if (small_const_nbits(bits))                                                            \
+        return ffz(swab(*addr) | BIT_HIGH_MASK(bits)) - 1;                                  \
+    else                                                                                    \
+        return comp_find_first_zero(addr, bits, true);                                      \
+}                                                                                           \
+                                                                                            \
+static inline unsigned int                                                                  \
+find_last_zero_##name(const unsigned long *addr, unsigned int bits)                         \
+{                                                                                           \
+    if (small_const_nbits(bits))                                                            \
+        return flz(swab(*addr) | BIT_HIGH_MASK(bits)) - 1;                                  \
+    else                                                                                    \
+        return comp_find_last_zero(addr, bits, true);                                       \
+}                                                                                           \
+                                                                                            \
+static inline unsigned int                                                                  \
+find_next_bit_##name(const unsigned long *addr, unsigned int bits, unsigned int offset)     \
+{                                                                                           \
+    if (small_const_nbits(bits)) {                                                          \
+        unsigned long val;                                                                  \
+                                                                                            \
+        if (unlikely(offset >= bits))                                                       \
+            return bits;                                                                    \
+                                                                                            \
+        val = swab(*addr) & BIT_RANGE(bits - 1, offset);                                    \
+        return val ? ffsuf(val) : bits;                                                     \
+    }                                                                                       \
+                                                                                            \
+    return comp_find_next_bit(addr, NULL, bits, offset, 0UL, true);                         \
+}                                                                                           \
+                                                                                            \
+static inline unsigned int                                                                  \
+find_prev_bit_##name(const unsigned long *addr, unsigned int bits, unsigned int offset)     \
+{                                                                                           \
+    if (small_const_nbits(bits)) {                                                          \
+        unsigned long val;                                                                  \
+                                                                                            \
+        if (unlikely(offset >= bits))                                                       \
+            return bits;                                                                    \
+                                                                                            \
+        val = swab(*addr) & BIT_RANGE(bits - 1, offset);                                    \
+        return val ? flsuf(val) : bits;                                                     \
+    }                                                                                       \
+                                                                                            \
+    return comp_find_prev_bit(addr, NULL, bits, offset, 0UL, true);                         \
+}                                                                                           \
+                                                                                            \
+static inline unsigned int                                                                  \
+find_next_zero_##name(const unsigned long *addr, unsigned int bits, unsigned int offset)    \
+{                                                                                           \
+    if (small_const_nbits(bits)) {                                                          \
+        unsigned long val;                                                                  \
+                                                                                            \
+        if (unlikely(offset >= bits))                                                       \
+            return bits;                                                                    \
+                                                                                            \
+        val = swab(*addr) | ~BIT_RANGE(bits - 1, offset);                                   \
+        return val ? ffzuf(val) : bits;                                                     \
+    }                                                                                       \
+                                                                                            \
+    return comp_find_next_bit(addr, NULL, bits, offset, ~0UL, true);                        \
+}                                                                                           \
+                                                                                            \
+static inline unsigned int                                                                  \
+find_prev_zero_##name(const unsigned long *addr, unsigned int bits, unsigned int offset)    \
+{                                                                                           \
+    if (small_const_nbits(bits)) {                                                          \
+        unsigned long val;                                                                  \
+                                                                                            \
+        if (unlikely(offset >= bits))                                                       \
+            return bits;                                                                    \
+                                                                                            \
+        val = swab(*addr) | ~BIT_RANGE(bits - 1, offset);                                   \
+        return val ? flzuf(val) : bits;                                                     \
+    }                                                                                       \
+                                                                                            \
+    return comp_find_prev_bit(addr, NULL, bits, offset, ~0UL, true);                        \
+}                                                                                           \
+
+#ifdef CONFIG_ARCH_LITTLE_ENDIAN
+GENERIC_BIT_FIND_BYTEORDER_NONE_OPS(le)
+GENERIC_BIT_FIND_BYTEORDER_SWAB_OPS(be)
+#elif defined(CONFIG_ARCH_BIG_ENDIAN)
+GENERIC_BIT_FIND_BYTEORDER_NONE_OPS(be)
+GENERIC_BIT_FIND_BYTEORDER_SWAB_OPS(le)
+#else
+# error "unhandled endianity"
+#endif
+
+#define for_each_set_bit(bit, addr, size)                                           \
+    for ((bit) = find_next_bit((addr), (size), 0); (bit) < (size);                  \
+         (bit) = find_next_bit((addr), (size), (bit) + 1))
+
+#define for_each_set_bit_from(bit, addr, size)                                      \
+    for ((bit) = find_next_bit((addr), (size), (bit)); (bit) < (size);              \
+         (bit) = find_next_bit((addr), (size), (bit) + 1))
+
+#define for_each_set_bit_continue(bit, addr, size)                                  \
+    for ((bit) = find_next_bit((addr), (size), (bit) + 1); (bit) < (size);          \
+         (bit) = find_next_bit((addr), (size), (bit) + 1))
+
+#define for_each_clear_bit(bit, addr, size)                                         \
+    for ((bit) = find_next_zero((addr), (size), 0); (bit) < (size);                 \
+         (bit) = find_next_zero((addr), (size), (bit) + 1))
+
+#define for_each_clear_bit_from(bit, addr, size)                                    \
+    for ((bit) = find_next_zero((addr), (size), (bit)); (bit) < (size);             \
+         (bit) = find_next_zero((addr), (size), (bit) + 1))
+
+#define for_each_clear_bit_continue(bit, addr, size)                                \
+    for ((bit) = find_next_zero((addr), (size), (bit) + 1); (bit) < (size);         \
+         (bit) = find_next_zero((addr), (size), (bit) + 1))
+
+#define for_each_set_bitrange(b, e, addr, size)                                     \
+    for ((b) = find_next_bit((addr), (size), 0),                                    \
+         (e) = find_next_zero((addr), (size), (b) + 1);                             \
+         (b) < (size);                                                              \
+         (b) = find_next_bit((addr), (size), (e) + 1),                              \
+         (e) = find_next_zero((addr), (size), (b) + 1))
+
+#define for_each_set_bitrange_from(b, e, addr, size)                                \
+    for (; (b) < (size);                                                            \
+         (b) = find_next_bit((addr), (size), (e) + 1),                              \
+         (e) = find_next_zero((addr), (size), (b) + 1))
+
+#define for_each_set_bitrange_continue(b, e, addr, size)                            \
+    for ((b) = find_next_bit((addr), (size), (b)),                                  \
+         (e) = find_next_zero((addr), (size), (b) + 1);                             \
+         (b) < (size);                                                              \
+         (b) = find_next_bit((addr), (size), (e) + 1),                              \
+         (e) = find_next_zero((addr), (size), (b) + 1))
+
+#define for_each_clear_bitrange(b, e, addr, size)                                   \
+    for ((b) = find_next_zero((addr), (size), 0),                                   \
+         (e) = find_next_bit((addr), (size), (b) + 1);                              \
+         (b) < (size);                                                              \
+         (b) = find_next_zero((addr), (size), (e) + 1),                             \
+         (e) = find_next_bit((addr), (size), (b) + 1))
+
+#define for_each_clear_bitrange_from(b, e, addr, size)                              \
+    for ((b) < (size);                                                              \
+         (b) = find_next_zero((addr), (size), (e) + 1),                             \
+         (e) = find_next_bit((addr), (size), (b) + 1))
+
+#define for_each_clear_bitrange_continue(b, e, addr, size)                          \
+    for ((b) = find_next_zero((addr), (size), (b)),                                 \
+         (e) = find_next_bit((addr), (size), (b) + 1);                              \
+         (b) < (size);                                                              \
+         (b) = find_next_zero((addr), (size), (e) + 1),                             \
+         (e) = find_next_bit((addr), (size), (b) + 1))
 
 #define GENERIC_STRUCT_BITOPS(name, type, member)                                   \
 static inline void generic_##name##_##member##_set(type *ptr, unsigned int bit)     \

@@ -12,7 +12,8 @@
 static state bitops_test_testing(void *pdata)
 {
     unsigned long *bitops_tests = pdata;
-    unsigned int count;
+    unsigned int pass, count, from;
+    unsigned int scount, sfrom;
 
     memset(pdata, 0, BITS_PER_LONG * BYTES_PER_LONG);
 
@@ -79,13 +80,92 @@ static state bitops_test_testing(void *pdata)
         kshell_printf("passed (%#08lx->%u)\n", bitops_tests[count], bit);
     }
 
+    count = 0;
+
+    for_each_set_bit(from, bitops_tests, BITS_PER_LONG * BITS_PER_LONG) {
+        kshell_printf("bitops 'for_each_set_bit' test%u: ", count);
+        pass = count * BITS_PER_LONG + count;
+        if (pass != from) {
+            kshell_printf("failed (%u->%u)\n", pass, from);
+            return -EFAULT;
+        }
+        kshell_printf("passed (%u->%u)\n", pass, from);
+        if (count >= BITS_PER_LONG / 2)
+            break;
+        count++;
+    }
+
+    scount = count++;
+    sfrom = from;
+
+    for_each_set_bit_continue(from, bitops_tests, BITS_PER_LONG * BITS_PER_LONG) {
+        kshell_printf("bitops 'for_each_set_bit_continue' test%u: ", count);
+        pass = count * BITS_PER_LONG + count;
+        if (pass != from) {
+            kshell_printf("failed (%u->%u)\n", pass, from);
+            return -EFAULT;
+        }
+        kshell_printf("passed (%u->%u)\n", pass, from);
+        count++;
+    }
+
+    for_each_set_bit_from(sfrom, bitops_tests, BITS_PER_LONG * BITS_PER_LONG) {
+        kshell_printf("bitops 'for_each_set_bit_from' test%u: ", scount);
+        pass = scount * BITS_PER_LONG + scount;
+        if (pass != sfrom) {
+            kshell_printf("failed (%u->%u)\n", pass, sfrom);
+            return -EFAULT;
+        }
+        kshell_printf("passed (%u->%u)\n", pass, sfrom);
+        scount++;
+    }
+
+    memset(pdata, 0xff, BITS_PER_LONG * BYTES_PER_LONG);
+
     for (count = 0; count < BITS_PER_LONG; ++count)
         bit_clr(bitops_tests, count * BITS_PER_LONG + count);
 
-    if (memdiff(bitops_tests, 0, BYTES_PER_LONG)) {
-        kshell_printf("bitops 'bit_clr' test failed\n");
-        return -EFAULT;
+    count = 0;
+
+    for_each_clear_bit(from, bitops_tests, BITS_PER_LONG * BITS_PER_LONG) {
+        kshell_printf("bitops 'for_each_clear_bit' test%u: ", count);
+        pass = count * BITS_PER_LONG + count;
+        if (pass != from) {
+            kshell_printf("failed (%u->%u)\n", pass, from);
+            return -EFAULT;
+        }
+        kshell_printf("passed (%u->%u)\n", pass, from);
+        if (count >= BITS_PER_LONG / 2)
+            break;
+        count++;
     }
+
+    scount = count++;
+    sfrom = from;
+
+    for_each_clear_bit_continue(from, bitops_tests, BITS_PER_LONG * BITS_PER_LONG) {
+        kshell_printf("bitops 'for_each_clear_bit_continue' test%u: ", count);
+        pass = count * BITS_PER_LONG + count;
+        if (pass != from) {
+            kshell_printf("failed (%u->%u)\n", pass, from);
+            return -EFAULT;
+        }
+        kshell_printf("passed (%u->%u)\n", pass, from);
+        count++;
+    }
+
+    for_each_clear_bit_from(sfrom, bitops_tests, BITS_PER_LONG * BITS_PER_LONG) {
+        kshell_printf("bitops 'for_each_clear_bit_from' test%u: ", scount);
+        pass = scount * BITS_PER_LONG + scount;
+        if (pass != sfrom) {
+            kshell_printf("failed (%u->%u)\n", pass, sfrom);
+            return -EFAULT;
+        }
+        kshell_printf("passed (%u->%u)\n", pass, sfrom);
+        scount++;
+    }
+
+    memset(pdata, 0, BITS_PER_LONG * BYTES_PER_LONG);
 
     for (count = 0; count < (BITS_PER_LONG * BITS_PER_LONG); ++count) {
         unsigned int bit;
