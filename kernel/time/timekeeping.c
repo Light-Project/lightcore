@@ -10,8 +10,9 @@
 #include <driver/clocksource.h>
 #include <export.h>
 
+volatile ttime_t ticktime;
+
 static bool __read_mostly timekeeping_ready;
-volatile uint64_t ticktime;
 static struct timekeeper timekeeper;
 static SEQ_LOCK(timekeeper_lock);
 
