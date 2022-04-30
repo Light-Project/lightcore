@@ -4,7 +4,7 @@
 
 #include <lightcore/asm/posix.h>
 
-typedef int __key_t;
-typedef int __mqd_t;
+typedef int __kernel_key_t;
+typedef int __kernel_mqd_t;
 
 #endif  /* _LIGHTCORE_POSIX_TYPES_H_ */

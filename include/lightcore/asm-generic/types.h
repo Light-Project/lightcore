@@ -12,9 +12,6 @@ typedef unsigned char       __u8;
 typedef unsigned short      __u16;
 typedef unsigned int        __u32;
 
-typedef __signed__ long     __ssize_t;
-typedef unsigned long       __size_t;
-
 #ifdef __GNUC__
 __extension__ typedef __signed__ long long __s64;
 __extension__ typedef unsigned long long __u64;

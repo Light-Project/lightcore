@@ -21,6 +21,7 @@ typedef __u32 __bitwise __be32;
 typedef __u64 __bitwise __be64;
 
 typedef __signed__ int __state;
+typedef unsigned __bitwise __poll_t;
 
 #endif /* __ASSEMBLY__ */
 #endif /* _LIGHTCORE_TYPES_H_ */
