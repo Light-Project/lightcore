@@ -290,6 +290,7 @@ void kcoro_dispatch(struct kcoro_worker *worker)
     } while (next);
 
     spin_unlock_irqrestore(&worker->lock, &irqflags);
+    task_clr_kcoro(current);
 }
 EXPORT_SYMBOL(kcoro_dispatch);
 
