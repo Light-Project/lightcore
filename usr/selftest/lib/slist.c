@@ -20,7 +20,7 @@ struct slist_test_pdata {
 };
 
 #define slist_to_test(ptr) \
-    list_entry(ptr, struct slist_test_node, list)
+    slist_entry(ptr, struct slist_test_node, list)
 
 static state slist_test_testing(void *pdata)
 {
