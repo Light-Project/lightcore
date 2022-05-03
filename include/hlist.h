@@ -16,8 +16,11 @@ struct hlist_head {
     struct hlist_node *node;
 };
 
+#define HLIST_HEAD_STATIC \
+    {NULL}
+
 #define HLIST_HEAD_INIT \
-    (struct hlist_head) {NULL}
+    (struct hlist_head) HLIST_HEAD_STATIC
 
 #define HLIST_HEAD(name) \
     struct hlist_head name = HLIST_HEAD_INIT

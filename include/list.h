@@ -11,8 +11,11 @@ struct list_head {
     struct list_head *prev, *next;
 };
 
+#define LIST_HEAD_STATIC(name) \
+    {&(name), &(name)}
+
 #define LIST_HEAD_INIT(name) \
-    (struct list_head) { &(name), &(name) }
+    (struct list_head) LIST_HEAD_STATIC(name)
 
 #define LIST_HEAD(name) \
     struct list_head name = LIST_HEAD_INIT(name)

@@ -11,8 +11,11 @@ struct slist_head {
     struct slist_head *next;
 };
 
+#define SLIST_HEAD_STATIC \
+    {NULL}
+
 #define SLIST_HEAD_INIT \
-    (struct slist_head) { NULL }
+    (struct slist_head) SLIST_HEAD_STATIC
 
 #define SLIST_HEAD(name) \
     struct slist_head name = SLIST_HEAD_INIT

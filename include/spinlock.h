@@ -24,11 +24,14 @@ typedef struct spinlock {
     arch_spinlock_t rlock;
 } spinlock_t;
 
-#define SPIN_LOCK_UNLOCK \
-    (spinlock_t) {{}}
+#define SPIN_LOCK_STATIC(name) \
+    {{}}
+
+#define SPIN_LOCK_UNLOCK(name) \
+    (spinlock_t) SPIN_LOCK_STATIC(name)
 
 #define SPIN_LOCK(name) \
-    spinlock_t name = SPIN_LOCK_UNLOCK
+    spinlock_t name = SPIN_LOCK_UNLOCK(name)
 
 static inline void spin_lock_init(spinlock_t *spinlock)
 {

@@ -14,11 +14,14 @@ struct ilist_node {
     long index;
 };
 
+#define ILIST_HEAD_STATIC(name) \
+    {LIST_HEAD_STATIC((name).node_list)}
+
 #define ILIST_HEAD_INIT(name) \
-    (struct ilist_head) {LIST_HEAD_INIT((name).node_list)}
+    (struct ilist_head) ILIST_HEAD_STATIC(name)
 
 #define ILIST_HEAD(name) \
-    struct ilist_head name = ILIST_HEAD_INIT(name)
+    struct ilist_head name = ILIST_HEAD_STATIC(name)
 
 #define ILISI_NODE_INIT(name, index)                        \
     (struct ilist_node) {                                   \
