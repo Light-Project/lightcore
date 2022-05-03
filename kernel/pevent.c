@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "pevent: " fmt
+#define MODULE_NAME "pevent"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <pevent.h>
 #include <spinlock.h>
