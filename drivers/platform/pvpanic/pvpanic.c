@@ -28,9 +28,10 @@ static void pvpanic_event_send(uint8_t event)
     spin_unlock(&pvpanic_lock);
 }
 
-static void pvpanic_panic(const void *pdata)
+static notifier_return_t pvpanic_panic(struct notifier_node *node, void *arg)
 {
     pvpanic_event_send(PVPANIC_PANICKED);
+    return NOTIFI_RET_DONE;
 }
 
 state pvpanic_probe(struct pvpanic_device *pdev)
@@ -50,12 +51,12 @@ void pvpanic_remove(struct pvpanic_device *pdev)
 }
 EXPORT_SYMBOL(pvpanic_remove);
 
-static struct panic_work pvpanic_work = {
-    .work = pvpanic_panic,
+static struct notifier_node pvpanic_work = {
+    .entry = pvpanic_panic,
 };
 
 static state pvpanic_init(void)
 {
-    return panic_work_register(&pvpanic_work);
+    return notifier_spin_chain_register(&panic_notifier, &pvpanic_work);
 }
 driver_initcall(pvpanic_init);

@@ -4,6 +4,7 @@
 
 #include <list.h>
 #include <asm/bug.h>
+#include <notifier.h>
 
 enum crash_type {
     CRASH_TYPE_NONE,
@@ -19,12 +20,6 @@ struct crash_entry {
     unsigned int line;
 };
 
-struct panic_work {
-    struct list_head list;
-    void (*work)(const void *data);
-    const void *data;
-};
-
 #define DEBUG_DATA_CHECK(condition, fmt, ...) ({    \
     bool corruption = unlikely(condition);          \
     if (corruption) {                               \
@@ -34,9 +29,8 @@ struct panic_work {
     corruption;                                     \
 })
 
-extern state panic_work_register(struct panic_work *work);
+DECLARE_NOTIFIER_SPIN_HEAD(panic_notifier);
 extern __printf(1, 2) __noreturn __cold void panic(const char *fmt, ...);
-
 extern enum crash_type crash_report(uintptr_t addr, struct regs *regs);
 
 #endif  /* _PANIC_H_ */

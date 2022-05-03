@@ -14,12 +14,12 @@
 
 LIST_HEAD(buzzer_list);
 SPIN_LOCK(buzzer_lock);
-static struct panic_work buzzer_work;
+static struct notifier_node buzzer_work;
 
 struct buzzer_device *default_buzzer;
 EXPORT_SYMBOL(default_buzzer);
 
-static void buzzer_panic(const void *pdata)
+static notifier_return_t buzzer_panic(struct notifier_node *node, void *arg)
 {
     struct buzzer_device *bdev;
     struct buzzer_ops *ops;
@@ -28,7 +28,7 @@ static void buzzer_panic(const void *pdata)
         ops = bdev->ops;
         if (ops->panic) {
             ops->panic(bdev);
-            return;
+            return NOTIFI_RET_DONE;
         }
     }
 
@@ -36,9 +36,11 @@ static void buzzer_panic(const void *pdata)
         ops = bdev->ops;
         if (ops->panic) {
             ops->panic(bdev);
-            return;
+            return NOTIFI_RET_DONE;
         }
     }
+
+    return NOTIFI_RET_WARN;
 }
 
 state buzzer_register(struct buzzer_device *bdev)
@@ -65,8 +67,7 @@ void buzzer_unregister(struct buzzer_device *bdev)
 
 static state buzzer_init(void)
 {
-    buzzer_work.work = buzzer_panic;
-    buzzer_work.data = NULL;
-    return panic_work_register(&buzzer_work);
+    buzzer_work.entry = buzzer_panic;
+    return notifier_spin_chain_register(&panic_notifier, &buzzer_work);
 }
 framework_initcall(buzzer_init);
