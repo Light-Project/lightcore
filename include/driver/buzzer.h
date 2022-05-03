@@ -147,7 +147,9 @@ struct buzzer_ops {
     state (*freq_get)(struct buzzer_device *bdev, enum buzzer_frequency *freq);
     state (*freq_set)(struct buzzer_device *bdev, enum buzzer_frequency freq);
     state (*beep)(struct buzzer_device *bdev, enum buzzer_frequency freq, int64_t msec);
+#ifdef CONFIG_BUZZER_PANIC
     void (*panic)(struct buzzer_device *bdev);
+#endif
 };
 
 #ifndef CONFIG_BUZZER

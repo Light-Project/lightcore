@@ -3,6 +3,12 @@ menuconfig BUZZER
     bool "Buzzer Device Support"
 if BUZZER
 
+config BUZZER_PANIC
+    bool "Trigger buzzer when panic"
+    default y
+
+comment "Buzzer Device Driver"
+
 config BUZZER_PCSPKR
     bool "PC-Speaker Sound Support"
     depends on CLKEVT_I8253
