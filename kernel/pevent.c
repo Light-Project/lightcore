@@ -24,7 +24,7 @@ state pevent_suspend(void)
     list_for_each_entry(pevent, &pevent_list, list) {
         if (!pevent->suspend)
             continue;
-        pr_debug("suspend calling %p\n", pevent->suspend);
+        pr_info("suspend calling %p\n", pevent->suspend);
         ret = pevent->suspend();
         if (ret)
             goto error;
@@ -52,7 +52,7 @@ void pevent_resume(void)
     list_for_each_entry(pevent, &pevent_list, list) {
         if (!pevent->shutdown)
             continue;
-        pr_debug("resume calling %p\n", pevent->resume);
+        pr_info("resume calling %p\n", pevent->resume);
         pevent->resume();
     }
 }
@@ -69,7 +69,7 @@ void pevent_shutdown(void)
     list_for_each_entry(pevent, &pevent_list, list) {
         if (!pevent->shutdown)
             continue;
-        pr_debug("shutdown calling %p\n", pevent->shutdown);
+        pr_info("shutdown calling %p\n", pevent->shutdown);
         pevent->shutdown();
     }
 
@@ -85,7 +85,12 @@ state pevent_register(struct pevent *pevent)
     if (!pevent->shutdown && (!pevent->suspend && !pevent->resume))
         return -EINVAL;
 
+    pr_info("register event: %p\n", pevent);
+
+    spin_lock(&pevent_lock);
     list_add_prev(&pevent_list, &pevent->list);
+    spin_unlock(&pevent_lock);
+
     return -ENOERR;
 }
 EXPORT_SYMBOL(pevent_register);
@@ -96,6 +101,10 @@ EXPORT_SYMBOL(pevent_register);
  */
 void pevent_unregister(struct pevent *pevent)
 {
+    pr_info("unregister event: %p\n", pevent);
+
+    spin_lock(&pevent_lock);
     list_del(&pevent->list);
+    spin_unlock(&pevent_lock);
 }
 EXPORT_SYMBOL(pevent_unregister);
