@@ -11,15 +11,17 @@
 static bool ilist_integrity_check(struct list_head *head,
             struct list_head *prev, struct list_head *next)
 {
-    return DEBUG_DATA_CHECK(
-        prev->next != next,
-        "ilist corruption head (%p) (%p) prev->next should be next (%p), but was (%p)",
-        head, prev, next, prev->next
-    ) ||  DEBUG_DATA_CHECK(
-        next->prev != prev,
-        "ilist corruption head (%p) (%p) next->prev should be prev (%p), but was (%p)",
-        head, next, prev, next->prev
-    );
+    if (DEBUG_DATA_CHECK(prev->next != next,
+        "ilist corruption head (%p) (%p) prev->next should be next (%p), but was (%p)\n",
+        head, prev, next, prev->next))
+        return false;
+
+    if (DEBUG_DATA_CHECK(next->prev != prev,
+        "ilist corruption head (%p) (%p) next->prev should be prev (%p), but was (%p)\n",
+        head, next, prev, next->prev))
+        return false;
+
+    return true;
 }
 
 static bool ilist_list_check(struct list_head *head)

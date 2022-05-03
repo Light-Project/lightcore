@@ -32,9 +32,9 @@ static state ilist_test_testing(void *pdata)
 
     for (count = 0; count < TEST_LOOP / 2; ++count) {
         for (count2 = 0; count2 < 2; ++count2) {
-            kshell_printf("ilist 'ilist_add' test%u multi%u\n", count, count2);
-            ilist_node_init(&ldata->nodes[count], count);
-            ilist_add(&test_head, &ldata->nodes[count]);
+            kshell_printf("ilist 'ilist_add' test%u multi%u\n", count * 2 + count2, count2);
+            ilist_node_init(&ldata->nodes[count * 2 + count2], count2);
+            ilist_add(&test_head, &ldata->nodes[count * 2 + count2]);
         }
     }
 
