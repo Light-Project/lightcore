@@ -117,13 +117,17 @@ type name(const char *nptr, unsigned int len)                           \
     return total;                                                       \
 }
 
+GENERIC_STRNTOX_OPS(strntoi, int, true)
 GENERIC_STRNTOX_OPS(strntol, long, true)
 GENERIC_STRNTOX_OPS(strntoll, long long, true)
+GENERIC_STRNTOX_OPS(strntoui, unsigned int, false)
 GENERIC_STRNTOX_OPS(strntoul, unsigned long, false)
 GENERIC_STRNTOX_OPS(strntoull, unsigned long long, false)
 
+EXPORT_SYMBOL(strntoi);
 EXPORT_SYMBOL(strntol);
 EXPORT_SYMBOL(strntoll);
+EXPORT_SYMBOL(strntoui);
 EXPORT_SYMBOL(strntoul);
 EXPORT_SYMBOL(strntoull);
 
@@ -133,12 +137,16 @@ type name(const char *nptr)                                             \
     return func(nptr, UINT_MAX);                                        \
 }
 
+GENERIC_STRTOX_OPS(strtoi, strntoi, int)
 GENERIC_STRTOX_OPS(strtol, strntol, long)
 GENERIC_STRTOX_OPS(strtoll, strntoll, long long)
+GENERIC_STRTOX_OPS(strtoui, strntoui, unsigned int)
 GENERIC_STRTOX_OPS(strtoul, strntoul, unsigned long)
 GENERIC_STRTOX_OPS(strtoull, strntoull, unsigned long long)
 
+EXPORT_SYMBOL(strtoi);
 EXPORT_SYMBOL(strtol);
 EXPORT_SYMBOL(strtoll);
+EXPORT_SYMBOL(strtoui);
 EXPORT_SYMBOL(strtoul);
 EXPORT_SYMBOL(strtoull);
