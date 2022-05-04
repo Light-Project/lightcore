@@ -181,7 +181,7 @@ static state selftest_all(bool info, unsigned int count)
 
 static state selftest_main(int argc, char *argv[])
 {
-    struct selftest_command *cmd = NULL;
+    struct selftest_command *cmd;
     unsigned int count, loop = 1;
     state ret = -ENOERR;
     bool iflag = false;

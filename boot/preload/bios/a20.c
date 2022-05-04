@@ -69,7 +69,7 @@ static void i8042_command(uint16_t cmd, uint8_t *para)
 
 static void a20_kbd(void)
 {
-    uint8_t value;
+    uint8_t value = 0;
 
     /*
      * For the original method to enable the A20 line,

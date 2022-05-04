@@ -113,7 +113,7 @@ static enum paser_state parser_state(enum paser_state state, char code, char *re
                                                                 \
     if (unlikely(flags)) {                                      \
         nblock = krealloc(tbuff, tsize + vsize, GFP_KERNEL);    \
-        if (!var) {                                             \
+        if (!nblock) {                                          \
             kfree(tbuff);                                       \
             return -ENOMEM;                                     \
         }                                                       \

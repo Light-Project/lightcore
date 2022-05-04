@@ -135,7 +135,7 @@ overflow1:
             count = (base == 8 ? oct_align_table : dec_align_table)[groupsize / 2];
             break;
 
-        case 16:
+        case 16: default:
             count = (groupsize * 2) + 2;
             break;
     }

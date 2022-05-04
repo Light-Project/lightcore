@@ -27,6 +27,7 @@ endif
 asflags-y   = $(strip $(preload-asflags-y) $(platform-asflags-y))
 ccflags-y   = $(strip $(preload-ccflags-y) $(platform-ccflags-y))
 acflags-y   = $(strip $(preload-acflags-y) $(platform-acflags-y))
+cxflags-y   = $(strip $(preload-cxflags-y) $(platform-cxflags-y))
 ldflags-y   = $(strip $(preload-ldflags-y) $(platform-ldflags-y))
 ldsflags-y  = $(strip $(preload-ldsflags-y) $(platform-ldsflags-y))
 preload-flags-y = $(strip $(preload-elfflags-y) $(platform-elfflags-y))

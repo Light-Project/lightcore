@@ -65,10 +65,13 @@ static state loop_main(int argc, char *argv[])
     }
 
     for (index = count; index < argc - 1; ++index) {
-        unsigned int var, min, max, step = 1;
+        unsigned int var, min, max, step;
         bool textmode = false;
         const char *str, *tmp;
         char buff[32];
+
+        min = max = 0;
+        step = 1;
 
         for (var = 0, str = argv[index]; *str; var++, str = ++tmp) {
             if (*str == '{' && var == 0) {
@@ -110,16 +113,16 @@ static state loop_main(int argc, char *argv[])
         if (textmode) {
             min = max = 0;
             step = 1;
-            tmp = argv[index];
         }
 
         for (var = min; var <= max; var += step) {
             if (vflag) {
-                if (!textmode) {
+                if (!textmode)
+                    kshell_setenv(varname, argv[index], true);
+                else {
                     itoa(var, buff, xflag ? 16 : 10);
-                    tmp = buff;
+                    kshell_setenv(varname, tmp, true);
                 }
-                kshell_setenv(varname, tmp, true);
             }
             if (kshell_ctrlc())
                 goto exit;
