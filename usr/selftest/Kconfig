@@ -5,6 +5,8 @@ menuconfig KUSR_SELFTEST
     default y
 if KUSR_SELFTEST
 
+source "usr/selftest/driver/Kconfig"
+
 source "usr/selftest/kernel/Kconfig"
 
 source "usr/selftest/kshell/Kconfig"

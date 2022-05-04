@@ -84,8 +84,8 @@ static state pcspkr_freq_set(struct buzzer_device *bdev, enum buzzer_frequency f
      * Binary/BCD Select: Binary countdown is used
      */
     i8253_out(sdev, I8253_MODE, I8253_MODE_SEL_TIMER2 | I8253_MODE_ACCESS_WORD | I8253_MODE_MOD_WAVE);
-    i8253_out(sdev, I8253_LATCH2, I8253_LATCH(freq) & 0xff);
-    i8253_out(sdev, I8253_LATCH2, I8253_LATCH(freq) >> 8);
+    i8253_out(sdev, I8253_LATCH2, freq ? I8253_LATCH(freq) & 0xff : 0);
+    i8253_out(sdev, I8253_LATCH2, freq ? I8253_LATCH(freq) >> 8 : 0);
 
     spin_unlock(&i8253_lock);
     return -ENOERR;

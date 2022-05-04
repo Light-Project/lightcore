@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig SELFTEST_DRIVER
+    bool "Test Driver Unit"
+    default y
+if SELFTEST_DRIVER
+
+config SELFTEST_DRIVER_BUZZER
+    bool "Buzzer Unit Tests"
+    default y
+
+endif

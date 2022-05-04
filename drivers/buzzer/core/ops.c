@@ -80,7 +80,7 @@ state buzzer_freq_set(struct buzzer_device *bdev, enum buzzer_frequency freq)
     struct buzzer_ops *ops;
     state retval;
 
-    if (!bdev || !freq)
+    if (!bdev)
         return -EINVAL;
 
     ops = bdev->ops;

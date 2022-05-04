@@ -213,7 +213,7 @@ static state selftest_main(int argc, char *argv[])
     if (count == argc)
         ret = selftest_all(iflag, loop);
 
-    else for ((void)((cmd = selftest_iter(argv[count], cmd)) || ({goto usage; 1;}));
+    else for ((void)((cmd = selftest_iter(argv[count], NULL)) || ({goto usage; 1;}));
               cmd && !ret && !kshell_ctrlc(); cmd = selftest_iter(argv[count], cmd)) {
         ret = selftest_one(iflag, cmd, loop, argc - count + 1, &argv[count]);
     }
