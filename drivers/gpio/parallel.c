@@ -150,19 +150,19 @@ static state parallel_gpio_value_get(struct gpio_device *gdev, unsigned int port
     switch (parallel_desc[port].type) {
         case PARALLEL_REG_DATA:
             ret = parallel_data_read(pgpio->pdev, &value);
-            value = (value >> parallel_desc[port].index);
+            value = (value >> parallel_desc[port].index) & 0x01;
             *val = parallel_desc[port].inverted ? !value : !!value;
             break;
 
         case PARALLEL_REG_STATUS:
             ret = parallel_status_read(pgpio->pdev, &value);
-            value = (value >> parallel_desc[port].index);
+            value = (value >> parallel_desc[port].index) & 0x01;
             *val = parallel_desc[port].inverted ? !value : !!value;
             break;
 
         case PARALLEL_REG_CTRL:
             ret = parallel_ctrl_read(pgpio->pdev, &value);
-            value = (value >> parallel_desc[port].index);
+            value = (value >> parallel_desc[port].index) & 0x01;
             *val = parallel_desc[port].inverted ? !value : !!value;
             break;
 
