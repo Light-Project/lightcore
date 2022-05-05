@@ -107,7 +107,7 @@ type name(const char *nptr, unsigned int len)                           \
         else if (div == 16 && tolower(c) >= 'a' && tolower(c) <= 'f')   \
             total = div * total + (tolower(c) - 'a' + 10);              \
         else                                                            \
-            return 0;                                                   \
+            break;                                                      \
         c = *nptr++;                                                    \
     }                                                                   \
                                                                         \

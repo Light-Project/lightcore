@@ -205,7 +205,6 @@ static uint64_t convert_val(char *str)
     tmp = strchr(str, ',');
     if (!tmp || tmp == str)
         return 0;
-    *tmp = '\0';
     va = strtoull(str);
     str = tmp + 1;
 
@@ -213,7 +212,6 @@ skip_va:
     tmp = strchr(str, ')');
     if (!tmp || tmp == str)
         return 0;
-    *tmp = '\0';
     vb = strtoul(str);
 
     switch (type) {
