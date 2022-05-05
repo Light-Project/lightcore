@@ -34,6 +34,9 @@ static state do_system(char *cmdline, jmp_buf *buff)
         if (retval)
             return retval;
 
+        if (!argc)
+            continue;
+
         if (buff && !strcmp(argv[0], "exit"))
             longjmp(buff, true);
 

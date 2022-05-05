@@ -11,52 +11,58 @@
 #define PASER_VARN_DEF  32
 
 struct paser_transition {
-    int form, to;
+    unsigned int form;
+    unsigned int to;
     char code;
+    int stack;
     bool cross;
+    bool scross;
 };
 
 enum paser_state {
     KSHELL_STATE_TEXT       = 0,
     KSHELL_STATE_ESC        = 1,
-    KSHELL_STATE_QUOTE      = 2,
-    KSHELL_STATE_DQUOTE     = 3,
-    KSHELL_STATE_VARIABLE   = 4,
-    KSHELL_STATE_BRACKETS   = 5,
-    KSHELL_STATE_QVARIABLE  = 6,
-    KSHELL_STATE_VARNAME    = 7,
-    KSHELL_STATE_LVARNAME   = 8,
-    KSHELL_STATE_QVARNAME   = 9,
-    KSHELL_STATE_LQVARNAME  = 10,
+    KSHELL_STATE_GRAMMAR    = 2,
+    KSHELL_STATE_QUOTE      = 3,
+    KSHELL_STATE_DQUOTE     = 4,
+    KSHELL_STATE_VARIABLE   = 5,
+    KSHELL_STATE_RETVAL     = 6,
+    KSHELL_STATE_QVARIABLE  = 7,
+    KSHELL_STATE_VARNAME    = 8,
+    KSHELL_STATE_LVARNAME   = 9,
+    KSHELL_STATE_QVARNAME   = 10,
+    KSHELL_STATE_LQVARNAME  = 11,
 };
 
 static const struct paser_transition trans_table[] = {
-    { KSHELL_STATE_TEXT,       KSHELL_STATE_ESC,        '\\',  false },
-    { KSHELL_STATE_TEXT,       KSHELL_STATE_QUOTE,      '\'',  false },
-    { KSHELL_STATE_TEXT,       KSHELL_STATE_DQUOTE,      '"',  false },
-    { KSHELL_STATE_TEXT,       KSHELL_STATE_VARIABLE,    '$',  false },
-    { KSHELL_STATE_ESC,        KSHELL_STATE_TEXT,          0,   true },
-    { KSHELL_STATE_QUOTE,      KSHELL_STATE_TEXT,       '\'',  false },
-    { KSHELL_STATE_DQUOTE,     KSHELL_STATE_TEXT,        '"',  false },
-    { KSHELL_STATE_DQUOTE,     KSHELL_STATE_QVARIABLE,   '$',  false },
-    { KSHELL_STATE_VARIABLE,   KSHELL_STATE_BRACKETS,    '(',  false },
-    { KSHELL_STATE_VARIABLE,   KSHELL_STATE_VARNAME,       0,   true },
-    { KSHELL_STATE_VARIABLE,   KSHELL_STATE_LVARNAME,    '{',  false },
-    { KSHELL_STATE_BRACKETS,   KSHELL_STATE_TEXT,        ')',  false },
-    { KSHELL_STATE_QVARIABLE,  KSHELL_STATE_QVARNAME,      0,   true },
-    { KSHELL_STATE_QVARIABLE,  KSHELL_STATE_LQVARNAME,   '{',  false },
-    { KSHELL_STATE_VARNAME,    KSHELL_STATE_TEXT,        ' ',   true },
-    { KSHELL_STATE_VARNAME,    KSHELL_STATE_TEXT,        ';',   true },
-    { KSHELL_STATE_LVARNAME,   KSHELL_STATE_TEXT,        '}',  false },
-    { KSHELL_STATE_QVARNAME,   KSHELL_STATE_TEXT,        '"',  false },
-    { KSHELL_STATE_QVARNAME,   KSHELL_STATE_DQUOTE,      ' ',   true },
-    { KSHELL_STATE_LQVARNAME,  KSHELL_STATE_DQUOTE,      '}',  false },
-    { KSHELL_STATE_LQVARNAME,  KSHELL_STATE_DQUOTE,      ' ',   true },
+    { KSHELL_STATE_TEXT,       KSHELL_STATE_ESC,        '\\',    0, false, false},
+    { KSHELL_STATE_TEXT,       KSHELL_STATE_QUOTE,      '\'',    0, false, false},
+    { KSHELL_STATE_TEXT,       KSHELL_STATE_GRAMMAR,     '{',  + 1, false,  true},
+    { KSHELL_STATE_TEXT,       KSHELL_STATE_DQUOTE,      '"',    0, false, false},
+    { KSHELL_STATE_TEXT,       KSHELL_STATE_VARIABLE,    '$',    0, false, false},
+    { KSHELL_STATE_ESC,        KSHELL_STATE_TEXT,          0,    0,  true, false},
+    { KSHELL_STATE_GRAMMAR,    KSHELL_STATE_TEXT,        '}',  - 1, false,  true},
+    { KSHELL_STATE_QUOTE,      KSHELL_STATE_TEXT,       '\'',    0, false, false},
+    { KSHELL_STATE_DQUOTE,     KSHELL_STATE_TEXT,        '"',    0, false, false},
+    { KSHELL_STATE_DQUOTE,     KSHELL_STATE_QVARIABLE,   '$',    0, false, false},
+    { KSHELL_STATE_VARIABLE,   KSHELL_STATE_RETVAL,      '(',  + 1, false, false},
+    { KSHELL_STATE_VARIABLE,   KSHELL_STATE_VARNAME,       0,    0,  true, false},
+    { KSHELL_STATE_VARIABLE,   KSHELL_STATE_LVARNAME,    '{',  + 1, false, false},
+    { KSHELL_STATE_RETVAL,     KSHELL_STATE_TEXT,        ')',  - 1, false, false},
+    { KSHELL_STATE_QVARIABLE,  KSHELL_STATE_QVARNAME,      0,    0,  true, false},
+    { KSHELL_STATE_QVARIABLE,  KSHELL_STATE_LQVARNAME,   '{',  + 1, false, false},
+    { KSHELL_STATE_VARNAME,    KSHELL_STATE_TEXT,        ' ',    0,  true, false},
+    { KSHELL_STATE_VARNAME,    KSHELL_STATE_TEXT,        ';',    0,  true, false},
+    { KSHELL_STATE_LVARNAME,   KSHELL_STATE_TEXT,        '}',  - 1, false, false},
+    { KSHELL_STATE_QVARNAME,   KSHELL_STATE_TEXT,        '"',    0, false, false},
+    { KSHELL_STATE_QVARNAME,   KSHELL_STATE_DQUOTE,      ' ',    0,  true, false},
+    { KSHELL_STATE_LQVARNAME,  KSHELL_STATE_DQUOTE,      '}',  - 1, false, false},
+    { KSHELL_STATE_LQVARNAME,  KSHELL_STATE_DQUOTE,      ' ',    0,  true, false},
 };
 
-static inline bool is_brackets(enum paser_state state)
+static inline bool is_retvalue(enum paser_state state)
 {
-    return state == KSHELL_STATE_BRACKETS;
+    return state == KSHELL_STATE_RETVAL;
 }
 
 static inline bool is_variable(enum paser_state state)
@@ -74,16 +80,21 @@ static inline bool is_end(enum paser_state state)
     return state == KSHELL_STATE_TEXT || is_variable(state);
 }
 
-static enum paser_state parser_state(enum paser_state state, char code, char *result)
+static enum paser_state parser_state(enum paser_state state, int *sstack, char code, char *result)
 {
     const struct paser_transition *major, *minor = NULL;
     unsigned int count;
+    int osstack = 1;
+    bool serror = false;
 
     for (count = 0; count < ARRAY_SIZE(trans_table); ++count) {
         major = &trans_table[count];
-        if (major->form == state && major->code == code) {
-            count = 0;
-            break;
+        if (major->code == code) {
+            if (major->form == state) {
+                count = 0;
+                break;
+            } else if (major->to == state)
+                minor = major;
         } else if (major->form == state && major->code == 0)
             minor = major;
     }
@@ -93,12 +104,23 @@ static enum paser_state parser_state(enum paser_state state, char code, char *re
     else if (count)
         major = NULL;
 
-    if (!major || major->cross)
+    if (major && major->stack) {
+        osstack = *sstack;
+        *sstack += major->stack;
+        if (*sstack < 0) {
+            serror = true;
+            *sstack = 0;
+        }
+    }
+
+    if (!major || major->cross || serror)
+        *result = code;
+    else if (major->scross && *sstack && osstack)
         *result = code;
     else
         *result = '\0';
 
-    return major ? major->to : state;
+    return major && (!*sstack || !osstack) ? major->to : state;
 }
 
 #define PARSER_EXPANSION(texp, vexp) {                          \
@@ -133,10 +155,14 @@ state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***ar
     char *tbuff, code = 0, brack_buff[12];
     char *vbuff, *var;
     unsigned int count;
+    int sstack = 0;
     state retval;
 
     *argc = 0;
     *pos = NULL;
+
+    if (!*cmdline)
+        return -ENOERR;
 
     tbuff = kmalloc(tsize + vsize, GFP_KERNEL);
     vbuff = tbuff + tsize;
@@ -144,7 +170,7 @@ state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***ar
         return -ENOMEM;
 
     for (cstate = KSHELL_STATE_TEXT; *cmdline; ++cmdline) {
-        nstate = parser_state(cstate, *cmdline, &code);
+        nstate = parser_state(cstate, &sstack, *cmdline, &code);
 
         if (is_variable(cstate) && !is_variable(nstate)) {
             vbuff[vpos] = '\0';
@@ -158,7 +184,7 @@ state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***ar
             }
         }
 
-        if (is_brackets(cstate) && !is_brackets(nstate)) {
+        if (is_retvalue(cstate) && !is_retvalue(nstate)) {
             vbuff[vpos] = '\0';
             vpos = 0;
             retval = kshell_system(vbuff);
@@ -168,7 +194,7 @@ state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***ar
             tpos += count;
         }
 
-        if (is_variable(nstate) || is_brackets(nstate)) {
+        if (is_variable(nstate) || is_retvalue(nstate)) {
             if (code)
                 vbuff[vpos++] = code;
         } else if (is_text(nstate, cstate) && code == ' ') {
