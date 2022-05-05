@@ -13,10 +13,10 @@
 
 #if EXIT_STATUS == ENOERR
 # define PROGRAM_NAME true
-# define PROGRAM_DESC "Exit code indicating success"
+# define PROGRAM_DESC "exit code indicating success"
 #else
 # define PROGRAM_NAME false
-# define PROGRAM_DESC "Exit code indicating failure"
+# define PROGRAM_DESC "exit code indicating failure"
 #endif
 
 static void usage(void)
