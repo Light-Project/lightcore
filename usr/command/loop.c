@@ -10,12 +10,19 @@
 
 static void usage(void)
 {
-    kshell_printf("usage: loop [option] varname in {min..max..step} 'commands'\n");
+    kshell_printf("usage: for [option] varname in (start..end..step) 'commands'\n");
     kshell_printf("\t-v  generate an environment variable (default)\n");
     kshell_printf("\t-V  does not generate environment variables\n");
     kshell_printf("\t-x  hexadecimal format output\n");
     kshell_printf("\t-X  decimal format output (default)\n");
     kshell_printf("\t-h  display this message\n");
+}
+
+#define CHECK_PARAM {                       \
+    if (!isdigit(*str) && *str != '-') {    \
+        textmode = true;                    \
+        break;                              \
+    }                                       \
 }
 
 static state loop_main(int argc, char *argv[])
@@ -65,63 +72,62 @@ static state loop_main(int argc, char *argv[])
     }
 
     for (index = count; index < argc - 1; ++index) {
-        unsigned int var, min, max, step;
+        int var, start, end, step;
         bool textmode = false;
         const char *str, *tmp;
         char buff[32];
 
-        min = max = 0;
+        start = end = 0;
         step = 1;
 
         for (var = 0, str = argv[index]; *str; var++, str = ++tmp) {
-            if (*str == '{' && var == 0) {
+            if (*str == '(' && var == 0) {
                 if (!(tmp = strstr(++str, ".."))) {
                     textmode = true;
                     break;
                 }
-                if (!isdigit(*str)) {
-                    textmode = true;
-                    break;
-                }
-                min = strntoul(str, tmp - str);
+                CHECK_PARAM
+                start = strntoi(str, tmp - str);
             } else if (*str == '.' && var == 1) {
-                if (!(tmp = strstr(++str, "..")) && !(tmp = strchr(str, '}'))) {
+                if (!(tmp = strstr(++str, "..")) && !(tmp = strchr(str, ')'))) {
                     textmode = true;
                     break;
                 }
-                if (!isdigit(*str)) {
-                    textmode = true;
-                    break;
-                }
-                max = strntoul(str, tmp - str);
+                CHECK_PARAM
+                end = strntoi(str, tmp - str);
             } else if (*str == '.' && var == 2) {
-                if (!(tmp = strchr(++str, '}'))) {
+                if (!(tmp = strchr(++str, ')'))) {
                     textmode = true;
                     break;
                 }
-                if (!isdigit(*str)) {
-                    textmode = true;
-                    break;
-                }
-                step = strntoul(str, tmp - str);
+                CHECK_PARAM
+                step = strntoi(str, tmp - str);
             } else {
                 textmode = true;
                 break;
             }
         }
 
+        if (step == 0)
+            textmode = true;
+
+        else if (step < 0) {
+            step = -step;
+            swap(start, end);
+        }
+
         if (textmode) {
-            min = max = 0;
+            start = end = 0;
             step = 1;
         }
 
-        for (var = min; var <= max; var += step) {
+        for (var = start; start < end ? var <= end : var >= end; var += start < end ? step : -step) {
             if (vflag) {
-                if (!textmode)
+                if (textmode)
                     kshell_setenv(varname, argv[index], true);
                 else {
                     itoa(var, buff, xflag ? 16 : 10);
-                    kshell_setenv(varname, tmp, true);
+                    kshell_setenv(varname, buff, true);
                 }
             }
             if (kshell_ctrlc())
@@ -144,7 +150,7 @@ usage:
 }
 
 static struct kshell_command loop_cmd = {
-    .name = "loop",
+    .name = "for",
     .desc = "circulates execute commands",
     .exec = loop_main,
 };
