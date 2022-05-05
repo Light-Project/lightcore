@@ -10,7 +10,7 @@
 
 static void usage(void)
 {
-    kshell_printf("usage: cond/elco [option] condition 'commands' else 'commands'\n");
+    kshell_printf("usage: if/elif [option] condition 'commands' else 'commands'\n");
     kshell_printf("\t-h  display this message\n");
 }
 
@@ -44,7 +44,7 @@ finish:
         retval = kshell_system(argv[count++]);
 
     else for (count++; count < argc - 1; count += 2) {
-        if (!strcmp(argv[count], "elco")) {
+        if (!strcmp(argv[count], "elif")) {
             condition = strtol(argv[++count]);
             if (condition)
                 continue;
@@ -65,7 +65,7 @@ usage:
 }
 
 static struct kshell_command cond_cmd = {
-    .name = "cond",
+    .name = "if",
     .desc = "condition execute commands",
     .exec = cond_main,
 };
