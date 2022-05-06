@@ -305,10 +305,10 @@ static state atasim_enqueue(struct block_device *bdev, struct block_request *bre
         needext = true;
     }
 
-    if (breq->type == REQ_READ) {
+    if (breq->type == BLK_REQ_READ) {
         atacmd.command = needext ?
             ATA_CMD_READ_SECTORS_EXT : ATA_CMD_READ_SECTORS_WITH_RETRY;
-    } else if (breq->type == REQ_WRITE) {
+    } else if (breq->type == BLK_REQ_WRITE) {
         atacmd.command = needext ?
             ATA_CMD_WRITE_SECTORS_EXT : ATA_CMD_WRITE_SECTORS_WITH_RETRY;
     } else {
@@ -335,7 +335,7 @@ static state atasim_enqueue(struct block_device *bdev, struct block_request *bre
     if (retval)
         goto exit;
 
-    atasim_transfer(host, breq->buffer, breq->length, breq->type == REQ_WRITE);
+    atasim_transfer(host, breq->buffer, breq->length, breq->type == BLK_REQ_WRITE);
 
 exit:
     /* enable interrupt */

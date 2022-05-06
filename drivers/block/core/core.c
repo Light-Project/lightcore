@@ -6,7 +6,6 @@
 #define pr_fmt(fmt) "blk: " fmt
 
 #include <kmalloc.h>
-#include <device.h>
 #include <driver/block.h>
 #include <driver/block/partition.h>
 #include <printk.h>
@@ -20,7 +19,7 @@ state block_device_read(struct block_device *blk, void *buff,
     if (!request)
         return -ENOMEM;
 
-    request->type = REQ_READ;
+    request->type = BLK_REQ_READ;
     request->sector = sector;
     request->length = len;
     request->buffer = buff;
