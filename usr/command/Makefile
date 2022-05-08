@@ -7,6 +7,7 @@ obj-$(CONFIG_KCMD_EXPORT)   += export.o
 obj-$(CONFIG_KCMD_FALSE)    += false.o
 obj-$(CONFIG_KCMD_GOTO)     += goto.o
 obj-$(CONFIG_KCMD_LOOP)     += loop.o
+obj-$(CONFIG_KCMD_MATH)     += math.o
 obj-$(CONFIG_KCMD_MEM)      += mem.o
 obj-$(CONFIG_KCMD_PANIC)    += panic.o
 obj-$(CONFIG_KCMD_REBOOT)   += reboot.o

@@ -34,6 +34,10 @@ config KCMD_LOOP
     bool "Loop Command Support"
     default y
 
+config KCMD_MATH
+    bool "Math Command Support"
+    default y
+
 config KCMD_MEM
     bool "Memory Command Support"
     default y
