@@ -155,15 +155,13 @@ static int math_parser(char *start, char *end, bool hex)
 
     /* Principal priority */
     for (curr = start; (curr = strchr(curr, '(')); ++curr) {
-        char *find, *final = curr + 1;
+        char *walk = curr + 1;
         unsigned int stack;
 
-        for (stack = 1; *final; ++final) {
-            if ((find = strchr(final, '('))) {
-                final = find;
+        for (stack = 1; *walk; ++walk) {
+            if (*walk == '(')
                 ++stack;
-            } else if ((find = strchr(final, ')'))) {
-                final = find;
+            else if (*walk == ')') {
                 if (!--stack)
                     break;
             }
@@ -172,9 +170,9 @@ static int math_parser(char *start, char *end, bool hex)
         if (stack)
             return 0;
 
-        result = math_parser(curr + 1, final, hex);
+        result = math_parser(curr + 1, walk, hex);
         plen = snprintf(0, 0, "%d", result);
-        string_extension(&start, &end, &curr, final - curr + 1, plen + 1);
+        string_extension(&start, &end, &curr, walk - curr + 1, plen + 1);
         snprintf(curr, plen + 1, "%d", result);
         curr[plen] = ' ';
     }
@@ -712,7 +710,7 @@ static state math_main(int argc, char *argv[])
 {
     unsigned int count;
     bool xflag = false;
-    int result;
+    int result = 0;
 
     for (count = 1; count < argc; ++count) {
         char *para = argv[count];
