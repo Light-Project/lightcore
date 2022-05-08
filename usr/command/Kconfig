@@ -26,6 +26,10 @@ config KCMD_FALSE
     bool "False Command Support"
     default y
 
+config KCMD_FUNC
+    bool "Func Command Support"
+    default y
+
 config KCMD_GOTO
     bool "Goto Command Support"
     default y
