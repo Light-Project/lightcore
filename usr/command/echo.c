@@ -15,6 +15,8 @@ static void usage(void)
     kshell_printf("\t-N  output the trailing newline (default)\n");
     kshell_printf("\t-e  enable interpretation\n");
     kshell_printf("\t-E  disable interpretation (default)\n");
+    kshell_printf("\t-i  enable index information\n");
+    kshell_printf("\t-I  disable index information (default)\n");
     kshell_printf("\t-h  show this help\n");
 
     kshell_printf("If -e is in effect:\n");
@@ -44,7 +46,9 @@ static state echo_main(int argc, char *argv[])
 {
     bool nflag = false;
     bool eflag = false;
+    bool iflag = false;
     char ch, tmp, *para;
+    unsigned int index = 0;
 
     while (--argc) {
         para = *++argv;
@@ -64,6 +68,14 @@ static state echo_main(int argc, char *argv[])
 
                 case 'E':
                     eflag = false;
+                    continue;
+
+                case 'i':
+                    iflag = true;
+                    continue;
+
+                case 'I':
+                    iflag = false;
                     continue;
 
                 case 'h':
@@ -152,17 +164,30 @@ static state echo_main(int argc, char *argv[])
                             break;
                     }
                 }
+                if (iflag)
+                    kshell_printf("%u: ", index++);
                 kshell_printf("%c", ch);
             }
-            if (argc)
-                kshell_printf(" ");
+            if (argc) {
+                if (iflag)
+                    kshell_printf("\n");
+                else
+                    kshell_printf(" ");
+            }
         }
     }
 
     else while (argc--) {
+        if (iflag)
+            kshell_printf("%u: ", index++);
         kshell_printf("%s", *argv++);
-        if (argc)
-            kshell_printf(" ");
+        if (argc) {
+            if (iflag)
+                kshell_printf("\n");
+            else
+                kshell_printf(" ");
+
+        }
     }
 
     if (!nflag)
