@@ -10,7 +10,7 @@
 
 static void usage(void)
 {
-    kshell_printf("usage: for [option] varname in (start..end..step) 'commands'\n");
+    kshell_printf("usage: for [option] varname in (start..end..step) {commands}\n");
     kshell_printf("\t-v  generate an environment variable (default)\n");
     kshell_printf("\t-V  does not generate environment variables\n");
     kshell_printf("\t-x  hexadecimal format output\n");
@@ -133,8 +133,9 @@ static state loop_main(int argc, char *argv[])
             if (kshell_ctrlc())
                 goto exit;
             retval = kshell_system(argv[argc -1]);
-            if (retval)
+            if (retval && retval != -EAGAIN)
                 goto exit;
+            retval = -ENOERR;
         }
     }
 

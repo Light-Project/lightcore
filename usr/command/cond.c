@@ -10,7 +10,7 @@
 
 static void usage(void)
 {
-    kshell_printf("usage: if/elif [option] condition 'commands' else 'commands'\n");
+    kshell_printf("usage: if/elif [option] condition {commands} else {commands}\n");
     kshell_printf("\t-h  display this message\n");
 }
 

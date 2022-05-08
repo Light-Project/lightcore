@@ -10,6 +10,10 @@ config KCMD_COND
     bool "Cond Command Support"
     default y
 
+config KCMD_CONTINUE
+    bool "Continue Command Support"
+    default y
+
 config KCMD_ECHO
     bool "Echo Command Support"
     default y
