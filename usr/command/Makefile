@@ -15,3 +15,4 @@ obj-$(CONFIG_KCMD_TIME)     += time.o
 obj-$(CONFIG_KCMD_TRUE)     += true.o
 obj-$(CONFIG_KCMD_UPTIME)   += uptime.o
 obj-$(CONFIG_KCMD_WATCH)    += watch.o
+obj-$(CONFIG_KCMD_WHILE)    += while.o
