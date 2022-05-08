@@ -47,8 +47,12 @@ static state do_system(char *cmdline, jmp_buf *buff)
             return -EBADF;
         }
 
-        retval = kshell_exec(cmd, argc, argv);
+        if (!cmd->exec)
+            return -ENXIO;
+
+        retval = cmd->exec(argc, argv);
         kfree(argv);
+
         if (retval)
             return retval;
     }
