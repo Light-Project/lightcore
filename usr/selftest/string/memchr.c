@@ -14,7 +14,7 @@ struct memchr_pdata {
     uint8_t mempool[SZ_1MiB];
 };
 
-static state memchr_testing(void *pdata)
+static state memchr_testing(struct kshell_context *ctx, void *pdata)
 {
     struct memchr_pdata *mdata = pdata;
     ktime_t start = timekeeping_get_time();
@@ -31,11 +31,11 @@ static state memchr_testing(void *pdata)
     ));
 
     gsize(sbuff, count * SZ_1MiB);
-    kshell_printf("memchr bandwidth: %s/s\n", sbuff);
+    kshell_printf(ctx, "memchr bandwidth: %s/s\n", sbuff);
     return -ENOERR;
 }
 
-static void *memchr_prepare(int argc, char *argv[])
+static void *memchr_prepare(struct kshell_context *ctx, int argc, char *argv[])
 {
     struct memchr_pdata *pdata;
 
@@ -47,7 +47,7 @@ static void *memchr_prepare(int argc, char *argv[])
     return pdata;
 }
 
-static void memchr_release(void *pdata)
+static void memchr_release(struct kshell_context *ctx, void *pdata)
 {
     vfree(pdata);
 }

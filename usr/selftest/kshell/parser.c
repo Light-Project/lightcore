@@ -15,43 +15,43 @@ static const char parser_string[] = {
     ";ESC"
 };
 
-static state parser_setenv(void)
+static state parser_setenv(struct kshell_context *ctx)
 {
-    return kshell_putenv("TEST_VARNAME=VARNAME")
-        || kshell_putenv("TEST_LVARNAME=LVARNAME")
-        || kshell_putenv("TEST_QVARNAME=QVARNAME")
-        || kshell_putenv("TEST_LQVARNAME=LQVARNAME");
+    return kshell_putenv(ctx, "TEST_VARNAME=VARNAME")
+        || kshell_putenv(ctx, "TEST_LVARNAME=LVARNAME")
+        || kshell_putenv(ctx, "TEST_QVARNAME=QVARNAME")
+        || kshell_putenv(ctx, "TEST_LQVARNAME=LQVARNAME");
 }
 
-static void parser_unsetenv(void)
+static void parser_unsetenv(struct kshell_context *ctx)
 {
-    kshell_unsetenv("TEST_VARNAME");
-    kshell_unsetenv("TEST_LVARNAME");
-    kshell_unsetenv("TEST_QVARNAME");
-    kshell_unsetenv("TEST_LQVARNAME");
+    kshell_unsetenv(ctx, "TEST_VARNAME");
+    kshell_unsetenv(ctx, "TEST_LVARNAME");
+    kshell_unsetenv(ctx, "TEST_QVARNAME");
+    kshell_unsetenv(ctx, "TEST_LQVARNAME");
 }
 
-static state parser_testing(void *pdata)
+static state parser_testing(struct kshell_context *ctx, void *pdata)
 {
     const char *cmdline;
     char **argv;
     int argc;
     state retval;
 
-    if ((retval= parser_setenv()))
+    if ((retval= parser_setenv(ctx)))
         goto exit;
 
-    retval = kshell_parser(parser_string, &cmdline, &argc, &argv);
+    retval = kshell_parser(ctx, parser_string, &cmdline, &argc, &argv);
     if (retval)
         goto exit;
 
-    kshell_printf("TEST: %s\n",            argv[0]);
-    kshell_printf("QUOTE: %s\n",           argv[1]);
-    kshell_printf("DQUOTE: %s\n",          argv[2]);
-    kshell_printf("TEST_VARNAME: %s\n",    argv[3]);
-    kshell_printf("TEST_LVARNAME: %s\n",   argv[4]);
-    kshell_printf("TEST_QVARNAME: %s\n",   argv[5]);
-    kshell_printf("TEST_LQVARNAME: %s\n",  argv[6]);
+    kshell_printf(ctx, "TEST: %s\n",            argv[0]);
+    kshell_printf(ctx, "QUOTE: %s\n",           argv[1]);
+    kshell_printf(ctx, "DQUOTE: %s\n",          argv[2]);
+    kshell_printf(ctx, "TEST_VARNAME: %s\n",    argv[3]);
+    kshell_printf(ctx, "TEST_LVARNAME: %s\n",   argv[4]);
+    kshell_printf(ctx, "TEST_QVARNAME: %s\n",   argv[5]);
+    kshell_printf(ctx, "TEST_LQVARNAME: %s\n",  argv[6]);
 
     if (strcmp(argv[0], "TEST") ||
         strcmp(argv[1], "QUOTE") ||
@@ -64,17 +64,17 @@ static state parser_testing(void *pdata)
         goto exit;
     }
 
-    retval = kshell_parser(cmdline, &cmdline, &argc, &argv);
+    retval = kshell_parser(ctx, cmdline, &cmdline, &argc, &argv);
     if (retval)
         goto exit;
 
-    kshell_printf("ESC: %s\n", argv[0]);
+    kshell_printf(ctx, "ESC: %s\n", argv[0]);
 
     if (strcmp(argv[0], "ESC"))
         retval = -EINVAL;
 
 exit:
-    parser_unsetenv();
+    parser_unsetenv(ctx);
     return retval;
 }
 

@@ -16,7 +16,7 @@ struct idr_test_pdata {
     struct idr_node node[TEST_LOOP];
 };
 
-static state idr_test_testing(void *pdata)
+static state idr_test_testing(struct kshell_context *ctx, void *pdata)
 {
     struct idr_test_pdata *idata = pdata;
     ktime_t start = timekeeping_get_time();
@@ -35,7 +35,7 @@ static state idr_test_testing(void *pdata)
         (timekeeping_get_time(), 1000)
     ));
 
-    kshell_printf("idr sequential: %lu/s\n", count * TEST_LOOP);
+    kshell_printf(ctx, "idr sequential: %lu/s\n", count * TEST_LOOP);
 
     count = 0;
     do {
@@ -49,12 +49,12 @@ static state idr_test_testing(void *pdata)
         (timekeeping_get_time(), 2000)
     ));
 
-    kshell_printf("idr cyclic: %lu/s\n", count * TEST_LOOP);
+    kshell_printf(ctx, "idr cyclic: %lu/s\n", count * TEST_LOOP);
 
     return -ENOERR;
 }
 
-static void *idr_test_prepare(int argc, char *argv[])
+static void *idr_test_prepare(struct kshell_context *ctx, int argc, char *argv[])
 {
     struct idr_test_pdata *idata;
 
@@ -69,7 +69,7 @@ static void *idr_test_prepare(int argc, char *argv[])
     return idata;
 }
 
-static void idr_test_release(void *pdata)
+static void idr_test_release(struct kshell_context *ctx, void *pdata)
 {
     struct idr_test_pdata *idata = pdata;
     idr_delete(idata->idr);

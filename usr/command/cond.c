@@ -8,13 +8,13 @@
 #include <initcall.h>
 #include <kshell.h>
 
-static void usage(void)
+static void usage(struct kshell_context *ctx)
 {
-    kshell_printf("usage: if/elif [option] condition {commands} else {commands}\n");
-    kshell_printf("\t-h  display this message\n");
+    kshell_printf(ctx, "usage: if/elif [option] condition {commands} else {commands}\n");
+    kshell_printf(ctx, "\t-h  display this message\n");
 }
 
-static state cond_main(int argc, char *argv[])
+static state cond_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     unsigned int count;
     unsigned long condition;
@@ -41,17 +41,17 @@ finish:
 
     condition = strtol(argv[count++]);
     if (!condition)
-        retval = kshell_system(argv[count++]);
+        retval = kshell_system(ctx, argv[count++]);
 
     else for (count++; count < argc - 1; count += 2) {
         if (!strcmp(argv[count], "elif")) {
             condition = strtol(argv[++count]);
             if (condition)
                 continue;
-            retval = kshell_system(argv[++count]);
+            retval = kshell_system(ctx, argv[++count]);
             break;
         } else if (!strcmp(argv[count], "else")) {
-            retval = kshell_system(argv[++count]);
+            retval = kshell_system(ctx, argv[++count]);
             break;
         } else
             goto usage;
@@ -60,7 +60,7 @@ finish:
     return retval;
 
 usage:
-    usage();
+    usage(ctx);
     return -EINVAL;
 }
 

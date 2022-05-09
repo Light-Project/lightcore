@@ -8,15 +8,15 @@
 #include <console.h>
 #include <delay.h>
 
-static void usage(void)
+static void usage(struct kshell_context *ctx)
 {
-    kshell_printf("usage: watch [option] command\n");
-    kshell_printf("\t-n  <millisecond>  millisecond to wait between updates\n");
-    kshell_printf("\t-t  turn off header message\n");
-    kshell_printf("\t-h  display this message\n");
+    kshell_printf(ctx, "usage: watch [option] command\n");
+    kshell_printf(ctx, "\t-n  <millisecond>  millisecond to wait between updates\n");
+    kshell_printf(ctx, "\t-t  turn off header message\n");
+    kshell_printf(ctx, "\t-h  display this message\n");
 }
 
-static state watch_main(int argc, char *argv[])
+static state watch_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     unsigned int tmp, delay = 500;
     unsigned int count;
@@ -54,17 +54,17 @@ static state watch_main(int argc, char *argv[])
         goto usage;
 
     for (;;) {
-        kshell_printf("\e[2J\e[1;1H");
+        kshell_printf(ctx, "\e[2J\e[1;1H");
 
         if (title)
-            kshell_printf("Every %dms: %s\n\n", delay, argv[count]);
+            kshell_printf(ctx, "Every %dms: %s\n\n", delay, argv[count]);
 
-        retval = kshell_execv(argv[count], argc - count, &argv[count]);
+        retval = kshell_execv(ctx, argv[count], argc - count, &argv[count]);
         if (retval)
             return retval;
 
         for (tmp = 0; tmp < delay; ++tmp) {
-            if (kshell_ctrlc())
+            if (kshell_ctrlc(ctx))
                 goto exit;
             mdelay(1);
         }
@@ -74,7 +74,7 @@ exit:
     return -ENOERR;
 
 usage:
-    usage();
+    usage(ctx);
     return -EINVAL;
 }
 

@@ -16,7 +16,7 @@ static void timer_handle(void *pdata)
     spin_unlock(pdata);
 }
 
-static state timer_testing(void *pdata)
+static state timer_testing(struct kshell_context *ctx, void *pdata)
 {
     unsigned int count;
 
@@ -25,10 +25,10 @@ static state timer_testing(void *pdata)
 
     spin_lock(&lock);
     for (count = 0; count < TEST_LOOP; ++count) {
-        kshell_printf("timer test%02u: ", count);
+        kshell_printf(ctx, "timer test%02u: ", count);
         timer_pending(&timer);
         spin_lock(&lock);
-        kshell_printf("lock ack\n");
+        kshell_printf(ctx, "lock ack\n");
     }
 
     return -ENOERR;

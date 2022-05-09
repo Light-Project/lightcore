@@ -14,7 +14,7 @@ struct memscan_pdata {
     uint8_t mempool[SZ_1MiB];
 };
 
-static state memscan_testing(void *pdata)
+static state memscan_testing(struct kshell_context *ctx, void *pdata)
 {
     struct memscan_pdata *mdata = pdata;
     ktime_t start = timekeeping_get_time();
@@ -32,11 +32,11 @@ static state memscan_testing(void *pdata)
     ));
 
     gsize(sbuff, count * SZ_1MiB);
-    kshell_printf("memscan bandwidth: %s/s\n", sbuff);
+    kshell_printf(ctx, "memscan bandwidth: %s/s\n", sbuff);
     return -ENOERR;
 }
 
-static void *memscan_prepare(int argc, char *argv[])
+static void *memscan_prepare(struct kshell_context *ctx, int argc, char *argv[])
 {
     struct memscan_pdata *pdata;
 
@@ -48,7 +48,7 @@ static void *memscan_prepare(int argc, char *argv[])
     return pdata;
 }
 
-static void memscan_release(void *pdata)
+static void memscan_release(struct kshell_context *ctx, void *pdata)
 {
     vfree(pdata);
 }

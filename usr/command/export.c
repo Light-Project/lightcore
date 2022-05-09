@@ -7,22 +7,22 @@
 #include <string.h>
 #include <initcall.h>
 
-static void usage(void)
+static void usage(struct kshell_context *ctx)
 {
-    kshell_printf("usage: export [name=value] ...\n");
+    kshell_printf(ctx, "usage: export [name=value] ...\n");
 }
 
-static state export_main(int argc, char *argv[])
+static state export_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     int count;
     state ret;
 
     for (count = 1; count < argc; ++count) {
         if (!strchr(argv[count], '=')) {
-            usage();
+            usage(ctx);
             return -EINVAL;
         }
-        if ((ret = kshell_putenv(argv[count])))
+        if ((ret = kshell_putenv(ctx, argv[count])))
             return ret;
     }
 
@@ -31,7 +31,7 @@ static state export_main(int argc, char *argv[])
 
 static struct kshell_command export_cmd = {
     .name = "export",
-    .desc = "export the string to console",
+    .desc = "setting environment variables",
     .exec = export_main,
 };
 

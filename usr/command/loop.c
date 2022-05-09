@@ -8,14 +8,14 @@
 #include <initcall.h>
 #include <kshell.h>
 
-static void usage(void)
+static void usage(struct kshell_context *ctx)
 {
-    kshell_printf("usage: for [option] varname in (start..end..step) {commands}\n");
-    kshell_printf("\t-v  generate an environment variable (default)\n");
-    kshell_printf("\t-V  does not generate environment variables\n");
-    kshell_printf("\t-x  hexadecimal format output\n");
-    kshell_printf("\t-X  decimal format output (default)\n");
-    kshell_printf("\t-h  display this message\n");
+    kshell_printf(ctx, "usage: for [option] varname in (start..end..step) {commands}\n");
+    kshell_printf(ctx, "\t-v  generate an environment variable (default)\n");
+    kshell_printf(ctx, "\t-V  does not generate environment variables\n");
+    kshell_printf(ctx, "\t-x  hexadecimal format output\n");
+    kshell_printf(ctx, "\t-X  decimal format output (default)\n");
+    kshell_printf(ctx, "\t-h  display this message\n");
 }
 
 #define CHECK_PARAM {                       \
@@ -25,7 +25,7 @@ static void usage(void)
     }                                       \
 }
 
-static state loop_main(int argc, char *argv[])
+static state loop_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     unsigned int index, count;
     char *varname;
@@ -124,15 +124,15 @@ static state loop_main(int argc, char *argv[])
         for (var = start; start < end ? var <= end : var >= end; var += start < end ? step : -step) {
             if (vflag) {
                 if (textmode)
-                    kshell_setenv(varname, argv[index], true);
+                    kshell_setenv(ctx, varname, argv[index], true);
                 else {
                     itoa(var, buff, xflag ? 16 : 10);
-                    kshell_setenv(varname, buff, true);
+                    kshell_setenv(ctx, varname, buff, true);
                 }
             }
-            if (kshell_ctrlc())
+            if (kshell_ctrlc(ctx))
                 goto exit;
-            retval = kshell_system(argv[argc -1]);
+            retval = kshell_system(ctx, argv[argc -1]);
             if (retval && retval != -EAGAIN)
                 goto exit;
             retval = -ENOERR;
@@ -141,12 +141,12 @@ static state loop_main(int argc, char *argv[])
 
 exit:
     if (vflag)
-        kshell_unsetenv(varname);
+        kshell_unsetenv(ctx, varname);
 
     return retval;
 
 usage:
-    usage();
+    usage(ctx);
     return -EINVAL;
 }
 

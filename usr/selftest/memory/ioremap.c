@@ -14,7 +14,7 @@
 #define TEST_LOOP   100
 #define TEST_SIZE   SZ_1MiB
 
-static state ioremap_testing(void *pdata)
+static state ioremap_testing(struct kshell_context *ctx, void *pdata)
 {
     void *test_pool[TEST_LOOP];
     unsigned int count, tmp;
@@ -26,19 +26,19 @@ static state ioremap_testing(void *pdata)
         phys = page_align(clamp(random_long(), CONFIG_HIGHMEM_OFFSET,
                             PHYS_MASK - (TEST_SIZE * 2)));
         size = page_align(random_long() % TEST_SIZE + TEST_SIZE);
-        kshell_printf("ioremap test%02u addr (%#lx) size (%#lx): ", count, phys, size);
+        kshell_printf(ctx, "ioremap test%02u addr (%#lx) size (%#lx): ", count, phys, size);
         test_pool[count] = ioremap(phys, size);
         if (!test_pool[count]) {
-            kshell_printf("failed\n");
+            kshell_printf(ctx, "failed\n");
             ret = -ENOMEM;
             goto error;
         }
-        kshell_printf("%p\n", test_pool[count]);
+        kshell_printf(ctx, "%p\n", test_pool[count]);
     }
 
 error:
     for (tmp = 0; tmp < count; ++tmp) {
-        kshell_printf("iounmap test%02u: %p\n", tmp, test_pool[tmp]);
+        kshell_printf(ctx, "iounmap test%02u: %p\n", tmp, test_pool[tmp]);
         iounmap(test_pool[tmp]);
     }
 

@@ -21,7 +21,7 @@ static void ncache_node_free(void *object, void *pdata)
     /* Nothing */
 }
 
-static state ncache_testing(void *pdata)
+static state ncache_testing(struct kshell_context *ctx, void *pdata)
 {
     struct ncache *ndata = pdata;
     ktime_t start = timekeeping_get_time();
@@ -38,7 +38,7 @@ static state ncache_testing(void *pdata)
         (timekeeping_get_time(), 1000)
     ));
 
-    kshell_printf("ncache interlaced: %lu/s\n", count);
+    kshell_printf(ctx, "ncache interlaced: %lu/s\n", count);
 
     count = 0;
     do {
@@ -52,12 +52,12 @@ static state ncache_testing(void *pdata)
         (timekeeping_get_time(), 2000)
     ));
 
-    kshell_printf("ncache multilayer: %lu/s\n", count * TEST_DEEPTH);
+    kshell_printf(ctx, "ncache multilayer: %lu/s\n", count * TEST_DEEPTH);
 
     return -ENOERR;
 }
 
-static void *ncache_prepare(int argc, char *argv[])
+static void *ncache_prepare(struct kshell_context *ctx, int argc, char *argv[])
 {
     struct ncache *pdata;
 
@@ -68,7 +68,7 @@ static void *ncache_prepare(int argc, char *argv[])
     return pdata;
 }
 
-static void ncache_release(void *pdata)
+static void ncache_release(struct kshell_context *ctx, void *pdata)
 {
     ncache_destroy(pdata);
 }

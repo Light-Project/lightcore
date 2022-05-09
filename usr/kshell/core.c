@@ -6,119 +6,13 @@
 #include "kshell.h"
 #include <string.h>
 #include <initcall.h>
+#include <ascii.h>
 #include <kmalloc.h>
 #include <printk.h>
 #include <export.h>
 
 LIST_HEAD(kshell_list);
-LIST_HEAD(kshell_env_list);
 SPIN_LOCK(kshell_lock);
-SPIN_LOCK(kshell_env_lock);
-
-static struct kshell_env *kshell_env_find(const char *name)
-{
-    struct kshell_env *env, *find = NULL;
-
-    spin_lock(&kshell_env_lock);
-
-    list_for_each_entry(env, &kshell_env_list, list) {
-        if (!strcmp(name, env->name)) {
-            find = env;
-            break;
-        }
-    }
-
-    spin_unlock(&kshell_env_lock);
-    return find;
-}
-
-static void kshell_env_release(struct kshell_env *env)
-{
-    spin_lock(&kshell_env_lock);
-    list_del(&env->list);
-    spin_unlock(&kshell_env_lock);
-    kfree(env);
-}
-
-char *kshell_getenv(const char *name)
-{
-    struct kshell_env *env;
-
-    if (strchr(name, '='))
-        return NULL;
-
-    env = kshell_env_find(name);
-    if (!env)
-        return NULL;
-
-    return env->val;
-}
-EXPORT_SYMBOL(kshell_getenv);
-
-state kshell_setenv(const char *name, const char *val, bool overwrite)
-{
-    struct kshell_env *env;
-    size_t nlen, vlen;
-
-    env = kshell_env_find(name);
-    if (env && !overwrite)
-        return -ENOERR;
-    else if (env)
-        kshell_env_release(env);
-
-    nlen = strlen(name) + 1;
-    vlen = strlen(val) + 1;
-
-    env = kmalloc(sizeof(*env) + nlen + vlen, GFP_KERNEL);
-    if (!env)
-        return -ENOMEM;
-
-    env->val = env->name + nlen;
-    list_head_init(&env->list);
-
-    strcpy(env->val, val);
-    strcpy(env->name, name);
-
-    spin_lock(&kshell_env_lock);
-    list_add(&kshell_env_list, &env->list);
-    spin_unlock(&kshell_env_lock);
-
-    return -ENOERR;
-}
-EXPORT_SYMBOL(kshell_setenv);
-
-state kshell_putenv(char *string)
-{
-    char *equal;
-    state ret;
-
-    equal = strchr(string, '=');
-    if (!equal)
-        return -EINVAL;
-
-    *equal = '\0';
-    ret = kshell_setenv(string, equal + 1, true);
-    *equal = '=';
-
-    return ret;
-}
-EXPORT_SYMBOL(kshell_putenv);
-
-state kshell_unsetenv(const char *name)
-{
-    struct kshell_env *env;
-
-    if (strchr(name, '='))
-        return -EINVAL;
-
-    env = kshell_env_find(name);
-    if (!env)
-        return -ENODATA;
-
-    kshell_env_release(env);
-    return -ENOERR;
-}
-EXPORT_SYMBOL(kshell_unsetenv);
 
 static long kshell_sort(struct list_head *a, struct list_head *b, void *pdata)
 {
@@ -171,32 +65,47 @@ void kshell_unregister(struct kshell_command *cmd)
 }
 EXPORT_SYMBOL(kshell_unregister);
 
-int kshell_vprintf(const char *str, va_list args)
+int kshell_vprintf(struct kshell_context *ctx, const char *str, va_list args)
 {
     char strbuf[256];
     int len;
 
     len = vsnprintf(strbuf, sizeof(strbuf), str, args);
-    console_write(strbuf, len);
+    ctx->write(strbuf, len, ctx->data);
 
     return len;
 }
 EXPORT_SYMBOL(kshell_vprintf);
 
-int kshell_printf(const char *str, ...)
+int kshell_printf(struct kshell_context *ctx, const char *str, ...)
 {
     va_list args;
     int len;
 
     va_start(args,str);
-    len = kshell_vprintf(str, args);
+    len = kshell_vprintf(ctx, str, args);
     va_end(args);
 
     return len;
 }
 EXPORT_SYMBOL(kshell_printf);
 
-state kshell_exec(const struct kshell_command *cmd, int argc, char *argv[])
+bool kshell_ctrlc(struct kshell_context *ctx)
+{
+    unsigned int len;
+    char buff[32];
+
+    len = ctx->read(buff, sizeof(buff), ctx->data);
+    while (len--) {
+        if (buff[len] == ASCII_ETX)
+            return true;
+    }
+
+    return false;
+}
+EXPORT_SYMBOL(kshell_ctrlc);
+
+state kshell_exec(struct kshell_context *ctx, const struct kshell_command *cmd, int argc, char *argv[])
 {
     unsigned int count;
     char **vbuff;
@@ -225,7 +134,7 @@ state kshell_exec(const struct kshell_command *cmd, int argc, char *argv[])
     }
 
     vbuff[argc] = NULL;
-    retval = cmd->exec(argc, vbuff);
+    retval = cmd->exec(ctx, argc, vbuff);
 
 finish:
     for (count = 0; vbuff[count]; ++count)
@@ -236,7 +145,7 @@ finish:
 }
 EXPORT_SYMBOL(kshell_exec);
 
-state kshell_execv(const char *name, int argc, char *argv[])
+state kshell_execv(struct kshell_context *ctx, const char *name, int argc, char *argv[])
 {
     struct kshell_command *cmd;
 
@@ -244,7 +153,7 @@ state kshell_execv(const char *name, int argc, char *argv[])
     if (!cmd)
         return -EBADF;
 
-    return kshell_exec(cmd, argc, argv);
+    return kshell_exec(ctx, cmd, argc, argv);
 }
 EXPORT_SYMBOL(kshell_execv);
 
@@ -269,5 +178,5 @@ void ksh_init(void)
     list_bsort(&kshell_list, kshell_sort, NULL);
 
     printk("Have a lot of fun..\n");
-    kshell_main(0, NULL);
+    kshell_main(NULL, 0, NULL);
 }

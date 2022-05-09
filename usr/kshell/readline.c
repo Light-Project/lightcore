@@ -17,24 +17,22 @@
 #define READLINE_BELL_PITCH     750
 #define READLINE_BELL_DURATION	(CONFIG_SYSTICK_FREQ / 8)
 
+unsigned int readline_read(struct readline_state *rstate, char *str, unsigned int len)
+{
+    return rstate->read(str, len, rstate->data);
+}
+
+void readline_write(struct readline_state *rstate, const char *str, unsigned int len)
+{
+    rstate->write(str, len, rstate->data);
+}
+
 static void readline_state_setup(struct readline_state *rstate)
 {
     rstate->pos = 0;
     rstate->len = 0;
     rstate->curr = NULL;
     rstate->esc_state = READLINE_ESC_NORM;
-}
-
-static __always_inline unsigned int
-readline_read(struct readline_state *rstate, char *str, unsigned int len)
-{
-    return rstate->read(str, len, rstate->data);
-}
-
-static __always_inline void
-readline_write(struct readline_state *rstate, const char *str, unsigned int len)
-{
-    rstate->write(str, len, rstate->data);
 }
 
 static inline void readline_cursor_save(struct readline_state *rstate)
@@ -592,7 +590,7 @@ char *readline(struct readline_state *state, const char *prompt)
     return state->buff;
 }
 
-struct readline_state *readline_alloc(readline_read_t read, readline_write_t write, void *data)
+struct readline_state *readline_alloc(kshell_read_t read, kshell_write_t write, void *data)
 {
     struct readline_state *state;
 

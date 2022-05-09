@@ -13,16 +13,16 @@ enum panic_type {
     PANIC_PANIC     = 2,
 };
 
-static void usage(void)
+static void usage(struct kshell_context *ctx)
 {
-    kshell_printf("usage: panic [option] \"message\"\n");
-    kshell_printf("\t-w  manually trigger a warn\n");
-    kshell_printf("\t-b  manually trigger a bug\n");
-    kshell_printf("\t-p  manually trigger a bug\n");
-    kshell_printf("\t-h  display this message\n");
+    kshell_printf(ctx, "usage: panic [option] \"message\"\n");
+    kshell_printf(ctx, "\t-w  manually trigger a warn\n");
+    kshell_printf(ctx, "\t-b  manually trigger a bug\n");
+    kshell_printf(ctx, "\t-p  manually trigger a bug\n");
+    kshell_printf(ctx, "\t-h  display this message\n");
 }
 
-static state panic_main(int argc, char *argv[])
+static state panic_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     enum panic_type type = PANIC_PANIC;
     unsigned int count;
@@ -68,7 +68,7 @@ static state panic_main(int argc, char *argv[])
     return -ENOERR;
 
 usage:
-    usage();
+    usage(ctx);
     return -EINVAL;
 }
 

@@ -235,23 +235,23 @@ skip_type:
     return reversal ? ~va : va;
 }
 
-static void mem_read_usage(void)
+static void mem_read_usage(struct kshell_context *ctx)
 {
-    kshell_printf("usage: mem -r /nfu <addr>\n");
-    kshell_printf("\t/n - length\n");
-    kshell_printf("\t/o - octal\n");
-    kshell_printf("\t/x - hexadecimal\n");
-    kshell_printf("\t/d - decimal\n");
-    kshell_printf("\t/u - unsigned decimal\n");
-    kshell_printf("\t/a - address\n");
-    kshell_printf("\t/c - char\n");
-    kshell_printf("\t/b - byte (8-bit)\n");
-    kshell_printf("\t/h - halfword (16-bit)\n");
-    kshell_printf("\t/w - word (32-bit)\n");
-    kshell_printf("\t/g - giant word (64-bit)\n");
+    kshell_printf(ctx, "usage: mem -r /nfu <addr>\n");
+    kshell_printf(ctx, "\t/n - length\n");
+    kshell_printf(ctx, "\t/o - octal\n");
+    kshell_printf(ctx, "\t/x - hexadecimal\n");
+    kshell_printf(ctx, "\t/d - decimal\n");
+    kshell_printf(ctx, "\t/u - unsigned decimal\n");
+    kshell_printf(ctx, "\t/a - address\n");
+    kshell_printf(ctx, "\t/c - char\n");
+    kshell_printf(ctx, "\t/b - byte (8-bit)\n");
+    kshell_printf(ctx, "\t/h - halfword (16-bit)\n");
+    kshell_printf(ctx, "\t/w - word (32-bit)\n");
+    kshell_printf(ctx, "\t/g - giant word (64-bit)\n");
 }
 
-static state mem_read(int argc, char *argv[])
+static state mem_read(struct kshell_context *ctx, int argc, char *argv[])
 {
     char buff[10], cstr[20] = {}, fmt = 'x';
     unsigned int count = 0;
@@ -336,81 +336,81 @@ exit:
     phys = strtoul(argv[argc - 1]);
     addr = block = ioremap(phys, num * byte);
     if (!addr) {
-        kshell_printf("failed to remapio\n");
+        kshell_printf(ctx, "failed to remapio\n");
         return -ENOMEM;
     }
 
     for (; (count = min(num, number_table[byte / 2])); num -= count) {
         unsigned int tmp;
-        kshell_printf("0x%08lx: ", phys);
+        kshell_printf(ctx, "0x%08lx: ", phys);
         for (tmp = 0; tmp < count; ++tmp) {
             switch (byte) {
                 case 1:
-                    kshell_printf(buff, readb(addr), readb(addr));
+                    kshell_printf(ctx, buff, readb(addr), readb(addr));
                     break;
                 case 2:
-                    kshell_printf(buff, unaligned_get_u16(addr));
+                    kshell_printf(ctx, buff, unaligned_get_u16(addr));
                     break;
                 case 4:
-                    kshell_printf(buff, unaligned_get_u32(addr));
+                    kshell_printf(ctx, buff, unaligned_get_u32(addr));
                     break;
                 case 8: default:
-                    kshell_printf(buff, unaligned_get_u64(addr));
+                    kshell_printf(ctx, buff, unaligned_get_u64(addr));
                     break;
             }
             phys += byte;
             addr += byte;
-            kshell_printf("  ");
+            kshell_printf(ctx, "  ");
         }
-        kshell_printf("\n");
+        kshell_printf(ctx, "\n");
     }
 
     iounmap(block);
     return -ENOERR;
 
 usage:
-    mem_read_usage();
+    mem_read_usage(ctx);
     return -EINVAL;
 }
 
-static void operator_value_usage(void)
+static void operator_value_usage(struct kshell_context *ctx)
 {
-    kshell_printf("Operator types:\n");
-    kshell_printf("\t+=  - add target memory\n");
-    kshell_printf("\t-=  - sub target memory\n");
-    kshell_printf("\t*=  - mul target memory\n");
-    kshell_printf("\t/=  - div target memory\n");
-    kshell_printf("\t%%=  - mod target memory\n");
-    kshell_printf("\t&=  - and target memory\n");
-    kshell_printf("\t|=  - or  target memory\n");
-    kshell_printf("\t^=  - xor target memory\n");
-    kshell_printf("\t<<= - shl target memory\n");
-    kshell_printf("\t>>= - shr target memory\n");
-    kshell_printf("Value types:\n");
-    kshell_printf("\tBIT(shift)       - create a bitmask\n");
-    kshell_printf("\tSHIFT(shift,val) - create a shifted bitmask\n");
-    kshell_printf("\tRANGE(high,low)  - create a contiguous bitmask\n");
-    kshell_printf("\t~expression      - bit inversion\n");
-    kshell_printf("Expression example:\n");
-    kshell_printf("\taddr &= ~RANGE(7,0)    - 0x000012ff -> 0x00001200\n");
-    kshell_printf("\taddr <<= 16            - 0x00001200 -> 0x12000000\n");
-    kshell_printf("\taddr |= SHIFT(16,0x34) - 0x12000000 -> 0x12340000\n");
-    kshell_printf("\taddr += 0x5670         - 0x12340000 -> 0x12345670\n");
-    kshell_printf("\taddr |= BIT(3)         - 0x12345670 -> 0x12345678\n");
+    kshell_printf(ctx, "Operator types:\n");
+    kshell_printf(ctx, "\t+=  - add target memory\n");
+    kshell_printf(ctx, "\t-=  - sub target memory\n");
+    kshell_printf(ctx, "\t*=  - mul target memory\n");
+    kshell_printf(ctx, "\t/=  - div target memory\n");
+    kshell_printf(ctx, "\t%%=  - mod target memory\n");
+    kshell_printf(ctx, "\t&=  - and target memory\n");
+    kshell_printf(ctx, "\t|=  - or  target memory\n");
+    kshell_printf(ctx, "\t^=  - xor target memory\n");
+    kshell_printf(ctx, "\t<<= - shl target memory\n");
+    kshell_printf(ctx, "\t>>= - shr target memory\n");
+    kshell_printf(ctx, "Value types:\n");
+    kshell_printf(ctx, "\tBIT(shift)       - create a bitmask\n");
+    kshell_printf(ctx, "\tSHIFT(shift,val) - create a shifted bitmask\n");
+    kshell_printf(ctx, "\tRANGE(high,low)  - create a contiguous bitmask\n");
+    kshell_printf(ctx, "\t~expression      - bit inversion\n");
+    kshell_printf(ctx, "Expression example:\n");
+    kshell_printf(ctx, "\taddr &= ~RANGE(7,0)    - 0x000012ff -> 0x00001200\n");
+    kshell_printf(ctx, "\taddr <<= 16            - 0x00001200 -> 0x12000000\n");
+    kshell_printf(ctx, "\taddr |= SHIFT(16,0x34) - 0x12000000 -> 0x12340000\n");
+    kshell_printf(ctx, "\taddr += 0x5670         - 0x12340000 -> 0x12345670\n");
+    kshell_printf(ctx, "\taddr |= BIT(3)         - 0x12345670 -> 0x12345678\n");
 }
 
-static void mem_write_usage(void)
+static void mem_write_usage(struct kshell_context *ctx)
 {
-    kshell_printf("usage: mem -w /nu <addr> <operator> <value>\n");
-    kshell_printf("\t/n - length\n");
-    kshell_printf("\t/b - byte (8-bit)\n");
-    kshell_printf("\t/h - halfword (16-bit)\n");
-    kshell_printf("\t/w - word (32-bit)\n");
-    kshell_printf("\t/g - giant word (64-bit)\n");
-    operator_value_usage();
+    kshell_printf(ctx, "usage: mem -w /nu <addr> <operator> <value>\n");
+    kshell_printf(ctx, "\t/n - length\n");
+    kshell_printf(ctx, "\t/b - byte (8-bit)\n");
+    kshell_printf(ctx, "\t/h - halfword (16-bit)\n");
+    kshell_printf(ctx, "\t/w - word (32-bit)\n");
+    kshell_printf(ctx, "\t/g - giant word (64-bit)\n");
+    operator_value_usage(ctx);
 }
 
-static state mem_write(int argc, char *argv[])
+static state mem_write(struct kshell_context *ctx, int argc, char *argv[])
 {
     char cstr[20] = {};
     unsigned int count = 0;
@@ -483,7 +483,7 @@ pass:
     value = convert_val(argv[argc - 1]);
     addr = block = ioremap(phys, num * byte);
     if (!addr) {
-        kshell_printf("failed to remapio\n");
+        kshell_printf(ctx, "failed to remapio\n");
         return -ENOMEM;
     }
 
@@ -520,26 +520,26 @@ pass:
     return -ENOERR;
 
 usage:
-    mem_write_usage();
+    mem_write_usage(ctx);
     return -EINVAL;
 }
 
-static void ioport_in_usage(void)
+static void ioport_in_usage(struct kshell_context *ctx)
 {
-    kshell_printf("usage: mem -i /nfu <addr>\n");
-    kshell_printf("\t/n - length\n");
-    kshell_printf("\t/o - octal\n");
-    kshell_printf("\t/x - hexadecimal\n");
-    kshell_printf("\t/d - decimal\n");
-    kshell_printf("\t/u - unsigned decimal\n");
-    kshell_printf("\t/a - address\n");
-    kshell_printf("\t/c - char\n");
-    kshell_printf("\t/b - byte (8-bit)\n");
-    kshell_printf("\t/h - halfword (16-bit)\n");
-    kshell_printf("\t/w - word (32-bit)\n");
+    kshell_printf(ctx, "usage: mem -i /nfu <addr>\n");
+    kshell_printf(ctx, "\t/n - length\n");
+    kshell_printf(ctx, "\t/o - octal\n");
+    kshell_printf(ctx, "\t/x - hexadecimal\n");
+    kshell_printf(ctx, "\t/d - decimal\n");
+    kshell_printf(ctx, "\t/u - unsigned decimal\n");
+    kshell_printf(ctx, "\t/a - address\n");
+    kshell_printf(ctx, "\t/c - char\n");
+    kshell_printf(ctx, "\t/b - byte (8-bit)\n");
+    kshell_printf(ctx, "\t/h - halfword (16-bit)\n");
+    kshell_printf(ctx, "\t/w - word (32-bit)\n");
 }
 
-static state ioport_in(int argc, char *argv[])
+static state ioport_in(struct kshell_context *ctx, int argc, char *argv[])
 {
     char buff[10], cstr[20] = {}, fmt = 'x';
     unsigned int count = 0;
@@ -618,43 +618,43 @@ exit:
 
     for (; (count = min(num, number_table[byte / 2])); num -= count) {
         unsigned int tmp;
-        kshell_printf("0x%04lx: ", base);
+        kshell_printf(ctx, "0x%04lx: ", base);
         for (tmp = 0; tmp < count; ++tmp) {
             switch (byte) {
                 case 1:
-                    kshell_printf(buff, inb(base), inb(base));
+                    kshell_printf(ctx, buff, inb(base), inb(base));
                     break;
                 case 2:
-                    kshell_printf(buff, inw(base));
+                    kshell_printf(ctx, buff, inw(base));
                     break;
                 case 4: default:
-                    kshell_printf(buff, inl(base));
+                    kshell_printf(ctx, buff, inl(base));
                     break;
             }
             base += byte;
-            kshell_printf("  ");
+            kshell_printf(ctx, "  ");
         }
-        kshell_printf("\n");
+        kshell_printf(ctx, "\n");
     }
 
     return -ENOERR;
 
 usage:
-    ioport_in_usage();
+    ioport_in_usage(ctx);
     return -EINVAL;
 }
 
-static void ioport_out_usage(void)
+static void ioport_out_usage(struct kshell_context *ctx)
 {
-    kshell_printf("usage: mem -o /nu <addr> <operator> <value>\n");
-    kshell_printf("\t/n - length\n");
-    kshell_printf("\t/b - byte (8-bit)\n");
-    kshell_printf("\t/h - halfword (16-bit)\n");
-    kshell_printf("\t/w - word (32-bit)\n");
-    operator_value_usage();
+    kshell_printf(ctx, "usage: mem -o /nu <addr> <operator> <value>\n");
+    kshell_printf(ctx, "\t/n - length\n");
+    kshell_printf(ctx, "\t/b - byte (8-bit)\n");
+    kshell_printf(ctx, "\t/h - halfword (16-bit)\n");
+    kshell_printf(ctx, "\t/w - word (32-bit)\n");
+    operator_value_usage(ctx);
 }
 
-static state ioport_out(int argc, char *argv[])
+static state ioport_out(struct kshell_context *ctx, int argc, char *argv[])
 {
     char cstr[20] = {};
     unsigned int count = 0;
@@ -747,22 +747,22 @@ pass:
     return -ENOERR;
 
 usage:
-    ioport_out_usage();
+    ioport_out_usage(ctx);
     return -EINVAL;
 }
 
-static void usage(void)
+static void usage(struct kshell_context *ctx)
 {
-    kshell_printf("usage: mem [option] ...\n");
-    kshell_printf("\t-r  memory read (default)\n");
-    kshell_printf("\t-w  memory write\n");
-    kshell_printf("\t-i  iomem input\n");
-    kshell_printf("\t-o  iomem output\n");
-    kshell_printf("\t-s  show after modification\n");
-    kshell_printf("\t-h  display this message\n");
+    kshell_printf(ctx, "usage: mem [option] ...\n");
+    kshell_printf(ctx, "\t-r  memory read (default)\n");
+    kshell_printf(ctx, "\t-w  memory write\n");
+    kshell_printf(ctx, "\t-i  iomem input\n");
+    kshell_printf(ctx, "\t-o  iomem output\n");
+    kshell_printf(ctx, "\t-s  show after modification\n");
+    kshell_printf(ctx, "\t-h  display this message\n");
 }
 
-static state mem_main(int argc, char *argv[])
+static state mem_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     unsigned int act = 0;
     bool show = false;
@@ -772,7 +772,7 @@ static state mem_main(int argc, char *argv[])
         goto usage;
 
     else if (*argv[1] == '/' || isdigit(*argv[1]))
-        return mem_read(argc - 1, &argv[1]);
+        return mem_read(ctx, argc - 1, &argv[1]);
 
     else if (*argv[1] == '-') {
         char *para = argv[1] + 1;
@@ -813,7 +813,7 @@ static state mem_main(int argc, char *argv[])
 
     switch (act) {
         case ACTION_MEM_WRITE:
-            ret = mem_write(argc - 2, &argv[2]);
+            ret = mem_write(ctx, argc - 2, &argv[2]);
             if (ret || !show)
                 return ret;
             show = false;
@@ -822,10 +822,10 @@ static state mem_main(int argc, char *argv[])
         case ACTION_MEM_READ: default:
             if (show)
                 goto usage;
-            return mem_read(argc - 2, &argv[2]);
+            return mem_read(ctx, argc - 2, &argv[2]);
 
         case ACTION_IOPORT_OUT:
-            ret = ioport_out(argc - 2, &argv[2]);
+            ret = ioport_out(ctx, argc - 2, &argv[2]);
             if (ret || !show)
                 return ret;
             show = false;
@@ -834,11 +834,11 @@ static state mem_main(int argc, char *argv[])
         case ACTION_IOPORT_IN:
             if (show)
                 goto usage;
-            return ioport_in(argc - 2, &argv[2]);
+            return ioport_in(ctx, argc - 2, &argv[2]);
     }
 
 usage:
-    usage();
+    usage(ctx);
     return -EINVAL;
 }
 

@@ -17,7 +17,7 @@
 #define TEST_LOOP2      100
 #define TEST_LOOP3      100
 
-static state kmalloc_testing(void *pdata)
+static state kmalloc_testing(struct kshell_context *ctx, void *pdata)
 {
     void *test_pool1[TEST_LOOP1];
     void *test_pool2[TEST_LOOP2];
@@ -33,14 +33,14 @@ static state kmalloc_testing(void *pdata)
             TEST_SIZE1 + (unsigned int)random_long() % TEST_SIZE1,
             GFP_KERNEL,  (unsigned int)random_long() % TEST_SIZE1
         );
-        kshell_printf("kmalloc alloc size ("__stringify(TEST_SIZE1)") test%02u: ", count1);
+        kshell_printf(ctx, "kmalloc alloc size ("__stringify(TEST_SIZE1)") test%02u: ", count1);
         if (!test_pool1[count1]) {
-            kshell_printf("failed\n");
+            kshell_printf(ctx, "failed\n");
             ret = -ENOMEM;
             goto err_p1;
         }
         memset(test_pool1[count1], 0, TEST_SIZE1);
-        kshell_printf("pass\n");
+        kshell_printf(ctx, "pass\n");
     }
 
     for (count2 = 0; count2 < TEST_LOOP2; count2++) {
@@ -48,14 +48,14 @@ static state kmalloc_testing(void *pdata)
             TEST_SIZE2 + (unsigned int)random_long() % TEST_SIZE2,
             GFP_KERNEL,  (unsigned int)random_long() % TEST_SIZE2
         );
-        kshell_printf("kmalloc alloc size ("__stringify(TEST_SIZE2)") test%02u: ", count2);
+        kshell_printf(ctx, "kmalloc alloc size ("__stringify(TEST_SIZE2)") test%02u: ", count2);
         if (!test_pool2[count2]) {
-            kshell_printf("failed\n");
+            kshell_printf(ctx, "failed\n");
             ret = -ENOMEM;
             goto err_p2;
         }
         memset(test_pool2[count2], 0, TEST_SIZE2);
-        kshell_printf("pass\n");
+        kshell_printf(ctx, "pass\n");
     }
 
     for (count3 = 0; count3 < TEST_LOOP3; count3++) {
@@ -63,31 +63,31 @@ static state kmalloc_testing(void *pdata)
             TEST_SIZE3 + (unsigned int)random_long() % TEST_SIZE3,
             GFP_KERNEL,  (unsigned int)random_long() % TEST_SIZE3
         );
-        kshell_printf("kmalloc alloc size ("__stringify(TEST_SIZE3)") test%02u: ", count3);
+        kshell_printf(ctx, "kmalloc alloc size ("__stringify(TEST_SIZE3)") test%02u: ", count3);
         if (!test_pool3[count3]) {
-            kshell_printf("failed\n");
+            kshell_printf(ctx, "failed\n");
             ret = -ENOMEM;
             goto err_p3;
         }
         memset(test_pool3[count3], 0, TEST_SIZE3);
-        kshell_printf("pass\n");
+        kshell_printf(ctx, "pass\n");
     }
 
 err_p3:
     for (count = 0; count < count3; ++count) {
-        kshell_printf("kmalloc free size ("__stringify(TEST_SIZE3)") test%02u\n", count);
+        kshell_printf(ctx, "kmalloc free size ("__stringify(TEST_SIZE3)") test%02u\n", count);
         kfree(test_pool3[count]);
     }
 
 err_p2:
     for (count = 0; count < count2; ++count) {
-        kshell_printf("kmalloc free size ("__stringify(TEST_SIZE2)") test%02u\n", count);
+        kshell_printf(ctx, "kmalloc free size ("__stringify(TEST_SIZE2)") test%02u\n", count);
         kfree(test_pool2[count]);
     }
 
 err_p1:
     for (count = 0; count < count1; ++count) {
-        kshell_printf("kmalloc free size ("__stringify(TEST_SIZE1)") test%02u\n", count);
+        kshell_printf(ctx, "kmalloc free size ("__stringify(TEST_SIZE1)") test%02u\n", count);
         kfree(test_pool1[count]);
     }
 

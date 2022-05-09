@@ -6,9 +6,9 @@
 #include <kshell.h>
 #include <initcall.h>
 
-static state clear_main(int argc, char *argv[])
+static state clear_main(struct kshell_context *ctx, int argc, char *argv[])
 {
-    kshell_printf("\e[2J");
+    kshell_printf(ctx, "\e[2J");
     return -ENOERR;
 }
 

@@ -9,14 +9,14 @@
 
 #define TEST_LOOP 100
 
-static state random_testing(void *pdata)
+static state random_testing(struct kshell_context *ctx, void *pdata)
 {
     unsigned int count;
     long value;
 
     for (count = 0; count < TEST_LOOP; ++count) {
         value = random_long();
-        kshell_printf("random test%02u: %lx\n", count, value);
+        kshell_printf(ctx, "random test%02u: %lx\n", count, value);
     }
 
     return -ENOERR;

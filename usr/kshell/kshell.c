@@ -5,24 +5,62 @@
 
 #include "kshell.h"
 #include <string.h>
-#include <ascii.h>
 #include <setjmp.h>
 #include <kmalloc.h>
 #include <initcall.h>
 #include <console.h>
 #include <export.h>
 
-static unsigned int readline_read(char *str, unsigned int len, void *data)
+static unsigned int kshell_read(char *str, unsigned int len, void *data)
 {
     return console_read(str, len);
 }
 
-static void readline_write(const char *str, unsigned int len, void *data)
+static void kshell_write(const char *str, unsigned int len, void *data)
 {
     console_write(str, len);
 }
 
-static state do_system(char *cmdline, jmp_buf *buff)
+static void context_clone(struct kshell_context *ctx, struct kshell_context *new)
+{
+    new->env = RB_INIT;
+    if (ctx) {
+        new->read = ctx->read;
+        new->write = ctx->write;
+        kshell_envclone(ctx, new);
+    }
+}
+
+static state commands_prepare(struct kshell_context *ctx)
+{
+    struct kshell_command *cmd;
+    state ret = -ENOERR;
+
+    spin_lock(&kshell_lock);
+    list_for_each_entry(cmd, &kshell_list, list) {
+        if (cmd->prepare) {
+            if ((ret = cmd->prepare(ctx)))
+                break;
+        }
+    }
+    spin_unlock(&kshell_lock);
+
+    return ret;
+}
+
+static void commands_release(struct kshell_context *ctx)
+{
+    struct kshell_command *cmd;
+
+    spin_lock(&kshell_lock);
+    list_for_each_entry(cmd, &kshell_list, list) {
+        if (cmd->release)
+            cmd->release(ctx);
+    }
+    spin_unlock(&kshell_lock);
+}
+
+static state do_system(struct kshell_context *ctx, char *cmdline, jmp_buf *buff)
 {
     struct kshell_command *cmd;
     state retval;
@@ -30,7 +68,7 @@ static state do_system(char *cmdline, jmp_buf *buff)
     int argc;
 
     while (cmdline) {
-        retval = kshell_parser(cmdline, (const char **)&cmdline, &argc, &argv);
+        retval = kshell_parser(ctx, cmdline, (const char **)&cmdline, &argc, &argv);
         if (retval)
             return retval;
 
@@ -42,7 +80,7 @@ static state do_system(char *cmdline, jmp_buf *buff)
 
         cmd = kshell_find(argv[0]);
         if (!cmd) {
-            kshell_printf("kshell: command not found: %s\n", argv[0]);
+            kshell_printf(ctx, "kshell: command not found: %s\n", argv[0]);
             kfree(argv);
             return -EBADF;
         }
@@ -50,7 +88,7 @@ static state do_system(char *cmdline, jmp_buf *buff)
         if (!cmd->exec)
             return -ENXIO;
 
-        retval = cmd->exec(argc, argv);
+        retval = cmd->exec(ctx, argc, argv);
         kfree(argv);
 
         if (retval)
@@ -60,81 +98,89 @@ static state do_system(char *cmdline, jmp_buf *buff)
     return -ENOERR;
 }
 
-state kshell_system(const char *cmdline)
+state kshell_system(struct kshell_context *ctx, const char *cmdline)
 {
-    char *new;
+    char *ncmdline;
     state ret;
 
     if (!cmdline) {
-        kshell_printf("kshell: command inval\n");
+        kshell_printf(ctx, "kshell: command inval\n");
         return -EINVAL;
     }
 
-    new = strdup(cmdline);
-    ret = do_system(new, NULL);
-    kfree(new);
+    ncmdline = strdup(cmdline);
+    ret = do_system(ctx, ncmdline, NULL);
+    kfree(ncmdline);
 
     return ret;
 }
 EXPORT_SYMBOL(kshell_system);
 
-bool kshell_ctrlc(void)
+state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
 {
-    unsigned int len;
-    char buff[32];
-
-    len = console_read(buff, sizeof(buff));
-    while (len--) {
-        if (buff[len] == ASCII_ETX)
-            return true;
-    }
-
-    return false;
-}
-EXPORT_SYMBOL(kshell_ctrlc);
-
-state kshell_main(int argc, char *argv[])
-{
-    struct readline_state *rstate;
+    struct kshell_context nctx;
     char *cmdline, retbuf[20];
+    unsigned int count;
     jmp_buf buff;
     state ret, exit;
 
-    rstate = readline_alloc(readline_read, readline_write, NULL);
-    if (!rstate)
-        return -ENOMEM;
+    nctx.read = kshell_read;
+    nctx.write = kshell_write;
+    context_clone(ctx, &nctx);
 
-    exit = setjmp(&buff);
+    exit = commands_prepare(&nctx);
+    if (exit)
+        return exit;
 
-    while (!exit) {
-        cmdline = readline(rstate, "kshell: /# ");
-        if (!rstate->len)
-            continue;
-        ret = do_system(cmdline, &buff);
-        snprintf(retbuf, sizeof(retbuf), "%d", ret);
-        kshell_setenv("?", retbuf, true);
+    if (argc > 1) {
+        exit = setjmp(&buff);
+
+        for (count = 1; !exit && count < argc; ++count) {
+            ret = do_system(&nctx, argv[count], &buff);
+            snprintf(retbuf, sizeof(retbuf), "%d", ret);
+            kshell_setenv(&nctx, "?", retbuf, true);
+        }
     }
 
-    readline_free(rstate);
+    else {
+        nctx.readline = readline_alloc(kshell_read, kshell_write, NULL);
+        if (!nctx.readline)
+            return -ENOMEM;
+
+        exit = setjmp(&buff);
+
+        while (!exit) {
+            cmdline = readline(nctx.readline, "kshell: /# ");
+            if (!nctx.readline->len)
+                continue;
+            ret = do_system(&nctx, cmdline, &buff);
+            snprintf(retbuf, sizeof(retbuf), "%d", ret);
+            kshell_setenv(&nctx, "?", retbuf, true);
+        }
+
+        readline_free(nctx.readline);
+    }
+
+    kshell_envrelease(&nctx);
+    commands_release(&nctx);
+
     return ret;
 }
 
-static state env_main(int argc, char *argv[])
+static state env_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     struct kshell_env *env;
-    spin_lock(&kshell_env_lock);
-    list_for_each_entry(env, &kshell_env_list, list)
-        kshell_printf("\t%s=%s\n", env->name, env->val);
-    spin_unlock(&kshell_env_lock);
+    rb_for_each_entry(env, &ctx->env, node)
+        kshell_printf(ctx, "\t%s=%s\n", env->name, env->val);
     return -ENOERR;
 }
 
-static state help_main(int argc, char *argv[])
+static state help_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     struct kshell_command *cmd;
     spin_lock(&kshell_lock);
     list_for_each_entry(cmd, &kshell_list, list)
-        kshell_printf("\t%-16s - %s\n", cmd->name, cmd->desc);
+        kshell_printf(ctx, "\t%-16s - %s\n", cmd->name, cmd->desc);
     spin_unlock(&kshell_lock);
     return -ENOERR;
 }

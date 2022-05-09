@@ -14,7 +14,7 @@ struct memset_pdata {
     uint8_t mempool[SZ_1MiB];
 };
 
-static state memset_testing(void *pdata)
+static state memset_testing(struct kshell_context *ctx, void *pdata)
 {
     struct memset_pdata *mdata = pdata;
     ktime_t start = timekeeping_get_time();
@@ -30,11 +30,11 @@ static state memset_testing(void *pdata)
     ));
 
     gsize(sbuff, count * SZ_1MiB);
-    kshell_printf("memset bandwidth: %s/s\n", sbuff);
+    kshell_printf(ctx, "memset bandwidth: %s/s\n", sbuff);
     return -ENOERR;
 }
 
-static void *memset_prepare(int argc, char *argv[])
+static void *memset_prepare(struct kshell_context *ctx, int argc, char *argv[])
 {
     struct memset_pdata *pdata;
 
@@ -45,7 +45,7 @@ static void *memset_prepare(int argc, char *argv[])
     return pdata;
 }
 
-static void memset_release(void *pdata)
+static void memset_release(struct kshell_context *ctx, void *pdata)
 {
     vfree(pdata);
 }

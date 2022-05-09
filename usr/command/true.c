@@ -19,16 +19,16 @@
 # define PROGRAM_DESC "exit code indicating failure"
 #endif
 
-static void usage(void)
+static void usage(struct kshell_context *ctx)
 {
-    kshell_printf("usage: " __stringify(PROGRAM_NAME)
+    kshell_printf(ctx, "usage: " __stringify(PROGRAM_NAME)
                   " [ignored command line arguments]\n");
 }
 
-static state __PASTE(PROGRAM_NAME, main)(int argc, char *argv[])
+static state __PASTE(PROGRAM_NAME, main)(struct kshell_context *ctx, int argc, char *argv[])
 {
     if (argc != 1)
-        usage();
+        usage(ctx);
 
     return -EXIT_STATUS;
 }

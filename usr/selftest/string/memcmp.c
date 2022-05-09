@@ -15,7 +15,7 @@ struct memcmp_pdata {
     uint8_t mempool_b[SZ_1MiB];
 };
 
-static state memcmp_testing(void *pdata)
+static state memcmp_testing(struct kshell_context *ctx, void *pdata)
 {
     struct memcmp_pdata *mdata = pdata;
     ktime_t start = timekeeping_get_time();
@@ -32,11 +32,11 @@ static state memcmp_testing(void *pdata)
     ));
 
     gsize(sbuff, count * SZ_1MiB);
-    kshell_printf("memcmp bandwidth: %s/s\n", sbuff);
+    kshell_printf(ctx, "memcmp bandwidth: %s/s\n", sbuff);
     return -ENOERR;
 }
 
-static void *memcmp_prepare(int argc, char *argv[])
+static void *memcmp_prepare(struct kshell_context *ctx, int argc, char *argv[])
 {
     struct memcmp_pdata *pdata;
     unsigned int count;
@@ -52,7 +52,7 @@ static void *memcmp_prepare(int argc, char *argv[])
     return pdata;
 }
 
-static void memcmp_release(void *pdata)
+static void memcmp_release(struct kshell_context *ctx, void *pdata)
 {
     vfree(pdata);
 }

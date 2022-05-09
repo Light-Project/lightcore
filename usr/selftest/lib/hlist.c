@@ -22,7 +22,7 @@ struct hlist_test_pdata {
 #define hlist_to_test(ptr) \
     hlist_entry(ptr, struct hlist_test_node, list)
 
-static state hlist_test_testing(void *pdata)
+static state hlist_test_testing(struct kshell_context *ctx, void *pdata)
 {
     struct hlist_test_pdata *hdata = pdata;
     struct hlist_test_node *node, *nnode, *tnode;
@@ -37,7 +37,7 @@ static state hlist_test_testing(void *pdata)
 
     hlist_for_each(list, &test_head) {
         node = hlist_to_test(list);
-        kshell_printf("hlist 'hlist_for_each' test: %lu\n", node->num);
+        kshell_printf(ctx, "hlist 'hlist_for_each' test: %lu\n", node->num);
         if (node->num == TEST_LOOP / 2)
             break;
     }
@@ -45,18 +45,18 @@ static state hlist_test_testing(void *pdata)
     tlist = list;
     hlist_for_each_continue(list) {
         node = hlist_to_test(list);
-        kshell_printf("hlist 'hlist_for_each_continue' test: %lu\n", node->num);
+        kshell_printf(ctx, "hlist 'hlist_for_each_continue' test: %lu\n", node->num);
     }
 
     list = tlist;
     hlist_for_each_from(list) {
         node = hlist_to_test(list);
-        kshell_printf("hlist 'hlist_for_each_from' test: %lu\n", node->num);
+        kshell_printf(ctx, "hlist 'hlist_for_each_from' test: %lu\n", node->num);
     }
 
     hlist_for_each_safe(list, nlist, &test_head) {
         node = hlist_to_test(list);
-        kshell_printf("hlist 'hlist_for_each_safe' test: %lu\n", node->num);
+        kshell_printf(ctx, "hlist 'hlist_for_each_safe' test: %lu\n", node->num);
         if (node->num == TEST_LOOP / 2)
             break;
     }
@@ -64,33 +64,33 @@ static state hlist_test_testing(void *pdata)
     tlist = list;
     hlist_for_each_continue_safe(list, nlist) {
         node = hlist_to_test(list);
-        kshell_printf("hlist 'hlist_for_each_continue_safe' test: %lu\n", node->num);
+        kshell_printf(ctx, "hlist 'hlist_for_each_continue_safe' test: %lu\n", node->num);
     }
 
     list = tlist;
     hlist_for_each_from_safe(list, nlist) {
         node = hlist_to_test(list);
-        kshell_printf("hlist 'hlist_for_each_from_safe' test: %lu\n", node->num);
+        kshell_printf(ctx, "hlist 'hlist_for_each_from_safe' test: %lu\n", node->num);
     }
 
     hlist_for_each_entry(node, &test_head, list) {
-        kshell_printf("hlist 'hlist_for_each_entry' test: %lu\n", node->num);
+        kshell_printf(ctx, "hlist 'hlist_for_each_entry' test: %lu\n", node->num);
         if (node->num == TEST_LOOP / 2)
             break;
     }
 
     tnode = node;
     hlist_for_each_entry_continue(node, list) {
-        kshell_printf("hlist 'hlist_for_each_entry_continue' test: %lu\n", node->num);
+        kshell_printf(ctx, "hlist 'hlist_for_each_entry_continue' test: %lu\n", node->num);
     }
 
     node = tnode;
     hlist_for_each_entry_from(node, list) {
-        kshell_printf("hlist 'hlist_for_each_entry_from' test: %lu\n", node->num);
+        kshell_printf(ctx, "hlist 'hlist_for_each_entry_from' test: %lu\n", node->num);
     }
 
     hlist_for_each_entry_safe(node, nnode, &test_head, list) {
-        kshell_printf("hlist 'hlist_for_each_entry_safe' test: %lu\n", node->num);
+        kshell_printf(ctx, "hlist 'hlist_for_each_entry_safe' test: %lu\n", node->num);
         if (node->num == TEST_LOOP / 2)
             break;
         hlist_del(&node->list);
@@ -98,19 +98,19 @@ static state hlist_test_testing(void *pdata)
 
     tnode = node;
     hlist_for_each_entry_continue_safe(node, nnode, list) {
-        kshell_printf("hlist 'hlist_for_each_entry_continue_safe' test: %lu\n", node->num);
+        kshell_printf(ctx, "hlist 'hlist_for_each_entry_continue_safe' test: %lu\n", node->num);
     }
 
     node = tnode;
     hlist_for_each_entry_from_safe(node, nnode, list) {
-        kshell_printf("hlist 'hlist_for_each_entry_from_safe' test: %lu\n", node->num);
+        kshell_printf(ctx, "hlist 'hlist_for_each_entry_from_safe' test: %lu\n", node->num);
         hlist_del(&node->list);
     }
 
     return -ENOERR;
 }
 
-static void *hlist_test_prepare(int argc, char *argv[])
+static void *hlist_test_prepare(struct kshell_context *ctx, int argc, char *argv[])
 {
     struct hlist_test_pdata *hdata;
     unsigned int count;
@@ -125,7 +125,7 @@ static void *hlist_test_prepare(int argc, char *argv[])
     return hdata;
 }
 
-static void hlist_test_release(void *pdata)
+static void hlist_test_release(struct kshell_context *ctx, void *pdata)
 {
     kfree(pdata);
 }

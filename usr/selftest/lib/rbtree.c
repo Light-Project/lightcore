@@ -29,7 +29,7 @@ static long rbtest_rb_cmp(const struct rb_node *rba, const struct rb_node *rbb)
     return nodea->num - nodeb->num;
 }
 
-static state rbtree_test_testing(void *pdata)
+static state rbtree_test_testing(struct kshell_context *ctx, void *pdata)
 {
     struct rbtree_test_pdata *sdata = pdata;
     struct rbtree_test_node *node, *tnode;
@@ -41,17 +41,17 @@ static state rbtree_test_testing(void *pdata)
         rb_insert(&test_root, &sdata->nodes[count].node, rbtest_rb_cmp);
 
     rb_for_each_entry(node, &test_root, node)
-        kshell_printf("rbtree 'rb_for_each_entry' test: %lu\n", node->num);
+        kshell_printf(ctx, "rbtree 'rb_for_each_entry' test: %lu\n", node->num);
 
     rb_post_for_each_entry_safe(node, tnode, &test_root, node) {
-        kshell_printf("rbtree 'rb_post_for_each_entry_safe' test: %lu\n", node->num);
+        kshell_printf(ctx, "rbtree 'rb_post_for_each_entry_safe' test: %lu\n", node->num);
         rb_delete(&test_root, &node->node);
     }
 
     return -ENOERR;
 }
 
-static void *rbtree_test_prepare(int argc, char *argv[])
+static void *rbtree_test_prepare(struct kshell_context *ctx, int argc, char *argv[])
 {
     struct rbtree_test_pdata *rdata;
     unsigned int count;
@@ -66,7 +66,7 @@ static void *rbtree_test_prepare(int argc, char *argv[])
     return rdata;
 }
 
-static void rbtree_test_release(void *pdata)
+static void rbtree_test_release(struct kshell_context *ctx, void *pdata)
 {
     kfree(pdata);
 }

@@ -6,17 +6,16 @@
 #include <kshell.h>
 #include <initcall.h>
 
-static void usage(void)
+static void usage(struct kshell_context *ctx)
 {
-    kshell_printf("usage: continue"
+    kshell_printf(ctx, "usage: continue"
                   " [ignored command line arguments]\n");
 }
 
-static state continue_main(int argc, char *argv[])
+static state continue_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     if (argc != 1)
-        usage();
-
+        usage(ctx);
     return -EAGAIN;
 }
 

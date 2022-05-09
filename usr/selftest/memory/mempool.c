@@ -12,7 +12,7 @@
 #define TEST_LOOP   100
 #define TEST_SIZE   SZ_32KiB
 
-static state mempool_testing(void *pdata)
+static state mempool_testing(struct kshell_context *ctx, void *pdata)
 {
     void *test_pool[TEST_LOOP];
     unsigned int count, tmp;
@@ -24,20 +24,20 @@ static state mempool_testing(void *pdata)
         return -ENOMEM;
 
     for (count = 0; count < TEST_LOOP; ++count) {
-        kshell_printf("mempool alloc test%02u: ", count);
+        kshell_printf(ctx, "mempool alloc test%02u: ", count);
         test_pool[count] = mempool_alloc(pool, GFP_KERNEL);
         if (!test_pool[count]) {
-            kshell_printf("failed\n");
+            kshell_printf(ctx, "failed\n");
             ret = -ENOMEM;
             goto error;
         }
         memset(test_pool[count], 0, TEST_SIZE);
-        kshell_printf("pass\n");
+        kshell_printf(ctx, "pass\n");
     }
 
 error:
     for (tmp = 0; tmp < count; ++tmp) {
-        kshell_printf("mempool free test%02u\n", tmp);
+        kshell_printf(ctx, "mempool free test%02u\n", tmp);
         mempool_free(pool, test_pool[tmp]);
     }
 

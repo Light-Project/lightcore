@@ -8,28 +8,28 @@
 #include <string.h>
 #include <initcall.h>
 
-static void usage(void)
+static void usage(struct kshell_context *ctx)
 {
-    kshell_printf("usage: echo [option]...\n");
-    kshell_printf("\t-n  not output the trailing newline\n");
-    kshell_printf("\t-N  output the trailing newline (default)\n");
-    kshell_printf("\t-e  enable interpretation\n");
-    kshell_printf("\t-E  disable interpretation (default)\n");
-    kshell_printf("\t-i  enable index information\n");
-    kshell_printf("\t-I  disable index information (default)\n");
-    kshell_printf("\t-h  show this help\n");
+    kshell_printf(ctx, "usage: echo [option]...\n");
+    kshell_printf(ctx, "\t-n  not output the trailing newline\n");
+    kshell_printf(ctx, "\t-N  output the trailing newline (default)\n");
+    kshell_printf(ctx, "\t-e  enable interpretation\n");
+    kshell_printf(ctx, "\t-E  disable interpretation (default)\n");
+    kshell_printf(ctx, "\t-i  enable index information\n");
+    kshell_printf(ctx, "\t-I  disable index information (default)\n");
+    kshell_printf(ctx, "\t-h  show this help\n");
 
-    kshell_printf("If -e is in effect:\n");
-    kshell_printf("\t\\\\  backslash\n");
-    kshell_printf("\t\\a  alert (BEL)\n");
-    kshell_printf("\t\\b  backspace\n");
-    kshell_printf("\t\\c  produce no further output\n");
-    kshell_printf("\t\\e  escape\n");
-    kshell_printf("\t\\f  form feed\n");
-    kshell_printf("\t\\n  new line\n");
-    kshell_printf("\t\\r  carriage return\n");
-    kshell_printf("\t\\t  horizontal tab\n");
-    kshell_printf("\t\\v  vertical tab\n");
+    kshell_printf(ctx, "If -e is in effect:\n");
+    kshell_printf(ctx, "\t\\\\  backslash\n");
+    kshell_printf(ctx, "\t\\a  alert (BEL)\n");
+    kshell_printf(ctx, "\t\\b  backspace\n");
+    kshell_printf(ctx, "\t\\c  produce no further output\n");
+    kshell_printf(ctx, "\t\\e  escape\n");
+    kshell_printf(ctx, "\t\\f  form feed\n");
+    kshell_printf(ctx, "\t\\n  new line\n");
+    kshell_printf(ctx, "\t\\r  carriage return\n");
+    kshell_printf(ctx, "\t\\t  horizontal tab\n");
+    kshell_printf(ctx, "\t\\v  vertical tab\n");
 }
 
 static int hextobin(unsigned char ch)
@@ -42,7 +42,7 @@ static int hextobin(unsigned char ch)
         return 0;
 }
 
-static state echo_main(int argc, char *argv[])
+static state echo_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     bool nflag = false;
     bool eflag = false;
@@ -79,7 +79,7 @@ static state echo_main(int argc, char *argv[])
                     continue;
 
                 case 'h':
-                    usage();
+                    usage(ctx);
                     return -ENOERR;
             }
         }
@@ -160,38 +160,38 @@ static state echo_main(int argc, char *argv[])
                             break;
 
                         default: not_an_escape:
-                            kshell_printf("\\");
+                            kshell_printf(ctx, "\\");
                             break;
                     }
                 }
                 if (iflag)
-                    kshell_printf("%u: ", index++);
-                kshell_printf("%c", ch);
+                    kshell_printf(ctx, "%u: ", index++);
+                kshell_printf(ctx, "%c", ch);
             }
             if (argc) {
                 if (iflag)
-                    kshell_printf("\n");
+                    kshell_printf(ctx, "\n");
                 else
-                    kshell_printf(" ");
+                    kshell_printf(ctx, " ");
             }
         }
     }
 
     else while (argc--) {
         if (iflag)
-            kshell_printf("%u: ", index++);
-        kshell_printf("%s", *argv++);
+            kshell_printf(ctx, "%u: ", index++);
+        kshell_printf(ctx, "%s", *argv++);
         if (argc) {
             if (iflag)
-                kshell_printf("\n");
+                kshell_printf(ctx, "\n");
             else
-                kshell_printf(" ");
+                kshell_printf(ctx, " ");
 
         }
     }
 
     if (!nflag)
-        kshell_printf("\n");
+        kshell_printf(ctx, "\n");
 
     return -ENOERR;
 }

@@ -85,7 +85,7 @@ static struct buzzer_test test_freq[] = {
     BUZZER_TEST(BUZZER_FREQ_D8), BUZZER_TEST(BUZZER_FREQ_DS8),
 };
 
-static state buzzer_testing(void *pdata)
+static state buzzer_testing(struct kshell_context *ctx, void *pdata)
 {
     struct buzzer_device *bdev;
     unsigned int index;
@@ -94,7 +94,7 @@ static state buzzer_testing(void *pdata)
     list_for_each_entry(bdev, &buzzer_list, list) {
         buzzer_start(bdev);
         for (index = 0; index < ARRAY_SIZE(test_freq); ++index) {
-            kshell_printf("buzzer %s test freq: %s\n", bdev->dev->name, test_freq[index].name);
+            kshell_printf(ctx, "buzzer %s test freq: %s\n", bdev->dev->name, test_freq[index].name);
             buzzer_freq_set(bdev, test_freq[index].freq);
             mdelay(10);
         }

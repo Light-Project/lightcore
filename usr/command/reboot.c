@@ -7,19 +7,19 @@
 #include <initcall.h>
 #include <power.h>
 
-static void usage(void)
+static void usage(struct kshell_context *ctx)
 {
-    kshell_printf("usage: reboot [option] ...\n");
-    kshell_printf("\t-H  halt the machine\n");
-    kshell_printf("\t-S  switch off the machine\n");
-    kshell_printf("\t-R  cold restart the machine\n");
-    kshell_printf("\t-r  warn restart the machine\n");
-    kshell_printf("\t-s  soft restart the machine\n");
-    kshell_printf("\t-f  hard restart the machine\n");
-    kshell_printf("\t-h  display this message\n");
+    kshell_printf(ctx, "usage: reboot [option] ...\n");
+    kshell_printf(ctx, "\t-H  halt the machine\n");
+    kshell_printf(ctx, "\t-S  switch off the machine\n");
+    kshell_printf(ctx, "\t-R  cold restart the machine\n");
+    kshell_printf(ctx, "\t-r  warn restart the machine\n");
+    kshell_printf(ctx, "\t-s  soft restart the machine\n");
+    kshell_printf(ctx, "\t-f  hard restart the machine\n");
+    kshell_printf(ctx, "\t-h  display this message\n");
 }
 
-static state reset_main(int argc, char *argv[])
+static state reset_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     const char *para;
 
@@ -46,7 +46,7 @@ static state reset_main(int argc, char *argv[])
                     kernel_restart(POWER_RESTART_HARD);
 
                 case 'h': default:
-                    usage();
+                    usage(ctx);
                     return -ENOERR;
             }
         }

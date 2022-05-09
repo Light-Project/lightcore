@@ -219,7 +219,8 @@ static enum paser_state parser_state(enum paser_state state, char code, char *re
 #define PARSER_EXP_TPOS(tpos) PARSER_EXPANSION((tpos) + 1, 0)
 #define PARSER_EXP_APOS(tpos, vops) PARSER_EXPANSION((tpos) + 1, (vops) + 1)
 
-state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***argv)
+state kshell_parser(struct kshell_context *ctx, const char *cmdline,
+                    const char **pos, int *argc, char ***argv)
 {
     enum paser_state nstate, cstate = KSHELL_STATE_TEXT;
     unsigned int tpos = 0, tsize = PASER_TEXT_DEF;
@@ -247,7 +248,7 @@ state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***ar
         if (is_variable(cstate) && !is_variable(nstate)) {
             vbuff[vpos] = '\0';
             vpos = 0;
-            var = kshell_getenv(vbuff);
+            var = kshell_getenv(ctx, vbuff);
             if (var) {
                 count = strlen(var);
                 PARSER_EXP_TPOS(tpos + count + 1)
@@ -259,7 +260,7 @@ state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***ar
         if (is_retvalue(cstate) && !is_retvalue(nstate)) {
             vbuff[vpos] = '\0';
             vpos = 0;
-            retval = kshell_system(vbuff);
+            retval = kshell_system(ctx, vbuff);
             count = scnprintf(brack_buff, sizeof(brack_buff), "%d", retval);
             PARSER_EXP_TPOS(tpos + count + 1)
             strcpy(tbuff + tpos, brack_buff);
@@ -292,7 +293,7 @@ state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***ar
     /* If the last one is a variable, parse it out */
     if (is_shortvar(cstate)) {
         vbuff[vpos] = '\0';
-        var = kshell_getenv(vbuff);
+        var = kshell_getenv(ctx, vbuff);
         if (var) {
             count = strlen(var);
             PARSER_EXP_TPOS(tpos + count + 1)

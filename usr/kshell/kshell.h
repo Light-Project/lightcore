@@ -1,13 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#ifndef _KSHELL_PRIV_H_
-#define _KSHELL_PRIV_H_
+#ifndef _LOCAL_KSHELL_H_
+#define _LOCAL_KSHELL_H_
 
 #include <kshell.h>
 #include <spinlock.h>
 #include <console.h>
-
-typedef unsigned int (*readline_read_t)(char *str, unsigned int len, void *data);
-typedef void (*readline_write_t)(const char *str, unsigned int len, void *data);
 
 enum readline_esc {
     READLINE_ESC_NORM   = 0,
@@ -23,8 +20,8 @@ struct readline_history {
 };
 
 struct readline_state {
-    readline_read_t read;
-    readline_write_t write;
+    kshell_read_t read;
+    kshell_write_t write;
     void *data;
 
     char *buff;
@@ -43,21 +40,29 @@ struct readline_state {
 };
 
 struct kshell_env {
-    struct list_head list;
+    struct rb_node node;
     char *val, name[];
 };
 
-extern struct list_head kshell_list;
-extern struct list_head kshell_env_list;
-extern struct spinlock kshell_lock;
-extern struct spinlock kshell_env_lock;
+#define env_to_kshell(ptr) \
+    rb_entry(ptr, struct kshell_env, node)
 
+#define list_to_kshell(ptr) \
+    list_entry(ptr, struct kshell_command, list)
+
+extern struct list_head kshell_list;
+extern struct spinlock kshell_lock;
+
+extern unsigned int readline_read(struct readline_state *rstate, char *str, unsigned int len);
+extern void readline_write(struct readline_state *rstate, const char *str, unsigned int len);
 extern char *readline(struct readline_state *state, const char *prompt);
-extern struct readline_state *readline_alloc(readline_read_t read, readline_write_t write, void *data);
+extern struct readline_state *readline_alloc(kshell_read_t read, kshell_write_t write, void *data);
 extern void readline_free(struct readline_state *state);
 
-extern state kshell_parser(const char *cmdline, const char **pos, int *argc, char ***argv);
-extern state kshell_main(int argc, char *argv[]);
+extern state kshell_envclone(struct kshell_context *ctx, struct kshell_context *new);
+extern void kshell_envrelease(struct kshell_context *ctx);
+extern state kshell_parser(struct kshell_context *ctx, const char *cmdline, const char **pos, int *argc, char ***argv);
+extern state kshell_main(struct kshell_context *ctx, int argc, char *argv[]);
 extern struct kshell_command *kshell_find(const char *name);
 
 #endif  /* _KSHELL_PRIV_H_ */

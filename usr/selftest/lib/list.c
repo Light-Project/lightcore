@@ -29,7 +29,7 @@ static long list_test_sort(struct list_head *nodea, struct list_head *nodeb, voi
     return testa->num - testb->num;
 }
 
-static state list_test_testing(void *pdata)
+static state list_test_testing(struct kshell_context *ctx, void *pdata)
 {
     struct list_test_pdata *ldata = pdata;
     struct list_test_node *node, *nnode, *tnode;
@@ -49,7 +49,7 @@ static state list_test_testing(void *pdata)
 
     list_for_each(list, &test_head) {
         node = list_to_test(list);
-        kshell_printf("list 'list_for_each' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each' test: %lu\n", node->num);
         if (node->num == TEST_LOOP / 2)
             break;
     }
@@ -57,18 +57,18 @@ static state list_test_testing(void *pdata)
     tlist = list;
     list_for_each_continue(list, &test_head) {
         node = list_to_test(list);
-        kshell_printf("list 'list_for_each_continue' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_continue' test: %lu\n", node->num);
     }
 
     list = tlist;
     list_for_each_from(list, &test_head) {
         node = list_to_test(list);
-        kshell_printf("list 'list_for_each_from' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_from' test: %lu\n", node->num);
     }
 
     list_for_each_reverse(list, &test_head) {
         node = list_to_test(list);
-        kshell_printf("list 'list_for_each_reverse' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_reverse' test: %lu\n", node->num);
         if (node->num == TEST_LOOP / 2)
             break;
     }
@@ -76,18 +76,18 @@ static state list_test_testing(void *pdata)
     tlist = list;
     list_for_each_reverse_continue(list, &test_head) {
         node = list_to_test(list);
-        kshell_printf("list 'list_for_each_reverse_continue' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_reverse_continue' test: %lu\n", node->num);
     }
 
     list = tlist;
     list_for_each_reverse_from(list, &test_head) {
         node = list_to_test(list);
-        kshell_printf("list 'list_for_each_reverse_from' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_reverse_from' test: %lu\n", node->num);
     }
 
     list_for_each_safe(list, nlist, &test_head) {
         node = list_to_test(list);
-        kshell_printf("list 'list_for_each_safe' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_safe' test: %lu\n", node->num);
         if (node->num == TEST_LOOP / 2)
             break;
     }
@@ -95,18 +95,18 @@ static state list_test_testing(void *pdata)
     tlist = list;
     list_for_each_continue_safe(list, nlist, &test_head) {
         node = list_to_test(list);
-        kshell_printf("list 'list_for_each_continue_safe' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_continue_safe' test: %lu\n", node->num);
     }
 
     list = tlist;
     list_for_each_from_safe(list, nlist, &test_head) {
         node = list_to_test(list);
-        kshell_printf("list 'list_for_each_from_safe' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_from_safe' test: %lu\n", node->num);
     }
 
     list_for_each_reverse_safe(list, nlist, &test_head) {
         node = list_to_test(list);
-        kshell_printf("list 'list_for_each_reverse_safe' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_reverse_safe' test: %lu\n", node->num);
         if (node->num == TEST_LOOP / 2)
             break;
     }
@@ -114,65 +114,65 @@ static state list_test_testing(void *pdata)
     tlist = list;
     list_for_each_reverse_continue_safe(list, nlist, &test_head) {
         node = list_to_test(list);
-        kshell_printf("list 'list_for_each_reverse_continue_safe' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_reverse_continue_safe' test: %lu\n", node->num);
     }
 
     list = tlist;
     list_for_each_reverse_from_safe(list, nlist, &test_head) {
         node = list_to_test(list);
-        kshell_printf("list 'list_for_each_reverse_from_safe' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_reverse_from_safe' test: %lu\n", node->num);
     }
 
     list_for_each_entry(node, &test_head, list) {
-        kshell_printf("list 'list_for_each_entry' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_entry' test: %lu\n", node->num);
         if (node->num == TEST_LOOP / 2)
             break;
     }
 
     tnode = node;
     list_for_each_entry_continue(node, &test_head, list) {
-        kshell_printf("list 'list_for_each_entry_continue' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_entry_continue' test: %lu\n", node->num);
     }
 
     node = tnode;
     list_for_each_entry_from(node, &test_head, list) {
-        kshell_printf("list 'list_for_each_entry_from' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_entry_from' test: %lu\n", node->num);
     }
 
     list_for_each_entry_reverse(node, &test_head, list) {
-        kshell_printf("list 'list_for_each_entry_reverse' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_entry_reverse' test: %lu\n", node->num);
         if (node->num == TEST_LOOP / 2)
             break;
     }
 
     tnode = node;
     list_for_each_entry_reverse_continue(node, &test_head, list) {
-        kshell_printf("list 'list_for_each_entry_reverse_continue' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_entry_reverse_continue' test: %lu\n", node->num);
     }
 
     node = tnode;
     list_for_each_entry_reverse_from(node, &test_head, list) {
-        kshell_printf("list 'list_for_each_entry_reverse_from' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_entry_reverse_from' test: %lu\n", node->num);
     }
 
     list_for_each_entry_safe(node, nnode, &test_head, list) {
-        kshell_printf("list 'list_for_each_entry_safe' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_entry_safe' test: %lu\n", node->num);
         if (node->num == TEST_LOOP / 2)
             break;
     }
 
     tnode = node;
     list_for_each_entry_continue_safe(node, nnode, &test_head, list) {
-        kshell_printf("list 'list_for_each_entry_continue_safe' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_entry_continue_safe' test: %lu\n", node->num);
     }
 
     node = tnode;
     list_for_each_entry_from_safe(node, nnode, &test_head, list) {
-        kshell_printf("list 'list_for_each_entry_form_safe' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_entry_form_safe' test: %lu\n", node->num);
     }
 
     list_for_each_entry_reverse_safe(node, nnode, &test_head, list) {
-        kshell_printf("list 'list_for_each_entry_reverse_safe' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_entry_reverse_safe' test: %lu\n", node->num);
         if (node->num == TEST_LOOP / 2)
             break;
         list_del(&node->list);
@@ -180,19 +180,19 @@ static state list_test_testing(void *pdata)
 
     tnode = node;
     list_for_each_entry_reverse_continue_safe(node, nnode, &test_head, list) {
-        kshell_printf("list 'list_for_each_entry_reverse_continue_safe' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_entry_reverse_continue_safe' test: %lu\n", node->num);
     }
 
     node = tnode;
     list_for_each_entry_reverse_from_safe(node, nnode, &test_head, list) {
-        kshell_printf("list 'list_for_each_entry_reverse_form_safe' test: %lu\n", node->num);
+        kshell_printf(ctx, "list 'list_for_each_entry_reverse_form_safe' test: %lu\n", node->num);
         list_del(&node->list);
     }
 
     return -ENOERR;
 }
 
-static void *list_test_prepare(int argc, char *argv[])
+static void *list_test_prepare(struct kshell_context *ctx, int argc, char *argv[])
 {
     struct list_test_pdata *ldata;
     unsigned int count;
@@ -207,7 +207,7 @@ static void *list_test_prepare(int argc, char *argv[])
     return ldata;
 }
 
-static void list_test_release(void *pdata)
+static void list_test_release(struct kshell_context *ctx, void *pdata)
 {
     kfree(pdata);
 }

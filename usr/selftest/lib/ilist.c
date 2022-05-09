@@ -14,7 +14,7 @@ struct ilist_test_pdata {
     struct ilist_node nodes[TEST_LOOP];
 };
 
-static state ilist_test_testing(void *pdata)
+static state ilist_test_testing(struct kshell_context *ctx, void *pdata)
 {
     struct ilist_test_pdata *ldata = pdata;
     unsigned int count, count2;
@@ -22,7 +22,7 @@ static state ilist_test_testing(void *pdata)
     ILIST_HEAD(test_head);
 
     for (count = 0; count < TEST_LOOP; ++count) {
-        kshell_printf("ilist 'ilist_add' test%u single\n", count);
+        kshell_printf(ctx, "ilist 'ilist_add' test%u single\n", count);
         ilist_node_init(&ldata->nodes[count], count);
         ilist_add(&test_head, &ldata->nodes[count]);
     }
@@ -32,7 +32,7 @@ static state ilist_test_testing(void *pdata)
 
     for (count = 0; count < TEST_LOOP / 2; ++count) {
         for (count2 = 0; count2 < 2; ++count2) {
-            kshell_printf("ilist 'ilist_add' test%u multi%u\n", count * 2 + count2, count2);
+            kshell_printf(ctx, "ilist 'ilist_add' test%u multi%u\n", count * 2 + count2, count2);
             ilist_node_init(&ldata->nodes[count * 2 + count2], count2);
             ilist_add(&test_head, &ldata->nodes[count * 2 + count2]);
         }
@@ -44,12 +44,12 @@ static state ilist_test_testing(void *pdata)
     return -ENOERR;
 }
 
-static void *ilist_test_prepare(int argc, char *argv[])
+static void *ilist_test_prepare(struct kshell_context *ctx, int argc, char *argv[])
 {
     return kmalloc(sizeof(struct ilist_test_pdata), GFP_KERNEL);;
 }
 
-static void ilist_test_release(void *pdata)
+static void ilist_test_release(struct kshell_context *ctx, void *pdata)
 {
     kfree(pdata);
 }

@@ -15,7 +15,7 @@ struct memmove_pdata {
     uint8_t mempool_b[SZ_1MiB];
 };
 
-static state memmove_testing(void *pdata)
+static state memmove_testing(struct kshell_context *ctx, void *pdata)
 {
     struct memmove_pdata *mdata = pdata;
     ktime_t start = timekeeping_get_time();
@@ -31,11 +31,11 @@ static state memmove_testing(void *pdata)
     ));
 
     gsize(sbuff, count * SZ_1MiB);
-    kshell_printf("memmove bandwidth: %s/s\n", sbuff);
+    kshell_printf(ctx, "memmove bandwidth: %s/s\n", sbuff);
     return -ENOERR;
 }
 
-static void *memmove_prepare(int argc, char *argv[])
+static void *memmove_prepare(struct kshell_context *ctx, int argc, char *argv[])
 {
     struct memmove_pdata *pdata;
 
@@ -46,7 +46,7 @@ static void *memmove_prepare(int argc, char *argv[])
     return pdata;
 }
 
-static void memmove_release(void *pdata)
+static void memmove_release(struct kshell_context *ctx, void *pdata)
 {
     vfree(pdata);
 }

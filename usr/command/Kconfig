@@ -3,7 +3,7 @@ menu "Kshell Command Shell"
     depends on KSH
 
 config KCMD_CLEAR
-    bool "CLEAR Command Support"
+    bool "Clear Command Support"
     default y
 
 config KCMD_COND

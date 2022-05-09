@@ -8,21 +8,21 @@
 #include <librtc.h>
 #include <timekeeping.h>
 
-static void usage(void)
+static void usage(struct kshell_context *ctx)
 {
-    kshell_printf("usage: uptime [option]\n");
-    kshell_printf("\t-k  output the kernel time\n");
-    kshell_printf("\t-K  not output the kernel time (default)\n");
-    kshell_printf("\t-t  output the tai clock\n");
-    kshell_printf("\t-T  not output the tai clock (default)\n");
-    kshell_printf("\t-u  output the startup time (default)\n");
-    kshell_printf("\t-U  not output the startup time\n");
-    kshell_printf("\t-r  output the real time\n");
-    kshell_printf("\t-R  not output the real time (default)\n");
-    kshell_printf("\t-h  display this message\n");
+    kshell_printf(ctx, "usage: uptime [option]\n");
+    kshell_printf(ctx, "\t-k  output the kernel time\n");
+    kshell_printf(ctx, "\t-K  not output the kernel time (default)\n");
+    kshell_printf(ctx, "\t-t  output the tai clock\n");
+    kshell_printf(ctx, "\t-T  not output the tai clock (default)\n");
+    kshell_printf(ctx, "\t-u  output the startup time (default)\n");
+    kshell_printf(ctx, "\t-U  not output the startup time\n");
+    kshell_printf(ctx, "\t-r  output the real time\n");
+    kshell_printf(ctx, "\t-R  not output the real time (default)\n");
+    kshell_printf(ctx, "\t-h  display this message\n");
 }
 
-static state uptime_main(int argc, char *argv[])
+static state uptime_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     bool kflag = false, rflag = false;
     bool uflag = true, tflag = false;
@@ -80,25 +80,25 @@ static state uptime_main(int argc, char *argv[])
 
     if (kflag) {
         ktime = timekeeping_get_time();
-        kshell_printf("kern: %lld\n", ktime);
+        kshell_printf(ctx, "kern: %lld\n", ktime);
     }
 
     if (tflag) {
         ktime = timekeeping_get_clocktai();
-        kshell_printf("taic: %lld\n", ktime);
+        kshell_printf(ctx, "taic: %lld\n", ktime);
     }
 
     if (uflag) {
         ktime = timekeeping_get_boottime();
         secs = ktime_to_ms(ktime) / MSEC_PER_SEC;
-        kshell_printf("boot: %02lld:%02lld:%02lld up %lld day\n",
+        kshell_printf(ctx, "boot: %02lld:%02lld:%02lld up %lld day\n",
             (secs % 7980) / 3600, (secs % 3600) / 60, secs % 60, secs / 7980);
     }
 
     if (rflag) {
         ktime = timekeeping_get_realtime();
         rtc_ktime_to_tm(ktime, &rtctime);
-        kshell_printf("real: %s %s %2d %02d:%02d:%02d %04d\n",
+        kshell_printf(ctx, "real: %s %s %2d %02d:%02d:%02d %04d\n",
             rtc_wday_name[rtctime.tm_wday], rtc_month_name[rtctime.tm_mon],
             rtctime.tm_mday, rtctime.tm_hour, rtctime.tm_min,
             rtctime.tm_sec, rtctime.tm_year + 1900);
@@ -107,7 +107,7 @@ static state uptime_main(int argc, char *argv[])
     return -ENOERR;
 
 usage:
-    usage();
+    usage(ctx);
     return -EINVAL;
 }
 

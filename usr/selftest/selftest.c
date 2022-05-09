@@ -58,23 +58,23 @@ void selftest_unregister(struct selftest_command *cmd)
 }
 EXPORT_SYMBOL(selftest_unregister);
 
-static void usage(void)
+static void usage(struct kshell_context *ctx)
 {
     struct selftest_command *cmd;
     char buff[64];
 
-    kshell_printf("usage: selftest [option] [group:name]...\n");
-    kshell_printf("\t-c  <count>  number of repetitions for each test\n");
-    kshell_printf("\t-i  output detailed debugging information\n");
-    kshell_printf("\t-h  show this help\n");
-    kshell_printf("Supported selftests:\n");
+    kshell_printf(ctx, "usage: selftest [option] [group:name]...\n");
+    kshell_printf(ctx, "\t-c  <count>  number of repetitions for each test\n");
+    kshell_printf(ctx, "\t-i  output detailed debugging information\n");
+    kshell_printf(ctx, "\t-h  show this help\n");
+    kshell_printf(ctx, "Supported selftests:\n");
 
     spin_lock(&selftest_lock);
     list_for_each_entry(cmd, &selftest_list, list) {
         strncpy(buff, cmd->group, sizeof(buff));
         strncat(buff, ":", sizeof(buff));
         strncat(buff, cmd->name, sizeof(buff));
-        kshell_printf("\t%-16s - %s\n", buff, cmd->desc);
+        kshell_printf(ctx, "\t%-16s - %s\n", buff, cmd->desc);
     }
     spin_unlock(&selftest_lock);
 }
@@ -111,58 +111,59 @@ static struct selftest_command *selftest_iter(const char *name, struct selftest_
     return (!prev && separate) ? NULL : find;
 }
 
-static int __printf(2, 3) selftest_msg(bool info, const char *str, ...)
+static int __printf(3, 4) selftest_msg(struct kshell_context *ctx, bool info, const char *str, ...)
 {
     va_list args;
     int len = 0;
 
     if (info) {
         va_start(args,str);
-        len = kshell_vprintf(str, args);
+        len = kshell_vprintf(ctx, str, args);
         va_end(args);
     }
 
     return len;
 }
 
-static state selftest_one(bool info, struct selftest_command *cmd, unsigned int count, int argc, char *argv[])
+static state selftest_one(struct kshell_context *ctx, struct selftest_command *cmd,
+                          bool info, unsigned int count, int argc, char *argv[])
 {
     void *pdata = NULL;
     unsigned int tmp;
     state ret;
 
-    selftest_msg(info, "================================\n");
-    selftest_msg(info, "Selftest one {%s:%s}\n", cmd->group, cmd->name);
+    selftest_msg(ctx, info, "================================\n");
+    selftest_msg(ctx, info, "Selftest one {%s:%s}\n", cmd->group, cmd->name);
 
     if (cmd->prepare) {
-        selftest_msg(info, "Preparing...\n");
-        pdata = cmd->prepare(argc, argv);
+        selftest_msg(ctx, info, "Preparing...\n");
+        pdata = cmd->prepare(ctx, argc, argv);
         ret = PTR_ERR(pdata);
-        selftest_msg(info, "Prepared: (%d) %s\n",
+        selftest_msg(ctx, info, "Prepared: (%d) %s\n",
             ret, ret ? MESSAGE_FAIL : MESSAGE_PASS);
         if (ret)
             return ret;
     }
 
     for (tmp = 1; tmp <= count; ++tmp) {
-        selftest_msg(info, "Testing loop%u...\n", tmp);
-        ret = cmd->testing(pdata);
-        selftest_msg(info, "Tested (%d) %s\n",
+        selftest_msg(ctx, info, "Testing loop%u...\n", tmp);
+        ret = cmd->testing(ctx, pdata);
+        selftest_msg(ctx, info, "Tested (%d) %s\n",
             ret, ret ? MESSAGE_FAIL : MESSAGE_PASS);
-        if (ret || kshell_ctrlc())
+        if (ret || kshell_ctrlc(ctx))
             break;
     }
 
     if (cmd->release) {
-        selftest_msg(info, "Releasing...\n");
-        cmd->release(pdata);
-        selftest_msg(info, "Released.\n");
+        selftest_msg(ctx, info, "Releasing...\n");
+        cmd->release(ctx, pdata);
+        selftest_msg(ctx, info, "Released.\n");
     }
 
     return ret;
 }
 
-static state selftest_all(bool info, unsigned int count)
+static state selftest_all(struct kshell_context *ctx, bool info, unsigned int count)
 {
     struct selftest_command *cmd;
     state ret;
@@ -170,8 +171,8 @@ static state selftest_all(bool info, unsigned int count)
     spin_lock(&selftest_lock);
 
     list_for_each_entry(cmd, &selftest_list, list) {
-        ret = selftest_one(info, cmd, count, 0, NULL);
-        if (ret || kshell_ctrlc())
+        ret = selftest_one(ctx, cmd, info, count, 0, NULL);
+        if (ret || kshell_ctrlc(ctx))
             break;
     }
 
@@ -179,7 +180,7 @@ static state selftest_all(bool info, unsigned int count)
     return ret;
 }
 
-static state selftest_main(int argc, char *argv[])
+static state selftest_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     struct selftest_command *cmd;
     unsigned int count, loop = 1;
@@ -211,17 +212,17 @@ static state selftest_main(int argc, char *argv[])
     }
 
     if (count == argc)
-        ret = selftest_all(iflag, loop);
+        ret = selftest_all(ctx, iflag, loop);
 
     else for ((void)((cmd = selftest_iter(argv[count], NULL)) || ({goto usage; 1;}));
-              cmd && !ret && !kshell_ctrlc(); cmd = selftest_iter(argv[count], cmd)) {
-        ret = selftest_one(iflag, cmd, loop, argc - count + 1, &argv[count]);
+              cmd && !ret && !kshell_ctrlc(ctx); cmd = selftest_iter(argv[count], cmd)) {
+        ret = selftest_one(ctx, cmd, iflag, loop, argc - count + 1, &argv[count]);
     }
 
     return ret;
 
 usage:
-    usage();
+    usage(ctx);
     return -EINVAL;
 }
 

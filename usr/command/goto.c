@@ -7,13 +7,13 @@
 #include <string.h>
 #include <initcall.h>
 
-static void usage(void)
+static void usage(struct kshell_context *ctx)
 {
-    kshell_printf("usage: goto [option] [address]...\n");
-    kshell_printf("\t-h  display this message\n");
+    kshell_printf(ctx, "usage: goto [option] [address]...\n");
+    kshell_printf(ctx, "\t-h  display this message\n");
 }
 
-static int goto_main(int argc, char *argv[])
+static int goto_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     state (*program)(int argc, char *argv[]);
     unsigned int count;
@@ -38,14 +38,14 @@ static int goto_main(int argc, char *argv[])
     if (!program)
         goto usage;
 
-    kshell_printf("Goto program at (%p)\n", program);
+    kshell_printf(ctx, "Goto program at (%p)\n", program);
     retval = program(argc - count - 1, &argv[count + 1]);
-    kshell_printf("Program terminated, retval (%d)\n", retval);
+    kshell_printf(ctx, "Program terminated, retval (%d)\n", retval);
 
     return retval;
 
 usage:
-    usage();
+    usage(ctx);
     return -EINVAL;
 }
 

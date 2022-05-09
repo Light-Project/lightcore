@@ -7,13 +7,13 @@
 #include <initcall.h>
 #include <string.h>
 
-static void usage(void)
+static void usage(struct kshell_context *ctx)
 {
-    kshell_printf("usage: while [option] 'condition' {commands}\n");
-    kshell_printf("\t-h  display this message\n");
+    kshell_printf(ctx, "usage: while [option] 'condition' {commands}\n");
+    kshell_printf(ctx, "\t-h  display this message\n");
 }
 
-static state while_main(int argc, char *argv[])
+static state while_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     unsigned int count;
     state retval = -ENOERR;
@@ -33,10 +33,10 @@ static state while_main(int argc, char *argv[])
     if (argc < count + 2)
         goto usage;
 
-    while (!kshell_system(argv[count + 0])) {
-        if (kshell_ctrlc())
+    while (!kshell_system(ctx, argv[count + 0])) {
+        if (kshell_ctrlc(ctx))
             break;
-        retval = kshell_system(argv[count + 1]);
+        retval = kshell_system(ctx, argv[count + 1]);
         if (retval && retval != -EAGAIN)
             break;
         retval = -ENOERR;
@@ -45,7 +45,7 @@ static state while_main(int argc, char *argv[])
     return retval;
 
 usage:
-    usage();
+    usage(ctx);
     return -EINVAL;
 }
 

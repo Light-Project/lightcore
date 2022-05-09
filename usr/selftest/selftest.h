@@ -10,9 +10,9 @@ struct selftest_command {
     const char *group;
     const char *name;
     const char *desc;
-    state (*testing)(void *pdata);
-    void *(*prepare)(int argc, char *argv[]);
-    void (*release)(void *pdata);
+    state (*testing)(struct kshell_context *ctx, void *pdata);
+    void *(*prepare)(struct kshell_context *ctx, int argc, char *argv[]);
+    void (*release)(struct kshell_context *ctx, void *pdata);
 };
 
 extern state selftest_register(struct selftest_command *command);

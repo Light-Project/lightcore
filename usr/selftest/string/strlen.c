@@ -14,7 +14,7 @@ struct strlen_pdata {
     char mempool[SZ_1MiB];
 };
 
-static state strlen_testing(void *pdata)
+static state strlen_testing(struct kshell_context *ctx, void *pdata)
 {
     struct strlen_pdata *mdata = pdata;
     ktime_t start = timekeeping_get_time();
@@ -31,11 +31,11 @@ static state strlen_testing(void *pdata)
     ));
 
     gsize(sbuff, count * SZ_1MiB);
-    kshell_printf("strlen bandwidth: %s/s\n", sbuff);
+    kshell_printf(ctx, "strlen bandwidth: %s/s\n", sbuff);
     return -ENOERR;
 }
 
-static void *strlen_prepare(int argc, char *argv[])
+static void *strlen_prepare(struct kshell_context *ctx, int argc, char *argv[])
 {
     struct strlen_pdata *pdata;
     unsigned int count;
@@ -52,7 +52,7 @@ static void *strlen_prepare(int argc, char *argv[])
     return pdata;
 }
 
-static void strlen_release(void *pdata)
+static void strlen_release(struct kshell_context *ctx, void *pdata)
 {
     vfree(pdata);
 }

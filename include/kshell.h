@@ -3,16 +3,31 @@
 #define _KSHELL_H_
 
 #include <list.h>
+#include <rbtree.h>
+
+struct readline_state;
+typedef unsigned int (*kshell_read_t)(char *str, unsigned int len, void *data);
+typedef void (*kshell_write_t)(const char *str, unsigned int len, void *data);
+
+struct kshell_context {
+    kshell_read_t read;
+    kshell_write_t write;
+    void *data;
+    struct readline_state *readline;
+    struct rb_root env;
+#ifdef CONFIG_KCMD_FUNC
+    struct rb_root func;
+#endif
+};
 
 struct kshell_command {
     const char *name;
     const char *desc;
     struct list_head list, complete;
-    state (*exec)(int argc, char *argv[]);
+    state (*exec)(struct kshell_context *ctx, int argc, char *argv[]);
+    state (*prepare)(struct kshell_context *ctx);
+    void (*release)(struct kshell_context *ctx);
 };
-
-#define list_to_kshell(ptr) \
-    container_of(ptr, struct kshell_command, list)
 
 #ifndef CONFIG_KSHELL
 
@@ -20,20 +35,20 @@ static inline void ksh_init(void) {}
 
 #else  /* !CONFIG_KSHELL */
 
-extern char *kshell_getenv(const char *name);
-extern state kshell_putenv(char *string);
-extern state kshell_setenv(const char *name, const char *val, bool overwrite);
-extern state kshell_unsetenv(const char *name);
+extern char *kshell_getenv(struct kshell_context *ctx, const char *name);
+extern state kshell_putenv(struct kshell_context *ctx, char *string);
+extern state kshell_setenv(struct kshell_context *ctx, const char *name, const char *val, bool overwrite);
+extern state kshell_unsetenv(struct kshell_context *ctx, const char *name);
 
-extern state kshell_exec(const struct kshell_command *cmd, int argc, char *argv[]);
-extern state kshell_execv(const char *name, int argc, char *argv[]);
-extern state kshell_system(const char *cmdline);
-extern bool kshell_ctrlc(void);
+extern state kshell_exec(struct kshell_context *ctx, const struct kshell_command *cmd, int argc, char *argv[]);
+extern state kshell_execv(struct kshell_context *ctx, const char *name, int argc, char *argv[]);
+extern state kshell_system(struct kshell_context *ctx, const char *cmdline);
+extern bool kshell_ctrlc(struct kshell_context *ctx);
 
-extern int kshell_vprintf(const char *str, va_list args);
-extern int __printf(1, 2) kshell_printf(const char *str, ...);
-extern state kshell_register(struct kshell_command *);
-extern void kshell_unregister(struct kshell_command *);
+extern int kshell_vprintf(struct kshell_context *ctx, const char *str, va_list args);
+extern int __printf(2, 3) kshell_printf(struct kshell_context *ctx, const char *str, ...);
+extern state kshell_register(struct kshell_command *cmd);
+extern void kshell_unregister(struct kshell_command *cmd);
 extern void ksh_init(void);
 
 #endif  /* CONFIG_KSHELL */

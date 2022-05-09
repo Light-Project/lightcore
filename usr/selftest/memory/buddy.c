@@ -11,7 +11,7 @@
 
 #define TEST_LOOP 100
 
-static state buddy_testing(void *pdata)
+static state buddy_testing(struct kshell_context *ctx, void *pdata)
 {
     struct page *test_pool[TEST_LOOP];
     unsigned int count, tmp;
@@ -19,20 +19,20 @@ static state buddy_testing(void *pdata)
 
     for (count = 0; count < TEST_LOOP; ++count) {
         tmp = (unsigned int)random_long() % PAGE_ORDER_MAX;
-        kshell_printf("buddy alloc test%02u order (%02u): ", count, tmp);
+        kshell_printf(ctx, "buddy alloc test%02u order (%02u): ", count, tmp);
         test_pool[count] = page_alloc(tmp, GFP_KERNEL);
         if (!test_pool[count]) {
-            kshell_printf("failed\n");
+            kshell_printf(ctx, "failed\n");
             ret = -ENOMEM;
             goto error;
         }
         memset(page_address(test_pool[count]), 0, page_size(test_pool[count]));
-        kshell_printf("pass\n");
+        kshell_printf(ctx, "pass\n");
     }
 
 error:
     for (tmp = 0; tmp < count; ++tmp) {
-        kshell_printf("buddy free test%02u: order (%02u)\n", tmp, page_order(test_pool[tmp]));
+        kshell_printf(ctx, "buddy free test%02u: order (%02u)\n", tmp, page_order(test_pool[tmp]));
         page_free(test_pool[tmp]);
     }
 

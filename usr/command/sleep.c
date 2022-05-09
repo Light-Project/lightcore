@@ -7,15 +7,15 @@
 #include <initcall.h>
 #include <delay.h>
 
-static void usage(void)
+static void usage(struct kshell_context *ctx)
 {
-	kshell_printf("usage: sleep [millisecond]\n");
+	kshell_printf(ctx, "usage: sleep [millisecond]\n");
 }
 
-static state delay_main(int argc, char *argv[])
+static state delay_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     if (argc < 2) {
-        usage();
+        usage(ctx);
         return -EINVAL;
     }
 

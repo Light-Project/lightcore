@@ -12,10 +12,11 @@
 
 static state kcoro_task_a(void *pdata)
 {
+    struct kshell_context *ctx = pdata;
     unsigned int count = TEST_LOOP;
 
     while (count--) {
-        kshell_printf("kcoro task a running...\n");
+        kshell_printf(ctx, "kcoro task a running...\n");
         kcoro_yield();
     }
 
@@ -25,10 +26,11 @@ static state kcoro_task_a(void *pdata)
 
 static state kcoro_task_b(void *pdata)
 {
+    struct kshell_context *ctx = pdata;
     unsigned int count = TEST_LOOP;
 
     while (count--) {
-        kshell_printf("kcoro task b running...\n");
+        kshell_printf(ctx, "kcoro task b running...\n");
         mdelay(10);
         kcoro_yield();
     }
@@ -39,10 +41,11 @@ static state kcoro_task_b(void *pdata)
 
 static state kcoro_task_c(void *pdata)
 {
+    struct kshell_context *ctx = pdata;
     unsigned int count = TEST_LOOP;
 
     while (count--) {
-        kshell_printf("kcoro task c running...\n");
+        kshell_printf(ctx, "kcoro task c running...\n");
         kcoro_msleep(10);
         kcoro_yield();
     }
@@ -51,7 +54,7 @@ static state kcoro_task_c(void *pdata)
     return -ENOERR;
 }
 
-static state kcoro_testing(void *pdata)
+static state kcoro_testing(struct kshell_context *ctx, void *pdata)
 {
     struct kcoro_worker *worker;
     struct kcoro_work *work_a;
@@ -63,9 +66,9 @@ static state kcoro_testing(void *pdata)
     if (unlikely(ret = PTR_ERR(worker)))
         return ret;
 
-    work_a = kcoro_work_create(worker, kcoro_task_a, NULL, "kcoro test task a");
-    work_b = kcoro_work_create(worker, kcoro_task_b, NULL, "kcoro test task b");
-    work_c = kcoro_work_create(worker, kcoro_task_c, NULL, "kcoro test task b");
+    work_a = kcoro_work_create(worker, kcoro_task_a, ctx, "kcoro test task a");
+    work_b = kcoro_work_create(worker, kcoro_task_b, ctx, "kcoro test task b");
+    work_c = kcoro_work_create(worker, kcoro_task_c, ctx, "kcoro test task b");
 
     if ((ret = PTR_ERR(work_a)) ||
         (ret = PTR_ERR(work_b)) ||

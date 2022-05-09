@@ -12,7 +12,7 @@
 #define TEST_LOOP   100
 #define TEST_SIZE   SZ_1MiB
 
-static state vmem_testing(void *pdata)
+static state vmem_testing(struct kshell_context *ctx, void *pdata)
 {
     struct vmem_area *test_pool[TEST_LOOP];
     char sbuff[32];
@@ -23,19 +23,19 @@ static state vmem_testing(void *pdata)
     for (count = 0; count < TEST_LOOP; ++count) {
         size = ((unsigned int)random_long() % TEST_SIZE) + TEST_SIZE;
         gsize(sbuff, size);
-        kshell_printf("vmem alloc test%02u size (%s): ", count, sbuff);
+        kshell_printf(ctx, "vmem alloc test%02u size (%s): ", count, sbuff);
         test_pool[count] = vmem_alloc(size);
         if (!test_pool[count]) {
-            kshell_printf("failed\n");
+            kshell_printf(ctx, "failed\n");
             ret = -ENOMEM;
             goto error;
         }
-        kshell_printf("pass\n");
+        kshell_printf(ctx, "pass\n");
     }
 
 error:
     for (tmp = 0; tmp < count; ++tmp) {
-        kshell_printf("vmem free test%02u\n", tmp);
+        kshell_printf(ctx, "vmem free test%02u\n", tmp);
         vmem_free(test_pool[tmp]);
     }
 

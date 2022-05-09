@@ -12,7 +12,7 @@ static const uint64_t memdump_data[] = {
     0x0123456789abcdef, 0xfedcba9876543210,
 };
 
-static state memdump_test_testing(void *pdata)
+static state memdump_test_testing(struct kshell_context *ctx, void *pdata)
 {
     memdump_print("", "memdump-test: ", MEMDUMP_PREFIX_NONE, memdump_data, sizeof(memdump_data), 16, 1, 8, true);
     memdump_print("", "memdump-test: ", MEMDUMP_PREFIX_NONE, memdump_data, sizeof(memdump_data), 16, 1, 10, true);
