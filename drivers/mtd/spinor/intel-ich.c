@@ -31,11 +31,8 @@ static void ich_spi_dump_regs(struct ich_device *idev)
         dev_debug(idev->spinor.device, "  FREG%d=0x%08x\n", count, readl(idev->base + ICH_SPI_FREG(count)));
     for (count = 0; count < ICH_SPI_FDATA_NR; ++count)
         dev_debug(idev->spinor.device, "  FDATA%d=0x%08x\n", count, readl(idev->base + ICH_SPI_FDATA(count)));
-
-#if 0
     for (count = 0; count < ICH_SPI_FPR_NR; ++count)
-        dev_debug(idev->spinor.device, "FPR%d=0x%08x\n", count, readl(idev->base + ICH_SPI_FPR(count)));
-#endif
+        dev_debug(idev->spinor.device, "  FPR%d=0x%08x\n", count, readl(idev->base + ICH_SPI_FPR(count)));
 
     dev_debug(idev->spinor.device, "  BFPR=0x%08x\n",       readl(idev->base + ICH_SPI_BFPR));
     dev_debug(idev->spinor.device, "  HSFS=0x%04x\n",       readw(idev->base + ICH_SPI_HSFS));
@@ -157,7 +154,7 @@ static state ich_spi_read(struct spinor_device *nor, loff_t pos, void *buf, uint
             return -EACCES;
         }
 
-        memcpy_formio(buf, idev->base + ICH_SPI_FDATA_BASE, xfer);
+        memcpy_formio(buf, idev->base + ICH_SPI_FDATA, xfer);
     }
 
     return count;
@@ -172,7 +169,7 @@ static state ich_spi_write(struct spinor_device *nor, loff_t pos, void *buf, uin
         xfer = min(len, ICH_SPI_BUFFER_SIZE);
         xfer = min(pos + xfer, round_up(pos + 1, SZ_4KiB)) - pos;
 
-        memcpy_toio(idev->base + ICH_SPI_FDATA_BASE, buf, xfer);
+        memcpy_toio(idev->base + ICH_SPI_FDATA, buf, xfer);
 
         writel(idev->base + ICH_SPI_FADDR, pos);
         val = readw(idev->base + ICH_SPI_HSFS);

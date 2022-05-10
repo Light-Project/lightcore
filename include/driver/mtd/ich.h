@@ -7,10 +7,10 @@ enum ich_spi_registers {
     ICH_SPI_HSFS        = 0x04,     /* Hardware Sequencing Flash Status */
     ICH_SPI_HSFC        = 0x06,     /* Hardware Sequencing Flash Control */
     ICH_SPI_FADDR       = 0x08,     /* Flash Address */
-    ICH_SPI_FDATA_BASE  = 0x10,     /* Flash Data */
+    ICH_SPI_FDATA       = 0x10,     /* Flash Data */
     ICH_SPI_FRACC       = 0x50,     /* Flash Region Access Permissions */
-    ICH_SPI_FREG_BASE   = 0x54,     /* Flash Region */
-    ICH_SPI_FPR_BASE    = 0x74,     /* Flash Protected Range */
+    ICH_SPI_FREG        = 0x54,     /* Flash Region */
+    ICH_SPI_FPR         = 0x74,     /* Flash Protected Range */
     ICH_SPI_SSFS        = 0x90,     /* Software Sequencing Flash Status */
     ICH_SPI_SSFC        = 0x91,     /* Software Sequencing Flash Control */
     ICH_SPI_PREOP       = 0x94,     /* Prefix Opcode Configuration */
@@ -21,13 +21,13 @@ enum ich_spi_registers {
 };
 
 #define ICH_SPI_FDATA_NR        16
-#define ICH_SPI_FDATA(index)    (ICH_SPI_FDATA_BASE + ((index) * 4))
+#define ICH_SPI_FDATA(index)    (ICH_SPI_FDATA + ((index) * 4))
 
 #define ICH_SPI_FREG_NR         5
-#define ICH_SPI_FREG(index)     (ICH_SPI_FREG_BASE + ((index) * 4))
+#define ICH_SPI_FREG(index)     (ICH_SPI_FREG + ((index) * 4))
 
 #define ICH_SPI_FPR_NR          5
-#define ICH_SPI_FPR(index)      (ICH_SPI_FPR_BASE + ((index) * 4))
+#define ICH_SPI_FPR(index)      (ICH_SPI_FPR + ((index) * 4))
 
 /********************************************************************************************/
 /*      Mnemonic                        value               meaning/usage                   */
