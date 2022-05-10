@@ -13,8 +13,14 @@ struct kshell_context {
     kshell_read_t read;
     kshell_write_t write;
     void *data;
+
     struct readline_state *readline;
     struct rb_root env;
+
+    unsigned int pipesize;
+    unsigned int pipepos;
+    char *pipeline;
+
 #ifdef CONFIG_KCMD_FUNC
     struct rb_root func;
 #endif
