@@ -7,14 +7,46 @@
 #include <initcall.h>
 #include <timekeeping.h>
 
+static void usage(struct kshell_context *ctx)
+{
+    kshell_printf(ctx, "usage: time [option] {commands}\n");
+    kshell_printf(ctx, "\t-h  display this message\n");
+}
+
 static state time_main(struct kshell_context *ctx, int argc, char *argv[])
 {
-    ktime_t start = timekeeping_get_time();
-    kshell_execv(ctx, argv[1], argc - 1, &argv[1]);
-    kshell_printf(ctx, "total %llu.%03llums exec \"%s\"\n",
-        ktime_to_ms(ktime_sub(timekeeping_get_time(), start)),
-        ktime_to_us(ktime_sub(timekeeping_get_time(), start)) % 1000 / 10, argv[1]);
-    return -ENOERR;
+    unsigned int count;
+    ktime_t start, end;
+    state ret = -ENOERR;
+
+    for (count = 1; count < argc; ++count) {
+        char *para = argv[count];
+
+        if (para[0] != '-')
+            break;
+
+        switch (para[1]) {
+            case 'h': default:
+                goto usage;
+        }
+    }
+
+    if (argc < count + 1)
+        goto usage;
+
+    start = timekeeping_get_time();
+    ret = kshell_execv(ctx, argv[count], argc - count, &argv[count]);
+    end = timekeeping_get_time();
+
+    kshell_printf(ctx, "total %llu.%06llums exec \"%s\"\n",
+                  ktime_to_ms(ktime_sub(end, start)),
+                  ktime_to_ns(ktime_sub(end, start)) % 1000000, argv[1]);
+
+    return ret;
+
+usage:
+    usage(ctx);
+    return -EINVAL;
 }
 
 static struct kshell_command time_cmd = {
