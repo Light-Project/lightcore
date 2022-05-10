@@ -75,12 +75,12 @@ static char *prev_number(struct kshell_context *ctx, char *start, char *end,
             result = get_value(ctx, end, varname);
             break;
         } else if (!alnum) {
-            if (is_value(*curr, false)) {
+            if (is_value(*curr, false))
                 alnum = true;
-                varname = curr;
-            } else if (!isspace(*curr))
+            else if (!isspace(*curr))
                 return NULL;
         }
+        varname = curr;
     }
 
     if (alnum && curr < start)
