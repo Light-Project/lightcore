@@ -352,7 +352,7 @@ static void slob_free(const void *block)
     irqflags_t irq_save;
     int retval;
 
-    if (BUG_ON(!block))
+    if (unlikely(!block))
         return;
 
     if (unlikely(page->type != PAGE_SLOB)) {
@@ -401,17 +401,18 @@ finish:
 
 size_t ksize(const void *block)
 {
-    struct slob_page *slob_page;
     struct slob_node *node;
     struct page *page;
 
-    if (BUG_ON(!block))
+    if (unlikely(!block))
         return 0;
 
     page = va_to_page(block);
-    slob_page = &page->slob;
 
-    if (slob_page->node == SLOB_PAGEUSE)
+    if (page->type != PAGE_SLOB)
+        return 0;
+
+    if (page->slob.node == SLOB_PAGEUSE)
         return page_size(page);
 
     node = slob_node_find(&page->slob, block, NULL, NULL, SLOB_ALIGN);
@@ -438,17 +439,15 @@ static struct page *kmalloc_large(size_t size, gfp_t flags, int numa, size_t ali
 void *kmalloc_numa_align(size_t size, gfp_t flags, int numa, size_t align)
 {
     struct page *page;
-    void *block;
 
     if (size <= (PAGE_SIZE - SLOB_ALIGN) && align <= (PAGE_SIZE / 2))
-        block = slob_alloc(size, flags, align, numa);
+        return slob_alloc(size, flags, align, numa);
 
-    else {
-        page = kmalloc_large(size, flags, numa, align);
-        block = page_address(page);
-    }
+    page = kmalloc_large(size, flags, numa, align);
+    if (unlikely(!page))
+        return NULL;
 
-    return block;
+    return page_address(page);
 }
 EXPORT_SYMBOL(kmalloc_numa_align);
 
