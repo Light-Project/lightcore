@@ -41,20 +41,23 @@ enum paser_state {
     KSHELL_STATE_QVARIABLE  = 12,
     KSHELL_STATE_EVARIABLE  = 13,
 
-    KSHELL_STATE_RETVAL     = 14,
-    KSHELL_STATE_QRETVAL    = 15,
-    KSHELL_STATE_ERETVAL    = 16,
+    KSHELL_STATE_OUTPUT     = 14,
+    KSHELL_STATE_QOUTPUT    = 15,
+    KSHELL_STATE_EOUTPUT    = 16,
+    KSHELL_STATE_LOUTPUT    = 20,
+    KSHELL_STATE_LQOUTPUT   = 21,
+    KSHELL_STATE_LEOUTPUT   = 22,
 
-    KSHELL_STATE_OUTPUT     = 17,
-    KSHELL_STATE_QOUTPUT    = 18,
-    KSHELL_STATE_EOUTPUT    = 19,
+    KSHELL_STATE_RETVAL     = 17,
+    KSHELL_STATE_QRETVAL    = 18,
+    KSHELL_STATE_ERETVAL    = 19,
 
-    KSHELL_STATE_VARNAME    = 20,
-    KSHELL_STATE_QVARNAME   = 21,
-    KSHELL_STATE_EVARNAME   = 22,
-    KSHELL_STATE_LVARNAME   = 23,
-    KSHELL_STATE_LQVARNAME  = 24,
-    KSHELL_STATE_LEVARNAME  = 25,
+    KSHELL_STATE_VARNAME    = 23,
+    KSHELL_STATE_QVARNAME   = 24,
+    KSHELL_STATE_EVARNAME   = 25,
+    KSHELL_STATE_LVARNAME   = 26,
+    KSHELL_STATE_LQVARNAME  = 27,
+    KSHELL_STATE_LEVARNAME  = 28,
 };
 
 static const struct paser_transition transition_table[] = {
@@ -84,26 +87,34 @@ static const struct paser_transition transition_table[] = {
     { KSHELL_STATE_EXPQUOTE,   KSHELL_STATE_EVARIABLE,   '$',    0,   0, + 1, false, false,  true},
     { KSHELL_STATE_EXPINDEX,   KSHELL_STATE_EVARIABLE,   '$',    0,   0, + 1, false, false,  true},
 
+    { KSHELL_STATE_TEXT,       KSHELL_STATE_OUTPUT,      '`',    0, + 1,   0, false, false, false},
+    { KSHELL_STATE_DQUOTE,     KSHELL_STATE_QOUTPUT,     '`',    0, + 1,   0, false, false, false},
+    { KSHELL_STATE_EXPQUOTE,   KSHELL_STATE_EOUTPUT,     '`',    0, + 1, + 1, false, false,  true},
+    { KSHELL_STATE_EXPINDEX,   KSHELL_STATE_EOUTPUT,     '`',    0, + 1, + 1, false, false,  true},
+
     { KSHELL_STATE_VARIABLE,   KSHELL_STATE_VARNAME,    '\0',    0,   0,   0,  true, false, false},
     { KSHELL_STATE_VARIABLE,   KSHELL_STATE_RETVAL,      '(',  + 1,   0,   0, false,  true, false},
-    { KSHELL_STATE_VARIABLE,   KSHELL_STATE_OUTPUT,      '[',  + 1,   0,   0, false,  true, false},
+    { KSHELL_STATE_VARIABLE,   KSHELL_STATE_LOUTPUT,     '[',  + 1,   0,   0, false,  true, false},
     { KSHELL_STATE_VARIABLE,   KSHELL_STATE_LVARNAME,    '{',  + 1,   0,   0, false, false, false},
     { KSHELL_STATE_QVARIABLE,  KSHELL_STATE_QVARNAME,   '\0',    0,   0,   0,  true, false, false},
     { KSHELL_STATE_QVARIABLE,  KSHELL_STATE_QRETVAL,     '(',  + 1,   0,   0, false,  true, false},
-    { KSHELL_STATE_QVARIABLE,  KSHELL_STATE_QOUTPUT,     '[',  + 1,   0,   0, false,  true, false},
+    { KSHELL_STATE_QVARIABLE,  KSHELL_STATE_LQOUTPUT,    '[',  + 1,   0,   0, false,  true, false},
     { KSHELL_STATE_QVARIABLE,  KSHELL_STATE_LQVARNAME,   '{',  + 1,   0,   0, false, false, false},
     { KSHELL_STATE_EVARIABLE,  KSHELL_STATE_EVARNAME,   '\0',    0,   0,   0,  true, false,  true},
     { KSHELL_STATE_EVARIABLE,  KSHELL_STATE_ERETVAL,     '(',  + 1, + 1,   0, false,  true, false},
-    { KSHELL_STATE_EVARIABLE,  KSHELL_STATE_EOUTPUT,     '[',  + 1, + 1,   0, false,  true, false},
+    { KSHELL_STATE_EVARIABLE,  KSHELL_STATE_LEOUTPUT,    '[',  + 1, + 1,   0, false,  true, false},
     { KSHELL_STATE_EVARIABLE,  KSHELL_STATE_LEVARNAME,   '{',  + 1, + 1,   0, false, false, false},
+
+    { KSHELL_STATE_OUTPUT,     KSHELL_STATE_TEXT,        '`',    0,   0,   0, false, false, false},
+    { KSHELL_STATE_QOUTPUT,    KSHELL_STATE_DQUOTE,      '`',    0,   0,   0, false, false, false},
+    { KSHELL_STATE_EOUTPUT,    KSHELL_STATE_NULL,        '`',    0,   0, - 1, false, false,  true},
+    { KSHELL_STATE_LOUTPUT,    KSHELL_STATE_TEXT,        ']',  - 1,   0,   0, false,  true, false},
+    { KSHELL_STATE_LQOUTPUT,   KSHELL_STATE_DQUOTE,      ']',  - 1,   0,   0, false,  true, false},
+    { KSHELL_STATE_LEOUTPUT,   KSHELL_STATE_NULL,        ']',  - 1, - 1, - 1, false,  true, false},
 
     { KSHELL_STATE_RETVAL,     KSHELL_STATE_TEXT,        ')',  - 1,   0,   0, false,  true, false},
     { KSHELL_STATE_QRETVAL,    KSHELL_STATE_DQUOTE,      ')',  - 1,   0,   0, false,  true, false},
     { KSHELL_STATE_ERETVAL,    KSHELL_STATE_NULL,        ')',  - 1, - 1, - 1, false,  true, false},
-
-    { KSHELL_STATE_OUTPUT,     KSHELL_STATE_TEXT,        ']',  - 1,   0,   0, false,  true, false},
-    { KSHELL_STATE_QOUTPUT,    KSHELL_STATE_DQUOTE,      ']',  - 1,   0,   0, false,  true, false},
-    { KSHELL_STATE_EOUTPUT,    KSHELL_STATE_NULL,        ']',  - 1, - 1, - 1, false,  true, false},
 
     { KSHELL_STATE_VARNAME,    KSHELL_STATE_TEXT,        ' ',    0,   0,   0,  true, false, false},
     { KSHELL_STATE_VARNAME,    KSHELL_STATE_TEXT,        ';',    0,   0,   0,  true, false, false},
@@ -125,7 +136,7 @@ static inline bool is_retvalue(enum paser_state state)
 
 static inline bool is_output(enum paser_state state)
 {
-    return state >= KSHELL_STATE_OUTPUT && state <= KSHELL_STATE_EOUTPUT;
+    return state >= KSHELL_STATE_OUTPUT && state <= KSHELL_STATE_LEOUTPUT;
 }
 
 static inline bool is_shortvar(enum paser_state state)
@@ -136,6 +147,11 @@ static inline bool is_shortvar(enum paser_state state)
 static inline bool is_variable(enum paser_state state)
 {
     return state >= KSHELL_STATE_VARNAME && state <= KSHELL_STATE_LEVARNAME;
+}
+
+static inline bool is_savepos(enum paser_state state)
+{
+    return state >= KSHELL_STATE_VARIABLE && state <= KSHELL_STATE_EOUTPUT;
 }
 
 static inline bool is_text(enum paser_state nstate, enum paser_state cstate)
@@ -158,16 +174,10 @@ static enum paser_state parser_state(enum paser_state state, char code, char *re
             if (major->form == state) {
                 count = 0;
                 break;
-            } else if (odstack && major->to == state) {
-                count = 0;
-                break;
-            }
-        } else if (!major->code) {
-            if (major->form == state)
+            } else if (odstack && major->to == state)
                 minor = major;
-            else if (odstack && major->to == state)
-                minor = major;
-        }
+        } else if (!major->code && major->form == state)
+            minor = major;
     }
 
     if (count && minor)
@@ -258,7 +268,8 @@ static void pipeline_write(const char *str, unsigned int len, void *data)
     ctx->pipepos += len;
 }
 
-static char *pseudo_pipeline(struct kshell_context *ctx, const char *cmdline)
+static char *pseudo_pipeline(struct kshell_context *ctx, const char *cmdline,
+                             unsigned int *length)
 {
     unsigned int opipesize, opipepos;
     char *opipeline, *buffer;
@@ -266,29 +277,31 @@ static char *pseudo_pipeline(struct kshell_context *ctx, const char *cmdline)
     void *odata;
 
     buffer = kmalloc(PASER_PIPE_DEF, GFP_KERNEL);
-    if (buffer) {
-        opipesize = ctx->pipesize;
-        opipepos = ctx->pipepos;
-        opipeline = ctx->pipeline;
-        owrite = ctx->write;
-        odata = ctx->data;
+    if (!buffer)
+        return NULL;
 
-        ctx->pipesize = PASER_PIPE_DEF;
-        ctx->pipepos = 0;
-        ctx->pipeline = buffer;
-        ctx->write = pipeline_write;
-        ctx->data = ctx;
+    opipesize = ctx->pipesize;
+    opipepos = ctx->pipepos;
+    opipeline = ctx->pipeline;
+    owrite = ctx->write;
+    odata = ctx->data;
 
-        kshell_system(ctx, cmdline);
-        buffer = ctx->pipeline;
-        buffer[ctx->pipepos] = '\0';
+    ctx->pipesize = PASER_PIPE_DEF;
+    ctx->pipepos = 0;
+    ctx->pipeline = buffer;
+    ctx->write = pipeline_write;
+    ctx->data = ctx;
 
-        ctx->pipesize = opipesize;
-        ctx->pipepos = opipepos;
-        ctx->pipeline = opipeline;
-        ctx->write = owrite;
-        ctx->data = odata;
-    }
+    kshell_system(ctx, cmdline);
+    buffer = ctx->pipeline;
+    buffer[ctx->pipepos] = '\0';
+    *length = ctx->pipepos;
+
+    ctx->pipesize = opipesize;
+    ctx->pipepos = opipepos;
+    ctx->pipeline = opipeline;
+    ctx->write = owrite;
+    ctx->data = odata;
 
     return buffer;
 }
@@ -302,7 +315,9 @@ state kshell_parser(struct kshell_context *ctx, const char *cmdline,
     unsigned int dpos = 0, spos = 0, count;
     int dstack[8] = {}, sstack[8] = {};
     char *tbuff, code = 0, brack_buff[12];
-    char *vbuff, *var;
+    char *vbuff, *var, *savepos;
+    const char *walk;
+    bool newcmd = false;
     state retval;
 
     *argc = 0;
@@ -316,8 +331,8 @@ state kshell_parser(struct kshell_context *ctx, const char *cmdline,
     if (!tbuff)
         return -ENOMEM;
 
-    for (cstate = KSHELL_STATE_TEXT; *cmdline; ++cmdline) {
-        nstate = parser_state(cstate, *cmdline, &code, dstack, &dpos, sstack, &spos);
+    for (walk = cmdline; *walk; ++walk) {
+        nstate = parser_state(cstate, *walk, &code, dstack, &dpos, sstack, &spos);
 
         if (is_variable(cstate) && !is_variable(nstate)) {
             vbuff[vpos] = '\0';
@@ -344,15 +359,34 @@ state kshell_parser(struct kshell_context *ctx, const char *cmdline,
         if (is_output(cstate) && !is_output(nstate)) {
             vbuff[vpos] = '\0';
             vpos = 0;
-            var = pseudo_pipeline(ctx, vbuff);
+            var = pseudo_pipeline(ctx, vbuff, &count);
             if (var) {
-                count = strlen(var);
-                PARSER_EXP_TPOS(tpos + count + 1)
-                strcpy(tbuff + tpos, var);
-                tpos += count;
-                kfree(var);
+                unsigned int cmdlen;
+                char *newblock;
+
+                cmdlen = strlen(cmdline);
+                newblock = kmalloc(cmdlen + count - (walk - savepos), GFP_KERNEL);
+                if (!newblock)
+                    goto errmem;
+
+                strncpy(newblock, cmdline, savepos - cmdline);
+                strncpy(newblock + (savepos - cmdline), var, count);
+                strncpy(newblock + (savepos - cmdline) + count, walk + 1, cmdlen - (walk - cmdline));
+
+                if (newcmd)
+                    kfree(var);
+                else
+                    newcmd = true;
+
+                walk = newblock + (savepos - cmdline) - 1;
+                cmdline = newblock;
+                cstate = nstate;
+                continue;
             }
         }
+
+        if (!is_savepos(cstate) && is_savepos(nstate))
+            savepos = (char *)walk;
 
         if (is_variable(nstate) || is_retvalue(nstate) || is_output(nstate)) {
             if (code)
@@ -367,7 +401,7 @@ state kshell_parser(struct kshell_context *ctx, const char *cmdline,
                 tbuff[tpos++] = '\0';
                 ++(*argc);
             }
-            *pos = cmdline + 1;
+            *pos = walk + 1;
             break;
         } else if (code) {
             tbuff[tpos++] = code;
@@ -390,18 +424,19 @@ state kshell_parser(struct kshell_context *ctx, const char *cmdline,
     }
 
     /* if there is no end flag, end it */
-    if (!*cmdline && code != ' ') {
+    if (!*walk && code != ' ') {
         tbuff[tpos++] = '\0';
         ++(*argc);
     }
 
+    if (newcmd)
+        kfree(cmdline);
+
     /* allocate an argv area */
     count = (*argc + 1) * sizeof(**argv);
     *argv = kmalloc(count + tpos, GFP_KERNEL);
-    if (!*argv) {
-        kfree(tbuff);
-        return -ENOMEM;
-    }
+    if (!*argv)
+        goto errmem;
 
     /* use unified memory to store parameters */
     var = (char *)*argv + count;
@@ -419,4 +454,8 @@ state kshell_parser(struct kshell_context *ctx, const char *cmdline,
     kfree(tbuff);
 
     return -ENOERR;
+
+errmem:
+    kfree(tbuff);
+    return -ENOMEM;
 }
