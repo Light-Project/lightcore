@@ -6,6 +6,7 @@ if SELFTEST_DRIVER
 
 config SELFTEST_DRIVER_BUZZER
     bool "Buzzer Unit Tests"
+    depends on BUZZER
     default y
 
 endif

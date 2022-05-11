@@ -8,6 +8,10 @@ config KSH
     bool "Kernel Shell Support"
     default y
 
+config KSH_DEPTH
+    int "Kernel Shell Maximum Depth"
+    default 10
+
 source "usr/command/Kconfig"
 
 source "usr/selftest/Kconfig"

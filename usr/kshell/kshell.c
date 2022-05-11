@@ -11,24 +11,13 @@
 #include <console.h>
 #include <export.h>
 
-static unsigned int kshell_read(char *str, unsigned int len, void *data)
-{
-    return console_read(str, len);
-}
-
-static void kshell_write(const char *str, unsigned int len, void *data)
-{
-    console_write(str, len);
-}
-
 static void context_clone(struct kshell_context *ctx, struct kshell_context *new)
 {
     new->env = RB_INIT;
-    if (ctx) {
-        new->read = ctx->read;
-        new->write = ctx->write;
-        kshell_envclone(ctx, new);
-    }
+    new->read = ctx->read;
+    new->write = ctx->write;
+    new->depth = ctx->depth;
+    kshell_envclone(ctx, new);
 }
 
 static state commands_prepare(struct kshell_context *ctx)
@@ -78,6 +67,11 @@ static state do_system(struct kshell_context *ctx, char *cmdline, jmp_buf *buff)
         if (buff && !strcmp(argv[0], "exit"))
             longjmp(buff, true);
 
+        if (!*ctx->depth) {
+            kshell_printf(ctx, "kshell: trigger recursive protection\n");
+            return -EFBIG;
+        }
+
         cmd = kshell_find(argv[0]);
         if (!cmd) {
             kshell_printf(ctx, "kshell: command not found: %s\n", argv[0]);
@@ -88,7 +82,9 @@ static state do_system(struct kshell_context *ctx, char *cmdline, jmp_buf *buff)
         if (!cmd->exec)
             return -ENXIO;
 
+        --*ctx->depth;
         retval = cmd->exec(ctx, argc, argv);
+        ++*ctx->depth;
         kfree(argv);
 
         if (retval)
@@ -120,20 +116,18 @@ state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     struct kshell_context nctx;
     char *cmdline, retbuf[20];
+    state exit, ret = -ENOERR;
     unsigned int count;
     jmp_buf buff;
-    state ret, exit;
 
-    nctx.read = kshell_read;
-    nctx.write = kshell_write;
     context_clone(ctx, &nctx);
-
     exit = commands_prepare(&nctx);
     if (exit)
         return exit;
 
     if (argc > 1) {
         exit = setjmp(&buff);
+        nctx.readline = NULL;
 
         for (count = 1; !exit && count < argc; ++count) {
             ret = do_system(&nctx, argv[count], &buff);
@@ -142,8 +136,8 @@ state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
         }
     }
 
-    else {
-        nctx.readline = readline_alloc(kshell_read, kshell_write, NULL);
+    else if (ctx->readline) {
+        nctx.readline = readline_alloc(ctx->readline->read, ctx->readline->write, NULL);
         if (!nctx.readline)
             return -ENOMEM;
 

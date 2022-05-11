@@ -16,6 +16,7 @@ struct kshell_context {
 
     struct readline_state *readline;
     struct rb_root env;
+    unsigned int *depth;
 
     unsigned int pipesize;
     unsigned int pipepos;

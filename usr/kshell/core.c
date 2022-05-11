@@ -14,6 +14,16 @@
 LIST_HEAD(kshell_list);
 SPIN_LOCK(kshell_lock);
 
+static unsigned int kshell_read(char *str, unsigned int len, void *data)
+{
+    return console_read(str, len);
+}
+
+static void kshell_write(const char *str, unsigned int len, void *data)
+{
+    console_write(str, len);
+}
+
 static long kshell_sort(struct list_head *a, struct list_head *b, void *pdata)
 {
     struct kshell_command *ca = list_to_kshell(a);
@@ -171,6 +181,18 @@ static void __init ksh_initcall(void)
 
 void ksh_init(void)
 {
+    unsigned int maxdepth = CONFIG_KSH_DEPTH;
+    struct readline_state rstate;
+    struct kshell_context ctx;
+
+    ctx.read = kshell_read;
+    ctx.write = kshell_write;
+    ctx.env = RB_INIT;
+    ctx.depth = &maxdepth;
+    ctx.readline = &rstate;
+    rstate.read = kshell_read;
+    rstate.write = kshell_write;
+
     printk("##########################\n");
     printk("Welcome to lightcore shell\n");
 
@@ -178,5 +200,5 @@ void ksh_init(void)
     list_bsort(&kshell_list, kshell_sort, NULL);
 
     printk("Have a lot of fun..\n");
-    kshell_main(NULL, 0, NULL);
+    kshell_main(&ctx, 0, NULL);
 }
