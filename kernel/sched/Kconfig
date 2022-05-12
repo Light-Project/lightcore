@@ -37,9 +37,6 @@ config SCHED_FIFO
     bool "First In First Out (FIFO) Scheduler Support"
     default y
 
-config SCHED_DL
-    bool "Dead Line (DL) Scheduler Support"
-
 config SCHED_FAIR
     bool "Fair Scheduler Support"
 
@@ -54,10 +51,6 @@ config SCHED_DEF_RR
 config SCHED_DEF_FIFO
     bool "First In First Out"
     select SCHED_FIFO
-
-config SCHED_DEF_DL
-    bool "Dead Line"
-    select SCHED_DL
 
 config SCHED_DEF_FAIR
     bool "Fair"
