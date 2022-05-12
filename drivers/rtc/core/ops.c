@@ -13,9 +13,6 @@ state rtc_time_get(struct rtc_device *rtc, struct rtc_time *time)
 {
     state retval;
 
-    if (!rtc->ops)
-        return -ENODEV;
-
     if (!rtc->ops->time_get)
         return -EINVAL;
 
@@ -32,9 +29,6 @@ state rtc_time_set(struct rtc_device *rtc, struct rtc_time *time)
 {
     state retval;
 
-    if (!rtc->ops)
-        return -ENODEV;
-
     if (!rtc->ops->time_set)
         return -EINVAL;
 
@@ -49,9 +43,6 @@ EXPORT_SYMBOL(rtc_time_set);
 state rtc_offset_get(struct rtc_device *rtc, time_t *offset)
 {
     state retval;
-
-    if (!rtc->ops)
-        return -ENODEV;
 
     if (!rtc->ops->offset_get)
         return -EOPNOTSUPP;
@@ -68,9 +59,6 @@ state rtc_offset_set(struct rtc_device *rtc, time_t offset)
 {
     state retval;
 
-    if (!rtc->ops)
-        return -ENODEV;
-
     if (!rtc->ops->offset_set)
         return -EOPNOTSUPP;
 
@@ -85,9 +73,6 @@ EXPORT_SYMBOL(rtc_offset_set);
 state rtc_alarm_get(struct rtc_device *rtc, struct rtc_alarm *time)
 {
     state retval;
-
-    if (!rtc->ops)
-        return -ENODEV;
 
     if (!rtc->ops->alarm_get)
         return -EOPNOTSUPP;
@@ -104,9 +89,6 @@ EXPORT_SYMBOL(rtc_alarm_get);
 state rtc_alarm_set(struct rtc_device *rtc, struct rtc_alarm *time)
 {
     state retval;
-
-    if (!rtc->ops)
-        return -ENODEV;
 
     if (!rtc->ops->alarm_set)
         return -EOPNOTSUPP;

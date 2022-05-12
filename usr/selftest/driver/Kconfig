@@ -9,4 +9,9 @@ config SELFTEST_DRIVER_BUZZER
     depends on BUZZER
     default y
 
+config SELFTEST_DRIVER_RTC
+    bool "RTC Unit Tests"
+    depends on RTC
+    default y
+
 endif

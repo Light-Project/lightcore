@@ -9,6 +9,9 @@
 #include <timekeeping.h>
 #include <driver/rtc.h>
 
+LIST_HEAD(rtc_list);
+SPIN_LOCK(rtc_lock);
+
 #ifdef CONFIG_RTC_HCTOSYS
 static void rtc_update_system(struct rtc_device *rtc)
 {
@@ -27,19 +30,25 @@ static void rtc_update_system(struct rtc_device *rtc)
 }
 #endif
 
-state rtc_register(struct rtc_device *rtc)
+state rtc_register(struct rtc_device *rdev)
 {
-    if (!rtc->dev || !rtc->ops)
+    if (!rdev->dev || !rdev->ops)
         return -EINVAL;
 
 #ifdef CONFIG_RTC_HCTOSYS
-    rtc_update_system(rtc);
+    rtc_update_system(rdev);
 #endif
+
+    spin_lock(&rtc_lock);
+    list_add(&rtc_list, &rdev->list);
+    spin_unlock(&rtc_lock);
 
     return -ENOERR;
 }
 
-void rtc_unregister(struct rtc_device *rtc)
+void rtc_unregister(struct rtc_device *rdev)
 {
-
+    spin_lock(&rtc_lock);
+    list_del(&rdev->list);
+    spin_unlock(&rtc_lock);
 }

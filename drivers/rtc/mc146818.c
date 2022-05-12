@@ -9,15 +9,15 @@
 #include <kmalloc.h>
 #include <initcall.h>
 #include <irq.h>
+#include <delay.h>
+#include <ioops.h>
 #include <driver/platform.h>
 #include <driver/irqchip.h>
 #include <driver/rtc.h>
 #include <driver/rtc/mc146818.h>
 
-#include <asm/proc.h>
-#include <asm/io.h>
-
 #define MC146818_YEARS_OFFS 2000
+#define MC146818_TIMEOUT    500
 
 struct mc146818_device {
     struct rtc_device rtc;
@@ -47,12 +47,18 @@ static state mc146818_gettime(struct rtc_device *rtc, struct rtc_time *time)
 {
     struct mc146818_device *mc146818 = rtc_to_mc146818(rtc);
     unsigned int year, mon, day, hour, min, sec;
+    unsigned int timeout = MC146818_TIMEOUT;
 
     spin_lock(&mc146818->lock);
 
     /* waiting time update */
-    while (mc146818_read(mc146818, MC146818_REGISTER_A) & MC146818_REGISTER_A_UIP)
-        cpu_relax();
+    while (mc146818_read(mc146818, MC146818_REGISTER_A) & MC146818_REGISTER_A_UIP && --timeout)
+        msleep(1);
+
+    if (!timeout) {
+        spin_unlock(&mc146818->lock);
+        return -ETIME;
+    }
 
     sec  = mc146818_read(mc146818, MC146818_SECONDS);
     min  = mc146818_read(mc146818, MC146818_MINUTES);

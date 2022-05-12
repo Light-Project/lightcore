@@ -89,20 +89,23 @@ static state buzzer_testing(struct kshell_context *ctx, void *pdata)
 {
     struct buzzer_device *bdev;
     unsigned int index;
+    state retval = -ENOERR;
 
     spin_lock(&buzzer_lock);
     list_for_each_entry(bdev, &buzzer_list, list) {
         buzzer_start(bdev);
         for (index = 0; index < ARRAY_SIZE(test_freq); ++index) {
-            kshell_printf(ctx, "buzzer %s test freq: %s\n", bdev->dev->name, test_freq[index].name);
-            buzzer_freq_set(bdev, test_freq[index].freq);
+            retval = buzzer_freq_set(bdev, test_freq[index].freq);
+            kshell_printf(ctx, "buzzer %s test freq %s: %d\n", bdev->dev->name, test_freq[index].name, retval);
+            if (retval)
+                break;
             mdelay(10);
         }
         buzzer_stop(bdev);
     }
     spin_unlock(&buzzer_lock);
 
-    return -ENOERR;
+    return retval;
 }
 
 static struct selftest_command buzzer_command = {
