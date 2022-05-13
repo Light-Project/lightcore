@@ -4,7 +4,11 @@
 
 #include <bitops.h>
 
-#define ilog2_const(n) (            \
+/**
+ * ilog2_const - log base 2 of long long constant unsigned value.
+ * @val: constant value to log base 2.
+ */
+#define ilog2_const(val) (          \
 __builtin_constant_p(val) ? (       \
     (val) < 2 ? 0 :                 \
     (val) & (1ULL << 63) ? 63 :	    \
@@ -72,16 +76,55 @@ __builtin_constant_p(val) ? (       \
     1) : -1                         \
 )
 
+/**
+ * ilog2_dynamic - log base 2 unsigned long value dynamically.
+ * @val: dynamic long value to log base 2.
+ */
 static inline unsigned int ilog2_dynamic(unsigned long val)
 {
     return fls(val) - 1;
 }
 
+/**
+ * ilog2_64_dynamic - log base 2 64-bit unsigned value dynamically.
+ * @val: dynamic 64-bit value to log base 2.
+ */
 static inline unsigned int ilog2_64_dynamic(unsigned long val)
 {
     return fls64(val) - 1;
 }
 
+/**
+ * roundup_pow2_dynamic - round up to nearest power of two dynamically.
+ * @val: dynamic value to round up.
+ */
+static inline unsigned long roundup_pow2_dynamic(unsigned long val)
+{
+    return 1UL << fls(val - 1);
+}
+
+/**
+ * rounddown_pow2_dynamic - round down to nearest power of two dynamically.
+ * @val: dynamic value to round up.
+ */
+static inline unsigned long rounddown_pow2_dynamic(unsigned long val)
+{
+    return 1UL << (fls(val) - 1);
+}
+
+/**
+ * is_power_of_2 - check if a value is a power of two.
+ * @val: the value to check.
+ */
+static inline bool is_power_of_2(unsigned long val)
+{
+    return val != 0 && ((val & (val - 1)) == 0);
+}
+
+/**
+ * ilog2 - log base 2 constant unsigned value.
+ * @val: value to log2.
+ */
 #define ilog2(val) (                \
     __builtin_constant_p(val) ?     \
     ((val) < 2 ? 0 :                \
@@ -92,12 +135,24 @@ static inline unsigned int ilog2_64_dynamic(unsigned long val)
 )
 
 /**
- * is_power_of_2 - check if a value is a power of two
- * @val: the value to check
+ * roundup_power_of_2 - round up to nearest power of two.
+ * @val: value to round up.
  */
-static inline bool is_power_of_2(unsigned long val)
-{
-    return val != 0 && ((val & (val - 1)) == 0);
-}
+#define roundup_power_of_2(val) (   \
+    __builtin_constant_p(val) ?     \
+    (((val) == 1) ? 1 : (1UL <<     \
+    (ilog2((val) - 1) + 1))) :      \
+    roundup_pow2_dynamic(val)       \
+)
+
+/**
+ * rounddown_power_of_2 - round down to nearest power of two.
+ * @val: value to round down.
+ */
+#define rounddown_power_of_2(val) ( \
+    __builtin_constant_p(val) ?     \
+    (1UL << ilog2(val)) :           \
+    rounddown_pow2_dynamic(val)     \
+)
 
 #endif  /* _LOG2_H_ */
