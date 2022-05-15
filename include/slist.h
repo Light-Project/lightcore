@@ -93,7 +93,7 @@ static inline void slist_replace(struct slist_head *head, struct slist_head *old
  * @head: the head of the slist.
  * @node: the entry to test.
  */
-static inline bool slist_check_first(struct slist_head *head, struct slist_head *node)
+static inline bool slist_check_first(const struct slist_head *head, const struct slist_head *node)
 {
     return head->next == node;
 }
@@ -102,7 +102,7 @@ static inline bool slist_check_first(struct slist_head *head, struct slist_head 
  * slist_check_next - check whether the node have next.
  * @node: the node to check.
  */
-static inline bool slist_check_next(struct slist_head *node)
+static inline bool slist_check_next(const struct slist_head *node)
 {
     return node->next;
 }

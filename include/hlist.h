@@ -168,7 +168,7 @@ static inline void hlist_move_list(struct hlist_head *old, struct hlist_head *ne
  * hlist_check_empty - Is the specified hlist_head structure an empty hlist.
  * @head: Structure to check.
  */
-static inline bool hlist_check_empty(struct hlist_head *head)
+static inline bool hlist_check_empty(const struct hlist_head *head)
 {
     return !head->node;
 }
@@ -177,7 +177,7 @@ static inline bool hlist_check_empty(struct hlist_head *head)
  * hlist_check_unhashed - Has node been removed from list and reinitialized.
  * @node: Node to be checked.
  */
-static inline bool hlist_check_unhashed(struct hlist_node *node)
+static inline bool hlist_check_unhashed(const struct hlist_node *node)
 {
     return !node->pprev;
 }
