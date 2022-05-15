@@ -148,7 +148,7 @@ static state kfifo_test_testing(struct kshell_context *ctx, void *pdata)
 
     for (count = 0; count < TEST_LOOP; ++count) {
         ret = kfifo_put(&kdata->dynamic_bytetest, bytetest_table[count]);
-        kshell_printf(ctx, "kfifo dynamic_bytetest %u put '%c': ", count, *bytevalue);
+        kshell_printf(ctx, "kfifo dynamic_bytetest %u put '%c': ", count, bytetest_table[count]);
         if (!ret || kfifo_len(&kdata->dynamic_bytetest) != count + 1) {
             kshell_printf(ctx, "failed\n");
             return -EFAULT;
