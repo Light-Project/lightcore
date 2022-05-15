@@ -11,46 +11,54 @@
 #include <printk.h>
 #include <export.h>
 
-struct dt_node *dt_iterative_all(struct dt_node *node)
+struct dt_node *dt_iterative_all(const struct dt_node *node)
 {
+    const struct dt_node *next;
+
     if (!node)
-        return dt_root;
+        next = dt_root;
     else if (slist_check_next(&node->child))
-        return slist_first_entry(&node->child, struct dt_node, sibling);
+        next = slist_first_entry(&node->child, struct dt_node, sibling);
     else {
         while (!slist_check_next(&node->sibling) && node->parent)
             node = node->parent;
-        return slist_next_entry(node, sibling);
+        next = slist_next_entry(node, sibling);
     }
+
+    return (struct dt_node *)next;
 }
 EXPORT_SYMBOL(dt_iterative_all);
 
-struct dt_node *dt_iterative_all_available(struct dt_node *node)
+struct dt_node *dt_iterative_all_available(const struct dt_node *node)
 {
     for (node = dt_iterative_all(node);
          node && !dt_node_check_available(node);
          node = dt_iterative_all(node));
-    return node;
+    return (struct dt_node *)node;
 }
 EXPORT_SYMBOL(dt_iterative_all_available);
 
-struct dt_node *dt_iterative_child(struct dt_node *node, struct dt_node *iter)
+struct dt_node *dt_iterative_child(const struct dt_node *node, const struct dt_node *iter)
 {
+    const struct dt_node *next;
+
     if (!node)
-        return NULL;
+        next = NULL;
     else if (iter)
-        return slist_next_entry(iter, sibling);
+        next = slist_next_entry(iter, sibling);
     else
-        return slist_first_entry(&node->child, struct dt_node, sibling);
+        next = slist_first_entry(&node->child, struct dt_node, sibling);
+
+    return (struct dt_node *)next;
 }
 EXPORT_SYMBOL(dt_iterative_child);
 
-struct dt_node *dt_iterative_child_available(struct dt_node *node, struct dt_node *iter)
+struct dt_node *dt_iterative_child_available(const struct dt_node *node, const struct dt_node *iter)
 {
     for (iter = dt_iterative_child(node, iter);
          iter && !dt_node_check_available(node);
          iter = dt_iterative_child(node, iter));
-    return node;
+    return (struct dt_node *)node;
 }
 EXPORT_SYMBOL(dt_iterative_child_available);
 

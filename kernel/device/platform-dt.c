@@ -12,11 +12,12 @@
 #include <printk.h>
 
 static const struct dt_device_id dt_bus_table[] = {
-    { .compatible = "simple-bus", .data = (void *)RESOURCE_MMIO },
-    { .compatible =   "amba-bus", .data = (void *)RESOURCE_MMIO },
-    { .compatible =    "isa-bus", .data = (void *)RESOURCE_PMIO },
-    { .compatible =   "core-bus", .data = (void *)RESOURCE_NONE },
-    { .compatible = "simple-mfd", .data = (void *)RESOURCE_NONE },
+    { .compatible =   "simple-bus", .data = (void *)RESOURCE_MMIO },
+    { .compatible =     "amba-bus", .data = (void *)RESOURCE_MMIO },
+    { .compatible =      "isa-bus", .data = (void *)RESOURCE_PMIO },
+    { .compatible =     "core-bus", .data = (void *)RESOURCE_NONE },
+    { .compatible =   "simple-mfd", .data = (void *)RESOURCE_NONE },
+    { .compatible = "external-bus", .data = (void *)RESOURCE_NONE },
     { }, /* NULL */
 };
 

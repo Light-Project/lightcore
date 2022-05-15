@@ -269,3 +269,15 @@ bool dt_node_check_available(const struct dt_node *node)
     return false;
 }
 EXPORT_SYMBOL(dt_node_check_available);
+
+unsigned int dt_node_chile_count(const struct dt_node *node)
+{
+    const struct dt_node *child;
+    unsigned int count = 0;
+
+    dt_for_each_child(child, node)
+        count++;
+
+    return count;
+}
+EXPORT_SYMBOL(dt_node_chile_count);

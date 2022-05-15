@@ -54,42 +54,46 @@
         };
     };
 
-    spi0: spi-gpio-0 {
-        compatible = "spi-gpio";
-        num-chipselects = <2>;
-        gpio-miso = <&lpt0_gpio GPIO_PARALLEL_ACK GPIO_ACTIVE_LOW>;
-        gpio-mosi = <&lpt0_gpio GPIO_PARALLEL_D7 GPIO_ACTIVE_LOW>;
-        gpio-sck = <&lpt0_gpio GPIO_PARALLEL_D6 GPIO_ACTIVE_LOW>;
-        cs-gpios = <&lpt0_gpio GPIO_PARALLEL_D5 GPIO_ACTIVE_LOW>,
-                   <&lpt0_gpio GPIO_PARALLEL_D4 GPIO_ACTIVE_LOW>;
-        #address-cells = <1>;
-        #size-cells = <0>;
-        status = "disabled";
-    };
+    board {
+        compatible = "external-bus";
 
-    i2c0: i2c-gpio-0 {
-        compatible = "i2c-gpio";
-        gpios = <&lpt0_gpio GPIO_PARALLEL_INIT GPIO_ACTIVE_HIGH>,
-                <&lpt0_gpio GPIO_PARALLEL_SELECT GPIO_ACTIVE_HIGH>;
-        i2c-gpio,sda-open-drain;
-        i2c-gpio,scl-open-drain;
-        i2c-gpio,delay-us = <2>;
-        #address-cells = <1>;
-        #size-cells = <0>;
-        status = "disabled";
-    };
-
-    gpio-leds {
-		compatible = "gpio-leds";
-        led0 {
-            label = "lpt0:led0";
-            gpios = <&lpt0_gpio GPIO_PARALLEL_D0 GPIO_ACTIVE_LOW>;
-            default-trigger = "power";
+        spi0: spi-gpio-0 {
+            compatible = "spi-gpio";
+            num-chipselects = <2>;
+            gpio-miso = <&lpt0_gpio GPIO_PARALLEL_ACK GPIO_ACTIVE_LOW>;
+            gpio-mosi = <&lpt0_gpio GPIO_PARALLEL_D7 GPIO_ACTIVE_LOW>;
+            gpio-sck = <&lpt0_gpio GPIO_PARALLEL_D6 GPIO_ACTIVE_LOW>;
+            cs-gpios = <&lpt0_gpio GPIO_PARALLEL_D5 GPIO_ACTIVE_LOW>,
+                    <&lpt0_gpio GPIO_PARALLEL_D4 GPIO_ACTIVE_LOW>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+            status = "disabled";
         };
-        led1 {
-            label = "lpt0:led1";
-            gpios = <&lpt0_gpio GPIO_PARALLEL_D1 GPIO_ACTIVE_LOW>;
-            default-trigger = "heartbeat";
+
+        i2c0: i2c-gpio-0 {
+            compatible = "i2c-gpio";
+            gpios = <&lpt0_gpio GPIO_PARALLEL_INIT GPIO_ACTIVE_HIGH>,
+                    <&lpt0_gpio GPIO_PARALLEL_SELECT GPIO_ACTIVE_HIGH>;
+            i2c-gpio,sda-open-drain;
+            i2c-gpio,scl-open-drain;
+            i2c-gpio,delay-us = <2>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+            status = "disabled";
+        };
+
+        gpio-leds {
+            compatible = "gpio-leds";
+            led0 {
+                label = "lpt0:led0";
+                gpios = <&lpt0_gpio GPIO_PARALLEL_D0 GPIO_ACTIVE_LOW>;
+                default-trigger = "power";
+            };
+            led1 {
+                label = "lpt0:led1";
+                gpios = <&lpt0_gpio GPIO_PARALLEL_D1 GPIO_ACTIVE_LOW>;
+                default-trigger = "heartbeat";
+            };
         };
     };
 };

@@ -84,10 +84,10 @@ extern struct slist_head dt_phandle_list;
 extern spinlock_t dt_lock;
 
 /* device tree iteration method */
-extern struct dt_node *dt_iterative_all(struct dt_node *node);
-extern struct dt_node *dt_iterative_available(struct dt_node *node);
-extern struct dt_node *dt_iterative_child(struct dt_node *node, struct dt_node *iter);
-extern struct dt_node *dt_iterative_child_available(struct dt_node *node, struct dt_node *iter);
+extern struct dt_node *dt_iterative_all(const struct dt_node *node);
+extern struct dt_node *dt_iterative_available(const struct dt_node *node);
+extern struct dt_node *dt_iterative_child(const struct dt_node *node, const struct dt_node *iter);
+extern struct dt_node *dt_iterative_child_available(const struct dt_node *node, const struct dt_node *iter);
 extern state dt_iterative_phandle_init(struct dt_phandle_iterator *iter, const struct dt_node *node, const char *listn, const char *celln, int cellc);
 extern state dt_iterative_phandle_next(struct dt_phandle_iterator *iter);
 extern int dt_iterative_phandle_args(struct dt_phandle_iterator *iter, uint32_t *args, int size);
@@ -137,6 +137,7 @@ extern struct dt_node *dt_search_up(const struct dt_node *node, const char *name
 extern uint32_t dt_addr_cell(const struct dt_node *node);
 extern uint32_t dt_size_cell(const struct dt_node *node);
 extern bool dt_node_check_available(const struct dt_node *node);
+extern unsigned int dt_node_chile_count(const struct dt_node *node);
 
 /* device tree parameter parser */
 extern state dt_parse_phandle_with_args_count(const struct dt_node *node, const char *list_name, const char *cells_name, int cell_count, int index, struct dt_phandle_args *args);
@@ -162,4 +163,4 @@ extern unsigned int dt_irq_numbers(const struct dt_node *node);
 extern state dt_irq_parse_raw(const be32 *addr, struct dt_phandle_args *args);
 extern state dt_irq_parse_one(struct dt_node *node, int index, struct dt_phandle_args *args);
 
-#endif
+#endif  /* _DRIVER_DT_H_ */
