@@ -46,7 +46,7 @@ kfifo_in_copy(struct kfifo *kfifo, const void *buff, unsigned long len, unsigned
 }
 
 static __always_inline unsigned long
-kfifo_out_peek(struct kfifo *kfifo, unsigned long recsize)
+kfifo_record_peek(struct kfifo *kfifo, unsigned long recsize)
 {
     unsigned long mask = kfifo->mask;
     unsigned long offset = kfifo->out;
@@ -69,7 +69,7 @@ kfifo_out_peek(struct kfifo *kfifo, unsigned long recsize)
 }
 
 static __always_inline void
-kfifo_in_poke(struct kfifo *kfifo, unsigned long len, unsigned long recsize)
+kfifo_record_poke(struct kfifo *kfifo, unsigned long len, unsigned long recsize)
 {
     unsigned long mask = kfifo->mask;
     unsigned long offset = kfifo->out;
@@ -147,7 +147,7 @@ unsigned long kfifo_peek_record(struct kfifo *kfifo, void *buff,
     if (kfifo_empty(kfifo))
         return 0;
 
-    datalen = kfifo_out_peek(kfifo, record);
+    datalen = kfifo_record_peek(kfifo, record);
     min_adj(len, datalen);
     kfifo_out_copy(kfifo, buff, len, kfifo->out + record);
 
@@ -163,7 +163,7 @@ unsigned long kfifo_out_record(struct kfifo *kfifo, void *buff,
     if (kfifo_empty(kfifo))
         return 0;
 
-    datalen = kfifo_out_peek(kfifo, record);
+    datalen = kfifo_record_peek(kfifo, record);
     min_adj(len, datalen);
     kfifo_out_copy(kfifo, buff, len, kfifo->out + record);
 	kfifo->out += datalen + record;
@@ -178,7 +178,7 @@ unsigned long kfifo_in_record(struct kfifo *kfifo, const void *buff,
     if (len + record > kfifo_unused(kfifo))
         return 0;
 
-    kfifo_in_poke(kfifo, len, record);
+    kfifo_record_poke(kfifo, len, record);
     kfifo_in_copy(kfifo, buff, len, kfifo->in + record);
     kfifo->in += len + record;
 
