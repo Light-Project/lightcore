@@ -22,7 +22,9 @@ EXPORT_SYMBOL(fwnode_##name)
     GENERIC_FWNODE_NAME(operation, operation, rtype, errval, args, ##__VA_ARGS__)
 
 GENERIC_FWNODE_OP(node_name, const char *, NULL, (node));
+GENERIC_FWNODE_OP(node_path, const char *, NULL, (node));
 GENERIC_FWNODE_OP(node_available, bool, true, (node));
+GENERIC_FWNODE_OP(node_parent, struct fwnode *, NULL, (node));
 GENERIC_FWNODE_OP(next_child, struct fwnode *, NULL, (node, iter), struct fwnode *iter);
 GENERIC_FWNODE_OP(find_child, struct fwnode *, NULL, (node, name), const char *name);
 GENERIC_FWNODE_OP(attribute_present, bool, false, (node, name), const char *name);
@@ -75,7 +77,9 @@ rtype device_##operation(const struct device *device, ##__VA_ARGS__)    \
 EXPORT_SYMBOL(device_##operation)
 
 GENERIC_DEVICE_OP(node_name, const char *, NULL, (node));
+GENERIC_DEVICE_OP(node_path, const char *, NULL, (node));
 GENERIC_DEVICE_OP(node_available, bool, true, (node));
+GENERIC_DEVICE_OP(node_parent, struct fwnode *, NULL, (node));
 GENERIC_DEVICE_OP(next_child, struct fwnode *, NULL, (node, iter), struct fwnode *iter);
 GENERIC_DEVICE_OP(find_child, struct fwnode *, NULL, (node, name), const char *name);
 GENERIC_DEVICE_OP(attribute_present, bool, false, (node, name), const char *name);

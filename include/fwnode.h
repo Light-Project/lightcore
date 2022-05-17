@@ -29,6 +29,7 @@ struct fwnode_ops {
     const char *(*node_name)(const struct fwnode *node);
     const char *(*node_path)(const struct fwnode *node);
     bool (*node_available)(const struct fwnode *node);
+    struct fwnode *(*node_parent)(const struct fwnode *node);
     struct fwnode *(*next_child)(const struct fwnode *node, struct fwnode *iter);
     struct fwnode *(*find_child)(const struct fwnode *node, const char *name);
     bool (*attribute_present)(const struct fwnode *fwnode, const char *name);
@@ -37,7 +38,9 @@ struct fwnode_ops {
 };
 
 extern const char *fwnode_node_name(const struct fwnode *node);
+extern const char *fwnode_node_path(const struct fwnode *node);
 extern bool fwnode_node_available(const struct fwnode *node);
+extern struct fwnode *fwnode_node_parent(const struct fwnode *node);
 extern struct fwnode *fwnode_next_child(const struct fwnode *node, struct fwnode *iter);
 extern struct fwnode *fwnode_next_available_child(struct fwnode *node, struct fwnode *iter);
 extern struct fwnode *fwnode_find_child(const struct fwnode *node, const char *name);
@@ -66,7 +69,9 @@ extern state fwnode_attribute_read_u32_array(const struct fwnode *node, const ch
 extern state fwnode_attribute_read_u64_array(const struct fwnode *node, const char *name, uint64_t *val, size_t len);
 
 extern const char *device_node_name(const struct device *device);
+extern const char *device_node_path(const struct device *device);
 extern bool device_node_available(const struct device *device);
+extern struct fwnode *device_node_parent(const struct device *device);
 extern struct fwnode *device_next_child(const struct device *device, struct fwnode *iter);
 extern struct fwnode *device_next_available_child(const struct device *device, struct fwnode *iter);
 extern struct fwnode *device_find_child(const struct device *device, const char *name);
