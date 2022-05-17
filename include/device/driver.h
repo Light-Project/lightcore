@@ -2,10 +2,8 @@
 #ifndef _DEVICES_DRIVER_H_
 #define _DEVICES_DRIVER_H_
 
-#include <types.h>
-#include <state.h>
 #include <device.h>
-#include <pm.h>
+#include <device/power.h>
 
 typedef bool (*dfd_match_t)(struct device *, const void *data);
 

@@ -4,18 +4,21 @@
 
 #include <mutex.h>
 #include <kobject.h>
-#include <pm.h>
 #include <device/bus.h>
 #include <device/driver.h>
 #include <device/devinfo.h>
 #include <device/devres.h>
+#include <device/power.h>
 #include <printk.h>
+
+struct fwnode;
 
 struct device {
     const char *name;
     struct bus_type *bus;
     struct driver *driver;
     struct device *parent;
+    struct fwnode *fwnode;
     void *pdata;
 
     struct kobject kobj;
