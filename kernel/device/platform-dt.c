@@ -137,6 +137,8 @@ static __always_inline struct platform_device *dt_alloc_node(struct dt_node *nod
         return NULL;
 
     pdev->dt_node = node;
+    pdev->dev.fwnode = &node->fwnode;
+
 	return pdev;
 }
 

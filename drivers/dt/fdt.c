@@ -87,6 +87,7 @@ static inline state __init populate_node(const void *blob, int offset,
         return -ENOMEM;
 
     node->path = fn = (char *)node + sizeof(*node);
+    node->fwnode.ops = &dt_fwnode_ops;
     memcpy(fn, path, len);
 
     if (parent) {
