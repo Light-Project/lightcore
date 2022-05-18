@@ -163,8 +163,8 @@ EXPORT_SYMBOL(dt_attribute_read_u64_index);
  * @min: allowable minimum size.
  * @max: allowable maximum size.
  */
-state dt_attribute_read_u8_index_array_range(const struct dt_node *node, const char *name, uint8_t *buff,
-                                             unsigned int index, size_t min, size_t max)
+int dt_attribute_read_u8_index_array_range(const struct dt_node *node, const char *name, uint8_t *buff,
+                                           unsigned int index, size_t min, size_t max)
 {
     const uint8_t *value;
     int len, count;
@@ -191,8 +191,8 @@ state dt_attribute_read_u8_index_array_range(const struct dt_node *node, const c
 }
 EXPORT_SYMBOL(dt_attribute_read_u8_index_array_range);
 
-state dt_attribute_read_u16_index_array_range(const struct dt_node *node, const char *name, uint16_t *buff,
-                                              unsigned int index, size_t min, size_t max)
+int dt_attribute_read_u16_index_array_range(const struct dt_node *node, const char *name, uint16_t *buff,
+                                            unsigned int index, size_t min, size_t max)
 {
     const uint16_t *value;
     int len, count;
@@ -219,8 +219,8 @@ state dt_attribute_read_u16_index_array_range(const struct dt_node *node, const 
 }
 EXPORT_SYMBOL(dt_attribute_read_u16_index_array_range);
 
-state dt_attribute_read_u32_index_array_range(const struct dt_node *node, const char *name, uint32_t *buff,
-                                              unsigned int index, size_t min, size_t max)
+int dt_attribute_read_u32_index_array_range(const struct dt_node *node, const char *name, uint32_t *buff,
+                                            unsigned int index, size_t min, size_t max)
 {
     const uint32_t *value;
     int len, count;
@@ -247,8 +247,8 @@ state dt_attribute_read_u32_index_array_range(const struct dt_node *node, const 
 }
 EXPORT_SYMBOL(dt_attribute_read_u32_index_array_range);
 
-state dt_attribute_read_u64_index_array_range(const struct dt_node *node, const char *name, uint64_t *buff,
-                                              unsigned int index, size_t min, size_t max)
+int dt_attribute_read_u64_index_array_range(const struct dt_node *node, const char *name, uint64_t *buff,
+                                            unsigned int index, size_t min, size_t max)
 {
     const uint64_t *value;
     int len, count;

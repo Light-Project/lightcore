@@ -124,12 +124,12 @@ extern struct dt_attribute *dt_attribute_find(const struct dt_node *node, const 
 extern const void *dt_attribute_get(const struct dt_node *node, const char *name, int *len);
 extern const void *dt_attribute_get_array(const struct dt_node *node, const char *name, int *len, size_t min, size_t max);
 extern bool dt_attribute_read_bool(const struct dt_node *node, const char *name);
-extern state dt_attribute_read_u32_index(const struct dt_node *node, const char *name, int index, uint32_t *value);
-extern state dt_attribute_read_u64_index(const struct dt_node *node, const char *name, int index, uint64_t *value);
-extern state dt_attribute_read_u8_index_array_range(const struct dt_node *node, const char *name, uint8_t *buff, unsigned int index, size_t min, size_t max);
-extern state dt_attribute_read_u16_index_array_range(const struct dt_node *node, const char *name, uint16_t *buff, unsigned int index, size_t min, size_t max);
-extern state dt_attribute_read_u32_index_array_range(const struct dt_node *node, const char *name, uint32_t *buff, unsigned int index, size_t min, size_t max);
-extern state dt_attribute_read_u64_index_array_range(const struct dt_node *node, const char *name, uint64_t *buff, unsigned int index, size_t min, size_t max);
+extern int dt_attribute_read_u32_index(const struct dt_node *node, const char *name, int index, uint32_t *value);
+extern int dt_attribute_read_u64_index(const struct dt_node *node, const char *name, int index, uint64_t *value);
+extern int dt_attribute_read_u8_index_array_range(const struct dt_node *node, const char *name, uint8_t *buff, unsigned int index, size_t min, size_t max);
+extern int dt_attribute_read_u16_index_array_range(const struct dt_node *node, const char *name, uint16_t *buff, unsigned int index, size_t min, size_t max);
+extern int dt_attribute_read_u32_index_array_range(const struct dt_node *node, const char *name, uint32_t *buff, unsigned int index, size_t min, size_t max);
+extern int dt_attribute_read_u64_index_array_range(const struct dt_node *node, const char *name, uint64_t *buff, unsigned int index, size_t min, size_t max);
 extern state dt_attribute_read_string_index_array(const struct dt_node *node, const char *name, const char **str, unsigned int index, size_t size);
 
 extern state dt_attribute_string_index(const struct dt_node *node, const char *name, const char *str);

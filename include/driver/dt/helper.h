@@ -14,52 +14,72 @@ static inline state dt_attribute_read_u64(const struct dt_node *node, const char
 
 static inline state dt_attribute_read_u8_index_array(const struct dt_node *node, const char *name, uint8_t *buff, int index, size_t min)
 {
-    return dt_attribute_read_u8_index_array_range(node, name, buff, index, min, 0);
+    int length;
+    length = dt_attribute_read_u8_index_array_range(node, name, buff, index, min, 0);
+    return min(length, 0);
 }
 
 static inline state dt_attribute_read_u16_index_array(const struct dt_node *node, const char *name, uint16_t *buff, int index, size_t min)
 {
-    return dt_attribute_read_u16_index_array_range(node, name, buff, index, min, 0);
+    int length;
+    length = dt_attribute_read_u16_index_array_range(node, name, buff, index, min, 0);
+    return min(length, 0);
 }
 
 static inline state dt_attribute_read_u32_index_array(const struct dt_node *node, const char *name, uint32_t *buff, int index, size_t min)
 {
-    return dt_attribute_read_u32_index_array_range(node, name, buff, index, min, 0);
+    int length;
+    length = dt_attribute_read_u32_index_array_range(node, name, buff, index, min, 0);
+    return min(length, 0);
 }
 
 static inline state dt_attribute_read_u64_index_array(const struct dt_node *node, const char *name, uint64_t *buff, int index, size_t min)
 {
-    return dt_attribute_read_u64_index_array_range(node, name, buff, index, min, 0);
+    int length;
+    length = dt_attribute_read_u64_index_array_range(node, name, buff, index, min, 0);
+    return min(length, 0);
 }
 
 static inline state dt_attribute_read_u8_array(const struct dt_node *node, const char *name, uint8_t *buff, size_t min)
 {
-    return dt_attribute_read_u8_index_array(node, name, buff, 0, min);
+    int length;
+    length = dt_attribute_read_u8_index_array(node, name, buff, 0, min);
+    return min(length, 0);
 }
 
 static inline state dt_attribute_read_u16_array(const struct dt_node *node, const char *name, uint16_t *buff, size_t min)
 {
-    return dt_attribute_read_u16_index_array(node, name, buff, 0, min);
+    int length;
+    length = dt_attribute_read_u16_index_array(node, name, buff, 0, min);
+    return min(length, 0);
 }
 
 static inline state dt_attribute_read_u32_array(const struct dt_node *node, const char *name, uint32_t *buff, size_t min)
 {
-    return dt_attribute_read_u32_index_array(node, name, buff, 0, min);
+    int length;
+    length = dt_attribute_read_u32_index_array(node, name, buff, 0, min);
+    return min(length, 0);
 }
 
 static inline state dt_attribute_read_u64_array(const struct dt_node *node, const char *name, uint64_t *buff, size_t min)
 {
-    return dt_attribute_read_u64_index_array(node, name, buff, 0, min);
+    int length;
+    length = dt_attribute_read_u64_index_array(node, name, buff, 0, min);
+    return min(length, 0);
 }
 
 static inline state dt_attribute_read_string_index(const struct dt_node *node, const char *name, unsigned int index, const char **str)
 {
-    return dt_attribute_read_string_index_array(node, name, str, index, 1);
+    int length;
+    length = dt_attribute_read_string_index_array(node, name, str, index, 1);
+    return min(length, 0);
 }
 
 static inline state dt_attribute_read_string(const struct dt_node *node, const char *name, const char **str)
 {
-    return dt_attribute_read_string_index(node, name, 0, str);
+    int length;
+    length = dt_attribute_read_string_index(node, name, 0, str);
+    return min(length, 0);
 }
 
 static inline state dt_parse_phandle_with_args(const struct dt_node *node, const char *list_name, const char *cells_name, int index, struct dt_phandle_args *args)
