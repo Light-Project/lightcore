@@ -19,12 +19,12 @@ static inline void bh_local_disable(void)
 
 static inline void bh_local_lock(void)
 {
-    bh_local_enable_count(SOFTIRQ_DISABLE);
+    bh_local_enable_count(SOFTIRQ_LOCK);
 }
 
 static inline void bh_local_unlock(void)
 {
-    bh_local_enable_count(SOFTIRQ_DISABLE);
+    bh_local_disable_count(SOFTIRQ_LOCK);
 }
 
 extern void softirq_irq_entry(void);
