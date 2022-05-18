@@ -21,8 +21,7 @@ static state populate_attribute(const void *blob, int offset, struct dt_node *no
     int cur, len;
 
     for (cur = fdt_first_property_offset(blob, offset);
-         cur >= 0;
-         cur = fdt_next_property_offset(blob, cur)) {
+         cur >= 0; cur = fdt_next_property_offset(blob, cur)) {
         const be32 *value;
         const char *name;
 
@@ -88,6 +87,7 @@ static inline state __init populate_node(const void *blob, int offset,
 
     node->path = fn = (char *)node + sizeof(*node);
     node->fwnode.ops = &dt_fwnode_ops;
+    node->fwnode.flags = FWNODE_IS_DTREE;
     memcpy(fn, path, len);
 
     if (parent) {
@@ -114,8 +114,7 @@ static inline struct dt_node * __init populate_bus(const void *blob, struct dt_n
 
     nodes[depth] = parent;
 
-    for (offset = 0;
-         offset >= 0 && depth >= sdepth;
+    for (offset = 0; offset >= 0 && depth >= sdepth;
          offset = fdt_next_node(blob, offset, &depth)) {
 
         if (unlikely(depth >= DT_DEPTH_MAX))
