@@ -3,4 +3,11 @@ menuconfig LED
     bool "LED Device Support"
 if LED
 
+source "drivers/led/trigger/Kconfig"
+
+config LED_GPIO
+    bool "GPIO Led Bridge"
+    depends on DT
+    default y
+
 endif
