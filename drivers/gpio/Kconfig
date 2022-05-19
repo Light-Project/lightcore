@@ -12,6 +12,10 @@ config GPIO_GENERIC
     bool "Generic GPIO Support"
     depends on DT
 
+config GPIO_INTEL_ICH
+    bool "Intel ICH GPIO Bridge"
+    depends on MFD_ICH
+
 config GPIO_PARALLEL
     bool "Parallel GPIO Bridge"
     depends on PARALLEL && DT
