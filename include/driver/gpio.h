@@ -98,6 +98,8 @@ struct gpio_device {
 
 /**
  * struct gpio_ops - describe the operations of a gpio device.
+ * @request: request a port channel from gpio controller.
+ * @release: release a port channel to gpio controller.
  * @value_get: get the level state of one channel of gpio device.
  * @value_set: set the level state of one channel of gpio device.
  * @direction_get: get the direction of one channel of gpio device.
@@ -110,6 +112,8 @@ struct gpio_device {
  * @speed_set: set the driving speed of one channel of gpio device.
  */
 struct gpio_ops {
+    state (*request)(struct gpio_device *gdev, unsigned int port);
+    state (*release)(struct gpio_device *gdev, unsigned int port);
     state (*value_get)(struct gpio_device *gdev, unsigned int port, bool *value);
     state (*value_set)(struct gpio_device *gdev, unsigned int port, bool value);
     state (*direction_get)(struct gpio_device *gdev, unsigned int port, enum gpio_direction *dir);
@@ -126,6 +130,8 @@ extern struct list_head gpio_list;
 extern spinlock_t gpio_lock;
 
 /* gpio operations */
+extern state gpio_raw_request(struct gpio_device *gdev, unsigned int port);
+extern state gpio_raw_release(struct gpio_device *gdev, unsigned int port);
 extern state gpio_raw_value_get(struct gpio_device *gdev, unsigned int index, bool *value);
 extern state gpio_raw_value_set(struct gpio_device *gdev, unsigned int index, bool value);
 extern state gpio_raw_direction_get(struct gpio_device *gdev, unsigned int index, enum gpio_direction *dir);

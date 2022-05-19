@@ -6,6 +6,28 @@
 #include <driver/gpio.h>
 #include <export.h>
 
+state gpio_raw_request(struct gpio_device *gdev, unsigned int port)
+{
+    struct gpio_ops *ops = gdev->ops;
+
+    if (!ops->request)
+        return -EOPNOTSUPP;
+
+    return ops->request(gdev, port);
+}
+EXPORT_SYMBOL(gpio_raw_request);
+
+state gpio_raw_release(struct gpio_device *gdev, unsigned int port)
+{
+    struct gpio_ops *ops = gdev->ops;
+
+    if (!ops->release)
+        return -EOPNOTSUPP;
+
+    return ops->release(gdev, port);
+}
+EXPORT_SYMBOL(gpio_raw_release);
+
 #define GENERIC_GPIO_RAW_OPS(name, operation, type)                             \
 state name(struct gpio_device *gdev, unsigned int index, type value)            \
 {                                                                               \
