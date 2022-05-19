@@ -9,6 +9,11 @@ config SELFTEST_DRIVER_BUZZER
     depends on BUZZER
     default y
 
+config SELFTEST_DRIVER_GPIO
+    bool "GPIO Unit Tests"
+    depends on BUZZER
+    default y
+
 config SELFTEST_DRIVER_RTC
     bool "RTC Unit Tests"
     depends on RTC
