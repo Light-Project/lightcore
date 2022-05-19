@@ -74,6 +74,10 @@ config KCMD_WATCH
     bool "Watch Command Support"
     default y
 
+config KCMD_WC
+    bool "WC Command Support"
+    default y
+
 config KCMD_WHILE
     bool "While Command Support"
     default y
