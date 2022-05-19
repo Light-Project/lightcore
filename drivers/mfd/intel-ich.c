@@ -863,8 +863,8 @@ static state intel_ich_gpio_setup(struct pci_device *pdev, const struct ich_chip
         goto gpio_base;
     }
 
-	idev->tco_res[INTEL_RES_GPIO].start = base + INTEL_ICH_ACPI_GPE;
-	idev->tco_res[INTEL_RES_GPIO].size = INTEL_ICH_ACPI_GPE_SZ;
+	idev->gpio_res[INTEL_RES_GPIO].start = base + INTEL_ICH_ACPI_GPE;
+	idev->gpio_res[INTEL_RES_GPIO].size = INTEL_ICH_ACPI_GPE_SZ;
     intel_ich_enable_acpi(pdev, info);
 
 gpio_base:
@@ -876,13 +876,13 @@ gpio_base:
         return -ENODEV;
     }
 
-    idev->tco_res[INTEL_RES_GPIO].start = base;
+    idev->gpio_res[INTEL_RES_GPIO].start = base;
 
     if (info->gpio_version == ich_gpio_v10cp ||
         info->gpio_version == ich_gpio_v5) {
-        idev->tco_res[INTEL_RES_GPIO].size = 128;
+        idev->gpio_res[INTEL_RES_GPIO].size = 128;
     } else {
-        idev->tco_res[INTEL_RES_GPIO].size = 64;
+        idev->gpio_res[INTEL_RES_GPIO].size = 64;
     }
 
     intel_ich_enable_gpio(pdev);
