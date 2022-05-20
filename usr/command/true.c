@@ -25,7 +25,7 @@ static void usage(struct kshell_context *ctx)
                   " [ignored command line arguments]\n");
 }
 
-static state __PASTE(PROGRAM_NAME, main)(struct kshell_context *ctx, int argc, char *argv[])
+static state true_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     if (argc != 1)
         usage(ctx);
@@ -33,14 +33,14 @@ static state __PASTE(PROGRAM_NAME, main)(struct kshell_context *ctx, int argc, c
     return -EXIT_STATUS;
 }
 
-static struct kshell_command watch_cmd = {
+static struct kshell_command true_cmd = {
     .name = __stringify(PROGRAM_NAME),
     .desc = PROGRAM_DESC,
-    .exec = __PASTE(PROGRAM_NAME, main),
+    .exec = true_main,
 };
 
-static state watch_init(void)
+static state true_init(void)
 {
-    return kshell_register(&watch_cmd);
+    return kshell_register(&true_cmd);
 }
-kshell_initcall(watch_init);
+kshell_initcall(true_init);
