@@ -7,6 +7,10 @@ config HWMON_AMD_K10
     bool "AMD-K10 Hwmon Support"
     depends on ARCH_X86
 
+config HWMON_CORETEMP
+    bool "Coretemp Hwmon Support"
+    depends on ARCH_X86
+
 config HWMON_DELL_SMM
     bool "Dell-SMM Hwmon Support"
     depends on ARCH_X86
