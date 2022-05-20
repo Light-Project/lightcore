@@ -2,6 +2,7 @@
 obj-$(CONFIG_KCMD_CLEAR)    += clear.o
 obj-$(CONFIG_KCMD_COND)     += cond.o
 obj-$(CONFIG_KCMD_CONTINUE)	+= continue.o
+obj-$(CONFIG_KCMD_DELAY)    += delay.o
 obj-$(CONFIG_KCMD_ECHO)     += echo.o
 obj-$(CONFIG_KCMD_EXPORT)   += export.o
 obj-$(CONFIG_KCMD_FALSE)    += false.o

@@ -14,6 +14,10 @@ config KCMD_CONTINUE
     bool "Continue Command Support"
     default y
 
+config KCMD_DELAY
+    bool "Delay Command Support"
+    default y
+
 config KCMD_ECHO
     bool "Echo Command Support"
     default y
