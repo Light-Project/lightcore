@@ -12,6 +12,7 @@
 #include <asm/asm.h>
 #include <arch/x86/regs.h>
 #include <arch/x86/cpuid.h>
+#include <arch/x86/msr.h>
 
 #ifndef __ASSEMBLY__
 
