@@ -22,16 +22,16 @@
 #define LEVEL_SIZE          (1UL << LEVEL_WIDTH)
 #define LEVEL_MASK          (LEVEL_SIZE - 1)
 
-#define LEVEL_DEPTH         CONFIG_TIMER_DEPTH
-#define WHEEL_LEN           (LEVEL_SIZE * LEVEL_DEPTH)
+#define WHEEL_DEPTH         CONFIG_TIMER_DEPTH
+#define WHEEL_LEN           (LEVEL_SIZE * WHEEL_DEPTH)
 
 #define LEVEL_SHIFT(lvl)    ((lvl) * CLOCK_SHIFT)
 #define LEVEL_GAIN(lvl)     (1UL << LEVEL_SHIFT(lvl))
 #define LEVEL_OFFS(lvl)     (LEVEL_SIZE * (lvl))
 #define LEVEL_START(lvl)    (LEVEL_SIZE << LEVEL_SHIFT((lvl) - 1))
 
-#define LEVEL_TIMEOUT_CUT   (LEVEL_START(LEVEL_DEPTH))
-#define LEVEL_TIMEOUT_MAX   (LEVEL_TIMEOUT_CUT - LEVEL_GAIN(LEVEL_DEPTH - 1))
+#define LEVEL_TIMEOUT_CUT   (LEVEL_START(WHEEL_DEPTH))
+#define LEVEL_TIMEOUT_MAX   (LEVEL_TIMEOUT_CUT - LEVEL_GAIN(WHEEL_DEPTH - 1))
 
 struct timer_base {
     spinlock_t lock;
@@ -107,7 +107,7 @@ static unsigned int clac_wheel(ttime_t current, ttime_t expires, ttime_t *expiry
         return current & LEVEL_MASK;
     }
 
-    for (count = 0; count < LEVEL_DEPTH; ++count) {
+    for (count = 0; count < WHEEL_DEPTH; ++count) {
         if (delta < LEVEL_START(count + 1))
             return clac_index(count, expires, expiry);
     }
@@ -115,7 +115,7 @@ static unsigned int clac_wheel(ttime_t current, ttime_t expires, ttime_t *expiry
     if (delta >= LEVEL_TIMEOUT_CUT)
         expires = current + LEVEL_TIMEOUT_MAX;
 
-    return clac_index(LEVEL_DEPTH - 1, expires, expiry);
+    return clac_index(WHEEL_DEPTH - 1, expires, expiry);
 }
 
 static void timer_insert(struct timer_base *base, struct timer *timer)
@@ -132,16 +132,22 @@ static void timer_forward(struct timer_base *base)
 {
     ttime_t ticknow = ticktime;
 
-    if (ticknow <= base->current)
+    if (ttime_before_equal(ticknow, base->current))
         return;
 
     if (ttime_before(ticknow, base->recent_timer))
         base->current = ticknow;
     else {
-        if (ttime_before(base->recent_timer, base->current))
+        if (WARN_ON(ttime_before(base->recent_timer, base->current)))
             return;
         base->current = base->recent_timer;
     }
+}
+
+static inline void forward_insert(struct timer_base *base, struct timer *timer)
+{
+    timer_forward(base);
+    timer_insert(base, timer);
 }
 
 static void expire_timers(struct timer_base *base, struct hlist_head *head)
@@ -154,7 +160,7 @@ static void expire_timers(struct timer_base *base, struct hlist_head *head)
         base_dequeue(timer, true);
 
         if (timer_test_periodic(timer))
-            timer_insert(base, timer);
+            forward_insert(base, timer);
 
         base->running = timer;
         entry = timer->entry;
@@ -177,7 +183,7 @@ static unsigned int collect_timers(struct timer_base *base, struct hlist_head *h
     unsigned int count, index, levels = 0;
     struct hlist_head *vector;
 
-    for (count = 0; count < LEVEL_DEPTH; ++count) {
+    for (count = 0; count < WHEEL_DEPTH; ++count) {
         index = (curr & LEVEL_MASK) + count * LEVEL_SIZE;
 
         if (bit_test_clr(base->pending_map, index)) {
@@ -217,7 +223,7 @@ static ttime_t next_recent_timer(struct timer_base *base)
     curr = base->current;
     next = curr + TIMER_EXPIRE_DELTA_MAX;
 
-    for (depth = 0; depth < LEVEL_DEPTH; ++depth, index += LEVEL_SIZE) {
+    for (depth = 0; depth < WHEEL_DEPTH; ++depth, index += LEVEL_SIZE) {
         int pos = next_pending_bucket(base, index, curr & LEVEL_MASK);
         int level_clk = curr & CLOCK_MASK;
 
@@ -244,7 +250,7 @@ static ttime_t next_recent_timer(struct timer_base *base)
 
 static void base_do_timers(struct timer_base *base)
 {
-    struct hlist_head heads[LEVEL_DEPTH];
+    struct hlist_head heads[WHEEL_DEPTH];
 
     if (ttime_before(ticktime, base->recent_timer))
         return;
@@ -261,7 +267,7 @@ static void base_do_timers(struct timer_base *base)
         base->recent_timer = next_recent_timer(base);
 
         while (levels--)
-            expire_timers(base, heads);
+            expire_timers(base, heads + levels);
     }
     spin_unlock_irq(&base->lock);
 }
@@ -275,7 +281,7 @@ static void timer_softirq_handle(void *pdata)
 void timer_update(void)
 {
     struct timer_base *base = thiscpu_ptr(&timer_bases);
-    if (ttime_after(ticktime, base->recent_timer))
+    if (ttime_after_equal(ticktime, base->recent_timer))
         softirq_pending(&timer_softirq);
 }
 
@@ -292,8 +298,7 @@ state timer_pending(struct timer *timer)
         return -EINVAL;
 
     spin_lock_irqsave(&base->lock, &irqflags);
-    timer_forward(base);
-    timer_insert(base, timer);
+    forward_insert(base, timer);
     spin_unlock_irqrestore(&base->lock, &irqflags);
 
     return -ENOERR;
