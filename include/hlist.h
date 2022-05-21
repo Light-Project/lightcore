@@ -66,10 +66,10 @@ static inline void hlist_head_add(struct hlist_head *head, struct hlist_node *ne
 
     new->next = head->node;
     new->pprev = &head->node;
-    head->node = new;
 
     if (head->node)
         head->node->pprev = &new->next;
+    head->node = new;
 }
 
 /**
@@ -86,10 +86,10 @@ static inline void hlist_next_add(struct hlist_node *node, struct hlist_node *ne
 
     new->pprev = &node->next;
     new->next = node->next;
-    node->next = new;
 
     if (new->next)
         new->next->pprev = &node->next;
+    node->next = new;
 }
 
 /**
@@ -121,7 +121,6 @@ static inline void hlist_deluf(struct hlist_node *node)
 
     if (next)
         next->pprev = pprev;
-
     *pprev = next;
 }
 
