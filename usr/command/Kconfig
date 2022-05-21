@@ -86,4 +86,6 @@ config KCMD_WHILE
     bool "While Command Support"
     default y
 
-endmenu
+source "usr/command/arch/Kconfig"
+
+endmenu # Kshell Command Shell

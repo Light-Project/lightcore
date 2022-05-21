@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
+obj-y += arch/
 obj-$(CONFIG_KCMD_CLEAR)    += clear.o
 obj-$(CONFIG_KCMD_COND)     += cond.o
 obj-$(CONFIG_KCMD_CONTINUE)	+= continue.o

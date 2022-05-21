@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+config KCMD_ARCH_X86_CPUID
+    bool "X86 Cpuid Command Support"
+    depends on ARCH_X86
+    default y
+
+config KCMD_ARCH_X86_MSR
+    bool "X86 MSR Command Support"
+    depends on ARCH_X86
+    default y
