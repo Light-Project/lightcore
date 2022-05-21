@@ -11,7 +11,12 @@ config SELFTEST_DRIVER_BUZZER
 
 config SELFTEST_DRIVER_GPIO
     bool "GPIO Unit Tests"
-    depends on BUZZER
+    depends on GPIO
+    default y
+
+config SELFTEST_DRIVER_HWMON
+    bool "HWMON Unit Tests"
+    depends on HWMON
     default y
 
 config SELFTEST_DRIVER_RTC
