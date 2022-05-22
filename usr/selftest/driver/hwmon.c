@@ -102,11 +102,15 @@ static state hwmon_testing(struct kshell_context *ctx, void *pdata)
     spin_lock(&hwmon_lock);
     list_for_each_entry(hdev, &hwmon_list, list) {
         struct hwmon_channel_info *info;
-        for (info = hdev->info; info->sensor; ++info)
-            hwmon_test_channels(ctx, hdev, info);
+        for (info = hdev->info; info->sensor; ++info) {
+            retval = hwmon_test_channels(ctx, hdev, info);
+            if (retval)
+                goto finish;
+        }
     }
-    spin_unlock(&hwmon_lock);
 
+finish:
+    spin_unlock(&hwmon_lock);
     return retval;
 }
 
