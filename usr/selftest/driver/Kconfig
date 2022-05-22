@@ -19,6 +19,11 @@ config SELFTEST_DRIVER_HWMON
     depends on HWMON
     default y
 
+config SELFTEST_DRIVER_RNG
+    bool "RNG Unit Tests"
+    depends on RNG
+    default y
+
 config SELFTEST_DRIVER_RTC
     bool "RTC Unit Tests"
     depends on RTC

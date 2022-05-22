@@ -19,7 +19,7 @@ elif [ $bochs ];then
 else
     qemu-system-x86_64                      \
         -name "Lightcore for x86"           \
-        -M q35                              \
+        -cpu max -M q35                     \
         -smp 2,sockets=1,cores=2,threads=1  \
         -m 2G -fda $image                   \
         -device rtl8139                     \

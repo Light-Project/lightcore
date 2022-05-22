@@ -3,8 +3,12 @@ menuconfig RNG
     bool "Random Number Generator (RNG) Support"
 if RNG
 
-config RNG_INTEL
-    bool "Intel RNG Support"
+config RNG_INTEL_RDRAND
+    bool "Intel Core RNG Support"
+    depends on ARCH_X86
+
+config RNG_INTEL_PCH
+    bool "Intel PCH RNG Support"
     depends on ARCH_X86 && PCI
 
 endif

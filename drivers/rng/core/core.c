@@ -7,7 +7,8 @@
 #include <driver/rng.h>
 #include <export.h>
 
-static LIST_HEAD(rng_list);
+SPIN_LOCK(rng_lock);
+LIST_HEAD(rng_list);
 
 static void rng_enqueue(struct rng_device *rdev)
 {
@@ -28,11 +29,18 @@ state rng_register(struct rng_device *rdev)
     if (!rdev->dev || !rdev->ops)
         return -EINVAL;
 
+    spin_lock(&rng_lock);
     rng_enqueue(rdev);
+    spin_unlock(&rng_lock);
+
     return -ENOERR;
 }
+EXPORT_SYMBOL(rng_register);
 
 void rng_unregister(struct rng_device *rdev)
 {
+    spin_lock(&rng_lock);
     list_del(&rdev->list);
+    spin_unlock(&rng_lock);
 }
+EXPORT_SYMBOL(rng_unregister);

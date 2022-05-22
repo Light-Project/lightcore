@@ -35,7 +35,7 @@ intel_write(struct intel_device *idev, unsigned int reg, uint8_t val)
     return intel_read(idev, reg);
 }
 
-static state intel_rng_open(struct rng_device *rdev)
+static state intel_rng_enable(struct rng_device *rdev)
 {
     struct intel_device *idev = rng_to_idev(rdev);
     uint8_t val;
@@ -54,7 +54,7 @@ static state intel_rng_open(struct rng_device *rdev)
     return -ENOERR;
 }
 
-static void intel_rng_close(struct rng_device *rdev)
+static state intel_rng_disable(struct rng_device *rdev)
 {
     struct intel_device *idev = rng_to_idev(rdev);
     uint8_t val;
@@ -64,6 +64,8 @@ static void intel_rng_close(struct rng_device *rdev)
         val &= ~INTEL_RNG_HW_ENABLE;
         val = intel_write(idev, INTEL_RNG_HW, val);
     }
+
+    return -ENOERR;
 }
 
 static state intel_rng_read(struct rng_device *rdev, unsigned long *data)
@@ -80,8 +82,8 @@ static state intel_rng_read(struct rng_device *rdev, unsigned long *data)
 }
 
 static struct rng_ops intel_rng_ops = {
-    .open = intel_rng_open,
-    .close = intel_rng_close,
+    .enable = intel_rng_enable,
+    .disable = intel_rng_disable,
     .read = intel_rng_read,
 };
 
@@ -105,8 +107,9 @@ static state intel_rng_probe(struct platform_device *pdev, const void *pdata)
 
     idev->rng.dev = &pdev->dev;
     idev->rng.ops = &intel_rng_ops;
-    rng_register(&idev->rng);
-    return -ENOERR;
+    idev->rng.rating = RNG_RATING_GOOD;
+
+    return rng_register(&idev->rng);
 }
 
 static const struct platform_device_id intel_rng_match[] = {

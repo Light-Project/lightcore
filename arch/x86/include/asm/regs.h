@@ -215,6 +215,35 @@ static inline void msr_set(unsigned int msr, uint64_t val)
     );
 }
 
+static inline bool rand_get(unsigned long *val)
+{
+    unsigned int retry = 10;
+    bool success;
+
+    while (retry--) {
+        asm volatile (
+            "rdrand %[out]\n" CC_SET(c)
+            : CC_OUT(c) (success), [out] "=r" (*val)
+        );
+        if (success)
+            return true;
+    }
+
+    return false;
+}
+
+static inline bool seed_get(unsigned long *val)
+{
+    bool success;
+
+    asm volatile (
+        "rdseed %[out]\n" CC_SET(c)
+        : CC_OUT(c) (success), [out] "=r" (*val)
+    );
+
+    return success;
+}
+
 static inline void cpuid_asm(uint32_t *eax, uint32_t *ebx,
                              uint32_t *ecx, uint32_t *edx)
 {
