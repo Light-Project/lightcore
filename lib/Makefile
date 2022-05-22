@@ -2,8 +2,8 @@
 obj-y += libc/ font/ crypto/
 obj-y += bitops.o bitmap.o ncache.o
 obj-y += sort.o klist.o ilist.o
-obj-y += rbtree.o idr.o bsearch.o
-obj-y += kfifo.o queue.o
+obj-y += rbtree.o idr.o
+obj-y += kfifo.o bsearch.o
 obj-y += param.o kasprintf.o
 obj-y += time.o librtc.o
 obj-y += size.o memdump.o
