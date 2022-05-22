@@ -324,5 +324,8 @@ void __init clockevent_init(void)
             pr_err("%s startup failed\n", fn->name);
     }
 
+    if (list_check_empty(&clockevent_list))
+        panic(pr_fmt("no any device found"));
+
     clocksource_init();
 }
