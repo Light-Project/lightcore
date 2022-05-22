@@ -18,8 +18,7 @@ static void usage(struct kshell_context *ctx)
 
 static state watch_main(struct kshell_context *ctx, int argc, char *argv[])
 {
-    unsigned int tmp, delay = 500;
-    unsigned int count;
+    unsigned int count, delay = 500;
     bool title = true;
     state retval;
 
@@ -55,22 +54,16 @@ static state watch_main(struct kshell_context *ctx, int argc, char *argv[])
 
     for (;;) {
         kshell_printf(ctx, "\e[2J\e[1;1H");
-
         if (title)
             kshell_printf(ctx, "Every %dms: %s\n\n", delay, argv[count]);
 
         retval = kshell_execv(ctx, argv[count], argc - count, &argv[count]);
-        if (retval)
+        if (retval || kshell_ctrlc(ctx))
             return retval;
 
-        for (tmp = 0; tmp < delay; ++tmp) {
-            if (kshell_ctrlc(ctx))
-                goto exit;
-            mdelay(1);
-        }
+        mdelay(delay);
     }
 
-exit:
     return -ENOERR;
 
 usage:
