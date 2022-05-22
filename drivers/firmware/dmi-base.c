@@ -90,7 +90,7 @@ static bool dmi_match_one(struct dmi_device_id *dmi)
 
 const void *dmi_system_check(struct dmi_device_id *dmi)
 {
-    while (dmi->name && dmi->name[0]) {
+    while (*dmi->name) {
         if (dmi_match_one(dmi))
             return dmi->data;
         ++dmi;

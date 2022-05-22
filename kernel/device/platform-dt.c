@@ -62,8 +62,7 @@ platform_dt_match(const struct dt_device_id *table, const struct dt_node *node)
     if (!table || !node)
         return NULL;
 
-    while ((table->name && table->name[0]) || (table->type && table->type[0]) ||
-           (table->compatible && table->compatible[0])) {
+    while (*table->name || *table->type || *table->compatible) {
         if (dt_device_match(table, node))
             return table;
         ++table;

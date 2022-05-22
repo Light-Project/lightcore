@@ -20,7 +20,7 @@ platform_device_match(const struct platform_device_id *table, const char *name)
     if (!table || !name)
         return NULL;
 
-    while (table->name && table->name[0]) {
+    while (*table->name) {
         if (!strncmp(table->name, name, PLATFORM_NAME_LEN))
             return table;
         ++table;

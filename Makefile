@@ -32,7 +32,7 @@ sys-acflags-y  += -fno-pic -fno-pie
 sys-cxflags-y  += -nostdinc -fno-builtin -static
 sys-cxflags-y  += -fno-common -fno-stack-protector
 sys-cxflags-y  += -ffreestanding
-sys-ccflags-y  += -std=gnu11
+sys-ccflags-y  += -std=gnu17
 sys-cxxflags-y += -std=gnu++17 -fpermissive -Wno-pointer-arith
 
 sys-acflags-y  += -D__KERNEL__
