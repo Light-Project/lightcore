@@ -66,8 +66,7 @@ __weak char *strncat(char *dest, const char *src, size_t n)
         while (*dest)
             dest++;
         while ((*dest++ = *src++) != 0) {
-            if (--n == 0)
-            {
+            if (--n == 0) {
                 *dest = '\0';
                 break;
             }
@@ -166,6 +165,7 @@ __weak int strnicmp(const char *s1, const char *s2, size_t n)
                 break;
         } while (--n);
     }
+
     return (int)c1 - (int)c2;
 }
 EXPORT_SYMBOL(strnicmp);
@@ -213,7 +213,7 @@ __weak char *strrchr(const char *s, int c)
     do {
         if (*p == (char)c)
             return (char *)p;
-    } while (--p >= s);
+    } while (p-- > s);
 
     return NULL;
 }
@@ -224,9 +224,23 @@ __weak char *strnchr(const char *s, size_t n, int c)
     for (; n-- && *s != '\0'; ++s)
         if (*s == (char)c)
             return (char *)s;
+
     return NULL;
 }
 EXPORT_SYMBOL(strnchr);
+
+__weak char *strrnchr(const char *s, size_t n, int c)
+{
+    const char *p = s + strnlen(s, n);
+
+    do {
+        if (*p == (char)c)
+            return (char *)p;
+    } while (p-- > s);
+
+    return NULL;
+}
+EXPORT_SYMBOL(strrnchr);
 
 char *strchrnul(const char *s, int c)
 {
@@ -327,8 +341,7 @@ __weak char *strnstr(const char *s1, const char *s2, size_t n)
     if (!l2)
         return (char *)s1;
 
-    while (n >= l2)
-    {
+    while (n >= l2) {
         n--;
         if (!memcmp(s1, s2, l2))
             return (char *)s1;

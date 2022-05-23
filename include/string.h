@@ -29,6 +29,7 @@ extern int strcoll(const char *s1, const char *s2);
 extern char *strchr(const char *s, int c);
 extern char *strrchr(const char *s, int c);
 extern char *strnchr(const char *s, size_t n, int c);
+extern char *strrnchr(const char *s, size_t n, int c);
 extern char *strchrnul(const char *s, int c);
 extern char *strnchrnul(const char *s, size_t count, int c);
 extern size_t strspn(const char *s, const char *accept);
