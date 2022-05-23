@@ -200,7 +200,7 @@ state kfifo_dynamic_alloc(struct kfifo *kfifo, size_t esize, size_t size, gfp_t 
     kfifo->data = kmalloc_array(size, esize, flags);
     if (!kfifo->data) {
         kfifo->mask = 0;
-        return -EINVAL;
+        return -ENOMEM;
     }
 
     return -ENOERR;
