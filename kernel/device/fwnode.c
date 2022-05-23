@@ -24,6 +24,7 @@ EXPORT_SYMBOL(fwnode_##name)
 GENERIC_FWNODE_OP(node_name, const char *, NULL, (node));
 GENERIC_FWNODE_OP(node_path, const char *, NULL, (node));
 GENERIC_FWNODE_OP(node_available, bool, true, (node));
+GENERIC_FWNODE_OP(node_container, void *, NULL, (node));
 GENERIC_FWNODE_OP(node_parent, struct fwnode *, NULL, (node));
 GENERIC_FWNODE_OP(next_child, struct fwnode *, NULL, (node, iter), struct fwnode *iter);
 GENERIC_FWNODE_OP(find_child, struct fwnode *, NULL, (node, name), const char *name);
@@ -79,6 +80,7 @@ EXPORT_SYMBOL(device_##operation)
 GENERIC_DEVICE_OP(node_name, const char *, NULL, (node));
 GENERIC_DEVICE_OP(node_path, const char *, NULL, (node));
 GENERIC_DEVICE_OP(node_available, bool, true, (node));
+GENERIC_DEVICE_OP(node_container, void *, NULL, (node));
 GENERIC_DEVICE_OP(node_parent, struct fwnode *, NULL, (node));
 GENERIC_DEVICE_OP(next_child, struct fwnode *, NULL, (node, iter), struct fwnode *iter);
 GENERIC_DEVICE_OP(find_child, struct fwnode *, NULL, (node, name), const char *name);

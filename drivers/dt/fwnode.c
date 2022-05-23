@@ -24,6 +24,12 @@ static bool dt_fwnode_node_available(const struct fwnode *fwnode)
     return dt_node_check_available(node);
 }
 
+static void *dt_fwnode_node_container(const struct fwnode *fwnode)
+{
+    struct dt_node *node = fwnode_to_dt(fwnode);
+    return node;
+}
+
 static struct fwnode *dt_fwnode_node_parent(const struct fwnode *fwnode)
 {
     struct dt_node *node = fwnode_to_dt(fwnode);
@@ -85,6 +91,7 @@ struct fwnode_ops dt_fwnode_ops = {
     .node_name = dt_fwnode_node_name,
     .node_path = dt_fwnode_node_path,
     .node_available = dt_fwnode_node_available,
+    .node_container = dt_fwnode_node_container,
     .node_parent = dt_fwnode_node_parent,
     .next_child = dt_fwnode_next_child,
     .find_child = dt_fwnode_find_child,
