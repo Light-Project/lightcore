@@ -31,6 +31,7 @@ struct readline_state {
     unsigned int len;
     unsigned int pos;
     unsigned int bsize;
+    bool keylock;
     char esc_param;
     enum readline_esc esc_state;
 

@@ -390,6 +390,9 @@ static bool readline_handle(struct readline_state *state, char code)
     unsigned int tmp;
     bool complete = false;
 
+    if (state->keylock && code != ASCII_DC3)
+        return false;
+
     switch (code) {
         case ASCII_SOH: /* ^A : Cursor Home */
             readline_cursor_home(state);
@@ -402,7 +405,7 @@ static bool readline_handle(struct readline_state *state, char code)
         case ASCII_ETX: /* ^C : Break Readline */
             state->len = state->pos = 0;
             state->curr = NULL;
-            state->cliplen = 0;
+            state->clippos = 0;
             return true;
 
         case ASCII_EOT: /* ^D : Delete */
@@ -432,21 +435,31 @@ static bool readline_handle(struct readline_state *state, char code)
             state->curr = NULL;
             break;
 
-        case ASCII_HT: /* ^I : Horizontal TAB */
-        case ASCII_VT: /* ^K : Vertical Tab */
-            if (state->len)
+        case ASCII_HT: /* ^I : Complete */
+            if (state->pos)
                 readline_complete(state);
+            break;
+
+        case ASCII_LF: /* ^J : Line Feed */
+            goto linefeed;
+
+        case ASCII_VT: /* ^K : Clear After */
+            if (state->pos)
+                readline_delete(state, state->len - state->pos);
+            readline_save_workspace(state);
+            state->curr = NULL;
             break;
 
         case ASCII_FF: /* ^L : Form Feed */
             readline_clear(state);
+            state->clippos = 0;
             break;
 
-        case ASCII_LF: /* ^J : Line Feed */
         case ASCII_CR: /* ^M : Carriage Return */
+        linefeed:
             if (state->len)
                 readline_history_add(state, state->buff, state->len);
-            state->cliplen = 0;
+            state->clippos = 0;
             return true;
 
         case ASCII_SO: /* ^N : History Complete Next */
@@ -470,7 +483,21 @@ static bool readline_handle(struct readline_state *state, char code)
             state->cliplen = 0;
             break;
 
-        case ASCII_NAK: /* ^U : Clear Line */
+        case ASCII_DC3: /* ^S : Readline Lock */
+            state->keylock ^= true;
+            break;
+
+        case ASCII_DC4: /* ^T : Repeat Execution */
+            history = readline_history_prev(state, state->buff, state->len, complete);
+            if (history) {
+                readline_cursor_home(state);
+                readline_delete(state, state->len);
+                readline_insert(state, history->cmd, history->len);
+                state->clippos = 0;
+            }
+            goto linefeed;
+
+        case ASCII_NAK: /* ^U : Clear Before */
             if (state->pos) {
                 tmp = state->pos;
                 readline_cursor_home(state);
@@ -489,6 +516,7 @@ static bool readline_handle(struct readline_state *state, char code)
                 readline_insert(state, history->cmd, history->len);
             else
                 readline_restory_workspace(state);
+            state->clippos = 0;
             break;
 
         case ASCII_ETB: /* ^W : History Prev */
@@ -498,6 +526,7 @@ static bool readline_handle(struct readline_state *state, char code)
                 readline_cursor_home(state);
                 readline_delete(state, state->len);
                 readline_insert(state, history->cmd, history->len);
+                state->clippos = 0;
             }
             break;
 
@@ -505,6 +534,8 @@ static bool readline_handle(struct readline_state *state, char code)
             readline_save_clipbrd(state, &tmp);
             readline_cursor_offset(state, tmp);
             readline_delete(state, state->cliplen);
+            readline_save_workspace(state);
+            state->curr = NULL;
             break;
 
         case ASCII_EM: /* ^Y : Clipboard Yield */
@@ -513,6 +544,8 @@ static bool readline_handle(struct readline_state *state, char code)
 
         case ASCII_SUB: /* ^Z : Clipboard Paste */
             readline_restory_clipbrd(state);
+            readline_save_workspace(state);
+            state->curr = NULL;
             break;
 
         default:
@@ -593,7 +626,7 @@ static bool readline_getcode(struct readline_state *state, char *code)
                         return true;
 
                     case 'E': /* Cursor Middle */
-                        *code = ASCII_CR;
+                        *code = ASCII_DC4;
                         return true;
 
                     case 'F': /* Control End */
@@ -688,6 +721,7 @@ char *readline(struct readline_state *state, const char *prompt)
 
     readline_write(state, "\n", 1);
     state->buff[state->len] = '\0';
+
     return state->buff;
 }
 
