@@ -61,16 +61,24 @@ static void readline_cursor_right(struct readline_state *rstate)
     }
 }
 
+static void readline_cursor_offset(struct readline_state *rstate, unsigned int offset)
+{
+    while (rstate->pos != offset) {
+        if (rstate->pos > offset)
+            readline_cursor_left(rstate);
+        else if (rstate->pos < offset)
+            readline_cursor_right(rstate);
+    }
+}
+
 static void readline_cursor_home(struct readline_state *rstate)
 {
-    while (rstate->pos)
-        readline_cursor_left(rstate);
+    readline_cursor_offset(rstate, 0);
 }
 
 static void readline_cursor_end(struct readline_state *rstate)
 {
-    while (rstate->pos < rstate->len)
-        readline_cursor_right(rstate);
+    readline_cursor_offset(rstate, rstate->len);
 }
 
 static void readline_fill(struct readline_state *rstate, unsigned int len)
@@ -110,7 +118,7 @@ static state readline_insert(struct readline_state *rstate, const char *str, uns
 
 static void readline_delete(struct readline_state *rstate, unsigned int len)
 {
-    len = min(len, rstate->len - rstate->pos);
+    min_adj(len, rstate->len - rstate->pos);
 
     memmove(rstate->buff + rstate->pos, rstate->buff + rstate->pos + len, rstate->len - rstate->pos + 1);
     rstate->len -= len;
@@ -119,6 +127,15 @@ static void readline_delete(struct readline_state *rstate, unsigned int len)
     readline_write(rstate, &rstate->buff[rstate->pos], rstate->len - rstate->pos);
     readline_fill(rstate, len);
     readline_cursor_restore(rstate);
+}
+
+static void readline_backspace(struct readline_state *rstate, unsigned int len)
+{
+    unsigned int pos = rstate->pos;
+
+    min_adj(len, rstate->pos);
+    readline_cursor_offset(rstate, pos - len);
+    readline_delete(rstate, len);
 }
 
 static void readline_clear(struct readline_state *rstate)
@@ -256,13 +273,20 @@ static state readline_complete(struct readline_state *rstate)
 {
     struct kshell_command *cmd, *tmp;
     unsigned int line, count = 0;
+    const char *start;
     state retval;
 
     LIST_HEAD(complete);
+    start = strrnchr(rstate->buff, rstate->pos - 1, ' ');
+    line = start ? ++start - rstate->buff : 0;
+
+    if (line >= rstate->pos)
+        return -ENOERR;
 
     spin_lock(&kshell_lock);
     list_for_each_entry(cmd, &kshell_list, list) {
-        if (strncmp(cmd->name, rstate->buff, rstate->len))
+        if ((!start && strncmp(cmd->name, rstate->buff, rstate->pos)) ||
+            (start && strncmp(cmd->name, start, rstate->pos - line)))
             continue;
         count++;
         list_add(&complete, &cmd->complete);
@@ -273,16 +297,14 @@ static state readline_complete(struct readline_state *rstate)
         return -ENOERR;
 
     cmd = list_first_entry(&complete, struct kshell_command, complete);
-    readline_save_workspace(rstate);
-
     if (count == 1) {
-        readline_cursor_home(rstate);
-        readline_delete(rstate, rstate->len);
+        readline_backspace(rstate, rstate->pos - line);
         retval = readline_insert(rstate, cmd->name, strlen(cmd->name));
         readline_insert(rstate, " ", 1);
         goto finish;
     }
 
+    readline_save_workspace(rstate);
     readline_write(rstate, "\n", 1);
 
     while (count) {
@@ -347,10 +369,8 @@ static bool readline_handle(struct readline_state *state, char code)
             break;
 
         case ASCII_BS: /* ^H : Back Space */
-            if (state->pos) {
-                readline_cursor_left(state);
-                readline_delete(state, 1);
-            }
+            if (state->pos)
+                readline_backspace(state, 1);
             readline_save_workspace(state);
             state->curr = NULL;
             break;
@@ -375,8 +395,7 @@ static bool readline_handle(struct readline_state *state, char code)
 
         case ASCII_SO: /* ^N : Shift Out / X-On */
             history = readline_history_next(state);
-            readline_cursor_home(state);
-            readline_delete(state, state->len);
+            readline_backspace(state, state->len);
             if (history)
                 readline_insert(state, history->cmd, history->len);
             else
@@ -389,8 +408,7 @@ static bool readline_handle(struct readline_state *state, char code)
         case ASCII_DLE: /* ^P : Data Line Escape */
             history = readline_history_prev(state, state->buff, state->len);
             if (history) {
-                readline_cursor_home(state);
-                readline_delete(state, state->len);
+                readline_backspace(state, state->len);
                 readline_insert(state, history->cmd, history->len);
             }
             break;
@@ -491,42 +509,50 @@ static bool readline_getcode(struct readline_state *state, char *code)
 
                 state->esc_state = READLINE_ESC_NORM;
                 switch (*code) {
-                    case 'A': case 'F': /* ^P */
-                        *code = 0x10;
+                    case 'A': /* Cursor Up */
+                        *code = ASCII_DLE;
                         return true;
 
-                    case 'B': case 'E': /* ^N */
-                        *code = 0x0e;
+                    case 'B': /* Cursor Down */
+                        *code = ASCII_SO;
                         return true;
 
-                    case 'C': /* ^F */
-                        *code = 0x06;
+                    case 'C': /* Cursor Right */
+                        *code = ASCII_ACK;
                         return true;
 
-                    case 'D': /* ^B */
-                        *code = 0x02;
+                    case 'D': /* Cursor Left */
+                        *code = ASCII_STX;
+                        return true;
+
+                    case 'E': /* Cursor Middle */
+                        *code = ASCII_CR;
+                        return true;
+
+                    case 'F': /* Control End */
+                        *code = ASCII_ENQ;
+                        return true;
+
+                    case 'H': /* Control Home */
+                        *code = ASCII_SOH;
                         return true;
 
                     case '~':
                         switch (state->esc_param) {
-                            case 1: /* ^A */
-                                *code = 0x01;
+                            case 2: /* Control Insert */
+                                *code = ASCII_SOH;
                                 return true;
 
-                            case 3: /* ^H */
-                                *code = 0x08;
+                            case 3: /* Control Delete */
+                                *code = ASCII_EOT;
                                 return true;
 
-                            case 4: /* ^E */
-                                *code = 0x05;
+                            case 5: /* Control Page Up */
+                                *code = ASCII_DLE;
                                 return true;
 
-                            case 5: /* ^P */
-                                *code = 0x10;
-                                return true;
-
-                            case 6: /* ^N */
-                                *code = 0x0e;
+                            case 6: /* Control Page Down */
+                                *code = ASCII_SO;
                                 return true;
 
                             default:
@@ -544,11 +570,11 @@ static bool readline_getcode(struct readline_state *state, char *code)
             state->esc_state = READLINE_ESC_NORM;
             switch (*code) {
                 case 'F': /* ^E */
-                    *code = 0x05;
+                    *code = ASCII_ENQ;
                     return true;
 
                 case 'H': /* ^A */
-                    *code = 0x01;
+                    *code = ASCII_SOH;
                     return true;
 
                 default:
