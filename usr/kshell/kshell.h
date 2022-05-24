@@ -24,24 +24,33 @@ struct readline_state {
     kshell_write_t write;
     void *data;
 
+    const char *prompt;
+    unsigned int plen;
+
     char *buff;
+    unsigned int len;
+    unsigned int pos;
+    unsigned int bsize;
+    char esc_param;
+    enum readline_esc esc_state;
+
     const char *workspace;
     unsigned int worklen;
     unsigned int worksize;
-    unsigned int bsize;
-    const char *prompt;
-    unsigned int plen;
-    unsigned int len;
-    unsigned int pos;
-    char esc_param;
-    enum readline_esc esc_state;
+
+    const char *clipbrd;
+    unsigned int cliplen;
+    unsigned int clippos;
+    unsigned int clipsize;
+    bool clipview;
+
     struct list_head history;
     struct readline_history *curr;
 };
 
 struct kshell_env {
     struct rb_node node;
-    char *val, name[];
+    char *val, name[0];
 };
 
 #define env_to_kshell(ptr) \
