@@ -14,6 +14,7 @@
 #define READLINE_BUFFER_DEF     64
 #define READLINE_WORKSPACE_DEF  64
 #define READLINE_CLIPBRD_DEF    64
+#define READLINE_ALT_OFFSET     0x80
 
 #define READLINE_BELL_PITCH     750
 #define READLINE_BELL_DURATION	(CONFIG_SYSTICK_FREQ / 8)
@@ -46,30 +47,40 @@ static inline void readline_cursor_restore(struct readline_state *rstate)
     readline_write(rstate, "\e[u", 3);
 }
 
-static void readline_cursor_left(struct readline_state *rstate)
+static bool readline_cursor_left(struct readline_state *rstate)
 {
     if (rstate->pos) {
         readline_write(rstate, "\e[D", 3);
         --rstate->pos;
+        return true;
     }
+
+    return false;
 }
 
-static void readline_cursor_right(struct readline_state *rstate)
+static bool readline_cursor_right(struct readline_state *rstate)
 {
     if (rstate->pos < rstate->len) {
         readline_write(rstate, "\e[C", 3);
         ++rstate->pos;
+        return true;
     }
+
+    return false;
 }
 
-static void readline_cursor_offset(struct readline_state *rstate, unsigned int offset)
+static bool readline_cursor_offset(struct readline_state *rstate, unsigned int offset)
 {
-    while (rstate->pos != offset) {
+    bool retval = true;
+
+    while (rstate->pos != offset && retval) {
         if (rstate->pos > offset)
-            readline_cursor_left(rstate);
+            retval = readline_cursor_left(rstate);
         else if (rstate->pos < offset)
-            readline_cursor_right(rstate);
+            retval = readline_cursor_right(rstate);
     }
+
+    return retval;
 }
 
 static void readline_cursor_home(struct readline_state *rstate)
@@ -393,7 +404,7 @@ static bool readline_handle(struct readline_state *state, char code)
     if (state->keylock && code != ASCII_DC3)
         return false;
 
-    switch (code) {
+    switch ((unsigned char)code) {
         case ASCII_SOH: /* ^A : Cursor Home */
             readline_cursor_home(state);
             break;
@@ -548,6 +559,30 @@ static bool readline_handle(struct readline_state *state, char code)
             state->curr = NULL;
             break;
 
+        case READLINE_ALT_OFFSET + 'l': /* ^[l : Cursor Left Word */
+            for (tmp = state->pos; tmp-- > 1;) {
+                if (isalnum(state->buff[tmp]) &&
+                    !isalnum(state->buff[tmp - 1])) {
+                        readline_cursor_offset(state, tmp);
+                        break;
+                    }
+            }
+            if (!tmp)
+                readline_cursor_home(state);
+            break;
+
+        case READLINE_ALT_OFFSET + 'r': /* ^[r : Cursor Right Word */
+            for (tmp = state->pos; ++tmp < state->len;) {
+                if (!isalnum(state->buff[tmp - 1]) &&
+                    isalnum(state->buff[tmp])) {
+                        readline_cursor_offset(state, tmp);
+                        break;
+                    }
+            }
+            if (tmp == state->len)
+                readline_cursor_end(state);
+            break;
+
         default:
             if (isprint(code)) {
                 readline_insert(state, &code, 1);
@@ -593,6 +628,11 @@ static bool readline_getcode(struct readline_state *state, char *code)
                     state->esc_param = 0;
                     break;
 
+                case 'a' ... 'z':
+                    state->esc_state = READLINE_ESC_NORM;
+                    *code += READLINE_ALT_OFFSET;
+                    return true;
+
                 default:
                     state->esc_state = READLINE_ESC_NORM;
                     return true;
@@ -603,74 +643,80 @@ static bool readline_getcode(struct readline_state *state, char *code)
             if (*code >= '0' && *code <= '9') {
                 state->esc_param = state->esc_param * 10 + (*code - '0');
                 return false;
-            } else {
-                if (*code == ';')
+            }
+
+            if (*code == ';')
+                break;
+
+            state->esc_state = READLINE_ESC_NORM;
+            switch (*code) {
+                case 'A': /* Cursor Up */
+                    *code = ASCII_DLE;
+                    return true;
+
+                case 'B': /* Cursor Down */
+                    *code = ASCII_SO;
+                    return true;
+
+                case 'C': /* Cursor Right */
+                    if (!state->esc_param)
+                        *code = ASCII_ACK;
+                    else if (state->esc_param == 15) /* Ctrl */
+                        *code = READLINE_ALT_OFFSET + 'r';
+                    return true;
+
+                case 'D': /* Cursor Left */
+                    if (!state->esc_param)
+                        *code = ASCII_STX;
+                    else if (state->esc_param == 15) /* Ctrl */
+                        *code = READLINE_ALT_OFFSET + 'l';
+                    return true;
+
+                case 'E': /* Cursor Middle */
+                    *code = ASCII_DC4;
+                    return true;
+
+                case 'F': /* Control End */
+                    *code = ASCII_ENQ;
+                    return true;
+
+                case 'H': /* Control Home */
+                    *code = ASCII_SOH;
+                    return true;
+
+                case '~':
+                    switch (state->esc_param) {
+                        case 2: /* Control Insert */
+                            *code = ASCII_SUB;
+                            return true;
+
+                        case 3: /* Control Delete */
+                            *code = ASCII_EOT;
+                            return true;
+
+                        case 5: /* Control Page Up */
+                            *code = ASCII_ETB;
+                            return true;
+
+                        case 6: /* Control Page Down */
+                            *code = ASCII_SYN;
+                            return true;
+
+                        case 25: /* Ctrl Control Insert */
+                            *code = ASCII_EM;
+                            return true;
+
+                        case 35: /* Ctrl Control Delete */
+                            *code = ASCII_NAK;
+                            return true;
+
+                        default:
+                            break;
+                    }
                     break;
 
-                state->esc_state = READLINE_ESC_NORM;
-                switch (*code) {
-                    case 'A': /* Cursor Up */
-                        *code = ASCII_DLE;
-                        return true;
-
-                    case 'B': /* Cursor Down */
-                        *code = ASCII_SO;
-                        return true;
-
-                    case 'C': /* Cursor Right */
-                        *code = ASCII_ACK;
-                        return true;
-
-                    case 'D': /* Cursor Left */
-                        *code = ASCII_STX;
-                        return true;
-
-                    case 'E': /* Cursor Middle */
-                        *code = ASCII_DC4;
-                        return true;
-
-                    case 'F': /* Control End */
-                        *code = ASCII_ENQ;
-                        return true;
-
-                    case 'H': /* Control Home */
-                        *code = ASCII_SOH;
-                        return true;
-
-                    case '~':
-                        switch (state->esc_param) {
-                            case 2: /* Control Insert */
-                                *code = ASCII_SUB;
-                                return true;
-
-                            case 3: /* Control Delete */
-                                *code = ASCII_EOT;
-                                return true;
-
-                            case 5: /* Control Page Up */
-                                *code = ASCII_ETB;
-                                return true;
-
-                            case 6: /* Control Page Down */
-                                *code = ASCII_SYN;
-                                return true;
-
-                            case 25: /* Ctrl Control Insert */
-                                *code = ASCII_EM;
-                                return true;
-
-                            case 35: /* Ctrl Control Delete */
-                                *code = ASCII_NAK;
-                                return true;
-
-                            default:
-                                break;
-                        }
-                        break;
-
-                    default:
-                        break;
-                }
+                default:
+                    break;
             }
             break;
 
