@@ -124,6 +124,7 @@ extern uint32_t atou32(const char *nptr);
 extern uint64_t atou64(const char *nptr);
 
 extern char *itoa(int val, char *str, int base);
+extern __scanf(2, 0) int vsscanf(const char *buf, const char *fmt, va_list args);
 extern __printf(2, 3) int sprintf(char *buf, const char *fmt, ...);
 extern __printf(3, 4) int snprintf(char *buf, size_t n, const char *fmt, ...);
 extern __printf(3, 4) int scnprintf(char *buf, size_t n, const char *fmt, ...);
