@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-menuconfig KUSR_SELFTEST
-    bool "Kernel Self-Test Support"
-    depends on KSH
+menuconfig KSH_SELFTEST
+    bool "Kernel Module Selftest"
+    depends on KSHELL
     default y
-if KUSR_SELFTEST
+if KSH_SELFTEST
 
 source "usr/selftest/driver/Kconfig"
 

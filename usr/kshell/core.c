@@ -6,7 +6,6 @@
 #include "kshell.h"
 #include <string.h>
 #include <initcall.h>
-#include <ascii.h>
 #include <kmalloc.h>
 #include <printk.h>
 #include <export.h>
@@ -14,12 +13,12 @@
 LIST_HEAD(kshell_list);
 SPIN_LOCK(kshell_lock);
 
-static unsigned int kshell_read(char *str, unsigned int len, void *data)
+static unsigned int kshell_console_read(char *str, unsigned int len, void *data)
 {
     return console_read(str, len);
 }
 
-static void kshell_write(const char *str, unsigned int len, void *data)
+static void kshell_console_write(const char *str, unsigned int len, void *data)
 {
     console_write(str, len);
 }
@@ -74,46 +73,6 @@ void kshell_unregister(struct kshell_command *cmd)
     spin_unlock(&kshell_lock);
 }
 EXPORT_SYMBOL(kshell_unregister);
-
-int kshell_vprintf(struct kshell_context *ctx, const char *str, va_list args)
-{
-    char strbuf[256];
-    int len;
-
-    len = vsnprintf(strbuf, sizeof(strbuf), str, args);
-    ctx->write(strbuf, len, ctx->data);
-
-    return len;
-}
-EXPORT_SYMBOL(kshell_vprintf);
-
-int kshell_printf(struct kshell_context *ctx, const char *str, ...)
-{
-    va_list args;
-    int len;
-
-    va_start(args,str);
-    len = kshell_vprintf(ctx, str, args);
-    va_end(args);
-
-    return len;
-}
-EXPORT_SYMBOL(kshell_printf);
-
-bool kshell_ctrlc(struct kshell_context *ctx)
-{
-    unsigned int len;
-    char buff[32];
-
-    len = ctx->read(buff, sizeof(buff), ctx->data);
-    while (len--) {
-        if (buff[len] == ASCII_ETX)
-            return true;
-    }
-
-    return false;
-}
-EXPORT_SYMBOL(kshell_ctrlc);
 
 state kshell_exec(struct kshell_context *ctx, const struct kshell_command *cmd, int argc, char *argv[])
 {
@@ -181,17 +140,17 @@ static void __init ksh_initcall(void)
 
 void ksh_init(void)
 {
-    unsigned int maxdepth = CONFIG_KSH_DEPTH;
+    unsigned int maxdepth = CONFIG_KSHELL_DEPTH;
     struct readline_state rstate;
     struct kshell_context ctx;
 
-    ctx.read = kshell_read;
-    ctx.write = kshell_write;
+    ctx.read = kshell_console_read;
+    ctx.write = kshell_console_write;
     ctx.env = RB_INIT;
     ctx.depth = &maxdepth;
     ctx.readline = &rstate;
-    rstate.read = kshell_read;
-    rstate.write = kshell_write;
+    rstate.read = kshell_console_read;
+    rstate.write = kshell_console_write;
 
     printk("##########################\n");
     printk("Welcome to lightcore shell\n");

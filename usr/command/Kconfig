@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 menu "Kshell Command Shell"
-    depends on KSH
+    depends on KSHELL
 
 config KCMD_CLEAR
     bool "Clear Command Support"

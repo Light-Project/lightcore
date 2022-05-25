@@ -1,18 +1,20 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig KUSR
-    bool "Kernel Application Config"
+    bool "Kernel Application"
     default y
 if KUSR
 
-config KSH
-    bool "Kernel Shell Support"
+config KSHELL
+    bool "Kshell Support"
     default y
 
-config KSH_DEPTH
-    int "Kernel Shell Maximum Depth"
+config KSHELL_DEPTH
+    int "Kshell Maximum Depth"
     default 10
 
 source "usr/command/Kconfig"
+
+source "usr/manual/Kconfig"
 
 source "usr/selftest/Kconfig"
 

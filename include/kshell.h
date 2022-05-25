@@ -50,10 +50,13 @@ extern state kshell_unsetenv(struct kshell_context *ctx, const char *name);
 extern state kshell_exec(struct kshell_context *ctx, const struct kshell_command *cmd, int argc, char *argv[]);
 extern state kshell_execv(struct kshell_context *ctx, const char *name, int argc, char *argv[]);
 extern state kshell_system(struct kshell_context *ctx, const char *cmdline);
-extern bool kshell_ctrlc(struct kshell_context *ctx);
 
+extern unsigned int kshell_read(struct kshell_context *ctx, char *str, unsigned int len);
+extern void kshell_write(struct kshell_context *ctx, const char *str, unsigned int len);
 extern int kshell_vprintf(struct kshell_context *ctx, const char *str, va_list args);
 extern int __printf(2, 3) kshell_printf(struct kshell_context *ctx, const char *str, ...);
+extern bool kshell_ctrlc(struct kshell_context *ctx);
+
 extern state kshell_register(struct kshell_command *cmd);
 extern void kshell_unregister(struct kshell_command *cmd);
 extern void ksh_init(void);

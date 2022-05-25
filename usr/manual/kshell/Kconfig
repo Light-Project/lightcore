@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig MANUAL_KSHELL
+    bool "Kshell Manual"
+    default y
+if MANUAL_KSHELL
+
+config MANUAL_KSHELL_SHORTCUT
+    bool "Kshell Shortcut Introduce"
+    default y
+
+endif # MANUAL_KSHELL

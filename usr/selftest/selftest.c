@@ -226,14 +226,14 @@ usage:
     return -EINVAL;
 }
 
-static struct kshell_command clear_cmd = {
+static struct kshell_command selftest_cmd = {
     .name = "selftest",
     .desc = "kernel modules selftest",
     .exec = selftest_main,
 };
 
-static state clear_init(void)
+static state selftest_init(void)
 {
-    return kshell_register(&clear_cmd);
+    return kshell_register(&selftest_cmd);
 }
-kshell_initcall(clear_init);
+kshell_initcall(selftest_init);

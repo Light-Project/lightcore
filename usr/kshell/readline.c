@@ -477,7 +477,7 @@ static bool readline_handle(struct readline_state *state, char code)
             complete = true;
             goto history_next;
 
-        case ASCII_SI: /* ^O : Clipboard View Mode */
+        case ASCII_SI: /* ^O : Clipboard Select */
             state->clipview = true;
             state->clippos = state->pos;
             break;
@@ -546,7 +546,7 @@ static bool readline_handle(struct readline_state *state, char code)
             state->curr = NULL;
             break;
 
-        case ASCII_EM: /* ^Y : Clipboard Yield */
+        case ASCII_EM: /* ^Y : Clipboard Yank */
             readline_save_clipbrd(state, NULL);
             break;
 

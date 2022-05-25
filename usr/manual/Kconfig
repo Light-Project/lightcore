@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig KSH_MANUAL
+    bool "Kshell Command Manual"
+    depends on KSHELL
+    default y
+if KSH_MANUAL
+
+source "usr/manual/kshell/Kconfig"
+
+endif
