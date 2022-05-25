@@ -198,21 +198,21 @@ static uint64_t convert_val(char *str)
     }
 
     else {
-        va = strtoull(str);
+        va = axtoull(str);
         goto skip_type;
     }
 
     tmp = strchr(str, ',');
     if (!tmp || tmp == str)
         return 0;
-    va = strtoull(str);
+    va = axtoull(str);
     str = tmp + 1;
 
 skip_va:
     tmp = strchr(str, ')');
     if (!tmp || tmp == str)
         return 0;
-    vb = strtoul(str);
+    vb = axtoul(str);
 
     switch (type) {
         case VALUE_BIT:
@@ -333,7 +333,7 @@ exit:
     } else
         num = 1;
 
-    phys = strtoul(argv[argc - 1]);
+    phys = axtoul(argv[argc - 1]);
     addr = block = ioremap(phys, num * byte);
     if (!addr) {
         kshell_printf(ctx, "failed to remapio\n");
@@ -479,7 +479,7 @@ pass:
     } else
         num = 1;
 
-    phys = strtoul(argv[argc - 3]);
+    phys = axtoul(argv[argc - 3]);
     value = convert_val(argv[argc - 1]);
     addr = block = ioremap(phys, num * byte);
     if (!addr) {
@@ -614,7 +614,7 @@ exit:
     } else
         num = 1;
 
-    base = strtoul(argv[argc - 1]);
+    base = axtoul(argv[argc - 1]);
 
     for (; (count = min(num, number_table[byte / 2])); num -= count) {
         unsigned int tmp;
@@ -718,7 +718,7 @@ pass:
     } else
         num = 1;
 
-    base = strtoul(argv[argc - 3]);
+    base = axtoul(argv[argc - 3]);
     value = convert_val(argv[argc - 1]);
 
     while (num--) {

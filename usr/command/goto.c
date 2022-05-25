@@ -34,7 +34,7 @@ static int goto_main(struct kshell_context *ctx, int argc, char *argv[])
     if (argc == count)
         goto usage;
 
-    program = (void *)strtoul(argv[count]);
+    program = (void *)axtoul(argv[count]);
     if (!program)
         goto usage;
 

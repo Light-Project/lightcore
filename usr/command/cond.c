@@ -39,13 +39,13 @@ finish:
     if (argc < count + 2)
         goto usage;
 
-    condition = strtol(argv[count++]);
+    condition = axtol(argv[count++]);
     if (!condition)
         retval = kshell_system(ctx, argv[count++]);
 
     else for (count++; count < argc - 1; count += 2) {
         if (!strcmp(argv[count], "elif")) {
-            condition = strtol(argv[++count]);
+            condition = axtol(argv[++count]);
             if (condition)
                 continue;
             retval = kshell_system(ctx, argv[++count]);

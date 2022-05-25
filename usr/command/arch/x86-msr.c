@@ -40,9 +40,9 @@ static state msr_main(struct kshell_context *ctx, int argc, char *argv[])
     if (argc == count)
         goto usage;
 
-    opcode = strtoll(argv[count++]);
+    opcode = axtou64(argv[count++]);
     if (wflag) {
-        value = strtoll(argv[count]);
+        value = axtou64(argv[count]);
         msr_set(opcode, value);
     }
 

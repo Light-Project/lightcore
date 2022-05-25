@@ -87,21 +87,21 @@ static state loop_main(struct kshell_context *ctx, int argc, char *argv[])
                     break;
                 }
                 CHECK_PARAM
-                start = strntoi(str, tmp - str);
+                start = axtoi(str);
             } else if (*str == '.' && var == 1) {
                 if (!(tmp = strstr(++str, "..")) && !(tmp = strchr(str, ')'))) {
                     textmode = true;
                     break;
                 }
                 CHECK_PARAM
-                end = strntoi(str, tmp - str);
+                end = axtoi(str);
             } else if (*str == '.' && var == 2) {
                 if (!(tmp = strchr(++str, ')'))) {
                     textmode = true;
                     break;
                 }
                 CHECK_PARAM
-                step = strntoi(str, tmp - str);
+                step = axtoi(str);
             } else {
                 textmode = true;
                 break;

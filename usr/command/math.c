@@ -38,7 +38,7 @@ static int get_value(struct kshell_context *ctx, char *end, char *varname)
     if (tmp)
         *walk = tmp;
 
-    return strtoi(result ?: varname);
+    return axtoi(result ?: varname);
 }
 
 static void set_value(struct kshell_context *ctx, char *end, char *varname, int value, bool hex)
