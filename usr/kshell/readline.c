@@ -439,7 +439,7 @@ static bool readline_handle(struct readline_state *state, char code)
                 READLINE_BELL_PITCH, READLINE_BELL_DURATION);
             break;
 
-        case ASCII_BS: /* ^H : Back Space */
+        case ASCII_BS: /* ^H : Backspace */
             if (state->pos)
                 readline_backspace(state, 1);
             readline_save_workspace(state);
@@ -455,7 +455,7 @@ static bool readline_handle(struct readline_state *state, char code)
             goto linefeed;
 
         case ASCII_VT: /* ^K : Clear After */
-            if (state->pos)
+            if (state->len)
                 readline_delete(state, state->len - state->pos);
             readline_save_workspace(state);
             state->curr = NULL;
@@ -509,11 +509,8 @@ static bool readline_handle(struct readline_state *state, char code)
             goto linefeed;
 
         case ASCII_NAK: /* ^U : Clear Before */
-            if (state->pos) {
-                tmp = state->pos;
-                readline_cursor_home(state);
-                readline_delete(state, tmp);
-            }
+            if (state->pos)
+                readline_backspace(state, state->pos);
             readline_save_workspace(state);
             state->curr = NULL;
             break;
@@ -559,13 +556,37 @@ static bool readline_handle(struct readline_state *state, char code)
             state->curr = NULL;
             break;
 
+        case READLINE_ALT_OFFSET + 'b': /* ^[b : Backspace Word */
+            for (tmp = state->pos; tmp-- > 1;) {
+                if (isalnum(state->buff[tmp]) &&
+                    !isalnum(state->buff[tmp - 1])) {
+                    readline_backspace(state, state->pos - tmp);
+                    break;
+                }
+            }
+            if (!tmp)
+                readline_backspace(state, state->pos);
+            break;
+
+        case READLINE_ALT_OFFSET + 'd': /* ^[d : Delete Word */
+            for (tmp = state->pos; ++tmp < state->len;) {
+                if (isalnum(state->buff[tmp - 1]) &&
+                    !isalnum(state->buff[tmp])) {
+                    readline_delete(state, tmp - state->pos);
+                    break;
+                }
+            }
+            if (tmp == state->len)
+                readline_delete(state, state->len - state->pos);
+            break;
+
         case READLINE_ALT_OFFSET + 'l': /* ^[l : Cursor Left Word */
             for (tmp = state->pos; tmp-- > 1;) {
                 if (isalnum(state->buff[tmp]) &&
                     !isalnum(state->buff[tmp - 1])) {
-                        readline_cursor_offset(state, tmp);
-                        break;
-                    }
+                    readline_cursor_offset(state, tmp);
+                    break;
+                }
             }
             if (!tmp)
                 readline_cursor_home(state);
@@ -575,9 +596,9 @@ static bool readline_handle(struct readline_state *state, char code)
             for (tmp = state->pos; ++tmp < state->len;) {
                 if (!isalnum(state->buff[tmp - 1]) &&
                     isalnum(state->buff[tmp])) {
-                        readline_cursor_offset(state, tmp);
-                        break;
-                    }
+                    readline_cursor_offset(state, tmp);
+                    break;
+                }
             }
             if (tmp == state->len)
                 readline_cursor_end(state);
@@ -607,7 +628,7 @@ static bool readline_getcode(struct readline_state *state, char *code)
                     state->esc_state = READLINE_ESC_ESC;
                     break;
 
-                case ASCII_DEL: /* Back Space */
+                case ASCII_DEL: /* Backspace */
                     *code = ASCII_BS;
                     return true;
 
@@ -628,9 +649,13 @@ static bool readline_getcode(struct readline_state *state, char *code)
                     state->esc_param = 0;
                     break;
 
-                case 'a' ... 'z':
+                case 'a' ... 'z': /* Alt Alpha */
                     state->esc_state = READLINE_ESC_NORM;
                     *code += READLINE_ALT_OFFSET;
+                    return true;
+
+                case ASCII_DEL: /* Alt Backspace */
+                    *code = READLINE_ALT_OFFSET + 'b';
                     return true;
 
                 default:
@@ -651,11 +676,17 @@ static bool readline_getcode(struct readline_state *state, char *code)
             state->esc_state = READLINE_ESC_NORM;
             switch (*code) {
                 case 'A': /* Cursor Up */
-                    *code = ASCII_DLE;
+                    if (!state->esc_param)
+                        *code = ASCII_DLE;
+                    else if (state->esc_param == 15) /* Ctrl */
+                        *code = ASCII_ETB;
                     return true;
 
                 case 'B': /* Cursor Down */
-                    *code = ASCII_SO;
+                    if (!state->esc_param)
+                        *code = ASCII_SO;
+                    else if (state->esc_param == 15) /* Ctrl */
+                        *code = ASCII_SYN;
                     return true;
 
                 case 'C': /* Cursor Right */
@@ -677,11 +708,17 @@ static bool readline_getcode(struct readline_state *state, char *code)
                     return true;
 
                 case 'F': /* Control End */
-                    *code = ASCII_ENQ;
+                    if (!state->esc_param)
+                        *code = ASCII_ENQ;
+                    else if (state->esc_param == 15) /* Ctrl */
+                        *code = ASCII_VT;
                     return true;
 
                 case 'H': /* Control Home */
-                    *code = ASCII_SOH;
+                    if (!state->esc_param)
+                        *code = ASCII_SOH;
+                    else if (state->esc_param == 15) /* Ctrl */
+                        *code = ASCII_NAK;
                     return true;
 
                 case '~':
@@ -702,12 +739,20 @@ static bool readline_getcode(struct readline_state *state, char *code)
                             *code = ASCII_SYN;
                             return true;
 
+                        case 23: /* Alt Control Insert */
+                            *code = ASCII_CAN;
+                            return true;
+
                         case 25: /* Ctrl Control Insert */
                             *code = ASCII_EM;
                             return true;
 
+                        case 27: /* Ctrl Alt Control Insert */
+                            *code = ASCII_SI;
+                            return true;
+
                         case 35: /* Ctrl Control Delete */
-                            *code = ASCII_NAK;
+                            *code = READLINE_ALT_OFFSET + 'd';
                             return true;
 
                         default:
