@@ -114,6 +114,7 @@ EXPORT_SYMBOL(kshell_system);
 
 state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
 {
+    struct readline_state *rstate = ctx->readline;
     struct kshell_context nctx;
     char *cmdline, retbuf[20];
     state exit, ret = -ENOERR;
@@ -136,23 +137,23 @@ state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
         }
     }
 
-    else if (ctx->readline) {
-        nctx.readline = readline_alloc(ctx->readline->read, ctx->readline->write, NULL);
-        if (!nctx.readline)
+    else if (rstate) {
+        rstate = readline_alloc(rstate->read, rstate->write, rstate->data);
+        if (!(nctx.readline = rstate))
             return -ENOMEM;
 
         exit = setjmp(&buff);
 
         while (!exit) {
-            cmdline = readline(nctx.readline, "kshell: /# ");
-            if (!nctx.readline->len)
+            cmdline = readline(rstate, "kshell: /# ");
+            if (!rstate->len)
                 continue;
             ret = do_system(&nctx, cmdline, &buff);
             snprintf(retbuf, sizeof(retbuf), "%d", ret);
             kshell_setenv(&nctx, "?", retbuf, true);
         }
 
-        readline_free(nctx.readline);
+        readline_free(rstate);
     }
 
     kshell_envrelease(&nctx);

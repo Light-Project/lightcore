@@ -53,7 +53,9 @@ extern state kshell_system(struct kshell_context *ctx, const char *cmdline);
 
 extern unsigned int kshell_read(struct kshell_context *ctx, char *str, unsigned int len);
 extern void kshell_write(struct kshell_context *ctx, const char *str, unsigned int len);
-extern int kshell_vprintf(struct kshell_context *ctx, const char *str, va_list args);
+extern int __scanf(2, 0) kshell_vscanf(struct kshell_context *ctx, const char *fmt, va_list args);
+extern int __scanf(2, 3) kshell_scanf(struct kshell_context *ctx, const char *fmt, ...);
+extern int __printf(2, 0) kshell_vprintf(struct kshell_context *ctx, const char *str, va_list args);
 extern int __printf(2, 3) kshell_printf(struct kshell_context *ctx, const char *str, ...);
 extern bool kshell_ctrlc(struct kshell_context *ctx);
 
