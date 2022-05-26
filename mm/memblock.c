@@ -154,8 +154,8 @@ memblock_insert(phys_addr_t addr, size_t size, enum memblock_type type, bool mer
         }
 
         /* merge the next same attribute node */
-        tmp = list_next_entry(new, list);
-        if (type == tmp->type && addr + size == tmp->addr) {
+        tmp = list_next_entry_or_null(new, &memblock_list, list);
+        if (tmp && type == tmp->type && addr + size == tmp->addr) {
             new->size += tmp->size;
             memblock_node_remove(tmp);
         }
