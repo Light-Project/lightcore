@@ -2,16 +2,15 @@
 #ifndef _TICKTIME_H_
 #define _TICKTIME_H_
 
-#include <types.h>
 #include <time.h>
+#include <math.h>
 
 extern volatile ttime_t ticktime;
+#define SYSTICK_FREQ CONFIG_SYSTICK_FREQ
+#define SYSTICK_NSEC DIV_ROUND_CLOSEST(NSEC_PER_SEC, SYSTICK_FREQ)
 
-#define SYSTICK_NSEC        \
-    DIV_ROUND_CLOSEST(      \
-        NSEC_PER_SEC,       \
-        CONFIG_SYSTICK_FREQ \
-)
+#define ttime_add(ttime, time)  ((ttime) + (time))
+#define ttime_sub(ttime, time)  ((ttime) - (time))
 
 /**
  * ttime_to_ns/us/ms - convert ttime to time

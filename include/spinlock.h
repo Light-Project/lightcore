@@ -226,9 +226,9 @@ extern bool raw_write_trylock_bh                    (arch_spinlock_t *lock);
 })
 
 #define raw_spin_trylock_irqsave(lock, irqflags) ({     \
-    irqflags = irq_local_save();                        \
+    *irqflags = irq_local_save();                       \
 	raw_spin_trylock(lock) ?                            \
-	1 : ({ irq_local_restore(irqflags); 0; });          \
+	1 : ({ irq_local_restore(*irqflags); 0; });         \
 })
 
 static __always_inline void spin_lock(spinlock_t *lock)
@@ -284,6 +284,11 @@ static __always_inline int spin_trylock_bh(spinlock_t *lock)
 static __always_inline int spin_trylock_irq(spinlock_t *lock)
 {
     return raw_spin_trylock_irq(&lock->rlock);
+}
+
+static __always_inline int spin_trylock_irqsave(spinlock_t *lock, irqflags_t *irqflags)
+{
+    return raw_spin_trylock_irqsave(&lock->rlock, irqflags);
 }
 
 #endif	/* _SPINLOCK_H_ */
