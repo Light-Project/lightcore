@@ -774,7 +774,7 @@ EXPORT_SYMBOL(rb_right_deep);
 
 /**
  * rb_first/last/prev/next - Middle iteration (Sequential)
- * NOTE: find logical next and previous nodes
+ * NOTE: find logical next and previous nodes.
  */
 struct rb_node *rb_first(const struct rb_root *root)
 {
@@ -857,8 +857,40 @@ struct rb_node *rb_next(const struct rb_node *node)
 EXPORT_SYMBOL(rb_next);
 
 /**
+ * rb_pre_next - Preorder iteration (Root-first)
+ * NOTE: always access the left node first.
+ */
+struct rb_node *rb_pre_next(const struct rb_node *node)
+{
+    struct rb_node *parent;
+
+    if (!node)
+        return NULL;
+
+    /**
+     * If there are left and right child nodes,
+     * then we iterate directly.
+     */
+    if (node->left)
+        return node->left;
+
+    if (node->right)
+        return node->right;
+
+    /**
+     * if we have no children, Go up till we find an ancestor
+     * which have a another right-hand child.
+     */
+    while ((parent = node->parent) && (!parent->right || node == parent->right))
+        node = parent;
+
+    return parent ? parent->right : NULL;
+}
+EXPORT_SYMBOL(rb_pre_next);
+
+/**
  * rb_post_first/next - Postorder iteration (Depth-first)
- * NOTE: always visit the parent after its children
+ * NOTE: always visit the parent after its children.
  */
 struct rb_node *rb_post_first(const struct rb_root *root)
 {
@@ -867,8 +899,7 @@ struct rb_node *rb_post_first(const struct rb_root *root)
     if (!root || !node)
         return NULL;
 
-    node = rb_left_deep(node);
-    return node;
+    return rb_left_deep(node);
 }
 EXPORT_SYMBOL(rb_post_first);
 

@@ -225,6 +225,81 @@ extern struct rb_node *rb_next(const struct rb_node *node);
     for (pos = rb_prev_entry(pos, member); pos; \
          pos = rb_prev_entry(pos, member))
 
+/* Preorder iteration (Root-first) - always access the left node first */
+extern struct rb_node *rb_pre_next(const struct rb_node *node);
+
+/**
+ * rb_pre_first - get the preorder first rb_node from a rbtree.
+ * @root: the rbtree root to take the rb_node from.
+ */
+#define rb_pre_first(root) ((root)->rb_node)
+
+/**
+ * rb_pre_first_entry - get the preorder first element from a rbtree.
+ * @ptr: the rbtree root to take the element from.
+ * @type: the type of the struct this is embedded in.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_pre_first_entry(root, type, member) \
+    rb_entry_safe(rb_pre_first(root), type, member)
+
+/**
+ * rb_pre_next_entry - get the preorder next element in rbtree.
+ * @pos: the type * to cursor.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_pre_next_entry(pos, member) \
+    rb_entry_safe(rb_pre_next(&(pos)->member), typeof(*(pos)), member)
+
+/**
+ * rb_pre_for_each - preorder iterate over a rbtree.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ * @root: the root for your rbtree.
+ */
+#define rb_pre_for_each(pos, root) \
+    for (pos = rb_pre_first(root); pos; pos = rb_pre_next(pos))
+
+/**
+ * rb_pre_for_each_from - preorder iterate over a rbtree from the current point.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ */
+#define rb_pre_for_each_from(pos) \
+    for (; pos; pos = rb_pre_next(pos))
+
+/**
+ * rb_pre_for_each_continue - continue preorder iteration over a rbtree.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ */
+#define rb_pre_for_each_continue(pos) \
+    for (pos = rb_pre_next(pos); pos; pos = rb_pre_next(pos))
+
+/**
+ * rb_pre_for_each_entry - preorder iterate over rbtree of given type.
+ * @pos: the type * to use as a loop cursor.
+ * @root: the root for your rbtree.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_pre_for_each_entry(pos, root, member) \
+    for (pos = rb_pre_first_entry(root, typeof(*pos), member); \
+         pos; pos = rb_pre_next_entry(pos, member))
+
+/**
+ * rb_pre_for_each_entry_from - preorder iterate over rbtree of given type from the current point.
+ * @pos: the type * to use as a loop cursor.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_pre_for_each_entry_from(pos, member) \
+    for (; pos; pos = rb_pre_next_entry(pos, member))
+
+/**
+ * rb_pre_for_each_entry_continue - continue preorder iteration over rbtree of given type.
+ * @pos: the type * to use as a loop cursor.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_pre_for_each_entry_continue(pos, member) \
+    for (pos = rb_pre_next_entry(pos, member); \
+         pos; pos = rb_pre_next_entry(pos, member))
+
 /* Postorder iteration (Depth-first) - always visit the parent after its children */
 extern struct rb_node *rb_post_first(const struct rb_root *root);
 extern struct rb_node *rb_post_next(const struct rb_node *node);
@@ -521,7 +596,7 @@ static inline void rb_delete_augmented(struct rb_root *root, struct rb_node *nod
 
 /**
  * rb_cached_first - get the first rb_node from a cached rbtree.
- * @ptr: the rbtree root to take the rb_node from.
+ * @cached: the rbtree root to take the rb_node from.
  */
 #define rb_cached_first(cached) \
     ((cached)->rb_leftmost)
@@ -562,13 +637,30 @@ static inline void rb_delete_augmented(struct rb_root *root, struct rb_node *nod
          pos; pos = rb_next_entry(pos, member))
 
 /**
- * rb_for_each_entry_reverse - iterate backwards over cached rbtree of given type.
+ * rb_cached_for_each_entry_reverse - iterate backwards over cached rbtree of given type.
  * @pos: the type * to use as a loop cursor.
  * @cached: the cached root for your rbtree.
  * @member: the name of the rb_node within the struct.
  */
 #define rb_cached_for_each_entry_reverse(pos, cached, member) \
     rb_for_each_entry_reverse(pos, &(cached)->root, member)
+
+/**
+ * rb_cached_pre_for_each - preorder iterate over a cached rbtree.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ * @cached: the cached root for your rbtree.
+ */
+#define rb_cached_pre_for_each(pos, cached) \
+    rb_pre_for_each(pos, &(cached)->root)
+
+/**
+ * rb_cached_pre_for_each_entry - preorder iterate over cached rbtree of given type.
+ * @pos: the type * to use as a loop cursor.
+ * @cached: the cached root for your rbtree.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_cached_pre_for_each_entry(pos, cached, member) \
+    rb_pre_for_each_entry(pos, &(cached)->root, member)
 
 /**
  * rb_cached_post_for_each - postorder iterate over a cached rbtree.

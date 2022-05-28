@@ -423,7 +423,7 @@ static inline bool list_check_outsize(const struct list_head *node)
          (pos) = (tmp), (tmp) = (tmp)->prev)
 
 /**
- * list_for_each_entry - iterate over list of given type
+ * list_for_each_entry - iterate over list of given type.
  * @pos: the type * to use as a loop cursor.
  * @head: the head for your list.
  * @member: the name of the list_head within the struct.
