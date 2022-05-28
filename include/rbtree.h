@@ -67,8 +67,8 @@ extern bool rb_debug_delete_check(struct rb_node *node);
 #define DEBUG_RBTREE
 #endif
 
-typedef long (*rb_find_t)(const struct rb_node *, const void *key);
-typedef long (*rb_cmp_t)(const struct rb_node *, const struct rb_node *);
+typedef long (*rb_find_t)(const struct rb_node *node, const void *key);
+typedef long (*rb_cmp_t)(const struct rb_node *nodea, const struct rb_node *nodeb);
 
 extern void rb_fixup_augmented(struct rb_root *root, struct rb_node *node, const struct rb_callbacks *callbacks);
 extern void rb_erase_augmented(struct rb_root *root, struct rb_node *parent, const struct rb_callbacks *callbacks);
@@ -93,34 +93,267 @@ extern struct rb_node *rb_last(const struct rb_root *root);
 extern struct rb_node *rb_prev(const struct rb_node *node);
 extern struct rb_node *rb_next(const struct rb_node *node);
 
+/**
+ * rb_first_entry - get the first element from a rbtree.
+ * @ptr: the rbtree root to take the element from.
+ * @type: the type of the struct this is embedded in.
+ * @member: the name of the rb_node within the struct.
+ */
 #define rb_first_entry(ptr, type, member) \
     rb_entry_safe(rb_first(ptr), type, member)
 
+/**
+ * rb_last_entry - get the last element from a rbtree.
+ * @ptr: the rbtree root to take the element from.
+ * @type: the type of the struct this is embedded in.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_last_entry(ptr, type, member) \
+    rb_entry_safe(rb_last(ptr), type, member)
+
+/**
+ * rb_next_entry - get the next element in rbtree.
+ * @pos: the type * to cursor.
+ * @member: the name of the rb_node within the struct.
+ */
 #define rb_next_entry(pos, member) \
     rb_entry_safe(rb_next(&(pos)->member), typeof(*(pos)), member)
 
-#define rb_for_each_entry(pos, root, member)                    \
-    for (pos = rb_first_entry(root, typeof(*pos), member);      \
+/**
+ * rb_prev_entry - get the prev element in rbtree.
+ * @pos: the type * to cursor.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_prev_entry(pos, member) \
+    rb_entry_safe(rb_prev(&(pos)->member), typeof(*(pos)), member)
+
+/**
+ * rb_for_each - iterate over a rbtree.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ * @root: the root for your rbtree.
+ */
+#define rb_for_each(pos, root) \
+    for (pos = rb_first(root); pos; pos = rb_next(pos))
+
+/**
+ * rb_for_each_reverse - iterate over a rbtree backwards.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ * @root: the root for your rbtree.
+ */
+#define rb_for_each_reverse(pos, root) \
+    for (pos = rb_last(root); pos; pos = rb_prev(pos))
+
+/**
+ * rb_for_each_from - iterate over a rbtree from the current point.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ */
+#define rb_for_each_from(pos) \
+    for (; pos; pos = rb_next(pos))
+
+/**
+ * rb_for_each_reverse_from - iterate over a rbtree backwards from the current point.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ */
+#define rb_for_each_reverse_from(pos) \
+    for (; pos; pos = rb_prev(pos))
+
+/**
+ * rb_for_each_continue - continue iteration over a rbtree.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ */
+#define rb_for_each_continue(pos) \
+    for (pos = rb_next(pos); pos; pos = rb_next(pos))
+
+/**
+ * rb_for_each_reverse_continue - continue iteration over a rbtree backwards.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ */
+#define rb_for_each_reverse_continue(pos) \
+    for (pos = rb_prev(pos); pos; pos = rb_prev(pos))
+
+/**
+ * rb_for_each_entry - iterate over rbtree of given type.
+ * @pos: the type * to use as a loop cursor.
+ * @root: the root for your rbtree.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_for_each_entry(pos, root, member) \
+    for (pos = rb_first_entry(root, typeof(*pos), member); \
          pos; pos = rb_next_entry(pos, member))
+
+/**
+ * rb_for_each_entry_reverse - iterate backwards over rbtree of given type.
+ * @pos: the type * to use as a loop cursor.
+ * @root: the root for your rbtree.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_for_each_entry_reverse(pos, root, member) \
+    for (pos = rb_last_entry(root, typeof(*pos), member); \
+         pos; pos = rb_prev_entry(pos, member))
+
+/**
+ * rb_for_each_entry_from - iterate over rbtree of given type from the current point.
+ * @pos: the type * to use as a loop cursor.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_for_each_entry_from(pos, member) \
+    for (; pos; pos = rb_next_entry(pos, member))
+
+/**
+ * rb_for_each_entry_reverse_from - iterate backwards over rbtree of given type from the current point.
+ * @pos: the type * to use as a loop cursor.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_for_each_entry_reverse_from(pos, member) \
+    for (; pos; pos = rb_prev_entry(pos, member))
+
+/**
+ * rb_for_each_entry_continue - continue iteration over rbtree of given type.
+ * @pos: the type * to use as a loop cursor.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_for_each_entry_continue(pos, member) \
+    for (pos = rb_next_entry(pos, member); pos; \
+         pos = rb_next_entry(pos, member))
+
+/**
+ * rb_for_each_entry_reverse_continue - iterate backwards from the given point.
+ * @pos: the type * to use as a loop cursor.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_for_each_entry_reverse_continue(pos, member) \
+    for (pos = rb_prev_entry(pos, member); pos; \
+         pos = rb_prev_entry(pos, member))
 
 /* Postorder iteration (Depth-first) - always visit the parent after its children */
 extern struct rb_node *rb_post_first(const struct rb_root *root);
 extern struct rb_node *rb_post_next(const struct rb_node *node);
 
+/**
+ * rb_post_first_entry - get the postorder first element from a rbtree.
+ * @ptr: the rbtree root to take the element from.
+ * @type: the type of the struct this is embedded in.
+ * @member: the name of the rb_node within the struct.
+ */
 #define rb_post_first_entry(ptr, type, member) \
     rb_entry_safe(rb_post_first(ptr), type, member)
 
+/**
+ * rb_post_next_entry - get the postorder next element in rbtree.
+ * @pos: the type * to cursor.
+ * @member: the name of the rb_node within the struct.
+ */
 #define rb_post_next_entry(pos, member) \
     rb_entry_safe(rb_post_next(&(pos)->member), typeof(*(pos)), member)
 
-#define rb_post_for_each_entry(pos, root, member)               \
+/**
+ * rb_post_for_each - postorder iterate over a rbtree.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ * @root: the root for your rbtree.
+ */
+#define rb_post_for_each(pos, root) \
+    for (pos = rb_post_first(root); pos; pos = rb_post_next(pos))
+
+/**
+ * rb_post_for_each_from - postorder iterate over a rbtree from the current point.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ */
+#define rb_post_for_each_from(pos) \
+    for (; pos; pos = rb_post_next(pos))
+
+/**
+ * rb_post_for_each_continue - continue postorder iteration over a rbtree.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ */
+#define rb_post_for_each_continue(pos) \
+    for (pos = rb_post_next(pos); pos; pos = rb_post_next(pos))
+
+/**
+ * rb_post_for_each_safe - postorder iterate over a rbtree safe against removal of rbtree entry.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ * @tmp: another rb_node to use as temporary storage.
+ * @root: the root for your rbtree.
+ */
+#define rb_post_for_each_safe(pos, tmp, root) \
+    for (pos = rb_post_first(root); pos && \
+        ({tmp = rb_post_next(pos); 1; }); pos = tmp)
+
+/**
+ * rb_post_for_each_safe_from - postorder iterate over a rbtree safe against removal of rbtree entry from the current point.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ * @tmp: another rb_node to use as temporary storage.
+ */
+#define rb_post_for_each_safe_from(pos, tmp) \
+    for (; pos && ({tmp = rb_post_next(pos); 1; }); pos = tmp)
+
+/**
+ * rb_post_for_each_safe_continue - continue rbtree postorder iteration safe against removal.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ * @tmp: another rb_node to use as temporary storage.
+ */
+#define rb_post_for_each_safe_continue(pos, tmp) \
+    for (pos = rb_post_next(pos); pos && \
+        ({tmp = rb_post_next(pos); 1; }); pos = tmp)
+
+/**
+ * rb_post_for_each_entry - postorder iterate over rbtree of given type.
+ * @pos: the type * to use as a loop cursor.
+ * @root: the root for your rbtree.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_post_for_each_entry(pos, root, member) \
     for (pos = rb_post_first_entry(root, typeof(*pos), member); \
          pos; pos = rb_post_next_entry(pos, member))
 
-#define rb_post_for_each_entry_safe(pos, next, root, member)    \
+/**
+ * rb_post_for_each_entry_from - postorder iterate over rbtree of given type from the current point.
+ * @pos: the type * to use as a loop cursor.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_post_for_each_entry_from(pos, member) \
+    for (; pos; pos = rb_post_next_entry(pos, member))
+
+/**
+ * rb_post_for_each_entry_continue - continue postorder iteration over rbtree of given type.
+ * @pos: the type * to use as a loop cursor.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_post_for_each_entry_continue(pos, member) \
+    for (pos = rb_post_next_entry(pos, member); \
+         pos; pos = rb_post_next_entry(pos, member))
+
+/**
+ * rb_post_for_each_entry_safe - postorder iterate over rbtree of given type safe against removal of rbtree entry.
+ * @pos: the type * to use as a loop cursor.
+ * @tmp: another type * to use as temporary storage.
+ * @root: the root for your rbtree.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_post_for_each_entry_safe(pos, tmp, root, member) \
     for (pos = rb_post_first_entry(root, typeof(*pos), member); \
-         pos && ({ next = rb_post_next_entry(pos, member);      \
-         1; }); pos = next)
+         pos && ({ tmp = rb_post_next_entry(pos, member); \
+         1; }); pos = tmp)
+
+/**
+ * rb_post_for_each_entry_from_safe - postorder iterate over rbtree from current point safe against removal.
+ * @pos: the type * to use as a loop cursor.
+ * @tmp: another type * to use as temporary storage.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_post_for_each_entry_from_safe(pos, tmp, member) \
+    for (; pos && ({ tmp = rb_post_next_entry(pos, member); \
+         1; }); pos = tmp)
+
+/**
+ * rb_post_for_each_entry_continue_safe - continue postorder rbtree iteration safe against removal.
+ * @pos: the type * to use as a loop cursor.
+ * @tmp: another type * to use as temporary storage.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_post_for_each_entry_continue_safe(pos, tmp, member) \
+    for (pos = rb_post_next_entry(pos, member); \
+         pos && ({ tmp = rb_post_next_entry(pos, member); \
+         1; }); pos = tmp)
 
 /**
  * rb_link - link node to parent.
@@ -286,21 +519,92 @@ static inline void rb_delete_augmented(struct rb_root *root, struct rb_node *nod
     node->parent = POISON_RBNODE3;
 }
 
-/* Same as rb_first(), but O(1) */
-#define rb_cached_first(cached) (cached)->rb_leftmost
+/**
+ * rb_cached_first - get the first rb_node from a cached rbtree.
+ * @ptr: the rbtree root to take the rb_node from.
+ */
+#define rb_cached_first(cached) \
+    ((cached)->rb_leftmost)
 
+/**
+ * rb_cached_first_entry - get the first element from a cached rbtree.
+ * @ptr: the rbtree root to take the element from.
+ * @type: the type of the struct this is embedded in.
+ * @member: the name of the rb_node within the struct.
+ */
 #define rb_cached_first_entry(ptr, type, member) \
     rb_entry_safe(rb_cached_first(ptr), type, member)
 
+/**
+ * rb_cached_for_each - iterate over a cached rbtree.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ * @cached: the cached root for your rbtree.
+ */
+#define rb_cached_for_each(pos, cached) \
+    for (pos = rb_cached_first(cached); pos; pos = rb_next(pos))
+
+/**
+ * rb_cached_for_each_reverse - iterate over a cached rbtree backwards.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ * @cached: the cached root for your rbtree.
+ */
+#define rb_cached_for_each_reverse(pos, cached) \
+    rb_for_each_reverse(pos, &(cached)->root)
+
+/**
+ * rb_cached_for_each_entry - iterate over cached rbtree of given type.
+ * @pos: the type * to use as a loop cursor.
+ * @cached: the cached root for your rbtree.
+ * @member: the name of the rb_node within the struct.
+ */
 #define rb_cached_for_each_entry(pos, cached, member) \
     for (pos = rb_cached_first_entry(cached, typeof(*pos), member); \
          pos; pos = rb_next_entry(pos, member))
 
+/**
+ * rb_for_each_entry_reverse - iterate backwards over cached rbtree of given type.
+ * @pos: the type * to use as a loop cursor.
+ * @cached: the cached root for your rbtree.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_cached_for_each_entry_reverse(pos, cached, member) \
+    rb_for_each_entry_reverse(pos, &(cached)->root, member)
+
+/**
+ * rb_cached_post_for_each - postorder iterate over a cached rbtree.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ * @cached: the cached root for your rbtree.
+ */
+#define rb_cached_post_for_each(pos, cached) \
+    rb_post_for_each(pos, &(cached)->root)
+
+/**
+ * rb_cached_post_for_each_safe - postorder iterate over a cached rbtree safe against removal of rbtree entry.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ * @tmp: another rb_node to use as temporary storage.
+ * @cached: the cached root for your rbtree.
+ */
+#define rb_cached_post_for_each_safe(pos, tmp, cached) \
+    rb_post_for_each_safe(pos, tmp, &(cached)->root)
+
+/**
+ * rb_cached_post_for_each_entry - postorder iterate over cached rbtree of given type.
+ * @pos: the type * to use as a loop cursor.
+ * @cached: the cached root for your rbtree.
+ * @member: the name of the rb_node within the struct.
+ */
 #define rb_cached_post_for_each_entry(pos, cached, member) \
     rb_post_for_each_entry(pos, &(cached)->root, member)
 
-#define rb_cached_post_for_each_entry_safe(pos, next, cached, member) \
-    rb_post_for_each_entry_safe(pos, next, &(cached)->root, member)
+/**
+ * rb_cached_post_for_each_entry_safe - postorder iterate over cached rbtree of given type safe against removal of rbtree entry.
+ * @pos: the type * to use as a loop cursor.
+ * @tmp: another type * to use as temporary storage.
+ * @cached: the cached root for your rbtree.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_cached_post_for_each_entry_safe(pos, tmp, cached, member) \
+    rb_post_for_each_entry_safe(pos, tmp, &(cached)->root, member)
 
 /**
  * rb_cached_fixup - balance after insert cached node.
@@ -490,25 +794,25 @@ static void RBNAME##_rotate(struct rb_node *rb_node, struct rb_node *rb_successo
 {                                                                                           \
     RBSTRUCT *node = rb_entry(rb_node, RBSTRUCT, RBFIELD);                                  \
     RBSTRUCT *successor = rb_entry(rb_successor, RBSTRUCT, RBFIELD);                        \
-    new->RBAUGMENTED = old->RBAUGMENTED;                                                    \
-    RBCOMPUTE(old, false);                                                                  \
+    successor->RBAUGMENTED = node->RBAUGMENTED;                                             \
+    RBCOMPUTE(node, false);                                                                 \
 }                                                                                           \
                                                                                             \
 static void RBNAME##_copy(struct rb_node *rb_node, struct rb_node *rb_successor)            \
 {                                                                                           \
     RBSTRUCT *node = rb_entry(rb_node, RBSTRUCT, RBFIELD);                                  \
     RBSTRUCT *successor = rb_entry(rb_successor, RBSTRUCT, RBFIELD);                        \
-    new->RBAUGMENTED = old->RBAUGMENTED;                                                    \
+    successor->RBAUGMENTED = node->RBAUGMENTED;                                             \
 }                                                                                           \
                                                                                             \
 static void RBNAME##_propagate(struct rb_node *rb_node, struct rb_node *rb_stop)            \
 {                                                                                           \
-    while (rb_node != rb_stop) {						                                    \
-        RBSTRUCT *node = rb_entry(rb_node, RBSTRUCT, RBFIELD);	                            \
-        if (RBCOMPUTE(node, true))				                                            \
-            break;						                                                    \
-        rb = rb_parent(&node->RBFIELD);				                                        \
-    }								                                                        \
+    while (rb_node != rb_stop) {                                                            \
+        RBSTRUCT *node = rb_entry(rb_node, RBSTRUCT, RBFIELD);                              \
+        if (RBCOMPUTE(node, true))                                                          \
+            break;                                                                          \
+        rb_node = node->RBFIELD.parent;                                                     \
+    }                                                                                       \
 }                                                                                           \
                                                                                             \
 RBSTATIC struct rb_callbacks RBNAME = {                                                     \
@@ -518,7 +822,7 @@ RBSTATIC struct rb_callbacks RBNAME = {                                         
 }
 
 #define RB_DECLARE_CALLBACKS_MAX(RBSTATIC, RBNAME, RBSTRUCT, RBFIELD, RBTYPE, RBAUGMENTED, RBCOMPUTE)   \
-static inline bool RBNAME##_compute_max(RBSTRUCT *node, bool exit)	                                    \
+static inline bool RBNAME##_compute_max(RBSTRUCT *node, bool exit)                                      \
 {                                                                                                       \
     RBSTRUCT *child;                                                                                    \
     RBTYPE max = RBCOMPUTE(node);                                                                       \

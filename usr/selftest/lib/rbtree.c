@@ -32,20 +32,198 @@ static long rbtest_rb_cmp(const struct rb_node *rba, const struct rb_node *rbb)
 static state rbtree_test_testing(struct kshell_context *ctx, void *pdata)
 {
     struct rbtree_test_pdata *sdata = pdata;
-    struct rbtree_test_node *node, *tnode;
+    struct rbtree_test_node *node, *nnode, *tnode;
+    struct rb_node *rbnode, *nrbnode, *trbnode;
     unsigned int count;
 
-    RB_ROOT(test_root);
+    RB_ROOT_CACHED(test_root);
 
     for (count = 0; count < ARRAY_SIZE(sdata->nodes); ++count)
-        rb_insert(&test_root, &sdata->nodes[count].node, rbtest_rb_cmp);
+        rb_cached_insert(&test_root, &sdata->nodes[count].node, rbtest_rb_cmp);
 
-    rb_for_each_entry(node, &test_root, node)
+    count = 0;
+    rb_for_each(rbnode, &test_root.root) {
+        node = rbnode_to_test(rbnode);
+        kshell_printf(ctx, "rbtree 'rb_for_each' test: %lu\n", node->num);
+        if (count++ == TEST_LOOP / 2)
+            break;
+    }
+
+    trbnode = rbnode;
+    rb_for_each_continue(rbnode) {
+        node = rbnode_to_test(rbnode);
+        kshell_printf(ctx, "rbtree 'rb_for_each_continue' test: %lu\n", node->num);
+    }
+
+    rbnode = trbnode;
+    rb_for_each_from(rbnode) {
+        node = rbnode_to_test(rbnode);
+        kshell_printf(ctx, "rbtree 'rb_for_each_from' test: %lu\n", node->num);
+    }
+
+    count = 0;
+    rb_for_each_reverse(rbnode, &test_root.root) {
+        node = rbnode_to_test(rbnode);
+        kshell_printf(ctx, "rbtree 'rb_for_each_reverse' test: %lu\n", node->num);
+        if (count++ == TEST_LOOP / 2)
+            break;
+    }
+
+    trbnode = rbnode;
+    rb_for_each_reverse_continue(rbnode) {
+        node = rbnode_to_test(rbnode);
+        kshell_printf(ctx, "rbtree 'rb_for_each_reverse_continue' test: %lu\n", node->num);
+    }
+
+    rbnode = trbnode;
+    rb_for_each_reverse_from(rbnode) {
+        node = rbnode_to_test(rbnode);
+        kshell_printf(ctx, "rbtree 'rb_for_each_reverse_from' test: %lu\n", node->num);
+    }
+
+    count = 0;
+    rb_post_for_each(rbnode, &test_root.root) {
+        node = rbnode_to_test(rbnode);
+        kshell_printf(ctx, "rbtree 'rb_post_for_each' test: %lu\n", node->num);
+        if (count++ == TEST_LOOP / 2)
+            break;
+    }
+
+    trbnode = rbnode;
+    rb_post_for_each_continue(rbnode) {
+        node = rbnode_to_test(rbnode);
+        kshell_printf(ctx, "rbtree 'rb_post_for_each_continue' test: %lu\n", node->num);
+    }
+
+    rbnode = trbnode;
+    rb_post_for_each_from(rbnode) {
+        node = rbnode_to_test(rbnode);
+        kshell_printf(ctx, "rbtree 'rb_post_for_each_from' test: %lu\n", node->num);
+    }
+
+    count = 0;
+    rb_post_for_each_safe(rbnode, nrbnode, &test_root.root) {
+        node = rbnode_to_test(rbnode);
+        kshell_printf(ctx, "rbtree 'rb_post_for_each_safe' test: %lu\n", node->num);
+        if (count++ == TEST_LOOP / 2)
+            break;
+    }
+
+    trbnode = rbnode;
+    rb_post_for_each_safe_continue(rbnode, nrbnode) {
+        node = rbnode_to_test(rbnode);
+        kshell_printf(ctx, "rbtree 'rb_post_for_each_safe_continue' test: %lu\n", node->num);
+    }
+
+    rbnode = trbnode;
+    rb_post_for_each_safe_from(rbnode, nrbnode) {
+        node = rbnode_to_test(rbnode);
+        kshell_printf(ctx, "rbtree 'rb_post_for_each_safe_from' test: %lu\n", node->num);
+    }
+
+    count = 0;
+    rb_for_each_entry(node, &test_root.root, node) {
         kshell_printf(ctx, "rbtree 'rb_for_each_entry' test: %lu\n", node->num);
+        if (count++ == TEST_LOOP / 2)
+            break;
+    }
 
-    rb_post_for_each_entry_safe(node, tnode, &test_root, node) {
+    tnode = node;
+    rb_for_each_entry_continue(node, node) {
+        kshell_printf(ctx, "rbtree 'rb_for_each_entry_continue' test: %lu\n", node->num);
+    }
+
+    node = tnode;
+    rb_for_each_entry_from(node, node) {
+        kshell_printf(ctx, "rbtree 'rb_for_each_entry_from' test: %lu\n", node->num);
+    }
+
+    count = 0;
+    rb_for_each_entry_reverse(node, &test_root.root, node) {
+        kshell_printf(ctx, "rbtree 'rb_for_each_entry_reverse' test: %lu\n", node->num);
+        if (count++ == TEST_LOOP / 2)
+            break;
+    }
+
+    tnode = node;
+    rb_for_each_entry_reverse_continue(node, node) {
+        kshell_printf(ctx, "rbtree 'rb_for_each_entry_reverse_continue' test: %lu\n", node->num);
+    }
+
+    node = tnode;
+    rb_for_each_entry_reverse_from(node, node) {
+        kshell_printf(ctx, "rbtree 'rb_for_each_entry_reverse_from' test: %lu\n", node->num);
+    }
+
+    count = 0;
+    rb_post_for_each_entry(node, &test_root.root, node) {
+        kshell_printf(ctx, "rbtree 'rb_post_for_each_entry' test: %lu\n", node->num);
+        if (count++ == TEST_LOOP / 2)
+            break;
+    }
+
+    tnode = node;
+    rb_post_for_each_entry_continue(node, node) {
+        kshell_printf(ctx, "rbtree 'rb_post_for_each_entry_continue' test: %lu\n", node->num);
+    }
+
+    node = tnode;
+    rb_post_for_each_entry_from(node, node) {
+        kshell_printf(ctx, "rbtree 'rb_post_for_each_entry_from' test: %lu\n", node->num);
+    }
+
+    count = 0;
+    rb_post_for_each_entry_safe(node, nnode, &test_root.root, node) {
         kshell_printf(ctx, "rbtree 'rb_post_for_each_entry_safe' test: %lu\n", node->num);
-        rb_delete(&test_root, &node->node);
+        if (count++ == TEST_LOOP / 2)
+            break;
+    }
+
+    tnode = node;
+    rb_post_for_each_entry_continue_safe(node, nnode, node) {
+        kshell_printf(ctx, "rbtree 'rb_post_for_each_entry_continue_safe' test: %lu\n", node->num);
+    }
+
+    node = tnode;
+    rb_post_for_each_entry_from_safe(node, nnode, node) {
+        kshell_printf(ctx, "rbtree 'rb_post_for_each_entry_from_safe' test: %lu\n", node->num);
+    }
+
+    rb_cached_for_each(rbnode, &test_root) {
+        node = rbnode_to_test(rbnode);
+        kshell_printf(ctx, "rbtree 'rb_cached_for_each' test: %lu\n", node->num);
+    }
+
+    rb_cached_for_each_reverse(rbnode, &test_root) {
+        node = rbnode_to_test(rbnode);
+        kshell_printf(ctx, "rbtree 'rb_cached_for_each_reverse' test: %lu\n", node->num);
+    }
+
+    rb_cached_for_each_entry(node, &test_root, node) {
+        kshell_printf(ctx, "rbtree 'rb_cached_for_each_entry' test: %lu\n", node->num);
+    }
+
+    rb_cached_for_each_entry_reverse(node, &test_root, node) {
+        kshell_printf(ctx, "rbtree 'rb_cached_for_each_entry_reverse' test: %lu\n", node->num);
+    }
+
+    rb_cached_post_for_each(rbnode, &test_root) {
+        node = rbnode_to_test(rbnode);
+        kshell_printf(ctx, "rbtree 'rb_cached_post_for_each' test: %lu\n", node->num);
+    }
+
+    rb_cached_post_for_each_safe(rbnode, nrbnode, &test_root) {
+        node = rbnode_to_test(rbnode);
+        kshell_printf(ctx, "rbtree 'rb_cached_post_for_each_safe' test: %lu\n", node->num);
+    }
+
+    rb_cached_post_for_each_entry(node, &test_root, node) {
+        kshell_printf(ctx, "rbtree 'rb_cached_post_for_each_entry' test: %lu\n", node->num);
+    }
+
+    rb_cached_post_for_each_entry_safe(node, nnode, &test_root, node) {
+        kshell_printf(ctx, "rbtree 'rb_cached_post_for_each_entry_safe' test: %lu\n", node->num);
+        rb_cached_delete(&test_root, &node->node);
     }
 
     return -ENOERR;
