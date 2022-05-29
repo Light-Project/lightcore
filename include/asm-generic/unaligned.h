@@ -21,12 +21,12 @@
 })
 #endif
 
-#ifndef unaligned_set
-#define unaligned_set(ptr) unaligned_get_type(typeof(*(ptr)), (ptr))
+#ifndef unaligned_get
+#define unaligned_get(ptr) unaligned_get_type(typeof(*(ptr)), (ptr))
 #endif
 
-#ifndef unaligned_get
-#define unaligned_get(ptr, val) unaligned_set_type(typeof(*(ptr)), (ptr), (val))
+#ifndef unaligned_set
+#define unaligned_set(ptr, val) unaligned_set_type(typeof(*(ptr)), (ptr), (val))
 #endif
 
 static inline uint16_t unaligned_get_u16(const void *p)
