@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 obj-y += libc/ font/ crypto/
-obj-y += bitops.o bitmap.o ncache.o
+obj-y += bitops.o bitmap.o
+obj-y += bsearch.o bytefill.o
+obj-y += ncache.o kfifo.o
+obj-y += rbtree.o
 obj-y += sort.o klist.o ilist.o
-obj-y += llist.o rbtree.o idr.o
-obj-y += kfifo.o bsearch.o
+obj-y += llist.o idr.o
 obj-y += param.o kasprintf.o
 obj-y += time.o librtc.o lrange.o
 obj-y += size.o memdump.o ratelimit.o
