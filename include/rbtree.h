@@ -17,12 +17,12 @@ struct rb_node {
 };
 
 struct rb_root {
-    struct rb_node *rb_node;
+    struct rb_node *node;
 };
 
 struct rb_root_cached {
     struct rb_root root;
-    struct rb_node *rb_leftmost;
+    struct rb_node *leftmost;
 };
 
 struct rb_callbacks {
@@ -232,7 +232,7 @@ extern struct rb_node *rb_pre_next(const struct rb_node *node);
  * rb_pre_first - get the preorder first rb_node from a rbtree.
  * @root: the rbtree root to take the rb_node from.
  */
-#define rb_pre_first(root) ((root)->rb_node)
+#define rb_pre_first(root) ((root)->node)
 
 /**
  * rb_pre_first_entry - get the preorder first element from a rbtree.
@@ -599,7 +599,7 @@ static inline void rb_delete_augmented(struct rb_root *root, struct rb_node *nod
  * @cached: the rbtree root to take the rb_node from.
  */
 #define rb_cached_first(cached) \
-    ((cached)->rb_leftmost)
+    ((cached)->leftmost)
 
 /**
  * rb_cached_first_entry - get the first element from a cached rbtree.
@@ -708,7 +708,7 @@ static inline void rb_cached_fixup(struct rb_root_cached *cached,
                                    struct rb_node *node, bool leftmost)
 {
     if (leftmost)
-        cached->rb_leftmost = node;
+        cached->leftmost = node;
 
     rb_fixup(&cached->root, node);
 }
@@ -771,8 +771,8 @@ static inline struct rb_node *rb_cached_delete(struct rb_root_cached *cached, st
 {
     struct rb_node *leftmost = NULL;
 
-    if (cached->rb_leftmost == node)
-        leftmost = cached->rb_leftmost = rb_next(node);
+    if (cached->leftmost == node)
+        leftmost = cached->leftmost = rb_next(node);
 
     rb_delete(&cached->root, node);
     return leftmost;
@@ -789,7 +789,7 @@ static inline void rb_cached_fixup_augmented(struct rb_root_cached *cached, stru
                                              bool leftmost, const struct rb_callbacks *callbacks)
 {
     if (leftmost)
-        cached->rb_leftmost = node;
+        cached->leftmost = node;
 
     rb_fixup_augmented(&cached->root, node, callbacks);
 }
@@ -860,8 +860,8 @@ static inline struct rb_node *rb_cached_delete_augmented(struct rb_root_cached *
 {
     struct rb_node *leftmost = NULL;
 
-    if (cached->rb_leftmost == node)
-        leftmost = cached->rb_leftmost = rb_next(node);
+    if (cached->leftmost == node)
+        leftmost = cached->leftmost = rb_next(node);
 
     rb_delete_augmented(&cached->root, node, callbacks);
     return leftmost;
@@ -875,8 +875,8 @@ static inline struct rb_node *rb_cached_delete_augmented(struct rb_root_cached *
  */
 static inline void rb_cached_replace(struct rb_root_cached *cached, struct rb_node *old, struct rb_node *new)
 {
-    if (cached->rb_leftmost == old)
-        cached->rb_leftmost = new;
+    if (cached->leftmost == old)
+        cached->leftmost = new;
 
     rb_replace(&cached->root, old, new);
 }
@@ -933,6 +933,6 @@ static inline bool RBNAME##_compute_max(RBSTRUCT *node, bool exit)              
     node->RBAUGMENTED = max;                                                                            \
     return false;                                                                                       \
 }                                                                                                       \
-RB_DECLARE_CALLBACKS(RBSTATIC, RBNAME, RBSTRUCT, RBFIELD, RBAUGMENTED, RBCOMPUTE##_compute_max)
+RB_DECLARE_CALLBACKS(RBSTATIC, RBNAME, RBSTRUCT, RBFIELD, RBAUGMENTED, RBNAME##_compute_max)
 
 #endif  /* _RBTREE_H_ */
