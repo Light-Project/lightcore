@@ -8,7 +8,12 @@
 #include <bytefill.h>
 #include <export.h>
 
-DEFINE_PERCPU(struct prandom_state, prandom_state);
+DEFINE_PERCPU(struct prandom_state, prandom_state) = {
+    .s1 = 0x408c3c09UL,
+    .s2 = 0x408c3c09UL,
+    .s3 = 0x408c3c09UL,
+    .s4 = 0x408c3c09UL,
+};
 EXPORT_SYMBOL(prandom_state);
 
 static __always_inline uint32_t prandom_seed_minimum(uint32_t x, uint32_t m)
