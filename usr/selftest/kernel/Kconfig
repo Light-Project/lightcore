@@ -8,6 +8,10 @@ config SELFTEST_KERNEL_KCORO
     bool "Random Unit Tests"
     default y
 
+config SELFTEST_KERNEL_PRANDOM
+    bool "Pseudo Random Unit Tests"
+    default y
+
 config SELFTEST_KERNEL_RANDOM
     bool "Random Test"
     default y
