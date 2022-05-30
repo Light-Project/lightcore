@@ -40,6 +40,10 @@ config SELFTEST_LIB_RBTREE
     bool "Rbtree Test"
     default y
 
+config SELFTEST_LIB_SEGTREE
+    bool "Segtree Test"
+    default y
+
 config SELFTEST_LIB_SLIST
     bool "Single List Test"
     default y

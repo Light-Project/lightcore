@@ -8,4 +8,5 @@ obj-$(CONFIG_SELFTEST_LIB_LIST)     += list.o
 obj-$(CONFIG_SELFTEST_LIB_MEMDUMP)  += memdump.o
 obj-$(CONFIG_SELFTEST_LIB_NCACHE)   += ncache.o
 obj-$(CONFIG_SELFTEST_LIB_RBTREE)   += rbtree.o
+obj-$(CONFIG_SELFTEST_LIB_SEGTREE)  += segtree.o
 obj-$(CONFIG_SELFTEST_LIB_SLIST)    += slist.o
