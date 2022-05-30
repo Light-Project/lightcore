@@ -6,7 +6,7 @@
 #include <size.h>
 #include <initcall.h>
 #include <mm/vmem.h>
-#include <random.h>
+#include <prandom.h>
 #include <selftest.h>
 
 #define TEST_LOOP   100
@@ -21,7 +21,7 @@ static state vmem_testing(struct kshell_context *ctx, void *pdata)
     size_t size;
 
     for (count = 0; count < TEST_LOOP; ++count) {
-        size = ((unsigned int)random_long() % TEST_SIZE) + TEST_SIZE;
+        size = ((unsigned int)prandom_value() % TEST_SIZE) + TEST_SIZE;
         gsize(sbuff, size);
         kshell_printf(ctx, "vmem alloc test%02u size (%s): ", count, sbuff);
         test_pool[count] = vmem_alloc(size);

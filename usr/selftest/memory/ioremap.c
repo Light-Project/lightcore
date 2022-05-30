@@ -8,7 +8,7 @@
 #include <memory.h>
 #include <ioremap.h>
 #include <string.h>
-#include <random.h>
+#include <prandom.h>
 #include <selftest.h>
 
 #define TEST_LOOP   100
@@ -23,9 +23,9 @@ static state ioremap_testing(struct kshell_context *ctx, void *pdata)
     size_t size;
 
     for (count = 0; count < TEST_LOOP; ++count) {
-        phys = page_align(clamp(random_long(), CONFIG_HIGHMEM_OFFSET,
+        phys = page_align(clamp(prandom_value(), CONFIG_HIGHMEM_OFFSET,
                             PHYS_MASK - (TEST_SIZE * 2)));
-        size = page_align(random_long() % TEST_SIZE + TEST_SIZE);
+        size = page_align(prandom_value() % TEST_SIZE + TEST_SIZE);
         kshell_printf(ctx, "ioremap test%02u addr (%#lx) size (%#lx): ", count, phys, size);
         test_pool[count] = ioremap(phys, size);
         if (!test_pool[count]) {

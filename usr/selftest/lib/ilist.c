@@ -54,7 +54,7 @@ static void ilist_test_release(struct kshell_context *ctx, void *pdata)
     kfree(pdata);
 }
 
-static struct selftest_command list_test_command = {
+static struct selftest_command ilist_test_command = {
     .group = "lib",
     .name = "ilist",
     .desc = "index list unit test",
@@ -63,8 +63,8 @@ static struct selftest_command list_test_command = {
     .release = ilist_test_release,
 };
 
-static state selftest_list_init(void)
+static state selftest_ilist_init(void)
 {
-    return selftest_register(&list_test_command);
+    return selftest_register(&ilist_test_command);
 }
-kshell_initcall(selftest_list_init);
+kshell_initcall(selftest_ilist_init);

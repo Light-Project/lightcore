@@ -6,7 +6,7 @@
 #include <initcall.h>
 #include <kmalloc.h>
 #include <string.h>
-#include <random.h>
+#include <prandom.h>
 #include <selftest.h>
 
 #define TEST_SIZE1      128
@@ -30,8 +30,8 @@ static state kmalloc_testing(struct kshell_context *ctx, void *pdata)
 
     for (count1 = 0; count1 < TEST_LOOP1; count1++) {
         test_pool1[count1] = kmalloc_align(
-            TEST_SIZE1 + (unsigned int)random_long() % TEST_SIZE1,
-            GFP_KERNEL,  (unsigned int)random_long() % TEST_SIZE1
+            TEST_SIZE1 + (unsigned int)prandom_value() % TEST_SIZE1,
+            GFP_KERNEL,  (unsigned int)prandom_value() % TEST_SIZE1
         );
         kshell_printf(ctx, "kmalloc alloc size ("__stringify(TEST_SIZE1)") test%02u: ", count1);
         if (!test_pool1[count1]) {
@@ -45,8 +45,8 @@ static state kmalloc_testing(struct kshell_context *ctx, void *pdata)
 
     for (count2 = 0; count2 < TEST_LOOP2; count2++) {
         test_pool2[count2] = kmalloc_align(
-            TEST_SIZE2 + (unsigned int)random_long() % TEST_SIZE2,
-            GFP_KERNEL,  (unsigned int)random_long() % TEST_SIZE2
+            TEST_SIZE2 + (unsigned int)prandom_value() % TEST_SIZE2,
+            GFP_KERNEL,  (unsigned int)prandom_value() % TEST_SIZE2
         );
         kshell_printf(ctx, "kmalloc alloc size ("__stringify(TEST_SIZE2)") test%02u: ", count2);
         if (!test_pool2[count2]) {
@@ -60,8 +60,8 @@ static state kmalloc_testing(struct kshell_context *ctx, void *pdata)
 
     for (count3 = 0; count3 < TEST_LOOP3; count3++) {
         test_pool3[count3] = kmalloc_align(
-            TEST_SIZE3 + (unsigned int)random_long() % TEST_SIZE3,
-            GFP_KERNEL,  (unsigned int)random_long() % TEST_SIZE3
+            TEST_SIZE3 + (unsigned int)prandom_value() % TEST_SIZE3,
+            GFP_KERNEL,  (unsigned int)prandom_value() % TEST_SIZE3
         );
         kshell_printf(ctx, "kmalloc alloc size ("__stringify(TEST_SIZE3)") test%02u: ", count3);
         if (!test_pool3[count3]) {
