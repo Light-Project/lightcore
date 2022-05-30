@@ -24,6 +24,9 @@ preload-acflags-y += -g
 preload-elfflags-y += -g
 endif
 
+preload.dump-obj += preload
+dump-always-$(CONFIG_KERNEL_DUMP) += preload.dump
+
 asflags-y   = $(strip $(preload-asflags-y) $(platform-asflags-y))
 ccflags-y   = $(strip $(preload-ccflags-y) $(platform-ccflags-y))
 acflags-y   = $(strip $(preload-acflags-y) $(platform-acflags-y))
