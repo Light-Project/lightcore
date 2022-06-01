@@ -109,10 +109,10 @@ int vsscanf(const char *buf, const char *fmt, va_list args)
                 switch (ch) {
                     /* Length modifiers - nonterminal sequences */
                     case 'h':
-                        rank--;	/* Shorter rank */
+                        rank--; /* Shorter rank */
                         break;
                     case 'l':
-                        rank++;	/* Longer rank */
+                        rank++; /* Longer rank */
                         break;
                     case 'j':
                         rank = INTMAX_RANK;
@@ -125,7 +125,7 @@ int vsscanf(const char *buf, const char *fmt, va_list args)
                         break;
                     case 'L':
                     case 'q':
-                        rank = rank_longlong;	/* long double/long long */
+                        rank = rank_longlong; /* long double/long long */
                         break;
 
                     default:
@@ -139,148 +139,145 @@ int vsscanf(const char *buf, const char *fmt, va_list args)
                         else if (rank > MAX_RANK)
                             rank = MAX_RANK;
 
-                        switch (ch)
-                        {
-                        case 'P':	/* Upper case pointer */
-                        case 'p':	/* Pointer */
-                            rank = rank_ptr;
-                            base = 0;
-                            goto scan_int;
+                        switch (ch) {
+                            case 'P': /* Upper case pointer */
+                            case 'p': /* Pointer */
+                                rank = rank_ptr;
+                                base = 0;
+                                goto scan_int;
 
-                        case 'i':	/* Base-independent integer */
-                            base = 0;
-                            goto scan_int;
+                            case 'i': /* Base-independent integer */
+                                base = 0;
+                                goto scan_int;
 
-                        case 'd':	/* Decimal integer */
-                            base = 10;
-                            goto scan_int;
+                            case 'd': /* Decimal integer */
+                                base = 10;
+                                goto scan_int;
 
-                        case 'o':	/* Octal integer */
-                            base = 8;
-                            goto scan_int;
+                            case 'o': /* Octal integer */
+                                base = 8;
+                                goto scan_int;
 
-                        case 'u':	/* Unsigned decimal integer */
-                            base = 10;
-                            goto scan_int;
+                            case 'u': /* Unsigned decimal integer */
+                                base = 10;
+                                goto scan_int;
 
-                        case 'x':	/* Hexadecimal integer */
-                        case 'X':
-                            base = 16;
-                            goto scan_int;
+                            case 'x': /* Hexadecimal integer */
+                            case 'X':
+                                base = 16;
+                                goto scan_int;
 
-                        case 'n':	/* # of characters consumed */
-                            val = (q - buf);
-                            goto set_integer;
+                            case 'n': /* # of characters consumed */
+                                val = (q - buf);
+                                goto set_integer;
 
-                            scan_int: q = skip_spaces(q);
-                            if (!*q) {
-                                bail = bail_eof;
-                                break;
-                            }
-                            val = strntoumax(q, (char **)&qq, base, width);
-                            if (qq == q) {
-                                bail = bail_err;
-                                break;
-                            }
-                            q = qq;
-                            if (!(flags & FL_SPLAT))
-                                converted++;
-
-                            set_integer: if (!(flags & FL_SPLAT)) {
-                                switch (rank) {
-                                    case rank_char:
-                                        *va_arg(args, unsigned char *) = val;
-                                        break;
-                                    case rank_short:
-                                        *va_arg(args, unsigned short *) = val;
-                                        break;
-                                    case rank_int:
-                                        *va_arg(args, unsigned int *) = val;
-                                        break;
-                                    case rank_long:
-                                        *va_arg(args, unsigned long *) = val;
-                                        break;
-                                    case rank_longlong:
-                                        *va_arg(args, unsigned long long *) = val;
-                                        break;
-                                    case rank_ptr:
-                                        *va_arg(args, void **) = (void *) (uintptr_t) val;
-                                        break;
+                                scan_int: q = skip_spaces(q);
+                                if (!*q) {
+                                    bail = bail_eof;
+                                    break;
                                 }
-                            }
-                            break;
+                                val = strntoumax(q, (char **)&qq, base, width);
+                                if (qq == q) {
+                                    bail = bail_err;
+                                    break;
+                                }
+                                q = qq;
+                                if (!(flags & FL_SPLAT))
+                                    converted++;
 
-                        case 'c':	/* Character */
-                            width = (flags & FL_WIDTH) ? width : 1;
-                            if (flags & FL_SPLAT) {
-                                while (width--) {
-                                    if (!*q) {
-                                        bail = bail_eof;
-                                        break;
+                                set_integer: if (!(flags & FL_SPLAT)) {
+                                    switch (rank) {
+                                        case rank_char:
+                                            *va_arg(args, unsigned char *) = val;
+                                            break;
+                                        case rank_short:
+                                            *va_arg(args, unsigned short *) = val;
+                                            break;
+                                        case rank_int:
+                                            *va_arg(args, unsigned int *) = val;
+                                            break;
+                                        case rank_long:
+                                            *va_arg(args, unsigned long *) = val;
+                                            break;
+                                        case rank_longlong:
+                                            *va_arg(args, unsigned long long *) = val;
+                                            break;
+                                        case rank_ptr:
+                                            *va_arg(args, void **) = (void *) (uintptr_t) val;
+                                            break;
                                     }
                                 }
-                            } else {
-                                sarg = va_arg(args, char *);
-                                while (width--) {
-                                    if (!*q) {
-                                        bail = bail_eof;
-                                        break;
+                                break;
+
+                            case 'c': /* Character */
+                                width = (flags & FL_WIDTH) ? width : 1;
+                                if (flags & FL_SPLAT) {
+                                    while (width--) {
+                                        if (!*q) {
+                                            bail = bail_eof;
+                                            break;
+                                        }
                                     }
-                                    *sarg++ = *q++;
+                                } else {
+                                    sarg = va_arg(args, char *);
+                                    while (width--) {
+                                        if (!*q) {
+                                            bail = bail_eof;
+                                            break;
+                                        }
+                                        *sarg++ = *q++;
+                                    }
+                                    if (!bail)
+                                        converted++;
                                 }
-                                if (!bail)
-                                    converted++;
-                            }
-                            break;
+                                break;
 
-                        case 's': /* String */
-                            uc = 1;	/* Anything nonzero */
-                            if (flags & FL_SPLAT) {
-                                while (width-- && (uc = *q) && !isspace(uc))
+                            case 's': /* String */
+                                uc = 1; /* Anything nonzero */
+                                if (flags & FL_SPLAT) {
+                                    while (width-- && (uc = *q) && !isspace(uc))
+                                        q++;
+                                } else {
+                                    char *sp;
+                                    sp = sarg = va_arg(args, char *);
+                                    while (width-- && (uc = *q) && !isspace(uc)) {
+                                        *sp++ = uc;
+                                        q++;
+                                    }
+                                    if (sarg != sp) {
+                                        /* Terminate output */
+                                        *sp = '\0';
+                                        converted++;
+                                    }
+                                }
+                                if (!uc)
+                                    bail = bail_eof;
+                                break;
+
+                            case '[': /* Character range */
+                                sarg = (flags & FL_SPLAT) ? NULL : va_arg(args, char *);
+                                state = st_match_init;
+                                matchinv = 0;
+                                memset(matchmap, 0, sizeof matchmap);
+                                break;
+
+                            case '%': /* %% sequence */
+                                if (*q == '%')
                                     q++;
-                            } else {
-                                char *sp;
-                                sp = sarg = va_arg(args, char *);
-                                while (width-- && (uc = *q) && !isspace(uc)) {
-                                    *sp++ = uc;
-                                    q++;
-                                }
-                                if (sarg != sp) {
-                                    /*
-                                     * Terminate output
-                                     */
-                                    *sp = '\0';
-                                    converted++;
-                                }
-                            }
-                            if (!uc)
-                                bail = bail_eof;
-                            break;
+                                else
+                                    bail = bail_err;
+                                break;
 
-                        case '[':	/* Character range */
-                            sarg = (flags & FL_SPLAT) ? NULL : va_arg(args, char *);
-                            state = st_match_init;
-                            matchinv = 0;
-                            memset(matchmap, 0, sizeof matchmap);
-                            break;
-
-                        case '%':	/* %% sequence */
-                            if (*q == '%')
-                                q++;
-                            else
+                            default: /* Anything else */
+                                /* Unknown sequence */
                                 bail = bail_err;
-                            break;
-
-                        default: /* Anything else */
-                            /* Unknown sequence */
-                            bail = bail_err;
-                            break;
+                                break;
                         }
                         break;
                 }
                 break;
 
-            case st_match_init:	/* Initial state for %[ match */
+            case st_match_init: /* Initial state for %[ match */
                 if (ch == '^' && !(flags & FL_INV))
                     matchinv = 1;
                 else {
@@ -289,7 +286,7 @@ int vsscanf(const char *buf, const char *fmt, va_list args)
                 }
                 break;
 
-            case st_match:		/* Main state for %[ match */
+            case st_match:  /* Main state for %[ match */
                 if (ch == ']')
                     goto match_run;
                 else if (ch == '-') {
@@ -299,7 +296,7 @@ int vsscanf(const char *buf, const char *fmt, va_list args)
                     bit_set(matchmap, (unsigned char) ch);
                 break;
 
-            case st_match_range:	/* %[ match after - */
+            case st_match_range: /* %[ match after - */
                 if (ch == ']') {
                     /* - was last character */
                     bit_set(matchmap, (unsigned char) '-');
@@ -312,9 +309,9 @@ int vsscanf(const char *buf, const char *fmt, va_list args)
                 }
                 break;
 
-                match_run:	/* Match expression finished */
+                match_run: /* Match expression finished */
                 qq = q;
-                uc = 1;		/* Anything nonzero */
+                uc = 1; /* Anything nonzero */
                 while (width && (uc = *q) && (bit_test(matchmap, uc) ^ matchinv)) {
                     if (sarg)
                         *sarg++ = uc;
