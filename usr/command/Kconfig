@@ -42,6 +42,10 @@ config KCMD_LOOP
     bool "Loop Command Support"
     default y
 
+config KCMD_LSPCI
+    bool "Lspci Command Support"
+    default y
+
 config KCMD_MATH
     bool "Math Command Support"
     default y
