@@ -3,16 +3,17 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define MODULE_NAME "PCI"
+#define MODULE_NAME "pci"
 #define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <kmalloc.h>
 #include <initcall.h>
+#include <ioops.h>
 #include <driver/pci.h>
 #include <printk.h>
-#include <asm/io.h>
 
-static LIST_HEAD(pci_host_list);
+SPIN_LOCK(pci_host_lock);
+LIST_HEAD(pci_host_list);
 
 static const enum pci_speed pcix_bus_speed[] = {
     PCI_SPEED_UNKNOWN,
@@ -535,7 +536,8 @@ static struct pci_bus *pci_bus_alloc(struct pci_bus *parent)
     return bus;
 }
 
-static struct pci_bus *pci_bus_alloc_child(struct pci_bus *parent, struct pci_device *bridge)
+static struct pci_bus *pci_bus_alloc_child(struct pci_bus *parent, struct pci_device *bridge,
+                                           unsigned int number)
 {
     struct pci_bus *child;
 
@@ -546,6 +548,7 @@ static struct pci_bus *pci_bus_alloc_child(struct pci_bus *parent, struct pci_de
     child->bridge = bridge;
     child->ops = parent->ops;
     child->host = parent->host;
+    child->bus_nr = number;
 
     pci_bus_speed_set(child);
     list_add(&parent->child, &child->sibling);
@@ -648,25 +651,41 @@ static void pci_scan_slot(struct pci_bus *bus, uint8_t slot)
     }
 }
 
-static state pci_scan_bridge(struct pci_bus *bus, struct pci_device *pdev)
+static state pci_scan_bridge(struct pci_bus *bus, struct pci_device *pdev, bool pass)
 {
     struct pci_bus *child;
     uint8_t primary, secondary, subordinate;
     uint16_t ctrl;
-    uint32_t val;
+    uint32_t value;
+    bool broken = false;
 
-    val = pci_config_readl(pdev, PCI_PRIMARY_BUS);
-    primary = val & 0xff;
-    secondary = (val >> 8) & 0xff;
-    subordinate = (val >> 16) & 0xff;
+    value = pci_config_readl(pdev, PCI_PRIMARY_BUS);
+    primary = value & 0xff;
+    secondary = (value >> 8) & 0xff;
+    subordinate = (value >> 16) & 0xff;
 
+    pci_debug(pdev, "scannning bridge [bus %02x-%02x] pass %d\n",
+              secondary, subordinate, pass);
+
+    /* Check the bridge configuration */
+    if (!pass && (primary != bus->bus_nr ||
+        secondary <= bus->bus_nr || secondary > subordinate)) {
+        pci_info(pdev, "bridge configuration invalid\n");
+        broken = true;
+    }
+
+    /* Disable Master-Abort Mode */
     ctrl = pci_config_readw(pdev, PCI_BRIDGE_CONTROL);
-    val = ctrl & ~PCI_BRIDGE_CTL_MASTER_ABORT;
-    pci_config_writew(pdev, PCI_BRIDGE_CONTROL, ctrl);
+    value = ctrl & ~PCI_BRIDGE_CTL_MASTER_ABORT;
+    pci_config_writew(pdev, PCI_BRIDGE_CONTROL, value);
 
-    if ((secondary || subordinate) &&
+    if ((secondary || subordinate) && !broken &&
         pdev->head != PCI_HEADER_TYPE_CARDBUS) {
-        child = pci_bus_alloc_child(bus, pdev);
+
+        if (pass)
+            goto exit;
+
+        child = pci_bus_alloc_child(bus, pdev, secondary);
         if (!child)
             return -ENOMEM;
 
@@ -674,6 +693,11 @@ static state pci_scan_bridge(struct pci_bus *bus, struct pci_device *pdev)
         pci_bus_scan(child);
     }
 
+    /* Clear errors */
+    pci_config_writew(pdev, PCI_STATUS, 0xffff);
+
+exit:
+    /* Restore original configuration */
     pci_config_writew(pdev, PCI_BRIDGE_CONTROL, ctrl);
     return -ENOERR;
 }
@@ -691,7 +715,7 @@ state pci_bus_scan(struct pci_bus *bus)
         pci_scan_slot(bus, slot);
 
     pci_for_each_bridge(pdev, bus)
-        pci_scan_bridge(bus, pdev);
+        pci_scan_bridge(bus, pdev, false);
 
     return -ENOERR;
 }
