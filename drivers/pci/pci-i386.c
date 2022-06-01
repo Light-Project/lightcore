@@ -54,10 +54,10 @@ state pci_raw_config_write(unsigned int domain, unsigned int bus, unsigned int d
     if (domain || (bus > 255) || (devfn > 255) || (reg > 4095))
         return -EINVAL;
 
+    spin_lock_irqsave(&i386_pci_lock, &irqflags);
+
     /* Use North Bridge Port */
     outl(0x0cf8, I386_PCI_CONFIG(bus, devfn, reg));
-
-    spin_lock_irqsave(&i386_pci_lock, &irqflags);
 
     if (size == 1)
         outb(0x0cfc, val + offset);
