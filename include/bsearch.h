@@ -20,7 +20,7 @@ bsearch_inline(const void *base, size_t num, size_t esize, bsearch_cmp_t cmp, vo
         if (!result)
             return (void *)pivot;
 
-        if (pivot > 0) {
+        if (result < 0) {
             base = pivot + esize;
             num--;
         }
