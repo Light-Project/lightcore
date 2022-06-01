@@ -91,10 +91,10 @@ type name(const char *nptr, char **endptr, unsigned int base, size_t len)       
         else if (tolower(*nptr) >= 'a' && tolower(*nptr) <= 'f')                \
             value = tolower(*nptr) - 'a' + 10;                                  \
         else                                                                    \
-            return total;                                                       \
+            break;                                                              \
                                                                                 \
         if (value >= base)                                                      \
-            return total;                                                       \
+            break;                                                              \
                                                                                 \
         total *= base;                                                          \
         total += value;                                                         \
