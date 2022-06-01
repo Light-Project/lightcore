@@ -8,7 +8,7 @@
 
 bool llist_split(struct slist_head *head, struct slist_head *new, struct slist_head *end)
 {
-	struct slist_head *first;
+    struct slist_head *first;
 
     do first = end->next = READ_ONCE(head->next);
     while (cmpxchg(&head->next, first, new) != first);
@@ -19,11 +19,11 @@ EXPORT_SYMBOL(llist_split);
 
 struct slist_head *llist_del(struct slist_head *head)
 {
-	struct slist_head *old, *next, *entry;
+    struct slist_head *old, *next, *entry;
 
     for (entry = READ_ONCE(head->next); (old = entry);) {
         next = READ_ONCE(entry->next);
-		entry = cmpxchg(&head->next, old, next);
+        entry = cmpxchg(&head->next, old, next);
         if (old == entry)
             break;
     }
