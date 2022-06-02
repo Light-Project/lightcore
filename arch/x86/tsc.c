@@ -72,8 +72,6 @@ static unsigned long pit_get_tsc(unsigned long ms, unsigned int minloop)
     return delta / ms;
 }
 
-#include <asm/proc.h>
-
 void __init arch_tsc_setup(void)
 {
     unsigned long pittsc_min;
