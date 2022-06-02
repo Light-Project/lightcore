@@ -6,24 +6,23 @@
 #include <slist.h>
 
 /**
- * font - describes a font lib
- * @name: the name of font
- * @width: width of a single word
- * @height: height of a single word
- * @pref: font priority
+ * struct font - describes a lattice font.
+ * @width: width of a single word.
+ * @height: height of a single word.
+ * @pref: font suitable priority.
  */
 struct font {
     struct slist_head list;
-    const void *name;
+    const char *name;
+    const void *data;
     unsigned int width;
     unsigned int height;
     unsigned int pref;
-    const void *data;
 };
 
 extern struct font *font_find(const char *name);
 extern struct font *font_suitable(unsigned int xres, unsigned int yres, unsigned int wide, unsigned int height);
 extern state font_register(struct font *font);
-extern state font_unregister(struct font *font);
+extern void font_unregister(struct font *font);
 
-#endif
+#endif  /* _FONT_H_ */

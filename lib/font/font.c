@@ -1,44 +1,81 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/*
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ */
+
+#define MODULE_NAME "font"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
+
 #include <font.h>
-#include <list.h>
 #include <string.h>
-#include <state.h>
+#include <spinlock.h>
+#include <printk.h>
+#include <export.h>
 
-SLIST_HEAD(font_head);
+static SLIST_HEAD(font_head);
+static SPIN_LOCK(font_lock);
 
-state font_register(struct font *font)
-{
-    slist_add(&font_head, &font->list);
-    return -ENOERR;
-}
-
-state font_unregister(struct font *font)
-{
-    slist_del(&font_head, &font->list);
-    return -ENOERR;
-}
-
-struct font *font_find(const char *name)
+struct font *font_find_unlock(const char *name)
 {
     struct font *font;
 
-    if (!name)
-        return NULL;
-
     slist_for_each_entry(font, &font_head, list) {
-        if(!strcmp(font->name, name))
+        if (!strcmp(font->name, name))
             return font;
     }
 
     return NULL;
 }
 
+struct font *font_find(const char *name)
+{
+    struct font *font;
+
+    spin_lock(&font_lock);
+    font = font_find_unlock(name);
+    spin_unlock(&font_lock);
+
+    return font;
+}
+EXPORT_SYMBOL(font_find);
+
+state font_register(struct font *font)
+{
+    if (!font->name   || !font->data ||
+        !font->height || !font->width)
+        return -EINVAL;
+
+    spin_lock(&font_lock);
+    if (font_find_unlock(font->name)) {
+        spin_unlock(&font_lock);
+        pr_err("font '%s' already registered\n", font->name);
+        return -EALREADY;
+    }
+
+    slist_add(&font_head, &font->list);
+    spin_unlock(&font_lock);
+
+    pr_debug("register font '%s'\n", font->name);
+    return -ENOERR;
+}
+EXPORT_SYMBOL(font_register);
+
+void font_unregister(struct font *font)
+{
+    pr_debug("unregister font '%s'\n", font->name);
+    spin_lock(&font_lock);
+    slist_del(&font_head, &font->list);
+    spin_unlock(&font_lock);
+}
+EXPORT_SYMBOL(font_unregister);
+
 struct font *font_suitable(unsigned int xres, unsigned int yres,
                            unsigned int wide, unsigned int height)
 {
     struct font *font, *sui = NULL;
-    unsigned int fontg, suig, val;
+    unsigned int val, fontg, suig = -1000;
 
-    suig = -10000;
+    spin_lock(&font_lock);
     slist_for_each_entry(font, &font_head, list) {
         fontg = font->pref;
 
@@ -58,6 +95,7 @@ struct font *font_suitable(unsigned int xres, unsigned int yres,
             sui = font;
         }
     }
+    spin_unlock(&font_lock);
 
     return sui;
 }
