@@ -1,84 +1,82 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Convert a logo in bmp format to C source for suitable for
- * inclusion in the lightcore
- *
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
- *
+ * Copyright(c) 2022 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
+#include <stdint.h>
+#include <errno.h>
+#include <endian.h>
+
+#if BYTE_ORDER == LITTLE_ENDIAN
+#define le16_to_cpu(val) (val)
+#define le32_to_cpu(val) (val)
+#define le64_to_cpu(val) (val)
+#endif
+#if BYTE_ORDER == BIG_ENDIAN
+#define le16_to_cpu(val) __bswap_16(val)
+#define le32_to_cpu(val) __bswap_32(val)
+#define le64_to_cpu(val) __bswap_64(val)
+#endif
 
 struct bmp_file {
-    uint16_t magic;         /* 0x00: bmp magic*/
-    uint32_t size;          /* 0x02: bmp data size*/
-    uint16_t reserved[2];   /* 0x06: reserved */
-    uint32_t offset;        /* 0x0A: bmp data offset*/
+    uint16_t magic;
+    uint32_t size;
+    uint16_t reserved[2];
+    uint32_t offset;
 } __attribute__((__packed__));
 
 struct bmp_info {
-    uint32_t hdsize;        /* 0x0e: bmp_info head size */
-    uint32_t width;         /* 0x12: Image width */
-    uint32_t hight;         /* 0x16: Image hight */
-    uint16_t planes;        /* 0x18: */
-    uint16_t bitcount;      /* 0x1c: */
-    uint32_t compre;        /* 0x2e: */
-    uint32_t size;          /* 0x22: */
-    uint32_t xppm;          /* 0x26: XPelsPerMeter */
-    uint32_t yppm;          /* 0x2a: YPelsPerMeter */
-    uint32_t colour;        /* 0x2e:  */
-    uint32_t clrmsk;        /* 0x30:  */
+    uint32_t hdsize;
+    uint32_t width;
+    uint32_t hight;
+    uint16_t planes;
+    uint16_t bitcount;
+    uint32_t compre;
+    uint32_t size;
+    uint32_t xppm;
+    uint32_t yppm;
+    uint32_t colour;
+    uint32_t clrmsk;
 } __attribute__((__packed__));
 
 struct bmp_head {
-    const struct bmp_file file;
-    const struct bmp_info info;
+    struct bmp_file file;
+    struct bmp_info info;
 } __attribute__((__packed__));
-
 
 static void usage(void)
 {
-    printf("bmp2c input <filename> \n");
-    printf("Usage: \n");
-    printf(" -h             display this message\n");
-    printf(" -n <logoname>  \n");
-    printf(" -o <filename>  \n");\
+    printf("usage: bmp2c [option] <filename>\n");
+    printf("\t-n  logoname\n");
+    printf("\t-o  filename\n");
+    printf("\t-h  display this message\n");
 }
 
-static void error(const char * str, ...)
+static inline void write_hex(FILE *out, unsigned int hexcnt, uint8_t byte)
 {
-    va_list args;
-
-    usage();
-
-    if (!str)
-        exit(0);
-
-    printf("error: \n");
-
-    va_start(args, str);
-    vfprintf(stderr, str, args);
-    va_end(args);
-    fputc('\n', stderr);
-
-    exit(1);
-}
-
-static int write_hex_cnt;
-
-static void write_hex(FILE *out, uint8_t byte)
-{
-    if (write_hex_cnt % 12)
-        fprintf(out, ", 0x%02x", byte);
-    else if (write_hex_cnt)
-        fprintf(out, ",\n    0x%02x", byte);
-    else
+    if (!hexcnt)
         fprintf(out, "\t0x%02x", byte);
+    else if (hexcnt % 12)
+        fprintf(out, ", 0x%02x", byte);
+    else
+        fprintf(out, ",\n\t0x%02x", byte);
+}
 
-    write_hex_cnt++;
+static void write_logo(FILE *out, const char *logoname, struct bmp_head *bmp)
+{
+    unsigned int count, hexcnt = 0;
+    uint32_t size;
+    uint8_t *data;
+
+    size = le32_to_cpu(bmp->info.size);
+    data = (void *)bmp + le32_to_cpu(bmp->file.offset);
+
+    fprintf(out, "static unsigned char %s_data[] = {\n", logoname);
+    for (count = 0; count < size; ++count)
+        write_hex(out, hexcnt++, *data++);
+    fputs("\n};\n\n", out);
 }
 
 static void write_header(FILE *out, const char *filename)
@@ -92,92 +90,98 @@ static void write_header(FILE *out, const char *filename)
     fputs("#include <logo.h>\n\n", out);
 }
 
-static void write_logo(FILE *out, const char *logoname, struct bmp_head *bmp)
+static void write_info(FILE *output, const char *logoname, struct bmp_info *info)
 {
-    uint32_t count;
-    uint8_t *data;
-
-    data = (uint8_t *)bmp + bmp->file.offset;
-
-    fprintf(out, "static unsigned char %s_data[] = {\n", logoname);
-
-    write_hex_cnt = 0;
-    for (count = 0; count < bmp->info.size; ++count)
-        write_hex(out, *data++);
-
-    fputs("\n};\n", out);
-}
-
-static void write_info(FILE *out, const char *logoname, struct bmp_head *bmp)
-{
-    int colour = (!bmp->info.colour) ? 32 : bmp->info.colour;
-
-    fprintf(out, "\nconst struct logo %s_info = {\n", logoname);
-    fprintf(out, "    .name = \"%s\",\n", logoname);
-    fprintf(out, "    .width = %d,\n", bmp->info.width);
-    fprintf(out, "    .height = %d,\n", bmp->info.hight);
-    fprintf(out, "    .colour = %d,\n", colour);
-    fprintf(out, "    .data = %s_data\n", logoname);
-    fputs("};\n\n", out);
+    fprintf(output, "const struct logo %s_info = {\n", logoname);
+    fprintf(output, "\t.name = \"%s\",\n", logoname);
+    fprintf(output, "\t.width = %d,\n", le32_to_cpu(info->width));
+    fprintf(output, "\t.height = %d,\n", le32_to_cpu(info->hight));
+    fprintf(output, "\t.colour = %d,\n", le32_to_cpu(info->colour) ?: 32);
+    fprintf(output, "\t.data = %s_data\n", logoname);
+    fputs("};\n", output);
 }
 
 int main(int argc, char *argv[])
 {
-    FILE *input = NULL, *output = NULL;
-    size_t bmp_size;
+    FILE *input, *output = stdout;
+    char *newfile = NULL, *logo = "logo";
     struct bmp_head *bmp;
-    char *logo_name = "logo";
-    char *file_name = argv[1];
+    unsigned int count;
+    size_t size;
 
-    input = fopen(argv[1], "rb");
-    if (input == NULL)
-        error("can not open input file");
+    for (count = 1; count < argc; ++count) {
+        char *para = argv[count];
 
-    fseek(input, SEEK_SET, SEEK_END);
-    bmp_size = ftell(input);
-    fseek(input, 0, SEEK_SET);
+        if (para[0] != '-')
+            break;
 
-    bmp = malloc(bmp_size);
-    fread(bmp, bmp_size, 1, input);
-
-    char *para;
-    while (--argc) {
-        para = *++argv;
-        if (*para == '-' && para[1])
-        switch (*++para) {
-            case 'o':   /* output stream  */
-                if (!argv[1])
-                    error(" Wrong usage");
-                output = fopen(argv[1], "wb");
+        switch (para[1]) {
+            case 'o':
+                if ((++count) >= argc)
+                    goto usage;
+                newfile = argv[count];
                 break;
 
-            case 'n':   /* logo name */
-                if (!argv[1])
-                    error(" Wrong usage");
-                logo_name = argv[1];
+            case 'n':
+                if ((++count) >= argc)
+                    goto usage;
+                logo = argv[count];
                 break;
 
             default:
-                error(NULL);
+                goto usage;
         }
     }
 
-    if (!output)
-        output = stdout;
+    if (argc == count)
+        goto usage;
 
-    /* Warn: Only little-endian is supported */
-    if (bmp->file.magic != 0x4d42)
-        error("It's not a BMP file");
+    input = fopen(argv[count], "rb");
+    if (!input) {
+        perror("can not open input file");
+        goto usage;
+    }
 
-    if (bmp->info.compre != 3)
-        error("Compressed BMP is not supported");
+    fseek(input, SEEK_SET, SEEK_END);
+    size = ftell(input);
 
-    write_header(output, file_name);
-    write_logo(output, logo_name, bmp);
-    write_info(output, logo_name, bmp);
+    bmp = malloc(size);
+    if (!bmp) {
+        perror("insufficient memory\n");
+        goto usage;
+    }
 
+    fseek(input, 0, SEEK_SET);
+    fread(bmp, size, 1, input);
     fclose(input);
+
+    if (le16_to_cpu(bmp->file.magic) != 0x4d42) {
+        perror("file format error\n");
+        goto usage;
+    }
+
+    if (le32_to_cpu(bmp->info.compre) != 3) {
+        perror("compressed bmp not supported\n");
+        goto usage;
+    }
+
+    if (newfile) {
+        output = fopen(newfile, "wb");
+        if (!output) {
+            perror("can not create output file");
+            goto usage;
+        }
+    }
+
+    write_header(output, argv[count]);
+    write_logo(output, logo, bmp);
+    write_info(output, logo, &bmp->info);
+
     fclose(output);
 
     return 0;
+
+usage:
+    usage();
+    return -EINVAL;
 }

@@ -5,7 +5,7 @@ $(obj)/%.bmp: $(obj)/%.svg
 
 $(obj)/logo.c: $(obj)/logo.bmp
 	$(Q)$(MAKE) $(build)=tools/logo
-	$(Q)tools/logo/bmp2c $^ -o $@
+	$(Q)tools/logo/bmp2c -o $@ $^
 
-obj-y += logo.o terminal-logo.o
+obj-y += logo.o terminal.o
 clean-y += logo.c *.bmp
