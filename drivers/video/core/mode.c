@@ -523,7 +523,7 @@ const struct video_mode *video_mode_best(struct video_device *vdev, struct video
 
     dev_debug(vdev->device, "wanted %u [%u] %u x %u [%u] %u\n",
         info->left_margin, info->xres, info->right_margin,
-        info->upper_margin, info->ypos, info->lower_margin);
+        info->upper_margin, info->yres, info->lower_margin);
 
     list_for_each_entry(modelist, &vdev->modes, list) {
         walk = modelist->mode;
@@ -562,7 +562,7 @@ const struct video_mode *video_mode_best(struct video_device *vdev, struct video
 
     dev_debug(vdev->device, "best mode %u [%u] %u x %u [%u] %u\n",
         info->left_margin, info->xres, info->right_margin,
-        info->upper_margin, info->ypos, info->lower_margin);
+        info->upper_margin, info->yres, info->lower_margin);
 
     return best;
 }
