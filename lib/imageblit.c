@@ -43,7 +43,7 @@ static const uint32_t imageblit_tab32[2] = {
     0x00000000, 0xffffffff,
 };
 
-static void imageblit_simple(const struct imageblit_info *info, const struct video_image *image,
+static void imageblit_simple(const struct framedraw_info *info, const struct video_image *image,
                              void *base, uint32_t fgcolor, uint32_t bgcolor)
 {
     unsigned int bpp = info->bpp, lsize = info->line_size;
@@ -58,12 +58,12 @@ static void imageblit_simple(const struct imageblit_info *info, const struct vid
 
     switch (bpp) {
         case 8:
-            tab = info->framebuffer_swab ? imageblit_tab8_cvt : imageblit_tab8;
+            tab = info->frameswab ? imageblit_tab8_cvt : imageblit_tab8;
             tlen = ARRAY_SIZE(imageblit_tab8);
             break;
 
         case 16:
-            tab = info->framebuffer_swab ? imageblit_tab16_cvt : imageblit_tab16;
+            tab = info->frameswab ? imageblit_tab16_cvt : imageblit_tab16;
             tlen = ARRAY_SIZE(imageblit_tab16);
             break;
 
@@ -140,7 +140,7 @@ static void imageblit_simple(const struct imageblit_info *info, const struct vid
     }
 }
 
-static void imageblit_complex(const struct imageblit_info *info, const struct video_image *image, void *base,
+static void imageblit_complex(const struct framedraw_info *info, const struct video_image *image, void *base,
                               uint32_t fgcolor, uint32_t bgcolor, unsigned int start, unsigned int pitch)
 {
     unsigned int bpp = info->bpp, lsize = info->line_size;
@@ -202,7 +202,7 @@ static void imageblit_complex(const struct imageblit_info *info, const struct vi
     }
 }
 
-static void imageblit_color(const struct imageblit_info *info, const struct video_image *image,
+static void imageblit_color(const struct framedraw_info *info, const struct video_image *image,
                             void *base, unsigned int start, unsigned int pitch)
 {
     unsigned int bpp = info->bpp, lsize = info->line_size;
@@ -264,7 +264,7 @@ static void imageblit_color(const struct imageblit_info *info, const struct vide
     }
 }
 
-void imageblit(const struct imageblit_info *info, const struct video_image *image)
+void imageblit(const struct framedraw_info *info, const struct video_image *image)
 {
     unsigned int bpp = info->bpp, lsize = info->line_size;
     unsigned int start, pitch, bitpos;

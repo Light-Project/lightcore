@@ -16,7 +16,7 @@
 #endif /* BITS_PER_LONG == 64 */
 
 #define GENERIC_BITFILL_ALIGNED(name, single, operation)                                \
-static void name(const struct imageblit_info *info, unsigned long *base,                \
+static void name(const struct framedraw_info *info, unsigned long *base,                \
                  unsigned int index, unsigned long color, unsigned int length)          \
 {                                                                                       \
     unsigned long start, last;                                                          \
@@ -66,7 +66,7 @@ static void name(const struct imageblit_info *info, unsigned long *base,        
 }
 
 #define GENERIC_BITFILL_UNALIGNED(name, single, operation)                              \
-static void name(const struct imageblit_info *info, unsigned long *base,                \
+static void name(const struct framedraw_info *info, unsigned long *base,                \
                  unsigned int index, unsigned long color, unsigned int length,          \
                  unsigned int left, unsigned int right)                                 \
 {                                                                                       \
@@ -123,7 +123,7 @@ GENERIC_BITFILL_UNALIGNED(fillrect_copy_unaligned, color, color)
 GENERIC_BITFILL_ALIGNED(fillrect_xor_aligned, value ^ color, fillrect_read(base) ^ color)
 GENERIC_BITFILL_UNALIGNED(fillrect_xor_unaligned, value ^ color, fillrect_read(base) ^ color)
 
-void fillrect(const struct imageblit_info *info, const struct video_fillrect *fillrect)
+void fillrect(const struct framedraw_info *info, const struct video_fillrect *fillrect)
 {
     unsigned int bpp = info->bpp, lsize = info->line_size;
     unsigned int hcount, index, left, right, bits;
@@ -142,7 +142,7 @@ void fillrect(const struct imageblit_info *info, const struct video_fillrect *fi
     left = BITS_PER_LONG % bpp;
 
     if (!left) {
-        void (*func)(const struct imageblit_info *info, unsigned long *base, unsigned int index,
+        void (*func)(const struct framedraw_info *info, unsigned long *base, unsigned int index,
                      unsigned long color, unsigned int length);
 
         switch (fillrect->rop) {
@@ -162,7 +162,7 @@ void fillrect(const struct imageblit_info *info, const struct video_fillrect *fi
             index += lsize * BITS_PER_U8;
         }
     } else {
-        void (*func)(const struct imageblit_info *info, unsigned long *base, unsigned int index,
+        void (*func)(const struct framedraw_info *info, unsigned long *base, unsigned int index,
                      unsigned long color, unsigned int length, unsigned int left, unsigned int right);
 
         switch (fillrect->rop) {

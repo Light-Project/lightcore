@@ -6,13 +6,13 @@
 #include <ioops.h>
 #include <lightcore/video.h>
 
-struct imageblit_info {
+struct framedraw_info {
     unsigned int bpp;
     unsigned int line_size;
     uint32_t *pseudo_palette;
     void *framebuffer;
     bool pseudo_color;
-    bool framebuffer_swab;
+    bool frameswab;
 };
 
 #define framedraw_readl(addr) readl(addr)
@@ -21,17 +21,17 @@ struct imageblit_info {
 #define framedraw_writeq(addr, value) writeq(addr, value)
 
 #define FRAMEDRAW_POS_LEFT(info, bpp) (             \
-    (info)->framebuffer_swab ?                      \
+    (info)->frameswab ?                      \
     (32 - (bpp)) : 0                                \
 )
 
 #define FRAMEDRAW_SHIFT_LOW(info, shift, val) (     \
-    (info)->framebuffer_swab ?                      \
+    (info)->frameswab ?                      \
     (val) << (shift) : (val) >> (shift)             \
 )
 
 #define FRAMEDRAW_SHIFT_HIGH(info, shift, val) (    \
-    (info)->framebuffer_swab ?                      \
+    (info)->frameswab ?                      \
     (val) >> (shift) : (val) << (shift)             \
 )
 
@@ -85,7 +85,7 @@ static inline unsigned long framedraw_rol(unsigned long word, unsigned int shift
     return (word << shift) | (word >> (limit - shift));
 }
 
-extern void imageblit(const struct imageblit_info *info, const struct video_image *image);
-extern void fillrect(const struct imageblit_info *info, const struct video_fillrect *fillrect);
+extern void imageblit(const struct framedraw_info *info, const struct video_image *image);
+extern void fillrect(const struct framedraw_info *info, const struct video_fillrect *fillrect);
 
 #endif  /* _FRAMEDRAW_H_ */
