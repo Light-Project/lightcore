@@ -3,7 +3,7 @@
  * Copyright(c) 2022 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <imageblit.h>
+#include <framedraw.h>
 #include <kernel.h>
 #include <export.h>
 
@@ -43,22 +43,7 @@ static const uint32_t imageblit_tab32[2] = {
     0x00000000, 0xffffffff,
 };
 
-#define IMAGEBLIT_POS_LEFT(info, bpp) (             \
-    (info)->framebuffer_swab ?                      \
-    (32 - (bpp)) : 0                                \
-)
-
-#define IMAGEBLIT_SHIFT_LOW(info, shift, val) (     \
-    (info)->framebuffer_swab ?                      \
-    (val) << (shift) : (val) >> (shift)             \
-)
-
-#define IMAGEBLIT_SHIFT_HIGH(info, shift, val) (    \
-    (info)->framebuffer_swab ?                      \
-    (val) >> (shift) : (val) << (shift)             \
-)
-
-static void imageblit_simple(struct imageblit_info *info, struct video_image *image,
+static void imageblit_simple(const struct imageblit_info *info, const struct video_image *image,
                              void *base, uint32_t fgcolor, uint32_t bgcolor)
 {
     unsigned int bpp = info->bpp, lsize = info->line_size;
@@ -68,7 +53,7 @@ static void imageblit_simple(struct imageblit_info *info, struct video_image *im
     uint32_t *dline;
     const uint32_t *tab;
 
-    spitch = DIV_ROUND_UP(image->width, BITS_PER_U8);
+    spitch = BITS_TO_U8(image->width);
     ppw = BITS_PER_U32 / bpp;
 
     switch (bpp) {
@@ -110,30 +95,30 @@ static void imageblit_simple(struct imageblit_info *info, struct video_image *im
         switch (ppw) {
             case 4:
                 for (wcount = wlimit; wcount >= 2; wcount -= 2, ++sline) {
-                    imageblit_writel(dline++, colortab[(*sline >> 4) & bmask]);
-                    imageblit_writel(dline++, colortab[(*sline >> 0) & bmask]);
+                    framedraw_writel(dline++, colortab[(*sline >> 4) & bmask]);
+                    framedraw_writel(dline++, colortab[(*sline >> 0) & bmask]);
                 }
                 break;
 
             case 2:
                 for (wcount = wlimit; wcount >= 4; wcount -= 4, ++sline) {
-                    imageblit_writel(dline++, colortab[(*sline >> 6) & bmask]);
-                    imageblit_writel(dline++, colortab[(*sline >> 4) & bmask]);
-                    imageblit_writel(dline++, colortab[(*sline >> 2) & bmask]);
-                    imageblit_writel(dline++, colortab[(*sline >> 0) & bmask]);
+                    framedraw_writel(dline++, colortab[(*sline >> 6) & bmask]);
+                    framedraw_writel(dline++, colortab[(*sline >> 4) & bmask]);
+                    framedraw_writel(dline++, colortab[(*sline >> 2) & bmask]);
+                    framedraw_writel(dline++, colortab[(*sline >> 0) & bmask]);
                 }
                 break;
 
             case 1:
                 for (wcount = wlimit; wcount >= 8; wcount -= 8, ++sline) {
-                    imageblit_writel(dline++, colortab[(*sline >> 7) & bmask]);
-                    imageblit_writel(dline++, colortab[(*sline >> 6) & bmask]);
-                    imageblit_writel(dline++, colortab[(*sline >> 5) & bmask]);
-                    imageblit_writel(dline++, colortab[(*sline >> 4) & bmask]);
-                    imageblit_writel(dline++, colortab[(*sline >> 3) & bmask]);
-                    imageblit_writel(dline++, colortab[(*sline >> 2) & bmask]);
-                    imageblit_writel(dline++, colortab[(*sline >> 1) & bmask]);
-                    imageblit_writel(dline++, colortab[(*sline >> 0) & bmask]);
+                    framedraw_writel(dline++, colortab[(*sline >> 7) & bmask]);
+                    framedraw_writel(dline++, colortab[(*sline >> 6) & bmask]);
+                    framedraw_writel(dline++, colortab[(*sline >> 5) & bmask]);
+                    framedraw_writel(dline++, colortab[(*sline >> 4) & bmask]);
+                    framedraw_writel(dline++, colortab[(*sline >> 3) & bmask]);
+                    framedraw_writel(dline++, colortab[(*sline >> 2) & bmask]);
+                    framedraw_writel(dline++, colortab[(*sline >> 1) & bmask]);
+                    framedraw_writel(dline++, colortab[(*sline >> 0) & bmask]);
                 }
                 break;
 
@@ -143,7 +128,7 @@ static void imageblit_simple(struct imageblit_info *info, struct video_image *im
 
         while (wcount--) {
             bshift -= ppw;
-            imageblit_writel(dline++, colortab[(*sline >> bshift) & bmask]);
+            framedraw_writel(dline++, colortab[(*sline >> bshift) & bmask]);
             if (!bshift) {
                 bshift = BITS_PER_U8;
                 ++src;
@@ -155,8 +140,8 @@ static void imageblit_simple(struct imageblit_info *info, struct video_image *im
     }
 }
 
-static void imageblit_complex(const struct imageblit_info *info, const struct video_image *image,
-                              void *base, uint32_t fgcolor, uint32_t bgcolor, uint32_t start, uint32_t pitch)
+static void imageblit_complex(const struct imageblit_info *info, const struct video_image *image, void *base,
+                              uint32_t fgcolor, uint32_t bgcolor, unsigned int start, unsigned int pitch)
 {
     unsigned int bpp = info->bpp, lsize = info->line_size;
     unsigned int spitch, nbit, bshift, wcount, hcount;
@@ -164,7 +149,7 @@ static void imageblit_complex(const struct imageblit_info *info, const struct vi
     uint32_t *dline, *pip = base;
     uint32_t shift, value;
 
-    spitch = DIV_ROUND_UP(image->width, BITS_PER_U8);
+    spitch = BITS_TO_U8(image->width);
     nbit = BITS_PER_U32 - bpp;
 
     for (hcount = 0; hcount < image->height; ++hcount) {
@@ -173,8 +158,8 @@ static void imageblit_complex(const struct imageblit_info *info, const struct vi
         sline = src;
 
         if (start) {
-            uint32_t smask = IMAGEBLIT_SHIFT_HIGH(info, shift, ~(uint32_t)0);
-            value = imageblit_readl(dline) & smask;
+            uint32_t smask = FRAMEDRAW_SHIFT_HIGH(info, shift, ~(uint32_t)0);
+            value = framedraw_readl(dline) & smask;
             shift = start;
         }
 
@@ -182,12 +167,12 @@ static void imageblit_complex(const struct imageblit_info *info, const struct vi
             uint32_t color;
 
             color = (*sline & BIT(bshift--)) ? fgcolor : bgcolor;
-            value |= IMAGEBLIT_SHIFT_HIGH(info, shift, color);
+            value |= FRAMEDRAW_SHIFT_HIGH(info, shift, color);
 
             if (shift >= nbit) {
-                imageblit_writel(dline++, value);
+                framedraw_writel(dline++, value);
                 value = shift == nbit ? 0 :
-                    IMAGEBLIT_SHIFT_LOW(info, color, BITS_PER_U32 - shift);
+                    FRAMEDRAW_SHIFT_LOW(info, color, BITS_PER_U32 - shift);
             }
 
             shift += bpp;
@@ -200,9 +185,9 @@ static void imageblit_complex(const struct imageblit_info *info, const struct vi
         }
 
         if (shift) {
-            uint32_t emask = IMAGEBLIT_SHIFT_HIGH(info, shift, ~(uint32_t)0);
-            value = imageblit_readl(dline);
-            imageblit_writel(dline, (value & emask) | value);
+            uint32_t emask = FRAMEDRAW_SHIFT_HIGH(info, shift, ~(uint32_t)0);
+            value = framedraw_readl(dline);
+            framedraw_writel(dline, (value & emask) | value);
         }
 
         base += lsize;
@@ -217,8 +202,8 @@ static void imageblit_complex(const struct imageblit_info *info, const struct vi
     }
 }
 
-static void imageblit_color(struct imageblit_info *info, struct video_image *image,
-                            void *base, uint32_t start, uint32_t pitch)
+static void imageblit_color(const struct imageblit_info *info, const struct video_image *image,
+                            void *base, unsigned int start, unsigned int pitch)
 {
     unsigned int bpp = info->bpp, lsize = info->line_size;
     unsigned int spitch, nbit, hcount, wcount;
@@ -226,7 +211,7 @@ static void imageblit_color(struct imageblit_info *info, struct video_image *ima
     uint32_t *dline, *pip = base;
     uint32_t shift, value;
 
-    spitch = DIV_ROUND_UP(image->width, BITS_PER_U8);
+    spitch = BITS_TO_U8(image->width);
     nbit = BITS_PER_U32 - bpp;
 
     for (hcount = 0; hcount < image->height; ++hcount) {
@@ -235,8 +220,8 @@ static void imageblit_color(struct imageblit_info *info, struct video_image *ima
         sline = src;
 
         if (start) {
-            uint32_t smask = IMAGEBLIT_SHIFT_HIGH(info, shift, ~(uint32_t)0);
-            value = imageblit_readl(dline) & smask;
+            uint32_t smask = FRAMEDRAW_SHIFT_HIGH(info, shift, ~(uint32_t)0);
+            value = framedraw_readl(dline) & smask;
             shift = start;
         }
 
@@ -248,13 +233,13 @@ static void imageblit_color(struct imageblit_info *info, struct video_image *ima
             else
                 color = *sline++;
 
-            color <<= IMAGEBLIT_POS_LEFT(info, bpp);
-            value |= IMAGEBLIT_SHIFT_HIGH(info, shift, color);
+            color <<= FRAMEDRAW_POS_LEFT(info, bpp);
+            value |= FRAMEDRAW_SHIFT_HIGH(info, shift, color);
 
             if (shift >= nbit) {
-                imageblit_writel(dline++, value);
+                framedraw_writel(dline++, value);
                 value = shift == nbit ? 0 :
-                    IMAGEBLIT_SHIFT_LOW(info, color, BITS_PER_U32 - shift);
+                    FRAMEDRAW_SHIFT_LOW(info, color, BITS_PER_U32 - shift);
             }
 
             shift += bpp;
@@ -262,9 +247,9 @@ static void imageblit_color(struct imageblit_info *info, struct video_image *ima
         }
 
         if (shift) {
-            uint32_t emask = IMAGEBLIT_SHIFT_HIGH(info, shift, ~(uint32_t)0);
-            value = imageblit_readl(dline);
-            imageblit_writel(dline, (value & emask) | value);
+            uint32_t emask = FRAMEDRAW_SHIFT_HIGH(info, shift, ~(uint32_t)0);
+            value = framedraw_readl(dline);
+            framedraw_writel(dline, (value & emask) | value);
         }
 
         base += lsize;
@@ -279,7 +264,7 @@ static void imageblit_color(struct imageblit_info *info, struct video_image *ima
     }
 }
 
-void imageblit(struct imageblit_info *info, struct video_image *image)
+void imageblit(const struct imageblit_info *info, const struct video_image *image)
 {
     unsigned int bpp = info->bpp, lsize = info->line_size;
     unsigned int start, pitch, bitpos;
