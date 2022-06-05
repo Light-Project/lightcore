@@ -44,7 +44,7 @@ static inline unsigned long framedraw_cpattern(unsigned int bpp, uint32_t color)
         [4  / 2] = 0x11111111UL,
         [8  / 2] = 0x01010101UL,
         [12 / 2] = 0x01001001UL,
-        [14 / 2] = 0x00010001UL,
+        [16 / 2] = 0x00010001UL,
         [24 / 2] = 0x01000001UL,
         [32 / 2] = 0x00000001UL,
     };
@@ -63,7 +63,7 @@ static inline unsigned long framedraw_cpattern(unsigned int bpp, uint32_t color)
         [4  / 2] = 0x1111111111111111UL,
         [8  / 2] = 0x0101010101010101UL,
         [12 / 2] = 0x1001001001001001UL,
-        [14 / 2] = 0x0001000100010001UL,
+        [16 / 2] = 0x0001000100010001UL,
         [24 / 2] = 0x0001000001000001UL,
         [32 / 2] = 0x0000000100000001UL,
     };
