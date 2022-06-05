@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-obj-y += libc/ font/ crypto/
+obj-y += libc/ font/ crypto/ framedraw/
 obj-y += errname.o bitrev.o
 obj-y += bitops.o bitmap.o
 obj-y += bsearch.o bytefill.o
@@ -10,7 +10,6 @@ obj-y += llist.o idr.o lrange.o
 obj-y += param.o kasprintf.o
 obj-y += time.o librtc.o prandom.o
 obj-y += size.o memdump.o ratelimit.o
-obj-y += imageblit.o fillrect.o
 obj-$(CONFIG_DEBUG_LIST) += list-debug.o
 obj-$(CONFIG_DEBUG_HLIST) += hlist-debug.o
 obj-$(CONFIG_DEBUG_SLIST) += slist-debug.o
