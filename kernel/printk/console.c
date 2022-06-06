@@ -104,9 +104,8 @@ void __init console_init(void)
         fn++)
     {
         call = initcall_from_entry(fn);
-        ret = call();
-        if(ret)
-            pr_warn("console: init error\n");
+        if ((ret = call()))
+            pr_err("%s init failed, error code [%d]\n", fn->name, ret);
     }
 }
 
