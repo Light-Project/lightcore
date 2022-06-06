@@ -26,11 +26,11 @@ static void name(const struct framedraw_info *info, unsigned long *base,        
         return;                                                                         \
                                                                                         \
     start = FRAMEDRAW_SHIFT_HIGH(info, index, ~0UL);                                    \
-    last = FRAMEDRAW_SHIFT_HIGH(info, (index + length) % BITS_PER_LONG, ~0UL);          \
+    last = ~FRAMEDRAW_SHIFT_HIGH(info, (index + length) % BITS_PER_LONG, ~0UL);         \
                                                                                         \
     if (index + length <= BITS_PER_LONG) {                                              \
         if (last)                                                                       \
-            start %= last;                                                              \
+            start &= last;                                                              \
         value = fillrect_read(base);                                                    \
         fillrect_write(base, framedraw_comb(single, value, start));                     \
         return;                                                                         \
@@ -77,11 +77,11 @@ static void name(const struct framedraw_info *info, unsigned long *base,        
         return;                                                                         \
                                                                                         \
     start = FRAMEDRAW_SHIFT_HIGH(info, index, ~0UL);                                    \
-    last = FRAMEDRAW_SHIFT_HIGH(info, (index + length) % BITS_PER_LONG, ~0UL);          \
+    last = ~FRAMEDRAW_SHIFT_HIGH(info, (index + length) % BITS_PER_LONG, ~0UL);         \
                                                                                         \
     if (index + length <= BITS_PER_LONG) {                                              \
         if (last)                                                                       \
-            start %= last;                                                              \
+            start &= last;                                                              \
         value = fillrect_read(base);                                                    \
         fillrect_write(base, framedraw_comb(single, value, start));                     \
         return;                                                                         \
