@@ -3,7 +3,6 @@
 #define _FS_MINIX_H_
 
 #include <types.h>
-#include <filesystem.h>
 
 struct minix_inode {
     uint16_t mode;
@@ -27,12 +26,12 @@ struct minix2_inode {
     uint32_t zone[10];
 } __packed;
 
-struct minix_dir_entry {
+struct minix_dirent {
     uint16_t inode;
     char name[0];
 } __packed;
 
-struct minix3_dir_entry {
+struct minix3_dirent {
     uint32_t inode;
     char name[0];
 } __packed;
@@ -72,24 +71,9 @@ struct minix3_superblock {
 #define MINIX2_SUPER_MAGIC2 0x2478
 #define MINIX3_SUPER_MAGIC  0x4d5a
 
-enum minix_version {
-    MINIX_V1    = 1,
-    MINIX_V2    = 2,
-    MINIX_V3    = 3,
-};
+#define MINIX_VALID_FS  0x0001
+#define MINIX_ERROR_FS  0x0002
 
-struct minix_info {
-    struct superblock sb;
-    unsigned long s_ninodes;
-    unsigned long s_nzones;
-    unsigned long s_imap_blocks;
-    unsigned long s_zmap_blocks;
-    unsigned long s_firstdatazone;
-    unsigned long s_log_zone_size;
-    unsigned int s_dirsize;
-    unsigned int s_namelen;
-    unsigned int s_version;
-    unsigned int s_state;
-};
+#define MINIX_ROOT_INO  1
 
 #endif  /* _FS_MINIX_H_ */
