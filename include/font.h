@@ -9,6 +9,7 @@
  * struct font - describes a lattice font.
  * @width: width of a single word.
  * @height: height of a single word.
+ * @limit: maximum representation range.
  * @pref: font suitable priority.
  */
 struct font {
@@ -17,8 +18,15 @@ struct font {
     const void *data;
     unsigned int width;
     unsigned int height;
-    unsigned int pref;
+    unsigned int limit;
+    int pref;
 };
+
+static inline const void *font_index(struct font *font, char ch)
+{
+    unsigned int bpc = ((font->width + 7) / 8) * font->height;
+    return font->data + bpc * (ch & (font->limit - 1));
+}
 
 extern struct font *font_find(const char *name);
 extern struct font *font_suitable(unsigned int xres, unsigned int yres, unsigned int wide, unsigned int height);

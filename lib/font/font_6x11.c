@@ -3337,6 +3337,7 @@ static struct font font_6x11 = {
     .width	= 6,
     .height	= 11,
     .data	= fontdata_6x11,
+    .limit  = 256,
 };
 
 static state font_6x11_init(void)
