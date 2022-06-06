@@ -4,7 +4,6 @@
  */
 
 #include <framedraw.h>
-#include <kernel.h>
 #include <export.h>
 
 static const uint32_t imageblit_tab8[16] = {
