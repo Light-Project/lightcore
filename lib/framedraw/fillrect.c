@@ -146,11 +146,11 @@ void fillrect(const struct framedraw_info *info, const struct video_fillrect *fi
                      unsigned long color, unsigned int length);
 
         switch (fillrect->rop) {
-            case VIDEO_FILLRECT_XOR:
+            case VIDEO_ROP_XOR:
                 func = fillrect_xor_aligned;
                 break;
 
-            case VIDEO_FILLRECT_COPY: default:
+            case VIDEO_ROP_COPY: default:
                 func = fillrect_copy_aligned;
                 break;
         }
@@ -166,11 +166,11 @@ void fillrect(const struct framedraw_info *info, const struct video_fillrect *fi
                      unsigned long color, unsigned int length, unsigned int left, unsigned int right);
 
         switch (fillrect->rop) {
-            case VIDEO_FILLRECT_XOR:
+            case VIDEO_ROP_XOR:
                 func = fillrect_xor_unaligned;
                 break;
 
-            case VIDEO_FILLRECT_COPY: default:
+            case VIDEO_ROP_COPY: default:
                 func = fillrect_copy_unaligned;
                 break;
         }

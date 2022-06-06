@@ -16,6 +16,9 @@
 #define VIDEO_VMODE_DOUBLE          0x04
 #define VIDEO_VMODE_ODD_FLD_FIRST   0x08
 
+#define VIDEO_ROP_COPY              0x00
+#define VIDEO_ROP_XOR               0x01
+
 /**
  * video_bitfield -
  * @offset:
@@ -123,9 +126,18 @@ struct video_image {
     unsigned int xpos;
     unsigned int ypos;
     unsigned char depth;
-    __u32 front_color;
-    __u32 back_color;
-	const char *data;
+    __u32 fgcolor;
+    __u32 bgcolor;
+	const void *data;
+};
+
+struct video_fillrect {
+    unsigned int width;
+    unsigned int height;
+    unsigned int xpos;
+    unsigned int ypos;
+    __u32 color;
+    __u32 rop;
 };
 
 /**
