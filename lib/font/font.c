@@ -45,6 +45,9 @@ state font_register(struct font *font)
         !font->height || !font->width)
         return -EINVAL;
 
+    if (!is_power_of_2(font->limit))
+        return -EINVAL;
+
     spin_lock(&font_lock);
     if (font_find_unlock(font->name)) {
         spin_unlock(&font_lock);
@@ -73,7 +76,10 @@ struct font *font_suitable(unsigned int xres, unsigned int yres,
                            unsigned int wide, unsigned int height)
 {
     struct font *font, *sui = NULL;
-    unsigned int val, fontg, suig = -1000;
+    int val, fontg, suig = -1000;
+
+    pr_debug("suitable screen %u [%u] x [%u] %u\n",
+             wide, xres, yres, height);
 
     spin_lock(&font_lock);
     slist_for_each_entry(font, &font_head, list) {
@@ -97,5 +103,11 @@ struct font *font_suitable(unsigned int xres, unsigned int yres,
     }
     spin_unlock(&font_lock);
 
+    if (sui) {
+        pr_debug("best font '%s' %u x %u\n",
+            sui->name, sui->width, sui->height);
+    }
+
     return sui;
 }
+EXPORT_SYMBOL(font_suitable);
