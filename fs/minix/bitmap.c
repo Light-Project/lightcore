@@ -3,9 +3,6 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define FSTYPE_NAME "minix"
-#define pr_fmt(fmt) FSTYPE_NAME ": " fmt
-
 #include "minix.h"
 #include <bitops.h>
 #include <timekeeping.h>
@@ -17,8 +14,8 @@ static state minix_imap_update(struct minix_sb_info *msb_info, unsigned int bit)
     loff_t offset;
     void *buffer;
 
-    offset = msb_info->zmap_pos + bit / BYTES_PER_LONG;
-    buffer = msb_info->zmap_buffer + bit / BYTES_PER_LONG;
+    offset = msb_info->imap_pos + bit / BYTES_PER_LONG;
+    buffer = msb_info->imap_buffer + bit / BYTES_PER_LONG;
 
     return sb_write(sb, offset, buffer, BYTES_PER_LONG);
 }
