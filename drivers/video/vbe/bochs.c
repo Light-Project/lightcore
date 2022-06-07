@@ -30,6 +30,7 @@ static struct video_ops bochs_ops = {
     .setmode = vesa_setmode,
     .imageblit = video_cfbimageblit,
     .fillrect = video_cfbfillrect,
+    .copyarray = video_cfbcopyarray,
 };
 
 static state bochs_hw_init(struct pci_device *pdev)

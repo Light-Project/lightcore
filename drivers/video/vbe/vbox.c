@@ -13,6 +13,7 @@ static struct video_ops vbox_ops = {
     .setmode = vesa_setmode,
     .imageblit = video_imageblit,
     .fillrect = video_fillrect,
+    .copyarray = video_cfbcopyarray,
 };
 
 static state vbox_hw_init(struct pci_device *pdev)

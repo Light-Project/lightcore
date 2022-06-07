@@ -38,3 +38,19 @@ state video_cfbfillrect(struct video_device *vdev, const struct video_fillrect *
     return -ENOERR;
 }
 EXPORT_SYMBOL(video_cfbfillrect);
+
+state video_cfbcopyarray(struct video_device *vdev, const struct video_copyarray *array)
+{
+    struct framedraw_info framedraw = {
+        .bpp = vdev->screen.bpp,
+        .line_size = vdev->state.line_size,
+        .framebuffer = vdev->framebuffer,
+        .frameswab = video_need_convert(vdev),
+    };
+
+    video_sync(vdev);
+    copyarray(&framedraw, array);
+
+    return -ENOERR;
+}
+EXPORT_SYMBOL(video_cfbcopyarray);

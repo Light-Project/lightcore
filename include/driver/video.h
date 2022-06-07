@@ -150,6 +150,7 @@ extern state video_setmode(struct video_device *vdev);
 extern state video_checkmode(struct video_device *vdev, struct video_screen *info);
 extern state video_imageblit(struct video_device *vdev, const struct video_image *image);
 extern state video_fillrect(struct video_device *vdev, const struct video_fillrect *fillrect);
+extern state video_copyarray(struct video_device *vdev, const struct video_copyarray *copyarray);
 
 /* video generic operations */
 extern state video_cfbimageblit(struct video_device *vdev, const struct video_image *image);

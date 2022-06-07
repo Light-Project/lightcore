@@ -32,3 +32,4 @@ GENERIC_VIDEO_OPS(setmode, state, -EOPNOTSUPP, (vdev));
 GENERIC_VIDEO_OPS(checkmode, state, -EOPNOTSUPP, (vdev, info), struct video_screen *info);
 GENERIC_VIDEO_OPS(imageblit, state, -EOPNOTSUPP, (vdev, image), const struct video_image *image);
 GENERIC_VIDEO_OPS(fillrect, state, -EOPNOTSUPP, (vdev, fillrect), const struct video_fillrect *fillrect);
+GENERIC_VIDEO_OPS(copyarray, state, -EOPNOTSUPP, (vdev, copyarray), const struct video_copyarray *copyarray);
