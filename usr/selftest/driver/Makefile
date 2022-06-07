@@ -4,3 +4,4 @@ obj-$(CONFIG_SELFTEST_DRIVER_GPIO)   += gpio.o
 obj-$(CONFIG_SELFTEST_DRIVER_HWMON)  += hwmon.o
 obj-$(CONFIG_SELFTEST_DRIVER_RNG)    += rng.o
 obj-$(CONFIG_SELFTEST_DRIVER_RTC)    += rtc.o
+obj-$(CONFIG_SELFTEST_DRIVER_VIDEO)  += video.o

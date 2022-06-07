@@ -29,4 +29,9 @@ config SELFTEST_DRIVER_RTC
     depends on RTC
     default y
 
+config SELFTEST_DRIVER_VIDEO
+    bool "Video Unit Tests"
+    depends on VIDEO
+    default y
+
 endif
