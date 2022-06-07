@@ -7,16 +7,28 @@
 #include <driver/video.h>
 #include <export.h>
 
-state video_blank(struct video_device *vdev, enum video_blank mode)
-{
-    struct video_ops *ops = vdev->ops;
+#define GENERIC_VIDEO_OPS(operation, rtype, errval, args, ...)      \
+rtype video_##operation(struct video_device *vdev, ##__VA_ARGS__)   \
+{                                                                   \
+    struct video_ops *ops = vdev->ops;                              \
+                                                                    \
+    if (!ops->operation)                                            \
+        return errval;                                              \
+                                                                    \
+    return ops->operation args;                                     \
+}                                                                   \
+EXPORT_SYMBOL(video_##operation)
 
-    if (mode > VIDEO_BLANK_HSYNC_SUSPEND)
-        return -EINVAL;
-
-    if (!ops->blank)
-        return -EOPNOTSUPP;
-
-    return ops->blank(vdev, mode);
-}
-EXPORT_SYMBOL(video_blank);
+GENERIC_VIDEO_OPS(enable, state, -EOPNOTSUPP, (vdev));
+GENERIC_VIDEO_OPS(disable, state, -EOPNOTSUPP, (vdev));
+GENERIC_VIDEO_OPS(sync, state, -EOPNOTSUPP, (vdev));
+GENERIC_VIDEO_OPS(read, state, -EOPNOTSUPP, (vdev, buff, count, ppos), void *buff, size_t count, loff_t *ppos);
+GENERIC_VIDEO_OPS(write, state, -EOPNOTSUPP, (vdev, buff, count, ppos), void *buff, size_t count, loff_t *ppos);
+GENERIC_VIDEO_OPS(ioctl, state, -EOPNOTSUPP, (vdev, cmd, arg), unsigned int cmd, unsigned long arg);
+GENERIC_VIDEO_OPS(mmap, state, -EOPNOTSUPP, (vdev, vmem), struct vmem_area *vmem);
+GENERIC_VIDEO_OPS(blank, state, -EOPNOTSUPP, (vdev, mode), enum video_blank mode);
+GENERIC_VIDEO_OPS(panoff, state, -EOPNOTSUPP, (vdev));
+GENERIC_VIDEO_OPS(setmode, state, -EOPNOTSUPP, (vdev));
+GENERIC_VIDEO_OPS(checkmode, state, -EOPNOTSUPP, (vdev, info), struct video_screen *info);
+GENERIC_VIDEO_OPS(imageblit, state, -EOPNOTSUPP, (vdev, image), const struct video_image *image);
+GENERIC_VIDEO_OPS(fillrect, state, -EOPNOTSUPP, (vdev, fillrect), const struct video_fillrect *fillrect);

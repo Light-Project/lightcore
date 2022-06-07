@@ -3,25 +3,29 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <kernel.h>
-#include <logo.h>
-#include <initcall.h>
 #include <driver/video.h>
 #include <export.h>
 
+LIST_HEAD(video_list);
+SPIN_LOCK(video_lock);
+
 state video_register(struct video_device *vdev)
 {
+    if (!vdev->dev || !vdev->ops)
+        return -EINVAL;
+
+    spin_lock(&video_lock);
+    list_add(&video_list, &vdev->list);
+    spin_unlock(&video_lock);
+
     return -ENOERR;
 }
 EXPORT_SYMBOL(video_register);
 
 void video_unregister(struct video_device *vdev)
 {
+    spin_lock(&video_lock);
+    list_del(&vdev->list);
+    spin_unlock(&video_lock);
 }
 EXPORT_SYMBOL(video_unregister);
-
-static state video_init(void)
-{
-    return -ENOERR;
-}
-framework_initcall(video_init);

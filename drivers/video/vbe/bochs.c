@@ -28,6 +28,8 @@ static struct video_ops bochs_ops = {
     .panoff = vesa_panoff,
     .checkmode = vesa_checkmode,
     .setmode = vesa_setmode,
+    .imageblit = video_cfbimageblit,
+    .fillrect = video_cfbfillrect,
 };
 
 static state bochs_hw_init(struct pci_device *pdev)
@@ -101,19 +103,19 @@ static state bochs_probe(struct pci_device *pdev, const void *pdata)
     state ret;
 
     vesa = dev_kzalloc(&pdev->dev, sizeof(*vesa), GFP_KERNEL);
-    if(!vesa)
+    if (unlikely(!vesa))
         return -ENOMEM;
 
-    vesa->video.device = &pdev->dev;
+    vesa->video.dev = &pdev->dev;
     vesa->video.ops = &bochs_ops;
     pci_set_devdata(pdev, vesa);
 
     ret = bochs_hw_init(pdev);
-    if (ret)
+    if (unlikely(ret))
         return ret;
 
     ret = video_modelist_create(&vesa->video.modes, NULL, 0);
-    if (ret)
+    if (unlikely(ret))
         return ret;
 
     return video_register(&vesa->video);

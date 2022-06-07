@@ -8,17 +8,18 @@
 struct vmem_area;
 
 /**
- * video_mode - videocard supportive modes
- * @name: mode name
- * @xres: visible horizontal resolution
- * @yres: visible vertical resolution
- * @pixclk: pixel clock in pico seconds
- * @upper_margin: time from horizontal sync to picture
- * @lower_margin: time from picture to horizontal sync
- * @left_margin: time from vertical sync to picture
- * @right_margin: time from picture to vertical sync
- * @hsync_length: length of horizontal sync
- * @vsync_length: length of vertical sync
+ * video_mode - video card supportive modes.
+ * @name: video card mode name.
+ * @refresh: screen refresh rate per second.
+ * @xres: visible horizontal resolution.
+ * @yres: visible vertical resolution.
+ * @pixclk: pixel clock in pico seconds.
+ * @upper_margin: time from horizontal sync to picture.
+ * @lower_margin: time from picture to horizontal sync.
+ * @left_margin: time from vertical sync to picture.
+ * @right_margin: time from picture to vertical sync.
+ * @hsync_len: length of horizontal sync.
+ * @vsync_len: length of vertical sync.
  */
 struct video_mode {
     const char *name;
@@ -37,18 +38,34 @@ struct video_mode {
     uint32_t flage;
 };
 
+/**
+ * struct video_modelist - auxiliary struct for hanging mode on list.
+ * @list: nodes attached to @modes list.
+ * @mode: point to a video card mode.
+ */
 struct video_modelist {
     struct list_head list;
     const struct video_mode *mode;
 };
 
 /**
- * video_device - represent videocard device
- *
+ * video_device - describe a video card device.
+ * @dev: points to the parent device of the video card device.
+ * @ops: operations method of video card device.
+ * @list: list for centralized management of video card device.
+ * @state: current video card infomations.
+ * @screen: current video card parameters.
+ * @modes: list of video card support modes.
+ * @cur_mode: current video card mode.
+ * @pseudo_palette: fake palette of 16 colors.
+ * @framebuffer: address of frame buffer
+ * @frame_size: size of frame buffer.
  */
 struct video_device {
-    struct device *device;
+    struct device *dev;
     struct video_ops *ops;
+    struct list_head list;
+
     struct video_state state;
     struct video_screen screen;
     struct list_head modes;
@@ -64,30 +81,39 @@ struct video_device {
 };
 
 /**
- * video_ops - videocard operations
- * @read:
- * @write:
- * @sync:
- * @mmap:
- * @blank: set blank mode
- * @panoff: set pan offset according to vdev->screen
- * @setmode: set all mode according to vdev->screen and update vdev->state
- * @imageblit:
- * @ioctl:
+ * video_ops - describe the operations of a video card.
+ * @enable: enable the video card.
+ * @disable: disable the video card.
+ * @sync: wait for video card blit idle.
+ * @read: general video memory read operation.
+ * @write: general video memory write operation.
+ * @mmap: mapped video card memory.
+ * @ioctl: perform video card specific ioctl.
+ * @blank: blank display with video card hardware.
+ * @panoff: pan display with video card hardware.
+ * @setmode: set the video card parameters.
+ * @checkmode: check parameter whether the video card supports.
+ * @cursor: draws cursor with video card hardware.
+ * @imageblit: draws image with video card hardware.
+ * @fillrect: draws rectangle with video card hardware.
+ * @copyarray: copy data in video card.
  */
 struct video_ops {
-    state (*open)(struct video_device *vdev);
-    state (*release)(struct video_device *vdev);
-    state (*read)(struct video_device *vdev);
-    state (*write)(struct video_device *vdev);
+    state (*enable)(struct video_device *vdev);
+    state (*disable)(struct video_device *vdev);
     state (*sync)(struct video_device *vdev);
+    state (*read)(struct video_device *vdev, void *buff, size_t count, loff_t *ppos);
+    state (*write)(struct video_device *vdev, void *buff, size_t count, loff_t *ppos);
+    state (*mmap)(struct video_device *vdev, struct vmem_area *vm);
+    state (*ioctl)(struct video_device *vdev, unsigned int cmd, unsigned long arg);
     state (*blank)(struct video_device *vdev, enum video_blank mode);
     state (*panoff)(struct video_device *vdev);
-    state (*checkmode)(struct video_device *vdev, struct video_screen *info);
     state (*setmode)(struct video_device *vdev);
-    state (*mmap)(struct video_device *vdev, struct vmem_area *vm);
+    state (*checkmode)(struct video_device *vdev, struct video_screen *info);
+    state (*cursor)(struct video_device *vdev, struct video_cursor *cursor);
     state (*imageblit)(struct video_device *vdev, const struct video_image *image);
-    state (*ioctl)(struct video_device *vdev, unsigned int cmd, unsigned long arg);
+    state (*fillrect)(struct video_device *vdev, const struct video_fillrect *fillrect);
+    state (*copyarray)(struct video_device *vdev, const struct video_copyarray *copyarray);
 };
 
 static inline bool video_need_convert(struct video_device *vdev)
@@ -107,23 +133,28 @@ static inline bool video_need_convert(struct video_device *vdev)
 #endif /* CONFIG_VIDEO_FOREIGN_ENDIAN */
 }
 
-#define VIDEO_POS_LEFT(vdev, bpp) (             \
-    video_need_convert(vdev) ?                  \
-    (32 - (bpp)) << (shift) : 0                 \
-)
+extern spinlock_t video_lock;
+extern struct list_head video_list;
 
-#define VIDEO_SHIFT_LOW(vdev, shift, val) (     \
-    video_need_convert(vdev) ?                  \
-    (val) << (shift) : (val) >> (shift)         \
-)
+/* video card operations */
+extern state video_enable(struct video_device *vdev);
+extern state video_disable(struct video_device *vdev);
+extern state video_sync(struct video_device *vdev);
+extern state video_read(struct video_device *vdev, void *buff, size_t count, loff_t *ppos);
+extern state video_write(struct video_device *vdev, void *buff, size_t count, loff_t *ppos);
+extern state video_ioctl(struct video_device *vdev, unsigned int cmd, unsigned long arg);
+extern state video_mmap(struct video_device *vdev, struct vmem_area *vm);
+extern state video_blank(struct video_device *vdev, enum video_blank mode);
+extern state video_panoff(struct video_device *vdev);
+extern state video_setmode(struct video_device *vdev);
+extern state video_checkmode(struct video_device *vdev, struct video_screen *info);
+extern state video_imageblit(struct video_device *vdev, const struct video_image *image);
+extern state video_fillrect(struct video_device *vdev, const struct video_fillrect *fillrect);
 
-#define VIDEO_SHIFT_HIGH(vdev, shift, val) (    \
-    video_need_convert(vdev) ?                  \
-    (val) >> (shift) : (val) << (shift)         \
-)
-
-/* video base */
-extern void video_imageblit(struct video_device *vdev, struct video_image *image);
+/* video generic operations */
+extern state video_cfbimageblit(struct video_device *vdev, const struct video_image *image);
+extern state video_cfbfillrect(struct video_device *vdev, const struct video_fillrect *rect);
+extern state video_cfbcopyarray(struct video_device *vdev, const struct video_copyarray *copyarray);
 
 /* video mode */
 extern state video_modelist_create(struct list_head *head, const struct video_mode *mode, unsigned int num);
@@ -132,19 +163,20 @@ extern const struct video_mode *video_mode_best(struct video_device *vdev, struc
 
 /* video console */
 extern state video_console_register(struct video_device *vdev);
+extern void video_console_unregister(struct video_device *vdev);
 
 /* video core */
 extern state video_register(struct video_device *);
 extern void video_unregister(struct video_device *);
 
 /* convenience logging macros */
-#define video_emerg(vdev, fmt, ...)  dev_emerg(&(vdev)->device, fmt, ##__VA_ARGS__)
-#define video_alert(vdev, fmt, ...)  dev_alert(&(vdev)->device, fmt, ##__VA_ARGS__)
-#define video_crit(vdev, fmt, ...)   dev_crit(&(vdev)->device, fmt, ##__VA_ARGS__)
-#define video_err(vdev, fmt, ...)    dev_err(&(vdev)->device, fmt, ##__VA_ARGS__)
-#define video_warn(vdev, fmt, ...)   dev_warn(&(vdev)->device, fmt, ##__VA_ARGS__)
-#define video_notice(vdev, fmt, ...) dev_notice(&(vdev)->device, fmt, ##__VA_ARGS__)
-#define video_info(vdev, fmt, ...)   dev_info(&(vdev)->device, fmt, ##__VA_ARGS__)
-#define video_debug(vdev, fmt, ...)  dev_debug(&(vdev)->device, fmt, ##__VA_ARGS__)
+#define video_emerg(vdev, fmt, ...)  dev_emerg(&(vdev)->dev, fmt, ##__VA_ARGS__)
+#define video_alert(vdev, fmt, ...)  dev_alert(&(vdev)->dev, fmt, ##__VA_ARGS__)
+#define video_crit(vdev, fmt, ...)   dev_crit(&(vdev)->dev, fmt, ##__VA_ARGS__)
+#define video_err(vdev, fmt, ...)    dev_err(&(vdev)->dev, fmt, ##__VA_ARGS__)
+#define video_warn(vdev, fmt, ...)   dev_warn(&(vdev)->dev, fmt, ##__VA_ARGS__)
+#define video_notice(vdev, fmt, ...) dev_notice(&(vdev)->dev, fmt, ##__VA_ARGS__)
+#define video_info(vdev, fmt, ...)   dev_info(&(vdev)->dev, fmt, ##__VA_ARGS__)
+#define video_debug(vdev, fmt, ...)  dev_debug(&(vdev)->dev, fmt, ##__VA_ARGS__)
 
 #endif  /* _DRIVER_VIDEO_H_ */

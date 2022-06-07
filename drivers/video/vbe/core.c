@@ -98,15 +98,9 @@ static state vesa_panoff(struct video_device *vdev)
 
     spin_lock(&vesa->lock);
 
-    /* select video card */
-    vesa_write(vesa, VBE_DISPI_INDEX_ENABLE, 0);
-
     /* set video card */
     vesa_write(vesa, VBE_DISPI_INDEX_X_OFFSET, info->xpos);
     vesa_write(vesa, VBE_DISPI_INDEX_Y_OFFSET, info->ypos);
-
-    /* enable video card */
-    vesa_write(vesa, VBE_DISPI_INDEX_ENABLE, VBE_DISPI_ENABLED | VBE_DISPI_LFB_ENABLED);
 
     spin_unlock(&vesa->lock);
     return -ENOERR;
@@ -125,7 +119,7 @@ static state vesa_checkmode(struct video_device *vdev, struct video_screen *info
         info->red.offset  !=    11 || info->alpha.offset !=     0 ||
         info->blue.msbr   != false || info->green.msbr   != false ||
         info->red.msbr    != false || info->alpha.msbr   != false )) {
-        dev_debug(vdev->device, "RGB565 parameter error\n");
+        dev_debug(vdev->dev, "RGB565 parameter error\n");
         return -EINVAL;
     }
 
@@ -137,33 +131,33 @@ static state vesa_checkmode(struct video_device *vdev, struct video_screen *info
         info->red.offset  !=    16 || info->alpha.offset !=    24 ||
         info->blue.msbr   != false || info->green.msbr   != false ||
         info->red.msbr    != false || info->alpha.msbr   != false )) {
-        dev_debug(vdev->device, "ARGB8888 parameter error\n");
+        dev_debug(vdev->dev, "ARGB8888 parameter error\n");
         return -EINVAL;
     }
 
     /* Out of range */
     if (info->xres + info->xpos > info->xres_virtual ||
         info->yres + info->ypos > info->yres_virtual ) {
-        dev_debug(vdev->device, "panning out-of-range\n");
+        dev_debug(vdev->dev, "panning out-of-range\n");
         return -EINVAL;
     }
 
     /* Screen size */
     if (info->xres < 64 || info->yres < 64) {
-        dev_debug(vdev->device, "screen too small\n");
+        dev_debug(vdev->dev, "screen too small\n");
         return -EINVAL;
     }
 
     /* Rotation is not supported */
     if (info->rotate) {
-        dev_debug(vdev->device, "rotate is not supported\n");
+        dev_debug(vdev->dev, "rotate is not supported\n");
         return -EINVAL;
     }
 
     /* Memory limit */
     line_size = info->xres_virtual * info->bpp / 8;
     if (line_size * info->yres_virtual > vdev->frame_size) {
-        dev_debug(vdev->device, "no enough framebuffer\n");
+        dev_debug(vdev->dev, "no enough framebuffer\n");
         return -EINVAL;
     }
 
@@ -187,6 +181,7 @@ static state vesa_setmode(struct video_device *vdev)
     vdev->state.xpanstep = !!info->xres_virtual - info->xres;
     vdev->state.ypanstep = !!info->yres_virtual - info->yres;
     vdev->state.line_size = vmode->xres * info->bpp / 8;
+    vdev->cur_mode = vmode;
 
     spin_lock(&vesa->lock);
 
@@ -199,8 +194,8 @@ static state vesa_setmode(struct video_device *vdev)
     vesa_write(vesa, VBE_DISPI_INDEX_BPP, info->bpp);
     vesa_write(vesa, VBE_DISPI_INDEX_VIRT_WIDTH, info->xres_virtual);
     vesa_write(vesa, VBE_DISPI_INDEX_VIRT_HEIGHT, info->yres_virtual);
-    vesa_write(vesa, VBE_DISPI_INDEX_X_OFFSET, info->xpos);
-    vesa_write(vesa, VBE_DISPI_INDEX_Y_OFFSET, info->ypos);
+    vesa_write(vesa, VBE_DISPI_INDEX_X_OFFSET, 0);
+    vesa_write(vesa, VBE_DISPI_INDEX_Y_OFFSET, 0);
 
     /* enable video card */
     vesa_write(vesa, VBE_DISPI_INDEX_ENABLE, VBE_DISPI_ENABLED | VBE_DISPI_LFB_ENABLED);

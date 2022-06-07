@@ -11,6 +11,8 @@ static struct video_ops vbox_ops = {
     .panoff = vesa_panoff,
     .checkmode = vesa_checkmode,
     .setmode = vesa_setmode,
+    .imageblit = video_imageblit,
+    .fillrect = video_fillrect,
 };
 
 static state vbox_hw_init(struct pci_device *pdev)
@@ -46,7 +48,7 @@ static state vbox_probe(struct pci_device *pdev, const void *pdata)
     if (ret)
         return ret;
 
-    vesa->video.device = &pdev->dev;
+    vesa->video.dev = &pdev->dev;
     vesa->video.ops = &vbox_ops;
     return video_register(&vesa->video);
 }

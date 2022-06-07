@@ -521,7 +521,7 @@ const struct video_mode *video_mode_best(struct video_device *vdev, struct video
     const struct video_mode *walk, *best = NULL;
     struct video_modelist *modelist;
 
-    dev_debug(vdev->device, "wanted %u [%u] %u x %u [%u] %u\n",
+    dev_debug(vdev->dev, "wanted %u [%u] %u x %u [%u] %u\n",
         info->left_margin, info->xres, info->right_margin,
         info->upper_margin, info->yres, info->lower_margin);
 
@@ -535,7 +535,7 @@ const struct video_mode *video_mode_best(struct video_device *vdev, struct video
     }
 
     if (!best) {
-        dev_debug(vdev->device, "no suitable mode found\n");
+        dev_debug(vdev->dev, "no suitable mode found\n");
         return NULL;
     }
 
@@ -560,7 +560,7 @@ const struct video_mode *video_mode_best(struct video_device *vdev, struct video
     if (info->right_margin < best->right_margin)
         info->right_margin = best->right_margin;
 
-    dev_debug(vdev->device, "best mode %u [%u] %u x %u [%u] %u\n",
+    dev_debug(vdev->dev, "best mode %u [%u] %u x %u [%u] %u\n",
         info->left_margin, info->xres, info->right_margin,
         info->upper_margin, info->yres, info->lower_margin);
 

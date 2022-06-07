@@ -140,6 +140,15 @@ struct video_fillrect {
     __u32 rop;
 };
 
+struct video_copyarray {
+    unsigned int width;
+    unsigned int height;
+    unsigned int xsrc;
+    unsigned int ysrc;
+    unsigned int xdest;
+    unsigned int ydest;
+};
+
 /**
  * video_cursor - video hardware cursor
  *
