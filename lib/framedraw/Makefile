@@ -1,2 +1,3 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-obj-y += imageblit.o fillrect.o
+ccflags-y := -Ofast
+obj-y += imageblit.o fillrect.o copyarray.o
