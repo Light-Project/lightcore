@@ -504,20 +504,4 @@ GENERIC_BIT_FIND_BYTEORDER_SWAB_OPS(le)
          (b) = find_next_zero((addr), (size), (e) + 1),                             \
          (e) = find_next_bit((addr), (size), (b) + 1))
 
-#define GENERIC_STRUCT_BITOPS(name, type, member)                                   \
-static inline void generic_##name##_##member##_set(type *ptr, unsigned int bit)     \
-{                                                                                   \
-    bit_set(&ptr->member, bit);                                                     \
-}                                                                                   \
-                                                                                    \
-static inline void generic_##name##_##member##_clr(type *ptr, unsigned int bit)     \
-{                                                                                   \
-    bit_clr(&ptr->member, bit);                                                     \
-}                                                                                   \
-                                                                                    \
-static inline bool generic_##name##_##member##_test(type *ptr, unsigned int bit)    \
-{                                                                                   \
-    return bit_test(&ptr->member, bit);                                             \
-}
-
 #endif  /* _BITOPS_H_ */

@@ -2,8 +2,9 @@
 #ifndef _SOFTIRQ_H_
 #define _SOFTIRQ_H_
 
-#include <irqtypes.h>
 #include <idr.h>
+#include <irqtypes.h>
+#include <bitflags.h>
 
 typedef void (*softirq_entry_t)(void *pdata);
 
@@ -16,12 +17,12 @@ enum sofirq_flags {
 #define SOFTIRQ_PERIODIC    BIT(__SOFTIRQ_PERIODIC)
 
 /**
- * struct softirq - Describe a softirq node
- * @node: IDR used to assign softirq index number
- * @name: node name for management
- * @flags: characteristics flags of nodes
- * @entry: entry function of soft interrupt
- * @pdata: parameters of the entry function
+ * struct softirq - describe a softirq node.
+ * @node: idr used to assign softirq index number.
+ * @name: node name for management.
+ * @flags: characteristics flags of nodes.
+ * @entry: entry function of soft interrupt.
+ * @pdata: parameters of the entry function.
  */
 struct softirq {
     struct idr_node node;
@@ -38,17 +39,8 @@ struct softirq {
     struct softirq name = SOFTIRQ_INITIALIZER(#name, entry, pdata, flags)
 
 GENERIC_STRUCT_BITOPS(softirq, struct softirq, flags)
-#define softirq_flags_set(ptr, bit)     generic_softirq_flags_set(ptr, bit)
-#define softirq_flags_clr(ptr, bit)     generic_softirq_flags_clr(ptr, bit)
-#define softirq_flags_test(ptr, bit)    generic_softirq_flags_test(ptr, bit)
-
-#define softirq_set_irq_safe(ptr)       softirq_flags_set(ptr, __SOFTIRQ_IRQ_SAFE)
-#define softirq_clr_irq_safe(ptr)       softirq_flags_clr(ptr, __SOFTIRQ_IRQ_SAFE)
-#define softirq_test_irq_safe(ptr)      softirq_flags_test(ptr, __SOFTIRQ_IRQ_SAFE)
-
-#define softirq_set_periodic(ptr)       softirq_flags_set(ptr, __SOFTIRQ_PERIODIC)
-#define softirq_clr_periodic(ptr)       softirq_flags_clr(ptr, __SOFTIRQ_PERIODIC)
-#define softirq_test_periodic(ptr)      softirq_flags_test(ptr, __SOFTIRQ_PERIODIC)
+GENERIC_STRUCT_FLAG(softirq, struct softirq, flags, irq_safe, __SOFTIRQ_IRQ_SAFE)
+GENERIC_STRUCT_FLAG(softirq, struct softirq, flags, periodic, __SOFTIRQ_PERIODIC)
 
 extern state softirq_pending(struct softirq *irq);
 extern void softirq_clear(struct softirq *irq);

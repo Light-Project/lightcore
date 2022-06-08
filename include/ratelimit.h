@@ -2,12 +2,18 @@
 #ifndef _RATELIMIT_H_
 #define _RATELIMIT_H_
 
-#include <bitops.h>
 #include <spinlock.h>
 #include <ticktime.h>
+#include <bitflags.h>
 
 #define DEFAULT_RATELIMIT_INTERVAL  (5 * SYSTICK_FREQ)
 #define DEFAULT_RATELIMIT_BURST     10
+
+enum ratelimit_flags {
+    __RATELIMIT_MSGQUIET    = 0,
+};
+
+#define RATELIMIT_MSGQUIET  BIT(__RATELIMIT_MSGQUIET)
 
 /**
  * struct ratelimit - describe ratelimit status.
@@ -39,10 +45,8 @@ struct ratelimit {
 #define DEFAULT_RATELIMIT(NAME) \
     DEFINE_RATELIMIT(NAME, DEFAULT_RATELIMIT_INTERVAL, DEFAULT_RATELIMIT_BURST)
 
-GENERIC_STRUCT_BITOPS(ratelimit, struct ratelimit, flags);
-#define ratelimit_set_msgquiet(ptr)     generic_ratelimit_flags_set(ptr, 0)
-#define ratelimit_clr_msgquiet(ptr)     generic_ratelimit_flags_clr(ptr, 0)
-#define ratelimit_test_msgquiet(ptr)    generic_ratelimit_flags_test(ptr, 0)
+GENERIC_STRUCT_BITOPS(ratelimit, struct ratelimit, flags)
+GENERIC_STRUCT_FLAG(ratelimit, struct ratelimit, flags, msgquiet, __RATELIMIT_MSGQUIET)
 
 extern bool ratelimit(struct ratelimit *limit, const char *prompt);
 extern void ratelimit_exit(struct ratelimit *limit, const char *prompt);

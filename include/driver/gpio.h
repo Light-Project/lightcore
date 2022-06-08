@@ -3,7 +3,8 @@
 #define _DRIVER_GPIO_H_
 
 #include <device.h>
-#include <bitops.h>
+#include <bitflags.h>
+#include <driver/dt.h>
 #include <dt-bindings/gpio.h>
 
 enum gpio_direction {
@@ -60,21 +61,9 @@ struct gpio_channel {
 };
 
 GENERIC_STRUCT_BITOPS(gpioc, struct gpio_channel, flags)
-#define gpioc_flags_set(ptr, bit)   generic_gpioc_flags_set(ptr, bit)
-#define gpioc_flags_clr(ptr, bit)   generic_gpioc_flags_clr(ptr, bit)
-#define gpioc_flags_test(ptr, bit)  generic_gpioc_flags_test(ptr, bit)
-
-#define gpioc_set_active_low(ptr)   gpioc_flags_set(ptr, __GPIOC_ACTIVE_LOW)
-#define gpioc_clr_active_low(ptr)   gpioc_flags_clr(ptr, __GPIOC_ACTIVE_LOW)
-#define gpioc_test_active_low(ptr)  gpioc_flags_test(ptr, __GPIOC_ACTIVE_LOW)
-
-#define gpioc_set_transitory(ptr)   gpioc_flags_set(ptr, __GPIOC_TRANSITORY)
-#define gpioc_clr_transitory(ptr)   gpioc_flags_clr(ptr, __GPIOC_TRANSITORY)
-#define gpioc_test_transitory(ptr)  gpioc_flags_test(ptr, __GPIOC_TRANSITORY)
-
-#define gpioc_set_is_hogged(ptr)    gpioc_flags_set(ptr, __GPIOC_IS_HOGGED)
-#define gpioc_clr_is_hogged(ptr)    gpioc_flags_clr(ptr, __GPIOC_IS_HOGGED)
-#define gpioc_test_is_hogged(ptr)   gpioc_flags_test(ptr, __GPIOC_IS_HOGGED)
+GENERIC_STRUCT_FLAG(gpioc, struct gpio_channel, flags, active_low, __GPIOC_ACTIVE_LOW)
+GENERIC_STRUCT_FLAG(gpioc, struct gpio_channel, flags, transitory, __GPIOC_TRANSITORY)
+GENERIC_STRUCT_FLAG(gpioc, struct gpio_channel, flags, is_hogged, __GPIOC_IS_HOGGED)
 
 /**
  * struct gpio_device - describe a gpio device.

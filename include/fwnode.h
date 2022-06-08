@@ -3,7 +3,7 @@
 #define _FWNODE_H_
 
 #include <device.h>
-#include <bitops.h>
+#include <bitflags.h>
 
 enum fwnode_flags {
     __FWNODE_IS_DTREE   = 0,
@@ -25,17 +25,8 @@ struct fwnode {
 };
 
 GENERIC_STRUCT_BITOPS(fwnode, struct fwnode, flags)
-#define fwnode_flags_set(fwnode, bit)   generic_fwnode_flags_set(fwnode, bit)
-#define fwnode_flags_clr(fwnode, bit)   generic_fwnode_flags_clr(fwnode, bit)
-#define fwnode_flags_test(fwnode, bit)  generic_fwnode_flags_test(fwnode, bit)
-
-#define fwnode_set_dtree(fwnode)    fwnode_flags_set(fwnode, __FWNODE_IS_DTREE)
-#define fwnode_clr_dtree(fwnode)    fwnode_flags_clr(fwnode, __FWNODE_IS_DTREE)
-#define fwnode_test_dtree(fwnode)   fwnode_flags_test(fwnode, __FWNODE_IS_DTREE)
-
-#define fwnode_set_acpi(fwnode)     fwnode_flags_set(fwnode, __FWNODE_IS_ACPI)
-#define fwnode_clr_acpi(fwnode)     fwnode_flags_clr(fwnode, __FWNODE_IS_ACPI)
-#define fwnode_test_acpi(fwnode)    fwnode_flags_test(fwnode, __FWNODE_IS_ACPI)
+GENERIC_STRUCT_FLAG(fwnode, struct fwnode, flags, dtree, __FWNODE_IS_DTREE)
+GENERIC_STRUCT_FLAG(fwnode, struct fwnode, flags, acpi, __FWNODE_IS_DTREE)
 
 /**
  * struct fwnode_ops - describe the operations of firmware node.

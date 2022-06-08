@@ -11,6 +11,7 @@
 #include <percpu.h>
 #include <preempt.h>
 #include <fstype.h>
+#include <bitflags.h>
 #include <static-call.h>
 #include <kcontext.h>
 #include <lightcore/sched.h>
@@ -278,14 +279,7 @@ static inline void task_set_state(struct sched_task *task, unsigned long state)
 }
 
 GENERIC_STRUCT_BITOPS(task, struct sched_task, flags)
-#define task_flags_set(task, bit)   generic_task_flags_set(task, bit)
-#define task_flags_clr(task, bit)   generic_task_flags_clr(task, bit)
-#define task_flags_test(task, bit)  generic_task_flags_test(task, bit)
-
-GENERIC_STRUCT_BITOPS(task, struct sched_task, queued);
-#define task_queued_set(task, bit)  generic_task_queued_set(task, bit)
-#define task_queued_clr(task, bit)  generic_task_queued_clr(task, bit)
-#define task_queued_test(task, bit) generic_task_queued_test(task, bit)
+GENERIC_STRUCT_BITOPS(task, struct sched_task, queued)
 
 #define SCHED_TASK_FLAG_OPS(ops, name, bit)                                     \
 static inline void task_set_##name(struct sched_task *task)                     \

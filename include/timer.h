@@ -4,6 +4,7 @@
 
 #include <hlist.h>
 #include <ticktime.h>
+#include <bitflags.h>
 
 typedef void (*timer_entry_t)(void *pdata);
 
@@ -43,17 +44,8 @@ struct timer {
 #define TIMER_EXPIRE_DELTA_MAX ((1ULL << 62) - 1)
 
 GENERIC_STRUCT_BITOPS(timer, struct timer, flags)
-#define timer_flags_set(ptr, bit)   generic_timer_flags_set(ptr, bit)
-#define timer_flags_clr(ptr, bit)   generic_timer_flags_clr(ptr, bit)
-#define timer_flags_test(ptr, bit)  generic_timer_flags_test(ptr, bit)
-
-#define timer_set_irq_safe(ptr)     timer_flags_set(ptr, __TIMER_IRQ_SAFE)
-#define timer_clr_irq_safe(ptr)     timer_flags_clr(ptr, __TIMER_IRQ_SAFE)
-#define timer_test_irq_safe(ptr)    timer_flags_test(ptr, __TIMER_IRQ_SAFE)
-
-#define timer_set_periodic(ptr)     timer_flags_set(ptr, __TIMER_PERIODIC)
-#define timer_clr_periodic(ptr)     timer_flags_clr(ptr, __TIMER_PERIODIC)
-#define timer_test_periodic(ptr)    timer_flags_test(ptr, __TIMER_PERIODIC)
+GENERIC_STRUCT_FLAG(timer, struct timer, flags, irq_safe, __TIMER_IRQ_SAFE)
+GENERIC_STRUCT_FLAG(timer, struct timer, flags, periodic, __TIMER_PERIODIC)
 
 /**
  * timer_check_pending - Check whether the timer pending.
