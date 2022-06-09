@@ -3,95 +3,278 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
+#define MODULE_NAME "console"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
+
+#include <ctype.h>
+#include <string.h>
 #include <console.h>
 #include <initcall.h>
+#include <spinlock.h>
 #include <printk.h>
+#include <export.h>
 
-/* the console list head */
+struct console_preferred {
+    char name[16];
+    unsigned int index;
+    const char *options;
+    bool user;
+};
+
+#define CONSOLE_PREFERREDS CONFIG_CONSOLE_PREFERREDS
+static struct console_preferred console_preferreds[CONSOLE_PREFERREDS];
+static struct console *console __read_mostly;
+
 static LIST_HEAD(console_list);
-static struct console *current_console;
+static SPIN_LOCK(console_lock);
 
 unsigned int console_read(char *buff, unsigned int len)
 {
-    struct console *console;
+    struct console_ops *ops;
 
-    list_for_each_entry(console, &console_list, list) {
-        if (!(console->flags & CONSOLE_ENABLED))
-            continue;
-        if (!console->ops->write)
-            continue;
-        return console->ops->read(console, buff, len);
-    }
+    if (!console)
+        return earlycon_read(buff, len);
 
-    return pre_console_read(buff, len);
+    ops = console->ops;
+    if (ops->read)
+        return 0;
+
+    return ops->read(console, buff, len);
 }
+EXPORT_SYMBOL(console_read);
 
 void console_write(const char *buff, unsigned int len)
 {
-    struct console *console;
+    struct console_ops *ops;
 
-    list_for_each_entry(console, &console_list, list) {
-        if (!(console->flags & CONSOLE_ENABLED))
-            continue;
-        if (!console->ops->write)
-            continue;
-        console->ops->write(console, buff, len);
+    if (!console)
+        return earlycon_write(buff, len);
+
+    ops = console->ops;
+    if (ops->write)
         return;
+
+    return ops->write(console, buff, len);
+}
+EXPORT_SYMBOL(console_write);
+
+void console_sync(void)
+{
+    struct console_ops *ops;
+
+    if (!console)
+        return earlycon_sync();
+
+    ops = console->ops;
+    if (ops->sync)
+        return;
+
+    return ops->sync(console);
+}
+EXPORT_SYMBOL(console_sync);
+
+static inline state console_startup(struct console *con)
+{
+    state retval;
+
+    if (!con->ops->startup || console_test_enabled(con))
+        return -ENOERR;
+
+    if ((retval = con->ops->startup(con)))
+        return retval;
+
+    console_set_enabled(con);
+    return -ENOERR;
+}
+
+static inline void console_shutdown(struct console *con)
+{
+    if (!con->ops->shutdown || !console_test_enabled(con))
+        return;
+
+    console_clr_enabled(con);
+    con->ops->shutdown(con);
+}
+
+static struct console *console_find(const char *name, unsigned int index)
+{
+    struct console *walk, *find = NULL;
+
+    list_for_each_entry(walk, &console_list, list) {
+        if (walk->index == index && !strcmp(walk->name, name))
+            find = walk;
     }
 
-    pre_console_write(buff, len);
+    return find;
 }
 
-void console_startup(struct console *con)
+static state console_select(struct console *con, bool user)
 {
-    if (con->flags & CONSOLE_ENABLED || !con->ops->startup)
-        return;
+    unsigned int count;
 
-    con->flags |= CONSOLE_ENABLED;
-}
+    for (count = 0; count < CONSOLE_PREFERREDS; ++count) {
+        struct console_preferred *preferred = console_preferreds + count;
 
-void console_shutdown(struct console *con)
-{
-    if (~(con->flags & CONSOLE_ENABLED) || !con->ops->shutdown)
-        return;
+        if (!*preferred->name)
+            break;
 
-    con->flags &= ~CONSOLE_ENABLED;
+        if (preferred->user != user)
+            continue;
+
+        if (strcmp(preferred->name, con->name))
+            continue;
+
+        if (preferred->index != con->index)
+            continue;
+
+        return -ENOERR;
+    }
+
+    return -ENOENT;
 }
 
 void console_register(struct console *con)
 {
-    struct console *tmp;
+    struct console *walk, *tmp;
+    bool bootcon = false, realcon = false;
+    state retval;
 
-    list_for_each_entry(tmp, &console_list, list)
-    if (tmp == con) {
-        pr_warn("console %s already register\n",
-                tmp->name);
+    if (!con->ops || !con->ops->write)
+        return;
+
+    spin_lock(&console_lock);
+    if (console_find(con->name, con->index)) {
+        spin_unlock(&console_lock);
+        pr_warn("console %s%u already registered\n", con->name, con->index);
         return;
     }
 
-    if (!current_console) {
-        console_startup(con);
-        current_console = con;
+    list_for_each_entry(walk, &console_list, list) {
+        if (console_test_boot(walk))
+            bootcon = true;
+        else
+            realcon = true;
     }
 
-    list_add_prev(&console_list, &con->list);
+    if (realcon && console_test_boot(con)) {
+        spin_unlock(&console_lock);
+        pr_warn("boot console %s%u register to late\n", con->name, con->index);
+        return;
+    }
+
+    if ((retval = console_select(con, true)))
+        retval = console_startup(con);
+    else if ((retval = console_select(con, false)))
+        retval = console_startup(con);
+
+    if (retval) {
+        spin_unlock(&console_lock);
+        return;
+    }
+
+    if (con->device) {
+        console_set_preferred(con);
+        WRITE_ONCE(console, con);
+    }
+
+    if (bootcon && console_test_preferred(con) && !console_test_boot(con)) {
+        list_for_each_entry_safe(walk, tmp, &console_list, list) {
+            if (console_test_boot(con)) {
+                console_shutdown(con);
+                list_del(&walk->list);
+            }
+        }
+    }
+
+    list_add(&console_list, &con->list);
+    spin_unlock(&console_lock);
+    pr_info("register device %s%u\n", con->name, con->index);
 }
+EXPORT_SYMBOL(console_register);
 
 void console_unregister(struct console *con)
 {
-    struct console *tmp;
-    int val;
+    struct console *next;
 
-    list_for_each_entry(tmp, &console_list, list) {
-        if (tmp == con)
-            val = 1;
-    } if (!val) {
+    spin_lock(&console_lock);
+    if (!console_find(con->name, con->index)) {
+        spin_unlock(&console_lock);
         return;
     }
 
-    console_shutdown(con);
     list_del(&con->list);
+    if (READ_ONCE(console) == con) {
+        next = list_first_entry_or_null(&console_list, struct console, list);
+        WRITE_ONCE(console, next);
+    }
+
+    console_shutdown(con);
+    spin_unlock(&console_lock);
+    pr_info("unregister device %s%u\n", con->name, con->index);
 }
+EXPORT_SYMBOL(console_unregister);
+
+state console_preferred_add(const char *name, unsigned int index, const char *options, bool user)
+{
+    struct console_preferred *preferred;
+    unsigned int count;
+
+    for (count = 0; count < CONSOLE_PREFERREDS && *console_preferreds[count].name; ++count) {
+        if (!strcmp(console_preferreds[count].name, name) ||
+            console_preferreds[count].index == index)
+            return -EALREADY;
+    }
+
+    if (count == CONSOLE_PREFERREDS)
+        return -ENOMEM;
+
+    preferred = console_preferreds + count;
+    preferred->user = user;
+    preferred->index = index;
+    preferred->options = options;
+    strncpy(preferred->name, name, sizeof(preferred->name));
+
+    return -ENOERR;
+}
+
+static state console_bootarg(char *args)
+{
+    char buff[sizeof(console_preferreds[0].name)];
+    char *options, *indexstr;
+    unsigned int index;
+
+    if (!*args || !strcmp(args, "null")) {
+        console_preferred_add("ttynull", 0, NULL, true);
+        return -ENOERR;
+    }
+
+    /* get options and split commands */
+    options = strchr(args, ',');
+    if (options)
+        *options++ = '\0';
+
+    /* copy device name and index */
+    if (isdigit(*args)) {
+        strcpy(buff, "ttyS");
+        strncpy(buff, args, sizeof(buff) - 5);
+    } else {
+		strncpy(buff, args, sizeof(buff) - 1);
+    }
+    buff[sizeof(buff) - 1] = '\0';
+
+    /* get index and split buffer */
+    for (indexstr = buff; *indexstr; ++indexstr) {
+        if (isdigit(*indexstr) || *indexstr == ',')
+            break;
+    }
+
+    index = atoui(indexstr);
+    *indexstr = '\0';
+    console_preferred_add(buff, index, options, true);
+
+    return -ENOERR;
+}
+bootarg_initcall("console", console_bootarg);
 
 void __init console_init(void)
 {
@@ -99,18 +282,9 @@ void __init console_init(void)
     initcall_t call;
     int ret;
 
-    for(fn = _ld_console_initcall_start;
-        fn < _ld_console_initcall_end;
-        fn++)
-    {
+    initcall_for_each_fn(fn, console_initcall) {
         call = initcall_from_entry(fn);
         if ((ret = call()))
             pr_err("%s init failed, error code [%d]\n", fn->name, ret);
     }
 }
-
-static state console_bootarg(char *arg)
-{
-    return -ENOERR;
-}
-bootarg_initcall("console", console_bootarg);

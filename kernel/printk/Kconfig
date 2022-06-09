@@ -1,10 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 menu "Printk Config"
 
-config PRE_CONSOLE
-    bool "Early Console Support"
-    default y
-
 config PRINTK
     bool "Printk Support"
     default y
@@ -25,4 +21,18 @@ config DYNAMIC_DEBUG
     depends on PRINTK
     default y
 
-endmenu
+config CONSOLE_PREFERREDS
+    int "Maximum console parameters"
+    depends on PRINTK
+    default 16
+
+config EARLYCON
+    bool "Early Console Support"
+    default y
+
+config BOOTCON
+    bool "Bootloader Console Support"
+    depends on EARLYCON
+    default y
+
+endmenu # Printk Config

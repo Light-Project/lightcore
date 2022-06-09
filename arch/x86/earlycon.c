@@ -148,7 +148,7 @@ static struct console ser_console = {
     .flags = CONSOLE_BOOT | CONSOLE_ENABLED,
 };
 
-void pre_console_init(void)
+void earlycon_init(void)
 {
     uint16_t div = 115200 / I8250_FREQ;
 
@@ -161,7 +161,7 @@ void pre_console_init(void)
     outb(I8250_BASE + UART8250_FCR, UART8250_FCR_FIFO_EN);
     outb(I8250_BASE + UART8250_LCR, UART8250_LCR_WLS_8);
 
-    pre_console_register(&ser_console);
+    earlycon_register(&ser_console);
 }
 
 #endif /* CONFIG_PRECON */

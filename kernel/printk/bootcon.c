@@ -17,7 +17,7 @@ static struct console_ops boot_console_ops = {
 };
 
 static struct console boot_console = {
-    .name = "bootloader-console",
+    .name = "bootcon",
     .ops = &boot_console_ops,
     .flags = CONSOLE_BOOT | CONSOLE_ENABLED,
 };
@@ -25,7 +25,7 @@ static struct console boot_console = {
 static state boot_console_init(void)
 {
     if (boot_head.stdout)
-        pre_console_register(&boot_console);
+        earlycon_register(&boot_console);
     return -ENOERR;
 }
 pconsole_initcall(boot_console_init);

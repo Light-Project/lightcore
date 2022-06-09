@@ -6,10 +6,13 @@
 #include <stdarg.h>
 #include <klevels.h>
 
-#ifdef CONFIG_PRE_CONSOLE
+#ifdef CONFIG_EARLYCON
 int pr_early(const char *str, ...);
 #else
-static inline int pr_early(const char *str, ...) {}
+static inline int pr_early(const char *str, ...)
+{
+    return 0;
+}
 #endif
 
 extern int vprintk(const char *fmt, va_list args);

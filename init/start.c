@@ -59,8 +59,9 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
     task_stack_magic(&init_task);
     irq_local_disable();
 
-    pre_console_init();
+    earlycon_init();
     terminal_logo();
+
     early_device_init();
     command_setup();
     arch_setup();
@@ -83,7 +84,6 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
     irq_local_enable();
 
     console_init();
-
     namespace_init();
     pid_init();
 
