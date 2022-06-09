@@ -38,7 +38,7 @@ asmlinkage void main(void)
     /* Extract kernel */
     extract_kernel(pa_to_va(NORMAL_OFFSET), piggy_load + 4, piggy_size);
     head = pa_to_va(NORMAL_OFFSET);
-    head->cmd = (uintptr_t)pa_to_va(cmd_line_ptr);
+    head->cmd = cmd_line_ptr ? (uintptr_t)pa_to_va(cmd_line_ptr) : 0;
     head->params = (uintptr_t)pa_to_va(&bootparam);
 
     /* Boot kernel */
