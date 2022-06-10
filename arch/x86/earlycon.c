@@ -137,9 +137,17 @@ static unsigned int serial_read(struct console *con, char *str, unsigned int len
     return rlen;
 }
 
+static void serial_sync(struct console *con)
+{
+    while (!(inb(I8250_BASE + UART8250_LSR) & UART8250_LSR_THRE))
+        cpu_relax();
+    outb(I8250_BASE + UART8250_FCR, UART8250_FCR_CLEAR_RCVR);
+}
+
 static struct console_ops ser_console_ops = {
     .read = serial_read,
     .write = serial_write,
+    .sync = serial_sync,
 };
 
 static struct console ser_console = {
