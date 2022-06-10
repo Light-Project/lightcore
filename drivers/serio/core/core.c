@@ -13,8 +13,10 @@ static __always_inline bool
 serio_device_match_one(const struct serio_device_id *id,
                        struct serio_device *sdev)
 {
-    return ((id->type  == SERIO_ANY_ID || id->type  == sdev->id.type) &&
-            (id->extra == SERIO_ANY_ID || id->extra == sdev->id.extra));
+    return ((id->type  == SERIO_ANY_ID || id->type  == sdev->id.type)  &&
+            (id->extra == SERIO_ANY_ID || id->extra == sdev->id.extra) &&
+            (id->id    == SERIO_ANY_ID || id->id    == sdev->id.id) &&
+            (id->proto == SERIO_ANY_ID || id->proto == sdev->id.proto));
 }
 
 static inline const struct serio_device_id *

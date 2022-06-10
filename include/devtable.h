@@ -163,10 +163,17 @@ struct usb_device_id {
 struct serio_device_id {
     uint8_t type;
     uint8_t extra;
+    uint8_t id;
+    uint8_t proto;
     const void *data;
 };
 
 #define SERIO_DEVICE(Type) \
-    .type = (Type), .extra = SERIO_ANY_ID
+    .type = (Type), .extra = SERIO_ANY_ID, \
+    .id = SERIO_ANY_ID, .proto = SERIO_ANY_ID
+
+#define SERIO_DEVICE_PROTO(Type, Proto) \
+    .type = (Type), .extra = SERIO_ANY_ID \
+    .id = SERIO_ANY_ID, .proto = (Proto)
 
 #endif /* _DEVTABLE_H_ */
