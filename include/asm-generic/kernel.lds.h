@@ -347,11 +347,13 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
     . = ALIGN(pagealign);                                   \
     .rodata :                                               \
     AT(ADDR(.rodata) - LOAD_OFFSET) {                       \
+        _ld_rodata_start = .;                               \
         RODATA_RODATA(pagealign)                            \
         KSYMTAB(pagealign)                                  \
         KSYMTAB_GPL(pagealign)                              \
         EXCEPTION_TABLE(pagealign)                          \
         ROMDISK(pagealign)                                  \
+        _ld_rodata_end = .;                                 \
     }                                                       \
     NOTES
 
@@ -384,7 +386,7 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
 #define INIT_DATA_SECTION(align)                            \
     .init.data :                                            \
     AT(ADDR(.init.data) - LOAD_OFFSET) {                    \
-        _ld_data_section_start = .;                         \
+        _ld_initdata_start = .;                             \
         INIT_DATA                                           \
         CONSOLE_INITCALL                                    \
         SCHEDULER_INITCALL                                  \
@@ -396,7 +398,7 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
         INIT_CALLS                                          \
         INIT_ARGS(align)                                    \
         INIT_DT_TABLES                                      \
-        _ld_data_section_end = .;                           \
+        _ld_initdata_end = .;                               \
     }
 
 #define EXIT_TEXT_SECTION(pagealign)                        \
