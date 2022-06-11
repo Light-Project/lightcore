@@ -24,6 +24,11 @@ config SELFTEST_LIB_KFIFO
     bool "Kfifo Test"
     default y
 
+config SELFTEST_LIB_LIBCPIO
+    bool "Libcpio Test"
+    depends on ROMDISK
+    default y
+
 config SELFTEST_LIB_LIST
     bool "List Test"
     default y
