@@ -1,30 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 #include <string.h>
 
-int memcmp(const void *s1, const void *s2, size_t n)
-{
-    int d0, d1, res;
-
-    asm volatile (
-        "1:                     \n"
-        "lodsb                  \n"
-        "scasb                  \n"
-        "jne    2f              \n"
-        "loop   1b              \n"
-        "xorl   %%eax, %%eax    \n"
-        "jmp    3f              \n"
-        "2:                     \n"
-        "sbbl   %%eax, %%eax    \n"
-        "orb    $1, %%al        \n"
-        "3:                     \n"
-        : "=a"(res), "=&S"(d0), "=&D"(d1)
-        : "1"(s1), "2"(s2), "c"(n)
-        : "memory"
-    );
-
-    return res;
-}
-
 void *memset(void *s, int c, size_t count)
 {
     int d0, d1;
