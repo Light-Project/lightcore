@@ -37,7 +37,10 @@ extern size_t strcspn(const char *s, const char *reject);
 extern char *strpbrk(const char *s1, const char *s2);
 extern char *strstr(const char *s1, const char *s2);
 extern char *strnstr(const char *s1, const char *s2, size_t n);
+extern char *kstrdup(const char *s, gfp_t gfp);
+extern const char *kstrdup_const(const char *s, gfp_t gfp);
 extern char *strdup(const char *s);
+extern const char *strdup_const(const char *s);
 extern char *strsep(char **s, const char *ct);
 extern char *strim(char *s);
 
