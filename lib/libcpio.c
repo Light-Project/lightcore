@@ -16,35 +16,38 @@
 
 state cpio_data_find(struct cpio_data *cdata, const void *data, size_t length, const char *path, intptr_t *offset)
 {
-    unsigned int namelen;
+    const void * const start = data;
     size_t pathlen = strlen(path);
+    unsigned int namelen;
 
     while (length > sizeof(struct cpio_inode)) {
         const struct cpio_inode *inode = data;
         const void *dptr, *nptr;
 
-        if (!memcmp(inode->magic, CPIO_MAGIC, 6))
+        if (memcmp(inode->magic, CPIO_MAGIC, 6))
             return -EINVAL;
 
         length -= sizeof(struct cpio_inode);
-        namelen = strntoui(inode->namesize, NULL, 16, 4);
+        data += sizeof(struct cpio_inode);
+
+        namelen = strntoui(inode->namesize, NULL, 16, 8);
         dptr = align_ptr_high(data + namelen, 4);
-        nptr = align_ptr_high(dptr + strntoui(inode->filesize, NULL, 16, 4), 4);
+        nptr = align_ptr_high(dptr + strntoui(inode->filesize, NULL, 16, 8), 4);
 
         if (nptr > data + length || dptr < data || dptr > nptr)
             return -EOVERFLOW;
 
-        if ((strntoui(inode->mode, NULL, 16, 4) & S_IFMT) == S_IFREG &&
-            namelen >= pathlen && !memcmp(inode->name, path, namelen)) {
+        if ((strntoui(inode->mode, NULL, 16, 8) & S_IFMT) == S_IFREG &&
+            namelen >= pathlen && !memcmp(inode->name, path, pathlen)) {
 
             if (offset)
-                *offset = (intptr_t)nptr - (intptr_t)data;
+                *offset = (intptr_t)nptr - (intptr_t)start;
 
             if (namelen - pathlen >= CPIO_NAME_MAX)
                 pr_warn("file %s exceeds CPIO_NAME_MAX limit\n", inode->name);
 
 			strlcpy(cdata->name, inode->name, CPIO_NAME_MAX);
-            cdata->size = strntoui(inode->filesize, NULL, 16, 4);
+            cdata->size = strntoui(inode->filesize, NULL, 16, 8);
             cdata->data = dptr;
 
             return -ENOERR;
