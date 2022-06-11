@@ -4,6 +4,7 @@
  */
 
 #include <kernel.h>
+#include <string.h>
 #include <kmalloc.h>
 #include <panic.h>
 #include <export.h>
@@ -29,15 +30,40 @@ char *kvasprintf(gfp_t flags, const char *fmt, va_list args)
 }
 EXPORT_SYMBOL(kvasprintf);
 
+const char *kvasprintf_const(gfp_t gfp, const char *fmt, va_list args)
+{
+    if (!strchr(fmt, '%'))
+        return kstrdup_const(fmt, gfp);
+
+    if (!strcmp(fmt, "%s"))
+        return kstrdup_const(va_arg(args, const char *), gfp);
+
+    return kvasprintf(gfp, fmt, args);
+}
+EXPORT_SYMBOL(kvasprintf_const);
+
 char *kasprintf(gfp_t gfp, const char *fmt, ...)
 {
     va_list args;
-	char *block;
+    char *block;
 
-	va_start(args, fmt);
-	block = kvasprintf(gfp, fmt, args);
-	va_end(args);
+    va_start(args, fmt);
+    block = kvasprintf(gfp, fmt, args);
+    va_end(args);
 
     return block;
 }
 EXPORT_SYMBOL(kasprintf);
+
+const char *kasprintf_const(gfp_t gfp, const char *fmt, ...)
+{
+    va_list args;
+    const char *block;
+
+    va_start(args, fmt);
+    block = kvasprintf_const(gfp, fmt, args);
+    va_end(args);
+
+    return block;
+}
+EXPORT_SYMBOL(kasprintf_const);
