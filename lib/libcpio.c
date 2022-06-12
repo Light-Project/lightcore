@@ -59,4 +59,4 @@ state cpio_data_find(struct cpio_data *cdata, const void *data, size_t length, c
 
     return -ENOENT;
 }
-
+EXPORT_SYMBOL(cpio_data_find);
