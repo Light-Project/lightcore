@@ -53,4 +53,8 @@ config SELFTEST_LIB_SLIST
     bool "Single List Test"
     default y
 
+config SELFTEST_LIB_UUID
+    bool "UUID Unit Test"
+    default y
+
 endif
