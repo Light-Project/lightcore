@@ -2,18 +2,27 @@
 #ifndef _UUID_H_
 #define _UUID_H_
 
-#include <string.h>
+#include <types.h>
 #include <state.h>
+#include <stddef.h>
 #include <lightcore/uuid.h>
 
 #define UUID_SIZE 16
-
-typedef struct {
-    __u8 b[UUID_SIZE];
-} uuid_t;
-
 #define UUID_STRING_LEN 36
 
-bool uuid_check(const char *uuid);
+typedef struct {
+    uint8_t byte[UUID_SIZE];
+} uuid_t;
+
+extern const uint8_t guid_index[GUID_SIZE];
+extern const uint8_t uuid_index[UUID_SIZE];
+
+extern void guid_random_generate(unsigned char guid[16]);
+extern void uuid_random_generate(unsigned char uuid[16]);
+extern void guid_generate(guid_t *guid);
+extern void uuid_generate(uuid_t *uuid);
+extern bool uuid_valid(const char *uuid);
+extern state guid_parse(const char *str, guid_t *guid);
+extern state uuid_parse(const char *str, uuid_t *uuid);
 
 #endif  /* _UUID_H_ */

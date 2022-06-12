@@ -1,7 +1,12 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#include <ctype.h>
-#include <random.h>
+/*
+ * Copyright(c) 2022 Sanpe <sanpeqf@gmail.com>
+ */
+
 #include <uuid.h>
+#include <ctype.h>
+#include <kernel.h>
+#include <prandom.h>
 #include <export.h>
 
 const uint8_t guid_index[GUID_SIZE] = {
@@ -14,46 +19,43 @@ const uint8_t uuid_index[UUID_SIZE] = {
     9, 10, 11, 12, 13, 14, 15,
 };
 
-void generate_random_uuid(unsigned char uuid[16])
+void guid_random_generate(unsigned char guid[16])
 {
-    random_get(uuid, 16);
-    /* Set UUID version to 4 --- truly random generation */
-    uuid[6] = (uuid[6] & 0x0F) | 0x40;
-    /* Set the UUID variant to DCE */
-    uuid[8] = (uuid[8] & 0x3F) | 0x80;
+    prandom_bytes(guid, 16);
+    guid[7] = (guid[7] & 0x0f) | 0x40;
+    guid[8] = (guid[8] & 0x3f) | 0x80;
+}
+EXPORT_SYMBOL(guid_random_generate);
+
+void uuid_random_generate(unsigned char uuid[16])
+{
+    prandom_bytes(uuid, 16);
+    uuid[6] = (uuid[6] & 0x0f) | 0x40;
+    uuid[8] = (uuid[8] & 0x3f) | 0x80;
+}
+EXPORT_SYMBOL(uuid_random_generate);
+
+static void common_generate(uint8_t common[16])
+{
+    prandom_bytes(common, 16);
+    common[8] = (common[8] & 0x3f) | 0x80;
 }
 
-void generate_random_guid(unsigned char guid[16])
+void guid_generate(guid_t *guid)
 {
-    random_get(guid, 16);
-    /* Set GUID version to 4 --- truly random generation */
-    guid[7] = (guid[7] & 0x0F) | 0x40;
-    /* Set the GUID variant to DCE */
-    guid[8] = (guid[8] & 0x3F) | 0x80;
+    common_generate(guid->byte);
+    guid->byte[7] = (guid->byte[7] & 0x0F) | 0x40;
 }
+EXPORT_SYMBOL(guid_generate);
 
-static void __uuid_gen_common(__u8 b[16])
+void uuid_generate(uuid_t *uuid)
 {
-    prandom_bytes(b, 16);
-    /* reversion 0b10 */
-    b[8] = (b[8] & 0x3F) | 0b10;
+    common_generate(uuid->byte);
+    uuid->byte[6] = (uuid->byte[6] & 0x0F) | 0x40;
 }
+EXPORT_SYMBOL(uuid_generate);
 
-void guid_gen(guid_t *lu)
-{
-    __uuid_gen_common(lu->b);
-    /* version 4 : random generation */
-    lu->b[7] = (lu->b[7] & 0x0F) | 0x40;
-}
-
-void uuid_gen(uuid_t *bu)
-{
-    __uuid_gen_common(bu->b);
-    /* version 4 : random generation */
-    bu->b[6] = (bu->b[6] & 0x0F) | 0x40;
-}
-
-bool uuid_check(const char *uuid)
+bool uuid_valid(const char *uuid)
 {
     unsigned int i;
 
@@ -68,38 +70,33 @@ bool uuid_check(const char *uuid)
 
     return true;
 }
+EXPORT_SYMBOL(uuid_valid);
 
-static int __uuid_parse(const char *uuid, __u8 b[16], const u8 ei[16])
+static state common_parse(const char *uuid, uint8_t byte[16], const u8 index[16])
 {
     static const u8 si[16] = {0,2,4,6,9,11,14,16,19,21,24,26,28,30,32,34};
-    unsigned int i;
+    unsigned int count;
 
-    if (!uuid_is_valid(uuid))
+    if (!uuid_valid(uuid))
         return -EINVAL;
 
-    for (i = 0; i < 16; i++) {
-        int hi = hex_to_bin(uuid[si[i] + 0]);
-        int lo = hex_to_bin(uuid[si[i] + 1]);
-
-        b[ei[i]] = (hi << 4) | lo;
+    for (count = 0; count < 16; ++count) {
+        int hi = chtoi(uuid[si[count] + 0]);
+        int lo = chtoi(uuid[si[count] + 1]);
+        byte[index[count]] = (hi << 4) | lo;
     }
 
-    return 0;
+    return -ENOERR;
 }
 
-int guid_parse(const char *uuid, guid_t *u)
+state guid_parse(const char *str, guid_t *guid)
 {
-    return __uuid_parse(uuid, u->b, guid_index);
+    return common_parse(str, guid->byte, guid_index);
 }
-
-int uuid_parse(const char *uuid, uuid_t *u)
-{
-    return __uuid_parse(uuid, u->b, uuid_index);
-}
-
-EXPORT_SYMBOL(generate_random_guid);
-EXPORT_SYMBOL(guid_gen);
-EXPORT_SYMBOL(uuid_gen);
-EXPORT_SYMBOL(uuid_check);
 EXPORT_SYMBOL(guid_parse);
+
+state uuid_parse(const char *str, uuid_t *uuid)
+{
+    return common_parse(str, uuid->byte, uuid_index);
+}
 EXPORT_SYMBOL(uuid_parse);

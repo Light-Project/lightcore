@@ -7,7 +7,7 @@
 #define GUID_SIZE 16
 
 typedef struct {
-    __u8 b[GUID_SIZE];
+    __u8 byte[GUID_SIZE];
 } guid_t;
 
 #endif  /* _LIGHTCORE_UUID_H_ */
