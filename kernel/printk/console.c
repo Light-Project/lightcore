@@ -101,8 +101,10 @@ static struct console *console_find(const char *name, unsigned int index)
     struct console *walk, *find = NULL;
 
     list_for_each_entry(walk, &console_list, list) {
-        if (walk->index == index && !strcmp(walk->name, name))
+        if (walk->index == index && !strcmp(walk->name, name)) {
             find = walk;
+            break;
+        }
     }
 
     return find;
