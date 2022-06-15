@@ -20,6 +20,10 @@ config SELFTEST_LIB_ILIST
     bool "Index List Test"
     default y
 
+config SELFTEST_LIB_JSON
+    bool "Json Parser Test"
+    default y
+
 config SELFTEST_LIB_KFIFO
     bool "Kfifo Test"
     default y
