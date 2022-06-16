@@ -478,9 +478,9 @@ static void json_dumpinfo(struct kshell_context *ctx, struct json_node *parent, 
     unsigned int count;
 
     if (json_test_array(parent))
-        kshell_printf(ctx, "%s: array\n", parent->name);
+        kshell_printf(ctx, "array: %s {\n", parent->name);
     else if (json_test_object(parent))
-        kshell_printf(ctx, "%s: object\n", parent->name);
+        kshell_printf(ctx, "object: %s {\n", parent->name);
 
     list_for_each_entry(child, &parent->child, sibling) {
         for (count = 0; count < depth; ++count)
@@ -502,6 +502,10 @@ static void json_dumpinfo(struct kshell_context *ctx, struct json_node *parent, 
             kshell_printf(ctx, "false");
         kshell_printf(ctx, "\n");
     }
+
+    for (count = 0; count < depth - 1; ++count)
+        kshell_printf(ctx, "    ");
+    kshell_printf(ctx, "}\n");
 }
 
 static state json_test_testing(struct kshell_context *ctx, void *pdata)
