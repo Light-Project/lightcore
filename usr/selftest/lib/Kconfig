@@ -61,4 +61,8 @@ config SELFTEST_LIB_UUID
     bool "UUID Unit Test"
     default y
 
+config SELFTEST_LIB_XML
+    bool "Xml Unit Test"
+    default y
+
 endif
