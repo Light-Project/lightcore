@@ -39,8 +39,8 @@ static const struct json_transition transition_table[] = {
     {JSON_STATE_NAME,     JSON_STATE_COLON,    '"',   '"',    0,    0,  false},
     {JSON_STATE_COLON,    JSON_STATE_BODY,     ':',   ':',    0,    0,  false},
 
-    {JSON_STATE_STRING,   JSON_STATE_ESC,     '\\',  '\\',    0,  + 1,  false},
     {JSON_STATE_NAME,     JSON_STATE_ESC,     '\\',  '\\',    0,  + 1,  false},
+    {JSON_STATE_STRING,   JSON_STATE_ESC,     '\\',  '\\',    0,  + 1,  false},
     {JSON_STATE_ESC,      JSON_STATE_NULL,    '\0',  '\0',    0,  - 1,   true},
 
     {JSON_STATE_BODY,     JSON_STATE_ARRAY,    '[',   '[',    0,    0,  false},
@@ -83,7 +83,7 @@ static inline bool is_record(enum json_state state)
 
 static inline const char *skip_lack(const char *string)
 {
-    while (!isprint(*string) || *string == ' ')
+    while (*string && (!isprint(*string) || *string == ' '))
         string++;
     return string;
 }
@@ -159,17 +159,19 @@ state json_parse(const char *buff, struct json_node **root, gfp_t gfp)
             list_head_init(&node->child);
         }
 
-        switch (*walk) {
-            case '[':
-                json_set_array(node);
-                break;
+        if (is_struct(nstate)) {
+            switch (*walk) {
+                case '[':
+                    json_set_array(node);
+                    break;
 
-            case '{':
-                json_set_object(node);
-                break;
+                case '{':
+                    json_set_object(node);
+                    break;
 
-            default:
-                break;
+                default:
+                    break;
+            }
         }
 
         if (nstate != JSON_STATE_ESC) {
@@ -177,7 +179,7 @@ state json_parse(const char *buff, struct json_node **root, gfp_t gfp)
                 tbuff[tpos] = '\0';
                 switch (cstate) {
                     case JSON_STATE_NAME:
-                        node->name = strdup(tbuff);
+                        node->name = kstrdup(tbuff, gfp);
                         if (!node->name) {
                             retval = -ENOMEM;
                             goto error;
@@ -185,7 +187,7 @@ state json_parse(const char *buff, struct json_node **root, gfp_t gfp)
                         break;
 
                     case JSON_STATE_STRING:
-                        node->string = strdup(tbuff);
+                        node->string = kstrdup(tbuff, gfp);
                         if (!node->string) {
                             retval = -ENOMEM;
                             goto error;
@@ -236,6 +238,7 @@ state json_parse(const char *buff, struct json_node **root, gfp_t gfp)
     }
 
 error:
+    kfree(tbuff);
     if (cnpos > 0)
         node = *nstack;
 
@@ -256,14 +259,18 @@ void json_release(struct json_node *root)
         return;
 
     list_for_each_entry_safe(node, tmp, &root->child, sibling) {
-        if (json_test_array(node) || json_test_object(node))
+        list_del(&node->sibling);
+        if (json_test_array(node) || json_test_object(node)) {
             json_release(node);
+            continue;
+        }
         if (node->name)
             kfree(node->name);
         if (json_test_string(node))
             kfree(node->string);
-        list_del(&node->sibling);
         kfree(node);
     }
+
+    kfree(root);
 }
 EXPORT_SYMBOL(json_release);
