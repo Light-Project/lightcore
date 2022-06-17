@@ -229,6 +229,55 @@ error:
 }
 EXPORT_SYMBOL(xml_parse);
 
+static int encode_depth(struct xml_node *parent, char *buff, int size, int len, unsigned int depth)
+{
+    #define xml_sprintf(fmt, ...) len += snprintf(buff + len, max(0, size - len), fmt, ##__VA_ARGS__)
+    struct xml_node *child, *attr;
+    unsigned int count;
+    int save;
+
+    list_for_each_entry(child, &parent->child, sibling) {
+        if (xml_test_attribute(child))
+            continue;
+        for (count = 0; count < depth; ++count)
+            xml_sprintf("\t");
+        if (xml_test_string(child))
+            xml_sprintf("%s\n", child->attr_name);
+        else if (xml_test_object(child)) {
+            xml_sprintf("<%s", child->name);
+            list_for_each_entry(attr, &child->child, sibling) {
+                if (xml_test_attribute(attr)) {
+                    xml_sprintf("\n");
+                    for (count = 0; count < depth; ++count)
+                        xml_sprintf("\t");
+                    xml_sprintf(" %s=\"%s\"", attr->attr_name, attr->attr_value);
+                }
+            }
+            xml_sprintf(">\n");
+
+            save = len;
+            len = encode_depth(child, buff, size, len, depth + 1);
+
+            if (len == save) {
+                len -= 2;
+                xml_sprintf("/>\n");
+            } else {
+                for (count = 0; count < depth; ++count)
+                    xml_sprintf("\t");
+                xml_sprintf("</%s>\n", child->name);
+            }
+        }
+    }
+
+    return len;
+}
+
+int xml_encode(struct xml_node *root, char *buff, int size)
+{
+    return encode_depth(root, buff, size, 0, 0) + 1;
+}
+EXPORT_SYMBOL(xml_encode);
+
 void xml_release(struct xml_node *root)
 {
     struct xml_node *node, *tmp;

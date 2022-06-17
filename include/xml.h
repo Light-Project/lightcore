@@ -38,6 +38,7 @@ GENERIC_STRUCT_FLAG(xml, struct xml_node, flags, object, __XML_IS_OBJECT)
 GENERIC_STRUCT_FLAG(xml, struct xml_node, flags, attribute, __XML_IS_ATTRIBUTE)
 GENERIC_STRUCT_FLAG(xml, struct xml_node, flags, string, __XML_IS_STRING)
 extern state xml_parse(const char *buff, struct xml_node **root, gfp_t gfp);
+extern int xml_encode(struct xml_node *root, char *buff, int size);
 extern void xml_release(struct xml_node *root);
 
 #endif  /* _XML_H_ */
