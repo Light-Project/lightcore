@@ -45,6 +45,7 @@ GENERIC_STRUCT_FLAG(json, struct json_node, flags, null, __JSON_IS_NULL)
 GENERIC_STRUCT_FLAG(json, struct json_node, flags, true, __JSON_IS_TRUE)
 GENERIC_STRUCT_FLAG(json, struct json_node, flags, false, __JSON_IS_FALSE)
 extern state json_parse(const char *buff, struct json_node **root, gfp_t gfp);
+extern int json_encode(struct json_node *root, char *buff, int size);
 extern void json_release(struct json_node *root);
 
 #endif  /* _JSON_H_ */

@@ -251,6 +251,64 @@ error:
 }
 EXPORT_SYMBOL(json_parse);
 
+static int encode_depth(struct json_node *parent, char *buff, int size, int len, unsigned int depth)
+{
+    #define json_sprintf(fmt, ...) len += snprintf(buff + len, max(0, size - len), fmt, ##__VA_ARGS__)
+    struct json_node *child;
+    unsigned int count;
+
+    if (json_test_array(parent))
+        json_sprintf("[\n");
+    else if (json_test_object(parent))
+        json_sprintf("{\n");
+    else
+        return 0;
+
+    list_for_each_entry(child, &parent->child, sibling) {
+        for (count = 0; count < depth + 1; ++count)
+            json_sprintf("\t");
+        if (json_test_object(parent))
+            json_sprintf("%s: ", child->name);
+        if (json_test_array(child) || json_test_object(child))
+            len = encode_depth(child, buff, size, len, depth + 1);
+        else if (json_test_number(child))
+            json_sprintf("%ld,\n", child->number);
+        else if (json_test_string(child))
+            json_sprintf("\"%s\",\n", child->string);
+        else if (json_test_null(child))
+            json_sprintf("null,\n");
+        else if (json_test_true(child))
+            json_sprintf("true,\n");
+        else /* json_test_false(child) */
+            json_sprintf("false,\n");
+    }
+
+    if (!list_check_empty(&parent->child)) {
+        len -= 2;
+        json_sprintf("\n");
+    }
+
+    for (count = 0; count < depth; ++count)
+        json_sprintf("\t");
+    if (json_test_array(parent))
+        json_sprintf("],\n");
+    else if (json_test_object(parent))
+        json_sprintf("},\n");
+
+    if (!parent->parent) {
+        len -= 2;
+        json_sprintf("\n");
+    }
+
+    return len;
+}
+
+int json_encode(struct json_node *root, char *buff, int size)
+{
+    return encode_depth(root, buff, size, 0, 0) + 1;
+}
+EXPORT_SYMBOL(json_encode);
+
 void json_release(struct json_node *root)
 {
     struct json_node *node, *tmp;
