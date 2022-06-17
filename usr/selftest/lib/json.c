@@ -498,7 +498,7 @@ static void json_dumpinfo(struct kshell_context *ctx, struct json_node *parent, 
             kshell_printf(ctx, "null");
         else if (json_test_true(child))
             kshell_printf(ctx, "true");
-        else if (json_test_false(child))
+        else /* json_test_false(child) */
             kshell_printf(ctx, "false");
         kshell_printf(ctx, "\n");
     }
@@ -512,15 +512,32 @@ static state json_test_testing(struct kshell_context *ctx, void *pdata)
 {
     struct json_node *jnode;
     state retval;
+    char *buff;
+    int length;
 
     retval = json_parse(json_test, &jnode, GFP_KERNEL);
     if (retval)
         return retval;
 
+    kshell_printf(ctx, "pseudo expression:\n");
     json_dumpinfo(ctx, jnode, 1);
-    json_release(jnode);
 
-    return -ENOERR;
+    kshell_printf(ctx, "json encode:\n");
+    length = json_encode(jnode, NULL, 0);
+
+    buff = kmalloc(length, GFP_KERNEL);
+    if (!buff) {
+        retval = -ENOMEM;
+        goto finish;
+    }
+
+    length = json_encode(jnode, buff, length);
+    kshell_write(ctx, buff, length);
+    kfree(buff);
+
+finish:
+    json_release(jnode);
+    return retval;
 }
 
 static struct selftest_command json_test_command = {
