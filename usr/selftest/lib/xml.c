@@ -62,15 +62,32 @@ static state xml_test_testing(struct kshell_context *ctx, void *pdata)
 {
     struct xml_node *xnode;
     state retval;
+    char *buff;
+    int length;
 
     retval = xml_parse(xml_test, &xnode, GFP_KERNEL);
     if (retval)
         return retval;
 
+    kshell_printf(ctx, "pseudo expression:\n");
     xml_dumpinfo(ctx, xnode, 1);
-    xml_release(xnode);
 
-    return -ENOERR;
+    kshell_printf(ctx, "xml encode:\n");
+    length = xml_encode(xnode, NULL, 0);
+
+    buff = kmalloc(length, GFP_KERNEL);
+    if (!buff) {
+        retval = -ENOMEM;
+        goto finish;
+    }
+
+    length = xml_encode(xnode, buff, length);
+    kshell_write(ctx, buff, length);
+    kfree(buff);
+
+finish:
+    xml_release(xnode);
+    return retval;
 }
 
 static struct selftest_command xml_test_command = {
