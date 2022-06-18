@@ -95,7 +95,7 @@ state xml_parse(const char *buff, struct xml_node **root, gfp_t gfp)
     node = kzalloc(sizeof(*node), gfp);
     if (!node) {
         kfree(tbuff);
-        return -ENOERR;
+        return -ENOMEM;
     }
 
     node->name = kstrdup("root", gfp);
