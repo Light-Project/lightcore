@@ -35,9 +35,9 @@ static void usage(struct kshell_context *ctx)
     kshell_printf(ctx, "\t-h  display this message\n");
 }
 
-static inline int is_value(int c, bool env)
+static inline int is_value(int c)
 {
-    return isxdigit(c) || isalpha(c) || (!env && c == '-');
+    return isxdigit(c) || isalpha(c);
 }
 
 static int get_value(struct kshell_context *ctx, char *end, char *varname)
@@ -46,7 +46,7 @@ static int get_value(struct kshell_context *ctx, char *end, char *varname)
     char tmp = 0;
 
     for (;;) {
-        if (!is_value(*walk, true) || walk == end) {
+        if (!is_value(*walk) || walk == end) {
             tmp = *walk;
             *walk = '\0';
             break;
@@ -91,11 +91,11 @@ static char *prev_number(struct kshell_context *ctx, char *start, char *end,
     int result;
 
     for (result = 0; curr >= start; --curr) {
-        if (alnum && (!is_value(*curr, false))) {
+        if (alnum && (!is_value(*curr))) {
             result = get_value(ctx, end, varname);
             break;
         } else if (!alnum) {
-            if (is_value(*curr, false))
+            if (is_value(*curr) || *curr == '-')
                 alnum = true;
             else if (!isspace(*curr))
                 return NULL;
@@ -122,10 +122,10 @@ static char *next_number(struct kshell_context *ctx, char *end,
     int result;
 
     for (result = 0; curr < end; ++curr) {
-        if (alnum && (!is_value(*curr, false)))
+        if (alnum && (!is_value(*curr)))
             break;
         else if (!alnum) {
-            if (is_value(*curr, false)) {
+            if (is_value(*curr) || *curr == '-') {
                 alnum = true;
                 if (region)
                     *region = curr;
@@ -152,7 +152,7 @@ static state string_extension(char **start, char **end, char **curr, size_t size
     }
 
     nsize = (*end - *start) + (ext - size);
-    nblock = kmalloc(nsize, GFP_KERNEL);
+    nblock = kzalloc(nsize, GFP_KERNEL);
     if (!nblock)
         return -ENOMEM;
 
@@ -172,8 +172,8 @@ static state string_extension(char **start, char **end, char **curr, size_t size
 
 static int math_parser(struct kshell_context *ctx, char *start, char *end, bool hex, bool proc)
 {
+    char *curr, *error = NULL;
     int plen, result;
-    char *curr, *error;
 
     /* Principal priority */
     for (curr = start; (curr = strchr(curr, '(')); ++curr) {
@@ -189,8 +189,10 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
             }
         }
 
-        if (stack)
-            goto exit;
+        if (stack) {
+            error = curr;
+            goto error;
+        }
 
         result = math_parser(ctx, curr + 1, walk, hex, proc);
         plen = snprintf(0, 0, "%d", result);
@@ -204,7 +206,7 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
 
     /* Secondary priority */
     for (curr = start; curr < end; ++curr) {
-        char *left = NULL, *right = NULL;
+        char *left, *right;
         size_t size, ext;
 
         if (!strncmp(curr, "++", 2) && (left = prev_number(ctx, start, end, curr - 1, &result, &right))) {
@@ -214,7 +216,7 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
             plen = snprintf(0, 0, "%d", result);
             string_extension(&start, &end, &left, (size = (curr + 2) - left), (ext = plen + 1));
             snprintf(left, plen + 1, "%d", result);
-            left[plen] = '\a';
+            left[plen] = ' ';
             curr = left + max(size, ext) - 1;
 
         } else if (!strncmp(curr, "--", 2) && (left = prev_number(ctx, start, end, curr - 1, &result, &right))) {
@@ -224,7 +226,7 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
             plen = snprintf(0, 0, "%d", result);
             string_extension(&start, &end, &left, (size = (curr + 2) - left), (ext = plen + 1));
             snprintf(left, plen + 1, "%d", result);
-            left[plen] = '\a';
+            left[plen] = ' ';
             curr = left + max(size, ext) - 1;
 
         } else if (!strncmp(curr, "++", 2) && (right = next_number(ctx, end, curr + 2, &result, &left))) {
@@ -233,7 +235,7 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
             plen = snprintf(0, 0, "%d", result);
             string_extension(&start, &end, &curr, (size = right - curr), (ext = plen + 1));
             snprintf(curr, plen + 1, "%d", result + 1);
-            curr[plen] = '\a';
+            curr[plen] = ' ';
             curr += max(size, ext) - 1;
 
         } else if (!strncmp(curr, "--", 2) && (right = next_number(ctx, end, curr + 2, &result, &left))) {
@@ -242,7 +244,7 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
             plen = snprintf(0, 0, "%d", result);
             string_extension(&start, &end, &curr, (size = right - curr), (ext = plen + 1));
             snprintf(curr, plen + 1, "%d", result - 1);
-            curr[plen] = '\a';
+            curr[plen] = ' ';
             curr += max(size, ext) - 1;
 
         } else if (*curr == '+' && (right = next_number(ctx, end, curr + 1, &result, NULL))) {
@@ -252,7 +254,7 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
             plen = snprintf(0, 0, "%d", result);
             string_extension(&start, &end, &curr, (size = right - curr), (ext = plen + 1));
             snprintf(curr, plen + 1, "%d", result);
-            curr[plen] = '\a';
+            curr[plen] = ' ';
             curr += max(size, ext) - 1;
 
         } else if (*curr == '-' && (right = next_number(ctx, end, curr + 1, &result, NULL))) {
@@ -262,7 +264,7 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
             plen = snprintf(0, 0, "%d", -result);
             string_extension(&start, &end, &curr, (size = right - curr), (ext = plen + 1));
             snprintf(curr, plen + 1, "%d", -result);
-            curr[plen] = '\a';
+            curr[plen] = ' ';
             curr += max(size, ext) - 1;
 
         } else if (*curr == '~' && (right = next_number(ctx, end, curr + 1, &result, NULL))) {
@@ -270,14 +272,9 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
             plen = snprintf(0, 0, "%d", ~result);
             string_extension(&start, &end, &curr, (size = right - curr), (ext = plen + 1));
             snprintf(curr, plen + 1, "%d", ~result);
-            curr[plen] = '\a';
+            curr[plen] = ' ';
             curr += max(size, ext) - 1;
         }
-    }
-
-    for (curr = start; curr < end; ++curr) {
-        if (*curr == '\a')
-            *curr = ' ';
     }
 
     if (proc)
@@ -285,15 +282,12 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
 
     if ((error = strnstr(start, "++", end - start)) ||
         (error = strnstr(start, "--", end - start)) ||
-        (error = strnchr(start, end - start, '~'))) {
-        kshell_printf(ctx, "math: parse error near '%c'\n", *error);
-        result = 0;
-        goto exit;
-    }
+        (error = strnchr(start, end - start, '~')))
+        goto error;
 
     /* Tertiary priority */
     for (curr = start; curr < end; ++curr) {
-        char *left = NULL, *right = NULL;
+        char *left, *right;
         size_t size, ext;
         int rresult;
 
@@ -311,8 +305,10 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
         } else if (*curr == '/' && (left = prev_number(ctx, start, end, curr - 1, &result, NULL))
                                 && (right = next_number(ctx, end, curr + 1, &rresult, NULL))) {
             /* variable / variable */
-            if (!rresult)
-                goto exit;
+            if (!rresult) {
+                error = curr;
+                goto error;
+            }
             left++;
             result /= rresult;
             plen = snprintf(0, 0, "%d", result);
@@ -324,8 +320,10 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
         } else if (*curr == '%' && (left = prev_number(ctx, start, end, curr - 1, &result, NULL))
                                 && (right = next_number(ctx, end, curr + 1, &rresult, NULL))) {
             /* variable % variable */
-            if (!rresult)
-                goto exit;
+            if (!rresult) {
+                error = curr;
+                goto error;
+            }
             left++;
             result %= rresult;
             plen = snprintf(0, 0, "%d", result);
@@ -341,7 +339,7 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
 
     /* Quartus priority */
     for (curr = start; curr < end; ++curr) {
-        char *left = NULL, *right = NULL;
+        char *left, *right;
         size_t size, ext;
         int rresult;
 
@@ -374,7 +372,7 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
 
     /* Fifth priority */
     for (curr = start; curr < end; ++curr) {
-        char *left = NULL, *right = NULL;
+        char *left, *right;
         size_t size, ext;
         int rresult;
 
@@ -407,7 +405,7 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
 
     /* Sixth priority */
     for (curr = start; curr < end; ++curr) {
-        char *left = NULL, *right = NULL;
+        char *left, *right;
         size_t size, ext;
         int rresult;
 
@@ -462,7 +460,7 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
 
     /* Seventh priority */
     for (curr = start; curr < end; ++curr) {
-        char *left = NULL, *right = NULL;
+        char *left, *right;
         size_t size, ext;
         int rresult;
 
@@ -495,7 +493,7 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
 
     /* Eighth priority */
     for (curr = start; curr < end; ++curr) {
-        char *left = NULL, *right = NULL;
+        char *left, *right;
         size_t size, ext;
         int rresult;
 
@@ -517,7 +515,7 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
 
     /* Ninth priority */
     for (curr = start; curr < end; ++curr) {
-        char *left = NULL, *right = NULL;
+        char *left, *right;
         size_t size, ext;
         int rresult;
 
@@ -539,7 +537,7 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
 
     /* Tenth priority */
     for (curr = start; curr < end; ++curr) {
-        char *left = NULL, *right = NULL;
+        char *left, *right;
         size_t size, ext;
         int rresult;
 
@@ -561,7 +559,7 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
 
     /* Eleventh priority */
     for (curr = start; curr < end; ++curr) {
-        char *left = NULL, *right = NULL;
+        char *left, *right;
         size_t size, ext;
         int rresult;
 
@@ -583,7 +581,7 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
 
     /* Twelfth priority */
     for (curr = start; curr < end; ++curr) {
-        char *left = NULL, *right = NULL;
+        char *left, *right;
         size_t size, ext;
         int rresult;
 
@@ -603,9 +601,61 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
     if (proc)
         kshell_printf(ctx, "%s: %s\n", priority_name[11], start);
 
+    /* Thirteenth priority */
+    for (curr = start; curr < end; ++curr) {
+        char *left, *right;
+        uintptr_t sindex, eindex;
+        size_t size, ext;
+        int mresult, rresult;
+
+        if (*curr == '?' && (left = prev_number(ctx, start, end, curr - 1, NULL, NULL))) {
+
+            sindex = curr - start;
+            curr = strchr(curr, ':');
+            if (!curr) {
+                error = start + sindex;
+                goto error;
+            }
+            eindex = curr - start;
+
+            do {
+                if (*curr == '?' && (left = prev_number(ctx, start, end, curr - 1, &result, NULL))) {
+                    /* variable ? variable : variable */
+                    right = strchr(curr, ':');
+                    if (!right) {
+                        error = curr;
+                        goto error;
+                    }
+
+                    right++;
+                    if (!(right = next_number(ctx, end, right, &rresult, NULL))) {
+                        error = curr;
+                        goto error;
+                    }
+
+                    if (!next_number(ctx, end, curr + 1, &mresult, NULL))
+                        mresult = result;
+
+                    left++;
+                    result = result ? mresult : rresult;
+                    plen = snprintf(0, 0, "%d", result);
+                    string_extension(&start, &end, &left, (size = right - left), (ext = plen + 1));
+                    snprintf(left, plen + 1, "%d", result);
+                    left[plen] = ' ';
+                    curr = left;
+                }
+            } while (curr-- > start + sindex);
+
+            curr = start + eindex;
+        }
+    }
+
+    if (proc)
+        kshell_printf(ctx, "%s: %s\n", priority_name[12], start);
+
     /* Fourteenth priority */
     for (curr = start; curr < end; ++curr) {
-        char *left = NULL, *right = NULL;
+        char *left, *right;
         size_t size, ext;
         int rresult;
 
@@ -648,8 +698,10 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
         } else if (!strncmp(curr, "/=", 2) && (left = prev_number(ctx, start, end, curr - 1, &result, NULL))
                                            && (right = next_number(ctx, end, curr + 2, &rresult, NULL))) {
             /* variable /= variable */
-            if (!rresult)
-                goto exit;
+            if (!rresult) {
+                error = curr;
+                goto error;
+            }
             left++;
             result /= rresult;
             set_value(ctx, end, left, result, hex);
@@ -662,8 +714,10 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
         } else if (!strncmp(curr, "%=", 2) && (left = prev_number(ctx, start, end, curr - 1, &result, NULL))
                                            && (right = next_number(ctx, end, curr + 2, &rresult, NULL))) {
             /* variable %= variable */
-            if (!rresult)
-                goto exit;
+            if (!rresult) {
+                error = curr;
+                goto error;
+            }
             left++;
             result %= rresult;
             set_value(ctx, end, left, result, hex);
@@ -676,8 +730,6 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
         } else if (!strncmp(curr, "&=", 2) && (left = prev_number(ctx, start, end, curr - 1, &result, NULL))
                                            && (right = next_number(ctx, end, curr + 2, &rresult, NULL))) {
             /* variable &= variable */
-            if (!rresult)
-                goto exit;
             left++;
             result &= rresult;
             set_value(ctx, end, left, result, hex);
@@ -690,8 +742,6 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
         } else if (!strncmp(curr, "^=", 2) && (left = prev_number(ctx, start, end, curr - 1, &result, NULL))
                                            && (right = next_number(ctx, end, curr + 2, &rresult, NULL))) {
             /* variable ^= variable */
-            if (!rresult)
-                goto exit;
             left++;
             result ^= rresult;
             set_value(ctx, end, left, result, hex);
@@ -704,8 +754,6 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
         } else if (!strncmp(curr, "|=", 2) && (left = prev_number(ctx, start, end, curr - 1, &result, NULL))
                                            && (right = next_number(ctx, end, curr + 2, &rresult, NULL))) {
             /* variable |= variable */
-            if (!rresult)
-                goto exit;
             left++;
             result |= rresult;
             set_value(ctx, end, left, result, hex);
@@ -718,8 +766,6 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
         } else if (!strncmp(curr, "<<=", 3) && (left = prev_number(ctx, start, end, curr - 1, &result, NULL))
                                             && (right = next_number(ctx, end, curr + 3, &rresult, NULL))) {
             /* variable <<= variable */
-            if (!rresult)
-                goto exit;
             left++;
             result <<= rresult;
             set_value(ctx, end, left, result, hex);
@@ -732,8 +778,6 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
         } else if (!strncmp(curr, ">>=", 3) && (left = prev_number(ctx, start, end, curr - 1, &result, NULL))
                                             && (right = next_number(ctx, end, curr + 3, &rresult, NULL))) {
             /* variable >>= variable */
-            if (!rresult)
-                goto exit;
             left++;
             result >>= rresult;
             set_value(ctx, end, left, result, hex);
@@ -746,8 +790,6 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
         } else if (*curr == '=' && (left = prev_number(ctx, start, end, curr - 1, &result, NULL))
                                 && (right = next_number(ctx, end, curr + 1, &rresult, NULL))) {
             /* variable = variable */
-            if (!rresult)
-                goto exit;
             left++;
             result = rresult;
             set_value(ctx, end, left, result, hex);
@@ -762,13 +804,15 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
     if (proc)
         kshell_printf(ctx, "%s: %s\n", priority_name[13], start);
 
-    if (!next_number(ctx, end, start, &result, NULL)) {
-        error = skip_spaces(start);
+error:
+    if (error || ((error = start) &&
+        (!(curr = next_number(ctx, end, start, &result, NULL)) ||
+         *(error = skip_spaces(curr))))) {
+        error = skip_spaces(error);
         kshell_printf(ctx, "math: parse error near '%c'\n", *error);
         result = 0;
     }
 
-exit:
     if (ksize(start))
         kfree(start);
 
@@ -819,8 +863,12 @@ finish:
         result = math_parser(ctx, argv[count], argv[count] + len, xflag, pflag);
     }
 
-    if (oflag)
-        kshell_printf(ctx, "%d", result);
+    if (oflag) {
+        if (xflag)
+            kshell_printf(ctx, "%#x", result);
+        else
+            kshell_printf(ctx, "%d", result);
+    }
 
     return result;
 
