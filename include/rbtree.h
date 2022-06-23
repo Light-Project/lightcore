@@ -99,7 +99,7 @@ extern struct rb_node *rb_right_far(const struct rb_node *node);
 extern struct rb_node *rb_left_deep(const struct rb_node *node);
 extern struct rb_node *rb_right_deep(const struct rb_node *node);
 
-/* Middle iteration (Sequential) - find logical next and previous nodes */
+/* Inorder iteration (Sequential) - find logical next and previous nodes */
 extern struct rb_node *rb_first(const struct rb_root *root);
 extern struct rb_node *rb_last(const struct rb_root *root);
 extern struct rb_node *rb_prev(const struct rb_node *node);
@@ -238,13 +238,8 @@ extern struct rb_node *rb_next(const struct rb_node *node);
          pos = rb_prev_entry(pos, member))
 
 /* Preorder iteration (Root-first) - always access the left node first */
+extern struct rb_node *rb_pre_first(const struct rb_root *root);
 extern struct rb_node *rb_pre_next(const struct rb_node *node);
-
-/**
- * rb_pre_first - get the preorder first rb_node from a rbtree.
- * @root: the rbtree root to take the rb_node from.
- */
-#define rb_pre_first(root) ((root)->node)
 
 /**
  * rb_pre_first_entry - get the preorder first element from a rbtree.
@@ -441,6 +436,89 @@ extern struct rb_node *rb_post_next(const struct rb_node *node);
     for (pos = rb_post_next_entry(pos, member); \
          pos && ({ tmp = rb_post_next_entry(pos, member); \
          1; }); pos = tmp)
+
+/* Levelorder iteration (Shallow-first) - always visit the shallow after deep. */
+extern struct rb_node *rb_level_first(const struct rb_root *root, unsigned long *level);
+extern struct rb_node *rb_level_next(const struct rb_root *root, unsigned long *level);
+
+/**
+ * rb_level_first_entry - get the levelorder first element from a rbtree.
+ * @ptr: the rbtree root to take the element from.
+ * @index: iteration counter.
+ * @type: the type of the struct this is embedded in.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_level_first_entry(root, index, type, member) \
+    rb_entry_safe(rb_level_first(root, index), type, member)
+
+/**
+ * rb_level_next_entry - get the levelorder next element in rbtree.
+ * @pos: the type * to cursor.
+ * @index: iteration counter.
+ * @type: the type of the struct this is embedded in.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_level_next_entry(root, index, type, member) \
+    rb_entry_safe(rb_level_next(root, index), type, member)
+
+/**
+ * rb_level_for_each - levelorder iterate over a rbtree.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ * @index: iteration counter.
+ * @root: the root for your rbtree.
+ */
+#define rb_level_for_each(pos, index, root) \
+    for (pos = rb_level_first(root, index); pos; pos = rb_level_next(root, index))
+
+/**
+ * rb_level_for_each_from - levelorder iterate over a rbtree from the current point.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ * @index: iteration counter.
+ * @root: the root for your rbtree.
+ */
+#define rb_level_for_each_from(pos, index, root) \
+    for (; pos; pos = rb_level_next(root, index))
+
+/**
+ * rb_level_for_each_continue - continue levelorder iteration over a rbtree.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ * @index: iteration counter.
+ * @root: the root for your rbtree.
+ */
+#define rb_level_for_each_continue(pos, index, root) \
+    for (pos = rb_level_next(root, index); pos; pos = rb_level_next(root, index))
+
+/**
+ * rb_level_for_each_entry - levelorder iterate over rbtree of given type.
+ * @pos: the type * to use as a loop cursor.
+ * @index: iteration counter.
+ * @root: the root for your rbtree.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_level_for_each_entry(pos, index, root, member) \
+    for (pos = rb_level_first_entry(root, index, typeof(*pos), member); \
+         pos; pos = rb_level_next_entry(root, index, typeof(*pos), member))
+
+/**
+ * rb_level_for_each_entry_from - levelorder iterate over rbtree of given type from the current point.
+ * @pos: the type * to use as a loop cursor.
+ * @index: iteration counter.
+ * @root: the root for your rbtree.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_level_for_each_entry_from(pos, index, root, member) \
+    for (; pos; pos = rb_level_next_entry(root, index, typeof(*pos), member))
+
+/**
+ * rb_level_for_each_entry_continue - continue levelorder iteration over rbtree of given type.
+ * @pos: the type * to use as a loop cursor.
+ * @index: iteration counter.
+ * @root: the root for your rbtree.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_level_for_each_entry_continue(pos, index, root, member) \
+    for (pos = rb_level_next_entry(root, index, typeof(*pos), member); \
+         pos; pos = rb_level_next_entry(root, index, typeof(*pos), member))
 
 /**
  * rb_link - link node to parent.
@@ -709,6 +787,67 @@ static inline void rb_delete_augmented(struct rb_root *root, struct rb_node *nod
  */
 #define rb_cached_post_for_each_entry_safe(pos, tmp, cached, member) \
     rb_post_for_each_entry_safe(pos, tmp, &(cached)->root, member)
+
+/**
+ * rb_cached_level_for_each - levelorder iterate over a cached rbtree.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ * @index: iteration counter.
+ * @cached: the cached root for your rbtree.
+ */
+#define rb_cached_level_for_each(pos, index, cached) \
+    for (pos = rb_level_first(&(cached)->root, index); \
+         pos; pos = rb_level_next(&(cached)->root, index))
+
+/**
+ * rb_cached_level_for_each_from - levelorder iterate over a cached rbtree from the current point.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ * @index: iteration counter.
+ * @cached: the cached root for your rbtree.
+ */
+#define rb_cached_level_for_each_from(pos, index, cached) \
+    for (; pos; pos = rb_level_next(&(cached)->root, index))
+
+/**
+ * rb_cached_level_for_each_continue - continue levelorder iteration over a cached rbtree.
+ * @pos: the &struct rb_node to use as a loop cursor.
+ * @index: iteration counter.
+ * @cached: the cached root for your rbtree.
+ */
+#define rb_cached_level_for_each_continue(pos, index, cached) \
+    for (pos = rb_level_next(&(cached)->root, index); \
+         pos; pos = rb_level_next(&(cached)->root, index))
+
+/**
+ * rb_cached_level_for_each_entry - levelorder iterate over rbtree of given type.
+ * @pos: the type * to use as a loop cursor.
+ * @index: iteration counter.
+ * @cached: the cached root for your rbtree.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_cached_level_for_each_entry(pos, index, cached, member) \
+    for (pos = rb_level_first_entry(&(cached)->root, index, typeof(*pos), member); \
+         pos; pos = rb_level_next_entry(&(cached)->root, index, typeof(*pos), member))
+
+/**
+ * rb_cached_level_for_each_entry_from - levelorder iterate over rbtree of given type from the current point.
+ * @pos: the type * to use as a loop cursor.
+ * @index: iteration counter.
+ * @cached: the cached root for your rbtree.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_cached_level_for_each_entry_from(pos, index, cached, member) \
+    for (; pos; pos = rb_level_next_entry(&(cached)->root, index, typeof(*pos), member))
+
+/**
+ * rb_cached_level_for_each_entry_continue - continue levelorder iteration over rbtree of given type.
+ * @pos: the type * to use as a loop cursor.
+ * @index: iteration counter.
+ * @cached: the cached root for your rbtree.
+ * @member: the name of the rb_node within the struct.
+ */
+#define rb_cached_level_for_each_entry_continue(pos, index, cached, member) \
+    for (pos = rb_level_next_entry(&(cached)->root, index, typeof(*pos), member); \
+         pos; pos = rb_level_next_entry(&(cached)->root, index, typeof(*pos), member))
 
 /**
  * rb_cached_fixup - balance after insert cached node.
