@@ -12,6 +12,10 @@ config SELFTEST_LIB_GLOB
     bool "Glob Parser Test"
     default y
 
+config SELFTEST_LIB_HEAP
+    bool "Heap Test"
+    default y
+
 config SELFTEST_LIB_HLIST
     bool "Hash List Test"
     default y
