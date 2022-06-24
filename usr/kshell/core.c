@@ -13,6 +13,11 @@
 LIST_HEAD(kshell_list);
 SPIN_LOCK(kshell_lock);
 
+#define KSHELL_BOOTARGS CONFIG_KSHELL_BOOTARGS
+static char bootargs[32][KSHELL_BOOTARGS];
+static char *bootarg_ptr[KSHELL_BOOTARGS + 1];
+static unsigned int bootarg_num;
+
 static unsigned int kshell_console_read(char *str, unsigned int len, void *data)
 {
     return console_read(str, len);
@@ -138,6 +143,29 @@ static void __init ksh_initcall(void)
     }
 }
 
+static void bootarg_recode(void)
+{
+    unsigned int count;
+    for (count = 0; count < bootarg_num; ++count)
+        bootarg_ptr[count + 1] = bootargs[count];
+}
+
+state kshell_bootarg_add(const char *args)
+{
+    if (bootarg_num >= KSHELL_BOOTARGS)
+        return -ENOMEM;
+    strcpy(bootargs[bootarg_num++], args);
+    return -ENOERR;
+}
+
+static state kshell_bootarg(char *args)
+{
+    if (*args)
+        kshell_bootarg_add(args);
+    return -ENOERR;
+}
+bootarg_initcall("kshell", kshell_bootarg);
+
 void ksh_init(void)
 {
     unsigned int maxdepth = CONFIG_KSHELL_DEPTH;
@@ -157,7 +185,8 @@ void ksh_init(void)
 
     ksh_initcall();
     list_qsort(&kshell_list, kshell_sort, NULL);
+    bootarg_recode();
 
     printk("Have a lot of fun..\n");
-    kshell_main(&ctx, 0, NULL);
+    kshell_main(&ctx, bootarg_num + 1, bootarg_ptr);
 }
