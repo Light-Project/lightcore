@@ -12,6 +12,10 @@ config KSHELL_DEPTH
     int "Kshell Maximum Depth"
     default 10
 
+config KSHELL_BOOTARGS
+    int "Kshell Maximum Bootargs"
+    default 8
+
 source "usr/command/Kconfig"
 
 source "usr/manual/Kconfig"
