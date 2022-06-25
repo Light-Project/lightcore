@@ -38,6 +38,10 @@ config KCMD_GOTO
     bool "Goto Command Support"
     default y
 
+config KCMD_GREP
+    bool "Grep Command Support"
+    default y
+
 config KCMD_LOOP
     bool "Loop Command Support"
     default y

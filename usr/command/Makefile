@@ -9,6 +9,7 @@ obj-$(CONFIG_KCMD_EXPORT)   += export.o
 obj-$(CONFIG_KCMD_FALSE)    += false.o
 obj-$(CONFIG_KCMD_FUNC)     += func.o
 obj-$(CONFIG_KCMD_GOTO)     += goto.o
+obj-$(CONFIG_KCMD_GREP)     += grep.o
 obj-$(CONFIG_KCMD_LOOP)     += loop.o
 obj-$(CONFIG_KCMD_LSPCI)    += lspci.o
 obj-$(CONFIG_KCMD_MATH)     += math.o
