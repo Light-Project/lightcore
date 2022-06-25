@@ -4,6 +4,7 @@
  */
 
 #include "../../kshell/kshell.h"
+#include <kmalloc.h>
 #include <string.h>
 #include <initcall.h>
 #include <selftest.h>
@@ -33,7 +34,9 @@ static void parser_unsetenv(struct kshell_context *ctx)
 
 static state parser_testing(struct kshell_context *ctx, void *pdata)
 {
-    const char *cmdline;
+    bool constant = true;
+    const char *cmdline = parser_string;
+    const char **buffer = &cmdline;
     char **argv;
     int argc;
     state retval;
@@ -41,7 +44,7 @@ static state parser_testing(struct kshell_context *ctx, void *pdata)
     if ((retval= parser_setenv(ctx)))
         goto exit;
 
-    retval = kshell_parser(ctx, parser_string, &cmdline, &argc, &argv);
+    retval = kshell_parser(ctx, buffer, &cmdline, &argc, &argv, &constant);
     if (retval)
         goto exit;
 
@@ -63,8 +66,9 @@ static state parser_testing(struct kshell_context *ctx, void *pdata)
         retval = -EINVAL;
         goto exit;
     }
+    kfree(argv);
 
-    retval = kshell_parser(ctx, cmdline, &cmdline, &argc, &argv);
+    retval = kshell_parser(ctx, buffer, &cmdline, &argc, &argv, &constant);
     if (retval)
         goto exit;
 
@@ -72,6 +76,10 @@ static state parser_testing(struct kshell_context *ctx, void *pdata)
 
     if (strcmp(argv[0], "ESC"))
         retval = -EINVAL;
+    kfree(argv);
+
+    if (!constant)
+        kfree(*buffer);
 
 exit:
     parser_unsetenv(ctx);

@@ -71,7 +71,7 @@ extern void readline_free(struct readline_state *state);
 
 extern state kshell_envclone(struct kshell_context *ctx, struct kshell_context *new);
 extern void kshell_envrelease(struct kshell_context *ctx);
-extern state kshell_parser(struct kshell_context *ctx, const char *cmdline, const char **pos, int *argc, char ***argv);
+extern state kshell_parser(struct kshell_context *ctx, const char **buffer, const char **pcmdline, int *argc, char ***argv, bool *constant);
 extern state kshell_main(struct kshell_context *ctx, int argc, char *argv[]);
 extern struct kshell_command *kshell_find(const char *name);
 

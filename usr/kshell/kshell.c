@@ -49,15 +49,17 @@ static void commands_release(struct kshell_context *ctx)
     spin_unlock(&kshell_lock);
 }
 
-static state do_system(struct kshell_context *ctx, char *cmdline, jmp_buf *buff)
+static state do_system(struct kshell_context *ctx, const char *cmdline, jmp_buf *buff)
 {
-    struct kshell_command *cmd;
-    state retval;
+    const char *buffer;
     char **argv;
+    struct kshell_command *cmd;
+    bool constant = true;
+    state retval = -ENOERR;
     int argc;
 
     while (cmdline) {
-        retval = kshell_parser(ctx, cmdline, (const char **)&cmdline, &argc, &argv);
+        retval = kshell_parser(ctx, &buffer, &cmdline, &argc, &argv, &constant);
         if (retval)
             return retval;
 
@@ -88,10 +90,13 @@ static state do_system(struct kshell_context *ctx, char *cmdline, jmp_buf *buff)
         kfree(argv);
 
         if (retval)
-            return retval;
+            break;
     }
 
-    return -ENOERR;
+    if (!constant)
+        kfree(buffer);
+
+    return retval;
 }
 
 state kshell_system(struct kshell_context *ctx, const char *cmdline)

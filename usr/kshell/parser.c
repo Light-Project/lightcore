@@ -306,8 +306,9 @@ static char *pseudo_pipeline(struct kshell_context *ctx, const char *cmdline,
     return buffer;
 }
 
-state kshell_parser(struct kshell_context *ctx, const char *cmdline,
-                    const char **pos, int *argc, char ***argv)
+state kshell_parser(struct kshell_context *ctx, const char **buffer,
+                    const char **pcmdline, int *argc, char ***argv,
+                    bool *constant)
 {
     enum paser_state nstate, cstate = KSHELL_STATE_TEXT;
     unsigned int tpos = 0, tsize = PASER_TEXT_DEF;
@@ -316,12 +317,11 @@ state kshell_parser(struct kshell_context *ctx, const char *cmdline,
     int dstack[8] = {}, sstack[8] = {};
     char *tbuff, code = 0, brack_buff[12];
     char *vbuff, *var, *savepos;
-    const char *walk;
-    bool newcmd = false;
+    const char *walk, *cmdline = *pcmdline;
     state retval;
 
     *argc = 0;
-    *pos = NULL;
+    *pcmdline = NULL;
 
     if (!*cmdline)
         return -ENOERR;
@@ -372,12 +372,14 @@ state kshell_parser(struct kshell_context *ctx, const char *cmdline,
                 strncpy(newblock, cmdline, savepos - cmdline);
                 strncpy(newblock + (savepos - cmdline), var, count);
                 strncpy(newblock + (savepos - cmdline) + count, walk + 1, cmdlen - (walk - cmdline));
+                kfree(var);
 
-                if (newcmd)
-                    kfree(var);
+                if (*constant)
+                    *constant = false;
                 else
-                    newcmd = true;
+                    kfree(*buffer);
 
+                *buffer = newblock;
                 walk = newblock + (savepos - cmdline) - 1;
                 cmdline = newblock;
                 cstate = nstate;
@@ -401,7 +403,7 @@ state kshell_parser(struct kshell_context *ctx, const char *cmdline,
                 tbuff[tpos++] = '\0';
                 ++(*argc);
             }
-            *pos = walk + 1;
+            *pcmdline = walk + 1;
             break;
         } else if (code) {
             tbuff[tpos++] = code;
@@ -428,9 +430,6 @@ state kshell_parser(struct kshell_context *ctx, const char *cmdline,
         tbuff[tpos++] = '\0';
         ++(*argc);
     }
-
-    if (newcmd)
-        kfree(cmdline);
 
     /* allocate an argv area */
     count = (*argc + 1) * sizeof(**argv);
