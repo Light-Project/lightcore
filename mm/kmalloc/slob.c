@@ -352,7 +352,7 @@ static void slob_free(const void *block)
     irqflags_t irq_save;
     int retval;
 
-    if (unlikely(!block))
+    if (unlikely(!block || !page))
         return;
 
     if (unlikely(page->type != PAGE_SLOB)) {
@@ -401,13 +401,11 @@ finish:
 
 size_t ksize(const void *block)
 {
+    struct page *page = va_to_page(block);
     struct slob_node *node;
-    struct page *page;
 
-    if (unlikely(!block))
+    if (unlikely(!block || !page))
         return 0;
-
-    page = va_to_page(block);
 
     if (page->type != PAGE_SLOB)
         return 0;
