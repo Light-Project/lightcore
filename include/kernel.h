@@ -8,13 +8,16 @@
 #include <stdarg.h>
 #include <error.h>
 #include <state.h>
+
+#include <math.h>
+#include <log2.h>
 #include <size.h>
+
 #include <macro.h>
 #include <range.h>
 #include <align.h>
 #include <container.h>
-#include <math.h>
-#include <log2.h>
+#include <lightcore/kernel.h>
 
 #define KMAGIC  0x4c434d4bU
 #define MSIZE   (sizeof(void *))

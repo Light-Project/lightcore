@@ -7,11 +7,11 @@
  * @a: first value
  * @b: second value
  */
-#define min(a, b) ({                                    \
-    typeof(a) _amin = (a);                              \
-    typeof(a) _bmin = (b);                              \
-    (void)(&_amin == &_bmin);                           \
-    _amin < _bmin ? _amin : _bmin;                      \
+#define min(a, b) ({                \
+    typeof(a) _amin = (a);          \
+    typeof(a) _bmin = (b);          \
+    (void)(&_amin == &_bmin);       \
+    _amin < _bmin ? _amin : _bmin;  \
 })
 
 /**
@@ -19,11 +19,11 @@
  * @a: first value
  * @b: second value
  */
-#define max(a, b) ({                                    \
-    typeof(a) _amax = (a);                              \
-    typeof(a) _bmax = (b);                              \
-    (void)(&_amax == &_bmax);                           \
-    _amax > _bmax ? _amax : _bmax;                      \
+#define max(a, b) ({                \
+    typeof(a) _amax = (a);          \
+    typeof(a) _bmax = (b);          \
+    (void)(&_amax == &_bmax);       \
+    _amax > _bmax ? _amax : _bmax;  \
 })
 
 /**
@@ -32,8 +32,8 @@
  * @lo: lowest allowable value.
  * @hi: highest allowable value.
  */
-#define clamp(val, lo, hi) (                            \
-    min(max(val, lo), hi)                               \
+#define clamp(val, lo, hi) (        \
+    min(max(val, lo), hi)           \
 )
 
 /**
@@ -41,8 +41,8 @@
  * @val: value to adjust.
  * @lo: lowest allowable value.
  */
-#define min_adj(val, lo) ({                             \
-    (val) = min(val, lo);                               \
+#define min_adj(val, lo) ({         \
+    (val) = min(val, lo);           \
 })
 
 /**
@@ -50,8 +50,8 @@
  * @val: value to adjust.
  * @hi: highest allowable value.
  */
-#define max_adj(val, hi) ({                             \
-    (val) = max(val, hi);                               \
+#define max_adj(val, hi) ({         \
+    (val) = max(val, hi);           \
 })
 
 /**
@@ -60,8 +60,8 @@
  * @lo: lowest allowable value.
  * @hi: highest allowable value.
  */
-#define clamp_adj(val, lo, hi) ({                       \
-    (val) = clamp(val, lo, hi);                         \
+#define clamp_adj(val, lo, hi) ({   \
+    (val) = clamp(val, lo, hi);     \
 })
 
 #endif  /* _RANGE_H_ */

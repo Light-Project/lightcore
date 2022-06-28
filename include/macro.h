@@ -5,19 +5,11 @@
 #include <stddef.h>
 
 /**
- * ARRAY_SIZE - get the number of elements in array.
- * @arr: array to be sized.
- */
-#define ARRAY_SIZE(arr) (                               \
-    sizeof(arr) / sizeof((arr)[0])                      \
-)
-
-/**
  * VAL_BOOL - convert value to boolean value.
  * @val: value to convert.
  */
-#define VAL_BOOL(val) (                                 \
-    (val) ? true : false                                \
+#define VAL_BOOL(val) (         \
+    (val) ? true : false        \
 )
 
 /**
@@ -25,16 +17,16 @@
  * @cond: conditions for execution.
  * @ptr: pointer returned when execution is true.
  */
-#define COND_PTR(cond, ptr) (                           \
-    (cond) ? (ptr) : NULL                               \
+#define COND_PTR(cond, ptr) (   \
+    (cond) ? (ptr) : NULL       \
 )
 
 /**
  * REPEAT_BYTE - repeat the value multiple times to unsigned long
  * @char: value to repeat
  */
-#define REPEAT_BYTE(char) (                             \
-    (~0UL / 0xff) * char                                \
+#define REPEAT_BYTE(char) (     \
+    (~0UL / 0xff) * char        \
 )
 
 /**
@@ -42,18 +34,18 @@
  * @a: first value
  * @b: second value
  */
-#define swap(a, b) ({                                   \
-    typeof(a) _a = (a);                                 \
-    (a) = (b);                                          \
-    (b) = _a;                                           \
+#define swap(a, b) ({           \
+    typeof(a) _a = (a);         \
+    (a) = (b);                  \
+    (b) = _a;                   \
 })
 
 /**
  * skzalloc - static alloc zeroed memory in stack
  * @size: memory size to alloc
  */
-#define skzalloc(size) (                                \
-    (void *)(char [size]){}                             \
+#define skzalloc(size) (        \
+    (void *)(char [size]){}     \
 )
 
 #endif  /* _MACRO_H_ */
