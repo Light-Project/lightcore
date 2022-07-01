@@ -42,6 +42,10 @@ config KCMD_GREP
     bool "Grep Command Support"
     default y
 
+config KCMD_HEAD
+    bool "Head Command Support"
+    default y
+
 config KCMD_LOOP
     bool "Loop Command Support"
     default y
@@ -68,6 +72,10 @@ config KCMD_REBOOT
 
 config KCMD_SLEEP
     bool "Sleep Command Support"
+    default y
+
+config KCMD_TAIL
+    bool "Tail Command Support"
     default y
 
 config KCMD_TIME
