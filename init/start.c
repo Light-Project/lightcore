@@ -60,7 +60,7 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
     irq_local_disable();
 
     earlycon_init();
-    terminal_logo();
+    pr_early(terminal_logo);
 
     early_device_init();
     command_setup();
