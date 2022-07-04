@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <crypto.h>
+#include <crypto/chacha.h>
+#include <kernel.h>
 #include <string.h>
 #include <bitops.h>
 #include <proc.h>

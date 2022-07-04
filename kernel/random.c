@@ -4,7 +4,7 @@
  */
 
 #include <random.h>
-#include <crypto.h>
+#include <crypto/chacha.h>
 #include <percpu.h>
 #include <driver/rng.h>
 #include <export.h>

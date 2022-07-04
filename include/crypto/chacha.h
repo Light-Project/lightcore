@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#ifndef _CRYPTO_H_
-#define _CRYPTO_H_
+#ifndef _CRYPTO_CHACHA_H_
+#define _CRYPTO_CHACHA_H_
 
-#include <kernel.h>
+#include <types.h>
 
 #define CHACHA_IV_SIZE		16
 #define CHACHA_KEY_SIZE		32
@@ -19,4 +19,4 @@ static inline void chacha20_block(uint32_t *state, uint8_t *stream)
     chacha_block(state, stream, 20);
 }
 
-#endif  /* _CRYPTO_H_ */
+#endif  /* _CRYPTO_CHACHA_H_ */
