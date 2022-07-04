@@ -3,7 +3,7 @@
  * Copyright(c) 2022 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <crypto.h>
+#include <crypto/sha1.h>
 #include <bitops.h>
 #include <proc.h>
 #include <export.h>
@@ -29,8 +29,7 @@
 #define SHA1_60_79(c, b, d, A, B, C, D, E) \
         SHA1_ROUND(c, b, d, A, B, C, D, E, SHA1_SRC, 0xca62c1d6, (B ^ C ^ D))
 
-void sha1_transform(uint32_t digest[SHA1_DIGEST_WORDS],
-                    uint32_t buff[SHA1_WORKSPACE_WORDS], const char *data)
+void sha1_transform(uint32_t *digest, uint32_t *buff, const char *data)
 {
     uint32_t A, B, C, D, E;
     unsigned int count;
@@ -41,11 +40,11 @@ void sha1_transform(uint32_t digest[SHA1_DIGEST_WORDS],
     D = digest[3];
     E = digest[4];
 
-	/* Round 1 SRC */
+	/* Round 1 MIX */
     for (count = 0; count < 16; ++count)
         SHA1_00_15(count, buff, data, A, B, C, D, E);
 
-	/* Round 1 MIX */
+	/* Round 1 SRC */
     for (count = 16; count < 20; ++count)
         SHA1_16_19(count, buff, data, A, B, C, D, E);
 
@@ -69,7 +68,7 @@ void sha1_transform(uint32_t digest[SHA1_DIGEST_WORDS],
 }
 EXPORT_SYMBOL(sha1_transform);
 
-void sha1_init(uint32_t digest[SHA1_DIGEST_WORDS])
+void sha1_init(uint32_t *digest)
 {
     digest[0] = SHA1_DIGEST0;
     digest[1] = SHA1_DIGEST1;
