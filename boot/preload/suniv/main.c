@@ -5,7 +5,7 @@
 
 #include <boot.h>
 #include <kernel.h>
-#include <crc-table.h>
+#include <crypto/crc32-table.h>
 #include <driver/irqchip/suniv.h>
 #include <lightcore/asm/byteorder.h>
 #include <asm-generic/header.h>
@@ -15,14 +15,6 @@
 
 uint32_t clock_cpu, clock_periph;
 uint32_t clock_ahb, clock_dram;
-
-static inline uint32_t crc32(const uint8_t *src, int len, uint32_t crc)
-{
-    uint32_t tmp = crc;
-    while (len--)
-        tmp = (tmp >> 8) ^ crc32_table[(tmp & 0xff) ^ *src++];
-    return tmp ^ crc;
-}
 
 static inline void spiflash_boot(void)
 {
@@ -52,7 +44,7 @@ static inline void spiflash_boot(void)
     pr_boot("Entry Point: 0x%x\n", entry);
     norflash_read((void *)load, head_addr + sizeof(head), size);
 
-    newcrc = crc32((void *)load, size, ~0);
+    newcrc = crc32_inline((void *)load, size, ~0);
     if (oldcrc != newcrc) {
         pr_boot("crc error 0x%x->0x%x\n", oldcrc, newcrc);
         return;

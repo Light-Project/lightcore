@@ -5,17 +5,9 @@
 
 #include <boot.h>
 #include <linkage.h>
-#include <crc-table.h>
+#include <crypto/crc32-table.h>
 #include <lightcore/asm/byteorder.h>
 #include <asm-generic/header.h>
-
-static inline uint32_t crc32(const uint8_t *src, int len, uint32_t crc)
-{
-    uint32_t tmp = crc;
-    while (len--)
-        tmp = (tmp >> 8) ^ crc32_table[(tmp & 0xff) ^ *src++];
-    return tmp ^ crc;
-}
 
 static inline __noreturn void spiflash_boot(void)
 {
@@ -41,7 +33,7 @@ static inline __noreturn void spiflash_boot(void)
     pr_boot("entry point: %#x\n", entry);
     norflash_read((void *)load, head_addr + sizeof(head), size);
 
-    newcrc = crc32((void *)load, size, ~0);
+    newcrc = crc32_inline((void *)load, size, ~0);
     if (oldcrc != newcrc)
         panic("crc error 0x%x->0x%x\n", oldcrc, newcrc);
 

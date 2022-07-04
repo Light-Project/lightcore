@@ -7,7 +7,7 @@
 #define pr_fmt(fmt)	MODULE_NAME ": " fmt
 
 #include <init.h>
-#include <crypto.h>
+#include <crypto/crc.h>
 #include <memory.h>
 #include <mm/memblock.h>
 #include <driver/dt.h>

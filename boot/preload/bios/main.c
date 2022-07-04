@@ -6,16 +6,16 @@
 #include <boot.h>
 #include <linkage.h>
 #include <kernel.h>
-#include <crc-table.h>
+#include <crypto/crc32-table.h>
 #include <lightcore/asm/byteorder.h>
 #include <asm-generic/header.h>
 
 static uint32_t crc32(const uint8_t *src, int len, uint32_t crc)
 {
-    uint32_t tmp = crc;
+    crc ^= 0xffffffff;
     while (len--)
-        tmp = (tmp >> 8) ^ crc32_table[(tmp & 0xff) ^ bigreal_readb(src++)];
-    return tmp ^ crc;
+        crc = crc32_byte(crc, bigreal_readb(src++));
+    return crc ^ 0xffffffff;
 }
 
 static __noreturn void biosdisk_boot(void)

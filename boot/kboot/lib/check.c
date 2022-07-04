@@ -4,15 +4,7 @@
  */
 
 #include <lib.h>
-#include <crc-table.h>
-
-static uint32_t crc32(const uint8_t *src, int len, uint32_t crc)
-{
-    uint32_t tmp = crc;
-    while (len--)
-        tmp = (tmp >> 8) ^ crc32_table[(tmp & 0xff) ^ *src++];
-    return tmp ^ crc;
-}
+#include <crypto/crc32-table.h>
 
 void kernel_check(void *addr)
 {
@@ -28,7 +20,7 @@ void kernel_check(void *addr)
         panic("can't find kernel!\n");
 
     crc32old = boot_head->crc;
-    crc32new = crc32((uint8_t *)(boot_head + 1), size, 0xffffffff);
+    crc32new = crc32_inline((uint8_t *)(boot_head + 1), size, 0xffffffff);
 
     if (crc32old != crc32new)
         panic("crc error 0x%x->0x%x\n", crc32old, crc32new);

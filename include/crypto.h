@@ -33,9 +33,4 @@ static inline void chacha20_block(uint32_t *state, uint8_t *stream)
 extern void sha1_transform(uint32_t digest[SHA1_DIGEST_WORDS], uint32_t buff[SHA1_WORKSPACE_WORDS], const char *data);
 extern void sha1_init(uint32_t digest[SHA1_DIGEST_WORDS]);
 
-extern uint8_t crc4(uint8_t *src, int len, uint8_t crc);
-extern uint8_t crc8(uint8_t *src, int len, uint8_t crc);
-extern uint16_t crc16(uint8_t *src, int len, uint16_t crc);
-extern uint32_t crc32(const uint8_t *s, int len, uint32_t crc);
-
 #endif  /* _CRYPTO_H_ */
