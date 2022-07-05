@@ -95,10 +95,19 @@ extern void rb_fixup(struct rb_root *root, struct rb_node *node);
 extern void rb_erase(struct rb_root *root, struct rb_node *parent);
 extern struct rb_node *rb_remove(struct rb_root *root, struct rb_node *node);
 extern void rb_replace(struct rb_root *root, struct rb_node *old, struct rb_node *new);
-extern struct rb_node *rb_find(const struct rb_root *root, const void *key, rb_find_t);
+extern struct rb_node *rb_find(const struct rb_root *root, const void *key, rb_find_t cmp);
 extern struct rb_node *rb_find_last(struct rb_root *root, const void *key, rb_find_t cmp, struct rb_node **parentp, struct rb_node ***linkp);
-extern struct rb_node **rb_parent(struct rb_root *root, struct rb_node **parentp, struct rb_node *node, rb_cmp_t, bool *leftmost);
-extern struct rb_node **rb_parent_conflict(struct rb_root *root, struct rb_node **parentp, struct rb_node *node, rb_cmp_t, bool *leftmost);
+extern struct rb_node **rb_parent(struct rb_root *root, struct rb_node **parentp, struct rb_node *node, rb_cmp_t cmp, bool *leftmost);
+extern struct rb_node **rb_parent_conflict(struct rb_root *root, struct rb_node **parentp, struct rb_node *node, rb_cmp_t cmp, bool *leftmost);
+
+#define rb_cached_erase_augmented(cached, parent, callbacks) rb_erase_augmented(&(cached)->root, parent, callbacks)
+#define rb_cached_remove_augmented(cached, node, callbacks) rb_remove_augmented(&(cached)->root, node, callbacks)
+#define rb_cached_erase(cached, parent) rb_erase(&(cached)->root, parent)
+#define rb_cached_remove(cached, node) rb_remove(&(cached)->root, node)
+#define rb_cached_find(cached, key, cmp) rb_find(&(cached)->root, key, cmp)
+#define rb_cached_find_last(cached, key, cmp, parentp, linkp) rb_find_last(&(cached)->root, key, cmp, parentp, linkp)
+#define rb_cached_parent(cached, parentp, node, cmp, leftmost) rb_parent(&(cached)->root, parentp, node, cmp, leftmost)
+#define rb_cached_parent_conflict(cached, parentp, node, cmp, leftmost) rb_parent_conflict(&(cached)->root, parentp, node, cmp, leftmost)
 
 extern struct rb_node *rb_left_far(const struct rb_node *node);
 extern struct rb_node *rb_right_far(const struct rb_node *node);
@@ -896,7 +905,7 @@ static inline void rb_cached_insert(struct rb_root_cached *cached, struct rb_nod
     struct rb_node *parent, **link;
     bool leftmost = true;
 
-    link = rb_parent(&cached->root, &parent, node, cmp, &leftmost);
+    link = rb_cached_parent(cached, &parent, node, cmp, &leftmost);
     rb_cached_insert_node(cached, parent, link, node, leftmost);
 }
 
@@ -911,7 +920,7 @@ static inline state rb_cached_insert_conflict(struct rb_root_cached *cached, str
     struct rb_node *parent, **link;
     bool leftmost = true;
 
-    link = rb_parent_conflict(&cached->root, &parent, node, cmp, &leftmost);
+    link = rb_cached_parent_conflict(cached, &parent, node, cmp, &leftmost);
     if (!link)
         return -EFAULT;
 
@@ -981,7 +990,7 @@ static inline void rb_cached_insert_augmented(struct rb_root_cached *cached, str
     struct rb_node *parent, **link;
     bool leftmost = true;
 
-    link = rb_parent(&cached->root, &parent, node, cmp, &leftmost);
+    link = rb_cached_parent(cached, &parent, node, cmp, &leftmost);
     rb_cached_insert_node_augmented(cached, parent, link, node, leftmost, callbacks);
 }
 
@@ -998,7 +1007,7 @@ static inline state rb_cached_insert_conflict_augmented(struct rb_root_cached *c
     struct rb_node *parent, **link;
     bool leftmost = true;
 
-    link = rb_parent_conflict(&cached->root, &parent, node, cmp, &leftmost);
+    link = rb_cached_parent_conflict(cached, &parent, node, cmp, &leftmost);
     if (!link)
         return -EFAULT;
 
