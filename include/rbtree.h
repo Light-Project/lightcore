@@ -49,6 +49,12 @@ struct rb_callbacks {
 #define RB_ROOT_CACHED(name) \
     struct rb_root_cached name = RB_CACHED_INIT
 
+#define RB_EMPTY_ROOT(root) \
+    ((root)->node == NULL)
+
+#define RB_EMPTY_ROOT_CACHED(cached) \
+    ((cached)->root.node == NULL)
+
 #define RB_EMPTY_NODE(node) \
     ((node)->parent == (node))
 
