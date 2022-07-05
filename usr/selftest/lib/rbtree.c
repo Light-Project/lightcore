@@ -22,11 +22,21 @@ struct rbtree_test_pdata {
 #define rbnode_to_test(ptr) \
     rb_entry(ptr, struct rbtree_test_node, node)
 
+#define rbnode_to_test_safe(ptr) \
+    rb_entry_safe(ptr, struct rbtree_test_node, node)
+
 static long rbtest_rb_cmp(const struct rb_node *rba, const struct rb_node *rbb)
 {
     struct rbtree_test_node *nodea = rbnode_to_test(rba);
     struct rbtree_test_node *nodeb = rbnode_to_test(rbb);
-    return nodea->num - nodeb->num;
+    return nodea->num > nodeb->num ? -1 : 1;
+}
+
+static long rbtest_rb_find(const struct rb_node *rb, const void *key)
+{
+    struct rbtree_test_node *node = rbnode_to_test(rb);
+    if (node->num == (unsigned long)key) return 0;
+    return (unsigned long)key > node->num ? -1 : 1;
 }
 
 static state rbtree_test_testing(struct kshell_context *ctx, void *pdata)
@@ -38,8 +48,22 @@ static state rbtree_test_testing(struct kshell_context *ctx, void *pdata)
 
     RB_ROOT_CACHED(test_root);
 
-    for (count = 0; count < ARRAY_SIZE(sdata->nodes); ++count)
+    for (count = 0; count < TEST_LOOP; ++count)
         rb_cached_insert(&test_root, &sdata->nodes[count].node, rbtest_rb_cmp);
+
+    for (count = 0; count < TEST_LOOP; ++count) {
+        rbnode = rb_find(&test_root.root, (void *)count, rbtest_rb_find);
+        if (!(node = rbnode_to_test_safe(rbnode)))
+            return -EFAULT;
+        kshell_printf(ctx, "rbtree 'rb_cached' test: %lu\n", node->num);
+    }
+
+    for (count = 0; count < TEST_LOOP; ++count) {
+        rbnode = rb_cached_find(&test_root, (void *)count, rbtest_rb_find);
+        if (!(node = rbnode_to_test_safe(rbnode)))
+            return -EFAULT;
+        kshell_printf(ctx, "rbtree 'rb_cached_find' test: %lu\n", node->num);
+    }
 
     count = 0;
     rb_for_each(rbnode, &test_root.root) {
@@ -338,7 +362,7 @@ static void *rbtree_test_prepare(struct kshell_context *ctx, int argc, char *arg
     if (!rdata)
         return NULL;
 
-    for (count = 0; count < ARRAY_SIZE(rdata->nodes); ++count)
+    for (count = 0; count < TEST_LOOP; ++count)
         rdata->nodes[count].num = TEST_LOOP - count - 1;
 
     return rdata;
