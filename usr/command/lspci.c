@@ -26,7 +26,7 @@ static void usage(struct kshell_context *ctx)
 static void lspci_device_show(struct kshell_context *ctx, unsigned int bus, unsigned int devfn,
                               uint16_t class, uint16_t vendor, uint16_t device)
 {
-    kshell_printf(ctx, "%02u:%02u.%u Class %#04x: %#04x:%#04x\n",
+    kshell_printf(ctx, "%02u:%02u.%u Class %#06x: %#06x:%#06x\n",
         bus, PCI_SLOT(devfn), PCI_FUNC(devfn), class, vendor, device);
 }
 

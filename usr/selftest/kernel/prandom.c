@@ -19,7 +19,7 @@ static state prandom_testing(struct kshell_context *ctx, void *pdata)
 
     for (count = 0; count < TEST_LOOP; ++count) {
         value = prandom_value();
-        kshell_printf(ctx, "prandom test%02u: %#08x\n", count, value);
+        kshell_printf(ctx, "prandom test%02u: %#010x\n", count, value);
     }
 
     count = 0;

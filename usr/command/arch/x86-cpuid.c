@@ -350,7 +350,7 @@ static state cpuid_main(struct kshell_context *ctx, int argc, char *argv[])
     for (count = 0; count < ARRAY_SIZE(cpuid_table); ++count) {
         entry = cpuid_table + count;
         if (cpuid_support(entry->value))
-            kshell_printf(ctx, "opcode: %#08llx reg: %-3s bit: %2lld name: %s\n",
+            kshell_printf(ctx, "opcode: %#010llx reg: %-3s bit: %2lld name: %s\n",
                 X86_CPUID_OP_GET(entry->value), reg_name[X86_CPUID_REG_GET(entry->value)],
                 X86_CPUID_BIT_GET(entry->value), entry->name);
     }

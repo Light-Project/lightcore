@@ -102,10 +102,8 @@ static size_t format_int(char *q, size_t n, uintmax_t val, enum flags flags,
     if (minus || (flags & (FL_PLUS | FL_SPACE)))
         nchars++; /* Need space for sign */
 
-    if ((flags & FL_HASH) && (base == 16)) {
+    if ((flags & FL_HASH) && (base == 16))
         nchars += 2; /* Add 0x for hex */
-        width += 2;
-    }
 
     /*
      * Emit early space padding

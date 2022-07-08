@@ -374,8 +374,8 @@ static void slob_free(const void *block)
     if (retval) {
 #ifdef CONFIG_DEBUG_SLOB
         if (DEBUG_DATA_CHECK(slob_page->avail != PAGE_SIZE,
-            "free corruption (%p)->avail should be equal to (%#04lx), "
-            "but was (%#04x)\n", slob_page, PAGE_SIZE, slob_page->avail))
+            "free corruption (%p)->avail should be equal to (%#06lx), "
+            "but was (%#06x)\n", slob_page, PAGE_SIZE, slob_page->avail))
             goto finish;
 #endif
         if (!list_check_outsize(&slob_page->list))

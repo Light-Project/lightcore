@@ -57,14 +57,14 @@ static state i801_check_ready(struct i801_device *idev)
 
     value &= STATUS_FLAGS;
     if (value) {
-        dev_debug(idev->host.dev, "clear host status register value (%#02x)\n", value);
+        dev_debug(idev->host.dev, "clear host status register value (%#04x)\n", value);
         i801_writeb(idev, I801_HST_STS, value);
     }
 
     if (idev->host.capability & I2C_FUNC_SMBUS_PEC) {
         value = i801_readb(idev, I801_AUX_STS);
         if (value) {
-            dev_debug(idev->host.dev, "clear Auxiliary status register value (%#02x)\n", value);
+            dev_debug(idev->host.dev, "clear Auxiliary status register value (%#04x)\n", value);
             i801_writeb(idev, I801_AUX_STS, value);
         }
     }
