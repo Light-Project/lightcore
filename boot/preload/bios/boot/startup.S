@@ -168,15 +168,11 @@ GLOBAL(setup_bigreal)
 END(setup_bigreal)
 
 GLOBAL(kboot_start)
-    movl    8(%esp), %ebx
-    movw    4(%esp), %ax
-
-    movl    %ebx, 1f
-    movw    %ax, 2f
-
-    .byte   0x66, 0xea  /* ljmpl opcode */
-1:  .long   0x00        /* address */
-2:  .word   0x00        /* segment */
+    movl    4(%esp), %ecx
+    movl    8(%esp), %edx
+    pushl   %ecx
+    pushl   %edx
+    lretl
 END(kboot_start)
 
 GLOBAL(bios_int)
