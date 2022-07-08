@@ -4,6 +4,7 @@
  */
 
 #include <initcall.h>
+#include <timekeeping.h>
 #include <prandom.h>
 #include <selftest.h>
 
@@ -11,13 +12,32 @@
 
 static state prandom_testing(struct kshell_context *ctx, void *pdata)
 {
-    unsigned int count;
+    ktime_t start = timekeeping_get_time();
+    unsigned int count, loop;
     uint32_t value;
+    char sbuff[32];
 
     for (count = 0; count < TEST_LOOP; ++count) {
         value = prandom_value();
         kshell_printf(ctx, "prandom test%02u: %#08x\n", count, value);
     }
+
+    count = 0;
+    do {
+        for (loop = 0; loop < TEST_LOOP; ++loop) {
+            prandom_value(); prandom_value();
+            prandom_value(); prandom_value();
+            prandom_value(); prandom_value();
+            prandom_value(); prandom_value();
+        }
+        count++;
+    } while (ktime_after(
+        start, ktime_sub_ms
+        (timekeeping_get_time(), 1000)
+    ));
+
+    gsize(sbuff, count * BYTES_PER_U32 * TEST_LOOP * 8);
+    kshell_printf(ctx, "prandom bandwidth: %s/s\n", sbuff);
 
     return -ENOERR;
 }
