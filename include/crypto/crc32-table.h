@@ -76,23 +76,23 @@ static inline uint32_t crc32_byte(uint32_t crc, const uint8_t data)
 
 static inline uint32_t crc32_inline(const uint8_t *src, int len, uint32_t crc)
 {
-    crc ^= 0xffffffff;
+    uint32_t loop = crc;
 
     for (; len >= 8; len -= 8) {
-        crc = crc32_byte(crc, *src++);
-        crc = crc32_byte(crc, *src++);
-        crc = crc32_byte(crc, *src++);
-        crc = crc32_byte(crc, *src++);
-        crc = crc32_byte(crc, *src++);
-        crc = crc32_byte(crc, *src++);
-        crc = crc32_byte(crc, *src++);
-        crc = crc32_byte(crc, *src++);
+        loop = crc32_byte(loop, *src++);
+        loop = crc32_byte(loop, *src++);
+        loop = crc32_byte(loop, *src++);
+        loop = crc32_byte(loop, *src++);
+        loop = crc32_byte(loop, *src++);
+        loop = crc32_byte(loop, *src++);
+        loop = crc32_byte(loop, *src++);
+        loop = crc32_byte(loop, *src++);
     }
 
     while (len--)
-        crc = crc32_byte(crc, *src++);
+        loop = crc32_byte(loop, *src++);
 
-    return crc ^ 0xffffffff;
+    return loop ^ crc;
 }
 
 #endif  /* _CRYPTO_CRC32_TABLE_H_ */

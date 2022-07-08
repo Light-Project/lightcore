@@ -12,10 +12,10 @@
 
 static uint32_t crc32(const uint8_t *src, int len, uint32_t crc)
 {
-    crc ^= 0xffffffff;
+    uint32_t loop = crc;
     while (len--)
-        crc = crc32_byte(crc, bigreal_readb(src++));
-    return crc ^ 0xffffffff;
+        loop = crc32_byte(loop, bigreal_readb(src++));
+    return loop ^ crc;
 }
 
 static __noreturn void biosdisk_boot(void)
@@ -37,14 +37,14 @@ static __noreturn void biosdisk_boot(void)
     rawload = load - sizeof(*head);
     blkcount = DIV_ROUND_UP(size + sizeof(*head), 512);
 
-    pr_boot("data size: %#08x\n", size);
-    pr_boot("load address: %#08x\n", load);
-    pr_boot("entry point: %#08x\n", entry);
+    pr_boot("data size: %#x\n", size);
+    pr_boot("load address: %#x\n", load);
+    pr_boot("entry point: %#x\n", entry);
     biosdisk_read(boot_dev, (void *)rawload, load_seek, blkcount);
 
     newcrc = crc32((void *)load, size, ~0);
     if (oldcrc != newcrc)
-        panic("crc error 0x%x->0x%x\n", oldcrc, newcrc);
+        panic("crc error %#x->%#x\n", oldcrc, newcrc);
 
     pr_boot("start kboot...\n");
     kboot_start((entry & ~0xffff) >> 4, entry & 0xffff);
