@@ -4,25 +4,19 @@
 
 #ifndef __ASSEMBLY__
 
-#include <types.h>
 #include <stddef.h>
+#include <ctype.h>
+#include <string.h>
 #include <stdarg.h>
-
-extern void pr_init(void (*fun)(const char *));
-extern int printf(const char *str, ...);
-extern int pr_boot(const char *str, ...);
-extern __noreturn void panic(const char *str, ...);
-
-extern int strcmp(const char *, const char *);
-extern void *memcpy(void *, const void *, size_t);
-extern int strncmp(const char *s1, const char *s2, size_t n);
-extern void *memset(void *, int, size_t);
-extern void *memmove(void * dest, const void * src, size_t n);
 
 extern int memtest_fast(size_t *addr, size_t size);
 extern int memtest(size_t *addr, size_t size);
 
 extern int vsprintf(char *, const char *, va_list);
+extern void pr_init(void (*fun)(const char *));
+extern int printf(const char *str, ...);
+extern int pr_boot(const char *str, ...);
+extern __noreturn void panic(const char *str, ...);
 
 #endif  /* __ASSEMBLY__ */
 #endif  /* _LIB_H_ */

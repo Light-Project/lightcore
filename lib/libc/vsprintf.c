@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#include <types.h>
+#include <ctype.h>
 #include <string.h>
 #include <stdarg.h>
 #include <bits.h>
@@ -12,24 +12,21 @@
 #define SPECIAL     BIT(5)  /* 0x                               */
 #define SMALL       BIT(6)  /* use 'abcdef' instead of 'ABCDEF' */
 
-#define is_digit(c) ((c - '0') < 10)
-
 static int skip_atoi(const char **s)
 {
     int i = 0;
 
-    while (is_digit(**s))
+    while (isdigit(**s))
         i = i * 10 + *((*s)++) - '0';
 
     return i;
 }
 
-static char* format_int(char *str, size_t num, char base, int size, int precision, int type)
+static char *format_int(char *str, size_t num, char base, int size, int precision, int type)
 {
-    char tmp[32];
-    char c, sign;
+    char tmp[32], c, sign;
     const char *digits;
-    int i = 0;  /* Conversion length */
+    int i = 0;
 
     if (type & SMALL)
         digits = "0123456789abcdef";
@@ -51,16 +48,16 @@ static char* format_int(char *str, size_t num, char base, int size, int precisio
         size--;
 
     if (type & SPECIAL) {
-        if (base == 16)
+        if (base == 8)
+            size -= 1;
+        else if (base == 16)
             size -= 2;
-        else if (base==8)
-            size--;
     }
 
     /* Convert variable to character */
     if (num == 0)
         tmp[i++] = '0';
-    else while (num!=0) {
+    else while (num != 0) {
         tmp[i++] = digits[num % base];
         num /= base;
     }
@@ -69,7 +66,6 @@ static char* format_int(char *str, size_t num, char base, int size, int precisio
         precision = i;
 
     size -= precision;
-
     if (!(type & (ZEROPAD | LEFT)))
         while (size-- > 0)
             *str++ = ' ';
@@ -87,7 +83,7 @@ static char* format_int(char *str, size_t num, char base, int size, int precisio
     }
 
     if (!(type & LEFT))
-        while(size-- > 0)
+        while (size-- > 0)
             *str++ = c;
 
     while (i < precision--)
@@ -105,13 +101,12 @@ static char* format_int(char *str, size_t num, char base, int size, int precisio
 
 int vsprintf(char* buf, const char* fmt, va_list args)
 {
-    int     *ip, loop, len, field_width, precision;
-    char    *cp, *str = buf;
-    char    base, flags = 0;
-    size_t  val;
+    int *ip, loop, len, field_width, precision;
+    char *cp, *str = buf;
+    char base, flags = 0;
+    size_t val;
 
     while (*fmt) {
-
         if (*fmt != '%') {
             *str++ = *fmt++;
             continue;
@@ -128,10 +123,10 @@ int vsprintf(char* buf, const char* fmt, va_list args)
 
         /* add zero pad */
         field_width = -1;
-        if (is_digit(*fmt))
+        if (isdigit(*fmt))
             field_width = skip_atoi(&fmt);
         else if (*fmt == '*') {
-            ++fmt;  /* Skip '*' */
+            ++fmt; /* Skip '*' */
             field_width = va_arg(args, ssize_t);
             if (field_width < 0) {
                 field_width = -field_width;
@@ -141,8 +136,8 @@ int vsprintf(char* buf, const char* fmt, va_list args)
 
         precision = -1;
         if (*fmt == '.') {
-            ++fmt;  /* Skip '.' */
-            if (is_digit(*fmt))
+            ++fmt; /* Skip '.' */
+            if (isdigit(*fmt))
                 precision = skip_atoi(&fmt);
             else if (*fmt == '*')
                 precision = va_arg(args, ssize_t);
@@ -155,56 +150,64 @@ int vsprintf(char* buf, const char* fmt, va_list args)
             ++fmt;
 
         switch (*fmt) {
-            case 'd':   /* Signed decimal output */
-            case 'i':
+            /* Signed decimal output */
+            case 'd': case 'i':
                 flags |= SIGN;
                 base = 10;
                 val = va_arg(args, ssize_t);
                 goto is_integer;
 
-            case 'u':   /* Unsigned decimal */
+            /* Unsigned decimal */
+            case 'u':
                 base = 10;
                 val = va_arg(args, size_t);
                 goto is_integer;
 
-            case 'x':   /* Hexadecimal */
+            /* Hexadecimal */
+            case 'x':
                 flags |= SMALL;
-            case 'X':   /* Upper case hexadecimal */
+                fallthrough;
+
+            /* Upper case hexadecimal */
+            case 'X':
                 base = 16;
                 val = va_arg(args, size_t);
                 goto is_integer;
 
-            case 'o':   /* Octal */
+            /* Octal */
+            case 'o':
                 base = 8;
                 val = va_arg(args, size_t);
                 goto is_integer;
 
-            case 'p':   /* pointer */
+            /* Pointer */
+            case 'p':
                 flags |= SMALL;
-            case 'P':   /* Upper case pointer */
+                fallthrough;
+
+            /* Upper case pointer */
+            case 'P':
                 flags |= SPECIAL;
                 base = 16;
                 val = (size_t)(uintptr_t)
                     va_arg(args, void *);
 
-            is_integer: str = format_int(str, val, base,
+            is_integer:
+                str = format_int(str, val, base,
                         field_width, precision, flags);
                 break;
 
-            /* string */
+            /* String */
             case 's':
                 cp = va_arg(args, char *);
                 len = strlen(cp);
-
                 if (precision < 0)
                     precision = len;
                 else if (len > precision)
                     len = precision;
-
                 if (!(flags & LEFT))
                     while (len < field_width--)
                         *str++ = ' ';
-
                 for (loop = 0; loop < len; ++loop)
                     *str++ = *cp++;
                 while (len < field_width--)
@@ -221,21 +224,23 @@ int vsprintf(char* buf, const char* fmt, va_list args)
                     *str++ = ' ';
                 break;
 
-            case '%':
-                *str++ = '%';
-                break;
-
             /* Length of string before feedback */
             case 'n':
                 ip = va_arg(args, int *);
                 *ip = (str - buf);
                 break;
 
+            case '%':
+                *str++ = '%';
+                break;
+
             /* illegal parameter */
             default:
                 break;
         }
-        ++fmt;  /* Skip parameters */
+
+        /* Skip parameters */
+        ++fmt;
     }
     *str = '\0';
 
