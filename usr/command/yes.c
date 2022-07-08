@@ -64,7 +64,7 @@ usage:
 
 static struct kshell_command yes_cmd = {
     .name = "yes",
-    .desc = "",
+    .desc = "loop printf of specific string",
     .exec = yes_main,
 };
 
