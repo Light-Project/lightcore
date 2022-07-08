@@ -4,6 +4,7 @@
  */
 
 #include <initcall.h>
+#include <gsize.h>
 #include <timekeeping.h>
 #include <prandom.h>
 #include <selftest.h>
@@ -15,7 +16,7 @@ static state prandom_testing(struct kshell_context *ctx, void *pdata)
     ktime_t start = timekeeping_get_time();
     unsigned int count, loop;
     uint32_t value;
-    char sbuff[32];
+    char sbuff[GSIZE_BUFF];
 
     for (count = 0; count < TEST_LOOP; ++count) {
         value = prandom_value();

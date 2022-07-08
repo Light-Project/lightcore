@@ -3,7 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <size.h>
+#include <gsize.h>
 #include <initcall.h>
 #include <timekeeping.h>
 #include <vmalloc.h>
@@ -20,7 +20,7 @@ static state strncmp_testing(struct kshell_context *ctx, void *pdata)
     struct strncmp_pdata *mdata = pdata;
     ktime_t start = timekeeping_get_time();
     unsigned int count = 0;
-    char sbuff[32];
+    char sbuff[GSIZE_BUFF];
 
     do {
         if (strncmp(mdata->mempool_b, mdata->mempool_a, SZ_1MiB))
@@ -33,6 +33,7 @@ static state strncmp_testing(struct kshell_context *ctx, void *pdata)
 
     gsize(sbuff, count * SZ_1MiB);
     kshell_printf(ctx, "strncmp bandwidth: %s/s\n", sbuff);
+
     return -ENOERR;
 }
 

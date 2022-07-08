@@ -3,7 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <size.h>
+#include <gsize.h>
 #include <initcall.h>
 #include <timekeeping.h>
 #include <vmalloc.h>
@@ -19,7 +19,7 @@ static state strnlen_testing(struct kshell_context *ctx, void *pdata)
     struct strnlen_pdata *mdata = pdata;
     ktime_t start = timekeeping_get_time();
     unsigned int count = 0;
-    char sbuff[32];
+    char sbuff[GSIZE_BUFF];
 
     do {
         if (strnlen(mdata->mempool, SZ_1MiB) != SZ_1MiB)
@@ -32,6 +32,7 @@ static state strnlen_testing(struct kshell_context *ctx, void *pdata)
 
     gsize(sbuff, count * SZ_1MiB);
     kshell_printf(ctx, "strnlen bandwidth: %s/s\n", sbuff);
+
     return -ENOERR;
 }
 
@@ -44,7 +45,7 @@ static void *strnlen_prepare(struct kshell_context *ctx, int argc, char *argv[])
     if (!pdata)
         return ERR_PTR(-ENOMEM);
 
-    for (count = 0; count < SZ_1MiB - 1; ++count)
+    for (count = 0; count < SZ_1MiB; ++count)
         pdata->mempool[count] = count % UINT8_MAX | 1;
 
     return pdata;

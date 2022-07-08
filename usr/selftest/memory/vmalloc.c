@@ -3,7 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <size.h>
+#include <gsize.h>
 #include <initcall.h>
 #include <vmalloc.h>
 #include <string.h>

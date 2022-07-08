@@ -187,6 +187,5 @@ extern __printf(2, 0) __malloc char *kvasprintf(gfp_t flags, const char *fmt, va
 extern __printf(2, 0) __malloc const char *kvasprintf_const(gfp_t flags, const char *fmt, va_list args);
 extern __printf(2, 3) __malloc char *kasprintf(gfp_t gfp, const char *fmt, ...);
 extern __printf(2, 3) __malloc const char *kasprintf_const(gfp_t gfp, const char *fmt, ...);
-extern int gsize(char *buff, size_t size);
 
 #endif  /* _KERNEL_H_ */

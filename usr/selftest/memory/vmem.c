@@ -3,7 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <size.h>
+#include <gsize.h>
 #include <initcall.h>
 #include <mm/vmem.h>
 #include <prandom.h>
@@ -15,7 +15,7 @@
 static state vmem_testing(struct kshell_context *ctx, void *pdata)
 {
     struct vmem_area *test_pool[TEST_LOOP];
-    char sbuff[32];
+    char sbuff[GSIZE_BUFF];
     unsigned int count, tmp;
     state ret = -ENOERR;
     size_t size;
