@@ -8,4 +8,8 @@ config SELFTEST_FILTER_EWMA
     bool "EWMA Unit Tests"
     default y
 
+config SELFTEST_FILTER_MEAN
+    bool "MEAN Unit Tests"
+    default y
+
 endif # SELFTEST_FILTER
