@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-obj-y += libc/ font/ crypto/ framedraw/
+obj-y += libc/ font/ framedraw/
+obj-y += crypto/ filter/
 obj-y += errname.o bitrev.o
 obj-y += bitops.o bitmap.o
 obj-y += bsearch.o bytefill.o
