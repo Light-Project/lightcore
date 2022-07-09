@@ -7,6 +7,8 @@ if KSH_SELFTEST
 
 source "usr/selftest/driver/Kconfig"
 
+source "usr/selftest/filter/Kconfig"
+
 source "usr/selftest/kernel/Kconfig"
 
 source "usr/selftest/kshell/Kconfig"

@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig SELFTEST_FILTER
+    bool "Test Filter Unit"
+    default y
+if SELFTEST_FILTER
+
+config SELFTEST_FILTER_EWMA
+    bool "EWMA Unit Tests"
+    default y
+
+endif # SELFTEST_FILTER
