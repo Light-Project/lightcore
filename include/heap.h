@@ -28,6 +28,21 @@ struct heap_root {
 #define HEAP_ROOT(name) \
     struct heap_root name = HEAP_INIT
 
+#define HEAP_EMPTY_ROOT(root) \
+    ((root)->node == NULL)
+
+#define HEAP_EMPTY_NODE(node) \
+    ((node)->parent == (node))
+
+#define HEAP_CLEAR_NODE(node) \
+    ((node)->parent = (node))
+
+#define HEAP_ROOT_NODE(root) \
+    ((root)->node)
+
+#define HEAP_NODE_COUNT(root) \
+    ((root)->count)
+
 /**
  * heap_entry - get the struct for this entry.
  * @ptr: the &struct heap_node pointer.
@@ -133,11 +148,13 @@ extern struct heap_node *heap_level_next(const struct heap_root *root, unsigned 
 
 /**
  * heap_link - link node to parent.
+ * @root: heaptree root of node.
  * @parent: point to parent node.
  * @link: point to pointer to child node.
  * @node: new node to link.
  */
-static inline void heap_link(struct heap_node *parent, struct heap_node **link, struct heap_node *node)
+static inline void heap_link(struct heap_root *root, struct heap_node *parent,
+                             struct heap_node **link, struct heap_node *node)
 {
 #ifdef DEBUG_HEAP
     if (unlikely(!heap_debug_link_check(parent, link, node)))
@@ -148,6 +165,7 @@ static inline void heap_link(struct heap_node *parent, struct heap_node **link, 
     *link = node;
     node->parent = parent;
     node->left = node->right = NULL;
+    root->count++;
 }
 
 /**
@@ -160,7 +178,7 @@ static inline void heap_link(struct heap_node *parent, struct heap_node **link, 
 static inline void heap_insert_node(struct heap_root *root, struct heap_node *parent, struct heap_node **link,
                                     struct heap_node *node, heap_cmp_t cmp)
 {
-    heap_link(parent, link, node);
+    heap_link(root, parent, link, node);
     heap_fixup(root, node, cmp);
 }
 

@@ -54,8 +54,6 @@ void heap_fixup(struct heap_root *root, struct heap_node *node, heap_cmp_t cmp)
             break;
         parent_swap(root, parent, node);
     }
-
-    root->count++;
 }
 EXPORT_SYMBOL(heap_fixup);
 
