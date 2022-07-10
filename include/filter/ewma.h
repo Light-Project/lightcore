@@ -6,8 +6,8 @@
 #include <limits.h>
 
 struct ewma_state {
-    uint16_t last;
-    uint16_t weight;
+    short last;
+    short weight;
     bool ready;
 };
 
@@ -20,8 +20,8 @@ struct ewma_state {
 #define EWMA_STATE(NAME, WEIGHT) \
     struct ewma_state NAME = EWMA_INIT(WEIGHT)
 
-extern uint16_t ewma_update(struct ewma_state *state, uint16_t value);
+extern short ewma_update(struct ewma_state *state, short value);
 extern void ewma_clear(struct ewma_state *state);
-extern void ewma_init(struct ewma_state *state, uint16_t weight);
+extern void ewma_init(struct ewma_state *state, short weight);
 
 #endif  /* _FILTER_EWMA_H_ */
