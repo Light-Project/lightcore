@@ -59,7 +59,7 @@ state kshell_register(struct kshell_command *cmd)
         return -EINVAL;
 
     if (kshell_find(cmd->name)) {
-        pr_err("cmd %s already registered", cmd->name);
+        pr_err("cmd %s already registered\n", cmd->name);
         return -EINVAL;
     }
 
@@ -139,7 +139,7 @@ static void __init ksh_initcall(void)
     initcall_for_each_fn(fn, kshell_initcall) {
         call = initcall_from_entry(fn);
         if (call())
-            pr_err("%s startup failed", fn->name);
+            pr_err("%s startup failed\n", fn->name);
     }
 }
 
