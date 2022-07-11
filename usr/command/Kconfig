@@ -2,6 +2,10 @@
 menu "Kshell Command Shell"
     depends on KSHELL
 
+config KCMD_BASE64
+    bool "Base64 Command Support"
+    default y
+
 config KCMD_CLEAR
     bool "Clear Command Support"
     default y
