@@ -3,59 +3,275 @@
 #include <ctype.h>
 #include <export.h>
 
-char *itoa(int val, char *str, int base)
-{
-    char conv[] = "0123456789abcdef";
-    unsigned char count = 0, tmp[32];
-    bool sub = false, hex = false;
-
-    if (val < 0) {
-        sub = true;
-        val = -val;
-    }
-
-    if (base == 16)
-        hex = true;
-
-    if (!val) {
-        tmp[0] = '0';
-        count++;
-    }
-
-    while (val != 0) {
-        tmp[count] = conv[val % base];
-        val /= base;
-        count++;
-    }
-
-    if (sub && !hex)
-        *str++ = '-';
-
-    if (hex) {
-        *str++ = '0';
-        *str++ = 'x';
-    }
-
-    while (count--)
-        *str++ = tmp[count];
-
-    *str++ = '\0';
-
-    return str;
-}
-EXPORT_SYMBOL(itoa);
-
 int chtoi(unsigned char ch)
 {
-	unsigned char cu = ch & 0xdf;
-	return -1 +
-		((ch - '0' +  1) & (unsigned)((ch - '9' - 1) & ('0' - 1 - ch)) >> 8) +
-		((cu - 'A' + 11) & (unsigned)((cu - 'F' - 1) & ('A' - 1 - cu)) >> 8);
+    unsigned char cu = ch & 0xdf;
+    return -1 +
+        ((ch - '0' +  1) & (unsigned)((ch - '9' - 1) & ('0' - 1 - ch)) >> 8) +
+        ((cu - 'A' + 11) & (unsigned)((cu - 'F' - 1) & ('A' - 1 - cu)) >> 8);
 }
 EXPORT_SYMBOL(chtoi);
 
+#define GENERIC_XBNTOA_OPS(name, type, signed)              \
+int name(type val, char *buff, int base, size_t length)     \
+{                                                           \
+    char brev[64 + 3], conv[] = "0123456789abcdef";         \
+    unsigned int used = 0, index = 0;                       \
+    bool negative = false;                                  \
+                                                            \
+    if (signed && val < 0) {                                \
+        negative = true;                                    \
+        val = -val;                                         \
+    }                                                       \
+                                                            \
+    do {                                                    \
+        brev[index++] = conv[val % base];                   \
+        val /= base;                                        \
+    } while (val);                                          \
+                                                            \
+    if (base == 8)                                          \
+        brev[index++] = '0';                                \
+    else if (base == 16) {                                  \
+        brev[index++] = 'x';                                \
+        brev[index++] = '0';                                \
+    } else if (base == 2) {                                 \
+        brev[index++] = 'b';                                \
+        brev[index++] = '0';                                \
+    }                                                       \
+                                                            \
+    if (signed && negative)                                 \
+        brev[index++] = '-';                                \
+                                                            \
+    while (length > (used + 1) && index) {                  \
+        *buff++ = brev[--index];                            \
+        used++;                                             \
+    }                                                       \
+                                                            \
+    if (length)                                             \
+        *buff = '\0';                                       \
+                                                            \
+    used += index;                                          \
+    return used + 1;                                        \
+}
+
+GENERIC_XBNTOA_OPS(intoa, int, true)
+GENERIC_XBNTOA_OPS(lntoa, long, true)
+GENERIC_XBNTOA_OPS(llntoa, long long, true)
+GENERIC_XBNTOA_OPS(imaxntoa, intmax_t, true)
+GENERIC_XBNTOA_OPS(uintoa, unsigned int, false)
+GENERIC_XBNTOA_OPS(ulntoa, unsigned long, false)
+GENERIC_XBNTOA_OPS(ullntoa, unsigned long long, false)
+GENERIC_XBNTOA_OPS(umaxntoa, uintmax_t, false)
+GENERIC_XBNTOA_OPS(s8ntoa, int8_t, true)
+GENERIC_XBNTOA_OPS(s16ntoa, int16_t, true)
+GENERIC_XBNTOA_OPS(s32ntoa, int32_t, true)
+GENERIC_XBNTOA_OPS(s64ntoa, int64_t, true)
+GENERIC_XBNTOA_OPS(u8ntoa, uint8_t, false)
+GENERIC_XBNTOA_OPS(u16ntoa, uint16_t, false)
+GENERIC_XBNTOA_OPS(u32ntoa, uint32_t, false)
+GENERIC_XBNTOA_OPS(u64ntoa, uint64_t, false)
+
+EXPORT_SYMBOL(intoa);
+EXPORT_SYMBOL(lntoa);
+EXPORT_SYMBOL(llntoa);
+EXPORT_SYMBOL(imaxntoa);
+EXPORT_SYMBOL(uintoa);
+EXPORT_SYMBOL(ulntoa);
+EXPORT_SYMBOL(ullntoa);
+EXPORT_SYMBOL(umaxntoa);
+EXPORT_SYMBOL(s8ntoa);
+EXPORT_SYMBOL(s16ntoa);
+EXPORT_SYMBOL(s32ntoa);
+EXPORT_SYMBOL(s64ntoa);
+EXPORT_SYMBOL(u8ntoa);
+EXPORT_SYMBOL(u16ntoa);
+EXPORT_SYMBOL(u32ntoa);
+EXPORT_SYMBOL(u64ntoa);
+
+#define GENERIC_XBTOA_OPS(name, func, type)     \
+int name(type val, char *str, int base)         \
+{                                               \
+    return func(val, str, base, ULONG_MAX);     \
+}
+
+GENERIC_XBTOA_OPS(itoa, intoa, int)
+GENERIC_XBTOA_OPS(ltoa, lntoa, long)
+GENERIC_XBTOA_OPS(lltoa, llntoa, long long)
+GENERIC_XBTOA_OPS(imaxtoa, imaxntoa, intmax_t)
+GENERIC_XBTOA_OPS(uitoa, uintoa, unsigned int)
+GENERIC_XBTOA_OPS(ultoa, ulntoa, unsigned long)
+GENERIC_XBTOA_OPS(ulltoa, ullntoa, unsigned long long)
+GENERIC_XBTOA_OPS(umaxtoa, umaxntoa, uintmax_t)
+GENERIC_XBTOA_OPS(s8toa, s8ntoa, int8_t)
+GENERIC_XBTOA_OPS(s16toa, s16ntoa, int16_t)
+GENERIC_XBTOA_OPS(s32toa, s32ntoa, int32_t)
+GENERIC_XBTOA_OPS(s64toa, s64ntoa, int64_t)
+GENERIC_XBTOA_OPS(u8toa, u8ntoa, uint8_t)
+GENERIC_XBTOA_OPS(u16toa, u16ntoa, uint16_t)
+GENERIC_XBTOA_OPS(u32toa, u32ntoa, uint32_t)
+GENERIC_XBTOA_OPS(u64toa, u64ntoa, uint64_t)
+
+EXPORT_SYMBOL(itoa);
+EXPORT_SYMBOL(ltoa);
+EXPORT_SYMBOL(lltoa);
+EXPORT_SYMBOL(imaxtoa);
+EXPORT_SYMBOL(uitoa);
+EXPORT_SYMBOL(ultoa);
+EXPORT_SYMBOL(ulltoa);
+EXPORT_SYMBOL(umaxtoa);
+EXPORT_SYMBOL(s8toa);
+EXPORT_SYMBOL(s16toa);
+EXPORT_SYMBOL(s32toa);
+EXPORT_SYMBOL(s64toa);
+EXPORT_SYMBOL(u8toa);
+EXPORT_SYMBOL(u16toa);
+EXPORT_SYMBOL(u32toa);
+EXPORT_SYMBOL(u64toa);
+
+#define GENERIC_XTOA_OPS(name, func, type, base)    \
+int name(type val, char *str)                       \
+{                                                   \
+    return func(val, str, base);                    \
+}
+
+GENERIC_XTOA_OPS(itoad, itoa, int, 10)
+GENERIC_XTOA_OPS(ltoad, ltoa, long, 10)
+GENERIC_XTOA_OPS(lltoad, lltoa, long long, 10)
+GENERIC_XTOA_OPS(imaxtoad, imaxtoa, intmax_t, 10)
+GENERIC_XTOA_OPS(uitoad, uitoa, unsigned int, 10)
+GENERIC_XTOA_OPS(ultoad, ultoa, unsigned long, 10)
+GENERIC_XTOA_OPS(ulltoad, ulltoa, unsigned long long, 10)
+GENERIC_XTOA_OPS(umaxtoad, umaxtoa, uintmax_t, 10)
+GENERIC_XTOA_OPS(s8toad, s8toa, int8_t, 10)
+GENERIC_XTOA_OPS(s16toad, s16toa, int16_t, 10)
+GENERIC_XTOA_OPS(s32toad, s32toa, int32_t, 10)
+GENERIC_XTOA_OPS(s64toad, s64toa, int64_t, 10)
+GENERIC_XTOA_OPS(u8toad, u8toa, uint8_t, 10)
+GENERIC_XTOA_OPS(u16toad, u16toa, uint16_t, 10)
+GENERIC_XTOA_OPS(u32toad, u32toa, uint32_t, 10)
+GENERIC_XTOA_OPS(u64toad, u64toa, uint64_t, 10)
+
+GENERIC_XTOA_OPS(itoab, itoa, int, 2)
+GENERIC_XTOA_OPS(ltoab, ltoa, long, 2)
+GENERIC_XTOA_OPS(lltoab, lltoa, long long, 2)
+GENERIC_XTOA_OPS(imaxtoab, imaxtoa, intmax_t, 2)
+GENERIC_XTOA_OPS(uitoab, uitoa, unsigned int, 2)
+GENERIC_XTOA_OPS(ultoab, ultoa, unsigned long, 2)
+GENERIC_XTOA_OPS(ulltoab, ulltoa, unsigned long long, 2)
+GENERIC_XTOA_OPS(umaxtoab, umaxtoa, uintmax_t, 2)
+GENERIC_XTOA_OPS(s8toab, s8toa, int8_t, 2)
+GENERIC_XTOA_OPS(s16toab, s16toa, int16_t, 2)
+GENERIC_XTOA_OPS(s32toab, s32toa, int32_t, 2)
+GENERIC_XTOA_OPS(s64toab, s64toa, int64_t, 2)
+GENERIC_XTOA_OPS(u8toab, u8toa, uint8_t, 2)
+GENERIC_XTOA_OPS(u16toab, u16toa, uint16_t, 2)
+GENERIC_XTOA_OPS(u32toab, u32toa, uint32_t, 2)
+GENERIC_XTOA_OPS(u64toab, u64toa, uint64_t, 2)
+
+GENERIC_XTOA_OPS(itoao, itoa, int, 8)
+GENERIC_XTOA_OPS(ltoao, ltoa, long, 8)
+GENERIC_XTOA_OPS(lltoao, lltoa, long long, 8)
+GENERIC_XTOA_OPS(imaxtoao, imaxtoa, intmax_t, 8)
+GENERIC_XTOA_OPS(uitoao, uitoa, unsigned int, 8)
+GENERIC_XTOA_OPS(ultoao, ultoa, unsigned long, 8)
+GENERIC_XTOA_OPS(ulltoao, ulltoa, unsigned long long, 8)
+GENERIC_XTOA_OPS(umaxtoao, umaxtoa, uintmax_t, 8)
+GENERIC_XTOA_OPS(s8toao, s8toa, int8_t, 8)
+GENERIC_XTOA_OPS(s16toao, s16toa, int16_t, 8)
+GENERIC_XTOA_OPS(s32toao, s32toa, int32_t, 8)
+GENERIC_XTOA_OPS(s64toao, s64toa, int64_t, 8)
+GENERIC_XTOA_OPS(u8toao, u8toa, uint8_t, 8)
+GENERIC_XTOA_OPS(u16toao, u16toa, uint16_t, 8)
+GENERIC_XTOA_OPS(u32toao, u32toa, uint32_t, 8)
+GENERIC_XTOA_OPS(u64toao, u64toa, uint64_t, 8)
+
+GENERIC_XTOA_OPS(itoah, itoa, int, 16)
+GENERIC_XTOA_OPS(ltoah, ltoa, long, 16)
+GENERIC_XTOA_OPS(lltoah, lltoa, long long, 16)
+GENERIC_XTOA_OPS(imaxtoah, imaxtoa, intmax_t, 16)
+GENERIC_XTOA_OPS(uitoah, uitoa, unsigned int, 16)
+GENERIC_XTOA_OPS(ultoah, ultoa, unsigned long, 16)
+GENERIC_XTOA_OPS(ulltoah, ulltoa, unsigned long long, 16)
+GENERIC_XTOA_OPS(umaxtoah, umaxtoa, uintmax_t, 16)
+GENERIC_XTOA_OPS(s8toah, s8toa, int8_t, 16)
+GENERIC_XTOA_OPS(s16toah, s16toa, int16_t, 16)
+GENERIC_XTOA_OPS(s32toah, s32toa, int32_t, 16)
+GENERIC_XTOA_OPS(s64toah, s64toa, int64_t, 16)
+GENERIC_XTOA_OPS(u8toah, u8toa, uint8_t, 16)
+GENERIC_XTOA_OPS(u16toah, u16toa, uint16_t, 16)
+GENERIC_XTOA_OPS(u32toah, u32toa, uint32_t, 16)
+GENERIC_XTOA_OPS(u64toah, u64toa, uint64_t, 16)
+
+EXPORT_SYMBOL(itoad);
+EXPORT_SYMBOL(ltoad);
+EXPORT_SYMBOL(lltoad);
+EXPORT_SYMBOL(imaxtoad);
+EXPORT_SYMBOL(uitoad);
+EXPORT_SYMBOL(ultoad);
+EXPORT_SYMBOL(ulltoad);
+EXPORT_SYMBOL(umaxtoad);
+EXPORT_SYMBOL(s8toad);
+EXPORT_SYMBOL(s16toad);
+EXPORT_SYMBOL(s32toad);
+EXPORT_SYMBOL(s64toad);
+EXPORT_SYMBOL(u8toad);
+EXPORT_SYMBOL(u16toad);
+EXPORT_SYMBOL(u32toad);
+EXPORT_SYMBOL(u64toad);
+
+EXPORT_SYMBOL(itoab);
+EXPORT_SYMBOL(ltoab);
+EXPORT_SYMBOL(lltoab);
+EXPORT_SYMBOL(imaxtoab);
+EXPORT_SYMBOL(uitoab);
+EXPORT_SYMBOL(ultoab);
+EXPORT_SYMBOL(ulltoab);
+EXPORT_SYMBOL(umaxtoab);
+EXPORT_SYMBOL(s8toab);
+EXPORT_SYMBOL(s16toab);
+EXPORT_SYMBOL(s32toab);
+EXPORT_SYMBOL(s64toab);
+EXPORT_SYMBOL(u8toab);
+EXPORT_SYMBOL(u16toab);
+EXPORT_SYMBOL(u32toab);
+EXPORT_SYMBOL(u64toab);
+
+EXPORT_SYMBOL(itoao);
+EXPORT_SYMBOL(ltoao);
+EXPORT_SYMBOL(lltoao);
+EXPORT_SYMBOL(imaxtoao);
+EXPORT_SYMBOL(uitoao);
+EXPORT_SYMBOL(ultoao);
+EXPORT_SYMBOL(ulltoao);
+EXPORT_SYMBOL(umaxtoao);
+EXPORT_SYMBOL(s8toao);
+EXPORT_SYMBOL(s16toao);
+EXPORT_SYMBOL(s32toao);
+EXPORT_SYMBOL(s64toao);
+EXPORT_SYMBOL(u8toao);
+EXPORT_SYMBOL(u16toao);
+EXPORT_SYMBOL(u32toao);
+EXPORT_SYMBOL(u64toao);
+
+EXPORT_SYMBOL(itoah);
+EXPORT_SYMBOL(ltoah);
+EXPORT_SYMBOL(lltoah);
+EXPORT_SYMBOL(imaxtoah);
+EXPORT_SYMBOL(uitoah);
+EXPORT_SYMBOL(ultoah);
+EXPORT_SYMBOL(ulltoah);
+EXPORT_SYMBOL(umaxtoah);
+EXPORT_SYMBOL(s8toah);
+EXPORT_SYMBOL(s16toah);
+EXPORT_SYMBOL(s32toah);
+EXPORT_SYMBOL(s64toah);
+EXPORT_SYMBOL(u8toah);
+EXPORT_SYMBOL(u16toah);
+EXPORT_SYMBOL(u32toah);
+EXPORT_SYMBOL(u64toah);
+
 #define GENERIC_STRNTOX_OPS(name, type, signed)                                 \
-type name(const char *nptr, char **endptr, unsigned int base, size_t len)       \
+type name(const char *nptr, char **endptr, unsigned int base, size_t length)    \
 {                                                                               \
     type total, value;                                                          \
     char sign;                                                                  \
@@ -63,50 +279,50 @@ type name(const char *nptr, char **endptr, unsigned int base, size_t len)       
     if (!nptr || !*nptr)                                                        \
         return 0;                                                               \
                                                                                 \
-    while (isspace(*nptr) && len--)                                             \
+    while (isspace(*nptr) && length--)                                          \
         ++nptr;                                                                 \
                                                                                 \
-    if (!len)                                                                   \
+    if (!length)                                                                \
         return 0;                                                               \
                                                                                 \
     sign = *nptr;                                                               \
     if (signed && (sign == '-' || sign == '+')) {                               \
         nptr++;                                                                 \
-        if (!--len)                                                             \
+        if (!--length)                                                          \
             return 0;                                                           \
     }                                                                           \
                                                                                 \
     if (!base) {                                                                \
         if (nptr[0] == '0') {                                                   \
-            if (len > 2 && tolower(nptr[1]) == 'x') {                           \
+            if (length > 2 && tolower(nptr[1]) == 'x') {                        \
                 base  = 16;                                                     \
                 nptr += 2;                                                      \
-                len  -= 2;                                                      \
-            } else if (len > 2 && tolower(nptr[1]) == 'b') {                    \
+                length  -= 2;                                                   \
+            } else if (length > 2 && tolower(nptr[1]) == 'b') {                 \
                 base  = 2;                                                      \
                 nptr += 2;                                                      \
-                len  -= 2;                                                      \
-            } else if (len > 1) {                                               \
+                length  -= 2;                                                   \
+            } else if (length > 1) {                                            \
                 base  = 8;                                                      \
                 nptr += 1;                                                      \
-                len  -= 1;                                                      \
+                length  -= 1;                                                   \
             }                                                                   \
         } else                                                                  \
             base = 10;                                                          \
     } else if (nptr[0] == '0') {                                                \
-        if (base == 16 && len > 2 && tolower(nptr[1]) == 'x') {                 \
+        if (base == 16 && length > 2 && tolower(nptr[1]) == 'x') {              \
             nptr += 2;                                                          \
-            len  -= 2;                                                          \
-        } else if (base == 2 && len > 2 && tolower(nptr[1]) == 'b') {           \
+            length  -= 2;                                                       \
+        } else if (base == 2 && length > 2 && tolower(nptr[1]) == 'b') {        \
             nptr += 2;                                                          \
-            len  -= 2;                                                          \
-        } else if (base == 8 && len > 1) {                                      \
+            length  -= 2;                                                       \
+        } else if (base == 8 && length > 1) {                                   \
             nptr += 1;                                                          \
-            len  -= 1;                                                          \
+            length  -= 1;                                                       \
         }                                                                       \
     }                                                                           \
                                                                                 \
-    for (total = 0; *nptr && len--; nptr++) {                                   \
+    for (total = 0; *nptr && length--; nptr++) {                                \
         if (isdigit(*nptr))                                                     \
             value = *nptr - '0';                                                \
         else if (tolower(*nptr) >= 'a' && tolower(*nptr) <= 'f')                \
