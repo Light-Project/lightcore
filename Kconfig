@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 mainmenu "Lightcore $(KERNELVERSION) Configuration"
 
+source "scripts/include/Kconfig"
+
 source "kernel/Kconfig.general"
 
 source "arch/Kconfig"
