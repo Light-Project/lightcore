@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 include $(srctree)/platform.mk
 export KASAN_SANITIZE = n
+export UBSAN_SANITIZE = n
 
 obj-y += $(arch)/ lib/ piggy.o
 extra-y += $(arch)/boot.lds

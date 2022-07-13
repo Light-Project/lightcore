@@ -5,6 +5,7 @@
 
 # Include main rule
 include $(build_home)/include/kasan.mk
+include $(build_home)/include/ubsan.mk
 include $(build_home)/modules/main_rule.mk
 
 include_file    := $(filter %.h,$(include_blend))
@@ -28,8 +29,14 @@ symflags_y  += $(symflags-y)
 
 ifdef CONFIG_KASAN
 ccflags_y += $(if $(patsubst n%,, \
-             $(KASAN_SANITIZE_$(basetarget).o)$(KASAN_SANITIZE)y), \
+             $(KASAN_SANITIZE_$(basetarget).o)$(KASAN_SANITIZE)$(CONFIG_KASAN_ALL)), \
              $(CFLAGS_KASAN), $(CFLAGS_KASAN_NOSANITIZE))
+endif
+
+ifdef CONFIG_UBSAN
+ccflags_y += $(if $(patsubst n%,, \
+             $(UBSAN_SANITIZE_$(basetarget).o)$(UBSAN_SANITIZE)$(CONFIG_UBSAN_ALL)), \
+		 $(CFLAGS_UBSAN))
 endif
 
 a_flags      = $(gcc-warning) $(acflags_y) $(asflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
