@@ -327,7 +327,7 @@ static void *slob_alloc(size_t size, gfp_t flags, size_t align, int numa)
     if (BUG_ON(!size))
         return NULL;
 
-    align = max(align, SLOB_ALIGN);
+    align = max(align_high(align, SLOB_ALIGN), SLOB_ALIGN);
     size = align_high(size, align);
 
     if (size < CONFIG_SLOB_MEDIUM_LINE) {
