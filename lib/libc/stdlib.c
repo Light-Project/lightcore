@@ -51,7 +51,7 @@ int name(type val, char *buff, int base, size_t length)     \
         *buff = '\0';                                       \
                                                             \
     used += index;                                          \
-    return used + 1;                                        \
+    return used;                                            \
 }
 
 GENERIC_XBNTOA_OPS(intoa, int, true)
