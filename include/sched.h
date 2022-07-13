@@ -141,6 +141,10 @@ struct sched_task {
 
     state exit_code;
 
+#ifdef CONFIG_UBSAN
+    unsigned int ubsan_depth;
+#endif
+
 #ifdef CONFIG_SMP
     struct sched_queue *queue;
 #endif

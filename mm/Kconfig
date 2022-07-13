@@ -121,8 +121,6 @@ config SLOB_HUGE_LINE
 
 endmenu # SLOB Config
 
-source "mm/kasan/Kconfig"
-
 config MEMBLK_REGIONS
     int "Memblock Maximum Regions"
     default 128
