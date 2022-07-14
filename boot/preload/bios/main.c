@@ -37,11 +37,15 @@ static __noreturn void biosdisk_boot(void)
     rawload = load - sizeof(*head);
     blkcount = DIV_ROUND_UP(size + sizeof(*head), 512);
 
+    pr_boot("boot device: %d\n", boot_dev);
     pr_boot("data size: %#x\n", size);
     pr_boot("load address: %#x\n", load);
     pr_boot("entry point: %#x\n", entry);
-    biosdisk_read(boot_dev, (void *)rawload, load_seek, blkcount);
 
+    if (size > memory_size)
+        panic("image too big %#x->%#x\n", size, memory_size);
+
+    biosdisk_read(boot_dev, (void *)rawload, load_seek, blkcount);
     newcrc = crc32((void *)load, size, ~0);
     if (oldcrc != newcrc)
         panic("crc error %#x->%#x\n", oldcrc, newcrc);
@@ -54,7 +58,6 @@ asmlinkage void __noreturn main(void)
 {
     video_clear();
     pr_init(video_print);
-
     a20_enable();
     biosdisk_boot();
 }

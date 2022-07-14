@@ -27,7 +27,8 @@
 /****************************/
 
     .code16
-    .section .setup,"ax"
+    .section .setup, "ax"
+
 GLOBAL(_start)
     cld
     cli
@@ -125,7 +126,9 @@ TXT_INT13_2_ERR:    .asciz "[MBR] INT13/2 ERR!\n\r"
 /* The text section begins  */
 /****************************/
 
-    .section .text,"ax"
+    .code16
+    .section .text, "ax"
+
 ENTRY(init)
     /* clear the bss region */
     movl    $_ld_bss_start, %edi
@@ -232,7 +235,9 @@ intnr:  .byte  0
 END(bios_int)
 
     .align 16
-gdt_table:
+    .section .rodata, "a"
+
+SYM_DATA_START_LOCAL(gdt_table)
     .long   0x00000000  /* 0x00: NULL ENTRY                     */
     .long   0x00000000  /* 0x04: NULL                           */
     .long   0x0000ffff  /* 0x08: FS ENTRY                       */
@@ -240,3 +245,4 @@ gdt_table:
 gdt_struct:
     .word   0x000f      /* GDT Limit    */
     .long   gdt_table   /* GDT Addr     */
+SYM_DATA_END(gdt_table)

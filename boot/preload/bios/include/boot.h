@@ -44,6 +44,7 @@ struct bios_reg {
 } __packed;
 
 #define load_seek 63
+#define memory_size (0xa0000 - 0x10000)
 extern unsigned char boot_dev;
 
 #define SEGMENT_READ_OPS(name, type, size, reg)         \
