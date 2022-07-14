@@ -8,8 +8,10 @@
 #include <arch/x86/regs.h>
 #include "e820-offset.h"
 
-#define E820_MAGIC 0xe820
-#define E820_SMAP 0x534d4150
+#define E820_MAGIC  0xe820
+#define E820_SMAP   0x534d4150
+#define E820_BSIZE  0x14
+#define E820_INTN   0x15
 
     .code16
     .section .text, "ax"
@@ -17,25 +19,28 @@
 SYM_FUNC_START(memdetect)
     xorl    %edx, %edx
     xorl    %ebx, %ebx
-restart:
+    subl    $E820_BSIZE, %esp
+
+L(e820_restart):
+    movl    $E820_MAGIC, %eax
+    movl    $E820_BSIZE, %ecx
+    movl    %esp, %edi
 
     pushl   %edx
-    movl    $E820_MAGIC, %eax
     movl    $E820_SMAP, %edx
-    movl    $e820_buffer, %edi
-    movl    $e820_end - e820_buffer, %ecx
-    int     $0x15
+    int     $E820_INTN
     popl    %edx
 
-    jb      e820_finish
+    jb      L(e820_finish)
     cmpl    $E820_SMAP, %eax
-    jne     e820_error
+    jne     L(e820_error)
+
+    movl    $E820_BSIZE, %ecx
+    movl    $bootparam, %edi
+    movl    %esp, %esi
+    movl    %ecx, %eax
 
     pushl   %edx
-    movl    $e820_end - e820_buffer, %ecx
-    movl    $e820_buffer, %esi
-    movl    $bootparam, %edi
-    movl    %ecx, %eax
     mull    %edx
     leal    E820_ENTRY(%edi), %edi
     addl    %eax, %edi
@@ -45,20 +50,15 @@ restart:
 
     incl    %edx
     testl   %ebx, %ebx
-    jz      e820_finish
+    jz      L(e820_finish)
     cmp     $E820_MAX_ENTRIES, %edx
-    jl      restart
+    jl      L(e820_restart)
 
-e820_finish:
+L(e820_finish):
     movl    $bootparam, %ebx
     movl    %edx, E820_NUM(%ebx)
 
-e820_error:
+L(e820_error):
+    addl    $E820_BSIZE, %esp
     ret
 SYM_FUNC_END(memdetect)
-
-SYM_DATA_START_LOCAL(e820_buffer)
-    .quad 0x0000000000000000
-    .quad 0x0000000000000000
-    .long 0x00000000
-SYM_DATA_END_LABEL(e820_buffer, SYM_L_LOCAL, e820_end)

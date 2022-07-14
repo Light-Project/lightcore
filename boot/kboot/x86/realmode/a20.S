@@ -28,12 +28,12 @@
 
 SYM_FUNC_START(a20_enable)
     movl    $A20_RETRY, %esi
-retry:
+L(a20e_retry):
 
     /* First, check to see if A20 is already enabled */
     movl    $A20_TEST_FAST, %ecx
     call    a20_test
-    jne     finish
+    jne     L(a20e_finish)
 
 /*
  * The best way to turn on the a20 is to use
@@ -72,7 +72,7 @@ bios_exit:
 
     movl    $A20_TEST_FAST, %ecx
     call    a20_test
-    jne     finish
+    jne     L(a20e_finish)
 
 /*
  * For the original method to enable the A20 line, some
@@ -110,7 +110,7 @@ bios_exit:
 
     movl    $A20_TEST_SLOW, %ecx
     call    a20_test
-    jne     finish
+    jne     L(a20e_finish)
 
 /*
  * On most newer computers starting with the IBM PS/2,
@@ -124,7 +124,7 @@ bios_exit:
 
     movl    $A20_TEST_SLOW, %ecx
     call    a20_test
-    jne     finish
+    jne     L(a20e_finish)
 
 /*
  * On some systems reading ioport 0xee enables A20,
@@ -134,14 +134,14 @@ bios_exit:
 
     movl    $A20_TEST_SLOW, %ecx
     call    a20_test
-    jne     finish
+    jne     L(a20e_finish)
 
     decl    %esi
-    jnz     retry
+    jnz     L(a20e_retry)
     movw    $0, %ax
     ret
 
-finish:
+L(a20e_finish):
     movw    $1, %ax
     ret
 SYM_FUNC_END(a20_enable)
@@ -154,18 +154,18 @@ SYM_FUNC_START_LOCAL(a20_test)
 
     movl    $A20_TEST_ADDR, %ebx
     movl    (%ebx), %edx
-L(retry):
 
+L(a20t_retry):
     incl    %edx
     movl    %edx, %ds:(%ebx)
     io_delay
     movl    %es:(%ebx), %eax
 
     cmpl    %eax, %edx
-    jne     L(exit)
-    loopl   L(retry)
+    jne     L(a20t_finish)
+    loopl   L(a20t_retry)
 
-L(exit):
+L(a20t_finish):
     popw    %es
     ret
 SYM_FUNC_END(a20_test)
