@@ -8,9 +8,9 @@
 #include <stdarg.h>
 #include <asm-generic/header.h>
 
-extern void heap_init(void *heap_start,size_t heap_size);
-extern void *malloc(size_t size);
-extern void free(void *mem);
+extern void __malloc *heap_alloc(size_t size);
+extern void heap_free(void *block);
+extern void heap_setup(void *array, size_t size);
 
 extern int memtest_fast(size_t *addr, size_t size);
 extern int memtest(size_t *addr, size_t size);

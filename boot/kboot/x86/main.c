@@ -31,7 +31,7 @@ asmlinkage void main(void)
         panic("bad kernel image");
 
     /* Init Memory */
-    heap_init(heap_start, heap_size);
+    heap_setup(heap_start, heap_size);
     segment_init();
     kernel_map();
 

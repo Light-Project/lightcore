@@ -16,7 +16,7 @@ asmlinkage void main(uint32_t mask, uint32_t dtb_start, void *printf)
     if (mask == KMAGIC)
         pr_init(printf);
 
-    heap_init(heap_start, heap_size);
+    heap_setup(heap_start, heap_size);
 
     kernel_map();
     extract_kernel(kernel_entry, piggy_start, piggy_size);

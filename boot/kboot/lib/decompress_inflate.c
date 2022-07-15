@@ -28,7 +28,7 @@ static state decompress(unsigned char *buf, long len, long (*fill)(void*, unsign
 
     if (flush) {
         out_len = 0x8000; /* 32 K */
-        out_buf = malloc(out_len);
+        out_buf = heap_alloc(out_len);
     } else {
         if (!out_len)
             out_len = ((size_t)~0) - (size_t)out_buf; /* no limit */
@@ -42,7 +42,7 @@ static state decompress(unsigned char *buf, long len, long (*fill)(void*, unsign
     if (buf)
         zbuf = buf;
     else {
-        zbuf = malloc(GZIP_IOBUF_SIZE);
+        zbuf = heap_alloc(GZIP_IOBUF_SIZE);
         len = 0;
     }
 
@@ -51,13 +51,13 @@ static state decompress(unsigned char *buf, long len, long (*fill)(void*, unsign
         goto gunzip_nomem2;
     }
 
-    strm = malloc(sizeof(*strm));
+    strm = heap_alloc(sizeof(*strm));
     if (strm == NULL) {
         pr_boot("out of memory while allocating z_stream\n");
         goto gunzip_nomem3;
     }
 
-    strm->workspace = malloc(flush ? zlib_inflate_workspacesize() :
+    strm->workspace = heap_alloc(flush ? zlib_inflate_workspacesize() :
 #ifdef CONFIG_ZLIB_DFLTCC
     /* Always allocate the full workspace for DFLTCC */
         zlib_inflate_workspacesize());
@@ -163,15 +163,15 @@ static state decompress(unsigned char *buf, long len, long (*fill)(void*, unsign
         *pos = strm->next_in - zbuf+8;
 
 gunzip_5:
-    free(strm->workspace);
+    heap_free(strm->workspace);
 gunzip_nomem4:
-    free(strm);
+    heap_free(strm);
 gunzip_nomem3:
     if (!buf)
-        free(zbuf);
+        heap_free(zbuf);
 gunzip_nomem2:
     if (flush)
-        free(out_buf);
+        heap_free(out_buf);
 gunzip_nomem1:
     return rc; /* returns Z_OK (0) if successful */
 }

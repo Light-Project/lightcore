@@ -10,7 +10,7 @@ void main(size_t mem_start, size_t dtb_start)
     struct boot_head *head;
 
     memset(bss_start, 0, bss_size);
-    heap_init(heap_start, heap_size);
+    heap_setup(heap_start, heap_size);
 
     /* Init Memory */
     kernel_map();
