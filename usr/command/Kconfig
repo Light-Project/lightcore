@@ -2,6 +2,10 @@
 menu "Kshell Command Shell"
     depends on KSHELL
 
+config KCMD_ASCII85
+    bool "Ascii85 Command Support"
+    default y
+
 config KCMD_BASE64
     bool "Base64 Command Support"
     default y

@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 obj-y += arch/
+obj-$(CONFIG_KCMD_ASCII85)  += ascii85.o
 obj-$(CONFIG_KCMD_BASE64)   += base64.o
 obj-$(CONFIG_KCMD_CLEAR)    += clear.o
 obj-$(CONFIG_KCMD_COND)     += cond.o
