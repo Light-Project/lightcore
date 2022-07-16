@@ -6,13 +6,10 @@
 
 typedef          int QItype  __mode(QI);
 typedef unsigned int UQItype __mode(QI);
-typedef          int HItype  __mode(HI);
-typedef unsigned int UHItype __mode(HI);
 typedef          int SItype  __mode(SI);
 typedef unsigned int USItype __mode(SI);
 typedef          int DItype  __mode(DI);
 typedef unsigned int UDItype __mode(DI);
-typedef        float DFtype  __mode(DF);
 typedef          int WDtype  __mode(word);
 
 #define Wtype       SItype
