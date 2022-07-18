@@ -13,22 +13,19 @@
 
 static void timer_handle(void *pdata)
 {
-    spin_unlock(pdata);
+    kshell_printf(pdata, "handled\n");
 }
 
 static state timer_testing(struct kshell_context *ctx, void *pdata)
 {
     unsigned int count;
 
-    SPIN_LOCK(lock);
-    DEFINE_TIMER(timer, timer_handle, &lock, TEST_DELAY, 0);
-
-    spin_lock(&lock);
+    DEFINE_TIMER(timer, timer_handle, ctx, TEST_DELAY, 0);
     for (count = 0; count < TEST_LOOP; ++count) {
         kshell_printf(ctx, "timer test%02u: ", count);
         timer_pending(&timer);
-        spin_lock(&lock);
-        kshell_printf(ctx, "lock ack\n");
+        while (timer_check_pending(&timer))
+            cpu_relax();
     }
 
     return -ENOERR;

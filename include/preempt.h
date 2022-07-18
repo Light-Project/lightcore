@@ -95,5 +95,22 @@ static inline enum preempt_level preempt_count_level(void)
 
 extern void preempt_count_add(unsigned long val);
 extern void preempt_count_sub(unsigned long val);
+#define preempt_count_inc() preempt_count_add(1)
+#define preempt_count_dec() preempt_count_sub(1)
+
+#ifdef CONFIG_PREEMPTION
+#define preempt_disable() do {  \
+    preempt_count_inc();        \
+    barrier();                  \
+} while (0)
+
+#define preempt_enable() do {   \
+    barrier();                  \
+    preempt_count_dec();        \
+} while (0)
+#else
+#define preempt_disable()
+#define preempt_enable()
+#endif  /* CONFIG_PREEMPTION */
 
 #endif  /* _PREEMPT_H_ */

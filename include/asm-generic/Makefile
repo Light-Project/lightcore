@@ -12,3 +12,5 @@ mandatory-y += percpu.h
 mandatory-y += pgalloc.h
 mandatory-y += rwonce.h
 mandatory-y += unaligned.h
+mandatory-y += spinlock-types.h
+mandatory-y += spinlock.h
