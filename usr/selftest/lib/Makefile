@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 obj-$(CONFIG_SELFTEST_LIB_BITOPS)   += bitops.o
+obj-$(CONFIG_SELFTEST_LIB_DCALL)    += dynamic-call.o
 obj-$(CONFIG_SELFTEST_LIB_GLOB)     += glob.o
 obj-$(CONFIG_SELFTEST_LIB_HEAP)     += heap.o
 obj-$(CONFIG_SELFTEST_LIB_HLIST)    += hlist.o
