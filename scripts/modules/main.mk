@@ -6,6 +6,7 @@
 # Include main rule
 include $(build_home)/include/kasan.mk
 include $(build_home)/include/ubsan.mk
+include $(build_home)/include/kgcov.mk
 include $(build_home)/modules/main_rule.mk
 
 include_file    := $(filter %.h,$(include_blend))
@@ -36,7 +37,13 @@ endif
 ifdef CONFIG_UBSAN
 ccflags_y += $(if $(patsubst n%,, \
              $(UBSAN_SANITIZE_$(basetarget).o)$(UBSAN_SANITIZE)$(CONFIG_UBSAN_ALL)), \
-		 $(CFLAGS_UBSAN))
+             $(CFLAGS_UBSAN))
+endif
+
+ifdef CONFIG_KGCOV
+ccflags_y += $(if $(patsubst n%,, \
+             $(UBSAN_PROFILE_$(basetarget).o)$(KGCOV_PROFILE)$(CONFIG_KGCOV_ALL)), \
+             $(CFLAGS_KGCOV))
 endif
 
 a_flags      = $(gcc-warning) $(acflags_y) $(asflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)

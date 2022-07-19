@@ -2,6 +2,7 @@
 include $(src)/platform.mk
 export KASAN_SANITIZE = n
 export UBSAN_SANITIZE = n
+export KGCOV_PROFILE = n
 
 obj-$(CONFIG_ARCH_X86)     += bios/
 obj-$(CONFIG_CHIP_ESP32)   += esp32/

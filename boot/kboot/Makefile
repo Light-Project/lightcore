@@ -2,6 +2,7 @@
 include $(srctree)/platform.mk
 export KASAN_SANITIZE = n
 export UBSAN_SANITIZE = n
+export KGCOV_PROFILE = n
 
 obj-y += $(arch)/ lib/ piggy.o
 extra-y += $(arch)/boot.lds
