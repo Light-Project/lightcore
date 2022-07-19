@@ -22,7 +22,7 @@
 struct mc146818_device {
     struct rtc_device rtc;
     struct irqchip_channel *irqchip;
-    struct spinlock lock;
+    spinlock_t lock;
     resource_size_t port;
 };
 

@@ -135,8 +135,8 @@ struct filesystem_type {
     void (*unmount)(struct superblock *);
 };
 
+extern spinlock_t filesystem_lock;
 extern struct list_head filesystem_list;
-extern struct spinlock filesystem_lock;
 
 /**
  * sb_read - use superblock to read filesystem device

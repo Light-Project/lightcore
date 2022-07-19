@@ -21,7 +21,7 @@
 #define ATASIM_TIMEOUT  5000
 
 struct atasim_host {
-    struct spinlock lock;
+    spinlock_t lock;
     resource_size_t cmd, ctl;
     struct pci_device *pdev;
     struct list_head ports;

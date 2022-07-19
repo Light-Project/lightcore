@@ -23,7 +23,7 @@
 #define AHCISIM_REQUEST_TIMEOUT 320000
 
 struct ahcisim_host {
-    struct spinlock lock;
+    spinlock_t lock;
     struct list_head ports;
     void *base;
 };
@@ -34,7 +34,7 @@ struct ahcisim_port {
     unsigned char port;
     bool atapi;
 
-    struct spinlock lock;
+    spinlock_t lock;
     struct list_head list;
 
     struct ahci_cmd_table *cmdt;

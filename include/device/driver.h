@@ -13,7 +13,7 @@ struct driver {
 
     struct list_head bus_list_driver;
     struct list_head devices_list;
-    struct spinlock lock;
+    spinlock_t lock;
 };
 
 #define driver_for_each_device(device, driver) \

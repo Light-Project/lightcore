@@ -60,8 +60,8 @@ struct kshell_env {
 #define list_to_kshell(ptr) \
     list_entry(ptr, struct kshell_command, list)
 
+extern spinlock_t kshell_lock;
 extern struct list_head kshell_list;
-extern struct spinlock kshell_lock;
 
 extern unsigned int readline_read(struct readline_state *rstate, char *str, unsigned int len);
 extern void readline_write(struct readline_state *rstate, const char *str, unsigned int len);
