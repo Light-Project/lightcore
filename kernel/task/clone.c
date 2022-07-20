@@ -219,8 +219,9 @@ state kernel_clone(enum clone_flags flags, int (*fn)(void *), void *arg)
 
     return task_clone(&args);
 }
+EXPORT_SYMBOL(kernel_clone);
 
-long syscall_fork(void)
+DEFINE_SYSCALL0(fork)
 {
 #ifdef CONFIG_MMU
     struct task_clone_args args = {
@@ -233,7 +234,7 @@ long syscall_fork(void)
 #endif
 }
 
-long syscall_vfork(void)
+DEFINE_SYSCALL0(vfork)
 {
     struct task_clone_args args = {
         .flags = CLONE_VM | CLONE_VFORK,
@@ -243,8 +244,8 @@ long syscall_vfork(void)
     return task_clone(&args);
 }
 
-long syscall_clone(unsigned long clone_flags, unsigned long newsp,
-                   int *ptidptr, int *ctidptr, unsigned long tls)
+DEFINE_SYSCALL5(clone, unsigned long, clone_flags, unsigned long, newsp,
+                int *, ptidptr, int *, ctidptr, unsigned long, tls)
 {
     struct task_clone_args args = {
         .flags = clone_flags & ~CLONE_SIGNAL,
@@ -262,8 +263,3 @@ void __init clone_init(void)
     memory_cache = kcache_create("memory",
         sizeof(struct memory), KCACHE_PANIC);
 }
-
-EXPORT_SYMBOL(kernel_clone);
-SYSCALL_ENTRY(SYSCALL_NR_FORK, syscall_fork, 0);
-SYSCALL_ENTRY(SYSCALL_NR_VFORK, syscall_vfork, 0);
-SYSCALL_ENTRY(SYSCALL_NR_CLONE, syscall_clone, 5);

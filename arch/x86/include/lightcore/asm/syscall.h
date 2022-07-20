@@ -2,7 +2,7 @@
 #ifndef _LIGHTCORE_ASM_X86_SYSCALL_H_
 #define _LIGHTCORE_ASM_X86_SYSCALL_H_
 
-static __always_inline long
+static inline long
 syscall(unsigned int callnr, long arg1, long arg2,
         long arg3, long arg4, long arg5, long arg6)
 {

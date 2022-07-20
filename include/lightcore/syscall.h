@@ -5,25 +5,25 @@
 #include <lightcore/asm/syscall.h>
 
 enum syscall_number {
-    SYSCALL_NR_RESTART      = 0,
-    SYSCALL_NR_EXIT         = 1,
-    SYSCALL_NR_FORK         = 2,
-    SYSCALL_NR_READ         = 3,
-    SYSCALL_NR_WRITE        = 4,
-    SYSCALL_NR_OPEN         = 5,
-    SYSCALL_NR_CLOSE        = 6,
-    SYSCALL_NR_WAITPID      = 7,
-    SYSCALL_NR_CREAT        = 8,
-    SYSCALL_NR_LINK         = 9,
-    SYSCALL_NR_UNLINK       = 10,
-    SYSCALL_NR_CLONE        = 120,
-    SYACALL_NR_SCHED_YIELD  = 158,
-    SYSCALL_NR_VFORK        = 190,
-    SYSCALL_NR_MSGGET       = 399,
-    SYSCALL_NR_MSGSND       = 400,
-    SYSCALL_NR_MSGRCV       = 401,
-    SYSCALL_NR_MSGCTL       = 402,
-    SYSCALL_NR_MAX          = 512,
+    syscall_restart         = 0,
+    syscall_exit            = 1,
+    syscall_fork            = 2,
+    syscall_read            = 3,
+    syscall_write           = 4,
+    syscall_open            = 5,
+    syscall_close           = 6,
+    syscall_waitpid         = 7,
+    syscall_creat           = 8,
+    syscall_link            = 9,
+    syscall_unlink          = 10,
+    syscall_clone           = 120,
+    syscall_sched_yield     = 158,
+    syscall_vfork           = 190,
+    syscall_msgget          = 399,
+    syscall_msgsnd          = 400,
+    syscall_msgrcv          = 401,
+    syscall_msgctl          = 402,
+    syscall_selftest        = 800,
 };
 
 #define GENERIC_SYSCALL_OP(                         \
@@ -171,16 +171,19 @@ generic_syscall_##name (                            \
     );                                              \
 }
 
-GENERIC_SYSCALL_ARG0(exit, SYSCALL_NR_EXIT, void)
+GENERIC_SYSCALL_ARG0(exit, syscall_exit, void)
 #define lightcore_exit() generic_syscall_exit()
 
-GENERIC_SYSCALL_ARG3(fork, SYSCALL_NR_FORK, long, int, void *, unsigned long)
+GENERIC_SYSCALL_ARG3(fork, syscall_fork, long, int, void *, unsigned long)
 #define lightcore_fork(fd, buf, count) generic_syscall_fork(fd, buf, count)
 
-GENERIC_SYSCALL_ARG3(read, SYSCALL_NR_WRITE, long, int, void *, unsigned long)
+GENERIC_SYSCALL_ARG3(read, syscall_write, long, int, void *, unsigned long)
 #define lightcore_read(fd, buf, count) generic_syscall_read(fd, buf, count)
 
-GENERIC_SYSCALL_ARG3(write, SYSCALL_NR_WRITE, long, int, void *, unsigned long)
+GENERIC_SYSCALL_ARG3(write, syscall_write, long, int, void *, unsigned long)
 #define lightcore_write(fd, buf, count) generic_syscall_write(fd, buf, count)
+
+GENERIC_SYSCALL_ARG6(selftest, syscall_selftest, int, int, int, int, int, int, int)
+#define lightcore_selftest(a1, a2, a3, a4, a5, a6) generic_syscall_selftest(a1, a2, a3, a4, a5, a6)
 
 #endif  /* _LIGHTCORE_SYSCALL_H_ */

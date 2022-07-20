@@ -240,12 +240,11 @@ void sched_preempt_handle(void)
         preempt_handle();
 }
 
-long syscall_sched_yield(void)
+DEFINE_SYSCALL0(sched_yield)
 {
     scheduler_yield();
     return 0;
 }
-SYSCALL_ENTRY(SYACALL_NR_SCHED_YIELD, syscall_sched_yield, 0);
 
 static inline void
 wake_up_task(struct sched_queue *queue, struct sched_task *task, unsigned long flags)

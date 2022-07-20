@@ -4,7 +4,6 @@
  */
 
 #include <kmalloc.h>
-#include <list.h>
 #include <ipc.h>
 #include <syscall.h>
 #include <lightcore/msg.h>
@@ -61,29 +60,19 @@ long ipc_msgrcv(int msqid, struct msgbuf *msgp,
 
 }
 
-static long syscall_msgget(key_t key, int flags)
+DEFINE_SYSCALL2(msgget, key_t, key, int, flags)
 {
     return ipc_msgget(key, flags);
 }
 
-static long syscall_msgctl()
-{
-
-}
-
-static long syscall_msgsnd(int msqid, struct msgbuf *msgp,
-                            size_t msgsz, int msgflg)
+DEFINE_SYSCALL4(msgsnd, int, msqid, struct msgbuf *, msgp,
+                size_t, msgsz, int, msgflg)
 {
     return ipc_msgsnd(msqid, msgp, msgsz, msgflg);
 }
 
-static long syscall_msgrcv(int msqid, struct msgbuf *msgp,
-                            size_t msgsz, long msgtyp, int msgflg)
+DEFINE_SYSCALL5(msgrcv, int, msqid, struct msgbuf0 *, msgp,
+                size_t, msgsz, long, msgtyp, int, msgflg)
 {
     return ipc_msgrcv(msqid, msgp, msgsz, msgtyp, msgflg);
 }
-
-SYSCALL_ENTRY(SYSCALL_NR_MSGGET, syscall_msgget, 2);
-SYSCALL_ENTRY(SYSCALL_NR_MSGCTL, syscall_msgctl, 3);
-SYSCALL_ENTRY(SYSCALL_NR_MSGSND, syscall_msgsnd, 4);
-SYSCALL_ENTRY(SYSCALL_NR_MSGRCV, syscall_msgrcv, 5);

@@ -89,16 +89,17 @@ SYM_CODE_START_LOCAL_NOALIGN(exception_handle)
     SAVE_REGS switch_stacks=1 skip_gs=1
     movl    %esp, %ebp
 
-    /* get handle addrss */
+    /* get handle address */
     movl    REGS_GS(%esp), %eax
+    movl    $0, REGS_GS(%esp)
 
-    /* fixup error code */
+    /* get error code */
     movl    REGS_ERROR(%esp), %ebx
     movl    $-1, REGS_ERROR(%esp)
 
     /* Call the handle function */
-    pushl   %ebx    /* push arg2: vector */
-    pushl   %ebp    /* push arg1: regs */
+    pushl   %ebx    /* push arg2: error code */
+    pushl   %ebp    /* push arg1: regs pointer */
     call    *%eax
     movl    %ebp, %esp
 
@@ -207,7 +208,7 @@ SYM_CODE_END(\asmsym)
  * @ebp: syscall arg6
  */
 SYM_CODE_START(entry_syscall_80)
-    clac
+    cld
     SAVE_REGS
 
     pushl   %esp
