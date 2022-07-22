@@ -133,7 +133,7 @@ static void rr_task_tick(struct sched_queue *queue, struct sched_task *task)
         return;
 
     if (rr_queue->running[prio] > 1)
-        list_move_tail(&rr_queue->task[prio], &rr_task->list);
+        list_move_prev(&rr_queue->task[prio], &rr_task->list);
 
     rr_task->timeslice = RR_TIMESLICE;
     queue_set_resched(queue);
@@ -156,7 +156,7 @@ static void rr_task_yield(struct sched_queue *queue)
     unsigned int prio = rr_task->task.priority;
 
     rr_task->timeslice = RR_TIMESLICE;
-    list_move_tail(&rr_queue->task[prio], &rr_task->list);
+    list_move_prev(&rr_queue->task[prio], &rr_task->list);
 }
 
 static struct sched_task *rr_task_pick(struct sched_queue *queue)

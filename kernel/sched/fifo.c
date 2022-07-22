@@ -135,7 +135,7 @@ static void fifo_task_yield(struct sched_queue *queue)
     struct fifo_queue *fifo_queue = queue_get_fifo(queue);
     struct fifo_task *fifo_task = task_to_fifo(queue->curr);
     unsigned int prio = fifo_task->task.priority;
-    list_move_tail(&fifo_queue->task[prio], &fifo_task->list);
+    list_move_prev(&fifo_queue->task[prio], &fifo_task->list);
 }
 
 static struct sched_task *fifo_task_pick(struct sched_queue *queue)

@@ -8,7 +8,8 @@
 #include <poison.h>
 
 struct list_head {
-    struct list_head *prev, *next;
+    struct list_head *prev;
+    struct list_head *next;
 };
 
 #define LIST_HEAD_STATIC(name) \
@@ -75,24 +76,41 @@ static inline void list_add_prev(struct list_head *node, struct list_head *new)
 }
 
 /**
- * list_del - in fact, it just connect next and prev node.
+ * list_deluf - deletes entry from list (unsafe).
  * @node: the element to delete from the list.
  */
-static inline void list_del(struct list_head *node)
+static inline void list_deluf(struct list_head *node)
+{
+    node->prev->next = node->next;
+    node->next->prev = node->prev;
+}
+
+/**
+ * list_delck - deletes entry from list (check only).
+ * @node: the element to delete from the list.
+ */
+static inline void list_delck(struct list_head *node)
 {
 #ifdef DEBUG_LIST
     if (unlikely(!list_debug_del_check(node)))
         return;
 #endif
+    list_deluf(node);
+}
 
-    node->prev->next = node->next;
-    node->next->prev = node->prev;
+/**
+ * list_del - deletes entry from list.
+ * @node: the element to delete from the list.
+ */
+static inline void list_del(struct list_head *node)
+{
+    list_delck(node);
     node->next = POISON_LIST1;
     node->prev = POISON_LIST2;
 }
 
 /**
- * list_replace - replace a linked list node with an external node.
+ * list_replace - replace a list node with an external node.
  * @old: the element to be replaced.
  * @new: the new element to insert.
  */
@@ -102,6 +120,45 @@ static inline void list_replace(struct list_head *old, struct list_head *new)
     new->next = old->next;
     new->prev->next = new;
     new->next->prev = new;
+}
+
+/**
+ * list_move - move the node to the next of the node.
+ * @head: the head that will precede our entry.
+ * @node: the entry to move.
+ */
+static inline void list_move(struct list_head *head, struct list_head *node)
+{
+    list_del(node);
+    list_add(head, node);
+}
+
+/**
+ * list_move_prev - move the node to the prev of the node.
+ * @head: the head that will follow our entry.
+ * @node: the entry to move.
+ */
+static inline void list_move_prev(struct list_head *head, struct list_head *node)
+{
+    list_del(node);
+    list_add_prev(head, node);
+}
+
+/**
+ * list_swap - replace entry1 with entry2 and re-add entry1 at entry2's position.
+ * @node1: the location to place entry2.
+ * @node2: the location to place entry1.
+ */
+static inline void list_swap(struct list_head *node1, struct list_head *node2)
+{
+	struct list_head *prev = node2->prev;
+
+    list_del(node2);
+	list_replace(node1, node2);
+
+	if (prev == node1)
+		prev = node2;
+	list_add(prev, node1);
 }
 
 /**
@@ -123,28 +180,6 @@ static inline void list_replace_init(struct list_head *old, struct list_head *ne
 {
     list_replace(old, new);
     list_head_init(old);
-}
-
-/**
- * list_move_front - move the node to the front of the list.
- * @head: the head that will precede our entry.
- * @node: the entry to move.
- */
-static inline void list_move_front(struct list_head *head, struct list_head *node)
-{
-    list_del(node);
-    list_add(head, node);
-}
-
-/**
- * list_move_tail - move the node to the tail of the list.
- * @head: the head that will follow our entry.
- * @node: the entry to move.
- */
-static inline void list_move_tail(struct list_head *head, struct list_head *node)
-{
-    list_del(node);
-    list_add_prev(head, node);
 }
 
 /**
@@ -197,13 +232,12 @@ static inline bool list_check_another(const struct list_head *head, const struct
 }
 
 /**
- * list_check_outsize - check whether the node is outside the linked list.
+ * list_check_outsize - check whether the node is outside the list.
  * @node: list entry to check.
  */
 static inline bool list_check_outsize(const struct list_head *node)
 {
-    return node->next == POISON_LIST1 &&
-           node->prev == POISON_LIST2;
+    return node->next == POISON_LIST1 && node->prev == POISON_LIST2;
 }
 
 /**

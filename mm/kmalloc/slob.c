@@ -275,7 +275,7 @@ static void *slob_alloc_node(struct list_head *slob_list, size_t size, size_t of
          */
         if (slob_page->avail) {
             if (!list_check_first(slob_list, &slob_page->list))
-                list_move_front(slob_list, &slob_page->list);
+                list_move(slob_list, &slob_page->list);
         } else
             list_del(&slob_page->list);
 
