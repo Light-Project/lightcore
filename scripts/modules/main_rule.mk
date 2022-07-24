@@ -39,11 +39,12 @@ subdir_n        := $(strip $(sort $(addprefix $(obj)/,$(subdir_n))))
 ########################################
 
 main_targets    := $(obj_file)
-main_targets 	+= $(obj_subfile)
+main_targets    += $(obj_subfile)
 main_targets    += $(extra_file)
 main_targets    += $(builtin_target)
 
 targets         += $(main_targets)
 always          += $(builtin_target)
 clean-files     += $(main_targets) $(obj_dis) $(extra_dis)
+clean-files     += $(patsubst %.o, %.gcno, $(clean-files))
 clean-subdirs   += $(subdir_y) $(subdir_n)

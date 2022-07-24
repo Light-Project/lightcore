@@ -51,6 +51,7 @@ dump        += $(dump-always-y)
 #####################################
 
 include $(build_home)/modules/pack.mk
+include $(build_home)/modules/main.mk
 
 ifneq ($(bin),)
 include $(build_home)/modules/bin.mk
@@ -71,8 +72,6 @@ endif
 ifneq ($(hostprogs),)
 include $(build_home)/modules/host.mk
 endif
-
-include $(build_home)/modules/main.mk
 
 #####################################
 # Descending build                  #

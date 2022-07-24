@@ -4,6 +4,7 @@
 *.d
 *.cmd
 *.tmp
+*.gcno
 *.lex.c
 *.tab.[ch]
 *.map
