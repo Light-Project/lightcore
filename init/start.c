@@ -11,6 +11,7 @@
 #include <init.h>
 #include <memory.h>
 #include <idr.h>
+#include <lru-cache.h>
 #include <task.h>
 #include <softirq.h>
 #include <timer.h>
@@ -72,6 +73,7 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
 
     mem_init();
     idr_init();
+    lrc_init();
 
     sched_init();
     softirq_init();

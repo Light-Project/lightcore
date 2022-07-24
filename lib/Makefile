@@ -13,6 +13,7 @@ obj-y += time.o librtc.o prandom.o
 obj-y += size.o memdump.o ratelimit.o
 obj-y += libcpio.o uuid.o json.o xml.o
 obj-y += glob.o getopt.o minpool.o
+obj-y += lru-cache.o lru-cache-helper.o
 obj-$(CONFIG_DEBUG_LIST) += list-debug.o
 obj-$(CONFIG_DEBUG_HLIST) += hlist-debug.o
 obj-$(CONFIG_DEBUG_SLIST) += slist-debug.o
