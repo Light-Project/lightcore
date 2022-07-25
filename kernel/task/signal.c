@@ -12,7 +12,7 @@ state kernel_pause(void)
 {
     while (!current_test_notify_signal()) {
         current_set_state(SCHED_TASK_INTERRUPTIBLE);
-        scheduler_yield();
+        sched_yield();
     }
     return -ERESTARTNOHAND;
 }

@@ -165,7 +165,7 @@ static void __sched preempt_handle(void)
     } while (current_test_resched());
 }
 
-void __sched scheduler_resched(void)
+void __sched sched_resched(void)
 {
     do {
         irq_local_disable();
@@ -173,9 +173,9 @@ void __sched scheduler_resched(void)
         irq_local_enable();
     } while (current_test_resched());
 }
-EXPORT_SYMBOL(scheduler_resched);
+EXPORT_SYMBOL(sched_resched);
 
-void __sched scheduler_idle(void)
+void __sched sched_idle(void)
 {
     WARN_ON(current->state);
 
@@ -184,7 +184,7 @@ void __sched scheduler_idle(void)
     } while (current_test_resched());
 }
 
-void __noreturn scheduler_kill(void)
+void __noreturn sched_kill(void)
 {
     /**
      * Set the exit flag bit and it will be
@@ -198,9 +198,9 @@ void __noreturn scheduler_kill(void)
     /* never come here */
     proc_halt();
 }
-EXPORT_SYMBOL(scheduler_kill);
+EXPORT_SYMBOL(sched_kill);
 
-void scheduler_yield(void)
+void sched_yield(void)
 {
     struct sched_queue *queue = current_queue;
     struct sched_type *sched = current->sched_type;
@@ -208,11 +208,11 @@ void scheduler_yield(void)
     if (sched->task_yield)
         sched->task_yield(queue);
 
-    scheduler_resched();
+    sched_resched();
 }
-EXPORT_SYMBOL(scheduler_yield);
+EXPORT_SYMBOL(sched_yield);
 
-void scheduler_tick(void)
+void sched_tick(void)
 {
     struct sched_queue *queue = thiscpu_ptr(&sched_queues);
     struct sched_task *task = queue->curr;
@@ -242,7 +242,7 @@ void sched_preempt_handle(void)
 
 DEFINE_SYSCALL0(sched_yield)
 {
-    scheduler_yield();
+    sched_yield();
     return 0;
 }
 

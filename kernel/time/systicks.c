@@ -12,7 +12,7 @@ static void systick_periodic(void)
 {
     timer_update();
     timekeeping_tick();
-    scheduler_tick();
+    sched_tick();
 }
 
 static void systick_handle(struct clockevent_device *cdev)

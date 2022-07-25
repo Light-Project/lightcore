@@ -78,6 +78,6 @@ void msleep(unsigned int msecs)
     if (current_test_kcoro())
         kcoro_msleep(msecs);
 
-    schedule_msleep(msecs);
+    sched_msleep(msecs);
 }
 EXPORT_SYMBOL(msleep);

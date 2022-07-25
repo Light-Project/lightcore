@@ -30,7 +30,7 @@ static void idle_loop(void)
     //     cpu_idle_exit();
     // }
 
-    scheduler_idle();
+    sched_idle();
 }
 
 void __noreturn idle_task_entry(void)

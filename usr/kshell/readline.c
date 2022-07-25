@@ -803,7 +803,7 @@ char *readline(struct readline_state *state, const char *prompt)
 
     for (;;) {
         if (!readline_getcode(state, &code)) {
-            scheduler_yield();
+            sched_yield();
         } else {
             if (readline_handle(state, code))
                 break;

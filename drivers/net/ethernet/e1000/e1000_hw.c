@@ -3920,7 +3920,7 @@ static int32_t e1000_do_read_eeprom(struct e1000_hw *hw, uint16_t offset, uint16
              */
             data[i] = e1000_shift_in_ee_bits(hw, 16);
             e1000_standby_eeprom(hw);
-            scheduler_yield();
+            sched_yield();
         }
     }
 
@@ -4071,7 +4071,7 @@ static int32_t e1000_write_eeprom_spi(struct e1000_hw *hw, uint16_t offset, uint
             return -E1000_ERR_EEPROM;
 
         e1000_standby_eeprom(hw);
-        scheduler_yield();
+        sched_yield();
 
         /*  Send the WRITE ENABLE command (8 bit opcode )  */
         e1000_shift_out_ee_bits(hw, EEPROM_WREN_OPCODE_SPI,
@@ -4181,7 +4181,7 @@ static int32_t e1000_write_eeprom_microwire(struct e1000_hw *hw, uint16_t offset
 
         /* Recover from write */
         e1000_standby_eeprom(hw);
-        scheduler_yield();
+        sched_yield();
 
         words_written++;
     }

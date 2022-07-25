@@ -352,11 +352,11 @@ DECLARE_STATIC_CALL(sched_preempt, sched_preempt_handle);
 extern void __noreturn idle_task_entry(void);
 
 /* scheduler context */
-extern void __noreturn scheduler_kill(void);
-extern void scheduler_idle(void);
-extern void scheduler_tick(void);
-extern void scheduler_resched(void);
-extern void scheduler_yield(void);
+extern void __noreturn sched_kill(void);
+extern void sched_idle(void);
+extern void sched_tick(void);
+extern void sched_resched(void);
+extern void sched_yield(void);
 
 /* scheduler wakeup */
 extern void sched_wake_up(struct sched_task *task);
@@ -368,10 +368,10 @@ extern struct sched_task *sched_task_create(void);
 extern void sched_task_destroy(struct sched_task *task);
 
 /* scheduler block timeout */
-extern long schedule_timeout(ttime_t timeout);
-extern long schedule_timeout_interruptible(ttime_t timeout);
-extern long schedule_timeout_uninterruptible(ttime_t timeout);
-extern void schedule_msleep(unsigned long msecs);
+extern long sched_timeout(ttime_t timeout);
+extern long sched_timeout_interruptible(ttime_t timeout);
+extern long sched_timeout_uninterruptible(ttime_t timeout);
+extern void sched_msleep(unsigned long msecs);
 
 /* scheduler framework */
 extern struct sched_type *sched_find(const char *name, unsigned char prio);

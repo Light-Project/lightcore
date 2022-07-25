@@ -37,7 +37,7 @@ state __noreturn kthread_daemon(void *pdata)
     for (;;) {
         current_set_state(SCHED_TASK_INTERRUPTIBLE);
         if (list_check_empty(&kthread_create_list))
-            scheduler_resched();
+            sched_resched();
 
         current_set_state(SCHED_TASK_RUNNING);
 

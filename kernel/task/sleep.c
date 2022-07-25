@@ -13,12 +13,12 @@ static void timeout_wakeup(void *pdata)
     sched_wake_up(task);
 }
 
-long schedule_timeout(ttime_t timeout)
+long sched_timeout(ttime_t timeout)
 {
     ttime_t expire;
 
     if (timeout == ULONG_MAX) {
-        scheduler_yield();
+        sched_yield();
         return timeout;
     }
 
@@ -27,30 +27,30 @@ long schedule_timeout(ttime_t timeout)
     DEFINE_TIMER(timer, timeout_wakeup, current, timeout, 0);
     timer_pending(&timer);
 
-    scheduler_yield();
+    sched_yield();
     return expire < ticktime ? 0 : expire - ticktime;
 }
-EXPORT_SYMBOL(schedule_timeout);
+EXPORT_SYMBOL(sched_timeout);
 
-long schedule_timeout_interruptible(ttime_t timeout)
+long sched_timeout_interruptible(ttime_t timeout)
 {
     current_set_state(SCHED_TASK_INTERRUPTIBLE);
-    return schedule_timeout(timeout);
+    return sched_timeout(timeout);
 }
-EXPORT_SYMBOL(schedule_timeout_interruptible);
+EXPORT_SYMBOL(sched_timeout_interruptible);
 
-long schedule_timeout_uninterruptible(ttime_t timeout)
+long sched_timeout_uninterruptible(ttime_t timeout)
 {
     current_set_state(SCHED_TASK_UNINTERRUPTIBLE);
-    return schedule_timeout(timeout);
+    return sched_timeout(timeout);
 }
-EXPORT_SYMBOL(schedule_timeout_uninterruptible);
+EXPORT_SYMBOL(sched_timeout_uninterruptible);
 
-void schedule_msleep(unsigned long msec)
+void sched_msleep(unsigned long msec)
 {
     ttime_t timeout = ttime_to_ms(msec);
     do {
-        timeout = schedule_timeout_uninterruptible(timeout);
+        timeout = sched_timeout_uninterruptible(timeout);
     } while (timeout);
 }
-EXPORT_SYMBOL(schedule_msleep);
+EXPORT_SYMBOL(sched_msleep);
