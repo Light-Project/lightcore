@@ -111,8 +111,6 @@ static struct sched_task *rr_task_create(int numa)
         return NULL;
 
     rr_task->timeslice = RR_TIMESLICE;
-    list_head_init(&rr_task->list);
-
     return &rr_task->task;
 }
 

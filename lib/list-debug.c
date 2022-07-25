@@ -22,14 +22,9 @@ bool list_debug_add_check(struct list_head *prev, struct list_head *next, struct
         next, prev, next->prev))
         return false;
 
-    if (DEBUG_DATA_CHECK(new->next == next,
-        "list_add corruption (%p) new->next should not be next (%p)\n",
-        new, next))
-        return false;
-
-    if (DEBUG_DATA_CHECK(new->prev == prev,
-        "list_add corruption (%p) new->prev should not be prev (%p)\n",
-        new, prev))
+    if (DEBUG_DATA_CHECK(new == prev || new == next,
+        "list_add corruption double add: new=(%p), prev=(%p), next=(%p)\n",
+        new, prev, next))
         return false;
 
     return true;

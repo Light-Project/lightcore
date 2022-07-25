@@ -23,9 +23,9 @@ EXPORT_SYMBOL(hlist_debug_head_add_check);
 
 bool hlist_debug_next_add_check(struct hlist_node *next, struct hlist_node *new)
 {
-    if (DEBUG_DATA_CHECK(next->next == new,
-        "hlist_next_add corruption (%p) next->next should not be new (%p)\n",
-        next, new))
+    if (DEBUG_DATA_CHECK(new == next,
+        "hlist_next_add corruption double add: new=(%p), next=(%p)\n",
+        new, next))
         return false;
 
     return true;
@@ -34,9 +34,9 @@ EXPORT_SYMBOL(hlist_debug_next_add_check);
 
 bool hlist_debug_prev_add_check(struct hlist_node *prev, struct hlist_node *new)
 {
-    if (DEBUG_DATA_CHECK(prev->pprev == &new->next,
-        "hlist_prev_add corruption (%p) prev->pprev should not be new (%p)\n",
-        prev, new))
+    if (DEBUG_DATA_CHECK(new == prev,
+        "hlist_prev_add corruption double add: new=(%p), prev=(%p)\n",
+        new, prev))
         return false;
 
     return true;

@@ -108,8 +108,6 @@ static struct sched_task *fifo_task_create(int numa)
     if (!fifo_task)
         return NULL;
 
-    list_head_init(&fifo_task->list);
-
     return &fifo_task->task;
 }
 
