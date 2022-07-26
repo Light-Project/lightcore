@@ -122,18 +122,25 @@ EXPORT_SYMBOL(list_qsort);
 
 void list_bsort(struct list_head *head, list_cmp_t cmp, void *data)
 {
-    struct list_head *walk, *prev;
-    bool swap;
+    struct list_head *walk, *prev, *tmp;
+    unsigned int count, number;
+    bool swapped, record;
 
-    for (swap = true; swap && ({swap = false; true;}); ) {
+    for (record = swapped = true, number = 1;
+         swapped && ({swapped = false; count = 1; true;});
+         record = false, --number) {
         prev = walk = head->next;
-        list_for_each_continue(walk, head) {
-            if (cmp(prev, walk, data) > 0) {
-                list_del(prev);
-                list_add(walk, prev);
-                swap = true;
+        list_for_each_continue_safe(walk, tmp, head) {
+            if (record)
+                number++;
+            else if (count++ >= number)
+                break;
+            if (cmp(prev, walk, data) <= 0)
+                prev = walk;
+            else {
+                list_swap(walk, prev);
+                swapped = true;
             }
-            prev = walk;
         }
     }
 }
