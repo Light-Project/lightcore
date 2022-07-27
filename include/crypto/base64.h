@@ -7,12 +7,12 @@
 
 static inline size_t base64_encode_length(size_t size)
 {
-	return (size + 2) / 3 * 4 + 1;
+    return (size + 2) / 3 * 4 + 1;
 }
 
 static inline size_t base64_decode_length(size_t size)
 {
-	return size / 4 * 3;
+    return size / 4 * 3;
 }
 
 extern void base64_encode(void *buff, const void *data, size_t size);
