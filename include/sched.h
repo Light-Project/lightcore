@@ -368,9 +368,9 @@ extern struct sched_task *sched_task_create(void);
 extern void sched_task_destroy(struct sched_task *task);
 
 /* scheduler block timeout */
-extern long sched_timeout(ttime_t timeout);
-extern long sched_timeout_interruptible(ttime_t timeout);
-extern long sched_timeout_uninterruptible(ttime_t timeout);
+extern ttime_t sched_timeout(ttime_t timeout);
+extern ttime_t sched_timeout_interruptible(ttime_t timeout);
+extern ttime_t sched_timeout_uninterruptible(ttime_t timeout);
 extern void sched_msleep(unsigned long msecs);
 
 /* scheduler framework */

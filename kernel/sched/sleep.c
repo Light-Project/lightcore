@@ -17,7 +17,11 @@ static void timeout_wakeup(void *pdata)
     sched_wake_up(task);
 }
 
-long sched_timeout(ttime_t timeout)
+/**
+ * sched_timeout - sleep until timeout.
+ * @timeout: timeout value in jiffies.
+ */
+ttime_t sched_timeout(ttime_t timeout)
 {
     ttime_t expire;
 
@@ -41,20 +45,32 @@ finish:
 }
 EXPORT_SYMBOL(sched_timeout);
 
-long sched_timeout_interruptible(ttime_t timeout)
+/**
+ * sched_timeout_interruptible - interruptible sleep until timeout.
+ * @timeout: timeout value in jiffies.
+ */
+ttime_t sched_timeout_interruptible(ttime_t timeout)
 {
     current_set_state(SCHED_TASK_INTERRUPTIBLE);
     return sched_timeout(timeout);
 }
 EXPORT_SYMBOL(sched_timeout_interruptible);
 
-long sched_timeout_uninterruptible(ttime_t timeout)
+/**
+ * sched_timeout_uninterruptible - uninterruptible sleep until timeout.
+ * @timeout: timeout value in jiffies.
+ */
+ttime_t sched_timeout_uninterruptible(ttime_t timeout)
 {
     current_set_state(SCHED_TASK_UNINTERRUPTIBLE);
     return sched_timeout(timeout);
 }
 EXPORT_SYMBOL(sched_timeout_uninterruptible);
 
+/**
+ * sched_msleep - uninterruptible sleep until timeout.
+ * @timeout: timeout value in millisecond.
+ */
 void sched_msleep(unsigned long msec)
 {
     ttime_t timeout = ttime_to_ms(msec);
