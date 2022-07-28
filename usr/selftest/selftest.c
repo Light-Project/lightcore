@@ -138,7 +138,7 @@ static state selftest_one(struct kshell_context *ctx, struct selftest_command *c
     if (cmd->prepare) {
         selftest_msg(ctx, info, "Preparing...\n");
         pdata = cmd->prepare(ctx, argc, argv);
-        retval = PTR_ERR(pdata);
+        retval = PTR_ERR_ZERO(pdata);
         selftest_msg(ctx, info, "Prepared: (%d) %s\n",
             retval, retval ? MESSAGE_FAIL : MESSAGE_PASS);
         if (retval)

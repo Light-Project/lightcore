@@ -175,8 +175,8 @@ int dt_attribute_read_u8_index_array_range(const struct dt_node *node, const cha
         (sizeof(*buff) * (max + index))
     );
 
-    if (PTR_ERR(value))
-        return PTR_ERR(value);
+    if (unlikely(IS_INVAL(value)))
+        return PTR_INVAL(value);
 
     if (!max)
         len = min;
@@ -203,8 +203,8 @@ int dt_attribute_read_u16_index_array_range(const struct dt_node *node, const ch
         (sizeof(*buff) * (max + index))
     );
 
-    if (PTR_ERR(value))
-        return PTR_ERR(value);
+    if (unlikely(IS_INVAL(value)))
+        return PTR_INVAL(value);
 
     if (!max)
         len = min;
@@ -231,8 +231,8 @@ int dt_attribute_read_u32_index_array_range(const struct dt_node *node, const ch
         (sizeof(*buff) * (max + index))
     );
 
-    if (PTR_ERR(value))
-        return PTR_ERR(value);
+    if (unlikely(IS_INVAL(value)))
+        return PTR_INVAL(value);
 
     if (!max)
         len = min;
@@ -259,8 +259,8 @@ int dt_attribute_read_u64_index_array_range(const struct dt_node *node, const ch
         (sizeof(*buff) * (max + index))
     );
 
-    if (PTR_ERR(value))
-        return PTR_ERR(value);
+    if (unlikely(IS_INVAL(value)))
+        return PTR_INVAL(value);
 
     if (!max)
         len = min;

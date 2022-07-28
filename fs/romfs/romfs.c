@@ -148,8 +148,8 @@ static struct superblock *romfs_mount(struct fsdev *fsdev, enum mount_flags flag
     pos = (ROMFH_SIZE + len + 1 + ROMFH_PAD) & ROMFH_MASK;
 
     root = romfs_iget(sb, pos);
-    if (PTR_ERR(root))
-        return PTR_ERR(root);
+    if (IS_INVAL(root))
+        return PTR_INVAL(root);
 
     sb->root = root;
 

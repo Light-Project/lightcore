@@ -234,7 +234,7 @@ phys_addr_t __init memblock_phys_alloc_range(size_t size, size_t align,
     }
 
     block = memblock_insert(align_start, size, MEMBLOCK_ALLOCATED, true);
-    if (PTR_ERR(block)) {
+    if (unlikely(IS_INVAL(block))) {
         pr_crit("No free memblock slot found.\n");
         return 0;
     }
@@ -285,7 +285,6 @@ state __init memblock_add_numa(const char *name, phys_addr_t addr, size_t size, 
 {
     phys_addr_t end = addr + size - 1;
     struct memblock_region *node;
-    state ret;
 
     if (!size)
         return -EINVAL;
@@ -293,12 +292,12 @@ state __init memblock_add_numa(const char *name, phys_addr_t addr, size_t size, 
     addr = align_high(addr, MSIZE);
     size = align_low(size, MSIZE);
 
-    memblk_debug("Usable [%#018lx - %#018lx] %s\n", addr, end, name);
+    memblk_debug("usable [%#018lx - %#018lx] %s\n", addr, end, name);
     node = memblock_insert(addr, size, MEMBLOCK_USABLE, memblock_merge);
 
-    if ((ret = PTR_ERR(node))) {
-        pr_crit("No free memblock slot found.\n");
-        return ret;
+    if (unlikely(IS_INVAL(node))) {
+        pr_crit("no free memblock slot found.\n");
+        return PTR_INVAL(node);
     }
 
     node->name = name;
@@ -310,7 +309,6 @@ state __init memblock_reserve(const char *name, phys_addr_t addr, size_t size)
 {
     phys_addr_t end = addr + size - 1;
     struct memblock_region *node;
-    state ret;
 
     if (!size)
         return -EINVAL;
@@ -318,12 +316,12 @@ state __init memblock_reserve(const char *name, phys_addr_t addr, size_t size)
     addr = align_low(addr, MSIZE);
     size = align_high(size, MSIZE);
 
-    memblk_debug("Reserve [%#018lx - %#018lx] %s\n", addr, end, name);
+    memblk_debug("reserve [%#018lx - %#018lx] %s\n", addr, end, name);
     node = memblock_insert(addr, size, MEMBLOCK_RESERVED, memblock_merge);
 
-    if ((ret = PTR_ERR(node))) {
+    if (unlikely(IS_INVAL(node))) {
         pr_crit("no free memblock slot found\n");
-        return ret;
+        return PTR_INVAL(node);
     }
 
     node->name = name;
@@ -338,7 +336,7 @@ state __init memblock_remove(phys_addr_t addr, size_t size)
     if (!size)
         return -EINVAL;
 
-    memblk_debug("Clear [%#018lx - %#018lx]\n", addr, end);
+    memblk_debug("clear [%#018lx - %#018lx]\n", addr, end);
     return memblock_clear(addr, size);
 }
 
@@ -346,8 +344,7 @@ void __init memblock_dump(void)
 {
     struct memblock_region *node;
 
-    pr_info("Memblock Layout:\n");
-
+    pr_info("memblock layout:\n");
     list_for_each_entry(node, &memblock_list, list) {
         phys_addr_t end = node->addr + node->size - 1;
         pr_info("  [%#018lx-%#018lx] %s type: %d\n",

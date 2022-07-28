@@ -179,8 +179,10 @@ static struct sched_task *task_copy(struct task_clone_args *args, struct pid *pi
 
     if (pid != &init_task_pid) {
         pid = pid_alloc(child->namespace->pid, args->tid, args->tid_size);
-        if ((ret = PTR_ERR(pid)))
+        if (unlikely(IS_INVAL(pid))) {
+            ret = PTR_INVAL(pid);
             goto err_alloc_pid;
+        }
     }
 
     child->start_time = timekeeping_get_time_ns();
@@ -197,11 +199,11 @@ err_sched_clone:
 pid_t task_clone(struct task_clone_args *args)
 {
     struct sched_task *child;
-    pid_t pid;
+    pid_t pid = 0;
 
     child = task_copy(args, NULL);
-    if (unlikely(pid = PTR_ERR(child)))
-        return pid;
+    if (unlikely(IS_INVAL(child)))
+        return PTR_INVAL(child);
 
     sched_wake_up_new(child);
 

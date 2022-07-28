@@ -63,16 +63,16 @@ static state kcoro_testing(struct kshell_context *ctx, void *pdata)
     state ret;
 
     worker = kcoro_worker_create("kcoro test");
-    if (unlikely(ret = PTR_ERR(worker)))
-        return ret;
+    if (unlikely(IS_INVAL(worker)))
+        return PTR_INVAL(worker);
 
     work_a = kcoro_work_create(worker, kcoro_task_a, ctx, "kcoro test task a");
     work_b = kcoro_work_create(worker, kcoro_task_b, ctx, "kcoro test task b");
     work_c = kcoro_work_create(worker, kcoro_task_c, ctx, "kcoro test task b");
 
-    if ((ret = PTR_ERR(work_a)) ||
-        (ret = PTR_ERR(work_b)) ||
-        (ret = PTR_ERR(work_c))
+    if ((ret = PTR_INVAL_ZERO(work_a)) ||
+        (ret = PTR_INVAL_ZERO(work_b)) ||
+        (ret = PTR_INVAL_ZERO(work_c))
     ) {
         kcoro_worker_destroy(worker);
         return ret;
