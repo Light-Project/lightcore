@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "kmem: " fmt
+#define MODULE_NAME "kmem"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <kernel.h>
 #include <string.h>
@@ -11,6 +12,12 @@
 #include <export.h>
 #include <printk.h>
 
+/**
+ * krealloc - reallocate memory.
+ * @block: object to reallocate memory for.
+ * @rsize: how many bytes of memory are required.
+ * @flags: the type of memory to allocate.
+ */
 void *krealloc(const void *block, size_t rsize, gfp_t flags)
 {
     size_t size;
@@ -21,11 +28,13 @@ void *krealloc(const void *block, size_t rsize, gfp_t flags)
         return NULL;
     }
 
-    ret = kmalloc(rsize, GFP_KERNEL);
-    if (unlikely(!ret))
+    size = ksize(block);
+    if (unlikely(!size))
         return NULL;
 
-    size = ksize(block);
+    ret = kmalloc(rsize, flags);
+    if (unlikely(!ret))
+        return NULL;
 
     memcpy(ret, block, size);
     kfree(block);
