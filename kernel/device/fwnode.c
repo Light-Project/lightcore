@@ -35,6 +35,36 @@ GENERIC_FWNODE_NAME(attribute_read_string, attribute_read_string_index_array, st
 GENERIC_FWNODE_NAME(attribute_read_string_index, attribute_read_string_index_array, state, -EOPNOTSUPP, (node, name, val, index, 1), const char *name, const char **val, unsigned int index);
 GENERIC_FWNODE_NAME(attribute_read_string_array, attribute_read_string_index_array, state, -EOPNOTSUPP, (node, name, val, 0, len), const char *name, const char **val, size_t len);
 
+struct fwnode *fwnode_next_available_child(const struct fwnode *node, struct fwnode *iter)
+{
+    struct fwnode *child = NULL;
+
+	do {
+		child = fwnode_next_child(node, child);
+		if (!child)
+			return NULL;
+	} while (!fwnode_node_available(child));
+
+    return child;
+}
+EXPORT_SYMBOL(fwnode_next_available_child);
+
+#define GENERIC_FWNODE_CHILD_COUNT(operation)                           \
+unsigned int fwnode_##operation##_count(const struct fwnode *node)      \
+{                                                                       \
+    unsigned int count = 0;                                             \
+    struct fwnode *iter;                                                \
+                                                                        \
+    fwnode_for_each_##operation(iter, node)                             \
+        count++;                                                        \
+                                                                        \
+    return count;                                                       \
+}                                                                       \
+EXPORT_SYMBOL(fwnode_##operation##_count)
+
+GENERIC_FWNODE_CHILD_COUNT(child);
+GENERIC_FWNODE_CHILD_COUNT(available_child);
+
 #define GENERIC_FWNODE_VALUE_OP(func, type)                                                                             \
 state fwnode_attribute_read_##func(const struct fwnode *node, const char *name, type *val)                              \
 {                                                                                                                       \
@@ -90,6 +120,8 @@ GENERIC_DEVICE_OP(attribute_read_string_index_array, state, -EOPNOTSUPP, (node, 
 GENERIC_DEVICE_OP(attribute_read_string, state, -EOPNOTSUPP, (node, name, val), const char *name, const char **val);
 GENERIC_DEVICE_OP(attribute_read_string_index, state, -EOPNOTSUPP, (node, name, val, index), const char *name, const char **val, unsigned int index);
 GENERIC_DEVICE_OP(attribute_read_string_array, state, -EOPNOTSUPP, (node, name, val, len), const char *name, const char **val, size_t len);
+GENERIC_DEVICE_OP(child_count, unsigned int, 0, (node));
+GENERIC_DEVICE_OP(available_child_count, unsigned int, 0, (node));
 
 #define GENERIC_DEVICE_VALUE_OP(func, type)                                                                                 \
 state device_attribute_read_##func(const struct device *device, const char *name, type *val)                                \
@@ -120,3 +152,4 @@ GENERIC_DEVICE_VALUE_OP(u8, uint8_t);
 GENERIC_DEVICE_VALUE_OP(u16, uint16_t);
 GENERIC_DEVICE_VALUE_OP(u32, uint32_t);
 GENERIC_DEVICE_VALUE_OP(u64, uint64_t);
+

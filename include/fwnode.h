@@ -58,7 +58,6 @@ extern bool fwnode_node_available(const struct fwnode *node);
 extern void *fwnode_node_container(const struct fwnode *node);
 extern struct fwnode *fwnode_node_parent(const struct fwnode *node);
 extern struct fwnode *fwnode_next_child(const struct fwnode *node, struct fwnode *iter);
-extern struct fwnode *fwnode_next_available_child(const struct fwnode *node, struct fwnode *iter);
 extern struct fwnode *fwnode_find_child(const struct fwnode *node, const char *name);
 extern bool fwnode_attribute_present(const struct fwnode *node, const char *name);
 extern state fwnode_attribute_read_value_index_array(const struct fwnode *node, const char *name, unsigned int esize, void *val, unsigned int index, size_t len);
@@ -66,6 +65,10 @@ extern state fwnode_attribute_read_string_index_array(const struct fwnode *node,
 extern state fwnode_attribute_read_string(const struct fwnode *node, const char *name, const char **val);
 extern state fwnode_attribute_read_string_index(const struct fwnode *node, const char *name, const char **val, unsigned int index);
 extern state fwnode_attribute_read_string_array(const struct fwnode *node, const char *name, const char **val, size_t len);
+
+extern struct fwnode *fwnode_next_available_child(const struct fwnode *node, struct fwnode *iter);
+extern unsigned int fwnode_child_count(const struct fwnode *node);
+extern unsigned int fwnode_available_child_count(const struct fwnode *node);
 
 extern state fwnode_attribute_read_u8(const struct fwnode *node, const char *name, uint8_t *val);
 extern state fwnode_attribute_read_u16(const struct fwnode *node, const char *name, uint16_t *val);
@@ -98,6 +101,8 @@ extern state device_attribute_read_string_index_array(const struct device *devic
 extern state device_attribute_read_string(const struct device *device, const char *name, const char **val);
 extern state device_attribute_read_string_index(const struct device *device, const char *name, const char **val, unsigned int index);
 extern state device_attribute_read_string_array(const struct device *device, const char *name, const char **val, size_t len);
+extern unsigned int device_child_count(const struct device *device);
+extern unsigned int device_available_child_count(const struct device *device);
 
 extern state device_attribute_read_u8(const struct device *device, const char *name, uint8_t *val);
 extern state device_attribute_read_u16(const struct device *device, const char *name, uint16_t *val);
