@@ -5,6 +5,11 @@ config PRINTK
     bool "Printk Support"
     default y
 
+config PRINTK_COLOR
+    bool "Show Level Color"
+    depends on PRINTK
+    default y
+
 config PRINTK_TIME
     bool "Show Timing Information"
     depends on PRINTK

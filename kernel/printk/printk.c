@@ -10,6 +10,19 @@
 #include <timekeeping.h>
 #include <export.h>
 
+const enum klevel_color printk_level_color[] = {
+    [KLEVEL_EMERG]      = KERN_COLR_RED,
+    [KLEVEL_ALERT]      = KERN_COLR_DARK_MAGENTA,
+    [KLEVEL_CRIT]       = KERN_COLR_MAGENTA,
+    [KLEVEL_ERR]        = KERN_COLR_YELLOW,
+    [KLEVEL_WARNING]    = KERN_COLR_BLUE,
+    [KLEVEL_NOTICE]     = KERN_COLR_CYAN,
+    [KLEVEL_INFO]       = KERN_COLR_GREEN,
+    [KLEVEL_DEBUG]      = KERN_COLR_DARK_GRAY,
+    [KLEVEL_DEFAULT]    = KERN_COLR_DEFAULT,
+};
+EXPORT_SYMBOL(printk_level_color);
+
 static inline char printk_get_level(const char *str)
 {
     if (str[0] == KERN_SOH_ASCII && str[1])
@@ -17,7 +30,7 @@ static inline char printk_get_level(const char *str)
     return 0;
 }
 
-static const char *printk_level(const char *str, enum klevel *klevel)
+const char *printk_level(const char *str, enum klevel *klevel)
 {
     char kern_level;
 
@@ -34,6 +47,7 @@ static const char *printk_level(const char *str, enum klevel *klevel)
 
     return str;
 }
+EXPORT_SYMBOL(printk_level);
 
 static inline int printk_time(char *buffer, struct timespec *time)
 {
@@ -56,10 +70,17 @@ int vprintk(const char *fmt, va_list args)
         p += printk_time(p, &btime);
 #endif
 
+#ifdef CONFIG_PRINTK_COLOR
+    p += sprintf(p, "\e[%dm", printk_level_color[klevel]);
+#endif
     p += vsprintf(p, fmt, args);
-    len = p - buffer;
+#ifdef CONFIG_PRINTK_COLOR
+    p += sprintf(p, "\e[0m");
+#endif
 
+    len = p - buffer;
     console_write(buffer, len);
+
     return len;
 }
 EXPORT_SYMBOL(vprintk);
