@@ -42,8 +42,8 @@ static __noreturn void biosdisk_boot(void)
     pr_boot("load address: %#x\n", load);
     pr_boot("entry point: %#x\n", entry);
 
-    if (size > memory_size)
-        panic("image too big %#x->%#x\n", size, memory_size);
+    if (size > memory_top - entry)
+        panic("image too big %#x->%#x\n", size, memory_top - entry);
 
     biosdisk_read(boot_dev, (void *)rawload, load_seek, blkcount);
     newcrc = crc32((void *)load, size, ~0);
