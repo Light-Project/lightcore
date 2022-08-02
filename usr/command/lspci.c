@@ -52,6 +52,7 @@ static void lspci_device_dump(struct kshell_context *ctx, uint8_t flags, unsigne
         }
         kshell_printf(ctx, "\n");
     }
+    kshell_printf(ctx, "\n");
 }
 
 static bool lspci_scan_device(struct kshell_context *ctx, uint8_t flags, unsigned int bus, unsigned int devfn)
