@@ -206,7 +206,8 @@ static state parallel_gpio_value_set(struct gpio_device *gdev, unsigned int port
     return ret;
 }
 
-static state parallel_gpio_direction_get(struct gpio_device *gdev, unsigned int port, enum gpio_direction *dir)
+static state parallel_gpio_direction_get(struct gpio_device *gdev, unsigned int port,
+                                         enum gpio_direction *dir)
 {
     if (port >= ARRAY_SIZE(parallel_desc))
         return -EINVAL;
@@ -216,7 +217,8 @@ static state parallel_gpio_direction_get(struct gpio_device *gdev, unsigned int 
     return -ENOERR;
 }
 
-static state parallel_gpio_direction_set(struct gpio_device *gdev, unsigned int port, enum gpio_direction dir)
+static state parallel_gpio_direction_set(struct gpio_device *gdev, unsigned int port,
+                                         enum gpio_direction dir)
 {
     if (port >= ARRAY_SIZE(parallel_desc))
         return -EINVAL;
@@ -227,11 +229,63 @@ static state parallel_gpio_direction_set(struct gpio_device *gdev, unsigned int 
     return -ENOERR;
 }
 
+static state parallel_gpio_pull_get(struct gpio_device *gdev, unsigned int port,
+                                    enum gpio_pull *pull)
+{
+    if (port >= ARRAY_SIZE(parallel_desc))
+        return -EINVAL;
+
+    if (parallel_desc[port].dire == GPIO_DIRECTION_PUSH)
+        *pull = GPIO_PULL_FLOAT;
+    else
+        *pull = GPIO_PULL_UP;
+
+    return -ENOERR;
+}
+
+static state parallel_gpio_pull_set(struct gpio_device *gdev, unsigned int port,
+                                    enum gpio_pull pull)
+{
+    bool result;
+
+    if (port >= ARRAY_SIZE(parallel_desc))
+        return -EINVAL;
+
+    if (parallel_desc[port].dire == GPIO_DIRECTION_PUSH)
+        result = pull != GPIO_PULL_FLOAT;
+    else
+        result = pull != GPIO_PULL_UP;
+
+    return result ? -EOPNOTSUPP : -ENOERR;
+}
+
+static state parallel_gpio_dt_xlate(struct gpio_device *gdev, const struct dt_phandle_args *args,
+                                    uint32_t *index, uint32_t *flags)
+{
+    uint32_t pinnum;
+
+    pinnum = args->args[0];
+    if (pinnum >gdev->channel_nr)
+        return -EINVAL;
+
+    if (index)
+        *index = pinnum;
+
+    if (flags)
+        *flags = args->args[1];
+
+    return -ENOERR;
+}
+
 static struct gpio_ops parallel_gpio_ops = {
     .value_get = parallel_gpio_value_get,
     .value_set = parallel_gpio_value_set,
     .direction_get = parallel_gpio_direction_get,
     .direction_set = parallel_gpio_direction_set,
+    .pull_get = parallel_gpio_pull_get,
+    .pull_set = parallel_gpio_pull_set,
+    .dt_xlate = parallel_gpio_dt_xlate,
+    .dt_gpio_cells = 2,
 };
 
 static state parallel_gpio_hwinit(struct gpio_device *gdev)
@@ -266,12 +320,15 @@ static state parallel_gpio_probe(struct parallel_device *pdev, const void *pdata
     struct parallel_gpio_device *pgpio;
     state ret;
 
-    pgpio = parallel_kzalloc(pdev, sizeof(*pdev), GFP_KERNEL);
+    pgpio = parallel_kzalloc(pdev, sizeof(*pgpio), GFP_KERNEL);
     if (!pgpio)
         return -ENOMEM;
 
-    pgpio->gpio_device.ops = &parallel_gpio_ops;
     pgpio->pdev = pdev;
+    pgpio->gpio_device.dev = &pdev->dev;
+    pgpio->gpio_device.dt_node = pdev->dt_node;
+    pgpio->gpio_device.ops = &parallel_gpio_ops;
+    pgpio->gpio_device.channel_nr = ARRAY_SIZE(parallel_desc);
     parallel_set_devdata(pdev, pgpio);
 
     ret = parallel_gpio_hwinit(&pgpio->gpio_device);
