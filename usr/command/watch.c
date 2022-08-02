@@ -61,7 +61,7 @@ static state watch_main(struct kshell_context *ctx, int argc, char *argv[])
         if (retval || kshell_ctrlc(ctx))
             return retval;
 
-        mdelay(delay);
+        msleep(delay);
     }
 
     return -ENOERR;
