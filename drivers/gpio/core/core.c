@@ -70,7 +70,6 @@ void gpio_channel_release(struct gpio_channel *channel)
     spin_lock_irqsave(&gdev->lock, &irqflags);
     list_del(&channel->list);
     spin_unlock_irqrestore(&gdev->lock, &irqflags);
-
     dev_kfree(gdev->dev, channel);
 }
 EXPORT_SYMBOL(gpio_channel_release);
@@ -82,6 +81,7 @@ state gpio_register(struct gpio_device *gdev)
     if (!gdev->ops || !gdev->dev)
         return -EINVAL;
 
+    list_head_init(&gdev->channel);
     spin_lock_irqsave(&gpio_lock, &irqflags);
     list_add(&gpio_list, &gdev->list);
     spin_unlock_irqrestore(&gpio_lock, &irqflags);
