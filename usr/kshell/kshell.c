@@ -5,9 +5,9 @@
 
 #include "kshell.h"
 #include <string.h>
-#include <setjmp.h>
 #include <kmalloc.h>
 #include <initcall.h>
+#include <errname.h>
 #include <console.h>
 #include <export.h>
 
@@ -49,7 +49,7 @@ static void commands_release(struct kshell_context *ctx)
     spin_unlock(&kshell_lock);
 }
 
-static state do_system(struct kshell_context *ctx, const char *cmdline, jmp_buf *buff)
+static state do_system(struct kshell_context *ctx, const char *cmdline, bool *exit)
 {
     const char *buffer;
     char **argv;
@@ -66,8 +66,11 @@ static state do_system(struct kshell_context *ctx, const char *cmdline, jmp_buf 
         if (!argc)
             continue;
 
-        if (buff && !strcmp(argv[0], "exit"))
-            longjmp(buff, true);
+        if (exit && !strcmp(argv[0], "exit")) {
+            *exit = true;
+            kfree(argv);
+            break;
+        }
 
         if (!*ctx->depth) {
             kshell_printf(ctx, "kshell: trigger recursive protection\n");
@@ -122,23 +125,23 @@ state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
     struct readline_state *rstate = ctx->readline;
     struct kshell_context nctx;
     char *cmdline, retbuf[20];
-    state exit, ret = -ENOERR;
     unsigned int count;
-    jmp_buf buff;
+    state retval = -ENOERR;
+    bool exit = false;
 
     context_clone(ctx, &nctx);
-    exit = commands_prepare(&nctx);
-    if (exit)
-        return exit;
+    retval = commands_prepare(&nctx);
+    if (retval)
+        return retval;
 
     if (argc > 1) {
-        exit = setjmp(&buff);
         nctx.readline = NULL;
 
         for (count = 1; !exit && count < argc; ++count) {
-            ret = do_system(&nctx, argv[count], &buff);
-            snprintf(retbuf, sizeof(retbuf), "%d", ret);
+            retval = do_system(&nctx, argv[count], &exit);
+            snprintf(retbuf, sizeof(retbuf), "%d", retval);
             kshell_setenv(&nctx, "?", retbuf, true);
+            kshell_setenv(&nctx, "??", errname(retval) ?: "EUNKNOWN", true);
         }
     }
 
@@ -147,15 +150,15 @@ state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
         if (!(nctx.readline = rstate))
             return -ENOMEM;
 
-        exit = setjmp(&buff);
-
         while (!exit) {
             cmdline = readline(rstate, "kshell: /# ");
             if (!rstate->len)
                 continue;
-            ret = do_system(&nctx, cmdline, &buff);
-            snprintf(retbuf, sizeof(retbuf), "%d", ret);
+
+            retval = do_system(&nctx, cmdline, &exit);
+            snprintf(retbuf, sizeof(retbuf), "%d", retval);
             kshell_setenv(&nctx, "?", retbuf, true);
+            kshell_setenv(&nctx, "??", errname(retval) ?: "EUNKNOWN", true);
         }
 
         readline_free(rstate);
@@ -164,7 +167,7 @@ state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
     kshell_envrelease(&nctx);
     commands_release(&nctx);
 
-    return ret;
+    return retval;
 }
 
 static state env_main(struct kshell_context *ctx, int argc, char *argv[])

@@ -166,6 +166,6 @@ const char *errname(state error)
         sizeof(*entry), errname_search, (void *)-error
     );
 
-    return entry ? entry->name : "EUNKNOWN";
+    return entry ? entry->name : NULL;
 }
 EXPORT_SYMBOL(errname);
