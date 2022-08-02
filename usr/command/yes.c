@@ -47,7 +47,7 @@ static state yes_main(struct kshell_context *ctx, int argc, char *argv[])
 
     do {
         if (kshell_ctrlc(ctx))
-            break;
+            return -ECANCELED;
         kshell_printf(ctx, "%s", argv[count]);
         for (walk = count + 1; walk < argc; ++walk)
             kshell_printf(ctx, " %s", argv[walk]);

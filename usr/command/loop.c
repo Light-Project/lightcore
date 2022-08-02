@@ -130,8 +130,10 @@ static state loop_main(struct kshell_context *ctx, int argc, char *argv[])
                     kshell_setenv(ctx, varname, buff, true);
                 }
             }
-            if (kshell_ctrlc(ctx))
+            if (kshell_ctrlc(ctx)) {
+                retval = -ECANCELED;
                 goto exit;
+            }
             retval = kshell_system(ctx, argv[argc -1]);
             if (retval && retval != -EAGAIN)
                 goto exit;

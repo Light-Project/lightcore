@@ -217,8 +217,11 @@ static state selftest_main(struct kshell_context *ctx, int argc, char *argv[])
         retval = selftest_all(ctx, iflag, loop);
 
     else for ((void)((cmd = selftest_iter(argv[count], NULL)) || ({goto usage; 1;}));
-              cmd && !retval && !kshell_ctrlc(ctx); cmd = selftest_iter(argv[count], cmd)) {
-        retval = selftest_one(ctx, cmd, iflag, loop, argc - count + 1, &argv[count]);
+              cmd && !retval; cmd = selftest_iter(argv[count], cmd)) {
+        if (kshell_ctrlc(ctx))
+            retval = -ECANCELED;
+        else
+            retval = selftest_one(ctx, cmd, iflag, loop, argc - count + 1, &argv[count]);
     }
 
     return retval;

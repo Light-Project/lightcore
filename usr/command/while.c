@@ -35,7 +35,7 @@ static state while_main(struct kshell_context *ctx, int argc, char *argv[])
 
     while (!kshell_system(ctx, argv[count + 0])) {
         if (kshell_ctrlc(ctx))
-            break;
+            return -ECANCELED;
         retval = kshell_system(ctx, argv[count + 1]);
         if (retval && retval != -EAGAIN)
             break;

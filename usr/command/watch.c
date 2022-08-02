@@ -58,8 +58,11 @@ static state watch_main(struct kshell_context *ctx, int argc, char *argv[])
             kshell_printf(ctx, "Every %dms: %s\n\n", delay, argv[count]);
 
         retval = kshell_execv(ctx, argv[count], argc - count, &argv[count]);
-        if (retval || kshell_ctrlc(ctx))
+        if (retval)
             return retval;
+
+        if (kshell_ctrlc(ctx))
+            return -ECANCELED;
 
         msleep(delay);
     }
