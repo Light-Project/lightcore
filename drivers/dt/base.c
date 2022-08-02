@@ -292,13 +292,7 @@ state dt_attribute_read_string_index_array(const struct dt_node *node, const cha
     if (!attribute)
         return -EINVAL;
 
-    while (!len || index--) {
-        slen = strnlen(attribute, len) + 1;
-        attribute += slen;
-        len -= slen;
-    }
-
-    while (!len || size--) {
+    while (len && size--) {
         *str++ = attribute;
         slen = strnlen(attribute, len) + 1;
         attribute += slen;
