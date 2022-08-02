@@ -15,7 +15,7 @@ struct vga_text {
     uint8_t att;
 } __packed;
 
-struct vga_text buff [yres][xres];
+static struct vga_text buff[yres][xres];
 static unsigned char pos_x, pos_y;
 
 #define vram_base ((void *)0xb8000)
@@ -38,8 +38,8 @@ static inline void vga_flush(void)
 static inline void vga_clear(int pos_y, int len)
 {
     int pos_x;
-    for(; len--; pos_y++)
-    for(pos_x = 0; pos_x < xres; pos_x++) {
+    for (; len--; pos_y++)
+    for (pos_x = 0; pos_x < xres; pos_x++) {
         buff[pos_y][pos_x].ch = '\0';
         buff[pos_y][pos_x].att = 0x07;
     }

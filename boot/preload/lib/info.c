@@ -17,7 +17,7 @@ int printf(const char *str, ...)
     if (!stdout)
         return 0;
 
-    va_start(para,str);
+    va_start(para, str);
     len = vsprintf(strbuf, str, para);
     va_end(para);
     stdout(strbuf);
@@ -35,7 +35,7 @@ int pr_boot(const char *str, ...)
         return 0;
 
     stdout("[pload]: ");
-    va_start(para,str);
+    va_start(para, str);
     len = vsprintf(strbuf, str, para);
     va_end(para);
     stdout(strbuf);
@@ -52,7 +52,7 @@ void __noreturn panic(const char *str, ...)
         goto exit;
 
     stdout("[panic]: ");
-    va_start(para,str);
+    va_start(para, str);
     vsprintf(strbuf, str, para);
     va_end(para);
     stdout(strbuf);

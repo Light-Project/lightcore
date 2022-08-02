@@ -19,7 +19,7 @@ int printf(const char *str, ...)
     if(!stdout)
         return 0;
 
-    va_start(para,str);
+    va_start(para, str);
     len = vsprintf(strbuf, str, para);
     va_end(para);
     stdout(strbuf);
@@ -37,7 +37,7 @@ int pr_boot(const char *str, ...)
         return 0;
 
     stdout("[kboot]: ");
-    va_start(para,str);
+    va_start(para, str);
     len = vsprintf(strbuf, str, para);
     va_end(para);
     stdout(strbuf);
@@ -54,7 +54,7 @@ void panic(const char *str, ...)
         goto out;
 
     stdout("[panic]: ");
-    va_start(para,str);
+    va_start(para, str);
     vsprintf(strbuf, str, para);
     va_end(para);
     stdout(strbuf);
