@@ -20,14 +20,14 @@ static inline void _raw_spin_unlock(raw_spinlock_t *lock)
 
 static inline void _raw_spin_lock_bh(raw_spinlock_t *lock)
 {
-    bh_local_disable();
+    bh_local_lock();
     __raw_spin_lock(lock);
 }
 
 static inline void _raw_spin_unlock_bh(raw_spinlock_t *lock)
 {
     __raw_spin_unlock(lock);
-    bh_local_enable();
+    bh_local_unlock();
 }
 
 static inline void _raw_spin_lock_irq(raw_spinlock_t *lock)
