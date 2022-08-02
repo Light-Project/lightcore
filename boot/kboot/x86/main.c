@@ -32,7 +32,6 @@ asmlinkage void main(void)
 
     /* Init Memory */
     heap_setup(heap_start, heap_size);
-    segment_init();
     kernel_map();
 
     /* Extract kernel */

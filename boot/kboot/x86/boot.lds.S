@@ -17,12 +17,16 @@ OUTPUT_ARCH(i386:x86-64)
 
 ENTRY(_start)
 
-#define STACK_SIZE      (SZ_1KiB * 8)
+#define STACK_SIZE      (SZ_1KiB * 32)
 #define HEAP_SIZE       (SZ_1KiB * 128)
 #define KERNEL_OFFSET   0x100000
 
 SECTIONS {
-    . = 0;
+/*
+ * TODO: It should be 0x500 here, but I don't
+ * know how to align the head size.
+ */
+    . = 0x600;
     _ld_header_start = .;
 
     .head : {
@@ -53,6 +57,9 @@ SECTIONS {
         *(.data.*)
     }
 
+    . = ALIGN(512);
+    _ld_header_end = .;
+
     .bootparam (NOLOAD) : {
         . = ALIGN(4);
         _ld_bootparam_start = .;
@@ -61,8 +68,8 @@ SECTIONS {
         _ld_bootparam_end = .;
     }
 
-    . = ALIGN(512);
-    _ld_header_end = .;
+    . = ALIGN(4);
+    _ld_memory_end = .;
 
     . = KERNEL_OFFSET;
 
@@ -71,13 +78,13 @@ SECTIONS {
 
     _ld_kernel_start = .;
 
-    .piggymagic : \
+    .piggymagic :
     AT(ADDR(.piggymagic) - LOAD_OFFSET) {
         _ld_piggy_magic = .;
         LONG(PIGGY_MAGIC)
     }
 
-    .piggydata : \
+    .piggydata :
     AT(ADDR(.piggydata) - LOAD_OFFSET) {
         _ld_piggy_start = .;
         KEEP(*(.piggydata))
@@ -99,19 +106,19 @@ SECTIONS {
         _ld_bss_end = .;
     }
 
-    .stack (NOLOAD) : {
-        . = ALIGN(4);
-        _ld_stack_start = .;
-        . = _ld_stack_start + STACK_SIZE;
-        _ld_stack_end = .;
-    }
-
     .heap (NOLOAD) : {
         . = ALIGN(4);
         _ld_heap_start = .;
         . = _ld_heap_start + HEAP_SIZE;
         . = ALIGN(4);
         _ld_heap_end = .;
+    }
+
+    .stack (NOLOAD) : {
+        . = ALIGN(4);
+        _ld_stack_start = .;
+        . = _ld_stack_start + STACK_SIZE;
+        _ld_stack_end = .;
     }
 
     STABS_DEBUG
@@ -127,7 +134,8 @@ SECTIONS {
 }
 
 PROVIDE(_ld_header_size = _ld_header_end - _ld_header_start);
+PROVIDE(_ld_memory_size = _ld_memory_end - _ld_header_start);
 PROVIDE(_ld_kernel_size = _ld_kernel_end - _ld_kernel_start);
-PROVIDE(_ld_header_sects = (_ld_header_size / 512) - 1);
-PROVIDE(_ld_sys_size = _ld_kernel_size / 16);
-ASSERT(_ld_header_size < 0xfc00, "Boot head too big! (64KiB)");
+PROVIDE(_ld_header_sect = _ld_header_size / 512 - 1);
+PROVIDE(_ld_kernel_size = _ld_kernel_size / 16);
+ASSERT(_ld_memory_size < 0xfa00, "boot memory too big! (62.5KiB)");

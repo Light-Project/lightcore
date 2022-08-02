@@ -4,11 +4,10 @@
  */
 
 #include <kboot.h>
-#include <asm/regs.h>
-#include <asm/segment.h>
+#include <arch/x86/segment.h>
+#include <arch/x86/interrupt.h>
 
-static struct gdt_entry gdt_entry[] = {
-#ifdef CONFIG_ARCH_X86_32
+static struct gdt_entry gdt32_entry[] = {
     [GDT_ENTRY_BOOT_CS] = {
         .p = true, .s = GDT_S_CODEDATA, .dpl = GDT_DPL_RING0,
         .db = GDT_DB_32, .g = GDT_G_4KiB, .type = GDT_TYPE_XR,
@@ -29,7 +28,20 @@ static struct gdt_entry gdt_entry[] = {
         .db = GDT_DB_32, .g = GDT_G_4KiB, .type = GDT_TYPE_RW,
         .basel = 0, .baseh = 0, .limitl = 0xffff, .limith = 0xf,
     },
-#else
+};
+
+struct gdt_table gdt32_table = {
+    .gdt = gdt32_entry,
+    .limit = sizeof(gdt32_entry) - 1,
+};
+
+struct idt_table idt32_table = {
+    .idt = 0,
+    .limit = 0,
+};
+
+#ifdef CONFIG_ARCH_X86_64
+static struct gdt_entry gdt64_entry[] = {
     [GDT_LENTRY_KERNEL32_CS] = {
         .p = true, .s = GDT_S_CODEDATA, .dpl = GDT_DPL_RING0, .l = false,
         .db = GDT_DB_32, .g = GDT_G_4KiB, .type = GDT_TYPE_XR,
@@ -45,15 +57,10 @@ static struct gdt_entry gdt_entry[] = {
         .db = GDT_DB_16, .g = GDT_G_4KiB, .type = GDT_TYPE_XR,
         .basel = 0, .baseh = 0, .limitl = 0xffff, .limith = 0xf,
     },
-#endif
 };
 
-struct gdt_table gdt_table = {
-    .limit = sizeof(gdt_entry) - 1,
+struct gdt_table gdt64_table = {
+    .gdt = gdt64_entry,
+    .limit = sizeof(gdt64_entry) - 1,
 };
-
-void segment_init(void)
-{
-    gdt_table.gdt = gdt_entry;
-    gdt_set(&gdt_table);
-}
+#endif /* CONFIG_ARCH_X86_64 */

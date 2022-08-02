@@ -51,28 +51,27 @@ extern uint32_t init_size;
 extern uint32_t handover_offset;
 extern uint32_t kernel_info_offset;
 
-extern uint8_t _ld_piggy_start;
-extern uint8_t _ld_piggy_end;
-extern uint8_t _ld_heap_start;
-extern uint8_t _ld_heap_end;
+extern void *_ld_piggy_start[];
+extern void *_ld_piggy_end[];
+extern void *_ld_heap_start[];
+extern void *_ld_heap_end[];
 
 #define __bootparam __section(".bootparam")
 extern struct bootparam bootparam;
 
-#define piggy_start ((void *)&_ld_piggy_start - (uintptr_t)&kboot_header)
-#define piggy_end   ((void *)&_ld_piggy_end - (uintptr_t)&kboot_header)
+#define piggy_start ((void *)_ld_piggy_start)
+#define piggy_end   ((void *)_ld_piggy_end)
 #define piggy_size  ((uintptr_t)piggy_end - (uintptr_t)piggy_start)
 #define piggy_load  ((void *)(uintptr_t)code32_start)
 
-#define heap_start  ((void *)&_ld_heap_start - (uintptr_t)&kboot_header)
-#define heap_end    ((void *)&_ld_heap_end - (uintptr_t)&kboot_header)
+#define heap_start  ((void *)_ld_heap_start)
+#define heap_end    ((void *)_ld_heap_end)
 #define heap_size   ((uintptr_t)heap_end - (uintptr_t)heap_start)
 
 extern void kboot_header(void);
 extern void __noreturn kernel_start(uint16_t segment, void *offset);
 extern void __noreturn halt(void);
 extern void kernel_map(void);
-extern void segment_init(void);
 extern void console_print(const char *str);
 extern void console_clear(void);
 

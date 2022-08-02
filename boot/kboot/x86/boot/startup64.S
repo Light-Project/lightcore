@@ -18,6 +18,7 @@ SYM_FUNC_START(startup64)
 
     /* Initialization stack */
     movq    $_ld_stack_end, %rsp
+    xorq    %rbp, %rbp
 
     call    main
     jmp     halt
