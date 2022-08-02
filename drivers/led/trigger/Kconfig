@@ -4,12 +4,21 @@ menuconfig LED_TRIGGER
     default y
 if LED_TRIGGER
 
+config LED_TRIGGER_POWER
+    bool "Led Power Trigger"
+    default y
+
 config LED_TRIGGER_PERIODIC
     bool "Led Periodic Trigger"
     default y
 
-config LED_TRIGGER_POWER
-    bool "Led Power Trigger"
+config LED_TRIGGER_HEARTBEAT
+    bool "Led Heartbeat Trigger"
     default y
+
+config LED_TRIGGER_HEARTBEAT_PERIOD
+    int "Led Heartbeat Period"
+    depends on LED_TRIGGER_HEARTBEAT
+    default 1260
 
 endif # LED_TRIGGERS

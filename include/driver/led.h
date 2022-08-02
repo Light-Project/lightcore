@@ -25,6 +25,7 @@ enum led_default_state {
  */
 struct led_device {
     struct device *dev;
+    struct fwnode *fwnode;
     struct led_ops *ops;
     struct list_head list;
     struct list_head trigger_list;
@@ -85,5 +86,14 @@ extern void led_trigger_unregister(struct led_trigger *trigger);
 extern enum led_default_state led_fwnode_default_state(struct fwnode *fwnode);
 extern state led_register(struct led_device *ldev);
 extern void led_unregister(struct led_device *ldev);
+
+#define led_emerg(ldev, fmt, ...)       dev_emerg((ldev)->dev, fmt, ##__VA_ARGS__)
+#define led_alert(ldev, fmt, ...)       dev_alert((ldev)->dev, fmt, ##__VA_ARGS__)
+#define led_crit(ldev, fmt, ...)        dev_crit((ldev)->dev, fmt, ##__VA_ARGS__)
+#define led_err(ldev, fmt, ...)         dev_err((ldev)->dev, fmt, ##__VA_ARGS__)
+#define led_warn(ldev, fmt, ...)        dev_warn((ldev)->dev, fmt, ##__VA_ARGS__)
+#define led_notice(ldev, fmt, ...)      dev_notice((ldev)->dev, fmt, ##__VA_ARGS__)
+#define led_info(ldev, fmt, ...)        dev_info((ldev)->dev, fmt, ##__VA_ARGS__)
+#define led_debug(ldev, fmt, ...)       dev_debug((ldev)->dev, fmt, ##__VA_ARGS__)
 
 #endif  /* _DRIVER_LED_H_ */

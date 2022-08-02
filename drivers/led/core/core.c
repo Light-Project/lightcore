@@ -14,9 +14,9 @@ state led_register(struct led_device *ldev)
     if (!ldev->dev || !ldev->ops)
         return -EINVAL;
 
-    led_trigger_activate(ldev);
     spin_lock(&led_lock);
     list_add(&led_list, &ldev->list);
+    led_trigger_activate(ldev);
     spin_unlock(&led_lock);
 
     return -ENOERR;
@@ -25,9 +25,9 @@ EXPORT_SYMBOL(led_register);
 
 void led_unregister(struct led_device *ldev)
 {
-    led_trigger_deactivate(ldev);
     spin_lock(&led_lock);
     list_del(&ldev->list);
+    led_trigger_deactivate(ldev);
     spin_unlock(&led_lock);
 }
 EXPORT_SYMBOL(led_unregister);

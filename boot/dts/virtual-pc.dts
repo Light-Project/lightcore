@@ -92,7 +92,7 @@
             led1 {
                 label = "lpt0:led1";
                 gpios = <&lpt0_gpio GPIO_PARALLEL_D1 GPIO_ACTIVE_HIGH>;
-                default-trigger = "periodic";
+                default-trigger = "heartbeat";
             };
         };
 

@@ -9,44 +9,39 @@
 
 static SPIN_LOCK(periodic_lock);
 static LIST_HEAD(periodic_list);
-static int periodic_value;
 
 static void led_periodic_handle(void *unused);
 static DEFINE_TIMER(led_periodic_timer, led_periodic_handle, NULL, 100, TIMER_PERIODIC);
 
 static void led_periodic_handle(void *unused)
 {
+    static int periodic_state;
     struct led_device *ldev;
 
     spin_lock(&periodic_lock);
     list_for_each_entry(ldev, &periodic_list, trigger_list) {
-        if (periodic_value & 0x01)
-            led_enable(ldev);
+        if (periodic_state & 0x01)
+            led_brightness_set(ldev, ldev->max_brightness);
         else
-            led_disable(ldev);
+            led_brightness_set(ldev, LED_BRIGHTNESS_OFF);
     }
     spin_unlock(&periodic_lock);
 
-    periodic_value++;
+    periodic_state++;
 }
 
 static state led_periodic_activate(struct led_device *ldev)
 {
-    state retval;
-
-    retval = led_brightness_set(ldev, ldev->max_brightness);
-    if (retval && retval != -EOPNOTSUPP)
-        return retval;
-
+    led_enable(ldev);
     spin_lock_bh(&periodic_lock);
     list_add(&periodic_list, &ldev->trigger_list);
     spin_unlock_bh(&periodic_lock);
-
     return -ENOERR;
 }
 
 static void led_periodic_deactivate(struct led_device *ldev)
 {
+    led_disable(ldev);
     spin_lock_bh(&periodic_lock);
     list_del(&ldev->trigger_list);
     spin_unlock_bh(&periodic_lock);

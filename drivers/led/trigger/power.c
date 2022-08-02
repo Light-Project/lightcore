@@ -8,18 +8,20 @@
 
 static state led_power_activate(struct led_device *ldev)
 {
-    state retval;
+    led_enable(ldev);
+    return led_brightness_set(ldev, ldev->max_brightness);
+}
 
-    retval = led_brightness_set(ldev, ldev->max_brightness);
-    if (retval)
-        return retval;
-
-    return led_enable(ldev);
+static void led_power_deactivate(struct led_device *ldev)
+{
+    led_brightness_set(ldev, LED_BRIGHTNESS_OFF);
+    led_disable(ldev);
 }
 
 static struct led_trigger led_power_trigger = {
     .name = "power",
     .activate = led_power_activate,
+    .deactivate = led_power_deactivate,
 };
 
 static state led_power_init(void)

@@ -29,46 +29,6 @@ static struct led_trigger *led_trigger_find(const char *name)
     return find;
 }
 
-state led_trigger_activate(struct led_device *ldev)
-{
-    struct device *dev = ldev->dev;
-    struct led_trigger *trigger;
-    const char *name;
-    state retval;
-
-    if (device_attribute_read_string(dev, "default-trigger\n", &name)) {
-        dev_debug(dev, "device have not default trigger\n");
-        return -ENOERR;
-    }
-
-    trigger = led_trigger_find(name);
-    if (!trigger) {
-        dev_warn(dev, "invalid trigger name '%s'\n", name);
-        return -EINVAL;
-    }
-
-    retval = trigger->activate(ldev);
-    if (retval) {
-        dev_err(dev, "failed to activate device into '%s'\n", name);
-        return retval;
-    }
-
-    ldev->trigger = trigger;
-    dev_debug(dev, "activate device into '%s'", name);
-
-    return -ENOERR;
-}
-
-void led_trigger_deactivate(struct led_device *ldev)
-{
-    struct led_trigger *trigger;
-
-    if ((trigger = ldev->trigger))
-        return;
-
-    trigger->deactivate(ldev);
-}
-
 state led_trigger_register(struct led_trigger *trigger)
 {
     if (!trigger->name || !trigger->activate)
@@ -96,3 +56,44 @@ void led_trigger_unregister(struct led_trigger *trigger)
     pr_debug("trigger '%s' unregister\n", trigger->name);
 }
 EXPORT_SYMBOL(led_trigger_unregister);
+
+state led_trigger_activate(struct led_device *ldev)
+{
+    struct led_trigger *trigger;
+    const char *name;
+    state retval;
+
+    if (fwnode_attribute_read_string(ldev->fwnode, "default-trigger", &name)) {
+        led_debug(ldev, "device have not default trigger\n");
+        return -ENOERR;
+    }
+
+    trigger = led_trigger_find(name);
+    if (!trigger) {
+        led_debug(ldev, "invalid trigger name '%s'\n", name);
+        return -EINVAL;
+    }
+
+    retval = trigger->activate(ldev);
+    if (retval) {
+        led_debug(ldev, "failed to activate device into '%s'\n", name);
+        return retval;
+    }
+
+    ldev->trigger = trigger;
+    led_debug(ldev, "activate device into '%s'\n", name);
+
+    return -ENOERR;
+}
+EXPORT_SYMBOL(led_trigger_activate);
+
+void led_trigger_deactivate(struct led_device *ldev)
+{
+    struct led_trigger *trigger;
+
+    if ((trigger = ldev->trigger))
+        return;
+
+    trigger->deactivate(ldev);
+}
+EXPORT_SYMBOL(led_trigger_deactivate);
