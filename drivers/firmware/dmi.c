@@ -61,10 +61,6 @@ static void __init dmi_board_name(char *buf, size_t len)
     count += print_filtered(buf + count, len - count, dmi_get_ident(DMI_REG_BIOS_DATE));
 }
 
-/**
- * dmi_decode -
- *
- */
 static void __init dmi_decode(const struct dmi_header *header)
 {
     switch (header->type) {
@@ -75,6 +71,7 @@ static void __init dmi_decode(const struct dmi_header *header)
             dmi_save_release(header, DMI_REG_BIOS_RELEASE, DMI_HD_BIOS_MINOR);
             dmi_save_release(header, DMI_REG_EC_RELEASE, DMI_HD_EC_MINOR);
             break;
+
         case DMI_ENTRY_SYSTEM:
             dmi_save_ident(header, DMI_REG_SYS_VENDOR, DMI_HD_SYS_MANUFACT);
             dmi_save_ident(header, DMI_REG_PRODUCT_NAME, DMI_HD_SYS_PRODUCT);
@@ -83,19 +80,20 @@ static void __init dmi_decode(const struct dmi_header *header)
             dmi_save_ident(header, DMI_REG_PRODUCT_SKU, DMI_HD_SYS_SKU);
             dmi_save_ident(header, DMI_REG_PRODUCT_FAMILY, DMI_HD_SYS_FAMILY);
             break;
+
         case DMI_ENTRY_BASEBOARD:
+            dmi_save_ident(header, DMI_REG_BOARD_VENDOR, DMI_HD_BBRD_MANUFACT);
+            dmi_save_ident(header, DMI_REG_BOARD_NAME, DMI_HD_BBRD_PRODUCT);
+            dmi_save_ident(header, DMI_REG_BOARD_VERSION, DMI_HD_BBRD_VERSION);
+            dmi_save_ident(header, DMI_REG_BOARD_SERIAL, DMI_HD_BBRD_SERIAL);
+            dmi_save_ident(header, DMI_REG_BOARD_ASSET_TAG, DMI_HD_BBRD_ASSERT);
             break;
-        case DMI_ENTRY_CHASSIS:
-            break;
-        case DMI_ENTRY_OEMSTRINGS:
+
+        default:
             break;
     }
 }
 
-/**
- * dmi_decode_all -
- *
- */
 static void __init dmi_decode_all(void)
 {
     const void *entry = dmi_entry;
@@ -143,10 +141,6 @@ static void __init dmi_decode_all(void)
     }
 }
 
-/**
- * dmi_checksum -
- *
- */
 static bool __init dmi_checksum(const void *addr, uint8_t len)
 {
     const uint8_t *block = addr;
@@ -158,10 +152,6 @@ static bool __init dmi_checksum(const void *addr, uint8_t len)
     return !sum;
 }
 
-/**
- * dmi3_head_check -
- *
- */
 static bool __init dmi3_head_check(const struct dmi3_entry_point *entry)
 {
     phys_addr_t phys_entry;
@@ -178,10 +168,6 @@ static bool __init dmi3_head_check(const struct dmi3_entry_point *entry)
     return true;
 }
 
-/**
- * dmi_head_check -
- *
- */
 static bool __init dmi_head_check(const struct dmi_entry_point *entry)
 {
     phys_addr_t phys_entry;
@@ -197,15 +183,17 @@ static bool __init dmi_head_check(const struct dmi_entry_point *entry)
 
         /* Fixup smbios version */
         switch (smbios) {
-            case 0x021f:
-                fallthrough;
-            case 0x0221:
+            case 0x021f: case 0x0221:
                 pr_info("SMBIOS version fixup (2.%d->2.%d)\n", smbios & 0xFF, 3);
                 smbios = 0x0203;
                 break;
+
             case 0x0233:
                 pr_info("SMBIOS version fixup (2.%d->2.%d)\n", 51, 6);
                 smbios = 0x0206;
+                break;
+
+            default:
                 break;
         }
     }

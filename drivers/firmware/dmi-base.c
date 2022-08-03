@@ -7,7 +7,7 @@
 #include <driver/firmware/dmi.h>
 #include <export.h>
 
-size_t dmi_region[DMI_REG_MAX];
+static uintptr_t dmi_region[DMI_REG_MAX];
 
 const char *dmi_string_index(const struct dmi_header *dhead, int index)
 {
@@ -35,7 +35,7 @@ void dmi_save_ident(const struct dmi_header *dhead, enum dmi_region_type region,
         return;
 
     str = dmi_string_index(dhead, data[index]);
-    dmi_region[region] = (size_t)str;
+    dmi_region[region] = (uintptr_t)str;
 }
 EXPORT_SYMBOL(dmi_save_ident);
 
@@ -98,3 +98,4 @@ const void *dmi_system_check(struct dmi_device_id *dmi)
 
     return NULL;
 }
+EXPORT_SYMBOL(dmi_system_check);
