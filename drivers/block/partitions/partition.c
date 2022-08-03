@@ -3,7 +3,7 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define MODULE_NAME "part"
+#define MODULE_NAME "blk-part"
 #define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <string.h>
@@ -12,13 +12,14 @@
 #include <export.h>
 #include <printk.h>
 
-static SLIST_HEAD(partition_list);
+static LIST_HEAD(partition_list);
+static SPIN_LOCK(partition_lock);
 
 static struct partition_type *partition_find(const char *name)
 {
     struct partition_type *part;
 
-    slist_for_each_entry(part, &partition_list, list)
+    list_for_each_entry(part, &partition_list, list)
         if (!strcmp(part->name, name))
             return part;
 
@@ -30,12 +31,14 @@ state partition_scan(struct block_device *bdev)
     struct partition_type *part;
     state ret;
 
-    slist_for_each_entry(part, &partition_list, list) {
+    spin_lock(&partition_lock);
+    list_for_each_entry(part, &partition_list, list) {
         ret = part->match(bdev);
         if (ret == -ENODATA)
             continue;
         return ret;
     }
+    spin_unlock(&partition_lock);
 
     return -ENODATA;
 }
@@ -47,18 +50,26 @@ state partition_register(struct partition_type *part)
         return -EINVAL;
     }
 
+    spin_lock(&partition_lock);
     if (partition_find(part->name)) {
-        pr_err("part %s already registered\n", part->name);
-        return -EINVAL;
+        spin_unlock(&partition_lock);
+        pr_err("partition %s already registered\n", part->name);
+        return -EALREADY;
     }
 
-    slist_add(&partition_list, &part->list);
+    list_add(&partition_list, &part->list);
+    spin_unlock(&partition_lock);
+
+    pr_debug("register partition '%s'\n", part->name);
     return -ENOERR;
 }
 EXPORT_SYMBOL(partition_register);
 
 void partition_unregister(struct partition_type *part)
 {
-    slist_del(&partition_list, &part->list);
+    spin_lock(&partition_lock);
+    list_del(&part->list);
+    spin_unlock(&partition_lock);
+    pr_debug("unregister partition '%s'\n", part->name);
 }
 EXPORT_SYMBOL(partition_unregister);
