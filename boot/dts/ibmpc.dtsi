@@ -153,5 +153,25 @@
             interrupt-parent = <&pic0>;
             interrupts = <4>;
         };
+
+        uart7: serial@4e8 {
+            compatible = "intel,i8250";
+            reg = <0x04e8 0x08>;
+        };
+
+        uart5: serial@4f8 {
+            compatible = "intel,i8250";
+            reg = <0x04f8 0x08>;
+        };
+
+        uart6: serial@5e8 {
+            compatible = "intel,i8250";
+            reg = <0x05e8 0x08>;
+        };
+
+        uart4: serial@5f8 {
+            compatible = "intel,i8250";
+            reg = <0x05f8 0x08>;
+        };
     };
 };
