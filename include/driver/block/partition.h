@@ -2,11 +2,12 @@
 #ifndef _DRIVER_BLOCK_PARTITION_H_
 #define _DRIVER_BLOCK_PARTITION_H_
 
-#include <slist.h>
+#include <state.h>
+#include <list.h>
 
 struct partition_type {
     const char *name;
-    struct slist_head list;
+    struct list_head list;
     state (*match)(struct block_device *);
 };
 
