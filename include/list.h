@@ -110,79 +110,6 @@ static inline void list_del(struct list_head *node)
 }
 
 /**
- * list_replace - replace a list node with an external node.
- * @old: the element to be replaced.
- * @new: the new element to insert.
- */
-static inline void list_replace(struct list_head *old, struct list_head *new)
-{
-    new->prev = old->prev;
-    new->next = old->next;
-    new->prev->next = new;
-    new->next->prev = new;
-}
-
-/**
- * list_move - move the node to the next of the node.
- * @head: the head that will precede our entry.
- * @node: the entry to move.
- */
-static inline void list_move(struct list_head *head, struct list_head *node)
-{
-    list_del(node);
-    list_add(head, node);
-}
-
-/**
- * list_move_prev - move the node to the prev of the node.
- * @head: the head that will follow our entry.
- * @node: the entry to move.
- */
-static inline void list_move_prev(struct list_head *head, struct list_head *node)
-{
-    list_del(node);
-    list_add_prev(head, node);
-}
-
-/**
- * list_swap - replace entry1 with entry2 and re-add entry1 at entry2's position.
- * @node1: the location to place entry2.
- * @node2: the location to place entry1.
- */
-static inline void list_swap(struct list_head *node1, struct list_head *node2)
-{
-	struct list_head *prev = node2->prev;
-
-    list_del(node2);
-	list_replace(node1, node2);
-
-	if (prev == node1)
-		prev = node2;
-	list_add(prev, node1);
-}
-
-/**
- * list_del_init - deletes entry from list and reinitialize it.
- * @node: the element to delete from the list.
- */
-static inline void list_del_init(struct list_head *node)
-{
-    list_del(node);
-    list_head_init(node);
-}
-
-/**
- * list_replace_init - replace old entry by new one and initialize the old one.
- * @old: the element to be replaced.
- * @new: the new element to insert.
- */
-static inline void list_replace_init(struct list_head *old, struct list_head *new)
-{
-    list_replace(old, new);
-    list_head_init(old);
-}
-
-/**
  * list_check_head - check whether the node is head.
  * @head: the head of the list
  * @list: the entry to test
@@ -238,6 +165,140 @@ static inline bool list_check_another(const struct list_head *head, const struct
 static inline bool list_check_outsize(const struct list_head *node)
 {
     return node->next == POISON_LIST1 && node->prev == POISON_LIST2;
+}
+
+/**
+ * list_replace - replace a list node with an external node.
+ * @old: the element to be replaced.
+ * @new: the new element to insert.
+ */
+static inline void list_replace(struct list_head *old, struct list_head *new)
+{
+    new->prev = old->prev;
+    new->next = old->next;
+    new->prev->next = new;
+    new->next->prev = new;
+}
+
+static __always_inline void
+list_relocate(struct list_head *prev, struct list_head *next, struct list_head *list)
+{
+    struct list_head *first = list->next;
+    struct list_head *last = list->prev;
+
+    first->prev = prev;
+    prev->next = first;
+
+    last->next = next;
+    next->prev = last;
+}
+
+/**
+ * list_splice - join two lists, this is designed for stacks.
+ * @head: the place to add it in the first list.
+ * @list: the new list to add.
+ */
+static inline void list_splice(struct list_head *head, struct list_head *list)
+{
+    if (!list_check_empty(list))
+        list_relocate(head, head->next, list);
+}
+
+/**
+ * list_splice_prev - join two lists, each list being a queue.
+ * @head: the place to add it in the first list.
+ * @list: the new list to add.
+ */
+static inline void list_splice_prev(struct list_head *head, struct list_head *list)
+{
+    if (!list_check_empty(list))
+        list_relocate(head->prev, head, list);
+}
+
+/**
+ * list_move - move the node to the next of the node.
+ * @head: the head that will precede our entry.
+ * @node: the entry to move.
+ */
+static inline void list_move(struct list_head *head, struct list_head *node)
+{
+    list_del(node);
+    list_add(head, node);
+}
+
+/**
+ * list_move_prev - move the node to the prev of the node.
+ * @head: the head that will follow our entry.
+ * @node: the entry to move.
+ */
+static inline void list_move_prev(struct list_head *head, struct list_head *node)
+{
+    list_del(node);
+    list_add_prev(head, node);
+}
+
+/**
+ * list_swap - replace entry1 with entry2 and re-add entry1 at entry2's position.
+ * @node1: the location to place entry2.
+ * @node2: the location to place entry1.
+ */
+static inline void list_swap(struct list_head *node1, struct list_head *node2)
+{
+    struct list_head *prev = node2->prev;
+
+    list_del(node2);
+    list_replace(node1, node2);
+
+    if (prev == node1)
+        prev = node2;
+    list_add(prev, node1);
+}
+
+/**
+ * list_del_init - deletes entry from list and reinitialize it.
+ * @node: the element to delete from the list.
+ */
+static inline void list_del_init(struct list_head *node)
+{
+    list_del(node);
+    list_head_init(node);
+}
+
+/**
+ * list_replace_init - replace old entry by new one and initialize the old one.
+ * @old: the element to be replaced.
+ * @new: the new element to insert.
+ */
+static inline void list_replace_init(struct list_head *old, struct list_head *new)
+{
+    list_replace(old, new);
+    list_head_init(old);
+}
+
+/**
+ * list_splice_init - join two lists and reinitialise the emptied list.
+ * @head: the place to add it in the first list.
+ * @list: the new list to add.
+ */
+static inline void list_splice_init(struct list_head *head, struct list_head *list)
+{
+    if (!list_check_empty(list)) {
+        list_splice(head, list);
+        list_head_init(list);
+    }
+}
+
+/**
+ * list_splice_tail_init - join two lists and reinitialise the emptied list.
+ * @head: the place to add it in the first list.
+ * @list: the new list to add.
+ */
+static inline void list_splice_tail_init(struct list_head *head, struct list_head *list)
+{
+    if (!list_check_empty(list)) {
+        list_splice_prev(head, list);
+        list_head_init(list);
+    }
 }
 
 /**
