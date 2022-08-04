@@ -6,6 +6,7 @@
 #include <initcall.h>
 #include <spinlock.h>
 #include <timer.h>
+#include <completion.h>
 #include <selftest.h>
 
 #define TEST_LOOP   10
@@ -13,19 +14,22 @@
 
 static void timer_handle(void *pdata)
 {
-    kshell_printf(pdata, "handled\n");
+    struct completion *comp = pdata;
+    complete_one(comp);
 }
 
 static state timer_testing(struct kshell_context *ctx, void *pdata)
 {
     unsigned int count;
 
-    DEFINE_TIMER(timer, timer_handle, ctx, TEST_DELAY, 0);
+    DEFINE_COMPLETION(timer_waiter);
+    DEFINE_TIMER(timer, timer_handle, &timer_waiter, TEST_DELAY, 0);
+
     for (count = 0; count < TEST_LOOP; ++count) {
         kshell_printf(ctx, "timer test%02u: ", count);
         timer_pending(&timer);
-        while (timer_check_pending(&timer))
-            cpu_relax();
+        completion_wait(&timer_waiter);
+        kshell_printf(ctx, "handled\n");
     }
 
     return -ENOERR;
