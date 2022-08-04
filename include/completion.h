@@ -25,7 +25,7 @@ static inline void completion_init(struct completion *comp)
     *comp = COMPLETION_INIT(*comp);
 }
 
-extern ttime_t completion_wait(struct completion *comp);
+extern void completion_wait(struct completion *comp);
 extern ttime_t completion_wait_timeout(struct completion *comp, ttime_t timeout);
 extern void complete_one(struct completion *comp);
 extern void complete_all(struct completion *comp);

@@ -30,15 +30,20 @@ static ttime_t commin_wait(struct completion *comp, unsigned long state, ttime_t
     return timeout;
 }
 
-ttime_t completion_wait(struct completion *comp)
+void completion_wait(struct completion *comp)
 {
-    return commin_wait(comp, SCHED_TASK_UNINTERRUPTIBLE, TTIME_MAX);
+    spin_lock_irq(&comp->queue.lock);
+    commin_wait(comp, SCHED_TASK_UNINTERRUPTIBLE, TTIME_MAX);
+    spin_unlock_irq(&comp->queue.lock);
 }
 EXPORT_SYMBOL(completion_wait);
 
 ttime_t completion_wait_timeout(struct completion *comp, ttime_t timeout)
 {
-    return commin_wait(comp, SCHED_TASK_UNINTERRUPTIBLE, timeout);
+    spin_lock_irq(&comp->queue.lock);
+    timeout = commin_wait(comp, SCHED_TASK_UNINTERRUPTIBLE, timeout);
+    spin_unlock_irq(&comp->queue.lock);
+    return timeout;
 }
 EXPORT_SYMBOL(completion_wait_timeout);
 
