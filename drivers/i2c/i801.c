@@ -8,10 +8,19 @@
 
 #include <initcall.h>
 #include <ioops.h>
+#include <delay.h>
+#include <ticktime.h>
 #include <driver/pci.h>
 #include <driver/i2c.h>
 #include <driver/i2c/i801.h>
 #include <printk.h>
+
+#define CAPABILITY_IRQ          BIT(0)
+#define CAPABILITY_BLOCK_BUFF   BIT(1)
+#define I801_TIMEOUT            SYSTICK_FREQ / 5
+
+#define STATUS_ERROR (I801_HST_STS_FAILED | I801_HST_STS_BUS_ERR | I801_HST_STS_DEV_ERR)
+#define STATUS_FLAGS (STATUS_ERROR | I801_HST_STS_BYTE_DONE | I801_HST_STS_INTR)
 
 struct i801_device {
     struct i2c_host host;
@@ -38,12 +47,6 @@ i801_write##name(struct i801_device *idev, unsigned int reg, type val)  \
 
 I801_PMIO_OP(b, uint8_t)
 I801_PMIO_OP(w, uint16_t)
-
-#define STATUS_ERROR (I801_HST_STS_FAILED | I801_HST_STS_BUS_ERR | I801_HST_STS_DEV_ERR)
-#define STATUS_FLAGS (STATUS_ERROR | I801_HST_STS_BYTE_DONE | I801_HST_STS_INTR)
-
-#define CAPABILITY_IRQ          BIT(0)
-#define CAPABILITY_BLOCK_BUFF   BIT(1)
 
 static state i801_check_ready(struct i801_device *idev)
 {
@@ -72,6 +75,59 @@ static state i801_check_ready(struct i801_device *idev)
     return -ENOERR;
 }
 
+static state i801_wait_intr(struct i801_device *idev)
+{
+    unsigned int timeout = I801_TIMEOUT + 1;
+    uint8_t val;
+
+    while (--timeout) {
+        val = i801_readb(idev, I801_HST_STS);
+        if (!(val & I801_HST_STS_HOST_BUSY) &&
+            (val &= STATUS_ERROR & I801_HST_STS_INTR))
+            break;
+        msleep(1);
+    }
+
+    return timeout ? val : -ETIMEDOUT;
+}
+
+static state i801_status_dump(struct i801_device *idev, state error)
+{
+    state retval = -ENOERR;
+    uint8_t val;
+
+    if (unlikely(error < 0)) {
+        dev_err(idev->host.dev, "transaction timeout\n");
+
+        i801_writeb(idev, I801_HST_CNT, I801_HST_CNT_KILL);
+        msleep(2);
+        i801_writeb(idev, I801_HST_CNT, 0);
+
+        val = i801_readb(idev, I801_HST_STS);
+        if ((val & I801_HST_STS_HOST_BUSY) || !(val & I801_HST_STS_HOST_BUSY))
+            dev_err(idev->host.dev, "failed terminating the transaction\n");
+
+        return -ETIMEDOUT;
+    }
+
+    if (error & I801_HST_STS_HOST_BUSY) {
+        dev_err(idev->host.dev, "transaction failed\n");
+        retval = -EIO;
+    }
+
+    if (error & I801_HST_STS_DEV_ERR) {
+        dev_debug(idev->host.dev, "no response\n");
+        retval = -ENXIO;
+    }
+
+    if (error & I801_HST_STS_BUS_ERR) {
+        dev_err(idev->host.dev, "lost arbitration\n");
+        retval = -EAGAIN;
+    }
+
+    return retval;
+}
+
 static state i801_transfer(struct i801_device *idev, uint8_t xact)
 {
     state retval;
@@ -81,19 +137,27 @@ static state i801_transfer(struct i801_device *idev, uint8_t xact)
         return retval;
 
     if (idev->capability & CAPABILITY_IRQ) {
+        i801_writeb(idev, I801_HST_CNT, I801_HST_CNT_START | I801_HST_CNT_INTREN | xact);
 
     }
 
-    return -ENOERR;
+    i801_writeb(idev, I801_HST_CNT, I801_HST_CNT_START | xact);
+    retval = i801_wait_intr(idev);
+
+    return i801_status_dump(idev, retval);
 }
 
-static state i801_block_transfer(struct i801_device *idev, bool write, unsigned int type, union smbus_transfer *trans)
+static state i801_block_transfer(struct i801_device *idev, bool write,
+                                 unsigned int type, union smbus_transfer *trans)
 {
 
+
+
+
     return -ENOERR;
 }
 
-static state i801_smbus_transfer(struct i2c_host *host, uint16_t addr, unsigned short flags, unsigned int readwrite,
+static state i801_smbus_transfer(struct i2c_host *host, uint16_t addr, unsigned short flags, unsigned int dir,
                                  uint8_t cmd, unsigned int type, union smbus_transfer *trans)
 {
     struct i801_device *idev = i2c_to_i801(host);
@@ -104,29 +168,29 @@ static state i801_smbus_transfer(struct i2c_host *host, uint16_t addr, unsigned 
 
     switch (type) {
         case SMBUS_QUICK:
-            i801_writeb(idev, I801_XMIT_SLVA, (addr << 1) | (readwrite == SMBUS_WRITE));
+            i801_writeb(idev, I801_XMIT_SLVA, (addr << 1) | (dir == SMBUS_WRITE));
             xact = I801_HST_CNT_SMB_QUICK;
             break;
 
         case SMBUS_BYTE:
-            i801_writeb(idev, I801_XMIT_SLVA, (addr << 1) | (readwrite == SMBUS_WRITE));
-            if (readwrite == SMBUS_WRITE)
+            i801_writeb(idev, I801_XMIT_SLVA, (addr << 1) | (dir == SMBUS_WRITE));
+            if (dir == SMBUS_WRITE)
                 i801_writeb(idev, I801_HST_CMD, cmd);
             xact = I801_HST_CNT_SMB_BYTE;
             break;
 
         case SMBUS_BYTE_DATA:
-            i801_writeb(idev, I801_XMIT_SLVA, (addr << 1) | (readwrite == SMBUS_WRITE));
+            i801_writeb(idev, I801_XMIT_SLVA, (addr << 1) | (dir == SMBUS_WRITE));
             i801_writeb(idev, I801_HST_CMD, cmd);
-            if (readwrite == SMBUS_WRITE)
+            if (dir == SMBUS_WRITE)
                 i801_writeb(idev, I801_HST_DATA0, trans->byte);
             xact = I801_HST_CNT_SMB_BDATA;
             break;
 
         case SMBUS_WORD_DATA:
-            i801_writeb(idev, I801_XMIT_SLVA, (addr << 1) | (readwrite == SMBUS_WRITE));
+            i801_writeb(idev, I801_XMIT_SLVA, (addr << 1) | (dir == SMBUS_WRITE));
             i801_writeb(idev, I801_HST_CMD, cmd);
-            if (readwrite == SMBUS_WRITE) {
+            if (dir == SMBUS_WRITE) {
                 i801_writeb(idev, I801_HST_DATA0, trans->word & 0xff);
                 i801_writeb(idev, I801_HST_DATA1, trans->word >> 8);
             }
@@ -134,7 +198,7 @@ static state i801_smbus_transfer(struct i2c_host *host, uint16_t addr, unsigned 
             break;
 
         case SMBUS_BLOCK_DATA:
-            i801_writeb(idev, I801_XMIT_SLVA, (addr << 1) | (readwrite == SMBUS_WRITE));
+            i801_writeb(idev, I801_XMIT_SLVA, (addr << 1) | (dir == SMBUS_WRITE));
             i801_writeb(idev, I801_HST_CMD, cmd);
             block = true;
             break;
@@ -145,7 +209,7 @@ static state i801_smbus_transfer(struct i2c_host *host, uint16_t addr, unsigned 
             i801_writeb(idev, I801_HST_DATA0, trans->word & 0xff);
             i801_writeb(idev, I801_HST_DATA1, trans->word >> 8);
             xact = I801_HST_CNT_SMB_PCALL;
-            readwrite = SMBUS_READ;
+            dir = SMBUS_READ;
             break;
 
         case SMBUS_BLOCK_PROC_CALL:
@@ -164,11 +228,11 @@ static state i801_smbus_transfer(struct i2c_host *host, uint16_t addr, unsigned 
     }
 
     if (block)
-        retval = i801_block_transfer(idev, readwrite, type, trans);
+        retval = i801_block_transfer(idev, dir, type, trans);
     else
         retval = i801_transfer(idev, xact);
 
-    if (retval || readwrite || block || xact == I801_HST_CNT_SMB_QUICK)
+    if (retval || dir || block || xact == I801_HST_CNT_SMB_QUICK)
         goto exit;
 
     switch (xact) {

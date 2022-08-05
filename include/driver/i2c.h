@@ -53,7 +53,7 @@ struct i2c_host {
  */
 struct i2c_ops {
     state (*i2c_transfer)(struct i2c_host *host, unsigned int num, struct i2c_transfer *trans);
-    state (*smbus_transfer)(struct i2c_host *host, uint16_t addr, unsigned short flags, unsigned int readwrite, uint8_t cmd, unsigned int type, union smbus_transfer *trans);
+    state (*smbus_transfer)(struct i2c_host *host, uint16_t addr, unsigned short flags, unsigned int dir, uint8_t cmd, unsigned int type, union smbus_transfer *trans);
 };
 
 extern spinlock_t i2c_host_lock;
