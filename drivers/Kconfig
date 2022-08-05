@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 menu "Device Drivers"
 
+source "kernel/device/Kconfig"
+
 source "drivers/acpi/Kconfig"
 
 source "drivers/ata/Kconfig"

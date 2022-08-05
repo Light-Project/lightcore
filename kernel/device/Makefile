@@ -4,3 +4,4 @@ obj-y += init.o devres.o devid.o
 obj-y += platform.o base.o fwnode.o
 obj-$(CONFIG_ACPI) += platform-acpi.o
 obj-$(CONFIG_DT) += platform-dt.o
+obj-$(CONFIG_ISA_BUS) += isa.o

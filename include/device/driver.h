@@ -17,10 +17,10 @@ struct driver {
 };
 
 #define driver_for_each_device(device, driver) \
-    list_for_each_entry(device, &driver->devices_list, driver_list_device)
+    list_for_each_entry(device, &driver->devices_list, driver_list)
 
 #define driver_for_each_device_safe(device, next, driver) \
-    list_for_each_entry_safe(device, next, &driver->devices_list, driver_list_device)
+    list_for_each_entry_safe(device, next, &driver->devices_list, driver_list)
 
 extern struct device *driver_find_device(struct driver *drv, const void *data, dfd_match_t match);
 extern struct driver *driver_find(struct bus_type *bus, const char *name);
