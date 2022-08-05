@@ -168,19 +168,19 @@ static state i801_smbus_transfer(struct i2c_host *host, uint16_t addr, unsigned 
 
     switch (type) {
         case SMBUS_QUICK:
-            i801_writeb(idev, I801_XMIT_SLVA, (addr << 1) | (dir == SMBUS_WRITE));
+            i801_writeb(idev, I801_XMIT_SLVA, (addr << 1) | (dir == SMBUS_READ));
             xact = I801_HST_CNT_SMB_QUICK;
             break;
 
         case SMBUS_BYTE:
-            i801_writeb(idev, I801_XMIT_SLVA, (addr << 1) | (dir == SMBUS_WRITE));
+            i801_writeb(idev, I801_XMIT_SLVA, (addr << 1) | (dir == SMBUS_READ));
             if (dir == SMBUS_WRITE)
                 i801_writeb(idev, I801_HST_CMD, cmd);
             xact = I801_HST_CNT_SMB_BYTE;
             break;
 
         case SMBUS_BYTE_DATA:
-            i801_writeb(idev, I801_XMIT_SLVA, (addr << 1) | (dir == SMBUS_WRITE));
+            i801_writeb(idev, I801_XMIT_SLVA, (addr << 1) | (dir == SMBUS_READ));
             i801_writeb(idev, I801_HST_CMD, cmd);
             if (dir == SMBUS_WRITE)
                 i801_writeb(idev, I801_HST_DATA0, trans->byte);
@@ -188,7 +188,7 @@ static state i801_smbus_transfer(struct i2c_host *host, uint16_t addr, unsigned 
             break;
 
         case SMBUS_WORD_DATA:
-            i801_writeb(idev, I801_XMIT_SLVA, (addr << 1) | (dir == SMBUS_WRITE));
+            i801_writeb(idev, I801_XMIT_SLVA, (addr << 1) | (dir == SMBUS_READ));
             i801_writeb(idev, I801_HST_CMD, cmd);
             if (dir == SMBUS_WRITE) {
                 i801_writeb(idev, I801_HST_DATA0, trans->word & 0xff);
@@ -198,7 +198,7 @@ static state i801_smbus_transfer(struct i2c_host *host, uint16_t addr, unsigned 
             break;
 
         case SMBUS_BLOCK_DATA:
-            i801_writeb(idev, I801_XMIT_SLVA, (addr << 1) | (dir == SMBUS_WRITE));
+            i801_writeb(idev, I801_XMIT_SLVA, (addr << 1) | (dir == SMBUS_READ));
             i801_writeb(idev, I801_HST_CMD, cmd);
             block = true;
             break;
