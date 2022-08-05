@@ -1,3 +1,0 @@
-config Drivers_enc28j60
-    bool "Support Spi enc28j60"
-    default n
