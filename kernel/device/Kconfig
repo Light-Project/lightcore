@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+config ISA_BUS
+    bool "ISA Bus Support"
+    default y

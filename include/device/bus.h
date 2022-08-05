@@ -2,10 +2,10 @@
 #ifndef _DEVICE_BUS_H_
 #define _DEVICE_BUS_H_
 
-#include <types.h>
 #include <state.h>
 #include <mutex.h>
 #include <list.h>
+#include <device/power.h>
 
 struct device;
 struct driver;
@@ -14,14 +14,15 @@ struct bus_type {
     const char *name;
     struct device *dev_root;
 
-    state (*match)(struct device *, struct driver *);
-    state (*probe)(struct device *);
-    state (*resume)(struct device *);
-    state (*remove)(struct device *);
-    state (*shutdown)(struct device *);
+    state (*match)(struct device *dev, struct driver *drv);
+    state (*probe)(struct device *dev);
+    state (*remove)(struct device *dev);
+    state (*shutdown)(struct device *dev);
+    state (*suspend)(struct device *dev, pm_message_t state);
+    state (*resume)(struct device *dev);
 
-    state (*online)(struct device *);
-    state (*offline)(struct device *);
+    state (*online)(struct device *dev);
+    state (*offline)(struct device *dev);
 
     struct mutex mutex;
     struct list_head devices_list;
@@ -31,7 +32,7 @@ struct bus_type {
 };
 
 #define bus_for_each_device(device, bus) \
-    list_for_each_entry(device, &bus->devices_list, bus_list_device)
+    list_for_each_entry(device, &bus->devices_list, bus_list)
 
 #define bus_for_each_driver(driver, bus) \
     list_for_each_entry(driver, &bus->drivers_list, bus_list_driver)

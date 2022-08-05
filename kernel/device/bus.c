@@ -19,21 +19,21 @@ static LIST_HEAD(bus_list);
  */
 state bus_add_device(struct device *dev)
 {
-    struct bus_type *bus;
-    state ret;
+    struct bus_type *bus = dev->bus;
+    state retval;
 
-    if (unlikely(!(bus = dev->bus))) {
-        pr_err("device %s without bus\n", dev->name);
-        return -EINVAL;
+    if (unlikely(!bus)) {
+        pr_debug("device %s without bus\n", dev->name);
+        return -ENOERR;
     }
 
     pr_debug("%s add device %s\n", bus->name, dev->name);
-    list_add_prev(&bus->devices_list, &dev->bus_list_device);
+    list_add_prev(&bus->devices_list, &dev->bus_list);
 
     if (bus->autoprobe) {
-        ret = device_bind(dev);
-        if (unlikely(ret))
-            return ret;
+        retval = device_bind(dev);
+        if (unlikely(retval))
+            return retval;
     }
 
     return -ENOERR;
@@ -45,7 +45,7 @@ void bus_remove_device(struct device *dev)
     struct bus_type *bus = dev->bus;
 
     pr_debug("%s remove device %s\n", bus->name, dev->name);
-    list_del(&dev->bus_list_device);
+    list_del(&dev->bus_list);
 }
 EXPORT_SYMBOL(bus_remove_device);
 
@@ -55,21 +55,21 @@ EXPORT_SYMBOL(bus_remove_device);
  */
 state bus_add_driver(struct driver *drv)
 {
-    struct bus_type *bus;
-    state ret;
+    struct bus_type *bus = drv->bus;
+    state retval;
 
-    if (unlikely(!(bus = drv->bus))) {
-        pr_err("driver %s without bus\n", drv->name);
-        return -EINVAL;
+    if (unlikely(!bus)) {
+        pr_debug("driver %s without bus\n", drv->name);
+        return -ENOERR;
     }
 
     pr_debug("%s add driver %s\n", bus->name, drv->name);
     list_add_prev(&bus->drivers_list, &drv->bus_list_driver);
 
     if (bus->autoprobe) {
-        ret = driver_bind(drv);
-        if (unlikely(ret))
-            return ret;
+        retval = driver_bind(drv);
+        if (unlikely(retval))
+            return retval;
     }
 
     return -ENOERR;
@@ -107,7 +107,7 @@ EXPORT_SYMBOL(bus_register);
  */
 void bus_unregister(struct bus_type *bus)
 {
-    pr_debug("unregister %s\n", bus->name);
+    pr_debug("unregister %s bus\n", bus->name);
 }
 EXPORT_SYMBOL(bus_unregister);
 

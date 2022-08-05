@@ -14,18 +14,24 @@
 struct fwnode;
 
 struct device {
-    const char *name;
+    struct mutex mutex;
     struct bus_type *bus;
     struct driver *driver;
     struct device *parent;
     struct fwnode *fwnode;
-    void *pdata;
 
-    struct kobject kobj;
-    struct list_head bus_list_device;
-    struct list_head driver_list_device;
+    struct list_head bus_list;
+    struct list_head driver_list;
+
+    spinlock_t devres_lock;
     struct list_head devres;
-    struct mutex mutex;
+
+    const char *name;
+    struct kobject kobj;
+
+    void *pdata;
+    void *platform_data;
+	void (*release)(struct device *dev);
 };
 
 #define device_for_each_res(res, dev) \
@@ -51,9 +57,9 @@ static inline void device_unlock(struct device *dev)
     mutex_unlock(&dev->mutex);
 }
 
-extern state device_bind(struct device *);
-extern state driver_bind(struct driver *);
-extern state device_register(struct device *);
+extern state device_bind(struct device *dev);
+extern state driver_bind(struct driver *dev);
+extern state device_register(struct device *dev);
 extern void device_unregister(struct device *dev);
 
 extern void __init early_device_init(void);
