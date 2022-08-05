@@ -7,10 +7,11 @@
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
 #include <initcall.h>
+#include <ioops.h>
+#include <delay.h>
 #include <driver/pci.h>
 #include <driver/net/rtl8139.h>
-#include <delay.h>
-#include <asm/io.h>
+#include <printk.h>
 
 struct rtl8139_info {
     const char *name;
@@ -211,17 +212,22 @@ static state rtl8139_probe(struct pci_device *pdev, const void *pdata)
     if (!rdev)
         return -ENOMEM;
 
+    if (pdev->vendor == PCI_VENDOR_ID_REALTEK &&
+        pdev->device == PCI_DEVICE_ID_REALTEK_8139 && pdev->revision >= 0x20) {
+        dev_info(&pdev->dev, "this (id %04x:%04x rev %02x) is an enhanced 8139C+ chip, use 8139cp\n",
+                  pdev->vendor, pdev->device, pdev->revision);
+        return -ENODEV;
+    }
+
+    ret = pci_device_enable(pdev);
+    if (ret) {
+        pci_err(pdev, "enable device fail\n");
+        return -ENODEV;
+    }
+
     rdev->base = pci_resource_ioremap(pdev, 0, 0);
     if (!rdev->base)
         return -ENOMEM;
-
-    pci_set_devdata(pdev, rdev);
-
-    // ret = pci_device_enable(pdev);
-    // if (ret) {
-    //     pci_err(pdev, "enable device fail\n");
-    //     return -ENODEV;
-    // }
 
     ret = rtl8139_hw_init(pdev);
     if (ret)
