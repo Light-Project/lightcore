@@ -56,7 +56,7 @@ static bool ilist_head_check(struct ilist_head *ihead)
  * @ihead: the index head to be insert.
  * @inode: the index node to insert.
  */
-void ilist_add(struct ilist_head *ihead, struct ilist_node *inode)
+void ilist_add(struct ilist_head *ihead, struct ilist_node *inode, ilist_cmp_t cmp, const void *pdata)
 {
     struct ilist_node *walk, *first, *prev = NULL;
     struct list_head *next = &ihead->node_list;
@@ -77,7 +77,7 @@ void ilist_add(struct ilist_head *ihead, struct ilist_node *inode)
     /* Traverse to find a suitable insertion point */
     first = walk = ilist_first(ihead);
     do {
-        if (inode->index < walk->index) {
+        if (cmp(inode, walk, pdata) < 0) {
             next = &walk->node_list;
             break;
         }
@@ -86,7 +86,7 @@ void ilist_add(struct ilist_head *ihead, struct ilist_node *inode)
     } while (walk != first);
 
     /* Whether to insert the index linked list */
-    if (!prev || prev->index != inode->index)
+    if (!prev || cmp(prev, inode, pdata))
         list_add_prev(&walk->index_list, &inode->index_list);
 
 finish:
