@@ -10,36 +10,54 @@
 
 #define TEST_LOOP 10
 
-struct ilist_test_pdata {
-    struct ilist_node nodes[TEST_LOOP];
+struct ilist_test_node {
+    struct ilist_node ilist;
+    unsigned long num;
 };
+
+struct ilist_test_pdata {
+    struct ilist_test_node nodes[TEST_LOOP];
+};
+
+#define ilist_to_test(ptr) \
+    ilist_entry(ptr, struct ilist_test_node, ilist)
+
+static long ilist_test_cmp(struct ilist_node *nodea, struct ilist_node *nodeb, const void *pdata)
+{
+    struct ilist_test_node *inodea = ilist_to_test(nodea);
+    struct ilist_test_node *inodeb = ilist_to_test(nodeb);
+    if (inodea->num == inodeb->num) return 0;
+    return inodea->num < inodeb->num ? -1 : 1;
+}
 
 static state ilist_test_testing(struct kshell_context *ctx, void *pdata)
 {
-    struct ilist_test_pdata *ldata = pdata;
+    struct ilist_test_pdata *idata = pdata;
     unsigned int count, count2;
 
     ILIST_HEAD(test_head);
 
     for (count = 0; count < TEST_LOOP; ++count) {
         kshell_printf(ctx, "ilist 'ilist_add' test%u single\n", count);
-        ilist_node_init(&ldata->nodes[count], count);
-        ilist_add(&test_head, &ldata->nodes[count]);
+        idata->nodes[count].num = count;
+        ilist_node_init(&idata->nodes[count].ilist);
+        ilist_add(&test_head, &idata->nodes[count].ilist, ilist_test_cmp, NULL);
     }
 
     for (count = 0; count < TEST_LOOP; ++count)
-        ilist_del(&test_head, &ldata->nodes[count]);
+        ilist_del(&test_head, &idata->nodes[count].ilist);
 
     for (count = 0; count < TEST_LOOP / 2; ++count) {
         for (count2 = 0; count2 < 2; ++count2) {
             kshell_printf(ctx, "ilist 'ilist_add' test%u multi%u\n", count * 2 + count2, count2);
-            ilist_node_init(&ldata->nodes[count * 2 + count2], count2);
-            ilist_add(&test_head, &ldata->nodes[count * 2 + count2]);
+            idata->nodes[count].num = count;
+            ilist_node_init(&idata->nodes[count * 2 + count2].ilist);
+            ilist_add(&test_head, &idata->nodes[count].ilist, ilist_test_cmp, NULL);
         }
     }
 
     for (count = 0; count < TEST_LOOP; ++count)
-        ilist_del(&test_head, &ldata->nodes[count]);
+        ilist_del(&test_head, &idata->nodes[count].ilist);
 
     return -ENOERR;
 }

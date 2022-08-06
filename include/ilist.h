@@ -11,7 +11,6 @@ struct ilist_head {
 struct ilist_node {
     struct list_head node_list;
     struct list_head index_list;
-    long index;
 };
 
 #define ILIST_HEAD_STATIC(name) \
@@ -27,10 +26,10 @@ struct ilist_node {
     (struct ilist_node) {                                   \
         .node_list = LIST_HEAD_INIT((node).node_list),      \
         .index_list = LIST_HEAD_INIT((node).index_list),    \
-        .index = index,                                     \
     }
 
-extern void ilist_add(struct ilist_head *ihead, struct ilist_node *inode);
+typedef long (*ilist_cmp_t)(struct ilist_node *inodea, struct ilist_node *inodeb, const void *pdata);
+extern void ilist_add(struct ilist_head *ihead, struct ilist_node *inode, ilist_cmp_t cmp, const void *pdata);
 extern void ilist_del(struct ilist_head *ihead, struct ilist_node *inode);
 
 /**
@@ -42,11 +41,10 @@ static inline void ilist_head_init(struct ilist_head *ihead)
     list_head_init(&ihead->node_list);
 }
 
-static inline void ilist_node_init(struct ilist_node *inode, long index)
+static inline void ilist_node_init(struct ilist_node *inode)
 {
     list_head_init(&inode->node_list);
     list_head_init(&inode->index_list);
-    inode->index = index;
 }
 
 /**
@@ -84,6 +82,15 @@ static inline bool ilist_node_empty(struct ilist_node *inode)
 {
     return list_check_empty(&inode->index_list);
 }
+
+/**
+ * ilist_entry - get the struct for this entry.
+ * @ptr: the &struct ilist_head pointer.
+ * @type: the type of the struct this is embedded in.
+ * @member: the name of the ilist_head within the struct.
+ */
+#define ilist_entry(ptr, type, member) \
+    container_of(ptr, type, member)
 
 /**
  * ilist_for_each - iterate over a list.
