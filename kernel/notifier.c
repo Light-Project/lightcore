@@ -11,6 +11,14 @@
 #include <panic.h>
 #include <export.h>
 
+static long notifier_chain_cmp(struct ilist_node *nodea, struct ilist_node *nodeb, const void *pdata)
+{
+    struct notifier_node *nnodea = ilist_to_notifier(nodea);
+    struct notifier_node *nnodeb = ilist_to_notifier(nodeb);
+    if (nnodea->priority == nnodeb->priority) return 0;
+    return nnodea->priority < nnodeb->priority ? -1 : 1;
+}
+
 /**
  * notifier_chain_register - register a node to the notification chain.
  * @head: header to be registered.
@@ -18,21 +26,12 @@
  */
 static state notifier_chain_register(struct notifier_head *head, struct notifier_node *node)
 {
-    struct list_head *insertion;
-    struct notifier_node *walk;
-
     if (!node->entry)
         return -EINVAL;
 
-    insertion = &head->node;
-    list_for_each_entry(walk, &head->node, list) {
-        if (walk->priority < node->priority)
-            break;
-        insertion = &walk->list;
-    }
-
+    ilist_node_init(&node->list);
+    ilist_add(&head->node, &node->list, notifier_chain_cmp, NULL);
     pr_debug("chain '%s' register (%p)\n", head->name, node);
-    list_add(insertion, &node->list);
 
     return -ENOERR;
 }
@@ -44,8 +43,8 @@ static state notifier_chain_register(struct notifier_head *head, struct notifier
  */
 static void notifier_chain_unregister(struct notifier_head *head, struct notifier_node *node)
 {
+    ilist_del(&head->node, &node->list);
     pr_debug("chain '%s' unregister (%p)\n", head->name, node);
-    list_del(&node->list);
 }
 
 /**
@@ -61,7 +60,7 @@ notifier_chain_call(struct notifier_head *head, void *arg, int call_num, int *ca
     struct notifier_node *node, *tmp;
     notifier_return_t retval = NOTIFI_RET_DONE;
 
-    list_for_each_entry_safe(node, tmp, &head->node, list) {
+    ilist_for_each_entry_safe(node, tmp, &head->node, list) {
         if (!call_num--)
             break;
 
@@ -72,7 +71,7 @@ notifier_chain_call(struct notifier_head *head, void *arg, int call_num, int *ca
             (*called_num)++;
 
         if (retval & NOTIFI_RET_REMOVE) {
-            list_del(&node->list);
+            ilist_del(&head->node, &node->list);
             retval &= ~NOTIFI_RET_REMOVE;
         }
 

@@ -2,7 +2,7 @@
 #ifndef _NOTIFIER_H_
 #define _NOTIFIER_H_
 
-#include <list.h>
+#include <ilist.h>
 #include <mutex.h>
 #include <spinlock.h>
 
@@ -25,7 +25,7 @@ enum notifier_return {
  * @pdata: private data of notification chain node.
  */
 struct notifier_node {
-    struct list_head list;
+    struct ilist_node list;
     notifier_entry_t entry;
     int priority;
     void *pdata;
@@ -37,7 +37,7 @@ struct notifier_node {
  * @name: name of notification chain.
  */
 struct notifier_head {
-    struct list_head node;
+    struct ilist_head node;
     const char *name;
 };
 
@@ -59,9 +59,12 @@ struct notifier_spin_head {
     spinlock_t lock;
 };
 
+#define ilist_to_notifier(ptr) \
+    ilist_entry(ptr, struct notifier_node, list)
+
 #define NOTIFIER_HEAD_STATIC(object) {              \
     .name = __stringify(object),                    \
-    .node = LIST_HEAD_STATIC((object).head.node),   \
+    .node = ILIST_HEAD_STATIC((object).head.node),  \
 }
 
 #define NOTIFIER_RAW_HEAD_INIT(name)                \
