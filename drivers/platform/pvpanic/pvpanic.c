@@ -53,6 +53,7 @@ EXPORT_SYMBOL(pvpanic_remove);
 
 static struct notifier_node pvpanic_work = {
     .entry = pvpanic_panic,
+    .priority = INT_MAX,
 };
 
 static state pvpanic_init(void)
