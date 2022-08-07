@@ -12,8 +12,6 @@
 #include <driver/power.h>
 #include <delay.h>
 
-struct power_device acpi_power_device;
-
 #ifdef CONFIG_PCI
 static void acpi_pci_reset(struct acpi_generic_address *rr, uint8_t value)
 {
@@ -23,8 +21,6 @@ static void acpi_pci_reset(struct acpi_generic_address *rr, uint8_t value)
     reg = rr->Address & 0xffff;
     pci_raw_config_write(0, 0, devfn, reg, 1, value);
 }
-#else
-
 #endif
 
 static void acpi_reset(struct power_device *pdev)
@@ -48,15 +44,20 @@ static void acpi_reset(struct power_device *pdev)
     }
 
     switch (rr->SpaceId) {
+#ifdef CONFIG_PCI
         case ACPI_ADR_SPACE_PCI_CONFIG:
             pr_crit("pci reg reset\n");
             acpi_pci_reset(rr, AcpiGbl_FADT.ResetValue);
             break;
+#endif
 
         case ACPI_ADR_SPACE_SYSTEM_MEMORY:
         case ACPI_ADR_SPACE_SYSTEM_IO:
             pr_crit("memory i/o reg reset\n");
             AcpiReset();
+            break;
+
+        default:
             break;
     }
 
@@ -67,6 +68,7 @@ static bool acpi_sleep_state_supported(uint8_t state)
 {
     ACPI_STATUS status;
     uint8_t typea, typeb;
+
     status = AcpiGetSleepTypeData(state, &typea, &typeb);
     return ACPI_SUCCESS(status) && (!AcpiGbl_ReducedHardware ||
         (AcpiGbl_FADT.SleepControl.Address && AcpiGbl_FADT.SleepStatus.Address));
@@ -80,27 +82,38 @@ static void acpi_sleep_prepare(uint8_t acpi_state)
 
 static void acpi_shutdown(struct power_device *pdev)
 {
-    bool supp;
-
-    supp = acpi_sleep_state_supported(ACPI_STATE_S5);
-    if (!supp) {
-        pr_notice("not support s5 state\n");
-        return;
-    }
-
     irq_local_disable();
     acpi_sleep_prepare(ACPI_STATE_S5);
     AcpiEnterSleepState(ACPI_STATE_S5);
 }
+
+static struct device acpi_power = {
+    .name = MODULE_NAME,
+};
 
 static struct power_ops acpi_power_ops = {
     .reset = acpi_reset,
     .shutdown = acpi_shutdown,
 };
 
-state __init acpi_power_init(void)
+static struct power_device acpi_power_device = {
+    .dev = &acpi_power,
+    .ops = &acpi_power_ops,
+};
+
+static state __init acpi_power_init(void)
 {
-    acpi_power_device.ops = &acpi_power_ops;
+    state retval;
+
+    if (!acpi_sleep_state_supported(ACPI_STATE_S5)) {
+        pr_notice("not support s5 state\n");
+        return -ENODEV;
+    }
+
+    retval = device_register(&acpi_power);
+    if (retval)
+        return retval;
+
     return power_register(&acpi_power_device);
 }
 driver_initcall(acpi_power_init);
