@@ -16,6 +16,7 @@ struct mutex {
     struct mutex name = {}
 
 extern void mutex_lock(struct mutex *mutex);
+extern bool mutex_trylock(struct mutex *mutex);
 extern void mutex_unlock(struct mutex *mutex);
 
 #endif

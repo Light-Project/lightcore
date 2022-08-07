@@ -11,6 +11,11 @@ void mutex_lock(struct mutex *mutex)
 
 }
 
+bool mutex_trylock(struct mutex *mutex)
+{
+    return true;
+}
+
 void mutex_unlock(struct mutex *mutex)
 {
 
