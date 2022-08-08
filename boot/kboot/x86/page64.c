@@ -5,7 +5,7 @@
 
 #include <kboot.h>
 #include <size.h>
-#include <range.h>
+#include <minmax.h>
 #include <asm/regs.h>
 #include <arch/x86/msr.h>
 

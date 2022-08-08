@@ -14,7 +14,7 @@
 #include <size.h>
 
 #include <macro.h>
-#include <range.h>
+#include <minmax.h>
 #include <align.h>
 #include <container.h>
 #include <lightcore/kernel.h>

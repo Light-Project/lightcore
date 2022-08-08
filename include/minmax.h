@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#ifndef _RANGE_H_
-#define _RANGE_H_
+#ifndef _MINMAX_H_
+#define _MINMAX_H_
 
 /**
  * min - return minimum of two values of the same or compatible types
@@ -64,4 +64,4 @@
     (val) = clamp(val, lo, hi);     \
 })
 
-#endif  /* _RANGE_H_ */
+#endif  /* _MINMAX_H_ */
