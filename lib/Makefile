@@ -37,6 +37,7 @@ obj-y += minpool.o
 obj-y += ncache.o
 obj-y += param.o
 obj-y += prandom.o
+obj-y += range.o
 obj-y += ratelimit.o
 obj-$(CONFIG_DEBUG_RBTREE) += rbtree-debug.o
 obj-y += rbtree.o
