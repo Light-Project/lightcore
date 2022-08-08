@@ -4,7 +4,7 @@
  */
 
 #include <crypto/ascii85.h>
-#include <range.h>
+#include <minmax.h>
 #include <proc.h>
 #include <math.h>
 #include <string.h>

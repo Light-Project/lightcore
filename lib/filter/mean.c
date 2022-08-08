@@ -3,7 +3,7 @@
  * Copyright(c) 2022 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <range.h>
+#include <minmax.h>
 #include <log2.h>
 #include <string.h>
 #include <kmalloc.h>
