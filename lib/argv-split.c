@@ -13,7 +13,7 @@ unsigned int argv_count(const char *string)
     unsigned int argc = 1;
 
     while ((string = strchr(string, ' '))) {
-        string++;
+        string = skip_spaces(string);
         argc++;
     }
 
@@ -40,6 +40,7 @@ char **argv_split(const char *string, unsigned int *argcp, gfp_t flags)
         argv[count] = block;
         block = strchr(block, ' ');
         *block++ = '\0';
+        block = skip_spaces(block);
     }
 
     argv[count++] = block;
