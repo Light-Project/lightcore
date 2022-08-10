@@ -80,8 +80,8 @@ static bool region_block_add(struct memblock_region *blk)
     struct page *page;
     phys_addr_t addr, end;
 
-    addr = align_high(blk->addr, PAGE_SIZE);
-    end = align_low(blk->addr + blk->size, PAGE_SIZE);
+    addr = align_high(blk->range.start, PAGE_SIZE);
+    end = align_low(blk->range.start + blk->range.size, PAGE_SIZE);
 
     if (end - addr < PAGE_SIZE)
         return false;

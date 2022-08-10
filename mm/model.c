@@ -26,8 +26,8 @@ static bool sparce_present(struct memblock_region *reg)
     phys_addr_t addr;
     size_t size;
 
-    addr = align_low(reg->addr, SPARCE_SIZE);
-    size = align_high(reg->size, SPARCE_SIZE);
+    addr = align_low(reg->range.start, SPARCE_SIZE);
+    size = align_high(reg->range.size, SPARCE_SIZE);
 
     for (sparce = base_sparce(addr); size; size -= SPARCE_SIZE, ++sparce) {
         if (sparce->present)

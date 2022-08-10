@@ -2,9 +2,7 @@
 #ifndef _MM_MEMBLOCK_H_
 #define _MM_MEMBLOCK_H_
 
-#include <types.h>
-#include <state.h>
-#include <list.h>
+#include <range.h>
 #include <numa.h>
 #include <asm/page.h>
 
@@ -18,10 +16,10 @@
 
 /**
  * enum memblock_type - memblock state types.
- * @usable: memory that can be used
- * @allocated: allocated by memblock
- * @takeover: buddy system takeover
- * @reserved: nonexistent memory
+ * @usable: memory that can be used.
+ * @allocated: allocated by memblock.
+ * @takeover: buddy system takeover.
+ * @reserved: nonexistent memory.
  */
 enum memblock_type {
     MEMBLOCK_USABLE     = 0x00,
@@ -31,26 +29,21 @@ enum memblock_type {
 };
 
 /**
- * struct memblock_region - describe a memory region
- * @name: register name of region
- * @addr: base address of region
- * @size: size of region
- * @use: free region flag
- * @type: memory region attributes
- * @list: memblock list node
- * @nid: NUMA node id
+ * struct memblock_region - describe a memory region.
+ * @name: register name of region.
+ * @nid: NUMA node id.
  */
 struct memblock_region {
+    struct range_node range;
     const char *name;
-    phys_addr_t addr;
-    phys_addr_t size;
-    uint8_t use:1;
-    uint8_t type:4;
-    struct list_head list;
+    bool used;
 #ifdef CONFIG_NUMA
     int nid;
 #endif
 };
+
+#define range_to_memblock(ptr) \
+    container_of(ptr, struct memblock_region, range)
 
 #ifdef CONFIG_MEMTEST
 extern void memtest(void *block, size_t size);
