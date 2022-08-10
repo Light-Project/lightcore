@@ -373,17 +373,17 @@ static void rbtree_test_release(struct kshell_context *ctx, void *pdata)
     kfree(pdata);
 }
 
-static struct selftest_command hlist_test_command = {
+static struct selftest_command rbtree_test_command = {
     .group = "lib",
     .name = "rbtree",
-    .desc = "rbtree list unit test",
+    .desc = "rbtree unit test",
     .testing = rbtree_test_testing,
     .prepare = rbtree_test_prepare,
     .release = rbtree_test_release,
 };
 
-static state selftest_hlist_init(void)
+static state selftest_rbtree_init(void)
 {
-    return selftest_register(&hlist_test_command);
+    return selftest_register(&rbtree_test_command);
 }
-kshell_initcall(selftest_hlist_init);
+kshell_initcall(selftest_rbtree_init);

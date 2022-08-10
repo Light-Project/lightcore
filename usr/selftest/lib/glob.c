@@ -113,15 +113,15 @@ static state glob_test_testing(struct kshell_context *ctx, void *pdata)
     return -ENOERR;
 }
 
-static struct selftest_command hlist_test_command = {
+static struct selftest_command glob_test_command = {
     .group = "lib",
     .name = "glob",
     .desc = "glob unit test",
     .testing = glob_test_testing,
 };
 
-static state selftest_hlist_init(void)
+static state selftest_glob_init(void)
 {
-    return selftest_register(&hlist_test_command);
+    return selftest_register(&glob_test_command);
 }
-kshell_initcall(selftest_hlist_init);
+kshell_initcall(selftest_glob_init);

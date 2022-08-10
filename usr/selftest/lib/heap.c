@@ -112,17 +112,17 @@ static void heap_test_release(struct kshell_context *ctx, void *pdata)
     kfree(pdata);
 }
 
-static struct selftest_command hlist_test_command = {
+static struct selftest_command heap_test_command = {
     .group = "lib",
     .name = "heap",
-    .desc = "heap list unit test",
+    .desc = "heap unit test",
     .testing = heap_test_testing,
     .prepare = heap_test_prepare,
     .release = heap_test_release,
 };
 
-static state selftest_hlist_init(void)
+static state selftest_heap_init(void)
 {
-    return selftest_register(&hlist_test_command);
+    return selftest_register(&heap_test_command);
 }
-kshell_initcall(selftest_hlist_init);
+kshell_initcall(selftest_heap_init);
