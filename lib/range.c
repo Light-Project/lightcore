@@ -46,8 +46,8 @@ struct range_node *range_insert(struct range_head *head, unsigned int type,
     state retval;
 
     new = range_node_alloc(head);
-    if (PTR_INVAL_ZERO(new))
-        return new;
+    if (unlikely(!new))
+        return ERR_PTR(-ENOENT);
 
     list_for_each_entry_safe(block, next, &head->nodes, list) {
         unsigned long end, blkend;
@@ -263,8 +263,8 @@ state range_subtract(struct range_head *head, unsigned long start, unsigned long
         } else if (block->start < start && end < blkend) {
             /* middle cover */
             tmp = range_node_alloc(head);
-            if (PTR_INVAL_ZERO(tmp))
-                return PTR_INVAL(tmp);
+            if (unlikely(!tmp))
+                return -ENOMEM;
 
             block->start = end;
             list_add(&block->list, &tmp->list);
