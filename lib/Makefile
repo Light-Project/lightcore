@@ -6,6 +6,7 @@ obj-y += filter/
 obj-y += font/
 obj-y += framedraw/
 obj-y += libc/
+obj-y += argv-merge.o
 obj-y += argv-split.o
 obj-y += bitmap.o
 obj-y += bitops.o
