@@ -57,6 +57,10 @@ config SELFTEST_LIB_NCACHE
     bool "Ncache Test"
     default y
 
+config SELFTEST_LIB_RANGE
+    bool "Range Test"
+    default y
+
 config SELFTEST_LIB_RBTREE
     bool "Rbtree Test"
     default y
