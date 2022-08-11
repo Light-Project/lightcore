@@ -11,6 +11,7 @@ obj-$(CONFIG_SELFTEST_LIB_LIBCPIO)	+= libcpio.o
 obj-$(CONFIG_SELFTEST_LIB_KFIFO)    += kfifo.o
 obj-$(CONFIG_SELFTEST_LIB_LIST)     += list.o
 obj-$(CONFIG_SELFTEST_LIB_MEMDUMP)  += memdump.o
+obj-$(CONFIG_SELFTEST_LIB_MINPOOL)  += minpool.o
 obj-$(CONFIG_SELFTEST_LIB_NCACHE)   += ncache.o
 obj-$(CONFIG_SELFTEST_LIB_RANGE)    += range.o
 obj-$(CONFIG_SELFTEST_LIB_RBTREE)   += rbtree.o
