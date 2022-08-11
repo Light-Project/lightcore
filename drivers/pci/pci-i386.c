@@ -10,9 +10,12 @@
 #include <driver/platform.h>
 #include <driver/pci.h>
 
-#define I386_PCI_CONFIG(bus, devfn, reg) ( \
-    BIT(31) | (bus << 16) | (devfn << 8) | \
-    ((reg & 0xF00) << 16) | (reg & 0xfc) \
+#define I386_PCI_CMD  0x0cf8
+#define I386_PCI_DATA 0x0cfc
+
+#define I386_PCI_CONFIG(bus, devfn, reg) (  \
+    BIT(31) | (bus << 16) | (devfn << 8) |  \
+    ((reg & 0xF00) << 16) | (reg & 0xfc)    \
 )
 
 static SPIN_LOCK(i386_pci_lock);
@@ -31,17 +34,25 @@ state pci_raw_config_read(unsigned int domain, unsigned int bus, unsigned int de
     spin_lock_irqsave(&i386_pci_lock, &irqflags);
 
     /* Use North Bridge Port */
-    outl(0x0cf8, I386_PCI_CONFIG(bus, devfn, reg));
+    outl(I386_PCI_CMD, I386_PCI_CONFIG(bus, devfn, reg));
 
-    if (size == 1)
-        *val = inb(0x0cfc + offset);
-    else if (size == 2)
-        *val = inw(0x0cfc + offset);
-    else
-        *val = inl(0x0cfc + offset);
+    switch (size) {
+        case 1:
+            *val = inb(I386_PCI_DATA + offset);
+            break;
+
+        case 2:
+            BUG_ON(offset & ~0x02);
+            *val = inw(I386_PCI_DATA + offset);
+            break;
+
+        default:
+            BUG_ON(offset & ~0x03);
+            *val = inl(I386_PCI_DATA + offset);
+            break;
+    }
 
     spin_unlock_irqrestore(&i386_pci_lock, &irqflags);
-
     return -ENOERR;
 }
 
@@ -57,17 +68,25 @@ state pci_raw_config_write(unsigned int domain, unsigned int bus, unsigned int d
     spin_lock_irqsave(&i386_pci_lock, &irqflags);
 
     /* Use North Bridge Port */
-    outl(0x0cf8, I386_PCI_CONFIG(bus, devfn, reg));
+    outl(I386_PCI_CMD, I386_PCI_CONFIG(bus, devfn, reg));
 
-    if (size == 1)
-        outb(0x0cfc, val + offset);
-    else if (size == 2)
-        outw(0x0cfc, val + offset);
-    else
-        outl(0x0cfc, val + offset);
+    switch (size) {
+        case 1:
+            outb(I386_PCI_DATA + offset, val);
+            break;
+
+        case 2:
+            BUG_ON(offset & ~0x02);
+            outw(I386_PCI_DATA + offset, val);
+            break;
+
+        default:
+            BUG_ON(offset & ~0x03);
+            outl(I386_PCI_DATA + offset, val);
+            break;
+    }
 
     spin_unlock_irqrestore(&i386_pci_lock, &irqflags);
-
     return -ENOERR;
 }
 
