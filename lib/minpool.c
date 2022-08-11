@@ -40,7 +40,7 @@ gnode_set_size(struct minpool_node *node, size_t size)
 }
 
 /**
- * gpool_find - Get first qualified node in mempool pool.
+ * gpool_find - Get first qualified node in mempool.
  * @head: Minimum mempool to get node.
  * @size: Node minimum size to get.
  */
@@ -86,7 +86,10 @@ void *minpool_alloc(struct minpool_head *head, size_t size)
 
         list_add(&head->free_list, &free->free);
         list_add(&node->block, &free->block);
+
+        gnode_set_size(node, size);
         head->avail -= sizeof(*free);
+        fsize = size;
     }
 
     /* Set node used */
@@ -94,7 +97,7 @@ void *minpool_alloc(struct minpool_head *head, size_t size)
     list_del_init(&node->free);
 
     /* Adjust heap available size */
-    head->avail -= size;
+    head->avail -= fsize;
     return node->data;
 }
 EXPORT_SYMBOL(minpool_alloc);
