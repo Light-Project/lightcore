@@ -35,7 +35,7 @@ gnode_set_used(struct minpool_node *node, bool used)
 static __always_inline void
 gnode_set_size(struct minpool_node *node, size_t size)
 {
-    node->usize &= BIT_HIGH_MASK(0);
+    node->usize &= ~BIT_HIGH_MASK(0);
     node->usize |= size & BIT_HIGH_MASK(0);
 }
 
@@ -76,7 +76,7 @@ void *minpool_alloc(struct minpool_head *head, size_t size)
         return NULL;
 
     fsize = gnode_get_size(node);
-    if (fsize > sizeof(*free) + size) {
+    if (fsize > sizeof(*free) + MSIZE + size) {
         struct minpool_node *free;
 
         /* Setup the new free block */
@@ -86,8 +86,6 @@ void *minpool_alloc(struct minpool_head *head, size_t size)
 
         list_add(&head->free_list, &free->free);
         list_add(&node->block, &free->block);
-
-        gnode_set_size(free, size);
         head->avail -= sizeof(*free);
     }
 
