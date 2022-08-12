@@ -106,4 +106,12 @@ extern uint16_t powu16(uint16_t base, unsigned int exp);
 extern uint32_t powu32(uint32_t base, unsigned int exp);
 extern uint64_t powu64(uint64_t base, unsigned int exp);
 
+extern unsigned int sqrt(unsigned int value);
+extern unsigned long sqrtl(unsigned long value);
+extern unsigned long long sqrtll(unsigned long long value);
+extern uint8_t sqrt8(uint8_t value);
+extern uint16_t sqrt16(uint16_t value);
+extern uint32_t sqrt32(uint32_t value);
+extern uint64_t sqrt64(uint64_t value);
+
 #endif  /* _MATH_H_ */
