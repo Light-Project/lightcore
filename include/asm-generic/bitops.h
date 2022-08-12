@@ -412,6 +412,34 @@ static inline unsigned int flz(unsigned long value)
 #endif
 
 #if BITS_PER_LONG == 32
+static inline unsigned int ffsuf64(uint64_t value)
+{
+    uint32_t hi = value >> 32;
+
+    if ((uint32_t)value)
+        return ffs((uint32_t)value);
+
+    return ffs(hi) + 32;
+}
+#else
+# define ffsuf64 ffsuf
+#endif
+
+#if BITS_PER_LONG == 32
+static inline unsigned int flsuf64(uint64_t value)
+{
+    uint32_t hi = value >> 32;
+
+    if (hi)
+        return flsuf(hi) + 32;
+
+    return flsuf((uint32_t)value);
+}
+#else
+# define flsuf64 flsuf
+#endif
+
+#if BITS_PER_LONG == 32
 static inline unsigned int ffs64(uint64_t value)
 {
     uint32_t hi = value >> 32;
