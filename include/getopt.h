@@ -6,11 +6,17 @@
 #include <stddef.h>
 #include <state.h>
 
+/**
+ * struct getopt_ctx - describes context of param acquisition.
+ * @optind: index in the argument value array.
+ * @optarg: string value of the argument to an option.
+ * @optopt: letter representing the command-line option.
+ */
 struct getopt_ctx {
+    int optind;
     char *optarg;
     char optopt;
     int optpos;
-    int optind;
     bool optreset;
 };
 
