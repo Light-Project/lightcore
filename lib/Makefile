@@ -16,6 +16,7 @@ obj-y += bsearch.o
 obj-y += bytefill.o
 obj-$(CONFIG_ARCH_32BIT) += divdi3.o
 obj-y += errname.o
+obj-y += getopt-long.o
 obj-y += getopt.o
 obj-y += glob.o
 obj-y += heap.o
