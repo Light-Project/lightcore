@@ -2,7 +2,7 @@
 #ifndef _CRYPTO_CRC_ROCKSOFT_TABLE_H_
 #define _CRYPTO_CRC_ROCKSOFT_TABLE_H_
 
-static const uint64_t crc64table[256] = {
+static const uint64_t crc_rocksoft_table[256] = {
     0x0000000000000000ULL, 0x7f6ef0c830358979ULL,
     0xfedde190606b12f2ULL, 0x81b31158505e9b8bULL,
     0xc962e5739841b68fULL, 0xb60c15bba8743ff6ULL,
@@ -135,8 +135,7 @@ static const uint64_t crc64table[256] = {
 
 static inline uint64_t crc_rocksoft_byte(uint64_t crc, const uint8_t data)
 {
-    uint64_t tmp = ((crc >> 56) ^ data) & 0xff;
-    return crc64table[tmp] ^ (crc << 8);
+	return (crc >> 8) ^ crc_rocksoft_table[(crc & 0xff) ^ data];
 }
 
 static inline uint64_t crc_rocksoft_inline(const uint8_t *src, int len, uint64_t crc)
