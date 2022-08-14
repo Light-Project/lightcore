@@ -6,30 +6,30 @@
 #include <bits.h>
 
 enum ahci_host_registers {
-    AHCI_HCAP               = 0x00,     /* Host Capabilities */
-    AHCI_HCTL               = 0x04,     /* Global Host Control */
-    AHCI_HIRQ_STAT          = 0x08,     /* Interrupt Status */
-    AHCI_HPORTS_IMPL        = 0x0c,     /* Bitmap Of Implemented Ports */
-    AHCI_HVERSION           = 0x10,     /* AHCI Spec. Version Compliancy */
-    AHCI_HEM_LOC            = 0x1c,     /* Enclosure Management location */
-    AHCI_HEM_CTL            = 0x20,     /* Enclosure Management Control */
-    AHCI_HCAP2              = 0x24,     /* host capabilities, extended */
-    AHCI_HPORTS_BASE        = 0x100,    /* AHCI Ports Register Base */
+    AHCI_HCAP               = 0x00,     /* RO: Host Capabilities */
+    AHCI_HCTL               = 0x04,     /* RW: Global Host Control */
+    AHCI_HIRQ_STAT          = 0x08,     /* RC: Interrupt Status */
+    AHCI_HPORTS_IMPL        = 0x0c,     /* RO: Bitmap Of Implemented Ports */
+    AHCI_HVERSION           = 0x10,     /* RO: AHCI Spec Version Compliancy */
+    AHCI_HEM_LOC            = 0x1c,     /* RW: Enclosure Management location */
+    AHCI_HEM_CTL            = 0x20,     /* RW: Enclosure Management Control */
+    AHCI_HCAP2              = 0x24,     /* RO: host extended capabilities */
+    AHCI_HPORTS_BASE        = 0x100,    /* RW: AHCI Ports Register Base */
 };
 
 enum ahci_port_registers {
-    AHCI_LST_ADDR           = 0x00,     /* Command List DMA Addr */
-    AHCI_LST_ADDR_HI        = 0x04,     /* Command List DMA Addr HI */
-    AHCI_FIS_ADDR           = 0x08,     /* Fis RX Buf Addr */
-    AHCI_FIS_ADDR_HI        = 0x0c,     /* Fis RX Buf Addr HI */
-    AHCI_IRQ_STAT           = 0x10,     /* Interrupt Status */
-    AHCI_IRQ_MASK           = 0x14,     /* Interrupt Enable/Disable Mask */
-    AHCI_CMD                = 0x18,     /* Port Command */
-    AHCI_TFDATA             = 0x20,     /* Taskfile Data */
-    AHCI_SIG                = 0x24,     /* Device TF Signature */
-    AHCI_SCR_STAT           = 0x28,     /* SATA Phy Register: Sstatus */
-    AHCI_SCR_CTL            = 0x2c,     /* SATA Phy Register: Scontrol */
-    AHCI_SCR_ERR            = 0x30,     /* SATA Phy Register: Serror */
+    AHCI_LST_ADDR           = 0x00,     /* RW: Command List DMA Addr */
+    AHCI_LST_ADDR_HI        = 0x04,     /* RW: Command List DMA Addr HI */
+    AHCI_FIS_ADDR           = 0x08,     /* RW: Fis RX Buf Addr */
+    AHCI_FIS_ADDR_HI        = 0x0c,     /* RW: Fis RX Buf Addr HI */
+    AHCI_IRQ_STAT           = 0x10,     /* RC: Interrupt Status */
+    AHCI_IRQ_MASK           = 0x14,     /* RW: Interrupt Enable/Disable Mask */
+    AHCI_CMD                = 0x18,     /* RW: Port Command */
+    AHCI_TFDATA             = 0x20,     /* RO: Taskfile Data */
+    AHCI_SIG                = 0x24,     /* RO: Device TF Signature */
+    AHCI_SCR_STAT           = 0x28,     /* RO: SATA Phy Register: Sstatus */
+    AHCI_SCR_CTL            = 0x2c,     /* RW: SATA Phy Register: Scontrol */
+    AHCI_SCR_ERR            = 0x30,     /* RW: SATA Phy Register: Serror */
     AHCI_SCR_ACT            = 0x34,     /* SATA Phy Register: Sactive */
     AHCI_CMD_ISSUE          = 0x38,     /* Command Issue */
     AHCI_SCR_NTF            = 0x3c,     /* SATA PHY Register: SNotification */

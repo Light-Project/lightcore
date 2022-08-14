@@ -17,7 +17,7 @@
 #include <driver/ata/ahci.h>
 #include <printk.h>
 
-#define AHCISIM_PORTS           32
+#define AHCISIM_MAX_PORTS       32
 #define AHCISIM_LINK_TIMEOUT    100
 #define AHCISIM_RST_TIMEOUT     5000
 #define AHCISIM_REQUEST_TIMEOUT 320000
@@ -115,14 +115,10 @@ static state ahcisim_command(struct ahcisim_port *port, void *buff,
 {
     unsigned int timeout = AHCISIM_REQUEST_TIMEOUT;
     uint32_t val, error = 0, status = 0;
-    irqflags_t irqflags;
-    state ret = -ENOERR;
 
-    spin_lock_irqsave(&port->lock, &irqflags);
-
-    port->cmdt->cfis.reg      = 0x27;
+    port->cmdt->cfis.reg = 0x27;
     port->cmdt->cfis.pmp_type = 1 << 7;
-    port->cmdt->prdt[0].base  = (uint64_t)va_to_pa(buff) & UINT32_MAX;
+    port->cmdt->prdt[0].base = (uint64_t)va_to_pa(buff) & UINT32_MAX;
     port->cmdt->prdt[0].baseu = (uint64_t)va_to_pa(buff) >> 32;
     port->cmdt->prdt[0].flags = count - 1;
 
@@ -159,7 +155,7 @@ static state ahcisim_command(struct ahcisim_port *port, void *buff,
 
         if (!timeout) {
             dev_err(port->block.dev, "command transfer timeout\n");
-            goto exit;
+            return -ETIMEDOUT;
         }
 
         if (!(status & ATA_STATUS_BSY))
@@ -169,12 +165,10 @@ static state ahcisim_command(struct ahcisim_port *port, void *buff,
     if ((status & (ATA_STATUS_DF | ATA_STATUS_ERR)) || !(status & ATA_STATUS_DRDY)) {
         dev_debug(port->block.dev, "command failed with: "
             "stat (0x%08x) error (0x%08x)\n", status, error);
-        ret = -EIO;
+        return -EIO;
     }
 
-exit:
-    spin_unlock_irqrestore(&port->lock, &irqflags);
-    return ret;
+    return -ENOERR;
 }
 
 static struct block_ops ahcisim_ops = {
@@ -251,26 +245,27 @@ static struct ahcisim_port *ahcisim_port_alloc(struct pci_device *pdev)
     size_t size;
 
     port = pci_kzalloc(pdev, sizeof(*port), GFP_KERNEL);
-    if (!port)
+    if (unlikely(!port))
         return NULL;
 
     size = AHCI_CMD_LIST_SIZE;
     port->cmdl = pci_kzalloc_align(pdev, size, GFP_KERNEL, size);
-    if (!port->cmdl)
+    if (unlikely(!port->cmdl))
         goto error_cmdl;
 
     size = sizeof(*port->fist);
     port->fist = pci_kzalloc_align(pdev, size, GFP_KERNEL, size);
-    if (!port->fist)
+    if (unlikely(!port->fist))
         goto error_fist;
 
     size = sizeof(*port->cmdt) + (sizeof(struct ahci_prdt) * 8);
     port->cmdt = pci_kzalloc_align(pdev, size, GFP_KERNEL, size);
-    if (!port->cmdt)
+    if (unlikely(!port->cmdt))
         goto error_cmdt;
 
     port->block.dev = &pdev->dev;
     port->block.ops = &ahcisim_ops;
+
     return port;
 
 error_cmdt:
@@ -305,7 +300,7 @@ static struct ahcisim_port *ahcisim_port_create(struct pci_device *pdev, struct 
     uint32_t val;
 
     port = ahcisim_port_alloc(pdev);
-    if (!port)
+    if (unlikely(!port))
         return NULL;
 
     port->host = src->host;
@@ -322,7 +317,7 @@ static struct ahcisim_port *ahcisim_port_create(struct pci_device *pdev, struct 
     return port;
 }
 
-static state ahcisim_ports_scan(struct pci_device *pdev, struct ahcisim_port *scan, unsigned int pnr)
+static state ahcisim_port_scan(struct pci_device *pdev, struct ahcisim_port *scan, unsigned int pnr)
 {
     struct ahcisim_host *host = pci_get_devdata(pdev);
     struct ahcisim_port *port;
@@ -339,10 +334,38 @@ static state ahcisim_ports_scan(struct pci_device *pdev, struct ahcisim_port *sc
         return -ENOERR;
 
     port = ahcisim_port_create(pdev, scan);
-    if (!port)
+    if (unlikely(!port))
         return -ENOMEM;
 
     return block_device_register(&port->block);
+}
+
+static state ahcisim_ports_scan(struct pci_device *pdev)
+{
+    struct ahcisim_host *host = pci_get_devdata(pdev);
+    struct ahcisim_port *scan;
+    unsigned int count;
+    uint32_t bitmap;
+    state retval;
+
+    bitmap = ahcisim_host_read(host, AHCI_HPORTS_IMPL);
+    if (!bitmap)
+        return -ENOERR;
+
+    scan = ahcisim_port_alloc(pdev);
+    if (!scan)
+        return -ENOMEM;
+
+    for (count = 0; count < AHCISIM_MAX_PORTS; ++count) {
+        if (!(bitmap & BIT(count)))
+            continue;
+        retval = ahcisim_port_scan(pdev, scan, count);
+        if (retval)
+            return retval;
+    }
+
+    ahcisim_ports_free(scan);
+    return -ENOERR;
 }
 
 static void ahcisim_host_setup(struct pci_device *pdev)
@@ -364,34 +387,20 @@ static void ahcisim_host_setup(struct pci_device *pdev)
 static state ahcisim_probe(struct pci_device *pdev, const void *pdata)
 {
     struct ahcisim_host *host;
-    struct ahcisim_port *scan;
-    unsigned int count;
-    state ret;
 
     host = pci_kzalloc(pdev, sizeof(*host), GFP_KERNEL);
-    if (!host)
+    if (unlikely(!host))
         return -ENOMEM;
 
     host->base = pci_resource_ioremap(pdev, 5, 0);
-    if (!host->base)
+    if (unlikely(!host->base))
         return -ENOMEM;
 
     list_head_init(&host->ports);
     pci_set_devdata(pdev, host);
+
     ahcisim_host_setup(pdev);
-
-    scan = ahcisim_port_alloc(pdev);
-    if (!scan)
-        return -ENOMEM;
-
-    for (count = 0; count < AHCISIM_PORTS; ++count) {
-        ret = ahcisim_ports_scan(pdev, scan, count);
-        if (ret < 0)
-            return ret;
-    }
-
-    ahcisim_ports_free(scan);
-    return -ENOERR;
+    return ahcisim_ports_scan(pdev);
 }
 
 static const struct pci_device_id ahcisim_ids[] = {

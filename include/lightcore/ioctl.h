@@ -37,7 +37,7 @@
     ((type) << IOCTL_TYPE_SHIFT)        \
 )
 
-#define IOCTL_NONE(type, fn, size)      IOCTL(IOCTL_DIR_NONE, type, fn, 0)
+#define IOCTL_NONE(type, fn)            IOCTL(IOCTL_DIR_NONE, type, fn, 0)
 #define IOCTL_INPUT(type, fn, size)     IOCTL(IOCTL_DIR_INPUT, type, fn, size)
 #define IOCTL_OUTPUT(type, fn, size)    IOCTL(IOCTL_DIR_OUTPUT, type, fn, size)
 #define IOCTL_BIDIR(type, fn, size)     IOCTL(IOCTL_DIR_INPUT | IOCTL_DIR_OUTPUT, type, fn, size)
