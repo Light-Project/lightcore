@@ -1,6 +1,16 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-obj-y += base64.o ascii85.o aes.o
-obj-y += chacha.o sha1.o sha256.o
-obj-y += crc8.o crc16.o crc32.o
-obj-y += crc-ccitt.o crc-ccittf.o
-obj-y += crc-itut.o crc-t10dif.o
+obj-y += aes.o
+obj-y += ascii85.o
+obj-y += base64.o
+obj-y += chacha.o
+obj-y += crc-ccitt.o
+obj-y += crc-ccittf.o
+obj-y += crc-itut.o
+obj-y += crc-rocksoft.o
+obj-y += crc-t10dif.o
+obj-y += crc8.o
+obj-y += crc16.o
+obj-y += crc32.o
+obj-y += crc64.o
+obj-y += sha1.o
+obj-y += sha256.o
