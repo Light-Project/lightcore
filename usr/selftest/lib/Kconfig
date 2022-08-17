@@ -73,6 +73,10 @@ config SELFTEST_LIB_SEGTREE
     bool "Segtree Test"
     default y
 
+config SELFTEST_LIB_SKIPLIST
+    bool "Skip List Test"
+    default y
+
 config SELFTEST_LIB_SLIST
     bool "Single List Test"
     default y
