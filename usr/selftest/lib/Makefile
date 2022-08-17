@@ -16,6 +16,7 @@ obj-$(CONFIG_SELFTEST_LIB_NCACHE)   += ncache.o
 obj-$(CONFIG_SELFTEST_LIB_RANGE)    += range.o
 obj-$(CONFIG_SELFTEST_LIB_RBTREE)   += rbtree.o
 obj-$(CONFIG_SELFTEST_LIB_SEGTREE)  += segtree.o
+obj-$(CONFIG_SELFTEST_LIB_SKIPLIST)	+= skiplist.o
 obj-$(CONFIG_SELFTEST_LIB_SLIST)    += slist.o
 obj-$(CONFIG_SELFTEST_LIB_SORT)     += sort.o
 obj-$(CONFIG_SELFTEST_LIB_UUID)     += uuid.o
