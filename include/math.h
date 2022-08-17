@@ -57,6 +57,20 @@
         (((__x) - ((__d) / 2)) / (__d));                \
 })
 
+#define abs_choose_expr(x, type, other) __builtin_choose_expr(  \
+    __builtin_types_compatible_p(typeof(x), signed type) ||     \
+    __builtin_types_compatible_p(typeof(x), unsigned type),     \
+    ({ signed type __x = (x); __x < 0 ? -__x : __x; }), other   \
+)
+
+#define abs(x) abs_choose_expr(x, long long,                \
+    abs_choose_expr(x, long, abs_choose_expr(x, int,        \
+    abs_choose_expr(x, short, abs_choose_expr(x, char,      \
+    __builtin_choose_expr( __builtin_types_compatible_p(    \
+    typeof(x), char), (char)({ signed char __x = (x);       \
+    __x < 0? -__x : __x; }), ((void)0))))))                 \
+)
+
 #ifdef TYPE_HAS_INT128
 
 static inline uint64_t mul_u64_u32_shr(uint64_t a, uint32_t mul, unsigned int shift)
