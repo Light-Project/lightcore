@@ -47,6 +47,7 @@ obj-y += rbtree.o
 obj-$(CONFIG_DEBUG_REFCOUNT) += refcount.o
 obj-y += segtree.o
 obj-y += size.o
+obj-y += skiplist.o
 obj-$(CONFIG_DEBUG_SLIST) += slist-debug.o
 obj-y += sort.o
 obj-y += time.o
