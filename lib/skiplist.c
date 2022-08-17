@@ -8,6 +8,19 @@
 #include <prandom.h>
 #include <export.h>
 
+static unsigned int random_level(struct skip_head *head)
+{
+    unsigned int level = 1;
+
+    do {
+        if (prandom_value() < UINT32_MAX >> 2)
+            break;
+        level++;
+    } while (level < head->levels);
+
+    return level;
+}
+
 static struct skip_node *
 skipnode_find(struct skip_head *head, const void *key,
               skiplist_find_t find, unsigned int *plev)
@@ -17,12 +30,14 @@ skipnode_find(struct skip_head *head, const void *key,
     struct list_head *list;
     long retval;
 
+    if (unlikely(!level))
+        return NULL;
+
     list = &head->nodes[level - 1];
-    match = list_first_entry_or_null(list, struct skip_node, list[level - 1]);
+    match = list_first_entry(list, struct skip_node, list[level - 1]);
+    retval = find(match->pdata, key);
 
-    for (; match && level--; --list) {
-        retval = find(match->pdata, key);
-
+    for (; level--; --list) {
         if (retval < 0) {
             walk = match;
             list_for_each_entry_continue(walk, list, list[level]) {
@@ -53,19 +68,6 @@ skipnode_find(struct skip_head *head, const void *key,
     return NULL;
 }
 
-static unsigned int random_level(struct skip_head *head)
-{
-    unsigned int level = 1;
-
-    do {
-        if (prandom_value() < UINT32_MAX >> 2)
-            break;
-        level++;
-    } while (level < head->levels);
-
-    return level;
-}
-
 state skiplist_insert(struct skip_head *head, void *data, skiplist_cmp_t cmp)
 {
     struct skip_node *walk, *match, *node;
@@ -90,9 +92,9 @@ state skiplist_insert(struct skip_head *head, void *data, skiplist_cmp_t cmp)
     }
 
     match = list_first_entry(list, struct skip_node, list[level - 1]);
-    for (; level--; --list) {
-        retval = cmp(data, match->pdata);
+    retval = cmp(data, match->pdata);
 
+    for (; level--; --list) {
         if (retval > 0) {
             walk = match;
             list_for_each_entry_continue(walk, list, list[level]) {
@@ -119,6 +121,7 @@ state skiplist_insert(struct skip_head *head, void *data, skiplist_cmp_t cmp)
             list_add_prev(&match->list[level], &node->list[level]);
     }
 
+    head->count++;
     return -ENOERR;
 }
 EXPORT_SYMBOL(skiplist_insert);
@@ -132,9 +135,13 @@ void skiplist_delete(struct skip_head *head, void *key, skiplist_find_t find)
     if (unlikely(!node))
         return;
 
-    while (level--)
+    while (level--) {
         list_del(&node->list[level]);
+        if (list_check_empty(&head->nodes[level]))
+            head->curr = level;
+    }
 
+    head->count--;
     kfree(node);
 }
 EXPORT_SYMBOL(skiplist_delete);
@@ -162,8 +169,7 @@ void skiplist_reset(struct skip_head *head)
     for (count = 0; count < head->levels; ++count)
         list_head_init(&head->nodes[count]);
 
-    head->count = 0;
-    head->curr = 1;
+    head->count = head->curr = 0;
 }
 EXPORT_SYMBOL(skiplist_reset);
 
@@ -179,6 +185,7 @@ struct skip_head *skiplist_create(unsigned int levels, gfp_t flags)
     for (count = 0; count < levels; ++count)
         list_head_init(&head->nodes[count]);
 
+    head->count = head->curr = 0;
     head->levels = levels;
     head->flags = flags;
 
