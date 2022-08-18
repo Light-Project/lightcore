@@ -88,7 +88,7 @@ state skiplist_insert(struct skip_head *head, void *data, skiplist_cmp_t cmp)
     for (; unlikely(list_check_empty(list)); --list) {
         list_add(list, &node->list[--level]);
         if (!level)
-            return -ENOERR;
+            goto finish;
     }
 
     match = list_first_entry(list, struct skip_node, list[level - 1]);
@@ -121,10 +121,132 @@ state skiplist_insert(struct skip_head *head, void *data, skiplist_cmp_t cmp)
             list_add_prev(&match->list[level], &node->list[level]);
     }
 
+finish:
     head->count++;
     return -ENOERR;
 }
 EXPORT_SYMBOL(skiplist_insert);
+
+static struct skip_node *
+skipnode_even_find(struct skip_head *head, const void *key,
+                   skiplist_even_find_t find, unsigned int *plev)
+{
+    unsigned int level = head->curr;
+    struct skip_node *walk, *match;
+    struct list_head *list;
+    unsigned long disparity, compare;
+    bool signplus;
+
+    if (unlikely(!level))
+        return NULL;
+
+    list = &head->nodes[level - 1];
+    match = list_first_entry(list, struct skip_node, list[level - 1]);
+    disparity = find(match->pdata, key, &signplus);
+
+    for (; level--; --list) {
+        if (disparity) {
+            if ((walk = list_next_entry_or_null(match, list, list[level]))) {
+                list_for_each_entry_from(walk, list, list[level]) {
+                    compare = find(walk->pdata, key, &signplus);
+                    if (disparity <= compare &&
+                        (disparity == compare && signplus != false))
+                        break;
+                    disparity = compare;
+                    match = walk;
+                    if (!disparity)
+                        goto finish;
+                }
+            }
+
+            if ((walk = list_prev_entry_or_null(match, list, list[level]))) {
+                list_for_each_entry_reverse_from(walk, list, list[level]) {
+                    compare = find(walk->pdata, key, &signplus);
+                    if (disparity >= compare &&
+                        (disparity == compare && signplus != true))
+                        break;
+                    disparity = compare;
+                    match = walk;
+                    if (!disparity)
+                        goto finish;
+                }
+            }
+        }
+
+finish:
+        if (disparity == 0) {
+            if (plev)
+                *plev = level + 1;
+            return match;
+        }
+    }
+
+    return NULL;
+}
+
+state skiplist_even_insert(struct skip_head *head, void *data, skiplist_even_cmp_t cmp)
+{
+    struct skip_node *walk, *match, *node;
+    struct list_head *list;
+    unsigned int level;
+    unsigned long disparity, compare;
+    bool signplus;
+
+    level = random_level(head);
+    max_adj(head->curr, level);
+
+    node = kmalloc(sizeof(*node) + sizeof(*node->list) * level, head->flags);
+    if (unlikely(!node))
+        return -ENOMEM;
+
+    node->pdata = data;
+    list = &head->nodes[level - 1];
+
+    for (; unlikely(list_check_empty(list)); --list) {
+        list_add(list, &node->list[--level]);
+        if (!level)
+            goto finish;
+    }
+
+    match = list_first_entry(list, struct skip_node, list[level - 1]);
+    disparity = cmp(data, match->pdata, &signplus);
+
+    for (; level--; --list) {
+        if (disparity) {
+            if ((walk = list_next_entry_or_null(match, list, list[level]))) {
+                list_for_each_entry_from(walk, list, list[level]) {
+                    compare = cmp(node->pdata, walk->pdata, &signplus);
+                    if (disparity <= compare &&
+                        (disparity == compare && signplus != true))
+                        break;
+                    disparity = compare;
+                    match = walk;
+                }
+            }
+
+            if ((walk = list_prev_entry_or_null(match, list, list[level]))) {
+                list_for_each_entry_reverse_from(walk, list, list[level]) {
+                    compare = cmp(node->pdata, walk->pdata, &signplus);
+                    if (disparity <= compare &&
+                        (disparity == compare && signplus != false))
+                        break;
+                    disparity = compare;
+                    match = walk;
+                }
+            }
+        }
+
+        if (signplus)
+            list_add(&match->list[level], &node->list[level]);
+        else
+            list_add_prev(&match->list[level], &node->list[level]);
+    }
+
+finish:
+    head->count++;
+    return -ENOERR;
+}
+EXPORT_SYMBOL(skiplist_even_insert);
 
 void skiplist_delete(struct skip_head *head, void *key, skiplist_find_t find)
 {
@@ -153,6 +275,34 @@ void *skiplist_find(struct skip_head *head, void *key, skiplist_find_t find)
     return node ? node->pdata : NULL;
 }
 EXPORT_SYMBOL(skiplist_find);
+
+void skiplist_even_delete(struct skip_head *head, void *key, skiplist_even_find_t find)
+{
+    struct skip_node *node;
+    unsigned int level;
+
+    node = skipnode_even_find(head, key, find, &level);
+    if (unlikely(!node))
+        return;
+
+    while (level--) {
+        list_del(&node->list[level]);
+        if (list_check_empty(&head->nodes[level]))
+            head->curr = level;
+    }
+
+    head->count--;
+    kfree(node);
+}
+EXPORT_SYMBOL(skiplist_even_delete);
+
+void *skiplist_even_find(struct skip_head *head, void *key, skiplist_even_find_t find)
+{
+    struct skip_node *node;
+    node = skipnode_even_find(head, key, find, NULL);
+    return node ? node->pdata : NULL;
+}
+EXPORT_SYMBOL(skiplist_even_find);
 
 static void skiplist_release(struct skip_head *head)
 {
