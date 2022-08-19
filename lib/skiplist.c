@@ -35,23 +35,23 @@ skipnode_find(struct skip_head *head, const void *key,
 
     list = &head->nodes[level - 1];
     match = list_first_entry(list, struct skip_node, list[level - 1]);
-    retval = find(key, match->pdata);
+    retval = find(match->pdata, key);
 
     for (; level--; --list) {
-        if (retval > 0) {
+        if (retval < 0) {
             walk = match;
             list_for_each_entry_continue(walk, list, list[level]) {
-                retval = find(key, walk->pdata);
-                if (retval <= 0) {
+                retval = find(walk->pdata, key);
+                if (retval >= 0) {
                     match = walk;
                     break;
                 }
             }
-        } else if (retval < 0) {
+        } else if (retval > 0) {
             walk = match;
             list_for_each_entry_reverse_continue(walk, list, list[level]) {
-                retval = find(key, walk->pdata);
-                if (retval >= 0) {
+                retval = find(walk->pdata, key);
+                if (retval <= 0) {
                     match = walk;
                     break;
                 }
@@ -68,7 +68,8 @@ skipnode_find(struct skip_head *head, const void *key,
     return NULL;
 }
 
-state skiplist_insert(struct skip_head *head, void *data, skiplist_cmp_t cmp)
+state skiplist_insert(struct skip_head *head, void *data,
+                      skiplist_cmp_t cmp, gfp_t flags)
 {
     struct skip_node *walk, *match, *node;
     struct list_head *list;
@@ -78,7 +79,7 @@ state skiplist_insert(struct skip_head *head, void *data, skiplist_cmp_t cmp)
     level = random_level(head);
     max_adj(head->curr, level);
 
-    node = kmalloc(sizeof(*node) + sizeof(*node->list) * level, head->flags);
+    node = kmalloc(sizeof(*node) + sizeof(*node->list) * level, flags);
     if (unlikely(!node))
         return -ENOMEM;
 
@@ -142,13 +143,13 @@ skipnode_even_find(struct skip_head *head, const void *key,
 
     list = &head->nodes[level - 1];
     match = list_first_entry(list, struct skip_node, list[level - 1]);
-    disparity = find(key, match->pdata, &signplus);
+    disparity = find(match->pdata, key, &signplus);
 
     for (; level--; --list) {
-        if (signplus == true) {
+        if (signplus == false) {
             if ((walk = list_next_entry_or_null(match, list, list[level]))) {
                 list_for_each_entry_from(walk, list, list[level]) {
-                    compare = find(key, walk->pdata, &tmpplus);
+                    compare = find(walk->pdata, key, &tmpplus);
                     if (disparity < compare)
                         break;
                     disparity = compare;
@@ -159,7 +160,7 @@ skipnode_even_find(struct skip_head *head, const void *key,
         } else {
             if ((walk = list_prev_entry_or_null(match, list, list[level]))) {
                 list_for_each_entry_reverse_from(walk, list, list[level]) {
-                    compare = find(key, walk->pdata, &tmpplus);
+                    compare = find(walk->pdata, key, &tmpplus);
                     if (disparity < compare)
                         break;
                     disparity = compare;
@@ -179,7 +180,8 @@ skipnode_even_find(struct skip_head *head, const void *key,
     return NULL;
 }
 
-state skiplist_even_insert(struct skip_head *head, void *data, skiplist_even_cmp_t cmp)
+state skiplist_even_insert(struct skip_head *head, void *data,
+                           skiplist_even_cmp_t cmp, gfp_t flags)
 {
     struct skip_node *walk, *match, *node;
     struct list_head *list;
@@ -190,7 +192,7 @@ state skiplist_even_insert(struct skip_head *head, void *data, skiplist_even_cmp
     level = random_level(head);
     max_adj(head->curr, level);
 
-    node = kmalloc(sizeof(*node) + sizeof(*node->list) * level, head->flags);
+    node = kmalloc(sizeof(*node) + sizeof(*node->list) * level, flags);
     if (unlikely(!node))
         return -ENOMEM;
 
@@ -334,7 +336,6 @@ struct skip_head *skiplist_create(unsigned int levels, gfp_t flags)
 
     head->count = head->curr = 0;
     head->levels = levels;
-    head->flags = flags;
 
     return head;
 }
