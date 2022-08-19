@@ -18,15 +18,14 @@ struct skip_head {
     unsigned int count;
     unsigned int curr;
     unsigned int levels;
-    gfp_t flags;
     struct list_head nodes[0];
 };
 
-extern state skiplist_insert(struct skip_head *head, void *data, skiplist_cmp_t cmp);
+extern state skiplist_insert(struct skip_head *head, void *data, skiplist_cmp_t cmp, gfp_t flags);
 extern void skiplist_delete(struct skip_head *head, void *key, skiplist_find_t find);
 extern void *skiplist_find(struct skip_head *head, void *key, skiplist_find_t find);
 
-extern state skiplist_even_insert(struct skip_head *head, void *data, skiplist_even_cmp_t cmp);
+extern state skiplist_even_insert(struct skip_head *head, void *data, skiplist_even_cmp_t cmp, gfp_t flags);
 extern void skiplist_even_delete(struct skip_head *head, void *key, skiplist_even_find_t find);
 extern void *skiplist_even_find(struct skip_head *head, void *key, skiplist_even_find_t find);
 

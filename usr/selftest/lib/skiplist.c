@@ -52,7 +52,7 @@ static state skiplist_test_testing(struct kshell_context *ctx, void *pdata)
 
     for (count = 0; count < TEST_LOOP; ++count) {
         retval = skiplist_insert(test->head,
-                 (void *)test->values[count], skiplist_test_cmp);
+                 (void *)test->values[count], skiplist_test_cmp, GFP_KERNEL);
         kshell_printf(ctx, "skiplist insert test%02d: %#010lx ret %d\n",
                       count, test->values[count], retval);
         if (retval)
@@ -85,7 +85,7 @@ static state skiplist_test_testing(struct kshell_context *ctx, void *pdata)
 
     for (count = 0; count < TEST_LOOP; ++count) {
         retval = skiplist_even_insert(test->head,
-                 (void *)test->values[count], skiplist_even_test_cmp);
+                 (void *)test->values[count], skiplist_even_test_cmp, GFP_KERNEL);
         kshell_printf(ctx, "skiplist even insert test%02d: %#010lx ret %d\n",
                       count, test->values[count], retval);
         if (retval)
