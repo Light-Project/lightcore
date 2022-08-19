@@ -30,17 +30,13 @@ static unsigned long skiplist_even_test_cmp(const void *nodea, const void *nodeb
     uintptr_t valuea = (uintptr_t)nodea;
     uintptr_t valueb = (uintptr_t)nodeb;
 
-    if (valuea > valueb) {
-        *signplus = true;
-        return valuea - valueb;
-    }
-
     if (valuea < valueb) {
         *signplus = false;
         return valueb - valuea;
     }
 
-    return 0;
+    *signplus = true;
+    return valuea - valueb;
 }
 
 static state skiplist_test_testing(struct kshell_context *ctx, void *pdata)
@@ -73,6 +69,15 @@ static state skiplist_test_testing(struct kshell_context *ctx, void *pdata)
     }
 
     for (count = 0; count < TEST_LOOP; ++count) {
+        value = (uintptr_t)skiplist_even_find(test->head,
+                (void *)test->values[count], skiplist_even_test_cmp);
+        kshell_printf(ctx, "skiplist even find test%02d: %#010lx ret %#010lx\n",
+                      count, test->values[count], value);
+        if (!value)
+            return -ENOENT;
+    }
+
+    for (count = 0; count < TEST_LOOP; ++count) {
         skiplist_delete(test->head, (void *)test->values[count],
                         skiplist_test_cmp);
         kshell_printf(ctx, "skiplist delete test%02d\n", count);
@@ -88,9 +93,18 @@ static state skiplist_test_testing(struct kshell_context *ctx, void *pdata)
     }
 
     for (count = 0; count < TEST_LOOP; ++count) {
+        value = (uintptr_t)skiplist_find(test->head,
+                (void *)test->values[count], skiplist_test_cmp);
+        kshell_printf(ctx, "skiplist find2 test%02d: %#010lx ret %#010lx\n",
+                      count, test->values[count], value);
+        if (!value)
+            return -ENOENT;
+    }
+
+    for (count = 0; count < TEST_LOOP; ++count) {
         value = (uintptr_t)skiplist_even_find(test->head,
                 (void *)test->values[count], skiplist_even_test_cmp);
-        kshell_printf(ctx, "skiplist even find test%02d: %#010lx ret %#010lx\n",
+        kshell_printf(ctx, "skiplist even find2 test%02d: %#010lx ret %#010lx\n",
                       count, test->values[count], value);
         if (!value)
             return -ENOENT;
