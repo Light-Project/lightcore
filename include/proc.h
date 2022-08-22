@@ -3,6 +3,7 @@
 #define _PROC_H_
 
 #include <asm/proc.h>
+#include <asm/cache.h>
 #include <asm/barrier.h>
 #include <asm/unaligned.h>
 

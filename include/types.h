@@ -99,6 +99,8 @@ typedef __kernel_mqd_t          mqd_t;
 #define BYTES_PER_U16           sizeof(uint16_t)
 #define BYTES_PER_U32           sizeof(uint32_t)
 #define BYTES_PER_U64           sizeof(uint64_t)
+#define BYTES_PER_UINTMAX       sizeof(uintmax_t)
+#define BYTES_PER_UINTPTR       sizeof(uintptr_t)
 
 #endif  /* __ASSEMBLY__ */
 #endif  /* _TYPES_H_ */
