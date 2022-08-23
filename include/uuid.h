@@ -21,6 +21,8 @@ extern void guid_random_generate(unsigned char guid[16]);
 extern void uuid_random_generate(unsigned char uuid[16]);
 extern void guid_generate(guid_t *guid);
 extern void uuid_generate(uuid_t *uuid);
+extern void guid_string_generate(char *buff);
+extern void uuid_string_generate(char *buff);
 extern bool uuid_valid(const char *uuid);
 extern state guid_parse(const char *str, guid_t *guid);
 extern state uuid_parse(const char *str, uuid_t *uuid);
