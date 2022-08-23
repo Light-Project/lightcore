@@ -55,6 +55,35 @@ void uuid_generate(uuid_t *uuid)
 }
 EXPORT_SYMBOL(uuid_generate);
 
+static void common_sprintf(char *buff, uint8_t uuid[16])
+{
+    unsigned int count;
+    int offset = 0;
+
+    for (count = 0; count < 16; ++count) {
+        if (count == 4 || count == 6 ||
+            count == 8 || count == 10)
+            offset += sprintf(buff + offset, "-");
+        offset += sprintf(buff + offset, "%02x", uuid[count]);
+    }
+}
+
+void guid_string_generate(char *buff)
+{
+    guid_t guid;
+    guid_generate(&guid);
+    common_sprintf(buff, guid.byte);
+}
+EXPORT_SYMBOL(guid_string_generate);
+
+void uuid_string_generate(char *buff)
+{
+    uuid_t uuid;
+    uuid_generate(&uuid);
+    common_sprintf(buff, uuid.byte);
+}
+EXPORT_SYMBOL(uuid_string_generate);
+
 bool uuid_valid(const char *uuid)
 {
     unsigned int i;
