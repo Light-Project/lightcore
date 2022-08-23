@@ -42,6 +42,15 @@ bnode_set_key(struct btree_root *root, struct btree_node *node,
            layout->keylen * BYTES_PER_UINTPTR);
 }
 
+static inline void
+bnode_takeout_key(struct btree_root *root, struct btree_node *node,
+                  unsigned int index, uintptr_t *key)
+{
+    struct btree_layout *layout = root->layout;
+    memcpy(key, bnode_get_key(root, node, index),
+           layout->keylen * BYTES_PER_UINTPTR);
+}
+
 static inline long
 bnode_cmp_key(struct btree_root *root, struct btree_node *node,
               unsigned int index, uintptr_t *key)
@@ -79,6 +88,13 @@ bnode_clear_index(struct btree_root *root, struct btree_node *node,
     bnode_set_value(root, node, index, NULL);
     memset(bnode_get_key(root, node, index), 0,
            layout->keylen * BYTES_PER_UINTPTR);
+}
+
+static inline bool
+btree_empty_key(struct btree_root *root, uintptr_t *key)
+{
+    struct btree_layout *layout = root->layout;
+    return !memdiff(key, 0, layout->keylen * BYTES_PER_UINTPTR);
 }
 
 static unsigned int
@@ -197,6 +213,26 @@ void *btree_lookup(struct btree_root *root, uintptr_t *key)
     return bnode_get_value(root, node, index);
 }
 EXPORT_SYMBOL(btree_lookup);
+
+state btree_update(struct btree_root *root, uintptr_t *key,
+                   void *value)
+{
+    struct btree_layout *layout = root->layout;
+    struct btree_node *node;
+    unsigned int index;
+
+    node = bnode_lookup(root, key);
+    if (!node)
+        return -ENOENT;
+
+    index = bnode_key_index(root, node, key);
+    if (index == layout->keynum)
+        return -ENOENT;
+
+    bnode_set_value(root, node, index, value);
+    return -ENOERR;
+}
+EXPORT_SYMBOL(btree_update);
 
 static state btree_extend(struct btree_root *root, gfp_t flags)
 {
@@ -379,7 +415,7 @@ static void *remove_level(struct btree_root *root, unsigned int level,
 {
     struct btree_layout *layout = root->layout;
     struct btree_node *node;
-    unsigned int index, fill, count;
+    unsigned int index, last, count;
     void *clash, *value = NULL;
 
     if (level > root->height) {
@@ -390,7 +426,7 @@ static void *remove_level(struct btree_root *root, unsigned int level,
 
     node = bnode_find_parent(root, key, level);
     index = bnode_find_index(root, node, key);
-    fill = bnode_fill_index(root, node, index) - 1;
+    last = bnode_fill_index(root, node, index) - 1;
 
     if (level == 1) {
         if (bnode_cmp_key(root, node, index, key))
@@ -405,17 +441,17 @@ static void *remove_level(struct btree_root *root, unsigned int level,
     }
 
     /* shift nodes and remove */
-    for (count = index; count < fill; ++count) {
+    for (count = index; count < last; ++count) {
         bnode_set_key(root, node, count, bnode_get_key(root, node, count + 1));
         bnode_set_value(root, node, count, bnode_get_value(root, node, count + 1));
     }
     bnode_clear_index(root, node, count);
 
     /* rebalance node tree */
-    if (fill < layout->keynum / 2) {
+    if (last < layout->keynum / 2) {
         if (level < root->height)
-            remove_rebalance(root, level, key, node, fill);
-        else if (fill == 1)
+            remove_rebalance(root, level, key, node, last);
+        else if (last == 1)
             btree_tailor(root);
     }
 
@@ -429,3 +465,119 @@ void *btree_remove(struct btree_root *root, uintptr_t *key)
     return remove_level(root, 1, key);
 }
 EXPORT_SYMBOL(btree_remove);
+
+void btree_destroy(struct btree_root *root)
+{
+
+    struct btree_layout *layout = root->layout;
+    uintptr_t key[layout->keylen], tkey[layout->keylen];
+    void *value, *tval;
+
+    btree_for_each_safe(root, key, value, tkey, tval)
+        btree_remove(root, key);
+
+    bnode_free(root, root->node);
+    root->node = NULL;
+    root->height = 0;
+}
+EXPORT_SYMBOL(btree_destroy);
+
+void btree_key_copy(struct btree_root *root,
+                    uintptr_t *dest, uintptr_t *src)
+{
+    struct btree_layout *layout = root->layout;
+    memcpy(dest, src, layout->keylen * BYTES_PER_UINTPTR);
+}
+EXPORT_SYMBOL(btree_key_copy);
+
+void *btree_first(struct btree_root *root, uintptr_t *key)
+{
+    struct btree_node *node = root->node;
+    unsigned int height = root->height;
+
+    if (!height)
+        return NULL;
+
+    while (--height)
+        node = bnode_get_value(root, node, 0);
+
+    bnode_takeout_key(root, node, 0, key);
+    return bnode_get_value(root, node, 0);
+}
+EXPORT_SYMBOL(btree_first);
+
+void *btree_last(struct btree_root *root, uintptr_t *key)
+{
+    struct btree_node *node = root->node;
+    unsigned int last, height = root->height;
+
+    if (!height)
+        return NULL;
+
+    while (--height) {
+        last = bnode_fill_index(root, node, 0) - 1;
+        node = bnode_get_value(root, node, last);
+    }
+
+    last = bnode_fill_index(root, node, 0) - 1;
+    bnode_takeout_key(root, node, last, key);
+    return bnode_get_value(root, node, last);
+}
+EXPORT_SYMBOL(btree_last);
+
+void *btree_next(struct btree_root *root, uintptr_t *key)
+{
+    struct btree_node *node;
+    unsigned int depth, index, fill;
+
+    if (btree_empty_key(root, key))
+        return NULL;
+
+    for (depth = 1; depth <= root->height; ++depth) {
+        node = bnode_find_parent(root, key, depth);
+        index = bnode_find_index(root, node, key);
+        fill = bnode_fill_index(root, node, index);
+        if (++index < fill)
+            break;
+    }
+
+    if (depth > root->height)
+        return NULL;
+
+    while (--depth) {
+        node = bnode_get_value(root, node, index);
+        index = 0;
+    }
+
+    bnode_takeout_key(root, node, index, key);
+    return bnode_get_value(root, node, index);
+}
+EXPORT_SYMBOL(btree_next);
+
+void *btree_prev(struct btree_root *root, uintptr_t *key)
+{
+    struct btree_node *node;
+    unsigned int depth, index;
+
+    if (btree_empty_key(root, key))
+        return NULL;
+
+    for (depth = 1; depth <= root->height; ++depth) {
+        node = bnode_find_parent(root, key, depth);
+        index = bnode_find_index(root, node, key);
+        if (index--)
+            break;
+    }
+
+    if (depth > root->height)
+        return NULL;
+
+    while (--depth) {
+        node = bnode_get_value(root, node, index);
+        index = bnode_fill_index(root, node, 0) - 1;
+    }
+
+    bnode_takeout_key(root, node, index, key);
+    return bnode_get_value(root, node, index);
+}
+EXPORT_SYMBOL(btree_prev);
