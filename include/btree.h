@@ -62,7 +62,161 @@ extern void *btree_alloc(struct btree_root *root, gfp_t flags);
 extern void btree_free(struct btree_root *root, void *node);
 
 extern void *btree_lookup(struct btree_root *root, uintptr_t *key);
+extern state btree_update(struct btree_root *root, uintptr_t *key, void *value);
 extern state btree_insert(struct btree_root *root, uintptr_t *key, void *value, gfp_t flags);
 extern void *btree_remove(struct btree_root *root, uintptr_t *key);
+extern void btree_destroy(struct btree_root *root);
+
+extern void btree_key_copy(struct btree_root *root, uintptr_t *dest, uintptr_t *src);
+extern void *btree_first(struct btree_root *root, uintptr_t *key);
+extern void *btree_last(struct btree_root *root, uintptr_t *key);
+extern void *btree_next(struct btree_root *root, uintptr_t *key);
+extern void *btree_prev(struct btree_root *root, uintptr_t *key);
+
+/**
+ * btree_for_each - iterate over a btree.
+ * @root: the root for your btree.
+ * @key: the &key to use as a loop cursor.
+ * @value: the value of current loop cursor.
+ */
+#define btree_for_each(root, key, value)                    \
+    for (value = btree_first(root, key);                    \
+         value; value = btree_next(root, key))
+
+/**
+ * btree_for_each_reverse - iterate over a btree backwards.
+ * @root: the root for your btree.
+ * @key: the &key to use as a loop cursor.
+ * @value: the value of current loop cursor.
+ */
+#define btree_for_each_reverse(root, key, value)            \
+    for (value = btree_last(root, key);                     \
+         value; value = btree_prev(root, key))
+
+/**
+ * btree_for_each_from - iterate over a btree from the current point.
+ * @root: the root for your btree.
+ * @key: the &key to use as a loop cursor.
+ * @value: the value of current loop cursor.
+ */
+#define btree_for_each_from(root, key, value)               \
+    for (; value; value = btree_next(root, key))
+
+/**
+ * btree_for_each_reverse_from - iterate over a btree backwards from the current point.
+ * @root: the root for your btree.
+ * @key: the &key to use as a loop cursor.
+ * @value: the value of current loop cursor.
+ */
+#define btree_for_each_reverse_from(root, key, value)       \
+    for (; value; value = btree_prev(root, key))
+
+/**
+ * btree_for_each_continue - continue iteration over a btree.
+ * @root: the root for your btree.
+ * @key: the &key to use as a loop cursor.
+ * @value: the value of current loop cursor.
+ */
+#define btree_for_each_continue(root, key, value)           \
+    for (value = btree_next(root, key);                     \
+         value; value = btree_next(root, key))
+
+/**
+ * btree_for_each_reverse_continue - continue iteration over a btree backwards.
+ * @root: the root for your btree.
+ * @key: the &key to use as a loop cursor.
+ * @value: the value of current loop cursor.
+ */
+#define btree_for_each_reverse_continue(root, key, value)   \
+    for (value = btree_prev(root, key);                     \
+         value; value = btree_prev(root, key))
+
+/**
+ * btree_for_each_safe - iterate over btree safe against removal.
+ * @root: the root for your btree.
+ * @key: the &key to use as a loop cursor.
+ * @value: the value of current loop cursor.
+ * @tkey: another &key to use as temporary storage.
+ * @tval: another value to use as temporary storage.
+ */
+#define btree_for_each_safe(root, key, value, tkey, tval)   \
+    for (value = btree_first(root, key),                    \
+         btree_key_copy(root, tkey, key),                   \
+         tval = btree_next(root, tkey); value;              \
+         btree_key_copy(root, key, tkey),                   \
+         value = tval, tval = btree_next(root, tkey))
+
+/**
+ * btree_for_each_reverse_safe - iterate backwards over btree safe against removal.
+ * @root: the root for your btree.
+ * @key: the &key to use as a loop cursor.
+ * @value: the value of current loop cursor.
+ * @tkey: another &key to use as temporary storage.
+ * @tval: another value to use as temporary storage.
+ */
+#define btree_for_each_reverse_safe(root, key, value, tkey, tval)   \
+    for (value = btree_last(root, key),                             \
+         btree_key_copy(root, tkey, key),                           \
+         tval = btree_prev(root, tkey); value;                      \
+         btree_key_copy(root, key, tkey),                           \
+         value = tval, tval = btree_prev(root, tkey))
+
+/**
+ * btree_for_each_from_safe - iterate over btree from current point safe against removal.
+ * @root: the root for your btree.
+ * @key: the &key to use as a loop cursor.
+ * @value: the value of current loop cursor.
+ * @tkey: another &key to use as temporary storage.
+ * @tval: another value to use as temporary storage.
+ */
+#define btree_for_each_from_safe(root, key, value, tkey, tval)      \
+    for (btree_key_copy(root, tkey, key),                           \
+         tval = btree_next(root, tkey); value;                      \
+         btree_key_copy(root, key, tkey),                           \
+         value = tval, tval = btree_next(root, tkey))
+
+/**
+ * btree_for_each_reverse_from_safe - iterate backwards over btree from current point safe against removal.
+ * @root: the root for your btree.
+ * @key: the &key to use as a loop cursor.
+ * @value: the value of current loop cursor.
+ * @tkey: another &key to use as temporary storage.
+ * @tval: another value to use as temporary storage.
+ */
+#define btree_for_each_reverse_from_safe(root, key, value, tkey, tval)  \
+    for (btree_key_copy(root, tkey, key),                               \
+         tval = btree_prev(root, tkey); value;                          \
+         btree_key_copy(root, key, tkey),                               \
+         value = tval, tval = btree_prev(root, tkey))
+
+/**
+ * btree_for_each_continue_safe - continue btree iteration safe against removal.
+ * @root: the root for your btree.
+ * @key: the &key to use as a loop cursor.
+ * @value: the value of current loop cursor.
+ * @tkey: another &key to use as temporary storage.
+ * @tval: another value to use as temporary storage.
+ */
+#define btree_for_each_continue_safe(root, key, value, tkey, tval)      \
+    for (value = btree_next(root, key),                                 \
+         btree_key_copy(root, tkey, key),                               \
+         tval = btree_next(root, tkey); value;                          \
+         btree_key_copy(root, key, tkey),                               \
+         value = tval, tval = btree_next(root, tkey))
+
+/**
+ * btree_for_each_reverse_continue_safe - continue backwards over btree iteration safe against removal.
+ * @root: the root for your btree.
+ * @key: the &key to use as a loop cursor.
+ * @value: the value of current loop cursor.
+ * @tkey: another &key to use as temporary storage.
+ * @tval: another value to use as temporary storage.
+ */
+#define btree_for_each_reverse_continue_safe(root, key, value, tkey, tval)  \
+    for (value = btree_prev(root, key),                                     \
+         btree_key_copy(root, tkey, key),                                   \
+         tval = btree_prev(root, tkey); value;                              \
+         btree_key_copy(root, key, tkey),                                   \
+         value = tval, tval = btree_prev(root, tkey))
 
 #endif  /* _BTREE_H_ */
