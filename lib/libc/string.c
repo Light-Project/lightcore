@@ -199,9 +199,10 @@ EXPORT_SYMBOL(strncasecmp);
 
 __weak char *strchr(const char *s, int c)
 {
-    for (; *s != (char)c; ++s)
+    for (; *s != (char)c; ++s) {
         if (*s == '\0')
             return NULL;
+    }
 
     return (char *)s;
 }
@@ -222,9 +223,10 @@ EXPORT_SYMBOL(strrchr);
 
 __weak char *strnchr(const char *s, size_t n, int c)
 {
-    for (; n-- && *s != '\0'; ++s)
+    for (; n-- && *s != '\0'; ++s) {
         if (*s == (char)c)
             return (char *)s;
+    }
 
     return NULL;
 }
@@ -482,9 +484,10 @@ __weak void *memchr(const void *s, int c, size_t n)
 {
     char *str = (char *)s;
 
-    while (n-- != 0)
+    while (n-- != 0) {
         if (c == *str++)
             return str - 1;
+    }
 
     return NULL;
 }
@@ -510,9 +513,10 @@ __weak int memcmp(const void *s1, const void *s2, size_t n)
     const unsigned char *su1, *su2;
     int res = 0;
 
-    for (su1 = s1, su2 = s2; 0 < n; ++su1, ++su2, n--)
+    for (su1 = s1, su2 = s2; 0 < n; ++su1, ++su2, n--) {
         if ((res = *su1 - *su2) != 0)
             break;
+    }
 
     return res;
 }
@@ -525,9 +529,12 @@ EXPORT_SYMBOL(memcmp);
 __weak int strcount(const char *str, char c)
 {
     int count = 0;
-    while (*str)
+
+    while (*str) {
         if (*str++ == c)
             count++;
+    }
+
     return count;
 }
 EXPORT_SYMBOL(strcount);
@@ -535,25 +542,31 @@ EXPORT_SYMBOL(strcount);
 __weak int strncount(const char *str, char c, size_t size)
 {
     int count = 0;
-    while (*str && size--)
+
+    while (*str && size--) {
         if (*str++ == c)
             count++;
+    }
+
     return count;
 }
 EXPORT_SYMBOL(strncount);
 
-__weak int memcount(const void *addr, long c, size_t size)
+__weak int memcount(const void *addr, int c, size_t size)
 {
     const unsigned char *p = addr;
     int count = 0;
-    while (size--)
+
+    while (size--) {
         if (c == *p++)
             count++;
+    }
+
     return count;
 }
 EXPORT_SYMBOL(memcount);
 
-__weak void *memdiff(const void *addr, long c, size_t size)
+__weak void *memdiff(const void *addr, int c, size_t size)
 {
     const unsigned char *p = addr;
 
