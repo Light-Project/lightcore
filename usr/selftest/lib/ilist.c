@@ -52,7 +52,7 @@ static state ilist_test_testing(struct kshell_context *ctx, void *pdata)
             kshell_printf(ctx, "ilist 'ilist_add' test%u multi%u\n", count * 2 + count2, count2);
             idata->nodes[count].num = count;
             ilist_node_init(&idata->nodes[count * 2 + count2].ilist);
-            ilist_add(&test_head, &idata->nodes[count].ilist, ilist_test_cmp, NULL);
+            ilist_add(&test_head, &idata->nodes[count * 2 + count2].ilist, ilist_test_cmp, NULL);
         }
     }
 
