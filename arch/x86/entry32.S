@@ -106,13 +106,14 @@ SYM_CODE_START_LOCAL_NOALIGN(exception_handle)
 exception_handle_ret:
     movl    REGS_CS(%esp), %ebx
     andl    $SEGMENT_RPL_MASK, %ebx
-    cmpl    $USER_RPL, %eax
+    cmpl    $USER_RPL, %ebx
     je      ret_to_user
 
     REC_REGS 4
     iret
 
 ret_to_user:
+    jmp     ret_to_user
 SYM_CODE_END(exception_handle)
 
 /**
@@ -151,7 +152,6 @@ SYM_CODE_START(\asmsym)
 
     /* Get the vector number */
     movl    REGS_ERROR(%esp), %ebx
-    movl    $-1, REGS_ERROR(%esp)
 
     /* Call the handle function */
     pushl   %ebx    /* push arg2: vector */
@@ -159,6 +159,8 @@ SYM_CODE_START(\asmsym)
     call    \handle
 
     movl    %ebp, %esp
+    movl    $-1, REGS_ERROR(%esp)
+
     jmp     exception_handle_ret
 SYM_CODE_END(\asmsym)
 .endm
