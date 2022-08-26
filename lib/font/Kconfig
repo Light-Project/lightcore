@@ -4,6 +4,10 @@ menuconfig FONT
     default y
 if FONT
 
+config FONT_4X6
+    bool "4x6 font"
+    default y
+
 config FONT_6X8
     bool "6x8 font"
     default y
@@ -30,6 +34,14 @@ config FONT_8X16
 
 config FONT_10X18
     bool "10x18 font"
+    default y
+
+config FONT_12X22
+    bool "12x2 font"
+    default y
+
+config FONT_16X32
+    bool "16x32 font"
     default y
 
 endif
