@@ -82,7 +82,7 @@ static state dcall_test_testing(struct kshell_context *ctx, void *pdata)
         for (count1 = 0; count1 < TEST_LOOP; ++count1) {
             long result, addsum;
 
-            prandom_bytes(args + 1, sizeof(args));
+            prandom_bytes(args + 1, (index + 1) * sizeof(void *));
             result = dynamic_call(test, index + 2, args);
 
             for (addsum = count2 = 0; count2 <= index; ++count2)
