@@ -20,6 +20,24 @@ include_path    := $(addprefix -I ,$(include_path))
 # OBJ options                          #
 ########################################
 
+ifdef CONFIG_KASAN
+ccflags-y += $(if $(patsubst n%,, \
+             $(KASAN_SANITIZE_$(basetarget).o)$(KASAN_SANITIZE)$(CONFIG_KASAN_ALL)), \
+             $(CFLAGS_KASAN), $(CFLAGS_KASAN_NOSANITIZE))
+endif
+
+ifdef CONFIG_UBSAN
+ccflags-y += $(if $(patsubst n%,, \
+             $(UBSAN_SANITIZE_$(basetarget).o)$(UBSAN_SANITIZE)$(CONFIG_UBSAN_ALL)), \
+             $(CFLAGS_UBSAN))
+endif
+
+ifdef CONFIG_KGCOV
+ccflags-y += $(if $(patsubst n%,, \
+             $(UBSAN_PROFILE_$(basetarget).o)$(KGCOV_PROFILE)$(CONFIG_KGCOV_ALL)), \
+             $(CFLAGS_KGCOV))
+endif
+
 acflags_y   += $(acflags-y)
 cxflags_y   += $(cxflags-y)
 asflags_y   += $(asflags-y)
@@ -28,30 +46,12 @@ cxxflags_y  += $(cxxflags-y)
 ldsflags_y  += $(ldsflags-y)
 symflags_y  += $(symflags-y)
 
-ifdef CONFIG_KASAN
-ccflags_y += $(if $(patsubst n%,, \
-             $(KASAN_SANITIZE_$(basetarget).o)$(KASAN_SANITIZE)$(CONFIG_KASAN_ALL)), \
-             $(CFLAGS_KASAN), $(CFLAGS_KASAN_NOSANITIZE))
-endif
-
-ifdef CONFIG_UBSAN
-ccflags_y += $(if $(patsubst n%,, \
-             $(UBSAN_SANITIZE_$(basetarget).o)$(UBSAN_SANITIZE)$(CONFIG_UBSAN_ALL)), \
-             $(CFLAGS_UBSAN))
-endif
-
-ifdef CONFIG_KGCOV
-ccflags_y += $(if $(patsubst n%,, \
-             $(UBSAN_PROFILE_$(basetarget).o)$(KGCOV_PROFILE)$(CONFIG_KGCOV_ALL)), \
-             $(CFLAGS_KGCOV))
-endif
-
-a_flags      = $(gcc-warning) $(acflags_y) $(asflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
-c_flags      = $(gcc-warning) $(acflags_y) $(cxflags_y) $(ccflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
-cxx_flags    = $(gcc-warning) $(acflags_y) $(cxflags_y) $(cxxflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
-cpp_flags    = $(gcc-warning) $(cppflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
-lds_flags    = $(ldsflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
-sym_flags    = $(symflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
+a_flags     = $(gcc-warning) $(acflags_y) $(asflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
+c_flags     = $(gcc-warning) $(acflags_y) $(cxflags_y) $(ccflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
+cxx_flags   = $(gcc-warning) $(acflags_y) $(cxflags_y) $(cxxflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
+cpp_flags   = $(gcc-warning) $(cppflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
+lds_flags   = $(ldsflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
+sym_flags   = $(symflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
 
 unexport asflags-y cxflags-y ccflags-y cppflags-y acflags-y ldsflags-y ldflags-y
 export acflags_y cxflags_y asflags_y ccflags_y cxxflags_y ldsflags_y symflags_y
