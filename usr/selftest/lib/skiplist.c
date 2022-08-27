@@ -25,20 +25,6 @@ static long skiplist_test_cmp(const void *nodea, const void *nodeb)
     return valuea > valueb ? 1 : -1;
 }
 
-static unsigned long skiplist_even_test_cmp(const void *nodea, const void *nodeb, bool *signplus)
-{
-    uintptr_t valuea = (uintptr_t)nodea;
-    uintptr_t valueb = (uintptr_t)nodeb;
-
-    if (valuea < valueb) {
-        *signplus = false;
-        return valueb - valuea;
-    }
-
-    *signplus = true;
-    return valuea - valueb;
-}
-
 static state skiplist_test_testing(struct kshell_context *ctx, void *pdata)
 {
     struct skiplist_test *test = pdata;
@@ -46,7 +32,6 @@ static state skiplist_test_testing(struct kshell_context *ctx, void *pdata)
     uintptr_t value;
     state retval;
 
-    skiplist_reset(test->head);
     for (count = 0; count < TEST_LOOP; ++count)
         test->values[count] = max(prandom_value(), 1);
 
@@ -69,53 +54,12 @@ static state skiplist_test_testing(struct kshell_context *ctx, void *pdata)
     }
 
     for (count = 0; count < TEST_LOOP; ++count) {
-        value = (uintptr_t)skiplist_even_find(test->head,
-                (void *)test->values[count], skiplist_even_test_cmp);
-        kshell_printf(ctx, "skiplist even find test%02d: %#010lx ret %#010lx\n",
-                      count, test->values[count], value);
-        if (!value)
-            return -ENOENT;
-    }
-
-    for (count = 0; count < TEST_LOOP; ++count) {
         skiplist_delete(test->head, (void *)test->values[count],
                         skiplist_test_cmp);
         kshell_printf(ctx, "skiplist delete test%02d\n", count);
     }
 
-    for (count = 0; count < TEST_LOOP; ++count) {
-        retval = skiplist_even_insert(test->head,
-                 (void *)test->values[count], skiplist_even_test_cmp, GFP_KERNEL);
-        kshell_printf(ctx, "skiplist even insert test%02d: %#010lx ret %d\n",
-                      count, test->values[count], retval);
-        if (retval)
-            return retval;
-    }
-
-    for (count = 0; count < TEST_LOOP; ++count) {
-        value = (uintptr_t)skiplist_find(test->head,
-                (void *)test->values[count], skiplist_test_cmp);
-        kshell_printf(ctx, "skiplist find2 test%02d: %#010lx ret %#010lx\n",
-                      count, test->values[count], value);
-        if (!value)
-            return -ENOENT;
-    }
-
-    for (count = 0; count < TEST_LOOP; ++count) {
-        value = (uintptr_t)skiplist_even_find(test->head,
-                (void *)test->values[count], skiplist_even_test_cmp);
-        kshell_printf(ctx, "skiplist even find2 test%02d: %#010lx ret %#010lx\n",
-                      count, test->values[count], value);
-        if (!value)
-            return -ENOENT;
-    }
-
-    for (count = 0; count < TEST_LOOP; ++count) {
-        skiplist_even_delete(test->head, (void *)test->values[count],
-                             skiplist_even_test_cmp);
-        kshell_printf(ctx, "skiplist even delete test%02d\n", count);
-    }
-
+    skiplist_reset(test->head, NULL);
     return -ENOERR;
 }
 
@@ -139,7 +83,7 @@ static void *skiplist_test_prepare(struct kshell_context *ctx, int argc, char *a
 static void skiplist_test_release(struct kshell_context *ctx, void *pdata)
 {
     struct skiplist_test *test = pdata;
-    skiplist_destroy(test->head);
+    skiplist_destroy(test->head, NULL);
     kfree(test);
 }
 
