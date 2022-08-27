@@ -12,6 +12,7 @@ extern state __init mount_rootfs(void);
 extern int __noreturn user_init(void *arg);
 
 extern void initcalls(void);
+extern void __init ctors_initcall(void);
 extern void __init bootargs_init(const char *cmd);
 
 #endif  /* _INIT_H_ */

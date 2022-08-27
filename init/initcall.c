@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "init: " fmt
+#define MUDOLE_NAME "init"
+#define pr_fmt(fmt) MUDOLE_NAME ": " fmt
 
 #include <kernel.h>
 #include <string.h>
@@ -29,7 +30,6 @@ static void __init do_one_initcall(initcall_entry_t *fn)
     state ret;
 
     call = initcall_from_entry(fn);
-
     if ((ret = call()))
         pr_err("%s init failed, error code [%d]\n", fn->name, ret);
 }
@@ -56,6 +56,15 @@ void __init initcalls(void)
          level++) {
         initcall_level(level);
     }
+}
+
+void __init ctors_initcall(void)
+{
+    ctor_initcall_t *ctor;
+
+    for (ctor = _ld_ctors_start;
+         ctor < _ld_ctors_end; ctor++)
+        (*ctor)();
 }
 
 static state __init bootargs_entry(char *param, char *val, void *pdata)
