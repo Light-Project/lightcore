@@ -4,64 +4,6 @@
  */
 
 #include <kgcov.h>
-#include <printk.h>
-#include <export.h>
 
-void __gcov_init(struct kgcov_info *info)
-{
-    static unsigned int gcov_version;
-
-	if (!gcov_version) {
-		gcov_version = gcov_info_version(info);
-		pr_info("gcov version magic: %#x\n", gcov_version);
-	}
-}
-EXPORT_SYMBOL(__gcov_init);
-
-void __gcov_flush(void)
-{
-    /* Nothing */
-}
-EXPORT_SYMBOL(__gcov_flush);
-
-void __gcov_merge_add(kgcov_t *cnts, unsigned int cntnum)
-{
-    /* Nothing */
-}
-EXPORT_SYMBOL(__gcov_merge_add);
-
-void __gcov_merge_single(kgcov_t *cnts, unsigned int cntnum)
-{
-    /* Nothing */
-}
-EXPORT_SYMBOL(__gcov_merge_single);
-
-void __gcov_merge_delta(kgcov_t *cnts, unsigned int cntnum)
-{
-    /* Nothing */
-}
-EXPORT_SYMBOL(__gcov_merge_delta);
-
-void __gcov_merge_ior(kgcov_t *cnts, unsigned int cntnum)
-{
-    /* Nothing */
-}
-EXPORT_SYMBOL(__gcov_merge_ior);
-
-void __gcov_merge_time_profile(kgcov_t *cnts, unsigned int cntnum)
-{
-    /* Nothing */
-}
-EXPORT_SYMBOL(__gcov_merge_time_profile);
-
-void __gcov_merge_icall_topn(kgcov_t *cnts, unsigned int cntnum)
-{
-    /* Nothing */
-}
-EXPORT_SYMBOL(__gcov_merge_icall_topn);
-
-void __gcov_exit(void)
-{
-    /* Nothing */
-}
-EXPORT_SYMBOL(__gcov_exit);
+MUTEX_LOCK(kgcov_lock);
+bool kgcov_event_enable;

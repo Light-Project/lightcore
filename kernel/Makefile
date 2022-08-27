@@ -9,4 +9,5 @@ obj-y += crash.o syscall.o
 obj-y += random.o
 obj-y += resource.o power.o
 obj-$(CONFIG_UBSAN) += ubsan.o
+obj-$(CONFIG_KGCOV) += kgcov/
 obj-$(CONFIG_GENERIC_MPIO) += mpio.o

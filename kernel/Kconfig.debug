@@ -76,6 +76,19 @@ config UBSAN_ALL
 
 endif # UBSAN
 
+menuconfig KGCOV
+    bool "Enable gcov-based kernel profiling"
+    depends on DEBUG_KERNEL
+	select CONSTRUCTORS
+    default y
+if KGCOV
+
+config KGCOV_ALL
+    bool "Enable instrumentation for the entire kernel"
+    default y
+
+endif # KGCOV
+
 menu "Scheduler Debugging"
 
 config DEBUG_PREEMPT
