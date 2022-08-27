@@ -6,6 +6,7 @@
 #include <state.h>
 
 typedef state (*initcall_t)(void);
+typedef void (*ctor_initcall_t)(void);
 
 struct initcall_entry {
     const char *name;
@@ -51,6 +52,8 @@ extern initcall_entry_t _ld_scheduler_initcall_start[];
 extern initcall_entry_t _ld_scheduler_initcall_end[];
 extern initcall_entry_t _ld_kshell_initcall_start[];
 extern initcall_entry_t _ld_kshell_initcall_end[];
+extern ctor_initcall_t _ld_ctors_start[];
+extern ctor_initcall_t _ld_ctors_end[];
 
 /* Format: <modname>__<counter>_<line>_<fn> */
 #define __initcall_id(fn)                               \

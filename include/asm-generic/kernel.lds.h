@@ -254,6 +254,15 @@
     KEEP(*(.init.bootargs))                                 \
     _ld_boot_param_end = .;
 
+#define INIT_CTORS(align)                                   \
+    . = ALIGN(align);                                       \
+    _ld_ctors_start = .;                                    \
+    KEEP(*(.ctors))                                         \
+    KEEP(*(SORT(.ctors.*)))                                 \
+    KEEP(*(.init_array))                                    \
+    KEEP(*(SORT(.init_array.*)))                            \
+    _ld_ctors_end = .;
+
 /*
  * Exit Text Segment
  */
@@ -383,7 +392,8 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
         _ld_inittext_end = .;                               \
     }
 
-#define INIT_DATA_SECTION(align)                            \
+#define INIT_DATA_SECTION(cacheline, pagealign)             \
+    . = ALIGN(pagealign);                                   \
     .init.data :                                            \
     AT(ADDR(.init.data) - LOAD_OFFSET) {                    \
         _ld_initdata_start = .;                             \
@@ -396,7 +406,8 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
         CLKSRC_INITCALL                                     \
         KSHELL_INITCALL                                     \
         INIT_CALLS                                          \
-        INIT_ARGS(align)                                    \
+        INIT_ARGS(cacheline)                                \
+        INIT_CTORS(cacheline)                               \
         INIT_DT_TABLES                                      \
         _ld_initdata_end = .;                               \
     }
