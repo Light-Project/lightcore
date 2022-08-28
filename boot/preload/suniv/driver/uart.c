@@ -13,19 +13,12 @@
 #include <asm/io.h>
 #include <asm/proc.h>
 
-void uart_putc(char ch)
-{
-    while (!(readl(SER_BASE + UART8250_LSR) & UART8250_LSR_THRE))
-        cpu_relax();
-    writel(SER_BASE + UART8250_THR, ch);
-}
-
 void uart_print(const char *str)
 {
     while (*str) {
-        if (*str == '\n')
-            uart_putc('\r');
-        uart_putc(*str++);
+        while (!(readl(SER_BASE + UART8250_LSR) & UART8250_LSR_THRE))
+            cpu_relax();
+        writel(SER_BASE + UART8250_THR, ch);
     }
 }
 

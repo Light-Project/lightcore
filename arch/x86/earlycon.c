@@ -108,22 +108,6 @@ void pre_console_init(void)
 #define I8250_BASE  0x3f8
 #define I8250_FREQ  115200
 
-static __always_inline void serial_putc(char ch)
-{
-    while (!(inb(I8250_BASE + UART8250_LSR) & UART8250_LSR_THRE))
-        cpu_relax();
-    outb(I8250_BASE + UART8250_THR, ch);
-}
-
-static void serial_write(struct console *con, const char *str, unsigned int len)
-{
-    while (*str && len--) {
-        if (*str == '\n')
-            serial_putc('\r');
-        serial_putc(*str++);
-    }
-}
-
 static unsigned int serial_read(struct console *con, char *str, unsigned int len)
 {
     unsigned int rlen;
@@ -135,6 +119,15 @@ static unsigned int serial_read(struct console *con, char *str, unsigned int len
     }
 
     return rlen;
+}
+
+static void serial_write(struct console *con, const char *str, unsigned int len)
+{
+    while (len--) {
+        while (!(inb(I8250_BASE + UART8250_LSR) & UART8250_LSR_THRE))
+            cpu_relax();
+        outb(I8250_BASE + UART8250_THR, *str++);
+    }
 }
 
 static void serial_sync(struct console *con)

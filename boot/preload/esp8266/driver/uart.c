@@ -8,26 +8,19 @@
 #include <asm/proc.h>
 #include <asm/io.h>
 
-void uart_putc(char byte)
+void uart_print(const char *str)
 {
     uint32_t val;
 
-    for (;;) {
-        val = readl(UART_BASE + ESP8266_UART_STATUS);
-        if (((val >> 16) & 0xff) == 0)
-            break;
-        cpu_relax();
-    }
-
-    writel(UART_BASE + ESP8266_UART_FIFO, byte);
-}
-
-void uart_print(const char *str)
-{
     while (*str) {
-        if (*str == '\n')
-            uart_putc('\r');
-        uart_putc(*str++);
+        for (;;) {
+            val = readl(UART_BASE + ESP8266_UART_STATUS);
+            if (((val >> 16) & 0xff) == 0)
+                break;
+            cpu_relax();
+        }
+
+        writel(UART_BASE + ESP8266_UART_FIFO, byte);
     }
 }
 

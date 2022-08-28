@@ -9,19 +9,12 @@
 #include <asm/proc.h>
 #include <asm/io.h>
 
-void uart_putc(char ch)
-{
-    while (!(readl(SER_BASE + GX6605S_UART_STA) & GX6605S_UART_STA_THRE))
-        cpu_relax();
-    writel(SER_BASE + GX6605S_UART_DAT, ch);
-}
-
 void uart_print(const char *str)
 {
     while (*str) {
-        if (*str == '\n')
-            uart_putc('\r');
-        uart_putc(*str++);
+        while (!(readl(SER_BASE + GX6605S_UART_STA) & GX6605S_UART_STA_THRE))
+            cpu_relax();
+        writel(SER_BASE + GX6605S_UART_DAT, ch);
     }
 }
 
