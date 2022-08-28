@@ -9,11 +9,11 @@
 #include <export.h>
 
 struct errname_entry {
-    state errno;
+    state errnum;
     const char *name;
 };
 
-#define ERRNAME(errno) {errno, #errno}
+#define ERRNAME(errnum) {errnum, #errnum}
 static const struct errname_entry errname_array[] = {
     ERRNAME(ENOERR),
     ERRNAME(EPERM),
@@ -151,7 +151,7 @@ static const struct errname_entry errname_array[] = {
 static long errname_search(const void *key, void *pdata)
 {
     const struct errname_entry *entry = key;
-    return entry->errno - (state)pdata;
+    return entry->errnum - (state)pdata;
 }
 
 const char *errname(state error)

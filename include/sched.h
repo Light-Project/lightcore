@@ -139,6 +139,7 @@ struct sched_task {
     unsigned long flags;
     unsigned long queued;
 
+    state errnum;
     state exit_code;
 
 #ifdef CONFIG_UBSAN
