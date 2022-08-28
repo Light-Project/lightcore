@@ -10,8 +10,8 @@
 
 #define TEST_LOOP 100
 
-DEFINE_SYSCALL6(selftest, int, arg1, int, arg2, int, arg3,
-                int, arg4, int, arg5, int, arg6)
+DEFINE_SYSCALL6(selftest, short, arg1, short, arg2, short, arg3,
+                short, arg4, short, arg5, short, arg6)
 {
     return arg1 + arg2 + arg3 + arg4 + arg5 + arg6;
 }
@@ -19,15 +19,15 @@ DEFINE_SYSCALL6(selftest, int, arg1, int, arg2, int, arg3,
 static state syscall_testing(struct kshell_context *ctx, void *pdata)
 {
     unsigned int count;
-    int result, args[6];
+    long result, args[6];
 
     for (count = 0; count < TEST_LOOP; ++count) {
-        kshell_printf(ctx, "softirq test%02u: ", count);
+        kshell_printf(ctx, "syscall test%02u: ", count);
         prandom_bytes(args, sizeof(args));
         result = lightcore_selftest(args[0], args[1], args[2],
                                     args[3], args[4], args[5]);
-        if (result != args[0] + args[1] + args[2] +
-                      args[3] + args[4] + args[5]) {
+        if (result != (short)args[0] + (short)args[1] + (short)args[2] +
+                      (short)args[3] + (short)args[4] + (short)args[5]) {
             kshell_printf(ctx, "failed\n");
             return -EFAULT;
         }
