@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <kernel.h>
 #include <proc.h>
+#include <memdump.h>
 #include <printk.h>
 #include <export.h>
 
@@ -147,7 +148,7 @@ overflow1:
 }
 EXPORT_SYMBOL(memdump_buffer);
 
-int memdump_print(const char *level, const char *prefix, enum memdump_prefix_mode mode,
+int memdump_print(memdump_print_t func, void *pdata, const char *prefix, enum memdump_prefix_mode mode,
                   const void *data, size_t data_len, int rowsize, int groupsize, int base, bool ascii)
 {
     char linebuf[128];
@@ -156,7 +157,37 @@ int memdump_print(const char *level, const char *prefix, enum memdump_prefix_mod
     int length;
 
     rowsize = align_high(rowsize, groupsize);
+    for (length = 0, offset = 0; (linelen = min(rowsize, data_len)); data_len -= rowsize, offset += rowsize) {
+        memdump_buffer(linebuf, sizeof(linebuf), data + offset, linelen, rowsize, groupsize, base, ascii);
 
+        switch (mode) {
+            case MEMDUMP_PREFIX_NONE: default:
+                length += func(pdata, "%s%s\n", prefix, linebuf);
+                break;
+
+            case MEMDUMP_PREFIX_OFFSET:
+                length += func(pdata, "%s%#.8lx: %s\n", prefix, offset, linebuf);
+                break;
+
+            case MEMDUMP_PREFIX_ADDRESS:
+                length += func(pdata, "%s%p: %s\n", prefix, data + offset, linebuf);
+                break;
+        }
+    }
+
+    return length;
+}
+EXPORT_SYMBOL(memdump_print);
+
+int memdump_printk(const char *level, const char *prefix, enum memdump_prefix_mode mode,
+                   const void *data, size_t data_len, int rowsize, int groupsize, int base, bool ascii)
+{
+    char linebuf[128];
+    unsigned int linelen;
+    uintptr_t offset;
+    int length;
+
+    rowsize = align_high(rowsize, groupsize);
     for (length = 0, offset = 0; (linelen = min(rowsize, data_len)); data_len -= rowsize, offset += rowsize) {
         memdump_buffer(linebuf, sizeof(linebuf), data + offset, linelen, rowsize, groupsize, base, ascii);
 
@@ -177,4 +208,4 @@ int memdump_print(const char *level, const char *prefix, enum memdump_prefix_mod
 
     return length;
 }
-EXPORT_SYMBOL(memdump_print);
+EXPORT_SYMBOL(memdump_printk);

@@ -138,13 +138,4 @@ extern __printf(1, 2) int printk(const char *fmt, ...);
     pr_none(fmt, ##__VA_ARGS__)
 #endif
 
-enum memdump_prefix_mode {
-    MEMDUMP_PREFIX_NONE,
-    MEMDUMP_PREFIX_OFFSET,
-    MEMDUMP_PREFIX_ADDRESS,
-};
-
-extern int memdump_buffer(char *buffer, size_t buffsize, const void *data, size_t data_len, int rowsize, int groupsize, int base, bool ascii);
-extern int memdump_print(const char *level, const char *prefix, enum memdump_prefix_mode mode, const void *data, size_t data_len, int rowsize, int groupsize, int base, bool ascii);
-
 #endif	/* _PRINTK_H_ */
