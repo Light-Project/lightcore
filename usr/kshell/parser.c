@@ -87,10 +87,10 @@ static const struct paser_transition transition_table[] = {
     { KSHELL_STATE_EXPQUOTE,   KSHELL_STATE_EVARIABLE,   '$',    0,   0, + 1, false, false,  true},
     { KSHELL_STATE_EXPINDEX,   KSHELL_STATE_EVARIABLE,   '$',    0,   0, + 1, false, false,  true},
 
-    { KSHELL_STATE_TEXT,       KSHELL_STATE_OUTPUT,      '`',    0, + 1,   0, false, false, false},
-    { KSHELL_STATE_DQUOTE,     KSHELL_STATE_QOUTPUT,     '`',    0, + 1,   0, false, false, false},
-    { KSHELL_STATE_EXPQUOTE,   KSHELL_STATE_EOUTPUT,     '`',    0, + 1, + 1, false, false,  true},
-    { KSHELL_STATE_EXPINDEX,   KSHELL_STATE_EOUTPUT,     '`',    0, + 1, + 1, false, false,  true},
+    { KSHELL_STATE_TEXT,       KSHELL_STATE_OUTPUT,      '`',    0,   0,   0, false, false, false},
+    { KSHELL_STATE_DQUOTE,     KSHELL_STATE_QOUTPUT,     '`',    0,   0,   0, false, false, false},
+    { KSHELL_STATE_EXPQUOTE,   KSHELL_STATE_EOUTPUT,     '`',    0,   0, + 1, false, false,  true},
+    { KSHELL_STATE_EXPINDEX,   KSHELL_STATE_EOUTPUT,     '`',    0,   0, + 1, false, false,  true},
 
     { KSHELL_STATE_VARIABLE,   KSHELL_STATE_VARNAME,    '\0',    0,   0,   0,  true, false, false},
     { KSHELL_STATE_VARIABLE,   KSHELL_STATE_RETVAL,      '(',  + 1,   0,   0, false,  true, false},
