@@ -468,8 +468,6 @@ static bool readline_handle(struct readline_state *state, char code)
 
         case ASCII_CR: /* ^M : Carriage Return */
         linefeed:
-            if (state->len)
-                readline_history_add(state, state->buff, state->len);
             state->clippos = 0;
             return true;
 
@@ -789,29 +787,51 @@ static bool readline_getcode(struct readline_state *state, char *code)
     return false;
 }
 
-char *readline(struct readline_state *state, const char *prompt)
+char *readline(struct readline_state *state, const char *dprompt, const char *cprompt)
 {
+    unsigned int offset = 0;
     char code;
 
     readline_state_setup(state);
-
-    if (prompt) {
-        state->prompt = prompt;
-        state->plen = strlen(prompt);
+    if (!dprompt)
+        state->plen = 0;
+    else {
+        state->prompt = dprompt;
+        state->plen = strlen(dprompt);
         readline_write(state, state->prompt, state->plen);
     }
 
     for (;;) {
-        if (!readline_getcode(state, &code)) {
+        if (!readline_getcode(state, &code))
             sched_yield();
-        } else {
-            if (readline_handle(state, code))
+
+        else if (readline_handle(state, code)) {
+            readline_write(state, "\n", 1);
+            if (state->buff[state->len - 1] != '\\')
                 break;
+
+            offset += state->len - 1;
+            state->buff += state->len - 1;
+            state->bsize -= state->len - 1;
+
+            readline_state_setup(state);
+            if (!cprompt)
+                state->plen = 0;
+            else {
+                state->prompt = cprompt;
+                state->plen = strlen(cprompt);
+                readline_write(state, state->prompt, state->plen);
+            }
         }
     }
 
-    readline_write(state, "\n", 1);
     state->buff[state->len] = '\0';
+    state->buff -= offset;
+    state->bsize += offset;
+    state->len += offset;
+
+    if (state->len)
+        readline_history_add(state, state->buff, state->len);
 
     return state->buff;
 }

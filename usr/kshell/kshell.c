@@ -149,7 +149,7 @@ state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
             return -ENOMEM;
 
         while (!exit) {
-            cmdline = readline(rstate, "kshell: /# ");
+            cmdline = readline(rstate, kshell_getenv(&nctx, "PS1"), kshell_getenv(&nctx, "PS2"));
             if (!rstate->len)
                 continue;
 

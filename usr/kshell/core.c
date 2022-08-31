@@ -185,7 +185,10 @@ void ksh_init(void)
 
     ksh_initcall();
     list_qsort(&kshell_list, kshell_sort, NULL);
+
     bootarg_recode();
+    kshell_setenv(&ctx, "PS1", "kshell: /# ", false);
+    kshell_setenv(&ctx, "PS2", "-> ", false);
 
     printk("Have a lot of fun..\n");
     kshell_main(&ctx, bootarg_num + 1, bootarg_ptr);
