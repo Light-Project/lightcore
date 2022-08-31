@@ -30,7 +30,7 @@ int kshell_vscanf(struct kshell_context *ctx, const char *fmt, va_list args)
     if (!rstate)
         return 0;
 
-    do strbuf = readline(rstate, NULL);
+    do strbuf = readline(rstate, NULL, NULL);
     while (!rstate->len);
 
     readline_free(rstate);

@@ -73,7 +73,7 @@ extern struct list_head kshell_list;
 
 extern unsigned int readline_read(struct readline_state *rstate, char *str, unsigned int len);
 extern void readline_write(struct readline_state *rstate, const char *str, unsigned int len);
-extern char *readline(struct readline_state *state, const char *prompt);
+extern char *readline(struct readline_state *state, const char *dprompt, const char *cprompt);
 extern struct readline_state *readline_alloc(kshell_read_t read, kshell_write_t write, void *data);
 extern void readline_free(struct readline_state *state);
 
