@@ -27,5 +27,4 @@ obj-$(CONFIG_KCMD_VERSION)  += version.o
 obj-$(CONFIG_KCMD_WATCH)    += watch.o
 obj-$(CONFIG_KCMD_WC)       += wc.o
 obj-$(CONFIG_KCMD_WHILE)    += while.o
-obj-$(CONFIG_KCMD_XMODEM)   += xmodem.o
 obj-$(CONFIG_KCMD_YES)      += yes.o
