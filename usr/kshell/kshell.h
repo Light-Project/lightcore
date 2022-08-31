@@ -54,8 +54,16 @@ struct kshell_env {
     char *val, name[0];
 };
 
+struct kshell_func {
+    struct rb_node node;
+    char *body, name[0];
+};
+
 #define env_to_kshell(ptr) \
     rb_entry(ptr, struct kshell_env, node)
+
+#define func_to_kshell(ptr) \
+    rb_entry(ptr, struct kshell_func, node)
 
 #define list_to_kshell(ptr) \
     list_entry(ptr, struct kshell_command, list)
@@ -69,8 +77,9 @@ extern char *readline(struct readline_state *state, const char *prompt);
 extern struct readline_state *readline_alloc(kshell_read_t read, kshell_write_t write, void *data);
 extern void readline_free(struct readline_state *state);
 
-extern state kshell_envclone(struct kshell_context *ctx, struct kshell_context *new);
-extern void kshell_envrelease(struct kshell_context *ctx);
+extern state kshell_env_clone(struct kshell_context *ctx, struct kshell_context *old);
+extern void kshell_env_destroy(struct kshell_context *ctx);
+
 extern state kshell_parser(struct kshell_context *ctx, const char **buffer, const char **pcmdline, int *argc, char ***argv, bool *constant);
 extern state kshell_main(struct kshell_context *ctx, int argc, char *argv[]);
 extern struct kshell_command *kshell_find(const char *name);

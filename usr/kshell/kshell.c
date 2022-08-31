@@ -11,16 +11,14 @@
 #include <console.h>
 #include <export.h>
 
-static void context_clone(struct kshell_context *ctx, struct kshell_context *new)
+static void context_clone(struct kshell_context *ctx, struct kshell_context *old)
 {
-    new->env = RB_INIT;
-    new->read = ctx->read;
-    new->write = ctx->write;
-    new->depth = ctx->depth;
-    kshell_envclone(ctx, new);
+    ctx->read = old->read;
+    ctx->write = old->write;
+    ctx->depth = old->depth;
 }
 
-static state commands_prepare(struct kshell_context *ctx)
+static state commands_prepare(struct kshell_context *ctx, struct kshell_context *old)
 {
     struct kshell_command *cmd;
     state ret = -ENOERR;
@@ -28,7 +26,7 @@ static state commands_prepare(struct kshell_context *ctx)
     spin_lock(&kshell_lock);
     list_for_each_entry(cmd, &kshell_list, list) {
         if (cmd->prepare) {
-            if ((ret = cmd->prepare(ctx)))
+            if ((ret = cmd->prepare(ctx, old)))
                 break;
         }
     }
@@ -129,8 +127,8 @@ state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
     state retval = -ENOERR;
     bool exit = false;
 
-    context_clone(ctx, &nctx);
-    retval = commands_prepare(&nctx);
+    context_clone(&nctx, ctx);
+    retval = commands_prepare(&nctx, ctx);
     if (retval)
         return retval;
 
@@ -164,18 +162,8 @@ state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
         readline_free(rstate);
     }
 
-    kshell_envrelease(&nctx);
     commands_release(&nctx);
-
     return retval;
-}
-
-static state env_main(struct kshell_context *ctx, int argc, char *argv[])
-{
-    struct kshell_env *env;
-    rb_for_each_entry(env, &ctx->env, node)
-        kshell_printf(ctx, "\t%s=%s\n", env->name, env->val);
-    return -ENOERR;
 }
 
 static state help_main(struct kshell_context *ctx, int argc, char *argv[])
@@ -194,12 +182,6 @@ static struct kshell_command kshell_cmd = {
     .exec = kshell_main,
 };
 
-static struct kshell_command env_cmd = {
-    .name = "env",
-    .desc = "displays all environment variable",
-    .exec = env_main,
-};
-
 static struct kshell_command help_cmd = {
     .name = "help",
     .desc = "displays all available instructions",
@@ -214,7 +196,6 @@ static struct kshell_command exit_cmd = {
 static state kshell_init(void)
 {
     return kshell_register(&kshell_cmd)
-        || kshell_register(&env_cmd)
         || kshell_register(&help_cmd)
         || kshell_register(&exit_cmd);
 }

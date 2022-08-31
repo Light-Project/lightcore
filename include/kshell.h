@@ -15,16 +15,13 @@ struct kshell_context {
     void *data;
 
     struct readline_state *readline;
+    struct rb_root func;
     struct rb_root env;
     unsigned int *depth;
 
     unsigned int pipesize;
     unsigned int pipepos;
     char *pipeline;
-
-#ifdef CONFIG_KCMD_FUNC
-    struct rb_root func;
-#endif
 };
 
 struct kshell_command {
@@ -32,7 +29,7 @@ struct kshell_command {
     const char *desc;
     struct list_head list, complete;
     state (*exec)(struct kshell_context *ctx, int argc, char *argv[]);
-    state (*prepare)(struct kshell_context *ctx);
+    state (*prepare)(struct kshell_context *ctx, struct kshell_context *old);
     void (*release)(struct kshell_context *ctx);
 };
 

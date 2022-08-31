@@ -3,46 +3,37 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <kshell.h>
+#include "kshell.h"
 #include <string.h>
 #include <kmalloc.h>
 #include <initcall.h>
-
-struct func_node {
-    struct rb_node node;
-    char *body;
-    char name[0];
-};
-
-#define rb_to_func(io) \
-    rb_entry(io, struct func_node, node)
 
 static void usage(struct kshell_context *ctx)
 {
     kshell_printf(ctx, "usage: func [option] @name{body} @name(args)...\n");
     kshell_printf(ctx, "\t-f  mandatory declaration function (default)\n");
-    kshell_printf(ctx, "\t-F  mandatory declaration function\n");
+    kshell_printf(ctx, "\t-F  weak declaration function\n");
     kshell_printf(ctx, "\t-d  delete function\n");
     kshell_printf(ctx, "\t-h  display this message\n");
 }
 
 static long func_rb_cmp(const struct rb_node *rba, const struct rb_node *rbb)
 {
-    const struct func_node *funca = rb_to_func(rba);
-    const struct func_node *funcb = rb_to_func(rbb);
+    const struct kshell_func *funca = func_to_kshell(rba);
+    const struct kshell_func *funcb = func_to_kshell(rbb);
     return strcmp(funca->name, funcb->name);
 }
 
 static long func_rb_find(const struct rb_node *rb, const void *name)
 {
-    const struct func_node *func = rb_to_func(rb);
+    const struct kshell_func *func = func_to_kshell(rb);
     return strcmp(name, func->name);
 }
 
 static state delete_func(struct kshell_context *ctx, char *name)
 {
     struct rb_node *rb;
-    struct func_node *node;
+    struct kshell_func *node;
 
     rb = rb_find(&ctx->func, name, func_rb_find);
     if (rb) {
@@ -50,7 +41,7 @@ static state delete_func(struct kshell_context *ctx, char *name)
         return -ENOENT;
     }
 
-    node = rb_to_func(rb);
+    node = func_to_kshell(rb);
     rb_delete(&ctx->func, &node->node);
     kfree(node);
 
@@ -60,13 +51,13 @@ static state delete_func(struct kshell_context *ctx, char *name)
 static state define_func(struct kshell_context *ctx, char *name, char *body, bool force)
 {
     struct rb_node *rb, *parent, **link;
-    struct func_node *node;
+    struct kshell_func *node;
     size_t nlen, blen;
 
     rb = rb_find_last(&ctx->func, name, func_rb_find, &parent, &link);
     if (rb) {
         if (force) {
-            node = rb_to_func(rb);
+            node = func_to_kshell(rb);
             rb_delete(&ctx->func, rb);
             kfree(node);
         } else {
@@ -97,7 +88,7 @@ static state define_func(struct kshell_context *ctx, char *name, char *body, boo
 static state call_function(struct kshell_context *ctx, char *name, char *args)
 {
     struct rb_node *rb;
-    struct func_node *node;
+    struct kshell_func *node;
     unsigned int count;
     char *walk, *arg;
     char number[12];
@@ -116,7 +107,7 @@ static state call_function(struct kshell_context *ctx, char *name, char *args)
         kshell_setenv(ctx, number, arg, true);
     }
 
-    node = rb_to_func(rb);
+    node = func_to_kshell(rb);
     kshell_system(ctx, node->body);
 
     while (count--) {
@@ -212,7 +203,7 @@ usage:
     return retval;
 }
 
-static state func_prepare(struct kshell_context *ctx)
+static state func_prepare(struct kshell_context *ctx, struct kshell_context *old)
 {
     ctx->func = RB_INIT;
     return -ENOERR;
@@ -220,7 +211,7 @@ static state func_prepare(struct kshell_context *ctx)
 
 static void func_release(struct kshell_context *ctx)
 {
-    struct func_node *node, *tmp;
+    struct kshell_func *node, *tmp;
     rb_post_for_each_entry_safe(node, tmp, &ctx->func, node)
         kfree(node);
 }
