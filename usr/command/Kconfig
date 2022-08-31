@@ -38,10 +38,6 @@ config KCMD_FALSE
     bool "False Command Support"
     default y
 
-config KCMD_FUNC
-    bool "Func Command Support"
-    default y
-
 config KCMD_GOTO
     bool "Goto Command Support"
     default y
@@ -112,6 +108,10 @@ config KCMD_WC
 
 config KCMD_WHILE
     bool "While Command Support"
+    default y
+
+config KCMD_XMODEM
+    bool "Xmodem Command Support"
     default y
 
 config KCMD_YES

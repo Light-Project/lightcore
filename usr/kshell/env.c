@@ -7,6 +7,7 @@
 #include <string.h>
 #include <kmalloc.h>
 #include <export.h>
+#include <initcall.h>
 
 static long env_rb_cmp(const struct rb_node *rba, const struct rb_node *rbb)
 {
@@ -110,13 +111,24 @@ state kshell_unsetenv(struct kshell_context *ctx, const char *name)
 }
 EXPORT_SYMBOL(kshell_unsetenv);
 
-state kshell_envclone(struct kshell_context *ctx, struct kshell_context *new)
+void kshell_env_destory(struct kshell_context *ctx)
+{
+    struct kshell_env *env, *tmp;
+
+    rb_post_for_each_entry_safe(env, tmp, &ctx->env, node)
+        kfree(env);
+
+    ctx->env = RB_INIT;
+}
+
+state kshell_env_clone(struct kshell_context *ctx, struct kshell_context *old)
 {
     struct kshell_env *env;
 
-    rb_for_each_entry(env, &ctx->env, node) {
-        if (kshell_setenv(new, env->name, env->val, true)) {
-            kshell_envrelease(new);
+    ctx->env = RB_INIT;
+    rb_for_each_entry(env, &old->env, node) {
+        if (kshell_setenv(ctx, env->name, env->val, true)) {
+            kshell_env_destory(ctx);
             return -ENOMEM;
         }
     }
@@ -124,9 +136,24 @@ state kshell_envclone(struct kshell_context *ctx, struct kshell_context *new)
     return -ENOERR;
 }
 
-void kshell_envrelease(struct kshell_context *ctx)
+static state kshell_env_main(struct kshell_context *ctx, int argc, char *argv[])
 {
-    struct kshell_env *env, *tmp;
-    rb_post_for_each_entry_safe(env, tmp, &ctx->env, node)
-        kshell_env_release(ctx, env);
+    struct kshell_env *env;
+    rb_for_each_entry(env, &ctx->env, node)
+        kshell_printf(ctx, "\t%s=%s\n", env->name, env->val);
+    return -ENOERR;
 }
+
+static struct kshell_command kshell_env_cmd = {
+    .name = "env",
+    .desc = "displays all environment variable",
+    .exec = kshell_env_main,
+    .prepare = kshell_env_clone,
+    .release = kshell_env_destory,
+};
+
+static state env_init(void)
+{
+    return kshell_register(&kshell_env_cmd);
+}
+kshell_initcall(env_init);
