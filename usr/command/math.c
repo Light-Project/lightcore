@@ -805,9 +805,9 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
         kshell_printf(ctx, "%s: %s\n", priority_name[13], start);
 
 error:
-    if (error || ((error = start) &&
+    if (error || (({error = start; true;}) &&
         (!(curr = next_number(ctx, end, start, &result, NULL)) ||
-         *(error = skip_spaces(curr))))) {
+         *((error = skip_spaces(curr)) == end ? "" : error)))) {
         error = skip_spaces(error);
         kshell_printf(ctx, "math: parse error near '%c'\n", *error);
         result = 0;
