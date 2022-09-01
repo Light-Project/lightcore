@@ -22,30 +22,22 @@
 )
 
 /**
- * REPEAT_BYTE - repeat the value multiple times to unsigned long
- * @char: value to repeat
+ * REPEAT_BYTE - repeat the value multiple times to unsigned long.
+ * @char: value to repeat.
  */
 #define REPEAT_BYTE(char) (     \
     (~0UL / 0xff) * char        \
 )
 
 /**
- * swap - swap values
- * @a: first value
- * @b: second value
+ * swap - swap values.
+ * @a: first value.
+ * @b: second value.
  */
 #define swap(a, b) ({           \
     typeof(a) _a = (a);         \
     (a) = (b);                  \
     (b) = _a;                   \
 })
-
-/**
- * skzalloc - static alloc zeroed memory in stack
- * @size: memory size to alloc
- */
-#define skzalloc(size) (        \
-    (void *)(char [size]){}     \
-)
 
 #endif  /* _MACRO_H_ */

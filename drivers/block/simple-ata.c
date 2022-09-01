@@ -424,18 +424,17 @@ static struct atasim_port *atasim_port_create(struct pci_device *pdev, struct at
 
 static state atasim_ports_scan(struct pci_device *pdev, struct atasim_host *host, unsigned int pnr)
 {
-    struct atasim_port *port, *scan;
+    struct atasim_port *port, scan;
 
-    scan = skzalloc(sizeof(*scan));
-    scan->host = host;
-    scan->port = pnr;
-    scan->block.dev = &pdev->dev;
-    scan->block.ops = &atasim_ops;
+    scan.host = host;
+    scan.port = pnr;
+    scan.block.dev = &pdev->dev;
+    scan.block.ops = &atasim_ops;
 
-    if (!atasim_port_setup(scan))
+    if (!atasim_port_setup(&scan))
         return -ENOERR;
 
-    port = atasim_port_create(pdev, scan);
+    port = atasim_port_create(pdev, &scan);
     if (!port)
         return -ENOMEM;
 

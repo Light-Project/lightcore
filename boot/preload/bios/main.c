@@ -20,7 +20,7 @@ static uint32_t crc32(const uint8_t *src, int len, uint32_t crc)
 
 static __noreturn void biosdisk_boot(void)
 {
-    struct uboot_head *head = skzalloc(512);
+    struct uboot_head *head = zalloca(512);
     uint32_t size, load, entry;
     uint32_t rawload, blkcount;
     uint32_t oldcrc, newcrc;
