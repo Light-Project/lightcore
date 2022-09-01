@@ -42,11 +42,11 @@ static state minix_inode_clear(struct inode *inode)
     offset = (2 + msb_info->imap_blocks + msb_info->zmap_blocks) * sb->block_size;
 
     if (msb_info->version == MINIX_V1) {
-        zeroed = skzalloc(sizeof(struct minix_inode));
+        zeroed = zalloca(sizeof(struct minix_inode));
         offset += inode->inum * sizeof(struct minix_inode);
         return sb_write(inode->sb, offset, zeroed, sizeof(struct minix_inode));
     } else {
-        zeroed = skzalloc(sizeof(struct minix2_inode));
+        zeroed = zalloca(sizeof(struct minix2_inode));
         offset += inode->inum * sizeof(struct minix2_inode);
         return sb_write(inode->sb, offset, zeroed, sizeof(struct minix2_inode));
     }

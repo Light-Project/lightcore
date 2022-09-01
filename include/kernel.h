@@ -14,6 +14,7 @@
 #include <size.h>
 
 #include <macro.h>
+#include <alloca.h>
 #include <minmax.h>
 #include <align.h>
 #include <container.h>
