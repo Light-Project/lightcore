@@ -33,5 +33,35 @@ enum bool {
  */
 #define offsetofend(type, member) (offsetof(type, member) + sizeof_field(type, member))
 
+/**
+ * __struct_group - Create a mirrored named and anonyomous struct.
+ * @TAG: The tag name for the named sub-struct (usually empty).
+ * @NAME: The identifier name of the mirrored sub-struct.
+ * @ATTRS: Any struct attributes (usually empty).
+ * @MEMBERS: The member declarations for the mirrored structs.
+ */
+#define __struct_group(TAG, NAME, ATTRS, MEMBERS...) \
+    union { \
+        struct { MEMBERS } ATTRS; \
+        struct TAG { MEMBERS } ATTRS NAME; \
+    }
+
+/**
+ * struct_group - Wrap a set of declarations in a mirrored struct.
+ * @name: The identifier name of the mirrored sub-struct.
+ * @members: The member declarations for the mirrored structs.
+ */
+#define struct_group(NAME, MEMBERS...)	\
+    __struct_group(/* no tag */, NAME, /* no attrs */, MEMBERS)
+
+/**
+ * struct_group_attr - Create a struct_group() with trailing attributes.
+ * @NAME: The identifier name of the mirrored sub-struct.
+ * @ATTRS: Any struct attributes to apply.
+ * @MEMBERS: The member declarations for the mirrored structs.
+ */
+#define struct_group_attr(name, attrs, members...) \
+    __struct_group(/* no tag */, NAME, ATTRS, MEMBERS)
+
 #endif  /* __ASSEMBLY__ */
 #endif  /* _STDDEF_H_ */
