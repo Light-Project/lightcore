@@ -132,8 +132,13 @@ state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
     if (retval)
         return retval;
 
-    if (argc > 1) {
-        nctx.readline = NULL;
+    if (abs(argc) != 1) {
+        if (argc > 0)
+            nctx.readline = NULL;
+        else {
+            argc = -argc;
+            nctx.readline = rstate;
+        }
 
         for (count = 1; !exit && count < argc; ++count) {
             retval = do_system(&nctx, argv[count], &exit);
