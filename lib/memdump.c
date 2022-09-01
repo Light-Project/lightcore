@@ -58,7 +58,7 @@ int memdump_buffer(char *buffer, size_t buffsize, const void *data, size_t data_
     }
 
     if (fmt == 'x') {
-        sprintf(fmtbuff, "%%s%%#0%d%s%c", groupsize * 2,
+        sprintf(fmtbuff, "%%s%%#0%d%s%c", groupsize * 2 + 2,
                 groupsize == 8 ? "ll" : "", fmt);
     } else {
         sprintf(fmtbuff, "%%s%%-%d%s%c", (fmt == 'o' ?
