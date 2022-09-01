@@ -82,7 +82,7 @@ EXPORT_SYMBOL(kshell_unregister);
 state kshell_exec(struct kshell_context *ctx, const struct kshell_command *cmd, int argc, char *argv[])
 {
     unsigned int count;
-    char **vbuff;
+    char *string, **vbuff;
     state retval;
 
     if (!cmd->exec)
@@ -93,17 +93,11 @@ state kshell_exec(struct kshell_context *ctx, const struct kshell_command *cmd, 
         return -ENOMEM;
 
     for (count = 0; count < argc; ++count) {
-        unsigned int len;
-        char *string;
-
-        len = strlen(argv[count]);
-        string = kmalloc(len + 1, GFP_KERNEL);
+        string = strdup(argv[count]);
         if (!string) {
             retval = -ENOMEM;
             goto finish;
         }
-
-        strcpy(string, argv[count]);
         vbuff[count] = string;
     }
 
@@ -143,11 +137,11 @@ static void __init ksh_initcall(void)
     }
 }
 
-static void bootarg_recode(void)
+static void bootarg_record(void)
 {
     unsigned int count;
     for (count = 0; count < bootarg_num; ++count)
-        bootarg_ptr[count + 1] = bootargs[count];
+        bootarg_ptr[count] = bootargs[count];
 }
 
 state kshell_bootarg_add(const char *args)
@@ -186,10 +180,10 @@ void ksh_init(void)
     ksh_initcall();
     list_qsort(&kshell_list, kshell_sort, NULL);
 
-    bootarg_recode();
+    bootarg_record();
     kshell_setenv(&ctx, "PS1", "kshell: /# ", false);
     kshell_setenv(&ctx, "PS2", "-> ", false);
 
     printk("Have a lot of fun..\n");
-    kshell_main(&ctx, bootarg_num + 1, bootarg_ptr);
+    kshell_main(&ctx, -bootarg_num - 1, (void *)((uintptr_t)bootarg_ptr - MSIZE));
 }
