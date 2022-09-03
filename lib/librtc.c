@@ -3,13 +3,13 @@
 #include <librtc.h>
 #include <export.h>
 
-const char *rtc_month_name[] = {
+const char *rtc_month_name[12] = {
     "jan", "feb", "mar", "apr", "may", "jun",
     "jul", "aug", "sep", "oct", "nov", "dec",
 };
 EXPORT_SYMBOL(rtc_month_name);
 
-const char *rtc_wday_name[] = {
+const char *rtc_wday_name[7] = {
     "mon", "tue", "wed", "thur", "fri", "sat", "sun"
 };
 EXPORT_SYMBOL(rtc_wday_name);

@@ -5,8 +5,8 @@
 #include <ktime.h>
 #include <lightcore/rtc.h>
 
-extern const char *rtc_month_name[];
-extern const char *rtc_wday_name[];
+extern const char *rtc_month_name[12];
+extern const char *rtc_wday_name[7];
 
 extern bool rtc_leap_year(unsigned int year);
 extern int rtc_month_days(unsigned int year, unsigned int month);
