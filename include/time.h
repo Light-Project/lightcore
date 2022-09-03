@@ -3,6 +3,7 @@
 #define _TIME_H_
 
 #include <types.h>
+#include <stddef.h>
 #include <limits.h>
 
 /* Parameters used to convert the timespec values */
@@ -31,5 +32,9 @@ struct timespec {
 extern time_t mktime(unsigned int year, unsigned int mon, unsigned int day, unsigned int hour, unsigned int min, unsigned int sec);
 extern struct timespec ns_to_timespec(const int64_t nsec);
 extern int64_t timespec_to_ns(struct timespec *ts);
+extern void timespec_normalized(struct timespec *ts);
+extern bool timespec_valid(struct timespec *ts);
+extern struct timespec timespec_add(struct timespec *lts, struct timespec *rts);
+extern struct timespec timespec_sub(struct timespec *lts, struct timespec *rts);
 
 #endif  /* _TIME_H_ */

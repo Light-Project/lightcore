@@ -51,3 +51,46 @@ int64_t timespec_to_ns(struct timespec *ts)
     return (ts->tv_sec * NSEC_PER_SEC) + ts->tv_nsec;
 }
 EXPORT_SYMBOL(timespec_to_ns);
+
+void timespec_normalized(struct timespec *ts)
+{
+    while (ts->tv_nsec >= NSEC_PER_SEC) {
+        ts->tv_nsec -= NSEC_PER_SEC;
+        ts->tv_sec++;
+    }
+    while (ts->tv_nsec < 0) {
+        ts->tv_nsec += NSEC_PER_SEC;
+        ts->tv_sec--;
+    }
+}
+EXPORT_SYMBOL(timespec_normalized);
+
+bool timespec_valid(struct timespec *ts)
+{
+    if (ts->tv_nsec >= NSEC_PER_SEC)
+        return true;
+    if (ts->tv_nsec < 0)
+        return true;
+    return false;
+}
+EXPORT_SYMBOL(timespec_valid);
+
+struct timespec timespec_add(struct timespec *lts, struct timespec *rts)
+{
+    struct timespec acc;
+    acc.tv_nsec = lts->tv_nsec + rts->tv_nsec;
+    acc.tv_sec = lts->tv_sec + rts->tv_sec;
+    timespec_normalized(&acc);
+    return acc;
+}
+EXPORT_SYMBOL(timespec_add);
+
+struct timespec timespec_sub(struct timespec *lts, struct timespec *rts)
+{
+    struct timespec acc;
+    acc.tv_nsec = lts->tv_nsec - rts->tv_nsec;
+    acc.tv_sec = lts->tv_sec - rts->tv_sec;
+    timespec_normalized(&acc);
+    return acc;
+}
+EXPORT_SYMBOL(timespec_sub);
