@@ -17,11 +17,6 @@ bool rb_debug_link_check(struct rb_node *parent, struct rb_node **link, struct r
         link, node))
         return false;
 
-    if (DEBUG_DATA_CHECK(node->parent && node->parent == parent,
-        "rb_insert corruption (%p) node->parent should not be next (%p)\n",
-        node, parent))
-        return false;
-
     return true;
 }
 EXPORT_SYMBOL(rb_debug_link_check);
