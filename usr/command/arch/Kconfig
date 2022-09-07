@@ -8,3 +8,8 @@ config KCMD_ARCH_X86_MSR
     bool "X86 MSR Command Support"
     depends on ARCH_X86
     default y
+
+config KCMD_ARCH_X86_TSC
+    bool "X86 TSC Command Support"
+    depends on ARCH_X86
+    default y
