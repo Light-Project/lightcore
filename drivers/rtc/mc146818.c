@@ -94,6 +94,7 @@ static state mc146818_settime(struct rtc_device *rtc, struct rtc_time *time)
 {
     struct mc146818_device *mc146818 = rtc_to_mc146818(rtc);
     unsigned int year, mon, day, hour, min, sec;
+    uint8_t value;
 
     sec  = time->tm_sec;
     min  = time->tm_min;
@@ -106,7 +107,10 @@ static state mc146818_settime(struct rtc_device *rtc, struct rtc_time *time)
 
     spin_lock(&mc146818->lock);
 
-    if (!(mc146818_read(mc146818, MC146818_REGISTER_B) & MC146818_REGISTER_B_DM)) {
+    value = mc146818_read(mc146818, MC146818_REGISTER_B);
+    mc146818_write(mc146818, MC146818_REGISTER_B, value | MC146818_REGISTER_B_SET);
+
+    if (!(value & MC146818_REGISTER_B_DM)) {
         sec = bin2bcd(sec);
         min = bin2bcd(min);
         hour = bin2bcd(hour);
@@ -118,9 +122,10 @@ static state mc146818_settime(struct rtc_device *rtc, struct rtc_time *time)
     mc146818_write(mc146818, MC146818_SECONDS, sec);
     mc146818_write(mc146818, MC146818_MINUTES, min);
     mc146818_write(mc146818, MC146818_HOURS, hour);
-    mc146818_write(mc146818, MC146818_DAY_OF_MONTH, mon);
-    mc146818_write(mc146818, MC146818_MONTH, year);
+    mc146818_write(mc146818, MC146818_DAY_OF_MONTH, day);
+    mc146818_write(mc146818, MC146818_MONTH, mon);
     mc146818_write(mc146818, MC146818_YEAR, year);
+    mc146818_write(mc146818, MC146818_REGISTER_B, value);
 
     spin_unlock(&mc146818->lock);
 
