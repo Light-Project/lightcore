@@ -110,6 +110,10 @@ config KCMD_WHILE
     bool "While Command Support"
     default y
 
+config KCMD_XMODEM
+    bool "Xmodem Command Support"
+    default y
+
 config KCMD_YES
     bool "Yes Command Support"
     default y
