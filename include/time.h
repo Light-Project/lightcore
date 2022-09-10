@@ -29,6 +29,68 @@ struct timespec {
     long tv_nsec;
 };
 
+/**
+ * timespec_compare - compares two timespec variables.
+ * @timea: variables a.
+ * @timeb: variables b.
+ */
+static inline int timespec_compare(const struct timespec *timea, const struct timespec *timeb)
+{
+    if (timea->tv_sec != timeb->tv_sec) {
+        if (timea->tv_sec > timeb->tv_sec)
+            return 1;
+        else
+            return -1;
+    }
+    if (timea->tv_nsec != timeb->tv_nsec) {
+        if (timea->tv_nsec > timeb->tv_nsec)
+            return 1;
+        else
+            return -1;
+    }
+    return 0;
+}
+
+/**
+ * timespec_after - compare if a timespec value is bigger than another one.
+ * @timea: the bigger one.
+ * @timeb: the smaller one.
+ */
+static inline bool timespec_after(const struct timespec *timea, const struct timespec *timeb)
+{
+    return timespec_compare(timea, timeb) > 0;
+}
+
+/**
+ * timespec_before - compare if a timespec value is smaller than another one.
+ * @timea: the smaller one.
+ * @timeb: the bigger one.
+ */
+static inline bool timespec_before(const struct timespec *timea, const struct timespec *timeb)
+{
+    return timespec_compare(timea, timeb) < 0;
+}
+
+/**
+ * timespec_after - compare if a timespec value is bigger or equal than another one.
+ * @timea: the bigger one.
+ * @timeb: the smaller one.
+ */
+static inline bool timespec_after_equal(const struct timespec *timea, const struct timespec *timeb)
+{
+    return timespec_compare(timea, timeb) >= 0;
+}
+
+/**
+ * timespec_before_equal - compare if a timespec value is smaller than or equal another one.
+ * @timea: the smaller one.
+ * @timeb: the bigger one.
+ */
+static inline bool timespec_before_equal(const struct timespec *timea, const struct timespec *timeb)
+{
+    return timespec_compare(timea, timeb) <= 0;
+}
+
 extern time_t mktime(unsigned int year, unsigned int mon, unsigned int day, unsigned int hour, unsigned int min, unsigned int sec);
 extern struct timespec ns_to_timespec(const int64_t nsec);
 extern int64_t timespec_to_ns(struct timespec *ts);
