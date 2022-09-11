@@ -94,8 +94,10 @@ static inline bool timespec_before_equal(const struct timespec *timea, const str
 extern time_t mktime(unsigned int year, unsigned int mon, unsigned int day, unsigned int hour, unsigned int min, unsigned int sec);
 extern struct timespec ns_to_timespec(const int64_t nsec);
 extern int64_t timespec_to_ns(struct timespec *ts);
-extern void timespec_normalized(struct timespec *ts);
+
 extern bool timespec_valid(struct timespec *ts);
+extern void timespec_normalized(struct timespec *ts);
+extern void timespec_set_normalized(struct timespec *ts, time_t sec, int64_t nsec);
 extern struct timespec timespec_add(struct timespec *lts, struct timespec *rts);
 extern struct timespec timespec_sub(struct timespec *lts, struct timespec *rts);
 
