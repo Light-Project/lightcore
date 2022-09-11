@@ -171,8 +171,8 @@ static inline bool slist_check_another(const struct slist_head *head, const stru
  * @tmp: another slist_head to use as temporary storage.
  * @head: the head for your slist.
  */
-#define slist_for_each_safe(pos, tmp, head)                             \
-    for ((pos) = (head)->next, (tmp) = (pos)->next;                     \
+#define slist_for_each_safe(pos, tmp, head) \
+    for ((pos) = (head)->next, (tmp) = (pos)->next; \
          (pos); (pos) = (tmp), ((tmp) && ((tmp) = (tmp)->next)))
 
 /**
@@ -180,8 +180,8 @@ static inline bool slist_check_another(const struct slist_head *head, const stru
  * @pos: the &struct slist_head to use as a loop cursor.
  * @tmp: another slist_head to use as temporary storage.
  */
-#define slist_for_each_from_safe(pos, tmp)                              \
-    for ((tmp) = (pos)->next;                                           \
+#define slist_for_each_from_safe(pos, tmp) \
+    for ((tmp) = (pos)->next; \
          (pos); (pos) = (tmp), ((tmp) && ((tmp) = (tmp)->next)))
 
 /**
@@ -189,8 +189,8 @@ static inline bool slist_check_another(const struct slist_head *head, const stru
  * @pos: the &struct slist_head to use as a loop cursor.
  * @tmp: another slist_head to use as temporary storage.
  */
-#define slist_for_each_continue_safe(pos, tmp)                          \
-    for ((pos) = (pos)->next, (tmp) = (pos)->next;                      \
+#define slist_for_each_continue_safe(pos, tmp) \
+    for ((pos) = (pos)->next, (tmp) = (pos)->next; \
          (pos); (pos) = (tmp), ((tmp) && ((tmp) = (tmp)->next)))
 
 /**
@@ -199,8 +199,8 @@ static inline bool slist_check_another(const struct slist_head *head, const stru
  * @head: the head for your slist.
  * @member: the name of the slist_head within the struct.
  */
-#define slist_for_each_entry(pos, head, member)                         \
-    for ((pos) = slist_first_entry(head, typeof(*(pos)), member);       \
+#define slist_for_each_entry(pos, head, member) \
+    for ((pos) = slist_first_entry(head, typeof(*(pos)), member); \
          (pos); (pos) = slist_next_entry(pos, member))
 
 /**
@@ -208,7 +208,7 @@ static inline bool slist_check_another(const struct slist_head *head, const stru
  * @pos: the type * to use as a loop cursor.
  * @member: the name of the slist_head within the struct.
  */
-#define slist_for_each_entry_from(pos, member)                          \
+#define slist_for_each_entry_from(pos, member) \
     for (; (pos); (pos) = slist_next_entry(pos, member))
 
 /**
@@ -216,8 +216,8 @@ static inline bool slist_check_another(const struct slist_head *head, const stru
  * @pos: the type * to use as a loop cursor.
  * @member: the name of the slist_head within the struct.
  */
-#define slist_for_each_entry_continue(pos, member)                      \
-    for ((pos) = slist_next_entry(pos, member);                         \
+#define slist_for_each_entry_continue(pos, member) \
+    for ((pos) = slist_next_entry(pos, member); \
          (pos); (pos) = slist_next_entry(pos, member))
 
 /**
@@ -227,9 +227,9 @@ static inline bool slist_check_another(const struct slist_head *head, const stru
  * @head: the head for your slist.
  * @member: the name of the slist_head within the struct.
  */
-#define slist_for_each_entry_safe(pos, tmp, head, member)               \
-    for ((pos) = slist_first_entry(head, typeof(*(pos)), member),       \
-         (tmp) = slist_next_entry(pos, member); (pos); (pos) = (tmp),   \
+#define slist_for_each_entry_safe(pos, tmp, head, member) \
+    for ((pos) = slist_first_entry(head, typeof(*(pos)), member), \
+         (tmp) = slist_next_entry(pos, member); (pos); (pos) = (tmp), \
          ((tmp) && ((tmp) = slist_next_entry(tmp, member))))
 
 /**
@@ -238,8 +238,8 @@ static inline bool slist_check_another(const struct slist_head *head, const stru
  * @tmp: another type * to use as temporary storage.
  * @member:	the name of the slist_head within the struct.
  */
-#define slist_for_each_entry_from_safe(pos, tmp, member)                \
-    for ((tmp) = slist_next_entry(pos, member); (pos); (pos) = (tmp),   \
+#define slist_for_each_entry_from_safe(pos, tmp, member) \
+    for ((tmp) = slist_next_entry(pos, member); (pos); (pos) = (tmp), \
          ((tmp) && ((tmp) = slist_next_entry(pos, member))))
 
 /**
@@ -248,9 +248,9 @@ static inline bool slist_check_another(const struct slist_head *head, const stru
  * @tmp: another type * to use as temporary storage.
  * @member:	the name of the slist_head within the struct.
  */
-#define slist_for_each_entry_continue_safe(pos, tmp, member)            \
-    for ((pos) = slist_next_entry(pos, member),                         \
-         (tmp) = slist_next_entry(pos, member); (pos); (pos) = (tmp),   \
+#define slist_for_each_entry_continue_safe(pos, tmp, member) \
+    for ((pos) = slist_next_entry(pos, member), \
+         (tmp) = slist_next_entry(pos, member); (pos); (pos) = (tmp), \
          ((tmp) && ((tmp) = slist_next_entry(pos, member))))
 
 #endif  /* _SLIST_H_ */
