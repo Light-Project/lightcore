@@ -195,7 +195,7 @@ static inline bool ilist_node_empty(struct ilist_node *inode)
     list_for_each_reverse_continue_safe(pos, tmp, &(head)->node_list)
 
 /**
- * ilist_for_each_entry - iterate over list of given type
+ * ilist_for_each_entry - iterate over list of given type.
  * @pos: the type * to use as a loop cursor.
  * @head: the head for your list.
  * @member: the name of the list_head within the struct.
