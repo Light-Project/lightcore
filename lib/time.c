@@ -3,7 +3,7 @@
 #include <export.h>
 
 /**
- * mktime - converts date to seconds
+ * mktime - converts date to seconds.
  * Converts Gregorian date to seconds since 1970-01-01 00:00:00.
  * Assumes input in normal date format, i.e. 1980-12-31 23:59:59
  * => year=1980, mon=12, day=31, hour=23, min=59, sec=59.
@@ -42,15 +42,25 @@ EXPORT_SYMBOL(ns_to_timespec);
 
 int64_t timespec_to_ns(struct timespec *ts)
 {
-	if (ts->tv_sec >= KTIME_SEC_MAX)
-		return KTIME_MAX;
+    if (ts->tv_sec >= KTIME_SEC_MAX)
+        return KTIME_MAX;
 
-	if (ts->tv_sec <= KTIME_SEC_MIN)
-		return KTIME_MIN;
+    if (ts->tv_sec <= KTIME_SEC_MIN)
+        return KTIME_MIN;
 
     return (ts->tv_sec * NSEC_PER_SEC) + ts->tv_nsec;
 }
 EXPORT_SYMBOL(timespec_to_ns);
+
+bool timespec_valid(struct timespec *ts)
+{
+    if (ts->tv_nsec >= NSEC_PER_SEC)
+        return true;
+    if (ts->tv_nsec < 0)
+        return true;
+    return false;
+}
+EXPORT_SYMBOL(timespec_valid);
 
 void timespec_normalized(struct timespec *ts)
 {
@@ -65,15 +75,22 @@ void timespec_normalized(struct timespec *ts)
 }
 EXPORT_SYMBOL(timespec_normalized);
 
-bool timespec_valid(struct timespec *ts)
+void timespec_set_normalized(struct timespec *ts, time_t sec, int64_t nsec)
 {
-    if (ts->tv_nsec >= NSEC_PER_SEC)
-        return true;
-    if (ts->tv_nsec < 0)
-        return true;
-    return false;
+    while (nsec >= NSEC_PER_SEC) {
+        asm ("" : "+rm"(nsec));
+        nsec -= NSEC_PER_SEC;
+        sec++;
+    }
+    while (nsec < 0) {
+        asm ("" : "+rm"(nsec));
+        nsec += NSEC_PER_SEC;
+        sec--;
+    }
+    ts->tv_sec = sec;
+    ts->tv_nsec = nsec;
 }
-EXPORT_SYMBOL(timespec_valid);
+EXPORT_SYMBOL(timespec_set_normalized);
 
 struct timespec timespec_add(struct timespec *lts, struct timespec *rts)
 {
