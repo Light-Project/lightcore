@@ -78,7 +78,9 @@ static state mc146818_gettime(struct rtc_device *rtc, struct rtc_time *time)
 
     spin_unlock(&mc146818->lock);
 
-    year += MC146818_YEARS_OFFS;
+    if (year <= 69)
+        year += 100;
+    mon -= 1;
 
     time->tm_sec  = sec;
     time->tm_min  = min;
@@ -103,7 +105,12 @@ static state mc146818_settime(struct rtc_device *rtc, struct rtc_time *time)
     mon  = time->tm_mon;
     year = time->tm_year;
 
-    year -= MC146818_YEARS_OFFS;
+	if (year > 169)
+		return -EINVAL;
+
+    if (year >= 100)
+        year -= 100;
+    mon += 1;
 
     spin_lock(&mc146818->lock);
 
