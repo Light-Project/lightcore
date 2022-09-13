@@ -33,7 +33,19 @@
     : bin2bcd_dynamic(bin)                  \
 )
 
-extern __attribute_const__ uint8_t bcd2bin_dynamic(uint8_t bcd);
-extern __attribute_const__ uint8_t bin2bcd_dynamic(uint8_t bin);
+extern const uint8_t bcd2bin_table[256];
+extern const uint8_t bin2bcd_table[256];
+
+static __attribute_const__ inline
+uint8_t bcd2bin_dynamic(uint8_t bcd)
+{
+    return bcd2bin_table[bcd];
+}
+
+static inline __attribute_const__
+uint8_t bin2bcd_dynamic(uint8_t bin)
+{
+    return bin2bcd_table[bin];
+}
 
 #endif /* _BCD_H_ */
