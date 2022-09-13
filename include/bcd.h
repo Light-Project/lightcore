@@ -3,6 +3,7 @@
 #define _BCD_H_
 
 #include <types.h>
+#include <limits.h>
 
 #define bcd2bin_const(bcd) (            \
     ((bcd) & 0x0f) + ((bcd) >> 4) * 10  \
