@@ -12,6 +12,11 @@ config SELFTEST_LIB_BTREE
     bool "Balance Tree Test"
     default y
 
+config SELFTEST_LIB_DIV64
+    bool "Div64 libgcc Test"
+    depends on ARCH_32BIT
+    default y
+
 config SELFTEST_LIB_DCALL
     bool "Dynamic Call Test"
     default y
