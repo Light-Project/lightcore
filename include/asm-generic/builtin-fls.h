@@ -4,10 +4,10 @@
 
 #include <bits.h>
 
-#define flsuf flsuf
-static __always_inline unsigned int flsuf(unsigned long value)
+#define fls fls
+static __always_inline unsigned int fls(unsigned long value)
 {
-	return BITS_PER_LONG - 1 - __builtin_clzl(value);
+	return value ? BITS_PER_LONG - __builtin_clzl(value) : 0;
 }
 
 #endif  /* _ASM_GENERIC_BUILTIN_FLS_H_ */

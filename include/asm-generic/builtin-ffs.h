@@ -2,10 +2,10 @@
 #ifndef _ASM_GENERIC_BUILTIN_FFS_H_
 #define _ASM_GENERIC_BUILTIN_FFS_H_
 
-#define ffsuf ffsuf
-static __always_inline unsigned int ffsuf(unsigned long value)
+#define ffs ffs
+static __always_inline unsigned int ffs(unsigned long value)
 {
-	return __builtin_ctzl(value);
+	return __builtin_ffsl(value);
 }
 
 #endif  /* _ASM_GENERIC_BUILTIN_FFS_H_ */
