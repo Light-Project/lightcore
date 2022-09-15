@@ -42,6 +42,7 @@ obj-y += memdump.o
 obj-y += minpool.o
 obj-y += ncache.o
 obj-y += param.o
+obj-y += popcount.o
 obj-y += prandom.o
 obj-y += range.o
 obj-y += ratelimit.o
