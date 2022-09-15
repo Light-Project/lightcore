@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+config LIBGCC_BASE
+    bool
+
+config LIBGCC_DIVDI3
+    bool
+
+config LIBGCC_SOFTFP
+    bool

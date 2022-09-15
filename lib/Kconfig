@@ -3,4 +3,6 @@ menu "Library Routines"
 
 source "lib/font/Kconfig"
 
+source "lib/libgcc/Kconfig"
+
 endmenu
