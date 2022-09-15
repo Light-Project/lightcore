@@ -154,32 +154,32 @@ static inline uint64_t bitrev64_dynamic(uint64_t value)
     return ((uint64_t)bitrev32_dynamic(value & 0xffffffff) << 32) | bitrev32_dynamic(value >> 32);
 }
 
-#define bitrev8(value) ({           \
-    uint8_t __value = value;        \
-    __builtin_constant_p(__value)   \
-    ? bitrev8_constant(__value)     \
-    : bitrev8_dynamic(__value);     \
+#define bitrev8(value) ({                   \
+    uint8_t __value = (uint8_t)(value);     \
+    __builtin_constant_p(__value)           \
+    ? bitrev8_constant(__value)             \
+    : bitrev8_dynamic(__value);             \
 })
 
-#define bitrev16(value) ({          \
-    uint16_t __value = value;       \
-    __builtin_constant_p(__value)   \
-    ? bitrev16_constant(__value)    \
-    : bitrev16_dynamic(__value);    \
+#define bitrev16(value) ({                  \
+    uint16_t __value = (uint16_t)(value);   \
+    __builtin_constant_p(__value)           \
+    ? bitrev16_constant(__value)            \
+    : bitrev16_dynamic(__value);            \
 })
 
-#define bitrev32(value) ({          \
-    uint32_t __value = value;       \
-    __builtin_constant_p(__value)   \
-    ? bitrev32_constant(__value)    \
-    : bitrev32_dynamic(__value);    \
+#define bitrev32(value) ({                  \
+    uint32_t __value = (uint32_t)(value);   \
+    __builtin_constant_p(__value)           \
+    ? bitrev32_constant(__value)            \
+    : bitrev32_dynamic(__value);            \
 })
 
-#define bitrev64(value) ({          \
-    uint64_t __value = value;       \
-    __builtin_constant_p(__value)   \
-    ? bitrev64_constant(__value)    \
-    : bitrev64_dynamic(__value);    \
+#define bitrev64(value) ({                  \
+    uint64_t __value = (uint64_t)(value);   \
+    __builtin_constant_p(__value)           \
+    ? bitrev64_constant(__value)            \
+    : bitrev64_dynamic(__value);            \
 })
 
 #endif  /* _BITREV_H_ */

@@ -13,26 +13,6 @@
     (((bin) / 10) << 4) + (bin) % 10    \
 )
 
-/**
- * bcd2bin - convert bcd to bin.
- * @bcd: the bcd to convert.
- */
-#define bcd2bin(bcd) (                      \
-    __builtin_constant_p((uint8_t)(bcd))    \
-    ? bcd2bin_const(bcd)                    \
-    : bcd2bin_dynamic(bcd)                  \
-)
-
-/**
- * bin2bcd - convert bin to bcd.
- * @bcd: the bin to convert.
- */
-#define bin2bcd(bin) (                      \
-    __builtin_constant_p((uint8_t)(bin))    \
-    ? bin2bcd_const(bin)                    \
-    : bin2bcd_dynamic(bin)                  \
-)
-
 extern const uint8_t bcd2bin_table[256];
 extern const uint8_t bin2bcd_table[256];
 
@@ -47,5 +27,27 @@ uint8_t bin2bcd_dynamic(uint8_t bin)
 {
     return bin2bcd_table[bin];
 }
+
+/**
+ * bcd2bin - convert bcd to bin.
+ * @bcd: the bcd to convert.
+ */
+#define bcd2bin(bcd) ({                 \
+    uint8_t __bcd = (uint8_t)(bcd);     \
+    __builtin_constant_p(__bcd)         \
+    ? bcd2bin_const(__bcd)              \
+    : bcd2bin_dynamic(__bcd);           \
+})
+
+/**
+ * bin2bcd - convert bin to bcd.
+ * @bcd: the bin to convert.
+ */
+#define bin2bcd(bin) ({                 \
+    uint8_t __bin = (uint8_t)(bin);     \
+    __builtin_constant_p(__bin)         \
+    ? bin2bcd_const(__bin)              \
+    : bin2bcd_dynamic(__bin);           \
+})
 
 #endif /* _BCD_H_ */
