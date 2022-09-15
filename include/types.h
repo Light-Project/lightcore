@@ -89,7 +89,7 @@ typedef __kernel_clock_t        clock_t;
 typedef __kernel_key_t          key_t;
 typedef __kernel_mqd_t          mqd_t;
 
-#define BYTES_PER_CHAR          sizeof(short)
+#define BYTES_PER_CHAR          sizeof(char)
 #define BYTES_PER_SHORT         sizeof(short)
 #define BYTES_PER_INT           sizeof(int)
 #define BYTES_PER_LONG          sizeof(long)

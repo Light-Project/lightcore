@@ -55,7 +55,7 @@
 
 #include <limits.h>
 
-#define BITS_PER_BYTE  8
+#define BITS_PER_BYTE       __CHAR_BIT__
 #define BITS_PER_TYPE(type) (sizeof(type) * BITS_PER_BYTE)
 #define BITS_WORD(bit)      ((bit) / BITS_PER_LONG)
 
