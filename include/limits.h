@@ -48,13 +48,13 @@
 #define UINT8_MAX       ((uint8_t)~0U)
 #define UINT16_MAX      ((uint16_t)~0U)
 #define UINT32_MAX      ((uint32_t)~0U)
-#define UINT64_MAX      ((uint64_t)~0U)
+#define UINT64_MAX      ((uint64_t)~0ULL)
 
 /* Minimum of unsigned integral types.  */
 #define UINT8_MIN       ((uint8_t)0U)
 #define UINT16_MIN      ((uint16_t)0U)
 #define UINT32_MIN      ((uint32_t)0U)
-#define UINT64_MIN      ((uint64_t)0U)
+#define UINT64_MIN      ((uint64_t)0ULL)
 
 /* Maximum of signed integral types.  */
 #define INT8_MAX        ((int8_t)(UINT8_MAX >> 1))

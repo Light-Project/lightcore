@@ -7,14 +7,17 @@
 #include <limits.h>
 
 /* Parameters used to convert the timespec values */
-#define MSEC_PER_SEC    1000UL
-#define USEC_PER_MSEC   1000UL
-#define NSEC_PER_USEC   1000UL
-#define NSEC_PER_MSEC   1000000UL
-#define USEC_PER_SEC    1000000UL
-#define NSEC_PER_SEC    1000000000UL
-#define PSEC_PER_SEC    1000000000000ULL
-#define FSEC_PER_SEC    1000000000000000ULL
+#define MSEC_PER_SEC    1000L
+#define USEC_PER_MSEC   1000L
+#define NSEC_PER_USEC   1000L
+#define NSEC_PER_MSEC   1000000L
+#define USEC_PER_SEC    1000000L
+#define NSEC_PER_SEC    1000000000L
+#define PSEC_PER_SEC    1000000000000LL
+#define FSEC_PER_SEC    1000000000000000LL
+
+#define TIME_MAX        INT64_MAX
+#define TIME_MIN        INT64_MIN
 
 #define TTIME_MAX       INT64_MAX
 #define TTIME_MIN       INT64_MIN
@@ -28,6 +31,60 @@ struct timespec {
     time_t tv_sec;
     long tv_nsec;
 };
+
+/**
+ * time_compare - compares two time_t variables.
+ * @timea: variables a.
+ * @timeb: variables b.
+ */
+static inline int time_compare(const time_t timea, const time_t timeb)
+{
+    if (timea < timeb)
+        return -1;
+    if (timea > timeb)
+        return 1;
+    return 0;
+}
+
+/**
+ * time_after - compare if a time value is bigger than another one
+ * @timea: the bigger one
+ * @timeb: the smaller one
+ */
+static inline bool time_after(const time_t timea, const time_t timeb)
+{
+    return time_compare(timea, timeb) > 0;
+}
+
+/**
+ * time_before - compare if a time value is smaller than another one.
+ * @timea: the smaller one.
+ * @timeb: the bigger one.
+ */
+static inline bool time_before(const time_t timea, const time_t timeb)
+{
+    return time_compare(timea, timeb) < 0;
+}
+
+/**
+ * time_after - compare if a time value is bigger or equal than another one.
+ * @timea: the bigger one.
+ * @timeb: the smaller one.
+ */
+static inline bool time_after_equal(const time_t timea, const time_t timeb)
+{
+    return time_compare(timea, timeb) >= 0;
+}
+
+/**
+ * time_before_equal - compare if a time value is smaller than or equal another one.
+ * @timea: the smaller one.
+ * @timeb: the bigger one.
+ */
+static inline bool time_before_equal(const time_t timea, const time_t timeb)
+{
+    return time_compare(timea, timeb) <= 0;
+}
 
 /**
  * timespec_compare - compares two timespec variables.
