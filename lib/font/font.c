@@ -92,8 +92,8 @@ struct font *font_suitable(unsigned int xres, unsigned int yres,
         if (val > 20)
             fontg += 20 - val;
 
-        if ((wide & (1 << (font->width - 1))) &&
-            (height & (1 << (font->height - 1))))
+        if ((wide & (1U << (font->width - 1))) &&
+            (height & (1U << (font->height - 1))))
             fontg += 1000;
 
         if (fontg > suig) {
