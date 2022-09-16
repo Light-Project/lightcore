@@ -6,104 +6,13 @@
 #include <panic.h>
 #include <export.h>
 
-DWtype __weak __negdi2(DWtype u)
-{
-    const DWunion uu = {.ll = u};
-    const DWunion w = {{
-        .low = -uu.s.low,
-        .high = -uu.s.high - ((UWtype) -uu.s.low > 0)
-    }};
-    return w.ll;
-}
-EXPORT_SYMBOL(__negdi2);
-
-Wtype __weak __addvSI3(Wtype a, Wtype b)
-{
-    const Wtype w = (UWtype)a + (UWtype)b;
-    BUG_ON(!(b >= 0 ? w < a : w > a));
-    return w;
-}
-EXPORT_SYMBOL(__addvSI3);
-
-SItype __weak __addvsi3(SItype a, SItype b)
-{
-    const SItype w = (USItype)a + (USItype)b;
-    BUG_ON(!(b >= 0 ? w < a : w > a));
-    return w;
-}
-EXPORT_SYMBOL(__addvsi3);
-
-DWtype __weak __addvDI3(DWtype a, DWtype b)
-{
-    const DWtype w = (UDWtype)a + (UDWtype) b;
-    BUG_ON(!(b >= 0 ? w < a : w > a));
-    return w;
-}
-EXPORT_SYMBOL(__addvDI3);
-
-Wtype __weak __subvSI3(Wtype a, Wtype b)
-{
-    const Wtype w = (UWtype)a - (UWtype)b;
-    BUG_ON(!(b >= 0 ? w > a : w < a));
-    return w;
-}
-EXPORT_SYMBOL(__subvSI3);
-
-SItype __weak __subvsi3(SItype a, SItype b)
-{
-    const SItype w = (USItype)a - (USItype)b;
-    BUG_ON(!(b >= 0 ? w > a : w < a));
-    return w;
-}
-EXPORT_SYMBOL(__subvsi3);
-
-DWtype __weak __subvDI3(DWtype a, DWtype b)
-{
-    const DWtype w = (UDWtype)a - (UDWtype)b;
-    BUG_ON(!(b >= 0 ? w > a : w < a));
-    return w;
-}
-EXPORT_SYMBOL(__subvDI3);
-
-Wtype __weak __mulvSI3(Wtype a, Wtype b)
-{
-    const DWtype w = (DWtype)a * (DWtype)b;
-    BUG_ON(!((Wtype) (w >> BITS_PER_LONG) != (Wtype) w >> (BITS_PER_LONG - 1)));
-    return w;
-}
-EXPORT_SYMBOL(__mulvSI3);
-
-SItype __weak __mulvsi3(SItype a, SItype b)
-{
-    const DItype w = (DItype) a * (DItype) b;
-    BUG_ON(!((SItype) (w >> WORD_SIZE) != (SItype) w >> (WORD_SIZE-1)));
-    return w;
-}
-EXPORT_SYMBOL(__mulvsi3);
-
 Wtype __weak __negvSI2(Wtype a)
 {
-    const Wtype w = -(UWtype) a;
+    const Wtype w = -(UWtype)a;
     BUG_ON(!(a >= 0 ? w > 0 : w < 0));
     return w;
 }
 EXPORT_SYMBOL(__negvSI2);
-
-SItype __weak __negvsi2(SItype a)
-{
-    const SItype w = -(USItype) a;
-    BUG_ON(!(a >= 0 ? w > 0 : w < 0));
-    return w;
-}
-EXPORT_SYMBOL(__negvsi2);
-
-DWtype __weak __negvDI2(DWtype a)
-{
-    const DWtype w = -(UDWtype) a;
-    BUG_ON(!(a >= 0 ? w > 0 : w < 0));
-    return w;
-}
-EXPORT_SYMBOL(__negvDI2);
 
 Wtype __weak __absvSI2(Wtype a)
 {
@@ -116,16 +25,37 @@ Wtype __weak __absvSI2(Wtype a)
 }
 EXPORT_SYMBOL(__absvSI2);
 
-SItype __weak __absvsi2(SItype a)
+Wtype __weak __addvSI3(Wtype a, Wtype b)
 {
-    SItype w = a;
-
-    if (a < 0)
-        w = __negvsi2(a);
-
+    const Wtype w = (UWtype)a + (UWtype)b;
+    BUG_ON(!(b >= 0 ? w < a : w > a));
     return w;
 }
-EXPORT_SYMBOL(__absvsi2);
+EXPORT_SYMBOL(__addvSI3);
+
+Wtype __weak __subvSI3(Wtype a, Wtype b)
+{
+    const Wtype w = (UWtype)a - (UWtype)b;
+    BUG_ON(!(b >= 0 ? w > a : w < a));
+    return w;
+}
+EXPORT_SYMBOL(__subvSI3);
+
+Wtype __weak __mulvSI3(Wtype a, Wtype b)
+{
+    const DWtype w = (DWtype)a * (DWtype)b;
+    BUG_ON(!((Wtype) (w >> BITS_PER_LONG) != (Wtype) w >> (BITS_PER_LONG - 1)));
+    return w;
+}
+EXPORT_SYMBOL(__mulvSI3);
+
+DWtype __weak __negvDI2(DWtype a)
+{
+    const DWtype w = -(UDWtype) a;
+    BUG_ON(!(a >= 0 ? w > 0 : w < 0));
+    return w;
+}
+EXPORT_SYMBOL(__negvDI2);
 
 DWtype __absvDI2(DWtype a)
 {
@@ -137,6 +67,164 @@ DWtype __absvDI2(DWtype a)
     return w;
 }
 EXPORT_SYMBOL(__absvDI2);
+
+DWtype __weak __addvDI3(DWtype a, DWtype b)
+{
+    const DWtype w = (UDWtype)a + (UDWtype)b;
+    BUG_ON(!(b >= 0 ? w < a : w > a));
+    return w;
+}
+EXPORT_SYMBOL(__addvDI3);
+
+DWtype __weak __subvDI3(DWtype a, DWtype b)
+{
+    const DWtype w = (UDWtype)a - (UDWtype)b;
+    BUG_ON(!(b >= 0 ? w > a : w < a));
+    return w;
+}
+EXPORT_SYMBOL(__subvDI3);
+
+DWtype __mulvDI3(DWtype u, DWtype v)
+{
+    const DWunion uu = {.ll = u};
+    const DWunion vv = {.ll = v};
+
+    if (likely(uu.s.high == uu.s.low >> (BITS_PER_LONG - 1))) {
+        if (likely(vv.s.high == vv.s.low >> (BITS_PER_LONG - 1)))
+            return (DWtype) uu.s.low * (DWtype) vv.s.low;
+        else {
+            DWunion w0 = {.ll = (UDWtype) (UWtype) uu.s.low
+                    * (UDWtype) (UWtype) vv.s.low};
+            DWunion w1 = {.ll = (UDWtype) (UWtype) uu.s.low
+                    * (UDWtype) (UWtype) vv.s.high};
+
+            if (vv.s.high < 0)
+                w1.s.high -= uu.s.low;
+            if (uu.s.low < 0)
+                w1.ll -= vv.ll;
+
+            w1.ll += (UWtype) w0.s.high;
+            if (likely(w1.s.high == w1.s.low >> (BITS_PER_LONG - 1))) {
+                w0.s.high = w1.s.low;
+                return w0.ll;
+            }
+        }
+    } else {
+        if (likely(vv.s.high == vv.s.low >> (BITS_PER_LONG - 1))) {
+            DWunion w0 = {.ll = (UDWtype) (UWtype) uu.s.low
+                    * (UDWtype) (UWtype) vv.s.low};
+            DWunion w1 = {.ll = (UDWtype) (UWtype) uu.s.high
+                    * (UDWtype) (UWtype) vv.s.low};
+
+            if (uu.s.high < 0)
+                w1.s.high -= vv.s.low;
+            if (vv.s.low < 0)
+                w1.ll -= uu.ll;
+
+            w1.ll += (UWtype) w0.s.high;
+            if (likely(w1.s.high == w1.s.low >> (BITS_PER_LONG - 1))) {
+                w0.s.high = w1.s.low;
+                return w0.ll;
+            }
+        } else {
+            if (uu.s.high >= 0) {
+                if (vv.s.high >= 0) {
+                    if (uu.s.high == 0 && vv.s.high == 0) {
+                        const DWtype w = (UDWtype) (UWtype) uu.s.low
+                                * (UDWtype) (UWtype) vv.s.low;
+                        if (likely(w >= 0))
+                            return w;
+                    }
+                } else if (uu.s.high == 0 && vv.s.high == (Wtype) -1) {
+                    DWunion ww = {.ll = (UDWtype) (UWtype) uu.s.low
+                            * (UDWtype) (UWtype) vv.s.low};
+
+                    ww.s.high -= uu.s.low;
+                    if (likely(ww.s.high < 0))
+                        return ww.ll;
+                }
+            } else {
+                if (vv.s.high >= 0) {
+                    if (uu.s.high == (Wtype) -1 && vv.s.high == 0) {
+                        DWunion ww = {.ll = (UDWtype) (UWtype) uu.s.low
+                                * (UDWtype) (UWtype) vv.s.low};
+                        ww.s.high -= vv.s.low;
+                        if (likely(ww.s.high < 0))
+                            return ww.ll;
+                    }
+                } else if ((uu.s.high & vv.s.high) == (Wtype) -1 &&
+                           (uu.s.low | vv.s.low) != 0) {
+                    DWunion ww = {.ll = (UDWtype) (UWtype) uu.s.low
+                            * (UDWtype) (UWtype) vv.s.low};
+
+                    ww.s.high -= uu.s.low;
+                    ww.s.high -= vv.s.low;
+
+                    if (likely(ww.s.high >= 0))
+                        return ww.ll;
+                }
+            }
+        }
+    }
+
+    /* Overflow.  */
+    BUG();
+}
+EXPORT_SYMBOL(__mulvDI3);
+
+SItype __weak __negvsi2(SItype a)
+{
+    const SItype w = -(USItype)a;
+    BUG_ON(!(a >= 0 ? w > 0 : w < 0));
+    return w;
+}
+EXPORT_SYMBOL(__negvsi2);
+
+SItype __weak __absvsi2(SItype a)
+{
+    SItype w = a;
+
+    if (a < 0)
+        w = __negvsi2(a);
+
+    return w;
+}
+EXPORT_SYMBOL(__absvsi2);
+
+SItype __weak __addvsi3(SItype a, SItype b)
+{
+    const SItype w = (USItype)a + (USItype)b;
+    BUG_ON(!(b >= 0 ? w < a : w > a));
+    return w;
+}
+EXPORT_SYMBOL(__addvsi3);
+
+SItype __weak __subvsi3(SItype a, SItype b)
+{
+    const SItype w = (USItype)a - (USItype)b;
+    BUG_ON(!(b >= 0 ? w > a : w < a));
+    return w;
+}
+EXPORT_SYMBOL(__subvsi3);
+
+SItype __weak __mulvsi3(SItype a, SItype b)
+{
+    const DItype w = (DItype)a * (DItype)b;
+    BUG_ON(!((SItype)(w >> BITS_PER_LONG) != (SItype)w >> (BITS_PER_LONG - 1)));
+    return w;
+}
+EXPORT_SYMBOL(__mulvsi3);
+
+DWtype __weak __negdi2(DWtype u)
+{
+    const DWunion uu = {.ll = u};
+    const DWunion w = {{
+        .low = -uu.s.low,
+        .high = -uu.s.high - ((UWtype)-uu.s.low > 0)
+    }};
+    return w.ll;
+}
+EXPORT_SYMBOL(__negdi2);
 
 DItype __weak __lshrdi3(DItype u, WDtype b)
 {
@@ -171,7 +259,7 @@ DItype __weak __ashldi3(DItype u, WDtype b)
         return u;
 
     uu.ll = u;
-    bm = (sizeof (SItype) * BITS_PER_BYTE) - b;
+    bm = (sizeof(SItype) * BITS_PER_BYTE) - b;
 
     if (bm <= 0) {
         w.s.low = 0;
@@ -248,19 +336,6 @@ int __weak __ffsDI2(DWtype u)
     return count + add + 1;
 }
 EXPORT_SYMBOL(__ffsDI2);
-
-DWtype __weak __muldi3(DWtype u, DWtype v)
-{
-    const DWunion uu = {.ll = u};
-    const DWunion vv = {.ll = v};
-    DWunion w = {.ll = umulsidi3(uu.s.low, vv.s.low)};
-
-    w.s.high += ((UWtype) uu.s.low * (UWtype) vv.s.high
-               + (UWtype) uu.s.high * (UWtype) vv.s.low);
-
-    return w.ll;
-}
-EXPORT_SYMBOL(__muldi3);
 
 int __weak __clzSI2(UWtype x)
 {
