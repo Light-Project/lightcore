@@ -33,7 +33,7 @@ type name(type value)                       \
 }                                           \
 EXPORT_SYMBOL(name)
 
-GENERIC_SQRT_OPS(sqrt, unsigned int, flsuf);
+GENERIC_SQRT_OPS(sqrti, unsigned int, flsuf);
 GENERIC_SQRT_OPS(sqrtl, unsigned long, flsuf);
 GENERIC_SQRT_OPS(sqrtll, unsigned long long, flsuf64);
 

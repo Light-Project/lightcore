@@ -33,7 +33,7 @@ type name(type first, type second)          \
 }                                           \
 EXPORT_SYMBOL(name)
 
-GENERIC_GCD_OPS(gcd, unsigned int, ffsuf);
+GENERIC_GCD_OPS(gcdi, unsigned int, ffsuf);
 GENERIC_GCD_OPS(gcdl, unsigned long, ffsuf);
 GENERIC_GCD_OPS(gcdll, unsigned long long, ffsuf64);
 

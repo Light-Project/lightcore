@@ -97,7 +97,7 @@ static inline uint64_t mul_u64_u32_shr(uint64_t a, uint32_t mul, unsigned int sh
 
 #endif  /* TYPE_HAS_INT128 */
 
-extern unsigned int gcd(unsigned int first, unsigned int second);
+extern unsigned int gcdi(unsigned int first, unsigned int second);
 extern unsigned long gcdl(unsigned long first, unsigned long second);
 extern unsigned long long gcdll(unsigned long long first, unsigned long long second);
 extern uint8_t gcd8(uint8_t first, uint8_t second);
@@ -120,7 +120,7 @@ extern uint16_t powu16(uint16_t base, unsigned int exp);
 extern uint32_t powu32(uint32_t base, unsigned int exp);
 extern uint64_t powu64(uint64_t base, unsigned int exp);
 
-extern unsigned int sqrt(unsigned int value);
+extern unsigned int sqrti(unsigned int value);
 extern unsigned long sqrtl(unsigned long value);
 extern unsigned long long sqrtll(unsigned long long value);
 extern uint8_t sqrt8(uint8_t value);
