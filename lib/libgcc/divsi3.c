@@ -1,13 +1,12 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <libgcc.h>
-#include <bitops.h>
 #include <initcall.h>
 #include <export.h>
 
-UDItype __weak __udivmodsi4(UDItype u, UDItype d, int modwanted)
+unsigned long __weak __udivmodsi4(unsigned long u, unsigned long d, int modwanted)
 {
-    UDItype bit = 1;
-    UDItype res = 0;
+    unsigned long bit = 1;
+    unsigned long res = 0;
 
     while (d < u && bit && !(d & BIT(BITS_PER_LONG - 1))) {
         d <<= 1;
@@ -27,22 +26,22 @@ UDItype __weak __udivmodsi4(UDItype u, UDItype d, int modwanted)
 }
 EXPORT_SYMBOL(__udivmodsi4);
 
-UDItype __weak __udivsi3(UDItype u, UDItype v)
+unsigned long __weak __udivsi3(unsigned long u, unsigned long v)
 {
     return __udivmodsi4(u, v, false);
 }
 EXPORT_SYMBOL(__udivsi3);
 
-UDItype __weak __umodsi3(UDItype u, UDItype v)
+unsigned long __weak __umodsi3(unsigned long u, unsigned long v)
 {
     return __udivmodsi4(u, v, true);
 }
 EXPORT_SYMBOL(__umodsi3);
 
-DItype __divmodsi4(DItype u, DItype v, int modwanted)
+long __divmodsi4(long u, long v, int modwanted)
 {
-    Wtype neg1 = 0, neg2 = 0;
-    DItype res;
+    unsigned int neg1 = 0, neg2 = 0;
+    long res;
 
     if (u < 0) {
         neg1 = ~neg1;
@@ -66,10 +65,10 @@ DItype __divmodsi4(DItype u, DItype v, int modwanted)
 }
 EXPORT_SYMBOL(__divmodsi4);
 
-DItype __weak __divsi3(DItype u, DItype v)
+long __weak __divsi3(long u, long v)
 {
-    Wtype neg = 0;
-    DItype res;
+    unsigned int neg = 0;
+    long res;
 
     if (u < 0) {
         neg = ~neg;
@@ -86,10 +85,10 @@ DItype __weak __divsi3(DItype u, DItype v)
 }
 EXPORT_SYMBOL(__divsi3);
 
-DItype __weak __modsi3(DItype u, DItype v)
+long __weak __modsi3(long u, long v)
 {
-    Wtype neg = 0;
-    DItype res;
+    unsigned int neg = 0;
+    long res;
 
     if (u < 0) {
         neg = ~neg;
