@@ -46,12 +46,20 @@ typedef union {
 } DWunion;
 
 /* libgcc divsi3 */
-extern UDItype __udivmodsi4(UDItype u, UDItype d, int modwanted);
-extern UDItype __udivsi3(UDItype u, UDItype v);
-extern UDItype __umodsi3(UDItype u, UDItype v);
-extern DItype __divmodsi4(DItype u, DItype v, int modwanted);
-extern DItype __divsi3(DItype u, DItype v);
-extern DItype __modsi3(DItype u, DItype v);
+extern unsigned short __udivmodhi4(unsigned short u, unsigned short d, int modwanted);
+extern unsigned short __udivhi3(unsigned short u, unsigned short v);
+extern unsigned short __umodhi3(unsigned short u, unsigned short v);
+extern short __divmodhi4(short u, short v, int modwanted);
+extern short __divhi3(short u, short v);
+extern short __modhi3(short u, short v);
+
+/* libgcc divsi3 */
+extern unsigned long __udivmodsi4(unsigned long u, unsigned long d, int modwanted);
+extern unsigned long __udivsi3(unsigned long u, unsigned long v);
+extern unsigned long __umodsi3(unsigned long u, unsigned long v);
+extern long __divmodsi4(long u, long v, int modwanted);
+extern long __divsi3(long u, long v);
+extern long __modsi3(long u, long v);
 
 /* libgcc divdi3 */
 extern UDWtype __udivmoddi4(UDWtype n, UDWtype d, UDWtype *rp);
