@@ -45,6 +45,14 @@ typedef union {
     DWtype ll;
 } DWunion;
 
+/* libgcc divsi3 */
+extern UDItype __udivmodsi4(UDItype u, UDItype d, int modwanted);
+extern UDItype __udivsi3(UDItype u, UDItype v);
+extern UDItype __umodsi3(UDItype u, UDItype v);
+extern DItype __divmodsi4(DItype u, DItype v, int modwanted);
+extern DItype __divsi3(DItype u, DItype v);
+extern DItype __modsi3(DItype u, DItype v);
+
 /* libgcc divdi3 */
 extern UDWtype __udivmoddi4(UDWtype n, UDWtype d, UDWtype *rp);
 extern UDWtype __udivdi3(UDWtype u, UDWtype v);
