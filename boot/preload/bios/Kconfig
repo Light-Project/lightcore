@@ -1,16 +1,20 @@
-menu "Log output device"
-depends on ARCH_X86
+# SPDX-License-Identifier: GPL-2.0-or-later
+menu "Bios Preload Config"
+    depends on CHIP_X86
 
-config PRELOAD_SPLASH
-    bool "splash"
+config PRELOAD_EXTENDED
+    bool "Extended Mode"
     default y
 
-config BOOTLOADER_LOG_UART
-    bool "uart"
-    default y
+choice
+    prompt "Preload Console Choice"
+    default PERLOAD_CON_SER
 
-config BOOTLOADER_LOG_FB
-    bool "framebuffer"
-    default y
+config PRELOAD_CON_VGA
+    bool "VGA"
 
-endmenu
+config PRELOAD_CON_SER
+    bool "UART"
+
+endchoice # Preload Console Choice
+endmenu # Bios Preload Config

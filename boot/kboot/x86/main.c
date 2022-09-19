@@ -23,8 +23,14 @@ asmlinkage void main(void)
     uint32_t magic;
 
     /* Init console */
-    console_clear();
-    pr_init(console_print);
+#ifdef CONFIG_KBOOT_CON_VGA
+    video_clear();
+    pr_init(video_print);
+#endif
+#ifdef CONFIG_KBOOT_CON_SER
+    serial_init();
+    pr_init(serial_print);
+#endif
 
     magic = readl(piggy_load);
     if (magic != PIGGY_MAGIC)

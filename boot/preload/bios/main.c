@@ -56,8 +56,17 @@ static __noreturn void biosdisk_boot(void)
 
 asmlinkage void __noreturn main(void)
 {
+#ifdef CONFIG_PRELOAD_CON_VGA
     video_clear();
     pr_init(video_print);
+#endif
+
+#ifdef CONFIG_PRELOAD_CON_SER
+    serial_init();
+    pr_init(serial_print);
+#endif
+
     a20_enable();
+    pr_boot("boot device: %d\n", boot_dev);
     biosdisk_boot();
 }

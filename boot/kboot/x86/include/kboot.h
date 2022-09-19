@@ -72,8 +72,10 @@ extern void kboot_header(void);
 extern void __noreturn kernel_start(uint16_t segment, void *offset);
 extern void __noreturn halt(void);
 extern void kernel_map(void);
-extern void console_print(const char *str);
-extern void console_clear(void);
+extern void video_print(const char *str);
+extern void video_clear(void);
+extern void serial_print(const char *str);
+extern void serial_init(void);
 
 #endif  /* __ASSEMBLY__ */
 #endif  /* _KBOOT_H_ */

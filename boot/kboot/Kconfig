@@ -7,3 +7,5 @@ config LOAD_ADDR
     default 0x00
     help
         The physical address where the boot image is loaded
+
+source "boot/kboot/x86/Kconfig"
