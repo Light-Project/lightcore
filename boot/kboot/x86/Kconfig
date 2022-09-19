@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menu "X86 Kernel Bootloader Config"
+    depends on ARCH_X86
+
+choice
+    prompt "Kboot Console Choice"
+    default KBOOT_CON_SER
+
+config KBOOT_CON_VGA
+    bool "VGA"
+
+config KBOOT_CON_SER
+    bool "UART"
+
+endchoice # Kboot Console Choice
+endmenu # X86 Kernel Bootloader Config

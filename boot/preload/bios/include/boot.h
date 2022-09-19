@@ -150,6 +150,8 @@ extern void bios_int(char nr, struct bios_reg *ir, struct bios_reg *or);
 extern void biosdisk_read(uint8_t dev, void *buff, uint32_t lba, int count);
 extern void video_print(const char *str);
 extern void video_clear(void);
+extern void serial_print(const char *str);
+extern void serial_init(void);
 extern void a20_enable(void);
 
 #endif

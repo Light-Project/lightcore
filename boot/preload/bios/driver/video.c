@@ -4,8 +4,8 @@
  */
 
 #include <boot.h>
+#include <ioops.h>
 #include <driver/video/vga.h>
-#include <asm/io.h>
 
 #define xres    80
 #define yres    25
