@@ -25,9 +25,9 @@ config PACK_GZIP
         The old and tried gzip compression. It provides a good balance
         between compression ratio and decompression speed.
 
-endchoice
+endchoice # Kernel compression mode"
 
 source "boot/kboot/Kconfig"
 source "boot/preload/Kconfig"
 
-endmenu
+endmenu # Boot Options

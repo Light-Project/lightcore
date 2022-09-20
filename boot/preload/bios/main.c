@@ -6,9 +6,11 @@
 #include <boot.h>
 #include <linkage.h>
 #include <kernel.h>
-#include <crypto/crc32-table.h>
+#include <asm/header.h>
 #include <lightcore/asm/byteorder.h>
-#include <asm-generic/header.h>
+
+#ifndef CONFIG_PRELOAD_EXTENDED
+# include <crypto/crc32-table.h>
 
 static uint32_t crc32(const uint8_t *src, int len, uint32_t crc)
 {
@@ -37,7 +39,6 @@ static __noreturn void biosdisk_boot(void)
     rawload = load - sizeof(*head);
     blkcount = DIV_ROUND_UP(size + sizeof(*head), 512);
 
-    pr_boot("boot device: %d\n", boot_dev);
     pr_boot("data size: %#x\n", size);
     pr_boot("load address: %#x\n", load);
     pr_boot("entry point: %#x\n", entry);
@@ -53,6 +54,33 @@ static __noreturn void biosdisk_boot(void)
     pr_boot("start kboot...\n");
     kboot_start((entry & ~0xffff) >> 4, entry & 0xffff);
 }
+#else /* CONFIG_PRELOAD_EXTENDED */
+static __noreturn void biosdisk_boot(void)
+{
+    struct kboot_params *head = zalloca(1024);
+    uint32_t hsect, ksize, kload;
+
+    biosdisk_read(boot_dev, head, load_seek, 2);
+    head = (void *)head + 0x1f1;
+    if (memcmp(&head->header, "HdrS", 4))
+        panic("biosdisk bad image\n");
+
+    hsect = head->setup_sects + 1;
+    ksize = head->syssize;
+    kload = head->code32_start;
+
+    pr_boot("header size: %#x\n", hsect);
+    pr_boot("data size: %#x\n", ksize);
+    pr_boot("load address: %#x\n", kload);
+
+    ksize = DIV_ROUND_UP(ksize, 512);
+    biosdisk_read(boot_dev, (void *)0x10000, load_seek, hsect);
+    biosdisk_read(boot_dev, (void *)kload, load_seek + hsect, ksize);
+
+    pr_boot("start kboot...\n");
+    kboot_start(0x1000, 0x200);
+}
+#endif /* CONFIG_PRELOAD_EXTENDED */
 
 asmlinkage void __noreturn main(void)
 {
@@ -60,7 +88,6 @@ asmlinkage void __noreturn main(void)
     video_clear();
     pr_init(video_print);
 #endif
-
 #ifdef CONFIG_PRELOAD_CON_SER
     serial_init();
     pr_init(serial_print);
