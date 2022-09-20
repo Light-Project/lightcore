@@ -34,9 +34,15 @@ uboot: $(obj)/uImage
 quiet_cmd_disk = MKDISK $@
 
 ifneq ($(CONFIG_CHIP_X86),)
+ifneq ($(CONFIG_PRELOAD_EXTENDED),)
+cmd_disk = rm -f $(obj)/disk.img; \
+           $(DD) if=$(obj)/preload/preload.bin of=$(obj)/disk.img bs=512 conv=notrunc; \
+           $(DD) if=$(obj)/kboot/boot.bin of=$(obj)/disk.img bs=512 seek=63 conv=notrunc
+else
 cmd_disk = rm -f $(obj)/disk.img; \
            $(DD) if=$(obj)/preload/preload.bin of=$(obj)/disk.img bs=512 conv=notrunc; \
            $(DD) if=$(obj)/uImage of=$(obj)/disk.img bs=512 seek=63 conv=notrunc
+endif
 endif
 
 ifneq ($(CONFIG_CHIP_ESP8266),)
