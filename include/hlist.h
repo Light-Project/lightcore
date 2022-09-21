@@ -151,6 +151,63 @@ static inline void hlist_del_init(struct hlist_node *node)
 }
 
 /**
+ * hlist_check_empty - check whether the node is head.
+ * @head: hlist head to check.
+ */
+static inline bool hlist_check_empty(const struct hlist_head *head)
+{
+    return !head->node;
+}
+
+/**
+ * hlist_check_first - check whether the node is a header.
+ * @head: the head of the hlist.
+ * @node: the entry to test.
+ */
+static inline bool hlist_check_first(const struct hlist_head *head, const struct hlist_node *node)
+{
+    return head->node == node;
+}
+
+/**
+ * hlist_check_end - check whether the node is a ending.
+ * @head: the head of the hlist.
+ * @node: the entry to test.
+ */
+static inline bool hlist_check_end(const struct hlist_node *node)
+{
+    return !node->next;
+}
+
+/**
+ * hlist_check_another - check whether has another node.
+ * @head: hlist head to check.
+ * @node: the unique node.
+ */
+static inline bool hlist_check_another(const struct hlist_head *head, const struct hlist_node *node)
+{
+    return head->node == node && node->next == NULL;
+}
+
+/**
+ * hlist_check_outsize - check whether the node is outside the list.
+ * @node: list entry to check.
+ */
+static inline bool hlist_check_outsize(const struct hlist_node *node)
+{
+    return node->next == POISON_HLIST1;
+}
+
+/**
+ * hlist_check_unhashed - check whether the node is reinitialized.
+ * @node: hlist node to check.
+ */
+static inline bool hlist_check_unhashed(const struct hlist_node *node)
+{
+    return !node->pprev;
+}
+
+/**
  * hlist_move_list - move an hlist.
  * @old: hlist_head for old list.
  * @new: hlist_head for new list.
@@ -161,34 +218,6 @@ static inline void hlist_move_list(struct hlist_head *old, struct hlist_head *ne
     old->node = NULL;
     if (new->node)
         new->node->pprev = &new->node;
-}
-
-/**
- * hlist_check_empty - Is the specified hlist_head structure an empty hlist.
- * @head: Structure to check.
- */
-static inline bool hlist_check_empty(const struct hlist_head *head)
-{
-    return !head->node;
-}
-
-/**
- * hlist_check_unhashed - Has node been removed from list and reinitialized.
- * @node: Node to be checked.
- */
-static inline bool hlist_check_unhashed(const struct hlist_node *node)
-{
-    return !node->pprev;
-}
-
-/**
- * hlist_check_another - check whether has another node.
- * @head: slist head to check.
- * @node: the unique node.
- */
-static inline bool hlist_check_another(const struct hlist_head *head, const struct hlist_node *node)
-{
-    return head->node == node && node->next == NULL;
 }
 
 /**
@@ -245,8 +274,8 @@ static inline bool hlist_check_another(const struct hlist_head *head, const stru
  * @tmp: another hlist_node to use as temporary storage.
  * @head: the head for your hlist.
  */
-#define hlist_for_each_safe(pos, tmp, head)                             \
-    for ((pos) = (head)->node; (pos) && ({(tmp) = (pos)->next; 1;});    \
+#define hlist_for_each_safe(pos, tmp, head) \
+    for ((pos) = (head)->node; (pos) && ({(tmp) = (pos)->next; 1;}); \
          (pos) = (tmp), ((tmp) && ((tmp) = (tmp)->next)))
 
 /**
@@ -254,8 +283,8 @@ static inline bool hlist_check_another(const struct hlist_head *head, const stru
  * @pos: the &struct hlist_node to use as a loop cursor.
  * @tmp: another hlist_node to use as temporary storage.
  */
-#define hlist_for_each_from_safe(pos, tmp)                              \
-    for (; (pos) && ({(tmp) = (pos)->next; 1;});                        \
+#define hlist_for_each_from_safe(pos, tmp) \
+    for (; (pos) && ({(tmp) = (pos)->next; 1;}); \
          (pos) = (tmp), ((tmp) && ((tmp) = (tmp)->next)))
 
 /**
@@ -263,19 +292,19 @@ static inline bool hlist_check_another(const struct hlist_head *head, const stru
  * @pos: the &struct hlist_node to use as a loop cursor.
  * @tmp: another hlist_node to use as temporary storage.
  */
-#define hlist_for_each_continue_safe(pos, tmp)                          \
-    for ((void)((pos) && ((pos) = (pos)->next));                        \
-         (pos) && ({(tmp) = (pos)->next; 1;});                          \
+#define hlist_for_each_continue_safe(pos, tmp) \
+    for ((void)((pos) && ((pos) = (pos)->next)); \
+         (pos) && ({(tmp) = (pos)->next; 1;}); \
          (pos) = (tmp), ((tmp) && ((tmp) = (tmp)->next)))
 
 /**
- * hlist_for_each_entry	- iterate over list of given type
+ * hlist_for_each_entry	- iterate over list of given type.
  * @pos: the type * to use as a loop cursor.
  * @head: the head for your list.
  * @member:	the name of the hlist_node within the struct.
  */
-#define hlist_for_each_entry(pos, head, member)                         \
-    for ((pos) = hlist_first_entry(head, typeof(*(pos)), member);       \
+#define hlist_for_each_entry(pos, head, member) \
+    for ((pos) = hlist_first_entry(head, typeof(*(pos)), member); \
          (pos); (pos) = hlist_next_entry(pos, member))
 
 /**
@@ -283,7 +312,7 @@ static inline bool hlist_check_another(const struct hlist_head *head, const stru
  * @pos: the type * to use as a loop cursor.
  * @member: the name of the hlist_node within the struct.
  */
-#define hlist_for_each_entry_from(pos, member)                          \
+#define hlist_for_each_entry_from(pos, member) \
     for (; (pos); (pos) = hlist_next_entry(pos, member))
 
 /**
@@ -291,8 +320,8 @@ static inline bool hlist_check_another(const struct hlist_head *head, const stru
  * @pos: the type * to use as a loop cursor.
  * @member: the name of the hlist_node within the struct.
  */
-#define hlist_for_each_entry_continue(pos, member)                      \
-    for ((void)((pos) && ((pos) = hlist_next_entry(pos, member)));      \
+#define hlist_for_each_entry_continue(pos, member) \
+    for ((void)((pos) && ((pos) = hlist_next_entry(pos, member))); \
          (pos); (pos) = hlist_next_entry(pos, member))
 
 /**
@@ -302,9 +331,9 @@ static inline bool hlist_check_another(const struct hlist_head *head, const stru
  * @head: the head for your hlist.
  * @member: the name of the hlist_node within the struct.
  */
-#define hlist_for_each_entry_safe(pos, tmp, head, member)               \
-    for ((pos) = hlist_first_entry(head, typeof(*(pos)), member);       \
-         (pos) && ({(tmp) = hlist_next_entry(pos, member); 1;});        \
+#define hlist_for_each_entry_safe(pos, tmp, head, member) \
+    for ((pos) = hlist_first_entry(head, typeof(*(pos)), member); \
+         (pos) && ({(tmp) = hlist_next_entry(pos, member); 1;}); \
          (pos) = (tmp), ((tmp) && ((tmp) = hlist_next_entry(tmp, member))))
 
 /**
@@ -313,8 +342,8 @@ static inline bool hlist_check_another(const struct hlist_head *head, const stru
  * @tmp: another type * to use as temporary storage.
  * @member:	the name of the hlist_node within the struct.
  */
-#define hlist_for_each_entry_from_safe(pos, tmp, member)                \
-    for (; (pos) && ({(tmp) = hlist_next_entry(pos, member); 1;});      \
+#define hlist_for_each_entry_from_safe(pos, tmp, member) \
+    for (; (pos) && ({(tmp) = hlist_next_entry(pos, member); 1;}); \
          (pos) = (tmp), ((tmp) && ((tmp) = hlist_next_entry(pos, member))))
 
 /**
@@ -323,9 +352,9 @@ static inline bool hlist_check_another(const struct hlist_head *head, const stru
  * @tmp: another type * to use as temporary storage.
  * @member:	the name of the hlist_node within the struct.
  */
-#define hlist_for_each_entry_continue_safe(pos, tmp, member)            \
-    for ((void)((pos) && ((pos) = hlist_next_entry(pos, member)));      \
-         (pos) && ({(tmp) = hlist_next_entry(pos, member); 1;});        \
+#define hlist_for_each_entry_continue_safe(pos, tmp, member) \
+    for ((void)((pos) && ((pos) = hlist_next_entry(pos, member))); \
+         (pos) && ({(tmp) = hlist_next_entry(pos, member); 1;}); \
          (pos) = (tmp), ((tmp) && ((tmp) = hlist_next_entry(pos, member))))
 
 #endif  /* _HLIST_H_ */
