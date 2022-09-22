@@ -11,7 +11,7 @@
 static void systick_periodic(void)
 {
     timer_update();
-    timekeeping_tick();
+    timekeeping_tick(1);
     sched_tick();
 }
 
