@@ -16,7 +16,8 @@ DEFINE_PERCPU(struct prandom_state, prandom_state) = {
 };
 EXPORT_SYMBOL(prandom_state);
 
-static __always_inline uint32_t prandom_seed_minimum(uint32_t x, uint32_t m)
+static __always_inline uint32_t
+prandom_seed_minimum(uint32_t x, uint32_t m)
 {
     return (x < m) ? x + m : x;
 }
@@ -41,7 +42,11 @@ uint32_t prandom_state_value(struct prandom_state *pstate)
 }
 EXPORT_SYMBOL(prandom_state_value);
 
-BYTEFILL_DECLARE_PREFIX(, prandom_state_bytes, uint32_t, prandom_state_value, (pstate), struct prandom_state *pstate)
+BYTEFILL_DECLARE_PREFIX(,
+    prandom_state_bytes, uint32_t,
+    prandom_state_value, (pstate),
+    struct prandom_state *pstate
+)
 EXPORT_SYMBOL(prandom_state_bytes);
 
 uint32_t prandom_value(void)
