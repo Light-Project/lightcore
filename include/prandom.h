@@ -10,8 +10,10 @@ struct prandom_state {
     uint32_t s3, s4;
 };
 
-#define TAUSWORTHE(seed, a, b, c, d) \
-    ((((seed) & (c)) << (d)) ^ ((((seed) << (a)) ^ (seed)) >> (b)))
+#define TAUSWORTHE(seed, a, b, c, d) (  \
+    (((seed) & (c)) << (d)) ^           \
+    ((((seed) << (a)) ^ (seed)) >> (b)) \
+)
 
 DECLARE_PERCPU(struct prandom_state, prandom_state);
 
