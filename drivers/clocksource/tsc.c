@@ -7,6 +7,7 @@
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
 #include <initcall.h>
+#include <kclock.h>
 #include <driver/platform.h>
 #include <driver/clocksource.h>
 #include <asm/regs.h>
@@ -36,6 +37,11 @@ static state tsc_probe(struct platform_device *pdev, const void *pdata)
     cdev->ops = &tsc_ops;
     cdev->rating = CLOCK_RATING_DESIRED;
     platform_set_devdata(pdev, cdev);
+
+    kclock_register(
+        tsc_get, (uint64_t)tsc_khz * 1000,
+        BIT_RANGE_ULL(63, 0)
+    );
 
     return clocksource_config_register(
         cdev, (uint64_t)tsc_khz * 1000,
