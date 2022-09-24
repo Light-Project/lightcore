@@ -4,7 +4,7 @@
  */
 
 #include <initcall.h>
-#include <gsize.h>
+#include <gunit.h>
 #include <timekeeping.h>
 #include <prandom.h>
 #include <selftest.h>
