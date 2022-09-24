@@ -7,7 +7,7 @@
 #include <string.h>
 #include <kernel.h>
 #include <console.h>
-#include <timekeeping.h>
+#include <kclock.h>
 #include <export.h>
 
 const enum klevel_color printk_level_color[] = {
@@ -65,7 +65,7 @@ int vprintk(const char *fmt, va_list args)
 
 #ifdef CONFIG_PRINTK_TIME
     struct timespec btime;
-    btime = timekeeping_get_time_ts();
+    btime = ns_to_timespec(kclock_get());
     if (strchr(fmt, '\n'))
         p += printk_time(p, &btime);
 #endif
