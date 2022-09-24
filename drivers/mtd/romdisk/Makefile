@@ -2,7 +2,7 @@
 obj-y += romdisk.o data.o
 
 quiet_cmd_mkincbin = $(ECHO_INCBIN) $@
-      cmd_mkincbin = $(objtree)/tools/mkincbin/mkincbin .init.dtb $< > $@
+      cmd_mkincbin = $(objtree)/tools/mkincbin/mkincbin .romdisk $< > $@
 $(obj)/data.S: $(objtree)/boot/romdisk.cpio FORCE
 	$(call if_changed,mkincbin)
 
