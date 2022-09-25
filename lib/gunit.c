@@ -7,21 +7,20 @@
 #include <kernel.h>
 #include <export.h>
 
-int gunit(char *buff, uintmax_t value, const char *unit[],
-          unsigned int units, size_t bsize)
+int gunit(char *buff, uintmax_t value, unsigned int step,
+          const char *unit[], unsigned int units, size_t bsize)
 {
     unsigned int count = 0;
     uintmax_t prev = 0;
 
-    while ((value >= 1024) && (count <= units)) {
-        value = (prev = value) >> 10; /* prev / 1024 */
+    while ((value >= step) && (count <= units)) {
+        value = (prev = value) / step;
         ++count;
     }
 
     return scnprintf(
-        buff, GSIZE_BUFF,
-        "%u.%02u%s", (uint32_t)value,
-        (uint32_t)(prev & 1023) / 10, unit[count]
+        buff, bsize, "%u.%02u%s", (uint32_t)value,
+        (uint32_t)(prev % step) / (step / 100), unit[count]
     );
 }
 EXPORT_SYMBOL(gunit);
@@ -34,7 +33,7 @@ static const char *gsize_unit[7] = {
 
 int gsize(char *buff, uintmax_t value)
 {
-    return gunit(buff, value, gsize_unit,
+    return gunit(buff, value, 1024, gsize_unit,
                  ARRAY_SIZE(gsize_unit), GSIZE_BUFF);
 }
 EXPORT_SYMBOL(gsize);
@@ -46,7 +45,7 @@ static const char *gfreq_unit[4] = {
 
 int gfreq(char *buff, uintmax_t value)
 {
-    return gunit(buff, value, gfreq_unit,
+    return gunit(buff, value, 1000, gfreq_unit,
                  ARRAY_SIZE(gfreq_unit), GFREQ_BUFF);
 }
 EXPORT_SYMBOL(gfreq);
