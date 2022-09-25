@@ -276,7 +276,7 @@ static state console_bootarg(char *args)
 
     return -ENOERR;
 }
-bootarg_initcall("console", console_bootarg);
+earlyarg_initcall("console", console_bootarg);
 
 void __init console_init(void)
 {

@@ -69,7 +69,7 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
 
     pr_info("kernel version: "CONFIG_VERSION"\n");
     pr_info("kernel command: %s\n", boot_args);
-    bootargs_init(boot_args);
+    earlyargs_init(boot_args);
 
     mem_init();
     idr_init();
@@ -78,6 +78,7 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
     sched_init();
     softirq_init();
     timer_init();
+    bootargs_init(boot_args);
 
     device_init();
     irqchip_init();

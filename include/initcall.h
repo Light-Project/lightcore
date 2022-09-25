@@ -122,20 +122,23 @@ extern ctor_initcall_t _ld_ctors_end[];
 struct bootarg {
     const char *args;
     state (*fn)(char *);
+    bool early;
 };
 
 extern struct bootarg _ld_boot_param_start[];
 extern struct bootarg _ld_boot_param_end[];
 
-#define define_bootarg(str, unique_id, fn)              \
+#define define_bootarg(str, unique_id, fn, early)       \
         static struct bootarg __boot_##unique_id        \
         __used __section(".init.bootargs")              \
-        __aligned(__alignof__(struct bootarg)) = {str,fn}
+        __aligned(__alignof__(struct bootarg)) =        \
+        {str, fn, early}
 
-#define bootarg_initcall(str, fn) define_bootarg(str, fn, fn)
+#define earlyarg_initcall(str, fn) define_bootarg(str, fn, fn, true)
+#define bootarg_initcall(str, fn) define_bootarg(str, fn, fn, false)
 
 #define initcall_for_each_args(args, sec)               \
-    for(args = (struct bootarg *)_ld_##sec##_start;     \
+    for (args = (struct bootarg *)_ld_##sec##_start;    \
         args < (struct bootarg *)_ld_##sec##_end; ++args)
 
 #endif  /* _INITCALL_H_ */

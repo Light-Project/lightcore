@@ -13,6 +13,7 @@ extern int __noreturn user_init(void *arg);
 
 extern void initcalls(void);
 extern void __init ctors_initcall(void);
+extern void __init earlyargs_init(const char *cmd);
 extern void __init bootargs_init(const char *cmd);
 
 #endif  /* _INIT_H_ */
