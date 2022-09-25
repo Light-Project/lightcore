@@ -8,12 +8,21 @@
 
 #include <kernel.h>
 #include <string.h>
+#include <slist.h>
 #include <init.h>
 #include <param.h>
 #include <initcall.h>
+#include <kmalloc.h>
 #include <printk.h>
 
+struct blacklist_entry {
+    struct slist_head list;
+    char name[1];
+};
+
 char boot_args[BOOT_PARAM_SIZE];
+static unsigned int initcall_time;
+static SLIST_HEAD(blacklisted);
 
 static __initdata initcall_entry_t *initcall_levels[] = {
     _ld_initcall_start,
@@ -24,14 +33,70 @@ static __initdata initcall_entry_t *initcall_levels[] = {
     _ld_initcall_end,
 };
 
-static void __init do_one_initcall(initcall_entry_t *fn)
+static state initcall_retry(char *args)
 {
-    initcall_t call;
-    state ret;
+    initcall_time = atoui(args);
+    return -ENOERR;
+}
+bootarg_initcall("initcall_retry", initcall_retry);
 
-    call = initcall_from_entry(fn);
-    if ((ret = call()))
-        pr_err("%s init failed, error code [%d]\n", fn->name, ret);
+static state initcall_blacklist(char *args)
+{
+    struct blacklist_entry *entry;
+    char *ename;
+
+    for (;;) {
+        ename = strsep(&args, ",");
+        if (!ename)
+            break;
+
+        pr_debug("blacklisting initcall %s\n", ename);
+        entry = kmalloc(sizeof(*entry) + strlen(ename), GFP_KERNEL);
+        if (BUG_ON(!entry))
+            return -ENOMEM;
+
+        strcpy(entry->name, ename);
+        slist_add(&blacklisted, &entry->list);
+    }
+
+    return -ENOERR;
+}
+bootarg_initcall("initcall_blacklist", initcall_blacklist);
+
+static bool initcall_blacklisted(const char *fname)
+{
+    struct blacklist_entry *entry;
+
+    if (slist_check_empty(&blacklisted))
+        return false;
+
+    slist_for_each_entry(entry, &blacklisted, list) {
+        if (!strcmp(fname, entry->name)) {
+            pr_debug("initcall %s blacklisted\n", fname);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static state __init do_one_initcall(initcall_entry_t *fn)
+{
+    unsigned int count;
+    initcall_t call;
+    state retval;
+
+    if (initcall_blacklisted(fn->name))
+        return -EPERM;
+
+    for (count = 0; count <= initcall_time; ++count) {
+        call = initcall_from_entry(fn);
+        if (!(retval = call()))
+            break;
+        pr_err("initcall %s failed, exit code [%d]\n", fn->name, retval);
+    }
+
+    return retval;
 }
 
 static void __init initcall_level(int level)
