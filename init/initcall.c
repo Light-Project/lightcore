@@ -73,6 +73,8 @@ static state __init bootargs_entry(char *param, char *val, void *pdata)
 
     for (arg = _ld_boot_param_start;
          arg < _ld_boot_param_end; arg++) {
+        if ((bool)pdata != arg->early)
+            continue;
         if (!strcmp(param, arg->args))
             return arg->fn(val);
     }
@@ -80,9 +82,16 @@ static state __init bootargs_entry(char *param, char *val, void *pdata)
     return -ENOENT;
 }
 
+void __init earlyargs_init(const char *cmd)
+{
+    char args_buff[BOOT_PARAM_SIZE];
+    strncpy(args_buff, boot_args, BOOT_PARAM_SIZE);
+    param_parser(args_buff, bootargs_entry, (void *)true);
+}
+
 void __init bootargs_init(const char *cmd)
 {
     char args_buff[BOOT_PARAM_SIZE];
     strncpy(args_buff, boot_args, BOOT_PARAM_SIZE);
-    param_parser(args_buff, bootargs_entry, NULL);
+    param_parser(args_buff, bootargs_entry, (void *)false);
 }
