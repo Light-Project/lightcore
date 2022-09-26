@@ -4,9 +4,11 @@
  */
 
 #define DRIVER_NAME "hpet"
+#define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
 #include <initcall.h>
 #include <irq.h>
+#include <gunit.h>
 #include <delay.h>
 #include <ioops.h>
 #include <driver/platform.h>
@@ -278,6 +280,7 @@ static state hpet_clockevent_init(struct platform_device *pdev)
 static state hpet_probe(struct platform_device *pdev, const void *pdata)
 {
     struct hpet_device *hdev;
+    char gbuff[GFREQ_BUFF];
     uint32_t val;
     state ret;
 
@@ -296,13 +299,16 @@ static state hpet_probe(struct platform_device *pdev, const void *pdata)
     val = hpet_read(hdev, HPET_PERIOD);
     hdev->freq = FSEC_PER_SEC / val;
 
+    gfreq(gbuff, hdev->freq);
+    platform_info(pdev, "main counter tick period %s\n", gbuff);
+
     platform_set_devdata(pdev, hdev);
     hpet_general_restart(hdev);
     hpet_general_legacy(hdev);
 
 #ifdef CONFIG_CLKSRC_HPET
     hdev->clksrc.device = &pdev->dev;
-    hdev->clksrc.rating = 220;
+    hdev->clksrc.rating = CLOCK_RATING_GOOD + 20;
     hdev->clksrc.ops = &hpet_clocksource_ops;
     ret = clocksource_config_register(&hdev->clksrc, hdev->freq, BIT_RANGE(31, 0));
     BUG_ON(ret);
