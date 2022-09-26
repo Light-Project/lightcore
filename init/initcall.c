@@ -14,6 +14,7 @@
 #include <initcall.h>
 #include <kmalloc.h>
 #include <printk.h>
+#include <panic.h>
 
 struct blacklist_entry {
     struct slist_head list;
@@ -83,17 +84,37 @@ static bool initcall_blacklisted(const char *fname)
 static state __init do_one_initcall(initcall_entry_t *fn)
 {
     unsigned int count;
+    unsigned long preempt;
+    char msgbuff[64];
     initcall_t call;
     state retval;
 
     if (initcall_blacklisted(fn->name))
         return -EPERM;
 
+    preempt = preempt_count();
+    msgbuff[0] = 0;
+
     for (count = 0; count <= initcall_time; ++count) {
         call = initcall_from_entry(fn);
         if (!(retval = call()))
             break;
         pr_err("initcall %s failed, exit code [%d]\n", fn->name, retval);
+    }
+
+    if (preempt_count() != preempt) {
+        raw_preempt_count_set(preempt);
+        sprintf(msgbuff, "preemption imbalance ");
+    }
+
+    if (irq_local_disabled()) {
+        irq_local_enable();
+        sprintf(msgbuff, "interrupt changed ");
+    }
+
+    if (msgbuff[0]) {
+        pr_crit("initcall %s leave mess %s\n", fn->name, msgbuff);
+        WARN();
     }
 
     return retval;
