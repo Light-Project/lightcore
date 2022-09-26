@@ -4,6 +4,7 @@
  */
 
 #include <kernel.h>
+#include <gunit.h>
 #include <delay.h>
 #include <printk.h>
 #include <driver/clocksource/i8253.h>
@@ -74,6 +75,7 @@ static unsigned long pit_get_tsc(unsigned long ms, unsigned int minloop)
 
 void __init arch_tsc_setup(void)
 {
+    char gbuff[GFREQ_BUFF];
     unsigned long pittsc_min;
     unsigned long ms, minloop;
     unsigned int count;
@@ -98,5 +100,6 @@ void __init arch_tsc_setup(void)
         pr_warn("unable to calibrate against pit\n");
 
     tsc_khz = pittsc_min;
-    pr_info("tsc detected %lu.%03lu mhz\n", tsc_khz / 1000, tsc_khz % 1000);
+    gfreq(gbuff, pittsc_min * 1000);
+    pr_info("tsc detected %s\n", gbuff);
 }
