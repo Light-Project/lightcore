@@ -42,23 +42,28 @@ static inline int is_value(int c)
 
 static int get_value(struct kshell_context *ctx, char *end, char *varname)
 {
-    char *result, *walk = varname;
-    char tmp = 0;
+    char tmp, *walk, *result, *rvalue = NULL;
+    bool neg = false, alnum = false;
+    int value;
 
-    for (;;) {
-        if (!is_value(*walk) || walk == end) {
-            tmp = *walk;
-            *walk = '\0';
+    for (walk = varname; walk != end; ++walk) {
+        if (!alnum && *walk == '-') {
+            rvalue = walk + 1;
+            neg = true;
+        } else if (is_value(*walk))
+            alnum = true;
+        else
             break;
-        }
-        walk++;
     }
 
-    result = kshell_getenv(ctx, varname);
-    if (tmp)
-        *walk = tmp;
+    tmp = *walk;
+    *walk = '\0';
 
-    return axtoi(result ?: varname);
+    result = kshell_getenv(ctx, rvalue ?: varname);
+    value = axtoi(result ?: rvalue ?: varname);
+
+    *walk = tmp;
+    return neg ? -value : value;
 }
 
 static void set_value(struct kshell_context *ctx, char *end, char *varname, int value, bool hex)
@@ -91,11 +96,11 @@ static char *prev_number(struct kshell_context *ctx, char *start, char *end,
     int result;
 
     for (result = 0; curr >= start; --curr) {
-        if (alnum && (!is_value(*curr))) {
+        if (alnum && !(is_value(*curr) || *curr == '-')) {
             result = get_value(ctx, end, varname);
             break;
         } else if (!alnum) {
-            if (is_value(*curr) || *curr == '-')
+            if (is_value(*curr))
                 alnum = true;
             else if (!isspace(*curr))
                 return NULL;
@@ -122,7 +127,7 @@ static char *next_number(struct kshell_context *ctx, char *end,
     int result;
 
     for (result = 0; curr < end; ++curr) {
-        if (alnum && (!is_value(*curr)))
+        if (alnum && !is_value(*curr))
             break;
         else if (!alnum) {
             if (is_value(*curr) || *curr == '-') {
@@ -195,9 +200,9 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
         }
 
         result = math_parser(ctx, curr + 1, walk, hex, proc);
-        plen = snprintf(0, 0, "%d", result);
+        plen = snprintf(0, 0, " %d", result);
         string_extension(&start, &end, &curr, walk - curr + 1, plen + 1);
-        snprintf(curr, plen + 1, "%d", result);
+        snprintf(curr, plen + 1, " %d", result);
         curr[plen] = ' ';
     }
 
@@ -244,26 +249,6 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
             plen = snprintf(0, 0, "%d", result);
             string_extension(&start, &end, &curr, (size = right - curr), (ext = plen + 1));
             snprintf(curr, plen + 1, "%d", result - 1);
-            curr[plen] = ' ';
-            curr += max(size, ext) - 1;
-
-        } else if (*curr == '+' && (right = next_number(ctx, end, curr + 1, &result, NULL))) {
-            /* +variable */
-            if (prev_number(ctx, start, end, curr - 1, NULL, NULL))
-                continue;
-            plen = snprintf(0, 0, "%d", result);
-            string_extension(&start, &end, &curr, (size = right - curr), (ext = plen + 1));
-            snprintf(curr, plen + 1, "%d", result);
-            curr[plen] = ' ';
-            curr += max(size, ext) - 1;
-
-        } else if (*curr == '-' && (right = next_number(ctx, end, curr + 1, &result, NULL))) {
-            /* -variable */
-            if (prev_number(ctx, start, end, curr - 1, NULL, NULL))
-                continue;
-            plen = snprintf(0, 0, "%d", -result);
-            string_extension(&start, &end, &curr, (size = right - curr), (ext = plen + 1));
-            snprintf(curr, plen + 1, "%d", -result);
             curr[plen] = ' ';
             curr += max(size, ext) - 1;
 
