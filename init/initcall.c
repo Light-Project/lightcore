@@ -3,12 +3,13 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define MUDOLE_NAME "init"
+#define MUDOLE_NAME "initcall"
 #define pr_fmt(fmt) MUDOLE_NAME ": " fmt
 
 #include <kernel.h>
 #include <string.h>
 #include <slist.h>
+#include <errname.h>
 #include <init.h>
 #include <param.h>
 #include <initcall.h>
@@ -30,8 +31,13 @@ static __initdata initcall_entry_t *initcall_levels[] = {
     _ld_initcall1_start, _ld_initcall2_start,
     _ld_initcall3_start, _ld_initcall4_start,
     _ld_initcall5_start, _ld_initcall6_start,
-    _ld_initcall7_start, _ld_initcall8_start,
+    _ld_initcall7_start,
     _ld_initcall_end,
+};
+
+static __initdata const char *initcall_names[] = {
+    "pure", "core", "postcore", "arch",
+    "framework", "fs", "driver", "late",
 };
 
 static state initcall_retry(char *args)
@@ -73,7 +79,7 @@ static bool initcall_blacklisted(const char *fname)
 
     slist_for_each_entry(entry, &blacklisted, list) {
         if (!strcmp(fname, entry->name)) {
-            pr_debug("initcall %s blacklisted\n", fname);
+            pr_debug("%s blacklisted\n", fname);
             return true;
         }
     }
@@ -95,11 +101,20 @@ static state __init do_one_initcall(initcall_entry_t *fn)
     preempt = preempt_count();
     msgbuff[0] = 0;
 
+    pr_debug("starting %s\n", fn->name);
     for (count = 0; count <= initcall_time; ++count) {
+        if (unlikely(count))
+            pr_err("retrying %s %d times\n", fn->name, count);
         call = initcall_from_entry(fn);
         if (!(retval = call()))
             break;
-        pr_err("initcall %s failed, exit code [%d]\n", fn->name, retval);
+    }
+
+    if (retval == -ENOERR)
+        pr_debug("started %s\n", fn->name);
+    else {
+        const char *name = errname(retval) ?: "EUNKNOW";
+        pr_err("abandoned %s, exit %d (code=%s)\n", fn->name, retval, name);
     }
 
     if (preempt_count() != preempt) {
@@ -109,38 +124,26 @@ static state __init do_one_initcall(initcall_entry_t *fn)
 
     if (irq_local_disabled()) {
         irq_local_enable();
-        sprintf(msgbuff, "interrupt changed ");
+        sprintf(msgbuff, "interrupt changed");
     }
 
     if (msgbuff[0]) {
-        pr_crit("initcall %s leave mess %s\n", fn->name, msgbuff);
+        pr_crit("%s leave mess %s\n", fn->name, msgbuff);
         WARN();
     }
 
     return retval;
 }
 
-static void __init initcall_level(int level)
-{
-    initcall_entry_t *fn;
-
-    pr_info("call level%d\n", level);
-
-    for (fn = initcall_levels[level];
-         fn < initcall_levels[level + 1];
-         fn++) {
-        do_one_initcall(fn);
-    }
-}
-
 void __init initcalls(void)
 {
     unsigned int level;
+    initcall_entry_t *fn;
 
-    for (level = 0;
-         level < ARRAY_SIZE(initcall_levels) - 1;
-         level++) {
-        initcall_level(level);
+    for (level = 0; level < ARRAY_SIZE(initcall_levels) - 1; level++) {
+        pr_info("level %s starting\n", initcall_names[level]);
+        for (fn = initcall_levels[level]; fn < initcall_levels[level + 1]; ++fn)
+            do_one_initcall(fn);
     }
 }
 
