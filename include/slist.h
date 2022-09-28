@@ -89,6 +89,15 @@ static inline void slist_replace(struct slist_head *head, struct slist_head *old
 }
 
 /**
+ * slist_check_empty - check whether the node is head.
+ * @head: slist head to check.
+ */
+static inline bool slist_check_empty(const struct slist_head *head)
+{
+    return !head->next;
+}
+
+/**
  * slist_check_first - check whether the node is a header.
  * @head: the head of the slist.
  * @node: the entry to test.
