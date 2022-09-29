@@ -58,13 +58,13 @@ cc_stack_align4     := -mstack-alignment=4
 cc_stack_align8     := -mstack-alignment=8
 endif
 
-platform-ccflags-y  += -mno-sse -mno-mmx -mno-sse2
-platform-ccflags-y  += -mno-3dnow -mno-avx
+platform-ccflags-y  += -msoft-float
+platform-ccflags-y  += -mno-mmx -mno-3dnow
+platform-ccflags-y  += -mno-sse -mno-sse2 -mno-avx
 
 ifdef CONFIG_ARCH_X86_32
 platform-acflags-y  += -m32
 platform-acflags-y  += -march=i386
-platform-acflags-y  += -msoft-float
 platform-ccflags-y  += $(cc_stack_align4)
 platform-symflags-y += -m32
 platform-ldflags-y  += -m elf_i386
