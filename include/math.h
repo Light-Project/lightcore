@@ -97,7 +97,11 @@ static inline uint64_t mul_u64_u32_shr(uint64_t a, uint32_t mul, unsigned int sh
 
 #endif  /* TYPE_HAS_INT128 */
 
-extern unsigned int gcdi(unsigned int first, unsigned int second);
+extern int16_t sins16(int16_t angle);
+extern int16_t coss16(int16_t angle);
+extern int32_t sins32(int32_t angle);
+extern int32_t coss32(int32_t angle);
+
 extern unsigned long gcdl(unsigned long first, unsigned long second);
 extern unsigned long long gcdll(unsigned long long first, unsigned long long second);
 extern uint8_t gcd8(uint8_t first, uint8_t second);
