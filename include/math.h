@@ -101,6 +101,7 @@ extern int16_t sins16(int16_t angle);
 extern int16_t coss16(int16_t angle);
 extern int32_t sins32(int32_t angle);
 extern int32_t coss32(int32_t angle);
+extern unsigned int atan2i(int x, int y);
 
 extern unsigned long gcdl(unsigned long first, unsigned long second);
 extern unsigned long long gcdll(unsigned long long first, unsigned long long second);
