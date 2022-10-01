@@ -31,7 +31,7 @@ lrc_find_change(struct lrc_head *head, unsigned int tag, bool change)
     hlist_for_each_entry(walk, lrc_hash_slot(head, tag), hash) {
         if (walk->tag != tag)
             continue;
-        if (walk->uncommitted || change)
+        if (!walk->uncommitted || change)
             return walk;
         break;
     }
@@ -51,11 +51,14 @@ lrc_unused_change(struct lrc_head *head, unsigned int tag)
     else
         return NULL;
 
-    if (hlist_check_unhashed(&node->hash))
-        hlist_head_add(lrc_hash_slot(head, tag), &node->hash);
+    if (!hlist_check_unhashed(&node->hash))
+        hlist_del(&node->hash);
 
     node->tag = tag;
+    node->uncommitted = true;
+
     list_move(&head->changing, &node->list);
+    hlist_head_add(lrc_hash_slot(head, tag), &node->hash);
 
     return node;
 }
@@ -126,9 +129,10 @@ unsigned int lrc_put(struct lrc_head *head, struct lrc_node *node)
 {
     if (!--node->refcnt) {
         lrc_clr_starving(head);
-        list_move(&head->freed, &node->list);
+        list_move(&head->lru, &node->list);
         head->used--;
     }
+
     return node->refcnt;
 }
 EXPORT_SYMBOL(lrc_put);

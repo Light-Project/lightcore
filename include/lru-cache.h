@@ -25,6 +25,12 @@ enum lrc_flags {
 #define LRC_STARVING        BIT(__LRC_STARVING)
 #define LRC_FREE_TAG        UINT_MAX
 
+/**
+ * struct lrc_node - least recently used cache node.
+ * @hash: for hash table lookup.
+ * @list: lru list or free list.
+ * @index: node index in cache head.
+ */
 struct lrc_node {
     struct hlist_node hash;
     struct list_head list;
@@ -35,6 +41,20 @@ struct lrc_node {
     bool uncommitted;
 };
 
+/**
+ * struct lrc_head - least recently used cache head.
+ * @lru: available node list headers.
+ * @using: using node list.
+ * @freed: released node list.
+ * @changing: status transition node to be commit.
+ * @max_pending: maximum number of simultaneous changes that can be pending.
+ * @used: number of elements currently in use.
+ * @pending: number of elements currently in transition.
+ * @changed: time of state transitions.
+ * @hits: time of cache hits.
+ * @misses: time of cache misses.
+ * @starve: time of cache starvation.
+ */
 struct lrc_head {
     struct list_head lru;
     struct list_head using;
@@ -44,13 +64,17 @@ struct lrc_head {
     struct hlist_head *taghash;
     struct lrc_node **nodes;
 
+    /* const settings */
     unsigned int nmask;
     unsigned int max_pending;
 
+    /* status description */
     unsigned long flags;
-    unsigned int pending;
-    unsigned int changed;
     unsigned int used;
+    unsigned int pending;
+
+    /* state counter */
+    unsigned int changed;
     unsigned long hits;
     unsigned long misses;
     unsigned long starve;
