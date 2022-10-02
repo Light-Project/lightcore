@@ -29,18 +29,17 @@ static struct partition_type *partition_find(const char *name)
 state partition_scan(struct block_device *bdev)
 {
     struct partition_type *part;
-    state ret;
+    state retval = -ENOERR;
 
     spin_lock(&partition_lock);
     list_for_each_entry(part, &partition_list, list) {
-        ret = part->match(bdev);
-        if (ret == -ENODATA)
-            continue;
-        return ret;
+        retval = part->match(bdev);
+        if (retval != -ENODATA)
+            break;
     }
     spin_unlock(&partition_lock);
 
-    return -ENODATA;
+    return retval;
 }
 
 state partition_register(struct partition_type *part)
