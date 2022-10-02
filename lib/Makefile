@@ -54,6 +54,7 @@ obj-y += segtree.o
 obj-y += skiplist.o
 obj-$(CONFIG_DEBUG_SLIST) += slist-debug.o
 obj-y += sort.o
+obj-y += stringhash.o
 obj-y += time.o
 obj-y += uuid.o
 obj-y += xml.o
