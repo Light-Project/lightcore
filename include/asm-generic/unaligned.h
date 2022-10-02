@@ -29,6 +29,26 @@
 #define unaligned_set(ptr, val) unaligned_set_type(typeof(*(ptr)), (ptr), (val))
 #endif
 
+static inline unsigned int unaligned_get_uint(const void *p)
+{
+    return unaligned_get_type(unsigned int, p);
+}
+
+static inline unsigned long unaligned_get_ulong(const void *p)
+{
+    return unaligned_get_type(unsigned long, p);
+}
+
+static inline void unaligned_set_uint(void *p, unsigned int val)
+{
+    unaligned_set_type(unsigned int, p, val);
+}
+
+static inline void unaligned_set_ulong(void *p, unsigned long val)
+{
+    unaligned_set_type(unsigned long, p, val);
+}
+
 static inline uint16_t unaligned_get_u16(const void *p)
 {
     return unaligned_get_type(uint16_t, p);
