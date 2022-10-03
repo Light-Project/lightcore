@@ -25,6 +25,7 @@ extern void *_ld_bss_end[];
 
 extern void *_ld_image_start[];
 extern void *_ld_image_end[];
+extern void *_ld_reserve_end[];
 
 extern void *_ld_data_bug_table_start[];
 extern void *_ld_data_bug_table_end[];
@@ -58,7 +59,7 @@ GENERIC_SECTION_FUNC(exittext)
 GENERIC_SECTION_FUNC(exitdata)
 GENERIC_SECTION_FUNC(bss)
 
+#define RESERVE_SIZE page_align((uintptr_t)_ld_reserve_end - (uintptr_t)_ld_image_start)
 #define ROMDISK_SIZE ((uintptr_t)_ld_romdisk_end - (uintptr_t)_ld_romdisk_start)
-#define IMAGE_SIZE page_align(va_to_pa(_ld_image_end) - NORMAL_OFFSET)
 
 #endif  /* _SECTIONS_H_ */
