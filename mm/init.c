@@ -22,7 +22,7 @@ void __init mem_init(void)
 {
     /* keep unavailable memory areas */
     memblock_reserve("ram-pad", CONFIG_RAM_BASE, CONFIG_RAM_PAD);
-    memblock_reserve("kernel", NORMAL_OFFSET, IMAGE_SIZE);
+    memblock_reserve("kernel", NORMAL_OFFSET, RESERVE_SIZE);
 
     memblock_dump();
     memmodel_init();

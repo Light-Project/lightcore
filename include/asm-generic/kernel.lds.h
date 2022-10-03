@@ -45,7 +45,7 @@
 # define TEXT_MAIN      .text
 # define DATA_MAIN      .data
 # define SDATA_MAIN     .sdata
-# define RODATA_MAIN    .rodata
+# define RODATA_MAIN    .rodata .rodata.*
 # define BSS_MAIN       .bss
 # define SBSS_MAIN      .sbss
 #endif
@@ -74,6 +74,14 @@
 /*
  * Text Segment
  */
+
+#define TEXT_TEXT(align)                                    \
+    . = ALIGN(align);                                       \
+    *(.text.hot .text.hot.*)                                \
+    *(TEXT_MAIN)                                            \
+    *(.text.unlikely .text.unlikely.*)                      \
+    *(.text.unknown .text.unknown.*)                        \
+    *(.text.asan.* .text.tsan.*)                            \
 
 #define TEXT_SCHED(align)                                   \
     . = ALIGN(align);                                       \
@@ -108,6 +116,7 @@
 /*
  * RO data Segment
  */
+
 #define RODATA_RODATA(align)                                \
     . = ALIGN(align);                                       \
     _ld_rodata_rodata_start = .;                            \
@@ -268,8 +277,8 @@
  */
 
 #define EXIT_TEXT                                           \
-    *(.exit.text)                                           \
-    *(.exit.text.*)                                         \
+    *(.exit.text .exit.text.*)                              \
+    *(.text.exit .text.exit.*)                              \
     MEM_DISCARD(exit.text*)
 
 /*
@@ -277,10 +286,10 @@
  */
 
 #define EXIT_DATA                                           \
-    *(.exit.rodata)                                         \
-    *(.exit.rodata.*)                                       \
-    *(.exit.data)                                           \
-    *(.exit.data.*)                                         \
+    *(.exit.rodata .exit.rodata.*)                          \
+    *(.exit.data .exit.data.*)                              \
+    *(.fini_array .fini_array.*)                            \
+    *(.dtors .dtors.*)                                      \
     MEM_DISCARD(exit.rodata*)                               \
     MEM_DISCARD(exit.data*)
 
@@ -338,21 +347,21 @@
     }                                                       \
 PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
 
-#define TEXT_SECTION(pagealign)                             \
+#define TEXT_SECTION(cacheline, pagealign)                  \
     . = ALIGN(pagealign);                                   \
     .text :                                                 \
     AT(ADDR(.text) - LOAD_OFFSET) {                         \
         _ld_text_start = .;                                 \
-        *(TEXT_MAIN)                                        \
-        TEXT_SCHED(pagealign)                               \
-        TEXT_CPUIDLE(pagealign)                             \
-        TEXT_ENTRY(pagealign)                               \
-        TEXT_IRQENTRY(pagealign)                            \
-        TEXT_SOFTIRQENTRY(pagealign)                        \
+        TEXT_TEXT(cacheline)                                \
+        TEXT_SCHED(cacheline)                               \
+        TEXT_CPUIDLE(cacheline)                             \
+        TEXT_ENTRY(cacheline)                               \
+        TEXT_IRQENTRY(cacheline)                            \
+        TEXT_SOFTIRQENTRY(cacheline)                        \
         _ld_text_end = .;                                   \
     }
 
-#define RODATA_SECTION(pagealign)                           \
+#define RODATA_SECTION(cacheline, pagealign)                \
     . = ALIGN(pagealign);                                   \
     .rodata :                                               \
     AT(ADDR(.rodata) - LOAD_OFFSET) {                       \
@@ -383,13 +392,22 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
     AT(ADDR(.percpu) - LOAD_OFFSET) {                       \
     }
 
-#define INIT_TEXT_SECTION(pagealign)                        \
+#define INIT_TEXT_SECTION(cacheline, pagealign)             \
     . = ALIGN(pagealign);                                   \
     .init.text :                                            \
     AT(ADDR(.init.text) - LOAD_OFFSET) {                    \
         _ld_inittext_start = .;                             \
         INIT_TEXT                                           \
         _ld_inittext_end = .;                               \
+    }
+
+#define EXIT_TEXT_SECTION(cacheline, pagealign)             \
+    . = ALIGN(pagealign);                                   \
+    .exit.text :                                            \
+    AT(ADDR(.exit.text) - LOAD_OFFSET) {                    \
+        _ld_exittext_start = .;                             \
+        EXIT_TEXT                                           \
+        _ld_exittext_end = .;                               \
     }
 
 #define INIT_DATA_SECTION(cacheline, pagealign)             \
@@ -412,16 +430,8 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
         _ld_initdata_end = .;                               \
     }
 
-#define EXIT_TEXT_SECTION(pagealign)                        \
-    . = ALIGN(pagealign);                                   \
-    .exit.text :                                            \
-    AT(ADDR(.exit.text) - LOAD_OFFSET) {                    \
-        _ld_exittext_start = .;                             \
-        EXIT_TEXT                                           \
-        _ld_exittext_end = .;                               \
-    }
 
-#define EXIT_DATA_SECTION(pagealign)                        \
+#define EXIT_DATA_SECTION(cacheline, pagealign)             \
     . = ALIGN(pagealign);                                   \
     .exit.data :                                            \
     AT(ADDR(.exit.data) - LOAD_OFFSET) {                    \
