@@ -83,8 +83,8 @@ static inline bool i8042_flush(struct i8042_device *idev)
 
 static state i8042_command(struct i8042_device *idev, uint16_t cmd, uint8_t *para)
 {
-    int receive = ps2_cmd_recv(cmd);
-    int send = ps2_cmd_send(cmd);
+    int receive = PS2_GET_RECV(cmd);
+    int send = PS2_GET_SEND(cmd);
     uint8_t *buff = para;
 
     if (!i8042_write_wait(idev))

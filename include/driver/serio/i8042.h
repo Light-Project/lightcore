@@ -14,10 +14,14 @@ enum i8042_registers {
 enum i8042_cmd {
     I8042_CMD_CTL_RCTR      = PS2_CMD(1, 0, 0x20),
     I8042_CMD_CTL_WCTR      = PS2_CMD(0, 1, 0x60),
+    I8042_CMD_CTL_VERSION   = 0,
     I8042_CMD_CTL_TEST      = PS2_CMD(1, 0, 0xaa),
 
     I8042_CMD_PORT_INPUT    = PS2_CMD(1, 0, 0xd0),
     I8042_CMD_PORT_OUTPUT   = PS2_CMD(1, 0, 0xd1),
+    I8042_CMD_PORT_RESET    = PS2_CMD(0, 0, 0xf0),
+    I8042_CMD_PORT_PULSE    = PS2_CMD(0, 0, 0xfe),
+    I8042_CMD_PORT_NOOP     = PS2_CMD(0, 0, 0xff),
 
     I8042_CMD_KBD_DISABLE   = PS2_CMD(0, 0, 0xad),
     I8042_CMD_KBD_ENABLE    = PS2_CMD(0, 0, 0xae),
@@ -53,5 +57,10 @@ enum i8042_cmd {
 #define I8042_CTRL_SYSTEM           BIT(2)  /* System Flag */
 #define I8042_CTRL_AUXINT           BIT(1)  /* Second PS/2 port interrupt */
 #define I8042_CTRL_KBDINT           BIT(0)  /* First PS/2 port interrupt */
+
+#define I8042_PORT_AUX_OBF          BIT(3)
+#define I8042_PORT_KBD_OBF          BIT(2)
+#define I8042_PORT_A20              BIT(1)
+#define I8042_PORT_RESET            BIT(0)
 
 #endif /* _DRIVER_PS2_i8042_H_ */
