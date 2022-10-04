@@ -8,7 +8,7 @@ config PRELOAD_EXTENDED
 
 choice
     prompt "Preload Console Choice"
-    default PERLOAD_CON_SER
+    default PRELOAD_CON_SER
 
 config PRELOAD_CON_VGA
     bool "VGA"

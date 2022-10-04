@@ -2,6 +2,9 @@
 config LIBGCC_BASE
     bool
 
+config LIBGCC_DIVHI3
+    bool
+
 config LIBGCC_DIVSI3
     bool
 
