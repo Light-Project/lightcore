@@ -103,12 +103,21 @@ extern int32_t sins32(int32_t angle);
 extern int32_t coss32(int32_t angle);
 extern unsigned int atan2i(int x, int y);
 
+extern unsigned int gcdi(unsigned int first, unsigned int second);
 extern unsigned long gcdl(unsigned long first, unsigned long second);
 extern unsigned long long gcdll(unsigned long long first, unsigned long long second);
 extern uint8_t gcd8(uint8_t first, uint8_t second);
 extern uint16_t gcd16(uint16_t first, uint16_t second);
 extern uint32_t gcd32(uint32_t first, uint32_t second);
 extern uint64_t gcd64(uint64_t first, uint64_t second);
+
+extern unsigned int lcmi(unsigned int first, unsigned int second);
+extern unsigned long lcml(unsigned long first, unsigned long second);
+extern unsigned long long lcmll(unsigned long long first, unsigned long long second);
+extern uint8_t lcm8(uint8_t first, uint8_t second);
+extern uint16_t lcm16(uint16_t first, uint16_t second);
+extern uint32_t lcm32(uint32_t first, uint32_t second);
+extern uint64_t lcm64(uint64_t first, uint64_t second);
 
 extern int powi(int base, unsigned int exp);
 extern long powl(long base, unsigned int exp);
