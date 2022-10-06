@@ -45,12 +45,6 @@ struct memblock_region {
 #define range_to_memblock(ptr) \
     container_of(ptr, struct memblock_region, range)
 
-#ifdef CONFIG_MEMTEST
-extern void memtest(void *block, size_t size);
-#else
-extern void memtest(void *block, size_t size) {}
-#endif
-
 extern void memblock_dump(void);
 extern state memblock_add_numa(const char *name, phys_addr_t addr, phys_addr_t size, int numa);
 extern state memblock_reserve(const char *name, phys_addr_t addr, phys_addr_t size);

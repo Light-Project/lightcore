@@ -3,57 +3,69 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "memtest: " fmt
+#define MODULE_NAME "memtest"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
-#include <memory.h>
-#include <mm/memblock.h>
+#include <memtest.h>
+#include <kernel.h>
 #include <printk.h>
+#include <export.h>
 
-static size_t patterns[] = {
-    (size_t)0x0000000000000000ULL,
-    (size_t)0xffffffffffffffffULL,
-    (size_t)0x5555555555555555ULL,
-    (size_t)0xaaaaaaaaaaaaaaaaULL,
-    (size_t)0x1111111111111111ULL,
-    (size_t)0x2222222222222222ULL,
-    (size_t)0x4444444444444444ULL,
-    (size_t)0x8888888888888888ULL,
-    (size_t)0x3333333333333333ULL,
-    (size_t)0x7777777777777777ULL,
-    (size_t)0xccccccccccccccccULL,
-    (size_t)0xeeeeeeeeeeeeeeeeULL,
+static size_t memtest_patterns[] = {
+    (size_t)0x0000000000000000ULL, /* 0000 */
+    (size_t)0xffffffffffffffffULL, /* 1111 */
+    (size_t)0x1111111111111111ULL, /* 0001 */
+    (size_t)0x2222222222222222ULL, /* 0010 */
+    (size_t)0x4444444444444444ULL, /* 0100 */
+    (size_t)0x8888888888888888ULL, /* 1000 */
+    (size_t)0x5555555555555555ULL, /* 0101 */
+    (size_t)0xaaaaaaaaaaaaaaaaULL, /* 1010 */
+    (size_t)0x3333333333333333ULL, /* 0011 */
+    (size_t)0xccccccccccccccccULL, /* 1100 */
 };
 
-static void bad_block(void *start, size_t size)
+static void memtest_once(memtest_report_t func, size_t pattern,
+                         size_t *block, size_t size, size_t step)
 {
-    pr_warn("Bad block size %ld @ %p\n", size, start);
-    memblock_reserve("bad-block", va_to_pa(start), size);
+    const size_t incr = sizeof(pattern);
+    size_t bbstart = 0, bblast = 0;
+    size_t index;
+
+    block = align_ptr_high(block, incr);
+    size /= incr, step = step / incr - 1;
+
+    for (index = 0; index < size; ++index)
+        block[index] = pattern;
+
+    for (index = 0; index < size; ++index) {
+        if (likely(block[index] == pattern))
+            continue;
+
+        if (index == bblast + incr) {
+            bblast += incr;
+            continue;
+        }
+
+        if (bbstart)
+            func(block + bbstart, (bblast - bbstart + 1) * incr);
+
+        bbstart = bblast = index;
+        index += step;
+    }
+
+    if (bbstart)
+        func(block + bbstart, (bblast - bbstart + 1) * incr);
 }
 
-static void memtest_once(size_t pattern, size_t *start, size_t *end)
+void memtest(memtest_report_t report, unsigned int level,
+             void *block, size_t size, size_t step)
 {
-    size_t *walk, *bad_start = NULL;
+    unsigned int index;
+    size_t pattern;
 
-    for (walk = start; walk < end; ++walk)
-        *walk++ = pattern;
-
-    for (walk = start; walk < end; ++walk) {
-        if (likely(*walk == pattern))
-            continue;
-        /* Bad memory start */
-        if (!bad_start)
-            bad_start = walk;
-        /* Bad memory end */
-        if (*(walk + 1) == pattern) {
-            bad_block(walk, (size_t)walk - (size_t)bad_start + 1);
-            bad_start = NULL;
-        }
+    for (index = 0; index < level; ++index) {
+        pattern = memtest_patterns[index % ARRAY_SIZE(memtest_patterns)];
+        memtest_once(report, pattern, block, size, step);
     }
 }
-
-void __init memtest(void *block, size_t size)
-{
-    unsigned int c;
-    for (c = 0; c < ARRAY_SIZE(patterns); ++c)
-    memtest_once(patterns[c], block, block + size);
-}
+EXPORT_SYMBOL(memtest);
