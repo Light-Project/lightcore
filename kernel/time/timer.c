@@ -93,7 +93,7 @@ static bool base_try_dequeue(struct timer_base *base, struct timer *timer, bool 
 static unsigned int clac_index(int depth, ttime_t expires, ttime_t *expiry)
 {
     expires = (expires + LEVEL_GAIN(depth)) >> LEVEL_SHIFT(depth);
-    *expiry = expires << LEVEL_SHIFT(depth);
+    *expiry = (uint64_t)expires << LEVEL_SHIFT(depth);
     return LEVEL_OFFS(depth) + (expires & LEVEL_MASK);
 }
 
