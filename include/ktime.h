@@ -50,6 +50,19 @@ static inline ktime_t ms_to_ktime(int64_t time)
 }
 
 /**
+ * ktime_set - set a ktime from a seconds/nanoseconds value.
+ * @secs: seconds to set.
+ * @nsec: nanoseconds to set.
+ */
+static inline ktime_t ktime_set(time_t secs, long nsec)
+{
+    if (unlikely(secs >= KTIME_SEC_MAX))
+        return KTIME_MAX;
+
+    return ns_to_ktime(secs * NSEC_PER_SEC + nsec);
+}
+
+/**
  * ktime_add_ns/us/ms - add time to ktime
  * @time: the ktime to add
  * @nsec: the ns/us/ms to add
