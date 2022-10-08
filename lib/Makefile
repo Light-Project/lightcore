@@ -18,6 +18,7 @@ obj-y += bsearch.o
 obj-y += btree-helper.o
 obj-y += btree.o
 obj-y += bytefill.o
+obj-y += cmdline.o
 obj-y += errname.o
 obj-y += getopt-long.o
 obj-y += getopt.o
