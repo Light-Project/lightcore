@@ -70,7 +70,9 @@ void kclock_register(uint64_t (*read)(void), uint64_t freq, uint64_t mask)
         goto finish;
 
     kclock_forward(&kclock);
+    kclock.cycle_last = read();
     kclock.read = read;
+
     kclock.freq = freq;
     kclock.mask = mask;
     kclock.mult = mult;
