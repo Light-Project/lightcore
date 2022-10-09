@@ -2,11 +2,11 @@
 #ifndef _COMPILER_SECTIONS_H_
 #define _COMPILER_SECTIONS_H_
 
-#define __init  __cold  __section(".init.text")
+#define __init __cold   __section(".init.text")
 #define __initdata      __section(".init.data")
 #define __initconst     __section(".init.rodata")
 
-#define __exit  __cold  __section(".exit.text")
+#define __exit __cold   __section(".exit.text")
 #define __exitdata      __section(".exit.data")
 #define __exitconst     __section(".exit.rodata")
 
