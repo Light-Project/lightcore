@@ -293,4 +293,14 @@
  */
 #define __weak                          __attribute__((__weak__))
 
+/*
+ *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-constructor-function-attribute
+ */
+#define __ctor                          __attribute__((constructor))
+
+/*
+ *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-destructor-function-attribute
+ */
+#define __dtor                          __attribute__((destructor))
+
 #endif /* _COMPILER_ATTRIBUTES_H */
