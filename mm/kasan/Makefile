@@ -1,5 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-obj-y += core.o
+KASAN_SANITIZE = n
+UBSAN_SANITIZE = n
+KGCOV_PROFILE = n
+
+obj-y += core.o shadow.o
 obj-$(CONFIG_KASAN_GENERIC) += generic.o
 
 CCFLAGS_KASAN   += $(call cc-option, -fno-conserve-stack)

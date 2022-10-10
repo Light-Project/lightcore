@@ -7,13 +7,12 @@
 #include <printk.h>
 #include <export.h>
 
-bool kasan_report(unsigned long addr, size_t size, bool is_write, unsigned long ip)
+bool kasan_report(uintptr_t addr, size_t size, bool write, uintptr_t rip)
 {
     return false;
 }
 
 void __init kasan_init(void)
 {
-
 
 }
