@@ -31,7 +31,20 @@ static state sort_test_testing(struct kshell_context *ctx, void *pdata)
     for (count = 0; count < TEST_LOOP; ++count) {
         sdata[count].index = count;
         sdata[count].value = prandom_value();
-        kshell_printf(ctx, "sort generating: %02d = %u\n",
+        kshell_printf(ctx, "qsort generating: %02d = %u\n",
+            count, sdata[count].value);
+    }
+
+    qsort(sdata, TEST_LOOP, sizeof(*sdata), sort_test_cmp, NULL);
+    for (count = 0; count < TEST_LOOP; ++count) {
+        kshell_printf(ctx, "sort qsort%02u: %02u = %u\n",
+            count, sdata[count].index, sdata[count].value);
+    }
+
+    for (count = 0; count < TEST_LOOP; ++count) {
+        sdata[count].index = count;
+        sdata[count].value = prandom_value();
+        kshell_printf(ctx, "bsort generating: %02d = %u\n",
             count, sdata[count].value);
     }
 
