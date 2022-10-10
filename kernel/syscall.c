@@ -5,6 +5,7 @@
 
 #include <syscall.h>
 #include <linkage.h>
+#include <dynamic-call.h>
 #include <spinlock.h>
 #include <atomic.h>
 #include <export.h>
@@ -45,42 +46,12 @@ asmlinkage long syscall_handle(unsigned long callnr, long arg1, long arg2,
     }
 
     syscall = node_to_rbtree(node);
-    switch (syscall->argnr) {
-        case 0: default:
-            retval = ((long (*)())
-                (syscall->entry))();
-            break;
-
-        case 1:
-            retval = ((long (*)(long))
-                (syscall->entry))(arg1);
-            break;
-
-        case 2:
-            retval = ((long (*)(long, long))
-                (syscall->entry))(arg1, arg2);
-            break;
-
-        case 3:
-            retval = ((long (*)(long, long, long))
-                (syscall->entry))(arg1, arg2, arg3);
-            break;
-
-        case 4:
-            retval = ((long (*)(long, long, long, long))
-                (syscall->entry))(arg1, arg2, arg3, arg4);
-            break;
-
-        case 5:
-            retval = ((long (*)(long, long, long, long, long))
-                (syscall->entry))(arg1, arg2, arg3, arg4, arg5);
-            break;
-
-        case 6:
-            retval = ((long (*)(long, long, long, long, long, long))
-                (syscall->entry))(arg1, arg2, arg3, arg4, arg5, arg6);
-            break;
-    }
+    retval = dynamic_call(syscall->entry, callnr,
+        (void **)(long []) {
+            arg1, arg2, arg3,
+            arg4, arg5, arg6,
+        }
+    );
 
     atomic_inc(&syscall->count);
     return retval;
