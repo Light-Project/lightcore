@@ -9,11 +9,11 @@
 #ifndef __ASSEMBLY__
 
 #define WARN_FLAGS(flags) ({                            \
-    GENERIC_CLASH_OP(BUG_OPCODE, flags, "");            \
+    GENERIC_CRASH_OP(BUG_OPCODE, flags, "");            \
 })
 
 #define BUG() ({                                        \
-    GENERIC_CLASH_OP(BUG_OPCODE, CRASH_TYPE_BUG, "");   \
+    GENERIC_CRASH_OP(BUG_OPCODE, CRASH_TYPE_BUG, "");   \
     unreachable();                                      \
 })
 

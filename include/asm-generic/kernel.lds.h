@@ -170,8 +170,7 @@
 #define BUG_TABLE(align)                                    \
     . = ALIGN(align);                                       \
     _ld_data_bug_table_start = .;                           \
-    *(.data.bug_table*)                                     \
-    . = ALIGN(align);                                       \
+    KEEP(*(.data.bug_table*))                               \
     _ld_data_bug_table_end = .;
 
 /*
