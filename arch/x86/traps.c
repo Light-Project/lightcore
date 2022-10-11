@@ -6,6 +6,7 @@
 #include <linkage.h>
 #include <kernel.h>
 #include <irqflags.h>
+#include <crash.h>
 #include <printk.h>
 
 #include <asm/traps.h>
@@ -40,24 +41,29 @@ static bool trap_crash(struct regs *regs)
 static bool kernel_trap(struct regs *regs, unsigned long error_code,
                         unsigned long vector, const char *type)
 {
-    if (!trap_user_mode(regs)) {
+    if (trap_v8086_mode(regs)) {
+        if (vector < TRAP_UD) {
+            return true;
+        }
+    } else if (trap_user_mode(regs)) {
+        return true;
+    } else { /* kernel mode */
         oops(regs, error_code, type);
     }
 
-    return true;
+    return false;
 }
 
 static void generic_trap(struct regs *regs, unsigned long error_code,
                          unsigned long vector, const char *type)
 {
-    if (!kernel_trap(regs, error_code, vector, type))
+    if (kernel_trap(regs, error_code, vector, type))
         return;
 }
 
 DEFINE_IDTENTRY_RAW(invalid_opcode)
 {
-    if (!trap_user_mode(regs)
-        && trap_crash(regs))
+    if (!trap_user_mode(regs) && trap_crash(regs))
         return;
 
     generic_trap(regs, 0, TRAP_UD, "invalid opcode");

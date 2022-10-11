@@ -4,14 +4,38 @@
 
 #ifndef __ASSEMBLY__
 # include <printk.h>
-# include <panic.h>
+# include <bitflags.h>
 
-#define GENERIC_CLASH_OP(opcode, type, extra) ({    \
+enum crash_flags {
+    CRASH_FLAG_NCUT_HERE    = 0,
+    CRASH_FLAG_WARNING      = 1,
+    CRASH_FLAG_ONCE         = 2,
+    CRASH_FLAG_DONE         = 3,
+};
+
+struct crash_entry {
+    uintptr_t addr;
+    unsigned long flags;
+    const char *file;
+    unsigned int line;
+};
+
+GENERIC_STRUCT_BITOPS(crash, struct crash_entry, flags);
+GENERIC_STRUCT_FLAG(crash, struct crash_entry, flags, ncut_here, CRASH_FLAG_NCUT_HERE);
+GENERIC_STRUCT_FLAG(crash, struct crash_entry, flags, warning, CRASH_FLAG_WARNING);
+GENERIC_STRUCT_FLAG(crash, struct crash_entry, flags, once, CRASH_FLAG_ONCE);
+GENERIC_STRUCT_FLAG(crash, struct crash_entry, flags, done, CRASH_FLAG_DONE);
+
+#ifndef CRASH_CUT_HERE
+# define CRASH_CUT_HERE "------------[ CUT HERE ]------------\n"
+#endif
+
+#define GENERIC_CRASH_OP(opcode, flags, extra) ({   \
     __label__ __here;                               \
-    __here: asm volatile(BUG_OPCODE"\n"extra);      \
+    __here: asm volatile(opcode"\n"extra);          \
     static const struct crash_entry crash __used    \
     __section(".data.bug_table") = {(unsigned long) \
-    &&__here, type, __FILE__, __func__, __LINE__};  \
+    &&__here, flags, __FILE__, __LINE__};           \
 })
 
 #ifndef WARN

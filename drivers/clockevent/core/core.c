@@ -8,6 +8,7 @@
 
 #include <string.h>
 #include <initcall.h>
+#include <panic.h>
 #include <timekeeping.h>
 #include <driver/clockevent.h>
 #include <driver/clocksource.h>

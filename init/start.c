@@ -71,6 +71,7 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
     pr_info("kernel command: %s\n", boot_args);
     earlyargs_init(boot_args);
 
+    crash_init();
     mem_init();
     idr_init();
     lrc_init();
