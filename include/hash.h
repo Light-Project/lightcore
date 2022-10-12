@@ -14,19 +14,21 @@
 
 #ifndef ARCH_HAS_HASH32
 # define __hash32 hash32_generic
-static __always_inline uint32_t hash32_generic(uint32_t value)
-{
-    return value * GOLDEN_RATIO_32;
-}
 #endif
 
 #ifndef ARCH_HAS_HASH64
 # define __hash64 hash64_generic
+#endif
+
+static __always_inline uint32_t hash32_generic(uint32_t value)
+{
+    return value * GOLDEN_RATIO_32;
+}
+
 static __always_inline uint64_t hash64_generic(uint64_t value)
 {
     return value * GOLDEN_RATIO_64;
 }
-#endif
 
 static __always_inline uint32_t hash32(uint32_t value, unsigned int bits)
 {
