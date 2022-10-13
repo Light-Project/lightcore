@@ -27,6 +27,7 @@ obj-y += gunit.o
 obj-y += heap.o
 obj-$(CONFIG_DEBUG_HLIST) += hlist-debug.o
 obj-y += idr.o
+obj-y += ihex-parser.o
 obj-y += ilist.o
 obj-y += json.o
 obj-y += kasprintf.o
