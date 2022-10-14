@@ -59,5 +59,6 @@ obj-y += sort.o
 obj-y += stringhash.o
 obj-y += time.o
 obj-y += uuid.o
+obj-y += win-minmax.o
 obj-y += xml.o
 obj-y += xmodem.o
