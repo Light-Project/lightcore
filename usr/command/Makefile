@@ -19,6 +19,7 @@ obj-$(CONFIG_KCMD_MEM)      += mem.o
 obj-$(CONFIG_KCMD_PANIC)    += panic.o
 obj-$(CONFIG_KCMD_REBOOT)   += reboot.o
 obj-$(CONFIG_KCMD_SLEEP)    += sleep.o
+obj-$(CONFIG_KCMD_SWITCH)   += switch.o
 obj-$(CONFIG_KCMD_TAIL)     += tail.o
 obj-$(CONFIG_KCMD_TIME)     += time.o
 obj-$(CONFIG_KCMD_TRUE)     += true.o

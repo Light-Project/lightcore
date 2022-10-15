@@ -78,6 +78,10 @@ config KCMD_SLEEP
     bool "Sleep Command Support"
     default y
 
+config KCMD_SWITCH
+    bool "Switch Command Support"
+    default y
+
 config KCMD_TAIL
     bool "Tail Command Support"
     default y
