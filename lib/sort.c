@@ -32,7 +32,7 @@ state qsort(void *base, size_t number, size_t cells, sort_cmp_t cmp, void *pdata
     size_t ida, idb, idc, idd;
 
     ida = (number / 2) * cells;
-    if (!ida)
+    if (!base || !cmp || !ida)
         return -EINVAL;
 
     for (;;) {
@@ -43,8 +43,8 @@ state qsort(void *base, size_t number, size_t cells, sort_cmp_t cmp, void *pdata
         else
             break;
 
-		for (idb = ida; idc = 2 * idb + cells, (idd = idc + cells) < size;)
-			idb = cmp(base + idc, base + idd, pdata) >= 0 ? idc : idd;
+        for (idb = ida; idc = 2 * idb + cells, (idd = idc + cells) < size;)
+            idb = cmp(base + idc, base + idd, pdata) >= 0 ? idc : idd;
         if (idd == size)
             idb = idc;
 
