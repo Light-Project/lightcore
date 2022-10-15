@@ -16,9 +16,9 @@ static void usage(struct kshell_context *ctx)
 
 static state cond_main(struct kshell_context *ctx, int argc, char *argv[])
 {
+    state retval = -ENOENT;
     unsigned int count;
-    unsigned long condition;
-    state retval = -ENOERR;
+    int condition;
 
     for (count = 1; count < argc; ++count) {
         char *para = argv[count];
@@ -39,18 +39,22 @@ finish:
     if (argc < count + 2)
         goto usage;
 
-    condition = axtol(argv[count++]);
+    condition = axtoi(argv[count++]);
     if (!condition)
         retval = kshell_system(ctx, argv[count++]);
 
-    else for (count++; count < argc - 1; count += 2) {
+    else for (count++; count < argc; count += 2) {
         if (!strcmp(argv[count], "elif")) {
-            condition = axtol(argv[++count]);
+            if (count > argc - 3)
+                goto usage;
+            condition = axtoi(argv[++count]);
             if (condition)
                 continue;
             retval = kshell_system(ctx, argv[++count]);
             break;
         } else if (!strcmp(argv[count], "else")) {
+            if (count > argc - 2)
+                goto usage;
             retval = kshell_system(ctx, argv[++count]);
             break;
         } else
