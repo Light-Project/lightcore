@@ -5,6 +5,7 @@
 
 #include <kshell.h>
 #include <initcall.h>
+#include <glob.h>
 #include <string.h>
 
 static void usage(struct kshell_context *ctx)
@@ -43,16 +44,19 @@ finish:
         if (!strcmp("case", argv[count])) {
             if (count > argc - 3)
                 goto usage;
-            if (!strcmp(condition, argv[++count])) {
-                retval = kshell_system(ctx, argv[count + 1]);
-                break;
-            }
+            if (!glob_match(argv[++count], condition))
+                continue;
         } else if (!strcmp("default", argv[count])) {
             if (count > argc - 2)
                 goto usage;
-            retval = kshell_system(ctx, argv[count + 1]);
         } else
             goto usage;
+
+        retval = kshell_system(ctx, argv[count + 1]);
+        if (!argv[count + 2] || strcmp("fallthrough", argv[count + 2]))
+            break;
+
+        count++;
     }
 
     return retval;
