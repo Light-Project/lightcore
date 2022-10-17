@@ -2,6 +2,7 @@
 obj-y += atan2.o
 obj-y += gcd.o
 obj-y += lcm.o
+obj-y += map.o
 obj-y += pow.o
 obj-y += sin.o
 obj-y += sqrt.o

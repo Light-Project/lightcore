@@ -15,27 +15,27 @@
 )
 
 /**
- * round_up - round up to next specified power of 2
- * @x: the value to round
- * @y: multiple to round up to (must be a power of 2)
+ * round_up - round up to next specified power of 2.
+ * @x: the value to round.
+ * @y: multiple to round up to (must be a power of 2).
  */
 #define round_up(x, y) (                                \
     (((x) - 1) | round_mask(x, y)) + 1                  \
 )
 
 /**
- * round_down - round down to next specified power of 2
- * @x: the value to round
- * @y: multiple to round down to (must be a power of 2)
+ * round_down - round down to next specified power of 2.
+ * @x: the value to round.
+ * @y: multiple to round down to (must be a power of 2).
  */
 #define round_down(x, y) (                              \
     (x) & ~round_mask(x, y)                             \
 )
 
 /**
- * DIV_ROUND_UP -
- * @n:
- * @d:
+ * DIV_ROUND_UP - round up division.
+ * @n: divisor number.
+ * @d: dividend number.
  */
 #define DIV_ROUND_UP(n, d) (                            \
     ((n) + (d) - 1) / (d)                               \
@@ -68,7 +68,7 @@
     abs_choose_expr(x, short, abs_choose_expr(x, char,      \
     __builtin_choose_expr( __builtin_types_compatible_p(    \
     typeof(x), char), (char)({ signed char __x = (x);       \
-    __x < 0? -__x : __x; }), ((void)0))))))                 \
+    __x < 0 ? -__x : __x; }), ((void)0))))))                \
 )
 
 #ifdef TYPE_HAS_INT128
@@ -118,6 +118,21 @@ extern uint8_t lcm8(uint8_t first, uint8_t second);
 extern uint16_t lcm16(uint16_t first, uint16_t second);
 extern uint32_t lcm32(uint32_t first, uint32_t second);
 extern uint64_t lcm64(uint64_t first, uint64_t second);
+
+extern int mapi(int mini, int maxi, int mino, int maxo, int value);
+extern long mapl(long mini, long maxi, long mino, long maxo, long value);
+extern long long mapll(long long mini, long long maxi, long long mino, long long maxo, long long value);
+extern unsigned int mapu(unsigned int mini, unsigned int maxi, unsigned int mino, unsigned int maxo, unsigned int value);
+extern unsigned long mapul(unsigned long mini, unsigned long maxi, unsigned long mino, unsigned long maxo, unsigned long value);
+extern unsigned long long mapull(unsigned long long mini, unsigned long long maxi, unsigned long long mino, unsigned long long maxo, unsigned long long value);
+extern int8_t maps8(int8_t mini, int8_t maxi, int8_t mino, int8_t maxo, int8_t value);
+extern int16_t maps16(int16_t mini, int16_t maxi, int16_t mino, int16_t maxo, int16_t value);
+extern int32_t maps32(int32_t mini, int32_t maxi, int32_t mino, int32_t maxo, int32_t value);
+extern int64_t maps64(int64_t mini, int64_t maxi, int64_t mino, int64_t maxo, int64_t value);
+extern uint8_t mapu8(uint8_t mini, uint8_t maxi, uint8_t mino, uint8_t maxo, uint8_t value);
+extern uint16_t mapu16(uint16_t mini, uint16_t maxi, uint16_t mino, uint16_t maxo, uint16_t value);
+extern uint32_t mapu32(uint32_t mini, uint32_t maxi, uint32_t mino, uint32_t maxo, uint32_t value);
+extern uint64_t mapu64(uint64_t mini, uint64_t maxi, uint64_t mino, uint64_t maxo, uint64_t value);
 
 extern int powi(int base, unsigned int exp);
 extern long powl(long base, unsigned int exp);
