@@ -3,5 +3,5 @@
  * Copyright(c) 2022 Sanpe <sanpeqf@gmail.com>
  */
 
-#define PROGRAM_NAME continue
-#include "break.c"
+#define PROGRAM_NAME until
+#include "while.c"

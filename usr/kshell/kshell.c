@@ -47,28 +47,22 @@ static void commands_release(struct kshell_context *ctx)
     spin_unlock(&kshell_lock);
 }
 
-static state do_system(struct kshell_context *ctx, const char *cmdline, bool *exit)
+static state do_system(struct kshell_context *ctx, const char *cmdline)
 {
     const char *buffer;
-    char **argv;
+    char **argv, retbuf[20];
     struct kshell_command *cmd;
     bool constant = true;
     state retval = -ENOERR;
     int argc;
 
-    while (cmdline) {
+    while (cmdline && !ctx->breakdown) {
         retval = kshell_parser(ctx, &buffer, &cmdline, &argc, &argv, &constant);
         if (retval)
             return retval;
 
         if (!argc)
             continue;
-
-        if (exit && !strcmp(argv[0], "exit")) {
-            *exit = true;
-            kfree(argv);
-            break;
-        }
 
         if (!*ctx->depth) {
             kshell_printf(ctx, "kshell: trigger recursive protection\n");
@@ -82,16 +76,13 @@ static state do_system(struct kshell_context *ctx, const char *cmdline, bool *ex
             return -EBADF;
         }
 
-        if (!cmd->exec)
-            return -ENXIO;
-
         --*ctx->depth;
         retval = cmd->exec(ctx, argc, argv);
         ++*ctx->depth;
         kfree(argv);
 
-        if (retval)
-            break;
+        snprintf(retbuf, sizeof(retbuf), "%d", retval);
+        kshell_setenv(ctx, "?", retbuf, true);
     }
 
     if (!constant)
@@ -110,8 +101,9 @@ state kshell_system(struct kshell_context *ctx, const char *cmdline)
         return -EINVAL;
     }
 
+    BUG_ON(ctx->breakdown);
     ncmdline = strdup(cmdline);
-    ret = do_system(ctx, ncmdline, NULL);
+    ret = do_system(ctx, ncmdline);
     kfree(ncmdline);
 
     return ret;
@@ -121,11 +113,10 @@ EXPORT_SYMBOL(kshell_system);
 state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     struct readline_state *rstate = ctx->readline;
-    struct kshell_context nctx;
-    char *cmdline, retbuf[20];
+    struct kshell_context nctx = {};
     unsigned int count;
-    state retval = -ENOERR;
-    bool exit = false;
+    char *cmdline;
+    state retval;
 
     context_clone(&nctx, ctx);
     retval = commands_prepare(&nctx, ctx);
@@ -140,12 +131,8 @@ state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
             nctx.readline = rstate;
         }
 
-        for (count = 1; !exit && count < argc; ++count) {
-            retval = do_system(&nctx, argv[count], &exit);
-            snprintf(retbuf, sizeof(retbuf), "%d", retval);
-            kshell_setenv(&nctx, "?", retbuf, true);
-            kshell_setenv(&nctx, "??", errname(retval) ?: "EUNKNOWN", true);
-        }
+        for (count = 1; !nctx.breakexit && count < argc; ++count)
+            retval = do_system(&nctx, argv[count]);
     }
 
     else if (rstate) {
@@ -153,15 +140,12 @@ state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
         if (!(nctx.readline = rstate))
             return -ENOMEM;
 
-        while (!exit) {
+        while (!nctx.breakexit) {
             cmdline = readline(rstate, kshell_getenv(&nctx, "PS1"), kshell_getenv(&nctx, "PS2"));
             if (!rstate->len)
                 continue;
-
-            retval = do_system(&nctx, cmdline, &exit);
-            snprintf(retbuf, sizeof(retbuf), "%d", retval);
-            kshell_setenv(&nctx, "?", retbuf, true);
-            kshell_setenv(&nctx, "??", errname(retval) ?: "EUNKNOWN", true);
+            ctx->breakdown = false;
+            retval = do_system(&nctx, cmdline);
         }
 
         readline_free(rstate);
@@ -193,15 +177,9 @@ static struct kshell_command help_cmd = {
     .exec = help_main,
 };
 
-static struct kshell_command exit_cmd = {
-    .name = "exit",
-    .desc = "exit the kshell interpreter",
-};
-
 static state kshell_init(void)
 {
-    return kshell_register(&kshell_cmd)
-        || kshell_register(&help_cmd)
-        || kshell_register(&exit_cmd);
+    return kshell_register(&kshell_cmd) ||
+           kshell_register(&help_cmd);
 }
 kshell_initcall(kshell_init);

@@ -92,6 +92,7 @@ static state call_function(struct kshell_context *ctx, char *name, char *args)
     unsigned int count;
     char *walk, *arg;
     char number[12];
+    state retval;
 
     rb = rb_find(&ctx->func, name, func_rb_find);
     if (!rb) {
@@ -108,14 +109,15 @@ static state call_function(struct kshell_context *ctx, char *name, char *args)
     }
 
     node = func_to_kshell(rb);
-    kshell_system(ctx, node->body);
+    retval = kshell_system(ctx, node->body);
+    ctx->breakfunc = false;
 
     while (count--) {
         itoa(count, number, 10);
         kshell_unsetenv(ctx, number);
     }
 
-    return -ENOERR;
+    return retval;
 }
 
 static state func_main(struct kshell_context *ctx, int argc, char *argv[])
@@ -186,7 +188,7 @@ static state func_main(struct kshell_context *ctx, int argc, char *argv[])
 
             if (brack == '{')
                 retval = define_func(ctx, name, body + 1, fflag);
-            else
+            else if (brack == '(')
                 retval = call_function(ctx, name, body + 1);
 
             if (retval == -EINVAL)

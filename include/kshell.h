@@ -19,6 +19,15 @@ struct kshell_context {
     struct rb_root env;
     unsigned int *depth;
 
+    union {
+        uint8_t breakdown;
+        struct {
+            uint8_t breakloop:1;
+            uint8_t breakfunc:1;
+            uint8_t breakexit:1;
+        };
+    };
+
     unsigned int pipesize;
     unsigned int pipepos;
     char *pipeline;
