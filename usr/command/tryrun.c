@@ -65,7 +65,7 @@ usage:
 
 static struct kshell_command tryrun_cmd = {
     .name = "try",
-    .desc = "",
+    .desc = "attempt to execute commands",
     .exec = tryrun_main,
 };
 
