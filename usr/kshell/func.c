@@ -10,9 +10,8 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: func [option] @name{body} @name(args)...\n");
-    kshell_printf(ctx, "\t-f  mandatory declaration function (default)\n");
-    kshell_printf(ctx, "\t-F  weak declaration function\n");
+    kshell_printf(ctx, "usage: func [option] name {body}\n");
+    kshell_printf(ctx, "\t-f  declaration function\n");
     kshell_printf(ctx, "\t-d  delete function\n");
     kshell_printf(ctx, "\t-h  display this message\n");
 }
@@ -48,7 +47,7 @@ static state delete_func(struct kshell_context *ctx, char *name)
     return -ENOERR;
 }
 
-static state define_func(struct kshell_context *ctx, char *name, char *body, bool force)
+static state define_func(struct kshell_context *ctx, char *name, char *body)
 {
     struct rb_node *rb, *parent, **link;
     struct kshell_func *node;
@@ -56,14 +55,9 @@ static state define_func(struct kshell_context *ctx, char *name, char *body, boo
 
     rb = rb_find_last(&ctx->func, name, func_rb_find, &parent, &link);
     if (rb) {
-        if (force) {
-            node = func_to_kshell(rb);
-            rb_delete(&ctx->func, rb);
-            kfree(node);
-        } else {
-            kshell_printf(ctx, "function '%s' already declared\n", name);
-            return -EALREADY;
-        }
+        node = func_to_kshell(rb);
+        rb_delete(&ctx->func, rb);
+        kfree(node);
     }
 
     nlen = strlen(name) + 1;
@@ -85,13 +79,12 @@ static state define_func(struct kshell_context *ctx, char *name, char *body, boo
     return -ENOERR;
 }
 
-static state call_function(struct kshell_context *ctx, char *name, char *args)
+static state call_function(struct kshell_context *ctx, char *name, int argc, char *argv[])
 {
     struct rb_node *rb;
     struct kshell_func *node;
     unsigned int count;
-    char *walk, *arg;
-    char number[12];
+    char varname[12];
     state retval;
 
     rb = rb_find(&ctx->func, name, func_rb_find);
@@ -100,12 +93,9 @@ static state call_function(struct kshell_context *ctx, char *name, char *args)
         return -EALREADY;
     }
 
-    for (arg = args, count = 0; arg; arg = walk, ++count) {
-        walk = strchr(arg, ',');
-        if (walk)
-            *walk++ = '\0';
-        itoa(count, number, 10);
-        kshell_setenv(ctx, number, arg, true);
+    for (count = 0; count < argc; ++count) {
+        snprintf(varname, 12, "arg%d", count);
+        kshell_setenv(ctx, varname, argv[count], true);
     }
 
     node = func_to_kshell(rb);
@@ -113,8 +103,8 @@ static state call_function(struct kshell_context *ctx, char *name, char *args)
     ctx->breakfunc = false;
 
     while (count--) {
-        itoa(count, number, 10);
-        kshell_unsetenv(ctx, number);
+        snprintf(varname, 12, "arg%d", count);
+        kshell_unsetenv(ctx, varname);
     }
 
     return retval;
@@ -122,10 +112,10 @@ static state call_function(struct kshell_context *ctx, char *name, char *args)
 
 static state func_main(struct kshell_context *ctx, int argc, char *argv[])
 {
-    unsigned int count;
-    bool fflag = true;
+    bool fflag = false;
     bool dflag = false;
-    state retval = -EINVAL;
+    unsigned int count;
+    state retval;
 
     for (count = 1; count < argc; ++count) {
         char *para = argv[count];
@@ -136,10 +126,6 @@ static state func_main(struct kshell_context *ctx, int argc, char *argv[])
         switch (para[1]) {
             case 'f':
                 fflag = true;
-                break;
-
-            case 'F':
-                fflag = false;
                 break;
 
             case 'd':
@@ -157,52 +143,20 @@ static state func_main(struct kshell_context *ctx, int argc, char *argv[])
     if (dflag) for (; count < argc; ++count) {
         retval = delete_func(ctx, argv[count]);
         if (retval)
-            break;
+            return retval;
     }
 
-    else for (; count < argc; ++count) {
-        char *body, *name = argv[count];
-
-        if (*name++ != '@')
+    else if (fflag) {
+        if (argc != count + 2)
             goto usage;
-
-        for (body = name; (body = strchr(name, '{')) || (body = strchr(name, '('));) {
-            char *walk = body + 1;
-            char brack = *body;
-            unsigned int stack;
-
-            for (stack = 1; *walk; ++walk) {
-                if (*walk == brack)
-                    ++stack;
-                else if (*walk == (brack == '{' ? '}' : ')')) {
-                    if (!--stack)
-                        break;
-                }
-            }
-
-            if (stack)
-                goto usage;
-
-            *body = '\0';
-            *walk = '\0';
-
-            if (brack == '{')
-                retval = define_func(ctx, name, body + 1, fflag);
-            else if (brack == '(')
-                retval = call_function(ctx, name, body + 1);
-
-            if (retval == -EINVAL)
-                goto usage;
-
-            break;
-        }
+        return define_func(ctx, argv[count], argv[count + 1]);
     }
 
-    return retval;
+    return call_function(ctx, argv[count], argc - count - 1, &argv[count + 1]);
 
 usage:
     usage(ctx);
-    return retval;
+    return -EINVAL;
 }
 
 static state func_prepare(struct kshell_context *ctx, struct kshell_context *old)
