@@ -7,25 +7,16 @@
 #include <initcall.h>
 #include <string.h>
 
-#ifndef PROGRAM_NAME
-# define PROGRAM_NAME while
-# define PROGRAM_DESC "loop execution when condition true"
-# define PROGRAM_FUNC condition
-#else
-# define PROGRAM_DESC "loop execution when condition false"
-# define PROGRAM_FUNC !condition
-#endif
-
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: "__stringify(PROGRAM_NAME)" [option] 'condition' {commands}\n");
+    kshell_printf(ctx, "usage: repeat 'times' {commands}\n");
     kshell_printf(ctx, "\t-h  display this message\n");
 }
 
-static state while_main(struct kshell_context *ctx, int argc, char *argv[])
+static state repeat_main(struct kshell_context *ctx, int argc, char *argv[])
 {
-    state condition, retval = -ENOERR;
-    unsigned int count;
+    state retval = -ENOERR;
+    unsigned int count, tmp;
 
     for (count = 1; count < argc; ++count) {
         char *para = argv[count];
@@ -42,10 +33,7 @@ static state while_main(struct kshell_context *ctx, int argc, char *argv[])
     if (argc < count + 2)
         goto usage;
 
-    for (;;) {
-        condition = kshell_system(ctx, argv[count + 0]);
-        if (PROGRAM_FUNC)
-            break;
+    for (tmp = atoi(argv[count]); tmp; --tmp) {
         if (kshell_ctrlc(ctx))
             return -ECANCELED;
         retval = kshell_system(ctx, argv[count + 1]);
@@ -63,14 +51,14 @@ usage:
     return -EINVAL;
 }
 
-static struct kshell_command while_cmd = {
-    .name = __stringify(PROGRAM_NAME),
-    .desc = PROGRAM_DESC,
-    .exec = while_main,
+static struct kshell_command repeat_cmd = {
+    .name = "repeat",
+    .desc = "repeat a command n times",
+    .exec = repeat_main,
 };
 
-static state while_init(void)
+static state repeat_init(void)
 {
-    return kshell_register(&while_cmd);
+    return kshell_register(&repeat_cmd);
 }
-kshell_initcall(while_init);
+kshell_initcall(repeat_init);

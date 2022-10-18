@@ -10,6 +10,10 @@ config KCMD_BASE64
     bool "Base64 Command Support"
     default y
 
+config KCMD_BREAK
+    bool "Break Command Support"
+    default y
+
 config KCMD_CLEAR
     bool "Clear Command Support"
     default y
@@ -28,6 +32,10 @@ config KCMD_DELAY
 
 config KCMD_ECHO
     bool "Echo Command Support"
+    default y
+
+config KCMD_EXIT
+    bool "Exit Command Support"
     default y
 
 config KCMD_EXPORT
@@ -74,6 +82,14 @@ config KCMD_REBOOT
     bool "Reboot Command Support"
     default y
 
+config KCMD_REPEAT
+    bool "Repeat Command Support"
+    default y
+
+config KCMD_RETURN
+    bool "Return Command Support"
+    default y
+
 config KCMD_SLEEP
     bool "Sleep Command Support"
     default y
@@ -92,6 +108,10 @@ config KCMD_TIME
 
 config KCMD_TRUE
     bool "True Command Support"
+    default y
+
+config KCMD_UNTIL
+    bool "Until Command Support"
     default y
 
 config KCMD_UPTIME

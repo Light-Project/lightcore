@@ -135,9 +135,11 @@ static state loop_main(struct kshell_context *ctx, int argc, char *argv[])
                 goto exit;
             }
             retval = kshell_system(ctx, argv[argc -1]);
-            if (retval && retval != -EAGAIN)
-                goto exit;
-            retval = -ENOERR;
+            if (ctx->breakdown) {
+                ctx->breakloop = false;
+                if (retval != -EAGAIN)
+                    goto exit;
+            }
         }
     }
 

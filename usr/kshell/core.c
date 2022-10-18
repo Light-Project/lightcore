@@ -55,7 +55,7 @@ EXPORT_SYMBOL(kshell_find);
 
 state kshell_register(struct kshell_command *cmd)
 {
-    if (!cmd->name || !cmd->desc)
+    if (!cmd->name || !cmd->desc || !cmd->exec)
         return -EINVAL;
 
     if (kshell_find(cmd->name)) {
