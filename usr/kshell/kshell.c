@@ -49,15 +49,13 @@ static void commands_release(struct kshell_context *ctx)
 
 static state do_system(struct kshell_context *ctx, const char *cmdline)
 {
-    const char *buffer;
-    char **argv, retbuf[20];
     struct kshell_command *cmd;
-    bool constant = true;
+    char **argv, retbuf[20];
     state retval = -ENOERR;
     int argc;
 
     while (cmdline && !ctx->breakdown) {
-        retval = kshell_parser(ctx, &buffer, &cmdline, &argc, &argv, &constant);
+        retval = kshell_parser(ctx, &cmdline, &argc, &argv);
         if (retval)
             return retval;
 
@@ -87,9 +85,6 @@ static state do_system(struct kshell_context *ctx, const char *cmdline)
         if (ctx->tryrun && retval)
             break;
     }
-
-    if (!constant)
-        kfree(buffer);
 
     return retval;
 }

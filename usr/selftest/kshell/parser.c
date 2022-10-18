@@ -34,9 +34,7 @@ static void parser_unsetenv(struct kshell_context *ctx)
 
 static state parser_testing(struct kshell_context *ctx, void *pdata)
 {
-    bool constant = true;
     const char *cmdline = parser_string;
-    const char **buffer = &cmdline;
     char **argv;
     int argc;
     state retval;
@@ -44,7 +42,7 @@ static state parser_testing(struct kshell_context *ctx, void *pdata)
     if ((retval= parser_setenv(ctx)))
         goto exit;
 
-    retval = kshell_parser(ctx, buffer, &cmdline, &argc, &argv, &constant);
+    retval = kshell_parser(ctx, &cmdline, &argc, &argv);
     if (retval)
         goto exit;
 
@@ -68,7 +66,7 @@ static state parser_testing(struct kshell_context *ctx, void *pdata)
     }
     kfree(argv);
 
-    retval = kshell_parser(ctx, buffer, &cmdline, &argc, &argv, &constant);
+    retval = kshell_parser(ctx, &cmdline, &argc, &argv);
     if (retval)
         goto exit;
 
@@ -77,9 +75,6 @@ static state parser_testing(struct kshell_context *ctx, void *pdata)
     if (strcmp(argv[0], "ESC"))
         retval = -EINVAL;
     kfree(argv);
-
-    if (!constant)
-        kfree(*buffer);
 
 exit:
     parser_unsetenv(ctx);
