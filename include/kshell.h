@@ -18,6 +18,7 @@ struct kshell_context {
     struct rb_root func;
     struct rb_root env;
     unsigned int *depth;
+    bool tryrun;
 
     union {
         uint8_t breakdown;

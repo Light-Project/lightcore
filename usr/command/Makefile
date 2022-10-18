@@ -27,6 +27,7 @@ obj-$(CONFIG_KCMD_SWITCH)   += switch.o
 obj-$(CONFIG_KCMD_TAIL)     += tail.o
 obj-$(CONFIG_KCMD_TIME)     += time.o
 obj-$(CONFIG_KCMD_TRUE)     += true.o
+obj-$(CONFIG_KCMD_TRYRUN)   += tryrun.o
 obj-$(CONFIG_KCMD_UNTIL)    += until.o
 obj-$(CONFIG_KCMD_UPTIME)   += uptime.o
 obj-$(CONFIG_KCMD_VERSION)  += version.o

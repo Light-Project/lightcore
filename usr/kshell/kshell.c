@@ -83,6 +83,9 @@ static state do_system(struct kshell_context *ctx, const char *cmdline)
 
         snprintf(retbuf, sizeof(retbuf), "%d", retval);
         kshell_setenv(ctx, "?", retbuf, true);
+
+        if (ctx->tryrun && retval)
+            break;
     }
 
     if (!constant)
