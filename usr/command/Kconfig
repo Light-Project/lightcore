@@ -110,6 +110,10 @@ config KCMD_TRUE
     bool "True Command Support"
     default y
 
+config KCMD_TRYRUN
+    bool "Tryrun Command Support"
+    default y
+
 config KCMD_UNTIL
     bool "Until Command Support"
     default y
