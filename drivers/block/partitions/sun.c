@@ -3,14 +3,9 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define MODULE_NAME "sun-part"
-#define pr_fmt(fmt) MODULE_NAME ": " fmt
-
 #include <string.h>
 #include <kmalloc.h>
 #include <initcall.h>
-#include <device.h>
-#include <printk.h>
 #include <driver/block.h>
 #include <driver/block/partition.h>
 #include <driver/block/sun.h>
@@ -67,10 +62,7 @@ static state sun_match(struct block_device *bdev)
 
         entry->start = start;
         entry->len = size;
-
         list_add_prev(&bdev->parts, &entry->list);
-        dev_info(bdev->dev, "part%d: size %lld lba %lld\n",
-            part, entry->len, entry->start);
     }
 
     kfree(sun);

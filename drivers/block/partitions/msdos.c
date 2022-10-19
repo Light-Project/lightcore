@@ -3,14 +3,9 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define MODULE_NAME "msdos-part"
-#define pr_fmt(fmt) MODULE_NAME ": " fmt
-
 #include <string.h>
 #include <kmalloc.h>
 #include <initcall.h>
-#include <device.h>
-#include <printk.h>
 #include <driver/block.h>
 #include <driver/block/partition.h>
 #include <driver/block/msdos.h>
@@ -66,10 +61,7 @@ static state msdos_scan_extended(struct block_device *bdev, uint32_t base)
 
             entry->start = start + pos;
             entry->len = size;
-
             list_add_prev(&bdev->parts, &entry->list);
-            dev_info(bdev->dev, "extended part%d.%d: size %lld lba %lld\n",
-                count, part, entry->len, entry->start);
         }
     }
 
@@ -127,10 +119,7 @@ static state msdos_match(struct block_device *bdev)
 
             entry->start = start;
             entry->len = size;
-
             list_add_prev(&bdev->parts, &entry->list);
-            dev_info(bdev->dev, "primary part%d: size %lld lba %lld\n",
-                part, entry->len, entry->start);
         }
     }
 
