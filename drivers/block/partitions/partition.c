@@ -13,7 +13,7 @@
 #include <printk.h>
 
 static LIST_HEAD(partition_list);
-static SPIN_LOCK(partition_lock);
+static RW_LOCK(partition_lock);
 
 static struct partition_type *partition_find(const char *name)
 {
@@ -29,15 +29,22 @@ static struct partition_type *partition_find(const char *name)
 state partition_scan(struct block_device *bdev)
 {
     struct partition_type *part;
+    struct block_part *entry;
     state retval = -ENOERR;
+    unsigned int count = 0;
 
-    spin_lock(&partition_lock);
+    read_lock(&partition_lock);
     list_for_each_entry(part, &partition_list, list) {
         retval = part->match(bdev);
         if (retval != -ENODATA)
             break;
     }
-    spin_unlock(&partition_lock);
+    read_unlock(&partition_lock);
+
+    list_for_each_entry(entry, &bdev->parts, list) {
+        dev_info(bdev->dev, "%s%d lba=%lld size=%lld\n",
+                 part->name, count++, entry->start, entry->len);
+    }
 
     return retval;
 }
@@ -49,15 +56,15 @@ state partition_register(struct partition_type *part)
         return -EINVAL;
     }
 
-    spin_lock(&partition_lock);
+    write_lock(&partition_lock);
     if (partition_find(part->name)) {
-        spin_unlock(&partition_lock);
+        write_unlock(&partition_lock);
         pr_err("partition %s already registered\n", part->name);
         return -EALREADY;
     }
 
     list_add(&partition_list, &part->list);
-    spin_unlock(&partition_lock);
+    write_unlock(&partition_lock);
 
     pr_debug("register partition '%s'\n", part->name);
     return -ENOERR;
@@ -66,9 +73,9 @@ EXPORT_SYMBOL(partition_register);
 
 void partition_unregister(struct partition_type *part)
 {
-    spin_lock(&partition_lock);
+    write_lock(&partition_lock);
     list_del(&part->list);
-    spin_unlock(&partition_lock);
+    write_unlock(&partition_lock);
     pr_debug("unregister partition '%s'\n", part->name);
 }
 EXPORT_SYMBOL(partition_unregister);

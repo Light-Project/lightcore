@@ -13,4 +13,8 @@ config PART_SUN
     bool "Sun Partition Table Support"
     default y
 
+config PART_MAC
+    bool "Mac Partition Table Support"
+    default y
+
 endmenu
