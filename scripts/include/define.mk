@@ -7,19 +7,54 @@
 # Build toolchain                      #
 ########################################
 
-CROSS_COMPILE   ?=
+CROSS_COMPILE ?=
+LLVM ?=
+
+ifneq ($(LLVM),)
+ifneq ($(filter %/,$(LLVM)),)
+LLVM_PREFIX := $(LLVM)
+else ifneq ($(filter -%,$(LLVM)),)
+LLVM_SUFFIX := $(LLVM)
+endif
+endif
 
 # Gcc toolchain
+ifneq ($(LLVM),)
+CPP             := $(LLVM_PREFIX)clang$(LLVM_SUFFIX) -E
+AS              := $(LLVM_PREFIX)clang$(LLVM_SUFFIX) -fintegrated-as
+CC              := $(LLVM_PREFIX)clang$(LLVM_SUFFIX)
+CXX             := $(LLVM_PREFIX)clang++$(LLVM_SUFFIX)
+LD              := $(LLVM_PREFIX)ld.lld$(LLVM_SUFFIX)
+AR              := $(LLVM_PREFIX)llvm-ar$(LLVM_SUFFIX)
+NM              := $(LLVM_PREFIX)llvm-nm$(LLVM_SUFFIX)
+OBJCOPY         := $(LLVM_PREFIX)llvm-objcopy$(LLVM_SUFFIX)
+OBJDUMP         := $(LLVM_PREFIX)llvm-objdump$(LLVM_SUFFIX)
+STRIP           := $(LLVM_PREFIX)llvm-strip$(LLVM_SUFFIX)
+RANLIB          := $(LLVM_PREFIX)llvm-ranlib$(LLVM_SUFFIX)
+MKELF           := $(CROSS_COMPILE)ld.lld
+else
 CPP             := $(CROSS_COMPILE)cpp
 AS              := $(CROSS_COMPILE)gcc
 CC              := $(CROSS_COMPILE)gcc
 CXX             := $(CROSS_COMPILE)g++
+LD              := $(CROSS_COMPILE)ld
 AR              := $(CROSS_COMPILE)ar
 NM              := $(CROSS_COMPILE)nm
 STRIP           := $(CROSS_COMPILE)strip
-RANLIB          := $(CROSS_COMPILE)gcc-ranlib
 OBJCOPY         := $(CROSS_COMPILE)objcopy
 OBJDUMP         := $(CROSS_COMPILE)objdump
+RANLIB          := $(CROSS_COMPILE)gcc-ranlib
+MKELF           := $(CROSS_COMPILE)ld
+endif
+
+# Host toolchain
+ifneq ($(LLVM),)
+HOSTCC          := $(LLVM_PREFIX)clang$(LLVM_SUFFIX)
+HOSTCXX         := $(LLVM_PREFIX)clang++$(LLVM_SUFFIX)
+else
+HOSTCC          := gcc
+HOSTCXX         := g++
+endif
 
 AS_FLAGS        ?=
 LD_FLAGS        ?=
@@ -31,14 +66,8 @@ STRIP_FLAGS     ?=
 OBJCOPY_FLAGS   ?=
 OBJDUMP_FLAGS   ?=
 
-# Host toolchain
-HOSTCC          ?= gcc
-HOSTCXX         ?= g++
 HOSTCFLAGS      ?= -Wall
 HOSTCXXFLAGS    ?= -O2
-
-LD              := $(CROSS_COMPILE)ld
-MKELF           := $(CROSS_COMPILE)ld
 
 ########################################
 # CMD tool                             #
@@ -163,11 +192,6 @@ build       := -f $(build_home)/build.mk obj
 # Usage:
 # $(Q)$(MAKE) $(clean)=dir
 clean       := -f $(build_home)/clean.mk obj
-
-# Shorthand for $(Q)$(MAKE) -f scripts/submake.mk obj=
-# Usage:
-# $(Q)$(MAKE) $(submake)=dir
-submake     := -f $(build_home)/submake.mk obj
 
 ########################################
 # conifg definitions                   #
@@ -327,8 +351,7 @@ ld-ifversion = $(shell [ $(CONFIG_LD_VERSION)0 $(1) $(2)0 ] && echo $(3) || echo
 
 # hostcc-option
 # Usage: cflags-y += $(call hostcc-option,-march=winchip-c6,-march=i586)
-hostcc-option = $(call __cc-option, $(HOSTCC),\
-    $(HOSTCFLAGS) $(HOST_EXTRACFLAGS),$(1),$(2))
+hostcc-option = $(call __cc-option, $(HOSTCC), $(HOSTCFLAGS) $(HOST_EXTRACFLAGS),$(1),$(2))
 
 ########################################
 # Auxiliary tool                       #
@@ -355,8 +378,7 @@ cmd = @set -e; $(echo-cmd) $($(quiet)redirect) $(cmd_$(1))
 # Add intermediate targets:
 # When building objects with specific suffix patterns, add intermediate
 # targets that the final targets are derived from.
-intermediate_targets = $(foreach s, $(3), $(patsubst %$(strip $(2)),%$(s), \
-                       $(filter %$(strip $(2)), $(1))))
+intermediate_targets = $(foreach s, $(3), $(patsubst %$(strip $(2)),%$(s), $(filter %$(strip $(2)), $(1))))
 
 ########################################
 # Check changed                        #
