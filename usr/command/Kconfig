@@ -90,6 +90,10 @@ config KCMD_RETURN
     bool "Return Command Support"
     default y
 
+config KCMD_SELECT
+    bool "Select Command Support"
+    default y
+
 config KCMD_SLEEP
     bool "Sleep Command Support"
     default y

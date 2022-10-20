@@ -42,9 +42,9 @@ finish:
     condition = argv[count++];
     for (; count < argc; count += 2) {
         if (!strcmp("case", argv[count])) {
-            if (count > argc - 3)
+            if (count++ > argc - 3)
                 goto usage;
-            if (!glob_match(argv[++count], condition))
+            if (!glob_match(argv[count], condition))
                 continue;
         } else if (!strcmp("default", argv[count])) {
             if (count > argc - 2)
@@ -53,10 +53,6 @@ finish:
             goto usage;
 
         retval = kshell_system(ctx, argv[count + 1]);
-        if (!argv[count + 2] || strcmp("fallthrough", argv[count + 2]))
-            break;
-
-        count++;
     }
 
     return retval;

@@ -183,6 +183,7 @@ void ksh_init(void)
     bootarg_record();
     kshell_setenv(&ctx, "PS1", "kshell: /# ", false);
     kshell_setenv(&ctx, "PS2", "-> ", false);
+    kshell_setenv(&ctx, "PS3", "?# ", false);
 
     printk("Have a lot of fun..\n");
     kshell_main(&ctx, -bootarg_num - 1, (void *)((uintptr_t)bootarg_ptr - MSIZE));

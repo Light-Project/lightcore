@@ -257,7 +257,7 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
     if (!tbuff)
         return -ENOMEM;
 
-    for (walk = cmdline; *walk; ++walk) {
+    for (walk = skip_spaces(cmdline); *walk; ++walk) {
         nstate = parser_state(cstate, *walk, &code, &depth);
 
         if (is_variable(cstate) && !is_variable(nstate)) {
@@ -270,7 +270,6 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
                 strcpy(tbuff + tpos, var);
                 tpos += count;
             }
-            goto finish;
         }
 
         if (is_retvalue(cstate) && !is_retvalue(nstate)) {
