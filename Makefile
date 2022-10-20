@@ -65,7 +65,7 @@ acflags-y += -ffunction-sections -fdata-sections
 lightcore-flags-y += --gc-sections
 endif
 
-export CROSS_COMPILE CC LD
+export CROSS_COMPILE AS CC LD
 export include-direct-y
 export acflags-y cxflags-y cxxflags-y
 export ccflags-y asflags-y cppflags-y

@@ -25,12 +25,6 @@ struct pcspkr_device {
 #define buzzer_to_pcspkr(ptr) \
     container_of(ptr, struct pcspkr_device, buzzer)
 
-static __always_inline uint8_t
-i8253_in(struct pcspkr_device *sdev, int reg)
-{
-    return inb(sdev->base + reg);
-}
-
 static __always_inline void
 i8253_out(struct pcspkr_device *sdev, int reg, uint8_t value)
 {

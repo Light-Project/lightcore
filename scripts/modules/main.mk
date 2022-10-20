@@ -115,7 +115,7 @@ quiet_cmd_cc_sym_h = $(ECHO_SYM) $@
       cmd_cc_sym_h = $(AWK) $(build_home)/tools/gen-as-const.awk $< | \
                      $(CC) $(sym_flags) -x c - -S -o - | \
                      $(SED) -n $(PTHREAD_GENERATE_MANGLE) > $@; \
-                     if test ! -s $@ ; then $(RM) $@ ; false ; fi
+                     if test ! -s $@; then $(RM) $@; false; fi
 $(obj)/%.h: $(src)/%.sym FORCE
 	$(call if_changed_dep,cc_sym_h)
 
