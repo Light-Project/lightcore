@@ -10,6 +10,9 @@ config WATCHDOG_GX6605S
     bool "GX6605S Watchdog Support"
     select POWER
 
+config WATCHDOG_IB700
+    bool "Ibase IB700 Watchdog Support"
+
 config WATCHDOG_TCO
     bool "Intel TCO Watchdog Support"
     depends on ARCH_X86 && MFD_ICH
