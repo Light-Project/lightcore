@@ -17,6 +17,7 @@ struct kshell_context {
     struct readline_state *readline;
     struct rb_root func;
     struct rb_root env;
+    struct list_head local;
     unsigned int *depth;
     bool tryrun;
 
@@ -49,10 +50,24 @@ static inline void ksh_init(void) {}
 
 #else  /* !CONFIG_KSHELL */
 
-extern char *kshell_getenv(struct kshell_context *ctx, const char *name);
-extern state kshell_putenv(struct kshell_context *ctx, char *string);
+extern const char *kshell_getenv(struct kshell_context *ctx, const char *name);
 extern state kshell_setenv(struct kshell_context *ctx, const char *name, const char *val, bool overwrite);
+extern state kshell_setlocal(struct kshell_context *ctx, const char *name, const char *val, bool overwrite);
+extern state kshell_putenv(struct kshell_context *ctx, char *string);
+extern state kshell_putlocal(struct kshell_context *ctx, char *string);
 extern state kshell_unsetenv(struct kshell_context *ctx, const char *name);
+
+extern const char *kshell_global_get(struct kshell_context *ctx, const char *name);
+extern state kshell_global_set(struct kshell_context *ctx, const char *name, const char *val, bool overwrite);
+extern state kshell_global_put(struct kshell_context *ctx, char *string);
+extern state kshell_global_unset(struct kshell_context *ctx, const char *name);
+
+extern const char *kshell_local_get(struct kshell_context *ctx, const char *name);
+extern state kshell_local_set(struct kshell_context *ctx, const char *name, const char *val, bool overwrite);
+extern state kshell_local_put(struct kshell_context *ctx, char *string);
+extern state kshell_local_unset(struct kshell_context *ctx, const char *name);
+extern state kshell_local_push(struct kshell_context *ctx);
+extern state kshell_local_pop(struct kshell_context *ctx);
 
 extern state kshell_exec(struct kshell_context *ctx, const struct kshell_command *cmd, int argc, char *argv[]);
 extern state kshell_execv(struct kshell_context *ctx, const char *name, int argc, char *argv[]);

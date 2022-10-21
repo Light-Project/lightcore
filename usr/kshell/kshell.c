@@ -62,6 +62,11 @@ static state do_system(struct kshell_context *ctx, const char *cmdline)
         if (!argc)
             continue;
 
+        if (strchr(argv[0], '=')) {
+            kshell_putenv(ctx, argv[0]);
+            continue;
+        }
+
         if (!*ctx->depth) {
             kshell_printf(ctx, "kshell: trigger recursive protection\n");
             return -EFBIG;
@@ -80,7 +85,7 @@ static state do_system(struct kshell_context *ctx, const char *cmdline)
         kfree(argv);
 
         snprintf(retbuf, sizeof(retbuf), "%d", retval);
-        kshell_setenv(ctx, "?", retbuf, true);
+        kshell_local_set(ctx, "?", retbuf, true);
 
         if (ctx->tryrun && retval)
             break;

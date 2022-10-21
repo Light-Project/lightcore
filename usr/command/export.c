@@ -7,31 +7,40 @@
 #include <string.h>
 #include <initcall.h>
 
+#ifndef PROGRAM_NAME
+# define PROGRAM_NAME export
+# define PROGRAM_DESC "declare environment variables"
+# define PROGRAM_FUNC kshell_global_put
+#else
+# define PROGRAM_DESC "declare local variables"
+# define PROGRAM_FUNC kshell_local_put
+#endif
+
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: export [name=value] ...\n");
+    kshell_printf(ctx, "usage: "__stringify(PROGRAM_NAME)" name[=value]...\n");
 }
 
 static state export_main(struct kshell_context *ctx, int argc, char *argv[])
 {
-    int count;
-    state ret;
+    unsigned int count;
+    state retval;
 
-    for (count = 1; count < argc; ++count) {
-        if (!strchr(argv[count], '=')) {
-            usage(ctx);
-            return -EINVAL;
-        }
-        if ((ret = kshell_putenv(ctx, argv[count])))
-            return ret;
+    if (argc == 1)
+        usage(ctx);
+
+    else for (count = 1; count < argc; ++count) {
+        retval = PROGRAM_FUNC(ctx, argv[count]);
+        if (retval)
+            break;
     }
 
     return -ENOERR;
 }
 
 static struct kshell_command export_cmd = {
-    .name = "export",
-    .desc = "setting environment variables",
+    .name = __stringify(PROGRAM_NAME),
+    .desc = PROGRAM_DESC,
     .exec = export_main,
 };
 

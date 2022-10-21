@@ -10,7 +10,7 @@ config KSHELL
 
 config KSHELL_DEPTH
     int "Kshell Maximum Depth"
-    default 16
+    default 24
 
 config KSHELL_BOOTARGS
     int "Kshell Maximum Bootargs"

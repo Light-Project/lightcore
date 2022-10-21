@@ -24,13 +24,15 @@ EXPORT_SYMBOL(kshell_write);
 int kshell_vscanf(struct kshell_context *ctx, const char *fmt, va_list args)
 {
     struct readline_state *rstate = ctx->readline;
+    const char *prompt;
     char *strbuf;
 
     rstate = readline_alloc(rstate->read, rstate->write, rstate->data);
     if (!rstate)
         return 0;
 
-    do strbuf = readline(rstate, NULL, NULL);
+    prompt = kshell_getenv(ctx, "PS3");
+    do strbuf = readline(rstate, prompt, prompt);
     while (!rstate->len);
 
     readline_free(rstate);
