@@ -74,6 +74,10 @@ config KCMD_MEM
     bool "Memory Command Support"
     default y
 
+config KCMD_NATIVE
+    bool "Native Command Support"
+    default y
+
 config KCMD_PANIC
     bool "Panic Command Support"
     default y

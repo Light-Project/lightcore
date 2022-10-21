@@ -37,13 +37,14 @@ static void usage(struct kshell_context *ctx)
 
 static inline int is_value(int c)
 {
-    return isxdigit(c) || isalpha(c);
+    return isdigit(c) || isalpha(c);
 }
 
 static int get_value(struct kshell_context *ctx, char *end, char *varname)
 {
-    char tmp, *walk, *result, *rvalue = NULL;
+    char tmp, *walk, *rvalue = NULL;
     bool neg = false, alnum = false;
+    const char *result;
     int value;
 
     for (walk = varname; walk != end; ++walk) {
@@ -72,7 +73,7 @@ static void set_value(struct kshell_context *ctx, char *end, char *varname, int 
     char tmp, str[32];
 
     for (tmp = 0, walk = varname; walk <= end; ++walk) {
-        if (!isalpha(*walk) || walk == end) {
+        if (!is_value(*walk) || walk == end) {
             tmp = *walk;
             *walk = '\0';
             break;

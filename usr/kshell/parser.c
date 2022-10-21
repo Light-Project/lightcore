@@ -241,8 +241,9 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
     unsigned int tpos = 0, tsize = PASER_TEXT_DEF, count;
     unsigned int vpos = 0, vsize = PASER_VARN_DEF;
     const char *walk, *cmdline = *pcmdline;
-    char *vbuff, *var, brack_buff[12];
+    char *vbuff, brack_buff[12];
     char *tbuff, code;
+    const char *var;
     int depth = 0;
     state retval;
 
@@ -343,15 +344,15 @@ finish: cstate = nstate;
         goto errmem;
 
     /* use unified memory to store parameters */
-    var = (char *)*argv + count;
-    memcpy(var, tbuff, tpos);
+    vbuff = (char *)*argv + count;
+    memcpy(vbuff, tbuff, tpos);
 
     /* generate argv pointer */
     for (count = 0; count < *argc; ++count) {
-        (*argv)[count] = var;
-        while (*var)
-            ++var;
-        var++;
+        (*argv)[count] = vbuff;
+        while (*vbuff)
+            ++vbuff;
+        vbuff++;
     }
 
     (*argv)[count] = NULL;

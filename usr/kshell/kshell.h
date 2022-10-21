@@ -49,6 +49,11 @@ struct readline_state {
     struct readline_history *curr;
 };
 
+struct kshell_local {
+    struct list_head list;
+    struct rb_root env;
+};
+
 struct kshell_env {
     struct rb_node node;
     char *val, name[0];
@@ -76,9 +81,6 @@ extern void readline_write(struct readline_state *rstate, const char *str, unsig
 extern char *readline(struct readline_state *state, const char *dprompt, const char *cprompt);
 extern struct readline_state *readline_alloc(kshell_read_t read, kshell_write_t write, void *data);
 extern void readline_free(struct readline_state *state);
-
-extern state kshell_env_clone(struct kshell_context *ctx, struct kshell_context *old);
-extern void kshell_env_destroy(struct kshell_context *ctx);
 
 extern state kshell_parser(struct kshell_context *ctx, const char **pcmdline, int *argc, char ***argv);
 extern state kshell_main(struct kshell_context *ctx, int argc, char *argv[]);

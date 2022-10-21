@@ -84,7 +84,7 @@ static state call_function(struct kshell_context *ctx, char *name, int argc, cha
     struct rb_node *rb;
     struct kshell_func *node;
     unsigned int count;
-    char varname[12];
+    char number[12];
     state retval;
 
     rb = rb_find(&ctx->func, name, func_rb_find);
@@ -93,19 +93,21 @@ static state call_function(struct kshell_context *ctx, char *name, int argc, cha
         return -EALREADY;
     }
 
+    kshell_local_push(ctx);
+    kshell_local_set(ctx, "a0", name, false);
+
+    intoa(argc + 1, number, 10, 12);
+    kshell_local_set(ctx, "#", number, false);
+
     for (count = 0; count < argc; ++count) {
-        snprintf(varname, 12, "arg%d", count);
-        kshell_setenv(ctx, varname, argv[count], true);
+        snprintf(number, 12, "a%d", count + 1);
+        kshell_local_set(ctx, number, argv[count], false);
     }
 
     node = func_to_kshell(rb);
     retval = kshell_system(ctx, node->body);
     ctx->breakfunc = false;
-
-    while (count--) {
-        snprintf(varname, 12, "arg%d", count);
-        kshell_unsetenv(ctx, varname);
-    }
+    kshell_local_pop(ctx);
 
     return retval;
 }
