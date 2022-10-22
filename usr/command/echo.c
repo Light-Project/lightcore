@@ -4,7 +4,8 @@
  */
 
 #include <kshell.h>
-#include <ctype.h>
+#include <kmalloc.h>
+#include <cmdline.h>
 #include <string.h>
 #include <initcall.h>
 
@@ -12,11 +13,8 @@ static void usage(struct kshell_context *ctx)
 {
     kshell_printf(ctx, "usage: echo [option]...\n");
     kshell_printf(ctx, "\t-n  not output the trailing newline\n");
-    kshell_printf(ctx, "\t-N  output the trailing newline (default)\n");
     kshell_printf(ctx, "\t-e  enable interpretation\n");
-    kshell_printf(ctx, "\t-E  disable interpretation (default)\n");
     kshell_printf(ctx, "\t-i  enable index information\n");
-    kshell_printf(ctx, "\t-I  disable index information (default)\n");
     kshell_printf(ctx, "\t-h  show this help\n");
 
     kshell_printf(ctx, "If -e is in effect:\n");
@@ -32,23 +30,11 @@ static void usage(struct kshell_context *ctx)
     kshell_printf(ctx, "\t\\v  vertical tab\n");
 }
 
-static int hextobin(unsigned char ch)
-{
-    if (ch >= '0' && ch <= '9')
-        return ch - '0';
-    else if (tolower(ch) >= 'a' && tolower(ch) <= 'f')
-        return tolower(ch) - 'a' + 10;
-    else
-        return 0;
-}
-
 static state echo_main(struct kshell_context *ctx, int argc, char *argv[])
 {
-    bool nflag = false;
-    bool eflag = false;
-    bool iflag = false;
-    char ch, tmp, *para;
+    bool nflag = false, eflag = false, iflag = false;
     unsigned int index = 0;
+    char *para, *paraph;
 
     while (--argc) {
         para = *++argv;
@@ -58,24 +44,12 @@ static state echo_main(struct kshell_context *ctx, int argc, char *argv[])
                     nflag = true;
                     continue;
 
-                case 'N':
-                    nflag = false;
-                    continue;
-
                 case 'e':
                     eflag = true;
                     continue;
 
-                case 'E':
-                    eflag = false;
-                    continue;
-
                 case 'i':
                     iflag = true;
-                    continue;
-
-                case 'I':
-                    iflag = false;
                     continue;
 
                 case 'h':
@@ -86,107 +60,25 @@ static state echo_main(struct kshell_context *ctx, int argc, char *argv[])
         break;
     }
 
-    if (eflag) {
-        while (argc--) {
-            para = *argv++;
-            while ((ch = *para++)) {
-                if (ch == '\\' && *para) {
-                    switch (ch = *para++) {
-                        case 'a':
-                            ch = '\a';
-                            break;
-
-                        case 'b':
-                            ch = '\b';
-                            break;
-
-                        case 'c':
-                            return -ENOERR;
-
-                        case 'e':
-                            ch = '\x1B';
-                            break;
-
-                        case 'f':
-                            ch = '\f';
-                            break;
-
-                        case 'n':
-                            ch = '\n';
-                            break;
-
-                        case 'r':
-                            ch = '\r';
-                            break;
-
-                        case 't':
-                            ch = '\t';
-                            break;
-
-                        case 'v':
-                            ch = '\v';
-                            break;
-
-                        case 'x':
-                            if (!isxdigit(tmp = *para++))
-                                goto not_an_escape;
-
-                            ch = hextobin(tmp);
-                            tmp = *para;
-
-                            if (isxdigit(tmp)) {
-                                para++;
-                                ch = ch * 16 + hextobin(tmp);
-                            }
-                            break;
-
-                        case '0':
-                            ch = 0;
-                            if (! ('0' <= *para && *para <= '7'))
-                                break;
-                            ch = *para++;
-                            fallthrough;
-
-                        case '1': case '2': case '3':
-                        case '4': case '5': case '6': case '7':
-                            ch -= '0';
-                            if ('0' <= *para && *para <= '7')
-                                ch = ch * 8 + (*para++ - '0');
-                            if ('0' <= *para && *para <= '7')
-                                ch = ch * 8 + (*para++ - '0');
-                            break;
-
-                        case '\\':
-                            break;
-
-                        default: not_an_escape:
-                            kshell_printf(ctx, "\\");
-                            break;
-                    }
-                }
-                if (iflag)
-                    kshell_printf(ctx, "%u: ", index++);
-                kshell_printf(ctx, "%c", ch);
-            }
-            if (argc) {
-                if (iflag)
-                    kshell_printf(ctx, "\n");
-                else
-                    kshell_printf(ctx, " ");
-            }
-        }
-    }
-
-    else while (argc--) {
+    while (argc--) {
         if (iflag)
             kshell_printf(ctx, "%u: ", index++);
-        kshell_printf(ctx, "%s", *argv++);
+        para = *argv++;
+        if (eflag) {
+            paraph = kmalloc(strlen(para) + 1, GFP_KERNEL);
+            if (unlikely(!paraph))
+                return -ENOMEM;
+            escape_string(paraph, ~0, para);
+            para = paraph;
+        }
+        kshell_printf(ctx, "%s", para);
+        if (eflag)
+            kfree(paraph);
         if (argc) {
             if (iflag)
                 kshell_printf(ctx, "\n");
             else
                 kshell_printf(ctx, " ");
-
         }
     }
 
