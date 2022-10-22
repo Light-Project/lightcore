@@ -278,26 +278,26 @@ static inline bool cpuid_support(const uint64_t code)
 {
     uint32_t eax, ebx, ecx, edx;
 
+    if (X86_CPUID_REG_GET(code) > 3)
+        return false;
+
     cpuid(
         X86_CPUID_OP_GET(code),
         &eax, &ebx, &ecx, &edx
     );
 
     switch (X86_CPUID_REG_GET(code)) {
-        case 0:
-            eax = eax;
-            break;
-        case 1:
-            eax = ebx;
+        case 3:
+            eax = edx;
             break;
         case 2:
             eax = ecx;
             break;
-        case 3:
-            eax = edx;
+        case 1:
+            eax = ebx;
             break;
-        default:
-            return false;
+        case 0: default:
+            break;
     }
 
     return !!(BIT(X86_CPUID_BIT_GET(code)) & eax);

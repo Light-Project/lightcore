@@ -339,7 +339,7 @@ static const struct cpuid_entry cpuid_table[] = {
 };
 
 static const char *reg_name[] = {
-    "eax", "ebx", "ecx", "edx"
+    "eax", "ebx", "ecx", "edx", "lnx"
 };
 
 static state cpuid_main(struct kshell_context *ctx, int argc, char *argv[])

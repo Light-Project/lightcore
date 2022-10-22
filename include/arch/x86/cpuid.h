@@ -2,11 +2,17 @@
 #ifndef _ARCH_X86_CPUID_H_
 #define _ARCH_X86_CPUID_H_
 
-#define X86_CPUID_REG_EAX                               (0x00 << 8)
-#define X86_CPUID_REG_EBX                               (0x01 << 8)
-#define X86_CPUID_REG_ECX                               (0x02 << 8)
-#define X86_CPUID_REG_EDX                               (0x03 << 8)
-#define X86_CPUID_REG_LNX                               (0x04 << 8)
+#define X86_CPUID_EAX                                   (0x00)
+#define X86_CPUID_EBX                                   (0x01)
+#define X86_CPUID_ECX                                   (0x02)
+#define X86_CPUID_EDX                                   (0x03)
+#define X86_CPUID_LNX                                   (0x04)
+
+#define X86_CPUID_REG_EAX                               (X86_CPUID_EAX << 8)
+#define X86_CPUID_REG_EBX                               (X86_CPUID_EBX << 8)
+#define X86_CPUID_REG_ECX                               (X86_CPUID_ECX << 8)
+#define X86_CPUID_REG_EDX                               (X86_CPUID_EDX << 8)
+#define X86_CPUID_REG_LNX                               (X86_CPUID_LNX << 8)
 
 #define X86_CPUID_0000_0001_EDX                         (X86_CPUID_REG_EDX | (0x00000001ULL << 32))
 #define X86_CPUID_8000_0001_EDX                         (X86_CPUID_REG_EDX | (0x80000001ULL << 32))
