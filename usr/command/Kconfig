@@ -82,6 +82,10 @@ config KCMD_PANIC
     bool "Panic Command Support"
     default y
 
+config KCMD_PRINTF
+    bool "Printf Command Support"
+    default y
+
 config KCMD_REBOOT
     bool "Reboot Command Support"
     default y
