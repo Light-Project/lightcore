@@ -20,6 +20,7 @@ obj-$(CONFIG_KCMD_MATH)     += math.o
 obj-$(CONFIG_KCMD_MEM)      += mem.o
 obj-$(CONFIG_KCMD_NATIVE)   += native.o
 obj-$(CONFIG_KCMD_PANIC)    += panic.o
+obj-$(CONFIG_KCMD_PRINTF)   += printf.o
 obj-$(CONFIG_KCMD_REBOOT)   += reboot.o
 obj-$(CONFIG_KCMD_REPEAT)   += repeat.o
 obj-$(CONFIG_KCMD_RETURN)   += return.o
