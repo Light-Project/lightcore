@@ -7,7 +7,7 @@
 #include <klevels.h>
 
 #ifdef CONFIG_EARLYCON
-int pr_early(const char *str, ...);
+extern int pr_early(const char *str, ...);
 #else
 static inline int pr_early(const char *str, ...)
 {
@@ -15,6 +15,7 @@ static inline int pr_early(const char *str, ...)
 }
 #endif
 
+extern unsigned int printk_level(const char *str, const char **endptr);
 extern int vprintk(const char *fmt, va_list args);
 extern __printf(1, 2) int printk(const char *fmt, ...);
 
@@ -53,8 +54,13 @@ extern __printf(1, 2) int printk(const char *fmt, ...);
  * This macro expands to a printk with KERN_EMERG loglevel. It uses pr_fmt() to
  * generate the format string.
  */
+#if CONFIG_PRINTK_LOGLEVEL_MAX >= KLEVEL_EMERG
 #define pr_emerg(fmt, ...) \
     printk(KERN_EMERG pr_fmt(fmt), ##__VA_ARGS__)
+#else
+# define pr_emerg(fmt, ...) \
+    pr_none(fmt, ##__VA_ARGS__)
+#endif
 
 /**
  * pr_alert - Print an alert-level message
@@ -64,8 +70,13 @@ extern __printf(1, 2) int printk(const char *fmt, ...);
  * This macro expands to a printk with KERN_ALERT loglevel. It uses pr_fmt() to
  * generate the format string.
  */
+#if CONFIG_PRINTK_LOGLEVEL_MAX >= KLEVEL_ALERT
 #define pr_alert(fmt, ...) \
     printk(KERN_ALERT pr_fmt(fmt), ##__VA_ARGS__)
+#else
+# define pr_alert(fmt, ...) \
+    pr_none(fmt, ##__VA_ARGS__)
+#endif
 
 /**
  * pr_crit - Print a critical-level message
@@ -75,8 +86,13 @@ extern __printf(1, 2) int printk(const char *fmt, ...);
  * This macro expands to a printk with KERN_CRIT loglevel. It uses pr_fmt() to
  * generate the format string.
  */
+#if CONFIG_PRINTK_LOGLEVEL_MAX >= KLEVEL_CRIT
 #define pr_crit(fmt, ...) \
     printk(KERN_CRIT pr_fmt(fmt), ##__VA_ARGS__)
+#else
+# define pr_crit(fmt, ...) \
+    pr_none(fmt, ##__VA_ARGS__)
+#endif
 
 /**
  * pr_err - Print an error-level message
@@ -86,8 +102,13 @@ extern __printf(1, 2) int printk(const char *fmt, ...);
  * This macro expands to a printk with KERN_ERR loglevel. It uses pr_fmt() to
  * generate the format string.
  */
-#define pr_err(fmt, ...) \
+#if CONFIG_PRINTK_LOGLEVEL_MAX >= KLEVEL_ERR
+# define pr_err(fmt, ...) \
     printk(KERN_ERR pr_fmt(fmt), ##__VA_ARGS__)
+#else
+# define pr_err(fmt, ...) \
+    pr_none(fmt, ##__VA_ARGS__)
+#endif
 
 /**
  * pr_warn - Print a warning-level message
@@ -97,8 +118,13 @@ extern __printf(1, 2) int printk(const char *fmt, ...);
  * This macro expands to a printk with KERN_WARNING loglevel. It uses pr_fmt()
  * to generate the format string.
  */
-#define pr_warn(fmt, ...) \
+#if CONFIG_PRINTK_LOGLEVEL_MAX >= KLEVEL_WARNING
+# define pr_warn(fmt, ...) \
     printk(KERN_WARNING pr_fmt(fmt), ##__VA_ARGS__)
+#else
+# define pr_warn(fmt, ...) \
+    pr_none(fmt, ##__VA_ARGS__)
+#endif
 
 /**
  * pr_notice - Print a notice-level message
@@ -108,8 +134,13 @@ extern __printf(1, 2) int printk(const char *fmt, ...);
  * This macro expands to a printk with KERN_NOTICE loglevel. It uses pr_fmt() to
  * generate the format string.
  */
-#define pr_notice(fmt, ...) \
+#if CONFIG_PRINTK_LOGLEVEL_MAX >= KLEVEL_NOTICE
+# define pr_notice(fmt, ...) \
     printk(KERN_NOTICE pr_fmt(fmt), ##__VA_ARGS__)
+#else
+# define pr_notice(fmt, ...) \
+    pr_none(fmt, ##__VA_ARGS__)
+#endif
 
 /**
  * pr_info - Print an info-level message
@@ -119,8 +150,13 @@ extern __printf(1, 2) int printk(const char *fmt, ...);
  * This macro expands to a printk with KERN_INFO loglevel. It uses pr_fmt() to
  * generate the format string.
  */
-#define pr_info(fmt, ...) \
+#if CONFIG_PRINTK_LOGLEVEL_MAX >= KLEVEL_INFO
+# define pr_info(fmt, ...) \
     printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
+#else
+# define pr_info(fmt, ...) \
+    pr_none(fmt, ##__VA_ARGS__)
+#endif
 
 /**
  * pr_debug - Print an debug-level message
@@ -131,10 +167,10 @@ extern __printf(1, 2) int printk(const char *fmt, ...);
  * generate the format string.
  */
 #ifdef CONFIG_DYNAMIC_DEBUG
-#define pr_debug(fmt, ...) \
+# define pr_debug(fmt, ...) \
     printk(KERN_DEBUG pr_fmt(fmt), ##__VA_ARGS__)
 #else
-#define pr_debug(fmt, ...) \
+# define pr_debug(fmt, ...) \
     pr_none(fmt, ##__VA_ARGS__)
 #endif
 

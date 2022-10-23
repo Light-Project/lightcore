@@ -10,7 +10,7 @@
 #include <kclock.h>
 #include <export.h>
 
-const enum klevel_color printk_level_color[] = {
+const unsigned int printk_level_color[] = {
     [KLEVEL_EMERG]      = KERN_COLR_RED,
     [KLEVEL_ALERT]      = KERN_COLR_DARK_MAGENTA,
     [KLEVEL_CRIT]       = KERN_COLR_MAGENTA,
@@ -30,22 +30,29 @@ static inline char printk_get_level(const char *str)
     return 0;
 }
 
-const char *printk_level(const char *str, enum klevel *klevel)
+unsigned int printk_level(const char *str, const char **endptr)
 {
-    char kern_level;
+    char value, klevel;
 
-    for (*klevel = KLEVEL_DEFAULT; *str; str += 2) {
-        kern_level = printk_get_level(str);
-
-        if (!kern_level)
+    for (klevel = KLEVEL_DEFAULT; *str; str += 2) {
+        value = printk_get_level(str);
+        if (!value)
             break;
-        switch (kern_level) {
+
+        switch (value) {
             case '0' ... '9':
-                *klevel = kern_level - '0';
+                klevel = value - '0';
+                break;
+
+            default:
+                break;
         }
     }
 
-    return str;
+    if (*endptr)
+        *endptr = str;
+
+    return klevel;
 }
 EXPORT_SYMBOL(printk_level);
 
@@ -58,10 +65,10 @@ static inline int printk_time(char *buffer, struct timespec *time)
 int vprintk(const char *fmt, va_list args)
 {
     char buffer[256], *p = buffer;
-    enum klevel klevel;
+    unsigned int klevel;
     int len;
 
-    fmt = printk_level(fmt, &klevel);
+    klevel = printk_level(fmt, &fmt);
 
 #ifdef CONFIG_PRINTK_TIME
     struct timespec btime;
