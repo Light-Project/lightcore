@@ -31,8 +31,8 @@ enum paser_state {
     KSHELL_STATE_EVARIABLE  = 7,
 
     KSHELL_STATE_OUTPUT     = 8,
-    KSHELL_STATE_QOUTPUT    = 9,
-    KSHELL_STATE_LOUTPUT    = 10,
+    KSHELL_STATE_LOUTPUT    = 9,
+    KSHELL_STATE_QOUTPUT    = 10,
     KSHELL_STATE_LQOUTPUT   = 11,
 
     KSHELL_STATE_RETVAL     = 12,
@@ -95,6 +95,11 @@ static inline bool is_output(enum paser_state state)
     return state >= KSHELL_STATE_OUTPUT && state <= KSHELL_STATE_LQOUTPUT;
 }
 
+static inline bool is_qoutput(enum paser_state state)
+{
+    return state >= KSHELL_STATE_QOUTPUT && state <= KSHELL_STATE_LQOUTPUT;
+}
+
 static inline bool is_shortvar(enum paser_state state)
 {
     return state >= KSHELL_STATE_VARNAME && state <= KSHELL_STATE_QVARNAME;
@@ -150,42 +155,18 @@ static enum paser_state parser_state(enum paser_state state, char code, char *re
     return state;
 }
 
-#define PARSER_EXPANSION(texp, vexp) {                          \
-    void *nblock;                                               \
-    int flags = 0;                                              \
-                                                                \
-    while (unlikely(((texp) >= tsize) && (flags |= 1)))         \
-        tsize *= 2;                                             \
-                                                                \
-    while (unlikely(((vexp) >= vsize) && (flags |= 2)))         \
-        vsize *= 2;                                             \
-                                                                \
-    if (unlikely(flags)) {                                      \
-        nblock = krealloc(tbuff, tsize + vsize, GFP_KERNEL);    \
-        if (!nblock) {                                          \
-            kfree(tbuff);                                       \
-            return -ENOMEM;                                     \
-        }                                                       \
-        tbuff = nblock;                                         \
-        vbuff = nblock + tsize;                                 \
-    }                                                           \
-}
-
-#define PARSER_EXP_TPOS(tpos) PARSER_EXPANSION((tpos) + 1, 0)
-#define PARSER_EXP_APOS(tpos, vops) PARSER_EXPANSION((tpos) + 1, (vops) + 1)
-
 static void pipeline_write(const char *str, unsigned int len, void *data)
 {
     struct kshell_context *ctx = data;
     bool nrealloc = false;
     void *nblock;
 
-    while (ctx->pipepos + len >= ctx->pipesize) {
+    while (unlikely(ctx->pipepos + len >= ctx->pipesize)) {
         ctx->pipesize *= 2;
         nrealloc = true;
     }
 
-    if (nrealloc) {
+    if (unlikely(nrealloc)) {
         nblock = krealloc(ctx->pipeline, ctx->pipesize, GFP_KERNEL);
         if (!nblock)
             return;
@@ -234,6 +215,62 @@ static char *pseudo_pipeline(struct kshell_context *ctx, const char *cmdline,
     return buffer;
 }
 
+static inline bool isspilt(char ch)
+{
+    return ch == ' ' || ch == '\t' || ch == '\n';
+}
+
+static int pipeline_parser(char *buff, unsigned int *length)
+{
+    unsigned int walk;
+    int count;
+
+    for (walk = 0; isspilt(buff[walk]); ++walk);
+    memmove(buff, buff + walk, *length - walk);
+    *length -= walk;
+
+    for (count = walk = 0; walk < *length - 1; ++walk) {
+        if (isspilt(buff[walk])) {
+            if (!isspilt(buff[walk + 1]))
+                count++;
+            buff[walk] = '\0';
+        }
+    }
+
+    if (isspilt(buff[walk]))
+        buff[walk] = '\0';
+
+    while (!buff[walk--])
+        --*length;
+
+    return count;
+}
+
+#define PARSER_EXPANSION(texp, vexp) do {                       \
+    void *nblock;                                               \
+    int flags = 0;                                              \
+                                                                \
+    while (unlikely(((texp) >= tsize) && (flags |= 1)))         \
+        tsize *= 2;                                             \
+                                                                \
+    while (unlikely(((vexp) >= vsize) && (flags |= 2)))         \
+        vsize *= 2;                                             \
+                                                                \
+    if (unlikely(flags)) {                                      \
+        nblock = krealloc(tbuff, tsize + vsize, GFP_KERNEL);    \
+        if (!nblock) {                                          \
+            kfree(tbuff);                                       \
+            return -ENOMEM;                                     \
+        }                                                       \
+        tbuff = nblock;                                         \
+        vbuff = nblock + tsize;                                 \
+    }                                                           \
+} while (0)
+
+#define PARSER_EXP_BUFF(text, vext) PARSER_EXPANSION(tpos + (text) + 1, vpos + (vext) + 1)
+#define PARSER_EXP_TBUF(text) PARSER_EXP_BUFF(text, 0)
+#define PARSER_EXP_VBUF(vext) PARSER_EXP_BUFF(0, vext)
+
 state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
                     int *argc, char ***argv)
 {
@@ -258,7 +295,7 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
     if (!tbuff)
         return -ENOMEM;
 
-    for (walk = skip_spaces(cmdline); *walk; ++walk) {
+    for (walk = cmdline; *walk; ++walk) {
         nstate = parser_state(cstate, *walk, &code, &depth);
 
         if (is_variable(cstate) && !is_variable(nstate)) {
@@ -267,7 +304,7 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
             var = kshell_getenv(ctx, vbuff);
             if (var) {
                 count = strlen(var);
-                PARSER_EXP_TPOS(tpos + count + 1)
+                PARSER_EXP_TBUF(count);
                 strcpy(tbuff + tpos, var);
                 tpos += count;
             }
@@ -277,8 +314,8 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
             vbuff[vpos] = '\0';
             vpos = 0;
             retval = kshell_system(ctx, vbuff);
-            count = scnprintf(brack_buff, sizeof(brack_buff), "%d", retval);
-            PARSER_EXP_TPOS(tpos + count + 1)
+            count = itoad(retval, brack_buff);
+            PARSER_EXP_TBUF(count);
             strcpy(tbuff + tpos, brack_buff);
             tpos += count;
             goto finish;
@@ -289,8 +326,10 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
             vpos = 0;
             var = pseudo_pipeline(ctx, vbuff, &count);
             if (var) {
-                PARSER_EXP_TPOS(tpos + count + 1)
+                PARSER_EXP_TBUF(count);
                 strcpy(tbuff + tpos, var);
+                if (!is_qoutput(cstate))
+                    (*argc) += pipeline_parser(tbuff + tpos, &count);
                 tpos += count;
             }
             goto finish;
@@ -302,12 +341,12 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
         } else if (is_text(nstate, cstate) && code == ' ') {
             if (tpos != 0 && tbuff[tpos - 1]) {
                 tbuff[tpos++] = '\0';
-                ++(*argc);
+                ++*argc;
             }
         } else if (is_text(nstate, cstate) && code == ';') {
             if (tpos != 0 && tbuff[tpos - 1]) {
                 tbuff[tpos++] = '\0';
-                ++(*argc);
+                ++*argc;
             }
             *pcmdline = walk + 1;
             break;
@@ -315,8 +354,8 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
             tbuff[tpos++] = code;
         }
 
-        PARSER_EXP_APOS(tpos + 1, vpos + 1)
-finish: cstate = nstate;
+        PARSER_EXP_BUFF(1, 1);
+        finish: cstate = nstate;
     }
 
     /* If the last one is a variable, parse it out */
@@ -325,7 +364,7 @@ finish: cstate = nstate;
         var = kshell_getenv(ctx, vbuff);
         if (var) {
             count = strlen(var);
-            PARSER_EXP_TPOS(tpos + count + 1)
+            PARSER_EXP_TBUF(count);
             strcpy(tbuff + tpos, var);
             tpos += count;
         }
@@ -334,7 +373,7 @@ finish: cstate = nstate;
     /* if there is no end flag, end it */
     if (!*walk && code != ' ') {
         tbuff[tpos++] = '\0';
-        ++(*argc);
+        ++*argc;
     }
 
     /* allocate an argv area */
@@ -352,7 +391,8 @@ finish: cstate = nstate;
         (*argv)[count] = vbuff;
         while (*vbuff)
             ++vbuff;
-        vbuff++;
+        while (!*vbuff)
+            ++vbuff;
     }
 
     (*argv)[count] = NULL;

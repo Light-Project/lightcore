@@ -52,9 +52,7 @@ static inline void ksh_init(void) {}
 
 extern const char *kshell_getenv(struct kshell_context *ctx, const char *name);
 extern state kshell_setenv(struct kshell_context *ctx, const char *name, const char *val, bool overwrite);
-extern state kshell_setlocal(struct kshell_context *ctx, const char *name, const char *val, bool overwrite);
 extern state kshell_putenv(struct kshell_context *ctx, char *string);
-extern state kshell_putlocal(struct kshell_context *ctx, char *string);
 extern state kshell_unsetenv(struct kshell_context *ctx, const char *name);
 
 extern const char *kshell_global_get(struct kshell_context *ctx, const char *name);
