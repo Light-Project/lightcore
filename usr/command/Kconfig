@@ -102,6 +102,10 @@ config KCMD_SELECT
     bool "Select Command Support"
     default y
 
+config KCMD_SEQ
+    bool "Seq Command Support"
+    default y
+
 config KCMD_SLEEP
     bool "Sleep Command Support"
     default y
