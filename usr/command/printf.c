@@ -48,14 +48,15 @@ static state printf_main(struct kshell_context *ctx, int argc, char *argv[])
     fmt = paraph;
 
     while ((fmt = strchr(fmt, '%'))) {
+        walk = fmt; repeat:
+
         if (unlikely(index >= ARRAY_SIZE(printf_args))) {
             kshell_printf(ctx, "too many parameters\n");
             kfree(paraph);
             return -EFBIG;
         }
 
-        walk = fmt;
-        repeat: switch (*++walk) {
+        switch (*++walk) {
             case 'd': case 'i':
                 if (count >= argc)
                     goto usage;
@@ -84,6 +85,13 @@ static state printf_main(struct kshell_context *ctx, int argc, char *argv[])
                 printf_args[index++] =
                 (void *)(uintptr_t)*argv[count++];
                 break;
+
+            case '*':
+                if (count >= argc)
+                    goto usage;
+                printf_args[index++] =
+                (void *)(uintptr_t)axtoul(argv[count++]);
+                goto repeat;
 
             default:
                 if (isalpha(*walk) || !*walk) {
