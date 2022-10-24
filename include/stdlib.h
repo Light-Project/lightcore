@@ -7,6 +7,7 @@
 #include <stdarg.h>
 #include <stddef.h>
 
+extern int chtoi(unsigned char ch);
 extern int intoa(int val, char *buff, int base, size_t length);
 extern int lntoa(long val, char *buff, int base, size_t length);
 extern int llntoa(long long val, char *buff, int base, size_t length);
