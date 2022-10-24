@@ -7,7 +7,7 @@
 #include <mhelper.h>
 #include <export.h>
 
-#define GENERIC_GPIO_RAW_OPS(operation, argnr, ...)                             \
+#define GENERIC_GPIO_RAW_NOPS(operation, argnr, ...)                            \
 state gpio_raw_##operation                                                      \
 (struct gpio_device *gdev, MMAP_DECLN(argnr, MARGFN_DECL, __VA_ARGS__))         \
 {                                                                               \
@@ -20,20 +20,23 @@ state gpio_raw_##operation                                                      
 }                                                                               \
 EXPORT_SYMBOL(gpio_raw_##operation)
 
-GENERIC_GPIO_RAW_OPS(request, 1, unsigned int);
-GENERIC_GPIO_RAW_OPS(release, 1, unsigned int);
-GENERIC_GPIO_RAW_OPS(dt_xlate, 3, const struct dt_phandle_args *, uint32_t *, uint32_t *);
+#define GENERIC_GPIO_RAW_OPS(operation, ...) \
+    GENERIC_GPIO_RAW_NOPS(operation, COUNT_ARGS(__VA_ARGS__), __VA_ARGS__)
 
-GENERIC_GPIO_RAW_OPS(value_get, 2, unsigned int, bool *);
-GENERIC_GPIO_RAW_OPS(value_set, 2, unsigned int, bool);
-GENERIC_GPIO_RAW_OPS(direction_get, 2, unsigned int, enum gpio_direction *);
-GENERIC_GPIO_RAW_OPS(direction_set, 2, unsigned int, enum gpio_direction);
-GENERIC_GPIO_RAW_OPS(pull_get, 2, unsigned int, enum gpio_pull *);
-GENERIC_GPIO_RAW_OPS(pull_set, 2, unsigned int, enum gpio_pull);
-GENERIC_GPIO_RAW_OPS(drive_get, 2, unsigned int, enum gpio_drive *);
-GENERIC_GPIO_RAW_OPS(drive_set, 2, unsigned int, enum gpio_drive);
-GENERIC_GPIO_RAW_OPS(speed_get, 2, unsigned int, enum gpio_speed *);
-GENERIC_GPIO_RAW_OPS(speed_set, 2, unsigned int, enum gpio_speed);
+GENERIC_GPIO_RAW_OPS(request, unsigned int);
+GENERIC_GPIO_RAW_OPS(release, unsigned int);
+GENERIC_GPIO_RAW_OPS(dt_xlate, const struct dt_phandle_args *, uint32_t *, uint32_t *);
+
+GENERIC_GPIO_RAW_OPS(value_get, unsigned int, bool *);
+GENERIC_GPIO_RAW_OPS(value_set, unsigned int, bool);
+GENERIC_GPIO_RAW_OPS(direction_get, unsigned int, enum gpio_direction *);
+GENERIC_GPIO_RAW_OPS(direction_set, unsigned int, enum gpio_direction);
+GENERIC_GPIO_RAW_OPS(pull_get, unsigned int, enum gpio_pull *);
+GENERIC_GPIO_RAW_OPS(pull_set, unsigned int, enum gpio_pull);
+GENERIC_GPIO_RAW_OPS(drive_get, unsigned int, enum gpio_drive *);
+GENERIC_GPIO_RAW_OPS(drive_set, unsigned int, enum gpio_drive);
+GENERIC_GPIO_RAW_OPS(speed_get, unsigned int, enum gpio_speed *);
+GENERIC_GPIO_RAW_OPS(speed_set, unsigned int, enum gpio_speed);
 
 #define GENERIC_GPIOC_RAW_OPS(operation, argnr, ...)                            \
 state gpioc_raw_##operation                                                     \
