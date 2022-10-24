@@ -107,7 +107,7 @@ static state interior_unsetenv(struct rb_root *head, const char *name)
     return -ENOERR;
 }
 
-#define GENERIC_ENV_OPS(name, func, child, argnr, rtype, ...)                   \
+#define GENERIC_ENV_NOPS(name, func, child, rtype, argnr, ...)                  \
 rtype kshell_##name                                                             \
 (struct kshell_context *ctx, MMAP_DECLN(argnr, MARGFN_DECL, __VA_ARGS__))       \
 {                                                                               \
@@ -116,15 +116,18 @@ rtype kshell_##name                                                             
 }                                                                               \
 EXPORT_SYMBOL(kshell_##name)
 
-GENERIC_ENV_OPS(global_get, getenv, &ctx->env, 1, const char *, const char *);
-GENERIC_ENV_OPS(global_set, setenv, &ctx->env, 3, state, const char *, const char *, bool);
-GENERIC_ENV_OPS(global_put, putenv, &ctx->env, 1, state, char *);
-GENERIC_ENV_OPS(global_unset, unsetenv, &ctx->env, 1, state, const char *);
+#define GENERIC_ENV_OPS(name, func, child, rtype, ...) \
+    GENERIC_ENV_NOPS(name, func, child, rtype, COUNT_ARGS(__VA_ARGS__), __VA_ARGS__)
 
-GENERIC_ENV_OPS(local_get, getenv, &list_first_entry(&ctx->local, struct kshell_local, list)->env, 1, const char *, const char *);
-GENERIC_ENV_OPS(local_set, setenv, &list_first_entry(&ctx->local, struct kshell_local, list)->env, 3, state, const char *, const char *, bool);
-GENERIC_ENV_OPS(local_put, putenv, &list_first_entry(&ctx->local, struct kshell_local, list)->env, 1, state, char *);
-GENERIC_ENV_OPS(local_unset, unsetenv, &list_first_entry(&ctx->local, struct kshell_local, list)->env, 1, state, const char *);
+GENERIC_ENV_OPS(global_get, getenv, &ctx->env, const char *, const char *);
+GENERIC_ENV_OPS(global_set, setenv, &ctx->env, state, const char *, const char *, bool);
+GENERIC_ENV_OPS(global_put, putenv, &ctx->env, state, char *);
+GENERIC_ENV_OPS(global_unset, unsetenv, &ctx->env, state, const char *);
+
+GENERIC_ENV_OPS(local_get, getenv, &list_first_entry(&ctx->local, struct kshell_local, list)->env, const char *, const char *);
+GENERIC_ENV_OPS(local_set, setenv, &list_first_entry(&ctx->local, struct kshell_local, list)->env, state, const char *, const char *, bool);
+GENERIC_ENV_OPS(local_put, putenv, &list_first_entry(&ctx->local, struct kshell_local, list)->env, state, char *);
+GENERIC_ENV_OPS(local_unset, unsetenv, &list_first_entry(&ctx->local, struct kshell_local, list)->env, state, const char *);
 
 const char *kshell_getenv(struct kshell_context *ctx, const char *name)
 {
