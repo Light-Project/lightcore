@@ -10,7 +10,7 @@
 #include <string.h>
 
 #define alloca __builtin_alloca
-extern __malloc void *alloca(size_t size);
+extern __malloc void *alloca(unsigned int size);
 
 #define zalloca(size) ({        \
     void *stack;                \
