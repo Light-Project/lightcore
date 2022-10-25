@@ -526,7 +526,7 @@ EXPORT_SYMBOL(memcmp);
  * Extend Helper
  */
 
-__weak int strcount(const char *str, char c)
+__weak int strcount(const char *str, int c)
 {
     int count = 0;
 
@@ -539,11 +539,11 @@ __weak int strcount(const char *str, char c)
 }
 EXPORT_SYMBOL(strcount);
 
-__weak int strncount(const char *str, char c, size_t size)
+__weak int strncount(const char *str, int c, size_t n)
 {
     int count = 0;
 
-    while (*str && size--) {
+    while (*str && n--) {
         if (*str++ == c)
             count++;
     }
@@ -552,12 +552,42 @@ __weak int strncount(const char *str, char c, size_t size)
 }
 EXPORT_SYMBOL(strncount);
 
-__weak int memcount(const void *addr, int c, size_t size)
+__weak int strchreplace(char *str, int c, int s)
+{
+    int count = 0;
+
+    for (; *str; str++) {
+        if (*str == s) {
+            *str = c;
+            count++;
+        }
+    }
+
+    return count;
+}
+EXPORT_SYMBOL(strchreplace);
+
+__weak int strnchreplace(char *str, int c, int s, size_t n)
+{
+    int count = 0;
+
+    for (; *str && n--; str++) {
+        if (*str == s) {
+            *str = c;
+            count++;
+        }
+    }
+
+    return count;
+}
+EXPORT_SYMBOL(strnchreplace);
+
+__weak int memcount(const void *addr, int c, size_t n)
 {
     const unsigned char *p = addr;
     int count = 0;
 
-    while (size--) {
+    while (n--) {
         if (c == *p++)
             count++;
     }
