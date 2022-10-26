@@ -71,6 +71,7 @@ KCONTEXT_EDI    mcontext(KC_BUF_DI)
 KCONTEXT_EBP    mcontext(KC_BUF_BP)
 KCONTEXT_ESP    mcontext(KC_BUF_SP)
 KCONTEXT_EPC    mcontext(KC_BUF_PC)
+KCONTEXT_EFLAGS mcontext(KC_BUF_FLAGS)
 #else
 KCONTEXT_RBX    mcontext(KC_BUF_BX)
 KCONTEXT_RCX    mcontext(KC_BUF_CX)

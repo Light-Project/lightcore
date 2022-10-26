@@ -28,10 +28,12 @@ state proc_thread_copy(struct task_clone_args *args, struct sched_task *child)
     struct regs *childregs;
 
     if (child->flags & SCHED_TASK_KTHREAD) {
+        child->kcontext.mcontext.regs[KC_BUF_FLAGS] = EFLAGS_FIXED;
+        child->kcontext.mcontext.regs[KC_BUF_SI] = (unsigned long)current;
+        child->kcontext.mcontext.regs[KC_BUF_DI] = (unsigned long)args->entry;
+
         child->kcontext.stack = child->stack;
         child->kcontext.ssize = THREAD_SIZE;
-        child->kcontext.mcontext.regs[KC_BUF_SI] = (long)current;
-        child->kcontext.mcontext.regs[KC_BUF_DI] = (long)args->entry;
         makecontext(&child->kcontext, (state (*)(void))entry_kthread_return, 1, args->arg);
         return -ENOERR;
     }
@@ -64,7 +66,7 @@ void __noreturn proc_halt(void)
 {
     irq_local_disable();
     for (;;)
-    asm volatile ("rep \n hlt");
+    asm volatile ("rep; hlt");
 }
 
 void __noreturn proc_reset(void)

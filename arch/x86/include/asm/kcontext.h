@@ -25,7 +25,8 @@
 # define KC_BUF_BP      3
 # define KC_BUF_SP      4
 # define KC_BUF_PC      5
-# define KC_BUF_REGS    6
+# define KC_BUF_FLAGS   6
+# define KC_BUF_REGS    7
 #endif
 
 #include <asm-generic/kcontext.h>
