@@ -7,13 +7,17 @@ SYM_CODE_START(getcontext)
     /* load address of the context data structure */
     movl    4(%esp), %ecx
 
+    /* save the preserved eflags */
+    pushfl
+    popl    KCONTEXT_EFLAGS(%ecx)
+
     /* save the preserved register values */
     movl    %ebx, KCONTEXT_EBX(%ecx)
     movl    %esi, KCONTEXT_ESI(%ecx)
     movl    %edi, KCONTEXT_EDI(%ecx)
     movl    %ebp, KCONTEXT_EBP(%ecx)
 
-    /* save the the return address */
+    /* save the return address */
     leal    4(%esp), %edx
     movl    %edx, KCONTEXT_ESP(%ecx)
     movl    (%esp), %edx
@@ -34,6 +38,10 @@ SYM_CODE_START(setcontext)
     movl    KCONTEXT_ESP(%ecx), %esp
     movl    KCONTEXT_EPC(%ecx), %edx
 
+    /* load the preserved eflags */
+    pushl   KCONTEXT_EFLAGS(%ecx)
+    popfl
+
     jmpl    *%edx
 SYM_CODE_END(setcontext)
 
@@ -42,13 +50,17 @@ SYM_CODE_START(swapcontext)
     movl    4(%esp), %eax
     movl    8(%esp), %ecx
 
+    /* save the preserved eflags */
+    pushfl
+    popl    KCONTEXT_EFLAGS(%eax)
+
     /* save the preserved register values */
     movl    %ebx, KCONTEXT_EBX(%eax)
     movl    %esi, KCONTEXT_ESI(%eax)
     movl    %edi, KCONTEXT_EDI(%eax)
     movl    %ebp, KCONTEXT_EBP(%eax)
 
-    /* save the the return address */
+    /* save the return address */
     leal    4(%esp), %edx
     movl    %edx, KCONTEXT_ESP(%eax)
     movl    (%esp), %edx
@@ -61,6 +73,10 @@ SYM_CODE_START(swapcontext)
     movl    KCONTEXT_EBP(%ecx), %ebp
     movl    KCONTEXT_ESP(%ecx), %esp
     movl    KCONTEXT_EPC(%ecx), %edx
+
+    /* load the preserved eflags */
+    pushl   KCONTEXT_EFLAGS(%ecx)
+    popfl
 
     jmpl    *%edx
 SYM_CODE_END(swapcontext)

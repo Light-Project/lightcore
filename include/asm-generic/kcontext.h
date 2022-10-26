@@ -3,7 +3,7 @@
 #define _ASM_GENERIC_KCONTEXT_H_
 
 typedef struct mcontext {
-    long regs[KC_BUF_REGS];
+    unsigned long regs[KC_BUF_REGS];
 } mcontext_t;
 
 #endif  /* _ASM_GENERIC_CONTEXT_H_ */
