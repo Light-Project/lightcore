@@ -34,7 +34,7 @@ bitmap_empty(const unsigned long *src, unsigned int bits)
     if (small_const_nbits(bits))
         return !(*src & BIT_LOW_MASK(bits));
     else if (__builtin_constant_p(bits & BITMAP_MEM_MASK) && align_check(bits, BITMAP_MEM_ALIGNMENT))
-        return !memdiff(src, ULONG_MIN, bits / BITS_PER_LONG);
+        return !memdiff(src, INT_MAX, bits / BITS_PER_BYTE);
     else
         return find_first_bit(src, bits) >= bits;
 }
@@ -45,7 +45,7 @@ bitmap_full(const unsigned long *src, unsigned int bits)
     if (small_const_nbits(bits))
         return !(~(*src) & BIT_LOW_MASK(bits));
     else if (__builtin_constant_p(bits & BITMAP_MEM_MASK) && align_check(bits, BITMAP_MEM_ALIGNMENT))
-        return !memdiff(src, ULONG_MAX, bits / BITS_PER_LONG);
+        return !memdiff(src, INT_MAX, bits / BITS_PER_BYTE);
     else
         return find_first_zero(src, bits) >= bits;
 }
