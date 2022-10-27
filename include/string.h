@@ -5,9 +5,7 @@
 #include <types.h>
 #include <stddef.h>
 
-/*
- * String manipulation
- */
+/* String manipulation */
 extern char *strcpy(char *dest, const char *src);
 extern char *strncpy(char *dest, const char *src, size_t n);
 extern size_t strlcpy(char *dest, const char *src, size_t n);
@@ -15,9 +13,7 @@ extern char *strcat(char *dest, const char *src);
 extern char *strncat(char *dest, const char *src, size_t n);
 extern size_t strlcat(char *dest, const char *src, size_t n);
 
-/*
- * String examination
- */
+/* String examination */
 extern size_t strlen(const char *s);
 extern size_t strnlen(const char *s, size_t n);
 extern int strcmp(const char *s1, const char *s2);
@@ -44,9 +40,7 @@ extern const char *strdup_const(const char *s);
 extern char *strsep(char **s, const char *ct);
 extern char *strim(char *s);
 
-/*
- * Memory manipulation
- */
+/* Memory manipulation */
 extern void *memset(void *s, int c, size_t n);
 extern void *memcpy(void *dest, const void *src, size_t len);
 extern void *memmove(void *dest, const void *src, size_t n);
@@ -54,15 +48,13 @@ extern void *memchr(const void *s, int c, size_t n);
 extern void *memscan(void *addr, int c, size_t size);
 extern int memcmp(const void *s1, const void *s2, size_t n);
 
-/*
- * Extend Helper
- */
+/* Extend Helper */
 extern int strcount(const char *str, int c);
 extern int strncount(const char *str, int c, size_t n);
 extern int strchreplace(char *str, int c, int s);
 extern int strnchreplace(char *str, int c, int s, size_t n);
-extern int memcount(const void *addr, int c, size_t n);
 extern void *memdiff(const void *addr, int c, size_t n);
+extern size_t memcount(const void *addr, int c, size_t n);
 extern char *skip_spaces(const char *path);
 extern char *basename(const char *path);
 

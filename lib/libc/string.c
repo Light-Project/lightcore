@@ -531,7 +531,7 @@ __weak int strcount(const char *str, int c)
     int count = 0;
 
     while (*str) {
-        if (*str++ == c)
+        if (*str++ == (char)c)
             count++;
     }
 
@@ -557,7 +557,7 @@ __weak int strchreplace(char *str, int c, int s)
     int count = 0;
 
     for (; *str; str++) {
-        if (*str == s) {
+        if (*str == (char)s) {
             *str = c;
             count++;
         }
@@ -572,7 +572,7 @@ __weak int strnchreplace(char *str, int c, int s, size_t n)
     int count = 0;
 
     for (; *str && n--; str++) {
-        if (*str == s) {
+        if (*str == (char)s) {
             *str = c;
             count++;
         }
@@ -582,26 +582,12 @@ __weak int strnchreplace(char *str, int c, int s, size_t n)
 }
 EXPORT_SYMBOL(strnchreplace);
 
-__weak int memcount(const void *addr, int c, size_t n)
-{
-    const unsigned char *p = addr;
-    int count = 0;
-
-    while (n--) {
-        if (c == *p++)
-            count++;
-    }
-
-    return count;
-}
-EXPORT_SYMBOL(memcount);
-
 __weak void *memdiff(const void *addr, int c, size_t size)
 {
     const unsigned char *p = addr;
 
     while (size) {
-        if (*p != c)
+        if (*p != (char)c)
             return (void *)p;
         p++;
         size--;
@@ -610,6 +596,20 @@ __weak void *memdiff(const void *addr, int c, size_t size)
     return NULL;
 }
 EXPORT_SYMBOL(memdiff);
+
+__weak size_t memcount(const void *addr, int c, size_t n)
+{
+    const char *p = addr;
+    size_t count = 0;
+
+    while (n--) {
+        if (*p++ == (char)c)
+            count++;
+    }
+
+    return count;
+}
+EXPORT_SYMBOL(memcount);
 
 __weak char *skip_spaces(const char *str)
 {
