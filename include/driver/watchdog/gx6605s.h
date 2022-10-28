@@ -4,7 +4,7 @@
 
 #include <bits.h>
 
-enum gx6605s_wdt_regsiters {
+enum gx6605s_wdt_registers {
     GX6605S_WDT_CTRL        = 0x00,
     GX6605S_WDT_MATCH       = 0x04,
     GX6605S_WDT_COUNT       = 0x08,

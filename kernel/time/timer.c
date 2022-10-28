@@ -401,6 +401,6 @@ static __init void timer_init_cpus(void)
 void __init timer_init(void)
 {
     timer_cache = KCACHE_CREATE(struct timer, KCACHE_PANIC);
-    softirq_regsiter(&timer_softirq);
+    softirq_register(&timer_softirq);
     timer_init_cpus();
 }
