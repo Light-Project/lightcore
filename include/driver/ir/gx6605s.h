@@ -4,7 +4,7 @@
 
 #include <bits.h>
 
-enum gx6605s_iir_regsiters {
+enum gx6605s_iir_registers {
     GX6605S_IIR_CTRL    = 0x00,
     GX6605S_IIR_INT     = 0x04,
     GX6605S_IIR_FIFO    = 0x08,

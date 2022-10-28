@@ -80,7 +80,7 @@ ENTRY(init)
     movi        r1, 0x0
     cpwcr       r1, cpcr8
 
-    /* setup segment regsiters */
+    /* setup segment registers */
     lrw         r1, 0x00000000 | 0x0e   /* cache able */
     cpwcr       r1, cpcr30
     lrw         r1, 0x00000000 | 0x06   /* cache unable */

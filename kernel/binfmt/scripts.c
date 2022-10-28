@@ -15,6 +15,6 @@ static struct binfmt_type binfmt_elf_type = {
 
 static state binfmt_elf_init(void)
 {
-    return binfmt_regsiter(&binfmt_elf_type);
+    return binfmt_register(&binfmt_elf_type);
 }
 fs_initcall(binfmt_elf_init);

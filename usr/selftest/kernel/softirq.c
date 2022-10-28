@@ -22,7 +22,7 @@ static state softirq_test_testing(struct kshell_context *ctx, void *pdata)
     SPIN_LOCK(lock);
     DEFINE_SOFTIRQ(softirq_test, softirq_test_handle, &lock, 0);
 
-    ret = softirq_regsiter(&softirq_test);
+    ret = softirq_register(&softirq_test);
     if (ret)
         return ret;
 

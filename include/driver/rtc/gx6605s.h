@@ -4,7 +4,7 @@
 
 #include <bits.h>
 
-enum gx6605s_rtc_regsiters {
+enum gx6605s_rtc_registers {
     GX6605S_RTC_CTL         = 0x00,
     GX6605S_RTC_INT         = 0x04,
     GX6605S_RTC_CLK         = 0x0c,

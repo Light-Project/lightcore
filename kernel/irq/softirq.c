@@ -117,10 +117,10 @@ void softirq_clear(struct softirq *irq)
 EXPORT_SYMBOL(softirq_clear);
 
 /**
- * softirq_regsiter - regsiter a softirq
- * @irq: the softirq to regsiter
+ * softirq_register - register a softirq
+ * @irq: the softirq to register
  */
-state softirq_regsiter(struct softirq *irq)
+state softirq_register(struct softirq *irq)
 {
     unsigned long id;
 
@@ -133,11 +133,11 @@ state softirq_regsiter(struct softirq *irq)
 
     return -ENOERR;
 }
-EXPORT_SYMBOL(softirq_regsiter);
+EXPORT_SYMBOL(softirq_register);
 
 /**
- * softirq_unregister - unregsiter a softirq
- * @irq: the softirq to unregsiter
+ * softirq_unregister - unregister a softirq
+ * @irq: the softirq to unregister
  */
 void softirq_unregister(struct softirq *irq)
 {

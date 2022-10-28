@@ -42,7 +42,7 @@ static struct kshell_manual *manual_find(const char *name)
     return find;
 }
 
-state kshell_manual_regsiter(struct kshell_manual *manual)
+state kshell_manual_register(struct kshell_manual *manual)
 {
     if (!manual->name || !manual->describe)
         return -EINVAL;
@@ -56,15 +56,15 @@ state kshell_manual_regsiter(struct kshell_manual *manual)
 
     return -ENOERR;
 }
-EXPORT_SYMBOL(kshell_manual_regsiter);
+EXPORT_SYMBOL(kshell_manual_register);
 
-void kshell_manual_unregsiter(struct kshell_manual *manual)
+void kshell_manual_unregister(struct kshell_manual *manual)
 {
     spin_lock(&manual_lock);
     list_del(&manual->list);
     spin_unlock(&manual_lock);
 }
-EXPORT_SYMBOL(kshell_manual_unregsiter);
+EXPORT_SYMBOL(kshell_manual_unregister);
 
 static state manual_main(struct kshell_context *ctx, int argc, char *argv[])
 {

@@ -4,7 +4,7 @@
 
 #include <bits.h>
 
-enum gx6605s_uart_regsiters {
+enum gx6605s_uart_registers {
     GX6605S_UART_CTL    = 0x00,
     GX6605S_UART_STA    = 0x04,
     GX6605S_UART_DAT    = 0x08,

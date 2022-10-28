@@ -2,7 +2,7 @@
 #ifndef _DRIVER_WATCHDOG_IB700_H_
 #define _DRIVER_WATCHDOG_IB700_H_
 
-enum ib700_wdt_regsiter {
+enum ib700_wdt_register {
     IB700_WDT_TIMEOUT   = 0x00,
     IB700_WDT_CLEAR     = 0x02,
 };
