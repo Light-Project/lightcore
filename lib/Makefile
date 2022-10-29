@@ -9,6 +9,7 @@ obj-y += framedraw/
 obj-y += libc/
 obj-y += libgcc/
 obj-y += math/
+obj-y += textsearch/
 obj-y += argv-merge.o
 obj-y += argv-split.o
 obj-y += bitmap.o
