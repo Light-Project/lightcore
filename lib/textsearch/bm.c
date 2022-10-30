@@ -10,7 +10,7 @@
 
 struct bm_context {
     struct ts_context tsc;
-    char *pattern;
+    uint8_t *pattern;
     unsigned int pattern_len;
     unsigned int bad_shift[UINT8_MAX];
     unsigned int good_shift[0];
@@ -19,7 +19,7 @@ struct bm_context {
 #define ts_to_bm(ptr) \
     container_of(ptr, struct bm_context, tsc)
 
-static const char *bm_pattern_get(struct ts_context *tsc)
+static const void *bm_pattern_get(struct ts_context *tsc)
 {
     struct bm_context *bctx = ts_to_bm(tsc);
     return bctx->pattern;
@@ -63,7 +63,7 @@ static unsigned int bm_find(struct ts_context *tsc, struct ts_state *tss)
     }
 }
 
-static bool subpattern(const char *pattern, int i, int j, int g)
+static bool subpattern(const uint8_t *pattern, int i, int j, int g)
 {
     int x = i + g - 1, y = j + g - 1;
 
@@ -79,16 +79,13 @@ static bool subpattern(const char *pattern, int i, int j, int g)
 
 static inline void compute_prefix(struct bm_context *bctx)
 {
-    bool icase = ts_test_ignorecase(&bctx->tsc);
     int index, start, count;
 
     for (index = 0; index < UINT8_MAX; ++index)
         bctx->bad_shift[index] = bctx->pattern_len;
 
-    for (index = 0; index < bctx->pattern_len - 1; ++index) {
-        bctx->bad_shift[icase ? toupper(bctx->pattern[index]) :
-            bctx->pattern[index]] = bctx->pattern_len - index - 1;
-    }
+    for (index = 0; index < bctx->pattern_len - 1; ++index)
+        bctx->bad_shift[bctx->pattern[index]] = bctx->pattern_len - index - 1;
 
     bctx->good_shift[0] = 1;
     for (index = 1; index < bctx->pattern_len; ++index)
@@ -107,17 +104,17 @@ static inline void compute_prefix(struct bm_context *bctx)
 static struct ts_context *bm_prepare(const void *pattern, size_t len,
                                      gfp_t gfp, unsigned long flags)
 {
-    unsigned int prefix_size = sizeof(unsigned int) * len;
+    unsigned int good_size = sizeof(unsigned int) * len;
     struct bm_context *bctx;
     unsigned int index;
 
-    bctx = kmalloc(sizeof(*bctx) + prefix_size + len, gfp);
+    bctx = kmalloc(sizeof(*bctx) + good_size + len, gfp);
     if (unlikely(!bctx))
         return ERR_PTR(-ENOMEM);
 
     bctx->tsc.flags = flags;
     bctx->pattern_len = len;
-    bctx->pattern = (void *)bctx + sizeof(*bctx) + prefix_size;
+    bctx->pattern = (void *)bctx + sizeof(*bctx) + good_size;
 
     if (!ts_test_ignorecase(&bctx->tsc))
         memcpy(bctx->pattern, pattern, len);

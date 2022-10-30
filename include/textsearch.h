@@ -58,7 +58,7 @@ struct ts_algorithm {
     struct ts_context *(*prepare)(const void *pattern, size_t len, gfp_t gfp, unsigned long flags);
     void (*destroy)(struct ts_context *tsc);
     unsigned int (*find)(struct ts_context *tsc, struct ts_state *tss);
-    const char *(*pattern_get)(struct ts_context *tsc);
+    const void *(*pattern_get)(struct ts_context *tsc);
     unsigned int (*pattern_len)(struct ts_context *tsc);
 };
 
@@ -78,7 +78,7 @@ static inline unsigned int textsearch_next(struct ts_context *tsc, struct ts_sta
     return algo->find(tsc, tss);
 }
 
-static inline const char *textsearch_pattern_get(struct ts_context *tsc)
+static inline const void *textsearch_pattern_get(struct ts_context *tsc)
 {
     struct ts_algorithm *algo = tsc->algo;
     return algo->pattern_get(tsc);

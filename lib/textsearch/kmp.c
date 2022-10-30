@@ -18,7 +18,7 @@ struct kmp_context {
 #define ts_to_kmp(ptr) \
     container_of(ptr, struct kmp_context, tsc)
 
-static const char *kmp_pattern_get(struct ts_context *tsc)
+static const void *kmp_pattern_get(struct ts_context *tsc)
 {
     struct kmp_context *kctx = ts_to_kmp(tsc);
     return kctx->pattern;
