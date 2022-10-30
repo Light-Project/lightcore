@@ -56,6 +56,8 @@ static unsigned int kmp_find(struct ts_context *tsc, struct ts_state *tss)
                 return tss->offset - kctx->pattern_len;
             }
         }
+
+        consumed += length;
     }
 }
 
