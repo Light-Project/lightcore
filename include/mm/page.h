@@ -10,15 +10,13 @@
 
 static inline unsigned int size_to_order(size_t size)
 {
-    // if (__builtin_constant_p(size)) {
-    //     if (!size)
-    //         return BITS_PER_LONG - PAGE_SHIFT;
-
-    //     if (size < (1UL << PAGE_SHIFT))
-    //         return 0;
-
-    //     return ilog2((size) - 1) - PAGE_SHIFT + 1;
-    // }
+    if (__builtin_constant_p(size)) {
+        if (!size)
+            return BITS_PER_LONG - PAGE_SHIFT;
+        if (size < (1UL << PAGE_SHIFT))
+            return 0;
+        return ilog2((size) - 1) - PAGE_SHIFT + 1;
+    }
 
     size -= 1;
     size >>= PAGE_SHIFT;
