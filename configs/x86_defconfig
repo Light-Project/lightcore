@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 # Default configuration of x86 computer
 
 # arch
@@ -28,6 +29,9 @@ CONFIG_BLK_ATASIM32=y
 
 CONFIG_BUZZER=y
 CONFIG_BUZZER_PCSPKR=y
+
+CONFIG_CPUIDLE=y
+CONFIG_CPUIDLE_HALTPOLL=y
 
 CONFIG_DT=y
 CONFIG_BUILTIN_DTB=y

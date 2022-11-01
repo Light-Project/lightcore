@@ -7,6 +7,7 @@ obj-$(CONFIG_BUZZER)        += buzzer/
 obj-$(CONFIG_CHAR)          += char/
 obj-$(CONFIG_CLK)           += clk/
 obj-$(CONFIG_CPUFREQ)       += cpufreq/
+obj-$(CONFIG_CPUIDLE)       += cpuidle/
 obj-$(CONFIG_DT)            += dt/
 obj-$(CONFIG_FIRMWARE)      += firmware/
 obj-$(CONFIG_GPIO)          += gpio/

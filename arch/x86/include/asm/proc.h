@@ -55,6 +55,15 @@ static __always_inline void cpu_relax(void)
     asm volatile("rep nop" ::: "memory");
 }
 
+static __always_inline void cpu_idle(void)
+{
+    /*
+     * Used in the idle loop, sti takes one
+     * instruction cycle to complete.
+     */
+	asm volatile("sti; hlt": : :"memory");
+}
+
 extern void proc_thread_setup(struct regs *regs, size_t ip, size_t sp);
 extern state proc_thread_copy(struct task_clone_args *args, struct sched_task *child);
 extern state proc_thread_switch(struct sched_task *prev);

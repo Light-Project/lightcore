@@ -24,6 +24,8 @@ config ARCH_X86_32
     select ARCH_HAS_MMU
     select ARCH_HAS_PMIO
     select ARCH_HAS_KASAN
+    select ARCH_HAS_CPU_RELAX
+    select ARCH_HAS_CPU_IDLE
     select GENERIC_MPIO
     select LIBGCC_DIVDI3
 
@@ -38,6 +40,8 @@ config ARCH_X86_64
     select ARCH_HAS_MMU
     select ARCH_HAS_PMIO
     select ARCH_HAS_KASAN
+    select ARCH_HAS_CPU_RELAX
+    select ARCH_HAS_CPU_IDLE
     select PGTABLE_LEVEL5
     select GENERIC_MPIO
 
@@ -102,4 +106,10 @@ config ARCH_HAS_IOMAP
     bool
 
 config ARCH_HAS_KASAN
+    bool
+
+config ARCH_HAS_CPU_RELAX
+    bool
+
+config ARCH_HAS_CPU_IDLE
     bool
