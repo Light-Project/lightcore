@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menu "CPU idle governors"
+
+config CPUIDLE_GOV_HALTPOLL
+    bool "Haltpoll governor"
+    default y
+
+endmenu # CPU idle governors

@@ -21,6 +21,8 @@ source "drivers/clocksource/Kconfig"
 
 source "drivers/cpufreq/Kconfig"
 
+source "drivers/cpuidle/Kconfig"
+
 source "drivers/dt/Kconfig"
 
 source "drivers/firmware/Kconfig"

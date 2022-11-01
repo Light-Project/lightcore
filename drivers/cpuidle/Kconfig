@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig CPUIDLE
+    bool "CPU Idle Power Manager Support"
+if CPUIDLE
+
+source "drivers/cpuidle/governors/Kconfig"
+
+config CPUIDLE_HALTPOLL
+    bool "Halt poll cpuidle driver"
+    depends on ARCH_HAS_CPU_IDLE
+
+endif # CPUIDLE
