@@ -131,7 +131,7 @@ static void bm_destroy(struct ts_context *tsc)
     kfree(bctx);
 }
 
-struct ts_algorithm bm_algorithm = {
+static struct ts_algorithm bm_algorithm = {
     .name = "bm",
     .find = bm_find,
     .prepare = bm_prepare,
