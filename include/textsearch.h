@@ -96,9 +96,10 @@ static inline void textsearch_destroy(struct ts_context *tsc)
     algo->destroy(tsc);
 }
 
-extern struct ts_context *textsearch_prepare(const char *name, const void *pattern, size_t len, gfp_t gfp, unsigned long flags);
 extern unsigned int textsearch_linear_find(struct ts_context *tsc, struct ts_linear *linear, const void *data, unsigned int len);
 extern unsigned int textsearch_linear_next(struct ts_context *tsc, struct ts_linear *linear);
+
+extern struct ts_context *textsearch_prepare(const char *name, const void *pattern, size_t len, gfp_t gfp, unsigned long flags);
 extern state textsearch_register(struct ts_algorithm *algo);
 extern state textsearch_unregister(struct ts_algorithm *algo);
 

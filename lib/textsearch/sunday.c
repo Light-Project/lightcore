@@ -102,7 +102,7 @@ static void sunday_destroy(struct ts_context *tsc)
     kfree(sctx);
 }
 
-struct ts_algorithm sunday_algorithm = {
+static struct ts_algorithm sunday_algorithm = {
     .name = "sunday",
     .find = sunday_find,
     .prepare = sunday_prepare,

@@ -106,7 +106,7 @@ static void kmp_destroy(struct ts_context *tsc)
     kfree(kctx);
 }
 
-struct ts_algorithm kmp_algorithm = {
+static struct ts_algorithm kmp_algorithm = {
     .name = "kmp",
     .find = kmp_find,
     .prepare = kmp_prepare,
