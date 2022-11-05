@@ -3,6 +3,7 @@
 #define _DELAY_H_
 
 #include <math.h>
+#include <time.h>
 #include <static-call.h>
 #include <asm/delay.h>
 
@@ -58,5 +59,10 @@ DECLARE_STATIC_CALL(mdelay, static_call_proc_mdelay);
 #endif  /* CONFIG_HIRES_TIMER_DELAY */
 
 extern void msleep(unsigned int msecs);
+
+static inline void ssleep(unsigned int seconds)
+{
+    msleep(seconds * MSEC_PER_SEC);
+}
 
 #endif  /* _DELAY_H_ */

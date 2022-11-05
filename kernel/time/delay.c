@@ -8,8 +8,7 @@
 
 #include <delay.h>
 #include <proc.h>
-#include <kcoro.h>
-#include <kthread.h>
+#include <sched.h>
 #include <timekeeping.h>
 #include <driver/clocksource.h>
 #include <printk.h>
@@ -60,24 +59,32 @@ DEFINE_STATIC_CALL(mdelay, static_call_proc_mdelay);
 
 void delay_change(struct clocksource_device *cdev)
 {
-    if (cdev->rating >= CLOCK_RATING_DESIRED) {
+    static bool delay_mode;
+
+    if (!delay_mode && cdev->rating >= CLOCK_RATING_DESIRED) {
         static_call_update(ndelay, timer_ndelay);
         static_call_update(udelay, timer_udelay);
         static_call_update(mdelay, timer_mdelay);
         pr_info("change to timer-delay mode\n");
-    } else {
+        delay_mode = true;
+    } else if (delay_mode) {
         static_call_update(ndelay, static_call_proc_ndelay);
         static_call_update(udelay, static_call_proc_udelay);
         static_call_update(mdelay, static_call_proc_mdelay);
         pr_info("change to proc-delay mode\n");
+        delay_mode = false;
     }
 }
 
+/**
+ * msleep - uninterruptible sleep until timeout.
+ * @msecs: timeout value in millisecond.
+ */
 void msleep(unsigned int msecs)
 {
-    if (current_test_kcoro())
-        kcoro_msleep(msecs);
-
-    sched_msleep(msecs);
+    ttime_t timeout = ttime_to_ms(msecs);
+    do
+        timeout = sched_timeout_uninterruptible(timeout);
+    while (timeout);
 }
 EXPORT_SYMBOL(msleep);
