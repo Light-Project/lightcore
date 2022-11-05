@@ -8,14 +8,14 @@
 enum console_flags {
     __CONSOLE_BOOT          = 0,
     __CONSOLE_ENABLED       = 1,
-    __CONSOLE_PREFERRED     = 2,
+    __CONSOLE_CONSDEV       = 2,
     __CONSOLE_BUFFER        = 3,
     __CONSOLE_ANYTIME       = 4,
 };
 
 #define CONSOLE_BOOT        BIT(__CONSOLE_BOOT)
 #define CONSOLE_ENABLED     BIT(__CONSOLE_ENABLED)
-#define CONSOLE_PREFERRED   BIT(__CONSOLE_PREFERRED)
+#define CONSOLE_CONSDEV     BIT(__CONSOLE_CONSDEV)
 #define CONSOLE_BUFFER      BIT(__CONSOLE_BUFFER)
 #define CONSOLE_ANYTIME     BIT(__CONSOLE_ANYTIME)
 
@@ -39,7 +39,7 @@ struct console_ops {
 GENERIC_STRUCT_BITOPS(console, struct console, flags)
 GENERIC_STRUCT_FLAG(console, struct console, flags, boot, __CONSOLE_BOOT)
 GENERIC_STRUCT_FLAG(console, struct console, flags, enabled, __CONSOLE_ENABLED)
-GENERIC_STRUCT_FLAG(console, struct console, flags, preferred, __CONSOLE_PREFERRED)
+GENERIC_STRUCT_FLAG(console, struct console, flags, consdev, __CONSOLE_CONSDEV)
 GENERIC_STRUCT_FLAG(console, struct console, flags, buffer, __CONSOLE_BUFFER)
 GENERIC_STRUCT_FLAG(console, struct console, flags, anytime, __CONSOLE_ANYTIME)
 
@@ -51,10 +51,7 @@ extern void earlycon_sync(void);
 extern void earlycon_register(struct console *con);
 extern void earlycon_init(void);
 #else
-static inline unsigned int earlycon_read(const char *buff, unsigned int len)
-{
-    return 0;
-}
+static inline unsigned int earlycon_read(const char *buff, unsigned int len) {return 0;}
 static inline void earlycon_write(const char *buff, unsigned int len) {}
 static inline void earlycon_sync(void) {}
 static inline void earlycon_register(struct console *con) {}
@@ -64,6 +61,7 @@ static inline void earlycon_init(void) {}
 extern unsigned int console_read(char *str, unsigned int len);
 extern void console_write(const char *str, unsigned int len);
 extern void console_sync(void);
+
 extern void console_register(struct console *con);
 extern void console_unregister(struct console *con);
 extern void console_init(void);

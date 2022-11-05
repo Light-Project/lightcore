@@ -139,7 +139,7 @@ config CPU_GEN64
     depends on ARCH_X86_64
     select CPU_CACHE_SHIFT6
 
-endchoice
+endchoice # Platform Selection
 
 config X86_PAE
     bool "Physical Address Extension (PAE) Support"
@@ -161,19 +161,20 @@ config IO_DELAY_UDELAY
 config IO_DELAY_NONE
     bool "None IO delay"
 
-endchoice
+endchoice # IO Delay Type
 
 choice
-    prompt "Previous Console Choice"
-    default PRECON_SER
+    prompt "Early Console Choice"
+    depends on EARLYCON
+    default EARLYCON_SERIAL
 
-config PRECON_VGA
-    bool "VGA"
+config EARLYCON_SERIAL
+    bool "Early Serial"
 
-config PRECON_SER
-    bool "Serial"
+config EARLYCON_VGA
+    bool "Early VGA"
 
-endchoice
+endchoice # Early Console Choice
 
 config CPU_CACHE_SHIFT7
     bool
@@ -194,4 +195,4 @@ config CPU_CACHE_SHIFT
     default "5" if CPU_CACHE_SHIFT5
     default "4" if CPU_CACHE_SHIFT4
 
-endmenu
+endmenu # Processor type and features
