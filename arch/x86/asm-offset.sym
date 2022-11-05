@@ -88,3 +88,15 @@ KCONTEXT_R15    mcontext(KC_BUF_15)
 KCONTEXT_RSP    mcontext(KC_BUF_SP)
 KCONTEXT_RPC    mcontext(KC_BUF_PC)
 #endif
+
+-- smi
+
+#include <asm/smi.h>
+#define smireg(member) offsetof(struct smi_regs, member)
+
+SMIREG_EAX      smireg(eax)
+SMIREG_EBX      smireg(ebx)
+SMIREG_ECX      smireg(ecx)
+SMIREG_EDX      smireg(edx)
+SMIREG_ESI      smireg(esi)
+SMIREG_EDI      smireg(edi)
