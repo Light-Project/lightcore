@@ -147,12 +147,11 @@ void __init initcalls(void)
     }
 }
 
-void __init ctors_initcall(void)
+void __init ctors_init(void)
 {
     ctor_initcall_t *ctor;
 
-    for (ctor = _ld_ctors_start;
-         ctor < _ld_ctors_end; ctor++)
+    for (ctor = _ld_ctors_start; ctor < _ld_ctors_end; ctor++)
         (*ctor)();
 }
 
@@ -160,8 +159,7 @@ static state __init bootargs_entry(char *param, char *val, void *pdata)
 {
     struct bootarg *arg;
 
-    for (arg = _ld_boot_param_start;
-         arg < _ld_boot_param_end; arg++) {
+    for (arg = _ld_boot_param_start; arg < _ld_boot_param_end; arg++) {
         if ((bool)pdata != arg->early)
             continue;
         if (!strcmp(param, arg->args))

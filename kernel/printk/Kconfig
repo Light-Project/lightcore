@@ -41,9 +41,4 @@ config EARLYCON
     bool "Early console support"
     default y
 
-config BOOTCON
-    bool "Bootloader console support"
-    depends on EARLYCON
-    default y
-
 endif # Printk Config

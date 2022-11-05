@@ -22,8 +22,9 @@ struct console_preferred {
 };
 
 #define CONSOLE_PREFERREDS CONFIG_CONSOLE_PREFERREDS
-static struct console_preferred console_preferreds[CONSOLE_PREFERREDS];
-static struct console *console __read_mostly;
+static struct console_preferred console_cmdline[CONSOLE_PREFERREDS];
+static __read_mostly unsigned int console_preferred = -1;
+static __read_mostly struct console *console_active;
 
 static LIST_HEAD(console_list);
 static SPIN_LOCK(console_lock);
@@ -32,14 +33,14 @@ unsigned int console_read(char *buff, unsigned int len)
 {
     struct console_ops *ops;
 
-    if (!console)
+    if (unlikely(!console_active))
         return earlycon_read(buff, len);
 
-    ops = console->ops;
-    if (ops->read)
+    ops = console_active->ops;
+    if (!ops->read)
         return 0;
 
-    return ops->read(console, buff, len);
+    return ops->read(console_active, buff, len);
 }
 EXPORT_SYMBOL(console_read);
 
@@ -47,14 +48,14 @@ void console_write(const char *buff, unsigned int len)
 {
     struct console_ops *ops;
 
-    if (!console)
+    if (unlikely(!console_active))
         return earlycon_write(buff, len);
 
-    ops = console->ops;
-    if (ops->write)
+    ops = console_active->ops;
+    if (!ops->write)
         return;
 
-    return ops->write(console, buff, len);
+    return ops->write(console_active, buff, len);
 }
 EXPORT_SYMBOL(console_write);
 
@@ -62,14 +63,14 @@ void console_sync(void)
 {
     struct console_ops *ops;
 
-    if (!console)
+    if (unlikely(!console_active))
         return earlycon_sync();
 
-    ops = console->ops;
-    if (ops->sync)
+    ops = console_active->ops;
+    if (!ops->sync)
         return;
 
-    return ops->sync(console);
+    return ops->sync(console_active);
 }
 EXPORT_SYMBOL(console_sync);
 
@@ -115,8 +116,9 @@ static state console_select(struct console *con, bool user)
     unsigned int count;
 
     for (count = 0; count < CONSOLE_PREFERREDS; ++count) {
-        struct console_preferred *preferred = console_preferreds + count;
+        struct console_preferred *preferred = console_cmdline + count;
 
+        /* end of the array */
         if (!*preferred->name)
             break;
 
@@ -126,8 +128,9 @@ static state console_select(struct console *con, bool user)
         if (strcmp(preferred->name, con->name))
             continue;
 
-        if (preferred->index != con->index)
-            continue;
+        console_set_enabled(con);
+        if (count == console_preferred)
+            console_set_enabled(con);
 
         return -ENOERR;
     }
@@ -164,9 +167,9 @@ void console_register(struct console *con)
         return;
     }
 
-    if ((retval = console_select(con, true)))
+    if (!(retval = console_select(con, true)))
         retval = console_startup(con);
-    else if ((retval = console_select(con, false)))
+    else if (!(retval = console_select(con, false)))
         retval = console_startup(con);
 
     if (retval) {
@@ -174,12 +177,14 @@ void console_register(struct console *con)
         return;
     }
 
-    if (con->device) {
-        console_set_preferred(con);
-        WRITE_ONCE(console, con);
+    if (console_test_consdev(con) || !console_active) {
+        if (console_active)
+            console_clr_consdev(console_active);
+        console_set_consdev(con);
+        console_active = con;
     }
 
-    if (bootcon && console_test_preferred(con) && !console_test_boot(con)) {
+    if (bootcon && console_test_consdev(con) && !console_test_boot(con)) {
         list_for_each_entry_safe(walk, tmp, &console_list, list) {
             if (console_test_boot(con)) {
                 console_shutdown(con);
@@ -205,9 +210,9 @@ void console_unregister(struct console *con)
     }
 
     list_del(&con->list);
-    if (READ_ONCE(console) == con) {
+    if (console_active == con) {
         next = list_first_entry_or_null(&console_list, struct console, list);
-        WRITE_ONCE(console, next);
+        console_active = next;
     }
 
     console_shutdown(con);
@@ -221,19 +226,21 @@ state console_preferred_add(const char *name, unsigned int index, const char *op
     struct console_preferred *preferred;
     unsigned int count;
 
-    for (count = 0; count < CONSOLE_PREFERREDS && *console_preferreds[count].name; ++count) {
-        if (!strcmp(console_preferreds[count].name, name) ||
-            console_preferreds[count].index == index)
+    for (count = 0; count < CONSOLE_PREFERREDS && *console_cmdline[count].name; ++count) {
+        if (!strcmp(console_cmdline[count].name, name) ||
+            console_cmdline[count].index == index)
             return -EALREADY;
     }
 
     if (count == CONSOLE_PREFERREDS)
         return -ENOMEM;
 
-    preferred = console_preferreds + count;
+    preferred = console_cmdline + count;
     preferred->user = user;
     preferred->index = index;
     preferred->options = options;
+
+    console_preferred = count;
     strncpy(preferred->name, name, sizeof(preferred->name));
 
     return -ENOERR;
@@ -241,7 +248,7 @@ state console_preferred_add(const char *name, unsigned int index, const char *op
 
 static state console_bootarg(char *args)
 {
-    char buff[sizeof(console_preferreds[0].name)];
+    char buff[sizeof(console_cmdline[0].name)];
     char *options, *indexstr;
     unsigned int index;
 
@@ -260,7 +267,7 @@ static state console_bootarg(char *args)
         strcpy(buff, "ttyS");
         strncpy(buff, args, sizeof(buff) - 5);
     } else {
-		strncpy(buff, args, sizeof(buff) - 1);
+        strncpy(buff, args, sizeof(buff) - 1);
     }
     buff[sizeof(buff) - 1] = '\0';
 

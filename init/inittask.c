@@ -37,7 +37,7 @@ static __init bool init_run(const char *file)
 
 static __init void basic_init(void)
 {
-    ctors_initcall();
+    ctors_init();
     initcalls();
 }
 

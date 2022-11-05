@@ -5,16 +5,16 @@
 
 #include <string.h>
 #include <console.h>
+#include <initcall.h>
 #include <ioops.h>
 #include <delay.h>
 
-#if defined(CONFIG_PRECON_VGA)
-# include <driver/serio/i8042.h>
-# include <driver/input/atkbd.h>
-# include <driver/video/vga.h>
+#include <driver/serio/i8042.h>
+#include <driver/input/atkbd.h>
+#include <driver/video/vga.h>
 
-#define xres    80
-#define yres    25
+#define xres 80
+#define yres 25
 
 struct vga_text {
     uint8_t ch;
@@ -284,13 +284,18 @@ static struct console_ops vga_console_ops = {
 static struct console vga_console = {
     .name = "early-vga",
     .ops = &vga_console_ops,
-    .flags = CONSOLE_BOOT | CONSOLE_ENABLED,
+    .flags = CONSOLE_BOOT,
 };
 
-void earlycon_init(void)
+static void vga_hwinit(void)
 {
+    static bool already;
     uint8_t result[2];
     unsigned int count;
+
+    if (already)
+        return;
+    already = true;
 
     vga_cursor(0, 0);
     vga_clear(0, yres);
@@ -298,27 +303,27 @@ void earlycon_init(void)
 
     /* Flush incoming keys (also verifies port is likely present) */
     if (!i8042_flush())
-        goto finish;
+        return;
 
     /* Disable keyboard / mouse and drain any input they may have sent */
     if (i8042_command(I8042_CMD_KBD_DISABLE, NULL))
-        goto finish;
+        return;
     if (i8042_command(I8042_CMD_AUX_DISABLE, NULL))
-        goto finish;
+        return;
     if (!i8042_flush())
-        goto finish;
+        return;
 
     /* Controller self-test */
     if (i8042_command(I8042_CMD_CTL_TEST, result))
-        goto finish;
+        return;
     if (result[0] != 0x55)
-        goto finish;
+        return;
 
     /* Controller keyboard test */
     if (i8042_command(I8042_CMD_KBD_TEST, result))
-        goto finish;
+        return;
     if (result[0] != 0x00)
-        goto finish;
+        return;
 
     /* Reset keyboard and self test */
     for (count = 0; count < 3; ++count) {
@@ -326,89 +331,37 @@ void earlycon_init(void)
             break;
     }
     if (result[0] != 0xaa)
-        goto finish;
+        return;
 
     /* Disable keyboard */
     if (atkbd_command(ATKBD_CMD_RESET_DIS, result))
-        goto finish;
+        return;
 
     /* Set scancode command (mode 2) */
     result[0] = 0x02;
     if (atkbd_command(ATKBD_CMD_SSCANSET, result))
-        goto finish;
+        return;
 
     /* Enable keyboard */
     ps2ctl = I8042_CTRL_AUXDIS | I8042_CTRL_XLATE;
     if (atkbd_command(ATKBD_CMD_ENABLE, result))
-        goto finish;
+        return;
 
     atkbd_ready = true;
-
-finish:
-    earlycon_register(&vga_console);
 }
 
-#elif defined(CONFIG_PRECON_SER)
-# include <driver/uart/8250.h>
-
-#define I8250_BASE  0x3f8
-#define I8250_FREQ  115200
-
-static unsigned int serial_read(struct console *con, char *str, unsigned int len)
+static state vga_init(void)
 {
-    unsigned int rlen;
-
-    for (rlen = 0; rlen < len; ++rlen) {
-        if (!(inb(I8250_BASE + UART8250_LSR) & UART8250_LSR_DR))
-            break;
-        *str++ = inb(I8250_BASE + UART8250_THR);
-    }
-
-    return rlen;
+    vga_hwinit();
+    console_register(&vga_console);
+    return -ENOERR;
 }
+console_initcall(vga_init);
 
-static void serial_write(struct console *con, const char *str, unsigned int len)
-{
-    while (len--) {
-        while (!(inb(I8250_BASE + UART8250_LSR) & UART8250_LSR_THRE))
-            cpu_relax();
-        outb(I8250_BASE + UART8250_THR, *str++);
-    }
-}
-
-static void serial_sync(struct console *con)
-{
-    while (!(inb(I8250_BASE + UART8250_LSR) & UART8250_LSR_THRE))
-        cpu_relax();
-    outb(I8250_BASE + UART8250_FCR, UART8250_FCR_CLEAR_RCVR);
-}
-
-static struct console_ops ser_console_ops = {
-    .read = serial_read,
-    .write = serial_write,
-    .sync = serial_sync,
-};
-
-static struct console ser_console = {
-    .name = "early-serial",
-    .ops = &ser_console_ops,
-    .flags = CONSOLE_BOOT | CONSOLE_ENABLED,
-};
-
+#ifdef CONFIG_EARLYCON_VGA
 void earlycon_init(void)
 {
-    uint16_t div = 115200 / I8250_FREQ;
-
-    outb(I8250_BASE + UART8250_LCR, UART8250_LCR_DLAB);
-    outb(I8250_BASE + UART8250_DLL, div);
-    outb(I8250_BASE + UART8250_DLH, div >> 8);
-
-    outb(I8250_BASE + UART8250_IER, 0x00);
-    outb(I8250_BASE + UART8250_MCR, UART8250_MCR_RTS | UART8250_MCR_DTR);
-    outb(I8250_BASE + UART8250_FCR, UART8250_FCR_FIFO_EN);
-    outb(I8250_BASE + UART8250_LCR, UART8250_LCR_WLS_8);
-
-    earlycon_register(&ser_console);
+    vga_hwinit();
+    earlycon_register(&vga_console);
 }
-
-#endif /* CONFIG_PRECON */
+#endif

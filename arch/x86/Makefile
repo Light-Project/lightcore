@@ -3,7 +3,7 @@ obj-y += boot/ lib/ mm/
 obj-y += setup.o nmi.o
 obj-y += idt.o irq.o traps.o
 obj-y += e820.o tsc.o syscall.o
-obj-$(CONFIG_EARLYCON) += earlycon.o
+obj-y += earlycon-vga.o earlycon-serial.o
 
 obj-$(CONFIG_ARCH_X86_32) += entry32.o
 obj-$(CONFIG_ARCH_X86_32) += doublefault32.o

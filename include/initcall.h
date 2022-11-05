@@ -44,8 +44,8 @@ extern initcall_entry_t _ld_clockevent_initcall_start[];
 extern initcall_entry_t _ld_clockevent_initcall_end[];
 extern initcall_entry_t _ld_clocksource_initcall_start[];
 extern initcall_entry_t _ld_clocksource_initcall_end[];
-extern initcall_entry_t _ld_pconsole_initcall_start[];
-extern initcall_entry_t _ld_pconsole_initcall_end[];
+extern initcall_entry_t _ld_earlycon_initcall_start[];
+extern initcall_entry_t _ld_earlycon_initcall_end[];
 extern initcall_entry_t _ld_console_initcall_start[];
 extern initcall_entry_t _ld_console_initcall_end[];
 extern initcall_entry_t _ld_scheduler_initcall_start[];
@@ -116,7 +116,7 @@ extern ctor_initcall_t _ld_ctors_end[];
 #define irqchip_initcall(fn)            ___define_initcall(fn, irq, .irqchip_initcall)
 #define clockevent_initcall(fn)         ___define_initcall(fn, tim, .clockevent_initcall)
 #define clocksource_initcall(fn)        ___define_initcall(fn, tim, .clocksource_initcall)
-#define pconsole_initcall(fn)           ___define_initcall(fn, pco, .pconsole_initcall)
+#define earlycon_initcall(fn)           ___define_initcall(fn, pco, .earlycon_initcall)
 #define console_initcall(fn)            ___define_initcall(fn, con, .console_initcall)
 #define scheduler_initcall(fn)          ___define_initcall(fn, sch, .scheduler_initcall)
 #define kshell_initcall(fn)             ___define_initcall(fn, ksh, .kshell_initcall)

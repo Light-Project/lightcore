@@ -135,12 +135,6 @@
     KEEP(*(SORT(.ksymtab_gpl*)))                            \
     _ld_ksymtab_gpl_end = .;
 
-#define EXCEPTION_TABLE(align)                              \
-    . = ALIGN(align);                                       \
-    _ld_extable_start = .;                                  \
-    KEEP(*(.extable))                                       \
-    _ld_extable_end = .;
-
 #define ROMDISK(align)                                      \
     . = ALIGN(align);                                       \
     _ld_romdisk_start = .;                                  \
@@ -172,6 +166,12 @@
     _ld_data_bug_table_start = .;                           \
     KEEP(*(.data.bug_table*))                               \
     _ld_data_bug_table_end = .;
+
+#define EXCEPTION_TABLE(align)                              \
+    . = ALIGN(align);                                       \
+    _ld_extable_start = .;                                  \
+    KEEP(*(.extable))                                       \
+    _ld_extable_end = .;
 
 /*
  * Init Text Segment
@@ -214,9 +214,9 @@
     _ld_initcall_end = .;
 
 #define CONSOLE_INITCALL                                    \
-    _ld_pconsole_initcall_start = .;                        \
-    KEEP(*(.init.pconsole_initcall))                        \
-    _ld_pconsole_initcall_end = .;                          \
+    _ld_earlycon_initcall_start = .;                        \
+    KEEP(*(.init.earlycon_initcall))                        \
+    _ld_earlycon_initcall_end = .;                          \
     _ld_console_initcall_start = .;                         \
     KEEP(*(.init.console_initcall))                         \
     _ld_console_initcall_end = .;
@@ -365,11 +365,10 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
     .rodata :                                               \
     AT(ADDR(.rodata) - LOAD_OFFSET) {                       \
         _ld_rodata_start = .;                               \
-        RODATA_RODATA(pagealign)                            \
-        KSYMTAB(pagealign)                                  \
-        KSYMTAB_GPL(pagealign)                              \
-        EXCEPTION_TABLE(pagealign)                          \
-        ROMDISK(pagealign)                                  \
+        RODATA_RODATA(cacheline)                            \
+        KSYMTAB(cacheline)                                  \
+        KSYMTAB_GPL(cacheline)                              \
+        ROMDISK(cacheline)                                  \
         _ld_rodata_end = .;                                 \
     }                                                       \
     NOTES
@@ -382,6 +381,7 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
         *(DATA_MAIN)                                        \
         READ_MOSTLY(cacheline)                              \
         BUG_TABLE(cacheline)                                \
+        EXCEPTION_TABLE(cacheline)                          \
         _ld_data_end = .;                                   \
     }
 
