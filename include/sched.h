@@ -372,7 +372,6 @@ extern void sched_task_destroy(struct sched_task *task);
 extern ttime_t sched_timeout(ttime_t timeout);
 extern ttime_t sched_timeout_interruptible(ttime_t timeout);
 extern ttime_t sched_timeout_uninterruptible(ttime_t timeout);
-extern void sched_msleep(unsigned long msecs);
 
 /* scheduler framework */
 extern struct sched_type *sched_find(const char *name, unsigned char prio);

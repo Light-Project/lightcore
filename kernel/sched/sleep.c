@@ -66,16 +66,3 @@ ttime_t sched_timeout_uninterruptible(ttime_t timeout)
     return sched_timeout(timeout);
 }
 EXPORT_SYMBOL(sched_timeout_uninterruptible);
-
-/**
- * sched_msleep - uninterruptible sleep until timeout.
- * @timeout: timeout value in millisecond.
- */
-void sched_msleep(unsigned long msec)
-{
-    ttime_t timeout = ttime_to_ms(msec);
-    do
-        timeout = sched_timeout_uninterruptible(timeout);
-    while (timeout);
-}
-EXPORT_SYMBOL(sched_msleep);
