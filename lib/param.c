@@ -29,7 +29,7 @@ char *param_next_arg(char *args, char **param, char **val)
             break;
         if (!equals && args[count] == '=')
             equals = count;
-        if (args[count] == '=')
+        if (args[count] == '"')
             in_quote = !in_quote;
     }
 
@@ -72,6 +72,8 @@ state param_parser(char *cmdline, param_entry_t entry, void *pdata)
 
     do {
         cmdline = param_next_arg(cmdline, &param, &val);
+
+        /* Stop at -- */
         if (!val && !strcmp(param, "--"))
             return ret;
 
