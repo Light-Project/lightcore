@@ -9,7 +9,7 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: tsc\n");
+    kshell_printf(ctx, "usage: x86-tsc [option]\n");
     kshell_printf(ctx, "\t-h  display this message\n");
 }
 
@@ -44,7 +44,7 @@ usage:
 }
 
 static struct kshell_command tsc_cmd = {
-    .name = "tsc",
+    .name = "x86-tsc",
     .desc = "show processor tsc",
     .exec = tsc_main,
 };

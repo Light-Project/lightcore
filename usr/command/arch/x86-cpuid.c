@@ -359,7 +359,7 @@ static state cpuid_main(struct kshell_context *ctx, int argc, char *argv[])
 }
 
 static struct kshell_command cpuid_cmd = {
-    .name = "cpuid",
+    .name = "x86-cpuid",
     .desc = "show processor cpuid",
     .exec = cpuid_main,
 };
