@@ -219,6 +219,50 @@ static state atasim_cmd(struct atasim_port *port, struct atasim_cmd *cmd)
     return -ENOERR;
 }
 
+static state atasim_report_error(struct atasim_host *host)
+{
+    uint8_t value = atasim_cmd_in(host, ATA_REG_ERR);
+    state retval = -EBUSY;
+
+    if (value & ATA_ERR_AMNF) {
+        pci_err(host->pdev, "address mark not found\n");
+        retval = -EINVAL;
+    }
+    if (value & ATA_ERR_TKZNF) {
+        pci_err(host->pdev, "track 0 not found\n");
+        retval = -EINVAL;
+    }
+    if (value & ATA_ERR_ABRT) {
+        pci_err(host->pdev, "command aborted\n");
+        retval = -EINVAL;
+    }
+    if (value & ATA_ERR_MCR) {
+        pci_err(host->pdev, "media change request\n");
+        retval = -ENOMEDIUM;
+    }
+    if (value & ATA_ERR_IDNF) {
+        pci_err(host->pdev, "id not found\n");
+        retval = -ENOMEDIUM;
+    }
+    if (value & ATA_ERR_MC) {
+        pci_err(host->pdev, "media change\n");
+        retval = -ENOMEDIUM;
+    }
+    if (value & ATA_ERR_UNC) {
+        pci_err(host->pdev, "uncorrected error\n");
+        retval = -EIO;
+    }
+    if (value & ATA_ERR_BBK) {
+        pci_err(host->pdev, "bad block\n");
+        retval = -EIO;
+    }
+    if (value & ATA_ERR_ICRC) {
+        pci_err(host->pdev, "ultra dma bad crc\n");
+        retval = -EIO;
+    }
+
+    return retval;
+}
 static state atasim_transfer(struct atasim_host *host, void *buffer,
                              unsigned int count, bool iswrite)
 {
@@ -245,7 +289,7 @@ static state atasim_transfer(struct atasim_host *host, void *buffer,
         val = atasim_cmd_in(host, ATA_REG_STATUS);
         val &= (ATA_STATUS_BSY | ATA_STATUS_DRQ | ATA_STATUS_ERR);
         if (val != ATA_STATUS_DRQ)
-            return -EIO;
+            return atasim_report_error(host);
 
         buffer += ATASIM_BLOCKSZ;
     }
@@ -348,8 +392,16 @@ static struct block_ops atasim_ops = {
     .enqueue = atasim_enqueue,
 };
 
+static void atasim_report_identify(struct atasim_host *host, struct ata_identify_table *table)
+{
+    pci_debug(host->pdev, "  model number: %.40s\n", table->ModelNumber);
+    pci_debug(host->pdev, "  serial number: %.20s\n", table->SerialNumber);
+    pci_debug(host->pdev, "  firmware revision: %.8s\n", table->FirmwareRevision);
+}
+
 static bool atasim_check_atapi(struct atasim_port *port)
 {
+    struct atasim_host *host = port->host;
     struct ata_identify_table table;
     state retval;
 
@@ -357,17 +409,26 @@ static bool atasim_check_atapi(struct atasim_port *port)
     if (retval)
         return false;
 
+    pci_info(host->pdev, "detected atapi on host%d:port%d:\n",
+             host->host, port->port);
+    atasim_report_identify(host, &table);
+
     return true;
 }
 
-static bool atasim_check_devata(struct atasim_port *port)
+static bool atasim_check_atadev(struct atasim_port *port)
 {
+    struct atasim_host *host = port->host;
     struct ata_identify_table table;
     state retval;
 
     retval = atasim_identity(port, &table, ATA_CMD_IDENTIFY_DEVICE);
     if (retval)
         return false;
+
+    pci_info(host->pdev, "detected atadev on host%d:port%d:\n",
+             host->host, port->port);
+    atasim_report_identify(host, &table);
 
     return true;
 }
@@ -396,11 +457,9 @@ static bool atasim_port_setup(struct atasim_port *port)
         (atasim_cmd_in(host, ATA_REG_DEVSEL) != val))
         return false;
 
-    if (!(atasim_check_atapi(port) ||
-        atasim_check_devata(port)))
+    if (!(atasim_check_atapi(port) || atasim_check_atadev(port)))
         return false;
 
-    pci_info(host->pdev, "host%d:port%d detected\n", host->host, port->port);
     return true;
 }
 
@@ -453,18 +512,18 @@ static state atasim_probe(struct pci_device *pdev, const void *pdata)
     val = pci_config_readb(pdev, PCI_CLASS_PROG);
 
     if (!(val & 0x1)) {
-        pdev->resource[0].start = 0x1F0;
+        pdev->resource[0].start = 0x1f0;
         pdev->resource[0].size = 0x08;
         pdev->resource[0].type = RESOURCE_PMIO;
 
-        pdev->resource[1].start = 0x3F6;
-        pdev->resource[1].size = 0x04;
+        pdev->resource[1].start = 0x3f6;
+        pdev->resource[1].size = 0x02;
         pdev->resource[1].type = RESOURCE_PMIO;
     }
 
     if (!(val & 0x4)) {
         pdev->resource[2].start = 0x170;
-        pdev->resource[2].size = 0x02;
+        pdev->resource[2].size = 0x08;
         pdev->resource[2].type = RESOURCE_PMIO;
 
         pdev->resource[3].start = 0x376;
