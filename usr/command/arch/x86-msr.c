@@ -9,7 +9,7 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: msr [option] opcode value\n");
+    kshell_printf(ctx, "usage: x86-msr [option] opcode value\n");
     kshell_printf(ctx, "\t-w  write msr register\n");
     kshell_printf(ctx, "\t-h  display this message\n");
 }
@@ -57,7 +57,7 @@ usage:
 }
 
 static struct kshell_command msr_cmd = {
-    .name = "msr",
+    .name = "x86-msr",
     .desc = "show processor msr",
     .exec = msr_main,
 };
