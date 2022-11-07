@@ -72,6 +72,8 @@ context_switch_finish(struct sched_task *prev)
         task_stack_free(prev->stack);
         sched_task_destroy(prev);
     }
+
+    irq_local_enable();
 }
 
 asmlinkage __visible void

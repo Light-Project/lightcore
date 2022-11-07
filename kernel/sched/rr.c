@@ -85,6 +85,7 @@ static void rr_task_enqueue(struct sched_queue *queue, struct sched_task *task, 
     }
 
     rr_queue->running[prio]++;
+    queue_set_resched(queue);
 }
 
 static void rr_task_dequeue(struct sched_queue *queue, struct sched_task *task, enum sched_queue_flags flags)

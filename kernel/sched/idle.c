@@ -7,35 +7,92 @@
 #define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <initcall.h>
-#include <sched.h>
 #include <smp.h>
+#include <sched.h>
+#include <driver/cpuidle.h>
+#include <crash.h>
 
-void __weak cpu_idle_prepare(void) { }
-void __weak cpu_idle_enter(void) { }
-void __weak cpu_idle_exit(void) { }
-void __weak cpu_idle_dead(void) { }
+static unsigned int __read_mostly cpuidle_force_poll;
+void __weak arch_cpu_idle_prepare(void) { }
+void __weak arch_cpu_idle_enter(void) { }
+void __weak arch_cpu_idle_exit(void) { }
+void __weak arch_cpu_idle_dead(void) { }
 
-static void idle_loop(void)
+void cpuidle_poll_ctrl(bool enable)
 {
-    // unsigned int cpu = smp_processor_id();
+    if (enable)
+        cpuidle_force_poll++;
+    else {
+        WARN_ON(!cpuidle_force_poll);
+        cpuidle_force_poll++;
+    }
+}
 
-    // while (!current_test_resched()) {
-    //     rmb();
-    //     irq_local_disable();
+static state cpuidle_poll_nohlt(char *args)
+{
+    cpuidle_force_poll = 1;
+    return -ENOERR;
+}
+earlyarg_initcall("nohlt", cpuidle_poll_nohlt);
 
-    //     if (cpu_offline(cpu))
-    //         cpu_idle_dead();
+static state cpuidle_poll_hlt(char *args)
+{
+    cpuidle_force_poll = 0;
+    return -ENOERR;
+}
+earlyarg_initcall("hlt", cpuidle_poll_hlt);
 
-    //     cpu_idle_enter();
-    //     cpu_idle_exit();
-    // }
+static __cpuidle void cpuidle_poll(void)
+{
+    irq_local_enable();
+    while (!current_test_resched() && cpuidle_force_poll)
+        cpu_relax();
+}
+
+static __cpuidle void cpuidle_call(void)
+{
+    struct cpuidle_device *device;
+    unsigned int index;
+
+    device = cpuidle_device_get();
+	if (!cpuidle_available(device))
+        goto finish;
+
+    index = cpuidle_select(device);
+    cpuidle_enter(device, &index);
+    cpuidle_reflect(device, index);
+
+finish:
+    if (irq_local_disabled())
+        irq_local_enable();
+}
+
+static __cpuidle void idle_loop(void)
+{
+    unsigned int cpu = smp_processor_id();
+
+    while (!current_test_resched()) {
+        rmb();
+        irq_local_disable();
+
+        if (cpu_offline(cpu))
+            arch_cpu_idle_dead();
+        arch_cpu_idle_enter();
+
+        if (cpuidle_force_poll)
+            cpuidle_poll();
+        else
+            cpuidle_call();
+
+        arch_cpu_idle_exit();
+    }
 
     sched_idle();
 }
 
 void __noreturn idle_task_entry(void)
 {
-    cpu_idle_prepare();
+    arch_cpu_idle_prepare();
     for (;;)
         idle_loop();
     unreachable();
