@@ -45,7 +45,7 @@ typedef union {
     DWtype ll;
 } DWunion;
 
-/* libgcc divsi3 */
+/* libgcc divhi3 */
 extern unsigned short __udivmodhi4(unsigned short u, unsigned short d, int modwanted);
 extern unsigned short __udivhi3(unsigned short u, unsigned short v);
 extern unsigned short __umodhi3(unsigned short u, unsigned short v);
@@ -108,47 +108,5 @@ extern int __popcountSI2(UWtype x);
 extern int __popcountDI2(UDWtype x);
 extern int __paritySI2(UWtype x);
 extern int __parityDI2(UDWtype x);
-
-/* libgcc soft-fp */
-extern DFtype __adddf3(DFtype a, DFtype b);
-extern SFtype __addsf3(SFtype a, SFtype b);
-extern DFtype __divdf3(DFtype a, DFtype b);
-extern SFtype __divsf3(SFtype a, SFtype b);
-extern CMPtype __eqdf2(DFtype a, DFtype b);
-extern CMPtype __eqsf2(SFtype a, SFtype b);
-extern DFtype __extendsfdf2(SFtype a);
-extern SItype __fixdfsi(DFtype a);
-extern SItype __fixsfsi(SFtype a);
-extern DFtype __floatsidf(SItype i);
-extern SFtype __floatsisf(SItype i);
-extern DFtype __floatunsidf(USItype i);
-extern SFtype __floatunsisf(USItype i);
-extern CMPtype __gedf2(DFtype a, DFtype b);
-extern CMPtype __gesf2(SFtype a, SFtype b);
-extern CMPtype __ledf2(DFtype a, DFtype b);
-extern CMPtype __lesf2(SFtype a, SFtype b);
-extern DFtype __muldf3(DFtype a, DFtype b);
-extern SFtype __mulsf3(SFtype a, SFtype b);
-extern DFtype __negdf2(DFtype a);
-extern SFtype __negsf2(SFtype a);
-extern DFtype __subdf3(DFtype a, DFtype b);
-extern SFtype __subsf3(SFtype a, SFtype b);
-extern SFtype __truncdfsf2(DFtype a);
-extern CMPtype __unorddf2(DFtype a, DFtype b);
-extern CMPtype __unordsf2(SFtype a, SFtype b);
-
-/* LIBGCC2_HAS_SF_MODE */
-extern DItype __fixsfdi(SFtype a);
-extern SFtype __floatdisf(DItype i);
-extern SFtype __floatundisf(UDItype i);
-extern USItype __fixunssfsi(SFtype a);
-extern UDItype __fixunssfdi(SFtype a);
-
-/* LIBGCC2_HAS_HF_MODE */
-extern DItype __fixdfdi(DFtype a);
-extern DFtype __floatdidf(DItype i);
-extern DFtype __floatundidf(UDItype i);
-extern USItype __fixunsdfsi(DFtype a);
-extern UDItype __fixunsdfdi(DFtype a);
 
 #endif  /* _LOCAL_LIBGCC_H_ */
