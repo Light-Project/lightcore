@@ -11,7 +11,14 @@
 #include <driver/clocksource.h>
 #include <export.h>
 
-volatile ttime_t ticktime;
+volatile ttime_t ticktime = INITIAL_TTIME;
+SPIN_LOCK(ticktime_lock);
+SEQ_LOCK(ticktime_seq);
+
+EXPORT_SYMBOL(ticktime);
+EXPORT_SYMBOL(ticktime_lock);
+EXPORT_SYMBOL(ticktime_seq);
+
 static bool __read_mostly timekeeping_ready;
 static struct timekeeper timekeeper;
 static SEQ_LOCK(timekeeper_seq);
@@ -109,9 +116,12 @@ static void timekeeping_base_setup(struct timekeeper *tk, struct clocksource_dev
     interval = SYSTICK_NSEC;
     interval <<= cdev->shift;
     interval = DIV_ROUND_CLOSEST(interval, cdev->mult);
+    if (interval == 0)
+        interval = 1;
 
     tk->systick_cycle = interval;
-    tk->second_cycle = interval * cdev->mult;
+    tk->base_mono.xtime_interval = interval * cdev->mult;
+    tk->base_raw.xtime_interval = interval * cdev->mult;
 
     if (ocdev) {
         int change = cdev->shift - ocdev->shift;
@@ -131,6 +141,29 @@ static void timekeeping_base_setup(struct timekeeper *tk, struct clocksource_dev
     tk->base_raw.mask = cdev->mask;
     tk->base_raw.mult = cdev->mult;
     tk->base_raw.shift = cdev->shift;
+}
+
+static void timekeeping_update_ktime(struct timekeeper *tk)
+{
+    time_t secs;
+    long nsec;
+
+    secs = tk->base_mono.xtime_sec + tk->timespec_real.tv_sec;
+    nsec = tk->timespec_real.tv_nsec;
+    tk->base_mono.base = ktime_set(secs, nsec);
+
+    nsec += tk->base_mono.xtime_nsec >> tk->base_mono.shift;
+    if (nsec >= NSEC_PER_SEC)
+        secs++;
+
+    tk->ktime_sec += secs;
+    tk->base_raw.base = ktime_set(tk->base_raw.xtime_sec, 0);
+}
+
+static void timekeeping_update(struct timekeeper *tk)
+{
+    return;
+    timekeeping_update_ktime(tk);
 }
 
 static void accumulate_nsecs_to_secs(struct timekeeper *tk)
@@ -155,15 +188,28 @@ static uint64_t logarithmic_accumulation(struct timekeeper *tk, uint64_t offset,
     tk->base_mono.cycle_last += interval;
     tk->base_raw.cycle_last += interval;
 
-    tk->base_mono.xtime_nsec += tk->second_cycle << shift;
+    /* accumulate xtime */
+    tk->base_mono.xtime_nsec += tk->base_mono.xtime_interval << shift;
+    tk->base_raw.xtime_nsec += tk->base_raw.xtime_interval << shift;
+
     accumulate_nsecs_to_secs(tk);
+    timekeeping_xbase_normalized(&tk->base_raw);
 
     return offset;
 }
 
-static void timekeeping_base_update(struct timekeeper *tk, uint64_t offset)
+static void timekeeping_adjustment(struct timekeeper *tk, bool systick)
 {
+    irqflags_t irqflags;
+    uint64_t offset;
     int shift;
+
+    spin_lock_irqsave(&timekeeper_lock, &irqflags);
+
+    /* check whether the clock needs to be updated */
+    offset = timekeeping_base_get_delta(&tk->base_mono);
+    if (systick && offset < tk->systick_cycle)
+        goto finish;
 
     shift = ilog2(offset) - ilog2(tk->systick_cycle);
     shift = max(0, shift);
@@ -173,27 +219,17 @@ static void timekeeping_base_update(struct timekeeper *tk, uint64_t offset)
         if (offset < tk->systick_cycle << shift)
             shift--;
     }
+
+    seqlock_write_start(&timekeeper_seq);
+    timekeeping_update(tk);
+    seqlock_write_end(&timekeeper_seq);
+
+finish:
+    spin_unlock_irqrestore(&timekeeper_lock, &irqflags);
 }
 
-static void timekeeping_adjustment(struct timekeeper *tk, bool systick)
+void timekeeping_tick(void)
 {
-    uint64_t offset;
-
-    /* check whether the clock needs to be updated */
-    offset = timekeeping_base_get_delta(&tk->base_mono);
-    if (offset < tk->systick_cycle && systick)
-        return;
-
-    timekeeping_base_update(tk, offset);
-}
-
-/**
- * timekeeping_tick - timekeeping systick handle
- *
- */
-void timekeeping_tick(ttime_t ticks)
-{
-    ticktime += ticks;
     return;
     timekeeping_adjustment(&timekeeper, true);
 }
@@ -241,10 +277,10 @@ state timekeeping_set_realtime(struct timespec *ts)
     delta.tv_sec = ts->tv_sec - xtime.tv_sec;
     delta.tv_nsec = ts->tv_nsec - xtime.tv_nsec;
 
-    if (timespec_after(&timekeeper.timespec_wall, &delta))
+    if (timespec_after(&timekeeper.timespec_real, &delta))
         return -EINVAL;
 
-    delta = timespec_sub(&timekeeper.timespec_wall, &delta);
+    delta = timespec_sub(&timekeeper.timespec_real, &delta);
     timekeeping_wall_mono_set(&timekeeper, &delta);
 
     seqlock_write_end(&timekeeper_seq);

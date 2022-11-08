@@ -10,8 +10,14 @@
 
 static void systick_periodic(void)
 {
+    spin_lock(&ticktime_lock);
+    seqlock_write_start(&ticktime_seq);
+    ticktime += 1;
+    seqlock_write_end(&ticktime_seq);
+    spin_unlock(&ticktime_lock);
+
+    timekeeping_tick();
     timer_update();
-    timekeeping_tick(1);
     sched_tick();
 }
 
