@@ -4,8 +4,12 @@
 
 #include <time.h>
 #include <math.h>
+#include <spinlock.h>
+#include <seqlock.h>
 
 extern volatile ttime_t ticktime;
+extern spinlock_t ticktime_lock;
+extern seqlock_t ticktime_seq;
 
 #define SYSTICK_FREQ CONFIG_SYSTICK_FREQ
 #define SYSTICK_NSEC DIV_ROUND_CLOSEST(NSEC_PER_SEC, SYSTICK_FREQ)

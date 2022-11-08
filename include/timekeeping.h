@@ -48,25 +48,26 @@ struct timekeeper_base {
  * @base_raw: system base monotonic timer (hardware raw).
  * @offset_boot: offset of monotonic to boottime.
  * @offset_real: offset of monotonic to realtime.
- * @offset_tai: offset of monotonic to tai.
+ * @offset_tai: offset of monotonic to taitime.
+ * @tai_offset: offset of realtime to taitime.
  * @systick_cycle: number of cycles in a systick.
- * @realtime_cycle: number of cycles in a second.
  */
 struct timekeeper {
     struct timekeeper_base base_mono;
     struct timekeeper_base base_raw;
 
-    struct timespec timespec_boot;
-    struct timespec timespec_wall;
-
-    /* use to ktime */
+    /* use to ktime convert */
     ktime_t offset_boot;
     ktime_t offset_real;
     ktime_t offset_tai;
+    int64_t tai_offset;
 
-    /* use to ktime */
+    /* use to timespec convert */
+    struct timespec timespec_boot;
+    struct timespec timespec_real;
+
     uint64_t systick_cycle;
-    uint64_t second_cycle;
+    unsigned long ktime_sec;
 };
 
 /* kernel time get */
@@ -132,7 +133,7 @@ static inline uint64_t timekeeping_get_realtime_ns(void)
 }
 
 /* timekeeping core */
-extern void timekeeping_tick(ttime_t ticks);
+extern void timekeeping_tick(void);
 extern state timekeeping_set_realtime(struct timespec *ts);
 extern state timekeeping_change(struct clocksource_device *cdev);
 
