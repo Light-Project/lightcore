@@ -7,11 +7,21 @@
 #include <initcall.h>
 #include <console.h>
 #include <delay.h>
+#include <driver/buzzer.h>
+
+#define FLAG_BEEPNZ     BIT(0)
+#define FLAG_EXITNZ     BIT(1)
+#define FLAG_NOHEAD     BIT(2)
+
+#define BELL_PITCH      750
+#define BELL_DURATION   100
 
 static void usage(struct kshell_context *ctx)
 {
     kshell_printf(ctx, "usage: watch [option] command\n");
-    kshell_printf(ctx, "\t-n  <millisecond>  millisecond to wait between updates\n");
+    kshell_printf(ctx, "\t-n  <millisecond> millisecond to wait between updates\n");
+    kshell_printf(ctx, "\t-b  beep if command has a non-zero exit");
+    kshell_printf(ctx, "\t-e  exit if command has a non-zero exit");
     kshell_printf(ctx, "\t-t  turn off header message\n");
     kshell_printf(ctx, "\t-h  display this message\n");
 }
@@ -19,7 +29,7 @@ static void usage(struct kshell_context *ctx)
 static state watch_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     unsigned int count, delay = 500;
-    bool title = true;
+    unsigned int flags = 0;
     state retval;
 
     if (argc < 2)
@@ -40,8 +50,16 @@ static state watch_main(struct kshell_context *ctx, int argc, char *argv[])
                     goto usage;
                 break;
 
+            case 'b':
+                flags |= FLAG_BEEPNZ;
+                break;
+
+            case 'e':
+                flags |= FLAG_EXITNZ;
+                break;
+
             case 't':
-                title = false;
+                flags |= FLAG_NOHEAD;
                 break;
 
             case 'h': default:
@@ -54,12 +72,16 @@ static state watch_main(struct kshell_context *ctx, int argc, char *argv[])
 
     for (;;) {
         kshell_printf(ctx, "\e[2J\e[1;1H");
-        if (title)
+        if (!(flags & FLAG_NOHEAD))
             kshell_printf(ctx, "Every %dms: %s\n\n", delay, argv[count]);
 
         retval = kshell_execv(ctx, argv[count], argc - count, &argv[count]);
-        if (retval)
-            return retval;
+        if (unlikely(retval)) {
+            if (flags & FLAG_BEEPNZ)
+                buzzer_beep(READ_ONCE(default_buzzer), BELL_PITCH, BELL_DURATION);
+            if (flags & FLAG_EXITNZ)
+                return retval;
+        }
 
         if (kshell_ctrlc(ctx))
             return -ECANCELED;
