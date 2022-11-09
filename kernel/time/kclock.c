@@ -79,8 +79,8 @@ void kclock_register(uint64_t (*read)(void), uint64_t freq, uint64_t mask)
     kclock.shift = shift;
 
 finish:
-    seqlock_write_start(&kclock_seq);
-    spin_lock_irqsave(&kclock_lock, &irqflags);
+    seqlock_write_end(&kclock_seq);
+    spin_unlock_irqrestore(&kclock_lock, &irqflags);
 
     if (changed) {
         char gbuff[GFREQ_BUFF];
