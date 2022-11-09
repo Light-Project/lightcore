@@ -92,7 +92,7 @@ static bool base_try_dequeue(struct timer_base *base, struct timer *timer, bool 
 
 static unsigned int clac_index(int depth, ttime_t expires, ttime_t *expiry)
 {
-    expires = (expires + LEVEL_GAIN(depth)) >> LEVEL_SHIFT(depth);
+    expires = (uint64_t)(expires + LEVEL_GAIN(depth)) >> LEVEL_SHIFT(depth);
     *expiry = (uint64_t)expires << LEVEL_SHIFT(depth);
     return LEVEL_OFFS(depth) + (expires & LEVEL_MASK);
 }
@@ -179,7 +179,7 @@ static void expire_timers(struct timer_base *base, struct hlist_head *head)
 
 static unsigned int collect_timers(struct timer_base *base, struct hlist_head *heads)
 {
-    ttime_t curr = base->current = base->recent_timer;
+    uint64_t curr = base->current = base->recent_timer;
     unsigned int count, index, levels = 0;
     struct hlist_head *vector;
 
@@ -218,7 +218,7 @@ next_pending_bucket(struct timer_base *base, unsigned int index, ttime_t clk)
 static ttime_t next_recent_timer(struct timer_base *base)
 {
     unsigned int depth, index = 0;
-    ttime_t curr, next;
+    uint64_t curr, next;
 
     curr = base->current;
     next = curr + TIMER_EXPIRE_DELTA_MAX;
@@ -228,7 +228,7 @@ static ttime_t next_recent_timer(struct timer_base *base)
         int level_clk = curr & CLOCK_MASK;
 
         if (pos >= 0) {
-            ttime_t tmp = curr + (unsigned long)pos;
+            uint64_t tmp = curr + pos;
 
             tmp <<= LEVEL_SHIFT(depth);
             if (ttime_before(tmp, next))
