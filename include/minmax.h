@@ -3,9 +3,9 @@
 #define _MINMAX_H_
 
 /**
- * min - return minimum of two values of the same or compatible types
- * @a: first value
- * @b: second value
+ * min - return minimum of two values of the same or compatible types.
+ * @a: first value.
+ * @b: second value.
  */
 #define min(a, b) ({                \
     typeof(a) _amin = (a);          \
@@ -15,9 +15,9 @@
 })
 
 /**
- * max - return maximum of two values of the same or compatible types
- * @a: first value
- * @b: second value
+ * max - return maximum of two values of the same or compatible types.
+ * @a: first value.
+ * @b: second value.
  */
 #define max(a, b) ({                \
     typeof(a) _amax = (a);          \
