@@ -47,9 +47,9 @@ static inline int time_compare(const time_t timea, const time_t timeb)
 }
 
 /**
- * time_after - compare if a time value is bigger than another one
- * @timea: the bigger one
- * @timeb: the smaller one
+ * time_after - compare if a time value is bigger than another one.
+ * @timea: the bigger one.
+ * @timeb: the smaller one.
  */
 static inline bool time_after(const time_t timea, const time_t timeb)
 {
@@ -129,7 +129,7 @@ static inline bool timespec_before(const struct timespec *timea, const struct ti
 }
 
 /**
- * timespec_after - compare if a timespec value is bigger or equal than another one.
+ * timespec_after_equal - compare if a timespec value is bigger or equal than another one.
  * @timea: the bigger one.
  * @timeb: the smaller one.
  */

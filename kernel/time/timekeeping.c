@@ -116,8 +116,7 @@ static void timekeeping_base_setup(struct timekeeper *tk, struct clocksource_dev
     interval = SYSTICK_NSEC;
     interval <<= cdev->shift;
     interval = DIV_ROUND_CLOSEST(interval, cdev->mult);
-    if (interval == 0)
-        interval = 1;
+    max_adj(interval, 1);
 
     tk->systick_cycle = interval;
     tk->base_mono.xtime_interval = interval * cdev->mult;
@@ -156,13 +155,12 @@ static void timekeeping_update_ktime(struct timekeeper *tk)
     if (nsec >= NSEC_PER_SEC)
         secs++;
 
-    tk->ktime_sec += secs;
+    tk->ktime_sec = secs;
     tk->base_raw.base = ktime_set(tk->base_raw.xtime_sec, 0);
 }
 
-static void timekeeping_update(struct timekeeper *tk)
+static inline void timekeeping_update(struct timekeeper *tk)
 {
-    return;
     timekeeping_update_ktime(tk);
 }
 
@@ -208,11 +206,11 @@ static void timekeeping_adjustment(struct timekeeper *tk, bool systick)
 
     /* check whether the clock needs to be updated */
     offset = timekeeping_base_get_delta(&tk->base_mono);
-    if (systick && offset < tk->systick_cycle)
+    if (offset < tk->systick_cycle && systick)
         goto finish;
 
     shift = ilog2(offset) - ilog2(tk->systick_cycle);
-    shift = max(0, shift);
+    max_adj(shift, 0);
 
     while (offset >= tk->systick_cycle) {
         offset = logarithmic_accumulation(tk, offset, shift);
@@ -230,7 +228,6 @@ finish:
 
 void timekeeping_tick(void)
 {
-    return;
     timekeeping_adjustment(&timekeeper, true);
 }
 
@@ -274,14 +271,14 @@ state timekeeping_set_realtime(struct timespec *ts)
 
     timekeeping_xtime_forward(&timekeeper);
     xtime = timekeeping_xtime_get(&timekeeper);
-    delta.tv_sec = ts->tv_sec - xtime.tv_sec;
-    delta.tv_nsec = ts->tv_nsec - xtime.tv_nsec;
+    delta = timespec_sub(ts, &xtime);
 
     if (timespec_after(&timekeeper.timespec_real, &delta))
         return -EINVAL;
 
     delta = timespec_sub(&timekeeper.timespec_real, &delta);
     timekeeping_wall_mono_set(&timekeeper, &delta);
+    timekeeping_xtime_set(&timekeeper, ts);
 
     seqlock_write_end(&timekeeper_seq);
     spin_unlock_irqrestore(&timekeeper_lock, &irqflags);
