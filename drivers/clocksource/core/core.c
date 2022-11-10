@@ -19,6 +19,19 @@ static MUTEX_LOCK(clocksource_lock);
 static struct clocksource_device *clocksource_curr;
 static char override_name[32];
 
+static state clocksource_bootarg(char *args)
+{
+    size_t length;
+
+    length = strlen(args);
+    if (length >= 32)
+        return -ENOSPC;
+
+    memcpy(override_name, args, length + 1);
+    return -ENOERR;
+}
+bootarg_initcall("clocksource", clocksource_bootarg);
+
 static void clocksource_enqueue(struct clocksource_device *cdev)
 {
     struct list_head *head = &clocksource_list;
@@ -68,7 +81,7 @@ static state clocksource_select(bool skipcur)
         if (skipcur && clocksource_curr == walk)
             continue;
 
-        if (!strcmp(dev->name, override_name))
+        if (strcmp(dev->name, override_name))
             continue;
 
         if (oneshot && !(walk->flags & CLKSRC_VALID_HRES)) {
