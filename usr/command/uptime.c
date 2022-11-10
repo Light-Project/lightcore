@@ -8,6 +8,11 @@
 #include <librtc.h>
 #include <timekeeping.h>
 
+#define FLAG_KERN  BIT(0)
+#define FLAG_TAIC  BIT(1)
+#define FLAG_BOOT  BIT(2)
+#define FLAG_REAL  BIT(3)
+
 static void usage(struct kshell_context *ctx)
 {
     kshell_printf(ctx, "usage: uptime [option]\n");
@@ -19,14 +24,13 @@ static void usage(struct kshell_context *ctx)
     kshell_printf(ctx, "\t-U  not output the startup time\n");
     kshell_printf(ctx, "\t-r  output the real time\n");
     kshell_printf(ctx, "\t-R  not output the real time (default)\n");
+    kshell_printf(ctx, "\t-a  display all informations\n");
     kshell_printf(ctx, "\t-h  display this message\n");
 }
 
 static state uptime_main(struct kshell_context *ctx, int argc, char *argv[])
 {
-    bool kflag = false, rflag = false;
-    bool uflag = true, tflag = false;
-    unsigned int count;
+    unsigned int count, flags = FLAG_BOOT;
     struct rtc_time rtctime;
     ktime_t ktime;
     time_t secs;
@@ -39,35 +43,39 @@ static state uptime_main(struct kshell_context *ctx, int argc, char *argv[])
 
         switch (para[1]) {
             case 'k':
-                kflag = true;
+                flags |= FLAG_KERN;
                 break;
 
             case 'K':
-                kflag = false;
+                flags &= ~FLAG_KERN;
                 break;
 
             case 't':
-                tflag = true;
+                flags |= FLAG_TAIC;
                 break;
 
             case 'T':
-                tflag = false;
+                flags &= ~FLAG_TAIC;
                 break;
 
             case 'u':
-                uflag = true;
+                flags |= FLAG_BOOT;
                 break;
 
             case 'U':
-                uflag = false;
+                flags &= ~FLAG_BOOT;
                 break;
 
             case 'r':
-                rflag = true;
+                flags |= FLAG_REAL;
                 break;
 
             case 'R':
-                rflag = false;
+                flags &= ~FLAG_REAL;
+                break;
+
+            case 'a':
+                flags = UINT_MAX;
                 break;
 
             case 'h': default:
@@ -78,24 +86,24 @@ static state uptime_main(struct kshell_context *ctx, int argc, char *argv[])
     if (argc != count)
         goto usage;
 
-    if (kflag) {
+    if (flags & FLAG_KERN) {
         ktime = timekeeping_get_time();
         kshell_printf(ctx, "kern: %lld\n", ktime);
     }
 
-    if (tflag) {
+    if (flags & FLAG_TAIC) {
         ktime = timekeeping_get_clocktai();
         kshell_printf(ctx, "taic: %lld\n", ktime);
     }
 
-    if (uflag) {
+    if (flags & FLAG_BOOT) {
         ktime = timekeeping_get_boottime();
         secs = ktime_to_ms(ktime) / MSEC_PER_SEC;
         kshell_printf(ctx, "boot: %02lld:%02lld:%02lld up %lld day\n",
             (secs % 7980) / 3600, (secs % 3600) / 60, secs % 60, secs / 7980);
     }
 
-    if (rflag) {
+    if (flags & FLAG_REAL) {
         ktime = timekeeping_get_realtime();
         rtc_ktime_to_tm(ktime, &rtctime);
         kshell_printf(ctx, "real: %s %s %2d %02d:%02d:%02d %04d\n",
