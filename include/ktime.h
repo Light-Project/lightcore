@@ -12,8 +12,8 @@
 #define ktime_sub(time, nsval)  ((time) - (nsval))
 
 /**
- * ktime_to_ns/us/ms - convert ktime to time
- * @time: the ktime to convert
+ * ktime_to_ns/us/ms - convert ktime to time.
+ * @time: the ktime to convert.
  */
 static inline int64_t ktime_to_ns(ktime_t time)
 {
@@ -31,8 +31,8 @@ static inline int64_t ktime_to_ms(ktime_t time)
 }
 
 /**
- * ns/us/ms_to_ktime - convert time to ktime
- * @time: the ns/us/ms to convert
+ * ns/us/ms_to_ktime - convert time to ktime.
+ * @time: the ns/us/ms to convert.
  */
 static inline ktime_t ns_to_ktime(int64_t time)
 {
@@ -63,9 +63,9 @@ static inline ktime_t ktime_set(time_t secs, long nsec)
 }
 
 /**
- * ktime_add_ns/us/ms - add time to ktime
- * @time: the ktime to add
- * @nsec: the ns/us/ms to add
+ * ktime_add_ns/us/ms - add time to ktime.
+ * @time: the ktime to add.
+ * @nsec: the ns/us/ms to add.
  */
 static inline ktime_t ktime_add_ns(const ktime_t time, const uint64_t nsec)
 {
@@ -103,9 +103,9 @@ static inline ktime_t ktime_sub_ms(const ktime_t time, const uint64_t msec)
 }
 
 /**
- * ktime_compare - compares two ktime_t variables
- * @timea: variables a
- * @timeb: variables b
+ * ktime_compare - compares two ktime_t variables.
+ * @timea: variables a.
+ * @timeb: variables b.
  */
 static inline int ktime_compare(const ktime_t timea, const ktime_t timeb)
 {
@@ -117,9 +117,9 @@ static inline int ktime_compare(const ktime_t timea, const ktime_t timeb)
 }
 
 /**
- * ktime_after - compare if a ktime value is bigger than another one
- * @timea: the bigger one
- * @timeb: the smaller one
+ * ktime_after - compare if a ktime value is bigger than another one.
+ * @timea: the bigger one.
+ * @timeb: the smaller one.
  */
 static inline bool ktime_after(const ktime_t timea, const ktime_t timeb)
 {
@@ -127,9 +127,9 @@ static inline bool ktime_after(const ktime_t timea, const ktime_t timeb)
 }
 
 /**
- * ktime_before - compare if a ktime value is smaller than another one
- * @timea: the smaller one
- * @timeb: the bigger one
+ * ktime_before - compare if a ktime value is smaller than another one.
+ * @timea: the smaller one.
+ * @timeb: the bigger one.
  */
 static inline bool ktime_before(const ktime_t timea, const ktime_t timeb)
 {
@@ -137,9 +137,9 @@ static inline bool ktime_before(const ktime_t timea, const ktime_t timeb)
 }
 
 /**
- * ktime_make - make ktime value from seconds/nanoseconds
- * @secs: seconds to make
- * @nsecs: nanoseconds to make
+ * ktime_make - make ktime value from seconds/nanoseconds.
+ * @secs: seconds to make.
+ * @nsecs: nanoseconds to make.
  */
 static inline ktime_t ktime_make(const uint64_t secs, const unsigned long nsecs)
 {
