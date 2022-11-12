@@ -16,9 +16,9 @@ enum panic_type {
 static void usage(struct kshell_context *ctx)
 {
     kshell_printf(ctx, "usage: panic [option] \"message\"\n");
-    kshell_printf(ctx, "\t-w  manually trigger a warn\n");
-    kshell_printf(ctx, "\t-b  manually trigger a bug\n");
-    kshell_printf(ctx, "\t-p  manually trigger a bug\n");
+    kshell_printf(ctx, "\t-w  trigger a warn\n");
+    kshell_printf(ctx, "\t-b  trigger a bug\n");
+    kshell_printf(ctx, "\t-p  trigger a panic\n");
     kshell_printf(ctx, "\t-h  display this message\n");
 }
 
