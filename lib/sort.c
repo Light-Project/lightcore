@@ -5,12 +5,13 @@
 
 #include <sort.h>
 #include <string.h>
+#include <alloca.h>
 #include <export.h>
 
 static __always_inline void
 sort_swap(size_t cells, void *cela, void *celb)
 {
-    uint8_t buff[cells];
+    uint8_t *buff = alloca(cells);
 
     memcpy(buff, cela, cells);
     memcpy(cela, celb, cells);
