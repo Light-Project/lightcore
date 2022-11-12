@@ -173,6 +173,13 @@
     KEEP(*(.extable))                                       \
     _ld_extable_end = .;
 
+#define ONCE_TABLE(align)                                   \
+    . = ALIGN(align);                                       \
+    _ld_data_once_start = .;                                \
+    *(.data.once)                                           \
+    . = ALIGN(align);                                       \
+    _ld_data_once_end = .;
+
 /*
  * Init Text Segment
  */
@@ -382,6 +389,7 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
         READ_MOSTLY(cacheline)                              \
         BUG_TABLE(cacheline)                                \
         EXCEPTION_TABLE(cacheline)                          \
+        ONCE_TABLE(cacheline)                               \
         _ld_data_end = .;                                   \
     }
 
