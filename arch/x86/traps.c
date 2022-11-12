@@ -13,6 +13,7 @@
 #include <asm/idt.h>
 #include <asm/bug.h>
 #include <asm/backtrace.h>
+#include <asm/unaligned.h>
 
 static bool trap_crash(struct regs *regs)
 {
@@ -21,7 +22,7 @@ static bool trap_crash(struct regs *regs)
     if (regs->ip < CONFIG_PAGE_OFFSET)
         return false;
 
-    if (*(uint16_t *)regs->ip != BUG_VALUE)
+    if (unaligned_get_u16((void *)regs->ip) != BUG_VALUE)
         return false;
 
     if (regs->flags & EFLAGS_IF)
