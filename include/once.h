@@ -20,7 +20,7 @@
 
 #define DO_ONCE_ON(condition, func, ...) ({         \
     bool __cond = !!(condition);                    \
-    if (DO_ONCE_DONE(condition))                    \
+    if (DO_ONCE_DONE(__cond))                       \
         func(__VA_ARGS__);                          \
     unlikely(__cond);                               \
 })
