@@ -27,6 +27,7 @@ struct kshell_context {
             uint8_t breakloop:1;
             uint8_t breakfunc:1;
             uint8_t breakexit:1;
+            uint8_t canceled:1;
         };
     };
 

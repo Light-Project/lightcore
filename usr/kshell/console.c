@@ -81,12 +81,17 @@ EXPORT_SYMBOL(kshell_printf);
 bool kshell_ctrlc(struct kshell_context *ctx)
 {
     unsigned int len;
-    char buff[32];
+    char buff[8];
+
+    if (unlikely(ctx->canceled))
+        return true;
 
     len = kshell_read(ctx, buff, sizeof(buff));
     while (len--) {
-        if (buff[len] == ASCII_ETX)
+        if (buff[len] == ASCII_ETX) {
+            ctx->canceled = true;
             return true;
+        }
     }
 
     return false;

@@ -147,7 +147,7 @@ state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
             cmdline = readline(rstate, kshell_getenv(&nctx, "PS1"), kshell_getenv(&nctx, "PS2"));
             if (!rstate->len)
                 continue;
-            ctx->breakdown = false;
+            nctx.breakdown = false;
             retval = do_system(&nctx, cmdline);
         }
 
