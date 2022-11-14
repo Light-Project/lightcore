@@ -2,6 +2,7 @@
 obj-y += arch/
 obj-$(CONFIG_KCMD_ASCII85)  += ascii85.o
 obj-$(CONFIG_KCMD_BASE64)   += base64.o
+obj-$(CONFIG_KCMD_BASENAME)	+= basename.o
 obj-$(CONFIG_KCMD_BREAK)    += break.o
 obj-$(CONFIG_KCMD_CLEAR)    += clear.o
 obj-$(CONFIG_KCMD_COND)     += cond.o
