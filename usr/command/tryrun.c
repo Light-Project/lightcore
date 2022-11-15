@@ -46,6 +46,9 @@ static state tryrun_main(struct kshell_context *ctx, int argc, char *argv[])
             goto usage;
     }
 
+    else if (argc == count)
+        goto usage;
+
     ctx->tryrun = true;
     retval = kshell_system(ctx, argv[count]);
     ctx->tryrun = false;
