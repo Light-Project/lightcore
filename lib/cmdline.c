@@ -51,6 +51,37 @@ uint64_t memparse(const char *ptr, char **endptr)
 }
 EXPORT_SYMBOL(memparse);
 
+uint64_t timeparse(const char *ptr, char **endptr)
+{
+    uint64_t value;
+    char *alpha;
+
+    value = strtou64(ptr, &alpha, 0);
+    switch (*alpha) {
+        case 'S': case 's':
+            value *= 1000;
+            fallthrough;
+
+        case 'M': case 'm':
+            value *= 1000;
+            fallthrough;
+
+        case 'U': case 'u':
+            value *= 1000;
+            alpha++;
+            fallthrough;
+
+        default:
+            break;
+    }
+
+    if (endptr)
+        *endptr = alpha;
+
+    return value;
+}
+EXPORT_SYMBOL(timeparse);
+
 int escape_string(char *buff, size_t size, const char *fmt)
 {
     char *str = buff;
