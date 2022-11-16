@@ -37,17 +37,17 @@ state pci_raw_config_read(unsigned int domain, unsigned int bus, unsigned int de
     outl(I386_PCI_CMD, I386_PCI_CONFIG(bus, devfn, reg));
 
     switch (size) {
-        case 1:
+        case 1: default:
             *val = inb(I386_PCI_DATA + offset);
             break;
 
         case 2:
-            BUG_ON(offset & ~0x02);
+            WARN_ON_ONCE(!align_check(offset, 2));
             *val = inw(I386_PCI_DATA + offset);
             break;
 
-        default:
-            BUG_ON(offset & ~0x03);
+        case 4:
+            WARN_ON_ONCE(!align_check(offset, 4));
             *val = inl(I386_PCI_DATA + offset);
             break;
     }
@@ -71,17 +71,17 @@ state pci_raw_config_write(unsigned int domain, unsigned int bus, unsigned int d
     outl(I386_PCI_CMD, I386_PCI_CONFIG(bus, devfn, reg));
 
     switch (size) {
-        case 1:
+        case 1: default:
             outb(I386_PCI_DATA + offset, val);
             break;
 
         case 2:
-            BUG_ON(offset & ~0x02);
+            WARN_ON_ONCE(!align_check(offset, 2));
             outw(I386_PCI_DATA + offset, val);
             break;
 
-        default:
-            BUG_ON(offset & ~0x03);
+        case 4:
+            WARN_ON_ONCE(!align_check(offset, 4));
             outl(I386_PCI_DATA + offset, val);
             break;
     }
