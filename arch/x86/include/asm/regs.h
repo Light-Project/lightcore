@@ -10,6 +10,7 @@
 #include <stddef.h>
 #include <limits.h>
 #include <asm/asm.h>
+#include <asm/extable.h>
 #include <arch/x86/regs.h>
 #include <arch/x86/cpuid.h>
 #include <arch/x86/msr.h>
@@ -193,7 +194,9 @@ static inline uint64_t msr_get(unsigned int msr)
     DECLARE_ARGS(val, low, high);
 
     asm volatile (
-        "rdmsr\n"
+        "1: rdmsr   \n"
+        "2:         \n"
+        EXTABLE_ASM(1b, 2b, EXTABLE_TYPE_RDMSR)
         : EAX_EDX_RET(val, low, high)
         : "c" (msr)
     );
@@ -209,7 +212,9 @@ static inline void msr_set(unsigned int msr, uint64_t val)
     high = val >> 32;
 
     asm volatile (
-        "1: wrmsr\n"
+        "1: wrmsr   \n"
+        "2:         \n"
+        EXTABLE_ASM(1b, 2b, EXTABLE_TYPE_WRMSR)
         :: "c"(msr), "a"(low), "d"(high)
         : "memory"
     );

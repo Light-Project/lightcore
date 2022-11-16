@@ -169,9 +169,9 @@
 
 #define EXCEPTION_TABLE(align)                              \
     . = ALIGN(align);                                       \
-    _ld_extable_start = .;                                  \
-    KEEP(*(.extable))                                       \
-    _ld_extable_end = .;
+    _ld_data_extable_start = .;                             \
+    KEEP(*(.data.extable))                                  \
+    _ld_data_extable_end = .;
 
 #define ONCE_TABLE(align)                                   \
     . = ALIGN(align);                                       \

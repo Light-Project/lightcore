@@ -24,6 +24,7 @@
 #include <logo.h>
 #include <console.h>
 #include <printk.h>
+#include <extable.h>
 #include <panic.h>
 
 #include <driver/clk.h>
@@ -72,6 +73,8 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
     earlyargs_init(boot_args);
 
     crash_init();
+    extable_init();
+
     mem_init();
     idr_init();
     lrc_init();
