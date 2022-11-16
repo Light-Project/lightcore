@@ -6,6 +6,7 @@
 #define pr_fmt(fmt) "ioremap: " fmt
 
 #include <ioremap.h>
+#include <memory.h>
 #include <kmalloc.h>
 #include <mm/vmem.h>
 #include <mm/vmap.h>
@@ -93,7 +94,7 @@ static struct ioremap_node *phys_addr_find(phys_addr_t start, size_t size, gvm_t
     return rb_to_ioremap_safe(rb);
 }
 
-static struct ioremap_node *ioremap_alloc(phys_addr_t pa, size_t size, gvm_t flags)
+static struct ioremap_node *ioremap_alloc(phys_addr_t phys, size_t size, gvm_t flags)
 {
     struct ioremap_node *node;
     state ret;
@@ -106,11 +107,11 @@ static struct ioremap_node *ioremap_alloc(phys_addr_t pa, size_t size, gvm_t fla
     if (unlikely(ret))
         goto error_free;
 
-    ret = vmap_range(&init_mm, pa, node->vm_area.addr, node->vm_area.size, flags, PGDIR_SHIFT);
+    ret = vmap_range(&init_mm, phys, node->vm_area.addr, node->vm_area.size, flags, PGDIR_SHIFT);
     if (unlikely(ret))
         goto error_vmfree;
 
-    node->addr = pa;
+    node->addr = phys;
     node->flags = flags;
     rb_insert(&ioremap_root, &node->rb, ioremap_rb_cmp);
 
@@ -123,29 +124,28 @@ error_free:
     return NULL;
 }
 
-void *ioremap_node(phys_addr_t pa, size_t size, gvm_t flags)
+void *ioremap_node(phys_addr_t phys, size_t size, gvm_t flags)
 {
     struct ioremap_node *node;
-    phys_addr_t offset;
+    phys_addr_t offset, last_addr;
 
-    if (!size)
+    /* Don't allow wraparound or zero size */
+    last_addr = phys + size - 1;
+    if (unlikely(!size || last_addr < phys))
         return NULL;
 
-    if (pa + size < pa)
-        return NULL;
-
-	/* page-align mappings */
-    offset = pa & ~PAGE_MASK;
-    pa &= PAGE_MASK;
-    size = align_high(size, PAGE_SIZE);
+    /* page-align mappings */
+    offset = phys & ~PAGE_MASK;
+    phys &= PAGE_MASK;
+    size = page_align(last_addr + 1) - phys;
 
     spin_lock(&ioremap_lock);
 
-    node = phys_addr_find(pa, size, flags);
+    node = phys_addr_find(phys, size, flags);
     if (node)
         goto done;
 
-    node = ioremap_alloc(pa, size, flags);
+    node = ioremap_alloc(phys, size, flags);
     if (unlikely(!node))
         goto error;
 
@@ -160,34 +160,34 @@ error:
 }
 EXPORT_SYMBOL(ioremap_node);
 
-void *ioremap(phys_addr_t pa, size_t size)
+void *ioremap(phys_addr_t phys, size_t size)
 {
 #ifdef CONFIG_ARCH_HAS_IOMAP
-    if (pa >= CONFIG_RAM_BASE && pa < CONFIG_HIGHMEM_OFFSET)
-        return pa_to_io(pa);
+    if (phys >= CONFIG_RAM_BASE && phys < CONFIG_HIGHMEM_OFFSET)
+        return pa_to_io(phys);
 #endif
-    return ioremap_node(pa, size, GVM_NOCACHE);
+    return ioremap_node(phys, size, GVM_NOCACHE);
 }
 EXPORT_SYMBOL(ioremap);
 
-void *ioremap_uc(phys_addr_t pa, size_t size)
+void *ioremap_uc(phys_addr_t phys, size_t size)
 {
-    if (pa >= CONFIG_RAM_BASE && pa < CONFIG_HIGHMEM_OFFSET)
-        return pa_to_va(pa);
+    if (phys >= CONFIG_RAM_BASE && phys < CONFIG_HIGHMEM_OFFSET)
+        return pa_to_va(phys);
 
-    return ioremap_node(pa, size, 0);
+    return ioremap_node(phys, size, 0);
 }
 EXPORT_SYMBOL(ioremap_uc);
 
-void *ioremap_wc(phys_addr_t pa, size_t size)
+void *ioremap_wc(phys_addr_t phys, size_t size)
 {
-    return ioremap_node(pa, size, GVM_WCOMBINED);
+    return ioremap_node(phys, size, GVM_WCOMBINED);
 }
 EXPORT_SYMBOL(ioremap_wc);
 
-void *ioremap_wt(phys_addr_t pa, size_t size)
+void *ioremap_wt(phys_addr_t phys, size_t size)
 {
-    return ioremap_node(pa, size, GVM_WTHROUGH);
+    return ioremap_node(phys, size, GVM_WTHROUGH);
 }
 EXPORT_SYMBOL(ioremap_wt);
 

@@ -5,11 +5,12 @@
 #include <types.h>
 #include <mm/gvm.h>
 
-extern void __malloc *ioremap_node(phys_addr_t pa, size_t size, gvm_t flags);
-extern void __malloc *ioremap(phys_addr_t pa, size_t size);
-extern void __malloc *ioremap_wc(phys_addr_t pa, size_t size);
-extern void __malloc *ioremap_uc(phys_addr_t pa, size_t size);
-extern void __malloc *ioremap_wt(phys_addr_t pa, size_t size);
+extern void __malloc *ioremap_node(phys_addr_t phys, size_t size, gvm_t flags);
+extern void __malloc *ioremap(phys_addr_t phys, size_t size);
+
+extern void __malloc *ioremap_wc(phys_addr_t phys, size_t size);
+extern void __malloc *ioremap_uc(phys_addr_t phys, size_t size);
+extern void __malloc *ioremap_wt(phys_addr_t phys, size_t size);
 
 extern void iounmap(void *addr);
 extern void __init ioremap_init(void);
