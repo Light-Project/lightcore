@@ -9,6 +9,7 @@
 #include <initcall.h>
 #include <ioops.h>
 #include <proc.h>
+#include <driver/pci.h>
 #include <kshell.h>
 
 static int number_table[] = {
@@ -28,6 +29,8 @@ enum mem_action {
     ACTION_MEM_WRITE,
     ACTION_IOPORT_IN,
     ACTION_IOPORT_OUT,
+    ACTION_PCIDEV_READ,
+    ACTION_PCIDEV_WRITE,
 };
 
 enum write_operator {
@@ -348,12 +351,15 @@ exit:
                 case 1:
                     kshell_printf(ctx, buff, readb(addr), readb(addr));
                     break;
+
                 case 2:
                     kshell_printf(ctx, buff, unaligned_get_u16(addr));
                     break;
+
                 case 4:
                     kshell_printf(ctx, buff, unaligned_get_u32(addr));
                     break;
+
                 case 8: default:
                     kshell_printf(ctx, buff, unaligned_get_u64(addr));
                     break;
@@ -414,7 +420,7 @@ static state mem_write(struct kshell_context *ctx, int argc, char *argv[])
 {
     char cstr[20] = {};
     unsigned int count = 0;
-    unsigned long long value, tmp;
+    uint64_t value, tmp;
     int num, byte = 4;
     enum write_operator oper;
     void *addr, *block;
@@ -524,6 +530,7 @@ usage:
     return -EINVAL;
 }
 
+#ifdef CONFIG_ARCH_HAS_PMIO
 static void ioport_in_usage(struct kshell_context *ctx)
 {
     kshell_printf(ctx, "usage: mem -i /nfu <addr>\n");
@@ -624,9 +631,11 @@ exit:
                 case 1:
                     kshell_printf(ctx, buff, inb(base), inb(base));
                     break;
+
                 case 2:
                     kshell_printf(ctx, buff, inw(base));
                     break;
+
                 case 4: default:
                     kshell_printf(ctx, buff, inl(base));
                     break;
@@ -658,10 +667,10 @@ static state ioport_out(struct kshell_context *ctx, int argc, char *argv[])
 {
     char cstr[20] = {};
     unsigned int count = 0;
-    unsigned long long value, tmp;
+    uint32_t value, tmp;
     enum write_operator oper;
     int num, byte = 1;
-    phys_addr_t base;
+    resource_size_t base;
 
     if (argc == 4 && *argv[0] == '/' && isdigit(*argv[1]) && legal_val(argv[3])) {
         char *para = argv[0] + 1;
@@ -719,7 +728,7 @@ pass:
         num = 1;
 
     base = axtoul(argv[argc - 3]);
-    value = convert_val(argv[argc - 1]);
+    value = (uint32_t)convert_val(argv[argc - 1]);
 
     while (num--) {
         switch (byte) {
@@ -737,8 +746,8 @@ pass:
 
             case 4: default:
                 tmp = inl(base);
-                tmp = do_operator(oper, tmp, (uint16_t)value);
-                outl(base, (uint32_t)value);
+                tmp = do_operator(oper, tmp, value);
+                outl(base, value);
                 break;
         }
         base += byte;
@@ -750,14 +759,230 @@ usage:
     ioport_out_usage(ctx);
     return -EINVAL;
 }
+#endif
+
+#ifdef CONFIG_PCI
+static void pcidev_read_usage(struct kshell_context *ctx)
+{
+    kshell_printf(ctx, "usage: mem -p domain:bus:slot.func /nfu <addr>\n");
+    kshell_printf(ctx, "\t/n - length\n");
+    kshell_printf(ctx, "\t/o - octal\n");
+    kshell_printf(ctx, "\t/x - hexadecimal\n");
+    kshell_printf(ctx, "\t/d - decimal\n");
+    kshell_printf(ctx, "\t/u - unsigned decimal\n");
+    kshell_printf(ctx, "\t/a - address\n");
+    kshell_printf(ctx, "\t/c - char\n");
+    kshell_printf(ctx, "\t/b - byte (8-bit)\n");
+    kshell_printf(ctx, "\t/h - halfword (16-bit)\n");
+    kshell_printf(ctx, "\t/w - word (32-bit)\n");
+}
+
+static state pcidev_read(struct kshell_context *ctx, int argc, char *argv[])
+{
+    char buff[10], cstr[20] = {}, fmt = 'x';
+    unsigned int domain, bus, slot, func;
+    unsigned int base, count = 0;
+    int num, byte = 1;
+
+    if (argc == 3 && *argv[1] == '/' && isdigit(*argv[2])) {
+        char *para = argv[1] + 1;
+
+        if (!*para)
+            goto usage;
+
+        for (; isdigit(*para); ++count) {
+            if (count >= sizeof(cstr))
+                goto usage;
+            cstr[count] = *para++;
+        }
+
+        for (; *para; para++) {
+            switch (*para) {
+                case 'b':
+                    byte = 1;
+                    break;
+
+                case 'h':
+                    byte = 2;
+                    break;
+
+                case 'w':
+                    byte = 4;
+                    break;
+
+                case 'c':
+                    byte = 1;
+                    strcpy(buff, "'\\%d' '%c'");
+                    goto exit;
+
+                case 'a':
+                    fmt = 'x';
+                    break;
+
+                case 'x': case 'd':
+                case 'u': case 'o':
+                    fmt = *para;
+                    break;
+
+                default:
+                    goto usage;
+            }
+        }
+    }
+
+    else if (argc == 2 && isdigit(*argv[1]))
+        goto pass;
+
+    else
+        goto usage;
+
+pass:
+    if (fmt == 'x')
+        sprintf(buff, "0x%%0%d%c", byte * 2, fmt);
+    else {
+        sprintf(buff, "%%-%d%c", (fmt == 'o' ?
+                oct_align_table : dec_align_table)[byte / 2], fmt);
+    }
+
+exit:
+    if (count) {
+        num = atoi(cstr);
+        if (!num)
+            goto usage;
+    } else
+        num = 1;
+
+    if (sscanf(argv[0], "%u:%u:%u.%u", &domain, &bus, &slot, &func) < 0)
+        goto usage;
+    base = axtoui(argv[argc - 1]);
+
+    for (; (count = min(num, number_table[byte / 2])); num -= count) {
+        unsigned int tmp;
+        kshell_printf(ctx, "0x%04x: ", base);
+        for (tmp = 0; tmp < count; ++tmp) {
+            uint32_t value;
+            pci_raw_config_read(domain, bus, PCI_DEVFN(slot, func), base, byte, &value);
+            kshell_printf(ctx, buff, value, value);
+            base += byte;
+            kshell_printf(ctx, "  ");
+        }
+        kshell_printf(ctx, "\n");
+    }
+
+    return -ENOERR;
+
+usage:
+    pcidev_read_usage(ctx);
+    return -EINVAL;
+}
+
+static void pcidev_write_usage(struct kshell_context *ctx)
+{
+    kshell_printf(ctx, "usage: mem -o domain:bus:slot.func /nu <addr> <operator> <value>\n");
+    kshell_printf(ctx, "\t/n - length\n");
+    kshell_printf(ctx, "\t/b - byte (8-bit)\n");
+    kshell_printf(ctx, "\t/h - halfword (16-bit)\n");
+    kshell_printf(ctx, "\t/w - word (32-bit)\n");
+    operator_value_usage(ctx);
+}
+
+static state pcidev_write(struct kshell_context *ctx, int argc, char *argv[])
+{
+    char cstr[20] = {};
+    unsigned int domain, bus, slot, func;
+    unsigned int base, count = 0;
+    uint32_t value, tmp;
+    enum write_operator oper;
+    int num, byte = 1;
+
+    if (argc == 5 && *argv[1] == '/' && isdigit(*argv[2]) && legal_val(argv[4])) {
+        char *para = argv[1] + 1;
+
+        if (!*para)
+            goto usage;
+
+        for (; isdigit(*para); ++count) {
+            if (count >= sizeof(cstr))
+                goto usage;
+            cstr[count] = *para++;
+        }
+
+        for (; *para; para++) {
+            switch (*para) {
+                case 'b':
+                    byte = 1;
+                    break;
+
+                case 'h':
+                    byte = 2;
+                    break;
+
+                case 'w':
+                    byte = 4;
+                    break;
+
+                case 'c': case 'a':
+                case 'x': case 'd':
+                case 'u': case 'o':
+                    break;
+
+                default:
+                    goto usage;
+            }
+        }
+    }
+
+    else if (argc == 4 && isdigit(*argv[1]) && legal_val(argv[3]))
+        goto pass;
+
+    else
+        goto usage;
+
+pass:
+    oper = get_operator(argv[argc - 2]);
+    if (!oper)
+        goto usage;
+
+    if (count) {
+        num = atoi(cstr);
+        if (!num)
+            goto usage;
+    } else
+        num = 1;
+
+    if (sscanf(argv[0], "%u:%u:%u.%u", &domain, &bus, &slot, &func) < 0)
+        goto usage;
+    base = axtou32(argv[argc - 3]);
+    value = (uint32_t)convert_val(argv[argc - 1]);
+
+    while (num--) {
+        pci_raw_config_read(domain, bus, PCI_DEVFN(slot, func), base, byte, &tmp);
+        tmp = do_operator(oper, tmp, value & BIT_LOW_MASK(BITS_PER_BYTE * byte));
+        pci_raw_config_write(domain, bus, PCI_DEVFN(slot, func), base, byte, tmp);
+        base += byte;
+    }
+
+    return -ENOERR;
+
+usage:
+    pcidev_write_usage(ctx);
+    return -EINVAL;
+}
+#endif
 
 static void usage(struct kshell_context *ctx)
 {
     kshell_printf(ctx, "usage: mem [option] ...\n");
     kshell_printf(ctx, "\t-r  memory read (default)\n");
     kshell_printf(ctx, "\t-w  memory write\n");
-    kshell_printf(ctx, "\t-i  iomem input\n");
-    kshell_printf(ctx, "\t-o  iomem output\n");
+#ifdef CONFIG_ARCH_HAS_PMIO
+    kshell_printf(ctx, "\t-i  ioport input\n");
+    kshell_printf(ctx, "\t-o  ioport output\n");
+#endif
+#ifdef CONFIG_PCI
+    kshell_printf(ctx, "\t-p  pci configuration read\n");
+    kshell_printf(ctx, "\t-q  pci configuration write\n");
+#endif
     kshell_printf(ctx, "\t-s  show after modification\n");
     kshell_printf(ctx, "\t-h  display this message\n");
 }
@@ -790,6 +1015,7 @@ static state mem_main(struct kshell_context *ctx, int argc, char *argv[])
                     act = ACTION_MEM_WRITE;
                     break;
 
+#ifdef CONFIG_ARCH_HAS_PMIO
                 case 'i':
                     act = ACTION_IOPORT_IN;
                     break;
@@ -797,6 +1023,17 @@ static state mem_main(struct kshell_context *ctx, int argc, char *argv[])
                 case 'o':
                     act = ACTION_IOPORT_OUT;
                     break;
+#endif
+
+#ifdef CONFIG_PCI
+                case 'p':
+                    act = ACTION_PCIDEV_READ;
+                    break;
+
+                case 'q':
+                    act = ACTION_PCIDEV_WRITE;
+                    break;
+#endif
 
                 case 's':
                     show = true;
@@ -818,23 +1055,42 @@ static state mem_main(struct kshell_context *ctx, int argc, char *argv[])
                 return ret;
             show = false;
             argc -= 2;
+            fallthrough;
 
         case ACTION_MEM_READ: default:
             if (show)
                 goto usage;
             return mem_read(ctx, argc - 2, &argv[2]);
 
+#ifdef CONFIG_ARCH_HAS_PMIO
         case ACTION_IOPORT_OUT:
             ret = ioport_out(ctx, argc - 2, &argv[2]);
             if (ret || !show)
                 return ret;
             show = false;
             argc -= 2;
+            fallthrough;
 
         case ACTION_IOPORT_IN:
             if (show)
                 goto usage;
             return ioport_in(ctx, argc - 2, &argv[2]);
+#endif
+
+#ifdef CONFIG_PCI
+        case ACTION_PCIDEV_WRITE:
+            ret = pcidev_write(ctx, argc - 2, &argv[2]);
+            if (ret || !show)
+                return ret;
+            show = false;
+            argc -= 2;
+            fallthrough;
+
+        case ACTION_PCIDEV_READ:
+            if (show)
+                goto usage;
+            return pcidev_read(ctx, argc - 2, &argv[2]);
+#endif
     }
 
 usage:
