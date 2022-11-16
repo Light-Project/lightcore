@@ -34,7 +34,7 @@ static state echo_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     bool nflag = false, eflag = false, iflag = false;
     unsigned int index = 0;
-    char *para, *paraph;
+    char *para;
 
     while (--argc) {
         para = *++argv;
@@ -64,16 +64,9 @@ static state echo_main(struct kshell_context *ctx, int argc, char *argv[])
         if (iflag)
             kshell_printf(ctx, "%u: ", index++);
         para = *argv++;
-        if (eflag) {
-            paraph = kmalloc(strlen(para) + 1, GFP_KERNEL);
-            if (unlikely(!paraph))
-                return -ENOMEM;
-            escape_string(paraph, ~0, para);
-            para = paraph;
-        }
-        kshell_printf(ctx, "%s", para);
         if (eflag)
-            kfree(paraph);
+            escape_string(para, ~0, para);
+        kshell_printf(ctx, "%s", para);
         if (argc) {
             if (iflag)
                 kshell_printf(ctx, "\n");
