@@ -173,7 +173,7 @@ static void pipeline_write(const char *str, unsigned int len, void *data)
         ctx->pipeline = nblock;
     }
 
-    memcpy(ctx->pipeline + ctx->pipepos, str, len);
+    strncpy(ctx->pipeline + ctx->pipepos, str, len);
     ctx->pipepos += len;
 }
 
@@ -228,6 +228,9 @@ static int pipeline_parser(char *buff, unsigned int *length)
     for (walk = 0; isspilt(buff[walk]); ++walk);
     memmove(buff, buff + walk, *length - walk);
     *length -= walk;
+
+    if (!*length)
+        return 0;
 
     for (count = walk = 0; walk < *length - 1; ++walk) {
         if (isspilt(buff[walk])) {
@@ -371,7 +374,7 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
     }
 
     /* if there is no end flag, end it */
-    if (!*walk && code != ' ') {
+    if (!*walk-- && tbuff[tpos - 1] && code != ' ') {
         tbuff[tpos++] = '\0';
         ++*argc;
     }
