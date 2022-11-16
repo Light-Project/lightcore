@@ -110,15 +110,15 @@ int escape_string(char *buff, size_t size, const char *fmt)
                 break;
 
             case '0':
-                *buff++ = 0;
+                *buff++ = '\0';
                 if (!('0' <= *fmt && *fmt <= '7'))
-                    break;
+                    goto finish;
                 *--buff = *fmt++;
                 fallthrough;
 
             case '1': case '2': case '3':
             case '4': case '5': case '6': case '7':
-                *buff -= '0';
+                *buff = *(fmt - 1) - '0';
                 if ('0' <= *fmt && *fmt <= '7')
                     *buff = *buff * 8 + (*fmt++ - '0');
                 if ('0' <= *fmt && *fmt <= '7')
@@ -136,6 +136,7 @@ int escape_string(char *buff, size_t size, const char *fmt)
         }
     }
 
+finish:
     *buff++ = '\0';
     return buff - str;
 }
