@@ -4,6 +4,7 @@
  */
 
 #include <kshell.h>
+#include <ctype.h>
 #include <initcall.h>
 #include <delay.h>
 
@@ -23,12 +24,19 @@ static void usage(struct kshell_context *ctx)
 
 static state sleep_main(struct kshell_context *ctx, int argc, char *argv[])
 {
-    if (argc != 2) {
+    unsigned int timeout, limit;
+
+    if (argc != 2 || !isdigit(*argv[1])) {
         usage(ctx);
         return -EINVAL;
     }
 
-    PROGRAM_FUNC(atoi(argv[1]));
+    for (timeout = atoui(argv[1]); (limit = min(timeout, MSEC_PER_SEC)); timeout -= limit) {
+        if (kshell_ctrlc(ctx))
+            return -ECANCELED;
+        PROGRAM_FUNC(limit);
+    }
+
     return -ENOERR;
 }
 
