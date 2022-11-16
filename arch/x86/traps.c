@@ -42,6 +42,8 @@ static bool trap_crash(struct regs *regs)
 static bool kernel_trap(struct regs *regs, unsigned long error_code,
                         unsigned long vector, const char *type)
 {
+    struct extable_entry *extable;
+
     if (trap_v8086_mode(regs)) {
         if (vector < TRAP_UD) {
             return true;
@@ -49,6 +51,11 @@ static bool kernel_trap(struct regs *regs, unsigned long error_code,
     } else if (trap_user_mode(regs)) {
         return true;
     } else { /* kernel mode */
+        if ((extable = extable_find(regs->ip))) {
+            extable_fixup(regs, extable);
+            return true;
+        }
+
         oops(regs, error_code, type);
     }
 

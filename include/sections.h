@@ -29,8 +29,8 @@ extern void *_ld_reserve_end[];
 
 extern void *_ld_data_bug_table_start[];
 extern void *_ld_data_bug_table_end[];
-extern void *_ld_extable_start[];
-extern void *_ld_extable_end[];
+extern void *_ld_data_extable_start[];
+extern void *_ld_data_extable_end[];
 
 #ifdef CONFIG_BUILTIN_DTB
 extern void *_ld_init_dtb_start[];

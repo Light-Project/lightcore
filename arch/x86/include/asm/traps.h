@@ -4,6 +4,7 @@
 
 #include <asm/regs.h>
 #include <asm/segment.h>
+#include <extable.h>
 
 static inline bool trap_v8086_mode(struct regs *regs)
 {
@@ -22,5 +23,7 @@ static inline bool trap_user_mode(struct regs *regs)
     return ((regs->cs & 0x03) | (regs->flags & EFLAGS_VM)) >= USER_RPL;
 #endif
 }
+
+extern void extable_fixup(struct regs *regs, struct extable_entry *extable);
 
 #endif /* _ASM_X86_TRAPS_H_ */
