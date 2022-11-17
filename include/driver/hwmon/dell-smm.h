@@ -16,10 +16,6 @@ enum dell_smm_types {
     DELL_SMM_SIG2_GET           = 0xffa3,
 };
 
-#define DELL_FAN_MULT           30
-#define DELL_FAN_MAX_RPM        30000
-#define DELL_TEMP_MAX           127
-
 #define DELL_FN_NONE            0x00
 #define DELL_FN_UP              0x01
 #define DELL_FN_DOWN            0x02
@@ -27,18 +23,19 @@ enum dell_smm_types {
 #define DELL_FN_MASK            0x07
 #define DELL_FN_SHIFT           8
 
+#define DELL_FAN_MULT           30
+#define DELL_FAN_MAX_RPM        30000
+#define DELL_TEMP_MAX           127
+
 #define DELL_POWER_AC           0x05
 #define DELL_POWER_BATTERY      0x01
 
-#define DELL_SMM_NO_TEMP        10
-#define DELL_SMM_NO_FANS        3
-
 #define DELL_FAN_LEFT           1
 #define DELL_FAN_RIGHT          0
+
 #define DELL_FAN_OFF            0
 #define DELL_FAN_LOW            1
 #define DELL_FAN_HIGH           2
 #define DELL_FAN_TURBO          3
-#define DELL_FAN_MAX            DELL_FAN_TURBO
 
 #endif  /* _DRIVER_HWMON_AMD_K10_H_ */
