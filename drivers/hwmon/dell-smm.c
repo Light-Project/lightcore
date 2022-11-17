@@ -6,40 +6,78 @@
 #define DRIVER_NAME "dell-smm"
 
 #include <initcall.h>
+#include <delay.h>
+#include <asm/smi.h>
 #include <driver/firmware/dmi.h>
 #include <driver/platform.h>
 #include <driver/pci.h>
 #include <driver/hwmon.h>
 #include <driver/hwmon/dell-smm.h>
 
+struct dell_smm_spec {
+    unsigned int fan_mult;
+    unsigned int fan_max;
+    unsigned int pwm_mult;
+};
+
 struct dell_smm_device {
     struct hwmon_device hwmon;
+    struct mutex lock;
+
     const struct dell_smm_spec *spec;
+    bool forbid_fan_support;
+    bool forbid_fan_type;
+
+    uint32_t fan_auto_value;
+    uint32_t fan_manual_value;
 };
 
 #define hwmon_to_dell(hdev) \
     container_of(hdev, struct dell_smm_device, hwmon)
 
-struct dell_smm_spec {
-    unsigned int fan_mult;
-    unsigned int fan_max;
+enum dell_temp_type {
+    DELL_TEMP_CPU           = 0,
+    DELL_TEMP_GPU           = 1,
+    DELL_TEMP_SODIMM        = 2,
+    DELL_TEMP_OTHER1        = 3,
+    DELL_TEMP_AMBIENT       = 4,
+    DELL_TEMP_OTHER2        = 5,
+};
+
+enum dell_fan_type {
+    DELL_FAN_PROCESSOR      = 0,
+    DELL_FAN_MOTHERBOARD    = 1,
+    DELL_FAN_VIDEO          = 2,
+    DELL_FAN_POWER          = 3,
+    DELL_FAN_CHIPSET        = 4,
+    DELL_FAN_OTHER          = 5,
 };
 
 static const char *dell_temp_labels[] = {
-    "CPU", "GPU", "SODIMM", "Other",
-    "Ambient", "Other",
+    [DELL_TEMP_CPU]         = "CPU",
+    [DELL_TEMP_GPU]         = "GPU",
+    [DELL_TEMP_SODIMM]      = "SODIMM",
+    [DELL_TEMP_OTHER1]      = "Other1",
+    [DELL_TEMP_AMBIENT]     = "Ambient",
+    [DELL_TEMP_OTHER2]      = "Other2",
 };
 
 static const char *dell_fan_labels[] = {
-    "Processor Fan", "Motherboard Fan",
-    "Video Fan", "Power Supply Fan",
-    "Chipset Fan", "Other Fan",
+    [DELL_FAN_PROCESSOR]    = "Processor Fan",
+    [DELL_FAN_MOTHERBOARD]  = "Motherboard Fan",
+    [DELL_FAN_VIDEO]        = "Video Fan",
+    [DELL_FAN_POWER]        = "Power Supply Fan",
+    [DELL_FAN_CHIPSET]      = "Chipset Fan",
+    [DELL_FAN_OTHER]        = "Other Fan",
 };
 
 static const char *dell_docking_labels[] = {
-    "Docking Processor Fan", "Docking Motherboard Fan",
-    "Docking Video Fan", "Docking Power Supply Fan",
-    "Docking Chipset Fan", "Docking Other Fan",
+    [DELL_FAN_PROCESSOR]    = "Docking Processor Fan",
+    [DELL_FAN_MOTHERBOARD]  = "Docking Motherboard Fan",
+    [DELL_FAN_VIDEO]        = "Docking Video Fan",
+    [DELL_FAN_POWER]        = "Docking Power Supply Fan",
+    [DELL_FAN_CHIPSET]      = "Docking Chipset Fan",
+    [DELL_FAN_OTHER]        = "Docking Other Fan",
 };
 
 static const struct hwmon_channel_info dell_hwmon_info[] = {
@@ -74,156 +112,314 @@ static const struct hwmon_channel_info dell_hwmon_info[] = {
     { }, /* NULL */
 };
 
-struct dell_smm_regs {
-    uint32_t eax;
-    uint32_t ebx;
-    uint32_t ecx;
-    uint32_t edx;
-    uint32_t esi;
-    uint32_t edi;
-} __packed;
-
-static state dell_smm_trigger(struct dell_smm_regs *regs)
+static state dell_smm_trigger(struct smi_regs *regs)
 {
     uint32_t eax = regs->eax;
-    int retval;
 
-#ifdef CONFIG_ARCH_X86_64
-    asm volatile (
-        "pushq  %%rax               \n"
-        "movl   0(%%rax), %%edx     \n"
-        "pushq  %%rdx               \n"
-        "movl   4(%%rax), %%ebx     \n"
-        "movl   8(%%rax), %%ecx     \n"
-        "movl   12(%%rax), %%edx    \n"
-        "movl   16(%%rax), %%esi    \n"
-        "movl   20(%%rax), %%edi    \n"
-        "popq   %%rax               \n"
-        "out    %%al, $0xb2         \n"
-        "out    %%al, $0x84         \n"
-        "xchgq  %%rax, (%%rsp)      \n"
-        "movl   %%ebx, 4(%%rax)     \n"
-        "movl   %%ecx, 8(%%rax)     \n"
-        "movl   %%edx, 12(%%rax)    \n"
-        "movl   %%esi, 16(%%rax)    \n"
-        "movl   %%edi, 20(%%rax)    \n"
-        "popq   %%rdx               \n"
-        "movl   %%edx, 0(%%rax)     \n"
-        "pushfq                     \n"
-        "popq   %%rax               \n"
-        "andl   $1, %%eax           \n"
-        : "=a"(retval)
-        : "a"(regs)
-        : "%ebx", "%ecx", "%edx", "%esi", "%edi", "memory"
-    );
-#else
-    asm volatile(
-        "pushl  %%eax               \n"
-        "movl   0(%%eax), %%edx     \n"
-        "push   %%edx               \n"
-        "movl   4(%%eax), %%ebx     \n"
-        "movl   8(%%eax), %%ecx     \n"
-        "movl   12(%%eax), %%edx    \n"
-        "movl   16(%%eax), %%esi    \n"
-        "movl   20(%%eax), %%edi    \n"
-        "popl   %%eax               \n"
-        "out    %%al, $0xb2         \n"
-        "out    %%al, $0x84         \n"
-        "xchgl  %%eax, (%%esp)      \n"
-        "movl   %%ebx, 4(%%eax)     \n"
-        "movl   %%ecx, 8(%%eax)     \n"
-        "movl   %%edx, 12(%%eax)    \n"
-        "movl   %%esi, 16(%%eax)    \n"
-        "movl   %%edi, 20(%%eax)    \n"
-        "popl   %%edx               \n"
-        "movl   %%edx, 0(%%eax)     \n"
-        "lahf                       \n"
-        "shrl   $8, %%eax           \n"
-        "andl   $1, %%eax           \n"
-        : "=a"(retval)
-        : "a"(regs)
-        : "%ebx", "%ecx", "%edx", "%esi", "%edi", "memory"
-    );
-#endif
+    smi_trigger(regs);
+    if (regs->eax == eax)
+        return -EINVAL;
 
-    if (!retval || regs->eax == eax || (regs->eax & 0xffff) == 0xffff)
-        retval = -EINVAL;
+    if ((regs->eax & 0xffff) == 0xffff)
+        return -ENODEV;
+
+    return -ENOERR;
+}
+
+static int dell_fan_auto_mode(struct dell_smm_device *dell, uint8_t sensor, bool enable)
+{
+    struct smi_regs regs = {};
+
+    if (dell->forbid_fan_support)
+        return -EINVAL;
+
+    if (enable)
+        regs.eax = dell->fan_auto_value;
+    else
+        regs.eax = dell->fan_manual_value;
+
+    return dell_smm_trigger(&regs);
+}
+
+static int dell_fan_status_get(struct dell_smm_device *dell, uint8_t sensor)
+{
+    struct smi_regs regs = {
+        .eax = DELL_SMM_FAN_STATUS_GET,
+        .ebx = sensor,
+    };
+
+    if (dell->forbid_fan_support)
+        return -EINVAL;
+
+    return dell_smm_trigger(&regs) ?: (regs.eax & 0xff);
+}
+
+static int dell_fan_status_set(struct dell_smm_device *dell, uint8_t sensor, int speed)
+{
+    const struct dell_smm_spec *spec = dell->spec;
+    struct smi_regs regs = {
+        .eax = DELL_SMM_FAN_STATUS_SET,
+        .ebx = sensor,
+    };
+
+    if (dell->forbid_fan_support)
+        return -EINVAL;
+
+    clamp_adj(speed, 0, spec->fan_max);
+    regs.ebx |= speed << 8;
+
+    return dell_smm_trigger(&regs) ?: regs.eax & 0xff;
+}
+
+static int dell_fan_speed(struct dell_smm_device *dell, uint8_t sensor)
+{
+    const struct dell_smm_spec *spec = dell->spec;
+    struct smi_regs regs = {
+        .eax = DELL_SMM_FAN_SPEED,
+        .ebx = sensor,
+    };
+
+    if (dell->forbid_fan_support)
+        return -EINVAL;
+
+    return dell_smm_trigger(&regs) ?: (regs.eax & 0xffff) * spec->fan_mult;
+}
+
+static int dell_fan_type(struct dell_smm_device *dell, uint8_t sensor)
+{
+    struct smi_regs regs = {
+        .eax = DELL_SMM_FAN_TYPE,
+        .ebx = sensor,
+    };
+
+    if (dell->forbid_fan_support || dell->forbid_fan_type)
+        return -EINVAL;
+
+    return dell_smm_trigger(&regs) ?: regs.eax & 0xff;
+}
+
+static int dell_nominal_speed(struct dell_smm_device *dell, uint8_t sensor, int speed)
+{
+    struct smi_regs regs = {
+        .eax = DELL_SMM_NOM_SPEED,
+        .ebx = sensor | (speed << 8),
+    };
+
+    if (dell->forbid_fan_support)
+        return -EINVAL;
+
+    return dell_smm_trigger(&regs) ?: regs.eax & 0xffff;
+}
+
+static int dell_temp_raw(struct dell_smm_device *dell, uint8_t sensor)
+{
+    struct smi_regs regs = {
+        .eax = DELL_SMM_TEMP_GET,
+        .ebx = sensor,
+    };
+
+    return dell_smm_trigger(&regs) ?: regs.eax & 0xff;
+}
+
+static int dell_temp_get(struct dell_smm_device *dell, uint8_t sensor)
+{
+    int temp;
+
+    temp = dell_temp_raw(dell, sensor);
+    if (temp == 0x99) {
+        msleep(100);
+        temp = dell_temp_raw(dell, sensor);
+    }
+
+    if (temp > DELL_TEMP_MAX)
+        return -ENODATA;
+
+    return temp;
+}
+
+static int dell_temp_type(struct dell_smm_device *dell, uint8_t sensor)
+{
+    struct smi_regs regs = {
+        .eax = DELL_SMM_TEMP_TYPE,
+        .ebx = sensor,
+    };
+
+    return dell_smm_trigger(&regs) ?: regs.eax & 0xff;
+}
+
+static state dell_smm_string(struct hwmon_device *hdev, enum hwmon_sensor sensor,
+                             unsigned int index, uint32_t att, const char **str)
+{
+    struct dell_smm_device *dell = hwmon_to_dell(hdev);
+    bool docking = false;
+    state retval;
+
+    switch (sensor) {
+        case HWMON_SENSOR_THERMAL:
+            switch (att) {
+                case HWMON_THERMAL_LABEL:
+                    retval = dell_temp_type(dell, index);
+                    if (retval < 0)
+                        break;
+
+                    min_adj(retval, ARRAY_SIZE(dell_temp_labels) - 1);
+                    *str = dell_temp_labels[retval];
+                    retval = -ENOERR;
+                    break;
+
+                default:
+                    return -EOPNOTSUPP;
+            }
+            break;
+
+        case HWMON_SENSOR_FAN:
+            switch (att) {
+                case HWMON_FAN_LABEL:
+                    retval = dell_fan_type(dell, index);
+                    if (retval < 0)
+                        break;
+
+                    if (retval & 0x10) {
+                        docking = true;
+                        retval &= 0x0f;
+                    }
+
+                    min_adj(retval, ARRAY_SIZE(dell_temp_labels) - 1);
+                    *str = (docking ? dell_docking_labels : dell_temp_labels)[retval];
+                    retval = -ENOERR;
+                    break;
+
+                default:
+                    return -EOPNOTSUPP;
+            }
+            break;
+
+        default:
+            return -EOPNOTSUPP;
+    }
 
     return retval;
 }
 
-static int dell_temp_get(int sensor)
-{
-    struct dell_smm_regs regs = {
-        .eax = DELL_SMM_GET_TEMP_TYPE,
-        .ebx = sensor & 0xff,
-    };
-
-    return dell_smm_trigger(&regs) ? 0 : regs.eax & 0xff;
-}
-
-static int dell_fan_speed_get(int sensor)
-{
-    struct dell_smm_regs regs = {
-        .eax = DELL_SMM_GET_SPEED,
-        .ebx = sensor & 0xff,
-    };
-
-    return dell_smm_trigger(&regs) ? 0 : (regs.eax & 0xffff) * DELL_FAN_MULT;
-}
-
-static int dell_fan_speed_get(int sensor, int speed)
-{
-    struct dell_smm_regs regs = {
-        .eax = DELL_SMM_GET_SPEED,
-        .ebx = sensor & 0xff,
-    };
-
-    regs.ebx = ;
-    return dell_smm_trigger(&regs) ? 0 : (regs.eax & 0xffff) * DELL_FAN_MULT;
-}
-
-static int dell_fan_auto_mode(int sensor, bool enable)
-{
-	struct smm_regs regs = { };
-
-	if (data->disallow_fan_support)
-		return -EINVAL;
-
-	regs.eax = enable ? data->auto_fan : data->manual_fan;
-	return i8k_smm(&regs);
-}
-
-static state dell_smm_string(struct hwmon_device *hdev, enum hwmon_sensor sensor,
-                             unsigned int channel, uint32_t att, const char **str)
-{
-
-    return -ENOERR;
-}
-
 static state dell_smm_read(struct hwmon_device *hdev, enum hwmon_sensor sensor,
-                           unsigned int channel, uint32_t att, ssize_t *val)
+                           unsigned int index, uint32_t att, ssize_t *val)
 {
-    return -ENOERR;
-}
+    struct dell_smm_device *dell = hwmon_to_dell(hdev);
+    state retval;
 
-static state dell_smm_write(struct hwmon_device *hdev, enum hwmon_sensor sensor,
-                            unsigned int channel, uint32_t att, ssize_t val)
-{
+    switch (sensor) {
+        case HWMON_SENSOR_THERMAL:
+            switch (att) {
+                case HWMON_THERMAL_DATA:
+                    retval = dell_temp_get(dell, index);
+                    if (retval < 0)
+                        break;
 
-    if (sensor != HWMON_SENSOR_PWM)
-        return -EOPNOTSUPP;
+                    *val = retval * 1000;
+                    retval = -ENOERR;
+                    break;
 
-    switch (att) {
-        case HWMON_PWM_ENABLE:
-
+                default:
+                    return -EOPNOTSUPP;
+            }
             break;
-        case HWMON_PWM_DATA:
 
+        case HWMON_SENSOR_FAN:
+            switch (att) {
+                case HWMON_FAN_DATA:
+                    retval = dell_fan_speed(dell, index);
+                    if (retval < 0)
+                        break;
+                    *val = retval;
+                    retval = -ENOERR;
+                    break;
+
+                case HWMON_FAN_MIN:
+                    break;
+
+                case HWMON_FAN_MAX:
+                    break;
+
+                case HWMON_FAN_TARGET:
+                    retval = dell_fan_status_get(dell, index);
+                    if (retval < 0)
+                        break;
+
+                    break;
+
+                default:
+                    return -EOPNOTSUPP;
+            }
             break;
+
+        case HWMON_SENSOR_PWM:
+            switch (att) {
+                case HWMON_PWM_ENABLE:
+                    break;
+
+                case HWMON_PWM_DATA:
+                    break;
+
+                default:
+                    return -EOPNOTSUPP;
+            }
+            break;
+
         default:
             return -EOPNOTSUPP;
     }
+
+    return retval;
+}
+
+static state dell_smm_write(struct hwmon_device *hdev, enum hwmon_sensor sensor,
+                            unsigned int index, uint32_t att, ssize_t val)
+{
+    struct dell_smm_device *dell = hwmon_to_dell(hdev);
+    state retval;
+
+    switch (sensor) {
+        case HWMON_SENSOR_PWM:
+            switch (att) {
+                case HWMON_PWM_ENABLE:
+                    mutex_lock(&dell->lock);
+                    retval = dell_fan_status_set(dell, index, val);
+                    if (retval < 0)
+                        break;
+                    retval = -ENOERR;
+                    mutex_unlock(&dell->lock);
+                    break;
+
+                case HWMON_PWM_DATA:
+                    mutex_lock(&dell->lock);
+                    mutex_unlock(&dell->lock);
+                    break;
+
+                default:
+                    return -EOPNOTSUPP;
+            }
+            break;
+
+        default:
+            return -EOPNOTSUPP;
+    }
+
+    return retval;
+}
+
+static state dell_check_signature(uint32_t request)
+{
+    state retval;
+    struct smi_regs regs = {
+        .eax = request,
+    };
+
+    retval = dell_smm_trigger(&regs);
+    if (retval)
+        return retval;
+
+    if (regs.eax != 0x44494147 || regs.edx != 0x44454c4c)
+        return -ENODEV;
 
     return -ENOERR;
 }
@@ -278,7 +474,7 @@ static const struct dmi_device_id dell_smm_ids[] = {
             DMI_MATCH(DMI_REG_SYS_VENDOR, "Dell Inc."),
             DMI_MATCH(DMI_REG_PRODUCT_NAME, "Latitude D520"),
         },
-        .data = &dell_latitude_d520;
+        .data = &dell_latitude_d520,
     },
     {   .name = "Dell Latitude 2",
         .matches = {
@@ -304,7 +500,7 @@ static const struct dmi_device_id dell_smm_ids[] = {
             DMI_MATCH(DMI_REG_PRODUCT_NAME,
                   "Precision WorkStation 490"),
         },
-        .data = &dell_precision_490;
+        .data = &dell_precision_490,
     },
     {   .name = "Dell Precision",
         .matches = {
@@ -323,14 +519,14 @@ static const struct dmi_device_id dell_smm_ids[] = {
             DMI_MATCH(DMI_REG_SYS_VENDOR, "Dell Inc."),
             DMI_MATCH(DMI_REG_PRODUCT_NAME, "Studio"),
         },
-        .data = &dell_studio;
+        .data = &dell_studio,
     },
     {   .name = "Dell XPS M140",
         .matches = {
             DMI_MATCH(DMI_REG_SYS_VENDOR, "Dell Inc."),
             DMI_MATCH(DMI_REG_PRODUCT_NAME, "MXC051"),
         },
-        .data = &dell_xps;
+        .data = &dell_xps,
     },
     {   .name = "Dell XPS",
         .matches = {
@@ -345,14 +541,16 @@ static state dell_smm_probe(struct platform_device *pdev, const void *pdata)
 {
     struct dell_smm_device *ddev;
 
-    ddev = dev_kmalloc(&pdev->dev, sizeof(*ddev), GFP_KERNEL);
+    ddev = platform_kzalloc(pdev, sizeof(*ddev), GFP_KERNEL);
     if (!ddev)
         return -ENOMEM;
-    pci_set_devdata(pdev, ddev);
 
     ddev->hwmon.dev = &pdev->dev;
     ddev->hwmon.ops = &dell_smm_ops;
     ddev->hwmon.info = dell_hwmon_info;
+    pci_set_devdata(pdev, ddev);
+
+
 
     return hwmon_register(&ddev->hwmon);
 }
@@ -366,11 +564,19 @@ static struct platform_driver dell_smm_driver = {
 
 static state dell_smm_init(void)
 {
+    state retval;
     void *data;
 
     if (!(data = dmi_system_check(dell_smm_ids)))
         return -ENODEV;
 
-    return -ENOERR;
+    if ((retval = dell_check_signature(DELL_SMM_SIG1_GET)) &&
+        (retval = dell_check_signature(DELL_SMM_SIG2_GET)))
+        return retval;
+
+    if (retval)
+        return retval;
+
+    return platform_unified_register(&dell_smm_driver, NULL, 0);
 }
 driver_initcall(dell_smm_init);
