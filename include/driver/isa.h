@@ -66,4 +66,15 @@ extern state isa_driver_register(struct isa_driver *idrv, unsigned int num, cons
 extern void isa_driver_unregister(struct isa_driver *idrv);
 #endif
 
+/* convenience logging macros */
+#define isa_emerg(idev, fmt, ...)  	dev_emerg(&(idev)->dev, fmt, ##__VA_ARGS__)
+#define isa_alert(idev, fmt, ...)  	dev_alert(&(idev)->dev, fmt, ##__VA_ARGS__)
+#define isa_crit(idev, fmt, ...)   	dev_crit(&(idev)->dev, fmt, ##__VA_ARGS__)
+#define isa_err(idev, fmt, ...)    	dev_err(&(idev)->dev, fmt, ##__VA_ARGS__)
+#define isa_warn(idev, fmt, ...)   	dev_warn(&(idev)->dev, fmt, ##__VA_ARGS__)
+#define isa_notice(idev, fmt, ...) 	dev_notice(&(idev)->dev, fmt, ##__VA_ARGS__)
+#define isa_info(idev, fmt, ...)   	dev_info(&(idev)->dev, fmt, ##__VA_ARGS__)
+#define isa_debug(idev, fmt, ...)  	dev_debug(&(idev)->dev, fmt, ##__VA_ARGS__)
+BUS_DEVRES_GENERIC(isa, struct isa_device, dev)
+
 #endif  /* _DRIVER_ISA_H_ */
