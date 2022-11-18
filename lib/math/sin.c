@@ -48,7 +48,7 @@ static const int32_t sin32_table[] = {
 };
 
 #define GENERIC_SIN_OPS(name, type, table)      \
-type sin##name(type angle)                      \
+type sin##name(int angle)                       \
 {                                               \
     angle = angle % 360;                        \
     if (angle < 0)                              \
@@ -57,12 +57,12 @@ type sin##name(type angle)                      \
     if (angle < 90)                             \
         return table[angle];                    \
                                                 \
-    if (angle >= 90 && angle < 180) {           \
+    if (angle < 180) {                          \
         angle = 180 - angle;                    \
         return table[angle];                    \
     }                                           \
                                                 \
-    if (angle >= 180 && angle < 270) {          \
+    if (angle < 270) {                          \
         angle = angle - 180;                    \
         return -table[angle];                   \
     }                                           \
@@ -71,13 +71,7 @@ type sin##name(type angle)                      \
     angle = 360 - angle;                        \
     return -table[angle];                       \
 }                                               \
-EXPORT_SYMBOL(sin##name);                       \
-                                                \
-type cos##name(type angle)                      \
-{                                               \
-    return sin##name(angle + 90);               \
-}                                               \
-EXPORT_SYMBOL(cos##name)
+EXPORT_SYMBOL(sin##name)
 
 GENERIC_SIN_OPS(s16, int16_t, sin16_table);
 GENERIC_SIN_OPS(s32, int32_t, sin32_table);
