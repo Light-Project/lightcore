@@ -159,20 +159,6 @@ dor_mask(struct fdc_device *fdc, uint8_t off, uint8_t on)
     return fdc->dor;
 }
 
-static inline state fdc_wait_ready(struct fdc_device *fdc)
-{
-    unsigned int timeout = 10000;
-    uint8_t val;
-
-    while (--timeout) {
-        val = fdc_in(fdc, FLOPPY_MSR);
-        if (val & FLOPPY_MSR_RQM)
-            break;
-    }
-
-    return timeout ? val : -EBUSY;
-}
-
 static void fdc_reset(struct fdc_device *fdc)
 {
     if (fdc->version >= FDC_82072A) {
