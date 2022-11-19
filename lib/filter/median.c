@@ -103,4 +103,3 @@ void median_free(struct median_state *state)
     kfree(state);
 }
 EXPORT_SYMBOL(median_free);
-
