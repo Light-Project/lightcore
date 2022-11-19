@@ -3,7 +3,6 @@
 #define _TASK_H_
 
 #include <sched.h>
-#include <bits.h>
 #include <asm/page.h>
 
 extern unsigned long init_stack[THREAD_SIZE / BYTES_PER_LONG];

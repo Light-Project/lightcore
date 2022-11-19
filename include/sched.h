@@ -11,7 +11,9 @@
 #include <percpu.h>
 #include <preempt.h>
 #include <fstype.h>
+#include <refcount.h>
 #include <bitflags.h>
+#include <wakequeue.h>
 #include <static-call.h>
 #include <kcontext.h>
 #include <lightcore/sched.h>
@@ -113,12 +115,14 @@ struct sched_task {
 
     struct list_head ptraced;
     struct list_head ptrace_sibling;
+    struct wake_queue wakeq;
 
     /* context informations */
     struct kcontext kcontext;
     struct proc_context proc;
     struct memory *active_mem;
     struct memory *mem;
+    refcount_t refcount;
     void *stack;
 
     /* scheduler informations */
@@ -349,6 +353,22 @@ DECLARE_STATIC_CALL(sched_preempt, sched_preempt_handle);
 #define sched_might_resched()   static_call_cond(sched_might_resched)()
 #define sched_preempt()         static_call_cond(sched_preempt)()
 
+/* scheduler front end */
+extern state sched_task_clone(struct sched_task *task, enum clone_flags flags);
+extern struct sched_task *sched_task_create(void);
+extern void sched_task_destroy(struct sched_task *task);
+
+static inline void sched_task_get(struct sched_task *task)
+{
+    refcount_inc(&task->refcount);
+}
+
+static inline void sched_task_put(struct sched_task *task)
+{
+    if (refcount_dec_test(&task->refcount))
+        sched_task_destroy(task);
+}
+
 /* idle task */
 extern void __noreturn idle_task_entry(void);
 
@@ -362,11 +382,6 @@ extern void sched_yield(void);
 /* scheduler wakeup */
 extern void sched_wake_up(struct sched_task *task);
 extern void sched_wake_up_new(struct sched_task *task);
-
-/* scheduler front end */
-extern state sched_task_clone(struct sched_task *task, enum clone_flags flags);
-extern struct sched_task *sched_task_create(void);
-extern void sched_task_destroy(struct sched_task *task);
 
 /* scheduler block timeout */
 extern ttime_t sched_timeout(ttime_t timeout);
