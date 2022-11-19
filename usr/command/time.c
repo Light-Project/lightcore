@@ -9,7 +9,7 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: time [option] {commands}\n");
+    kshell_printf(ctx, "usage: time [option] commands ...\n");
     kshell_printf(ctx, "\t-h  display this message\n");
 }
 
@@ -31,7 +31,7 @@ static state time_main(struct kshell_context *ctx, int argc, char *argv[])
         }
     }
 
-    if (argc < count + 1)
+    if (argc == count)
         goto usage;
 
     start = timekeeping_get_time();

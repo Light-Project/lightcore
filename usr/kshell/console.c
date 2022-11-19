@@ -11,13 +11,16 @@
 
 unsigned int kshell_read(struct kshell_context *ctx, char *str, unsigned int len)
 {
-    return ctx->read(str, len, ctx->data);
+    if (ctx->read)
+        return ctx->read(str, len, ctx->data);
+    return UINT_MAX;
 }
 EXPORT_SYMBOL(kshell_read);
 
 void kshell_write(struct kshell_context *ctx, const char *str, unsigned int len)
 {
-    ctx->write(str, len, ctx->data);
+    if (ctx->write)
+        ctx->write(str, len, ctx->data);
 }
 EXPORT_SYMBOL(kshell_write);
 

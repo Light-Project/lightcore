@@ -27,6 +27,7 @@ obj-$(CONFIG_KCMD_REPEAT)   += repeat.o
 obj-$(CONFIG_KCMD_RETURN)   += return.o
 obj-$(CONFIG_KCMD_SELECT)   += select.o
 obj-$(CONFIG_KCMD_SEQ)      += seq.o
+obj-$(CONFIG_KCMD_SILENT)   += silent.o
 obj-$(CONFIG_KCMD_SLEEP)    += sleep.o
 obj-$(CONFIG_KCMD_SWITCH)   += switch.o
 obj-$(CONFIG_KCMD_TAIL)     += tail.o
