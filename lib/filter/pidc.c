@@ -5,6 +5,7 @@
 
 #include <filter/pidc.h>
 #include <minmax.h>
+#include <math.h>
 #include <export.h>
 
 int32_t pidc_update(struct pidc_context *pctx, int32_t expect, int32_t value)
@@ -12,9 +13,9 @@ int32_t pidc_update(struct pidc_context *pctx, int32_t expect, int32_t value)
     int64_t pout, iout, dout;
     int32_t retval;
 
-    pout = ((int64_t)pctx->kp * (expect - value)) / INT16_MAX;
-    iout = ((int64_t)pctx->ki * (expect - value)) / INT16_MAX;
-    dout = ((int64_t)pctx->kd * (value - pctx->lastval)) / INT16_MAX;
+    pout = DIV_ROUND_CLOSEST((int64_t)pctx->kp * (expect - value), INT16_MAX);
+    iout = DIV_ROUND_CLOSEST((int64_t)pctx->ki * (expect - value), INT16_MAX);
+    dout = DIV_ROUND_CLOSEST((int64_t)pctx->kd * (pctx->lastval - value), INT16_MAX);
     pctx->lastval = value;
 
     pctx->iterm += iout;
