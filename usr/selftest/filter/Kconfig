@@ -16,4 +16,8 @@ config SELFTEST_FILTER_MEDIAN
     bool "Median Unit Tests"
     default y
 
+config SELFTEST_FILTER_PIDC
+    bool "Pidc Unit Tests"
+    default y
+
 endif # SELFTEST_FILTER
