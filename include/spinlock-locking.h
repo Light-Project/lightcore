@@ -76,6 +76,16 @@ static inline bool _raw_spin_trylock_bh(raw_spinlock_t *lock)
     return false;
 }
 
+static inline bool _raw_spin_locked(raw_spinlock_t *lock)
+{
+    return __raw_spin_locked(lock);
+}
+
+static inline bool _raw_spin_contended(raw_spinlock_t *lock)
+{
+    return __raw_spin_contended(lock);
+}
+
 static inline void _raw_read_lock(raw_rwlock_t *lock)
 {
     preempt_disable();

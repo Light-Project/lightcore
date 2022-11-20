@@ -24,6 +24,16 @@ static inline bool __raw_spin_trylock(raw_spinlock_t *lock)
     return arch_spin_trylock(&lock->alock);
 }
 
+static inline bool __raw_spin_locked(raw_spinlock_t *lock)
+{
+    return arch_spin_locked(&lock->alock);
+}
+
+static inline bool __raw_spin_contended(raw_spinlock_t *lock)
+{
+    return arch_spin_contended(&lock->alock);
+}
+
 static inline void __raw_read_lock(raw_rwlock_t *lock)
 {
     arch_read_lock(&lock->alock);
