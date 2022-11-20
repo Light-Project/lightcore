@@ -8,7 +8,7 @@
 #include <math.h>
 #include <export.h>
 
-int32_t pidc_update(struct pidc_context *pctx, int32_t expect, int32_t value)
+int32_t pidc_update(struct pidc_state *pctx, int32_t expect, int32_t value)
 {
     int64_t pout, iout, dout;
     int32_t retval;
@@ -28,14 +28,14 @@ int32_t pidc_update(struct pidc_context *pctx, int32_t expect, int32_t value)
 }
 EXPORT_SYMBOL(pidc_update);
 
-void pidc_reset(struct pidc_context *pctx)
+void pidc_reset(struct pidc_state *pctx)
 {
     pctx->iterm = 0;
     pctx->lastval = 0;
 }
 EXPORT_SYMBOL(pidc_reset);
 
-void pidc_init(struct pidc_context *pctx, int32_t kp, int32_t ki,
+void pidc_init(struct pidc_state *pctx, int32_t kp, int32_t ki,
                int32_t kd, int32_t min, int32_t max)
 {
     pctx->kp = kp;

@@ -7,15 +7,15 @@
 #include <mm/gfp.h>
 
 struct mean_state {
-    int count;
-    int mask;
-    int gross;
-    int buffer[0];
+    unsigned int count;
+    unsigned int mask;
+    int64_t gross;
+    int32_t buffer[0];
 };
 
-extern int mean_update(struct mean_state *state, int value);
+extern int32_t mean_update(struct mean_state *state, int32_t value);
 extern void mean_clear(struct mean_state *state);
-extern struct mean_state *mean_alloc(int length, gfp_t flags);
+extern struct mean_state *mean_alloc(unsigned int length, gfp_t flags);
 extern void mean_free(struct mean_state *state);
 
 #endif  /* _FILTER_MEAN_H_ */

@@ -14,10 +14,10 @@ static state mean_testing(struct kshell_context *ctx, void *pdata)
 {
     struct mean_state *test = pdata;
     unsigned int count;
-    short rawdata, filtered;
+    int32_t rawdata, filtered;
 
     for (count = 0; count < TEST_LOOP; ++count) {
-        rawdata = (short)prandom_value();
+        rawdata = (int32_t)prandom_value();
         filtered = mean_update(test, rawdata);
         kshell_printf(ctx, "mean filter test%02d: %6d -> %6d\n",
                       count, rawdata, filtered);

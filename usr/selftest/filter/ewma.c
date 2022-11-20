@@ -13,11 +13,11 @@
 static state ewma_testing(struct kshell_context *ctx, void *pdata)
 {
     unsigned int count;
-    short rawdata, filtered;
+    int32_t rawdata, filtered;
 
-    EWMA_STATE(test, SHRT_MAX * 20 / 100);
+    EWMA_STATE(test, INT32_MAX * 0.5);
     for (count = 0; count < TEST_LOOP; ++count) {
-        rawdata = (short)prandom_value();
+        rawdata = (int32_t)prandom_value();
         filtered = ewma_update(&test, rawdata);
         kshell_printf(ctx, "ewma filter test%02d: %6d -> %6d\n",
                       count, rawdata, filtered);

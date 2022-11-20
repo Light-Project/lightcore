@@ -7,12 +7,12 @@
 #include <filter/ewma.h>
 #include <export.h>
 
-short ewma_update(struct ewma_state *state, short value)
+int32_t ewma_update(struct ewma_state *state, int32_t value)
 {
-    if (state->ready)
-        state->last = (int)value * state->weight / SHRT_MAX +
-            (int)state->last * (SHRT_MAX - state->weight) / SHRT_MAX;
-    else {
+    if (state->ready) {
+        state->last = (int64_t)value * state->weight / INT32_MAX +
+            (int64_t)state->last * (INT32_MAX - state->weight) / INT32_MAX;
+    } else {
         state->last = value;
         state->ready = true;
     }
@@ -28,7 +28,7 @@ void ewma_clear(struct ewma_state *state)
 }
 EXPORT_SYMBOL(ewma_clear);
 
-void ewma_init(struct ewma_state *state, short weight)
+void ewma_init(struct ewma_state *state, int32_t weight)
 {
     state->weight = weight;
     ewma_clear(state);
