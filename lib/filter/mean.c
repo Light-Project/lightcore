@@ -10,10 +10,10 @@
 #include <filter/mean.h>
 #include <export.h>
 
-int mean_update(struct mean_state *state, int value)
+int32_t mean_update(struct mean_state *state, int32_t value)
 {
-    int index = state->count & state->mask;
-    int length = state->mask + 1;
+    unsigned int index = state->count & state->mask;
+    unsigned int length = state->mask + 1;
 
     state->gross -= state->buffer[index];
     state->gross += value;
@@ -31,7 +31,7 @@ void mean_clear(struct mean_state *state)
 }
 EXPORT_SYMBOL(mean_clear);
 
-struct mean_state *mean_alloc(int length, gfp_t flags)
+struct mean_state *mean_alloc(unsigned int length, gfp_t flags)
 {
     struct mean_state *state;
 
