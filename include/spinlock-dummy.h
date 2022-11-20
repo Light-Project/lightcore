@@ -62,8 +62,10 @@ do {                                                \
 #define _raw_spin_unlock_irq(lock)                  _raw_generic_unlock_irq(lock)
 #define _raw_spin_lock_irqsave(lock, flags)         _raw_generic_lock_irqsave(lock, flags)
 #define _raw_spin_unlock_irqrestore(lock, flags)    _raw_generic_unlock_irqrestore(lock, flags)
-#define _raw_spin_trylock(lock)                     ({_raw_generic_lock(lock); true;})
-#define _raw_spin_trylock_bh(lock)                  ({_raw_generic_lock_bh(lock); true;})
+#define _raw_spin_trylock(lock)                     ({ _raw_generic_lock(lock); true; })
+#define _raw_spin_trylock_bh(lock)                  ({ _raw_generic_lock_bh(lock); true; })
+#define _raw_spin_locked(lock)                      ({ (void)(lock); false; })
+#define _raw_spin_contended(lock)                   ({ (void)(lock); false; })
 
 #define _raw_read_lock(lock)                        _raw_generic_lock(lock)
 #define _raw_read_unlock(lock)                      _raw_generic_unlock(lock)
@@ -73,8 +75,8 @@ do {                                                \
 #define _raw_read_unlock_irq(lock)                  _raw_generic_unlock_irq(lock)
 #define _raw_read_lock_irqsave(lock, flags)         _raw_generic_lock_irqsave(lock, flags)
 #define _raw_read_unlock_irqrestore(lock, flags)    _raw_generic_unlock_irqrestore(lock, flags)
-#define _raw_read_trylock(lock)                     ({_raw_generic_lock(lock); true;})
-#define _raw_read_trylock_bh(lock)                  ({_raw_generic_lock_bh(lock); true;})
+#define _raw_read_trylock(lock)                     ({ _raw_generic_lock(lock); true; })
+#define _raw_read_trylock_bh(lock)                  ({ _raw_generic_lock_bh(lock); true; })
 
 #define _raw_write_lock(lock)                       _raw_generic_lock(lock)
 #define _raw_write_unlock(lock)                     _raw_generic_unlock(lock)
@@ -84,7 +86,7 @@ do {                                                \
 #define _raw_write_unlock_irq(lock)                 _raw_generic_unlock_irq(lock)
 #define _raw_write_lock_irqsave(lock, flags)        _raw_generic_lock_irqsave(lock, flags)
 #define _raw_write_unlock_irqrestore(lock, flags)   _raw_generic_unlock_irqrestore(lock, flags)
-#define _raw_write_trylock(lock)                    ({_raw_generic_lock(lock); true;})
-#define _raw_write_trylock_bh(lock)                 ({_raw_generic_lock_bh(lock); true;})
+#define _raw_write_trylock(lock)                    ({ _raw_generic_lock(lock); true; })
+#define _raw_write_trylock_bh(lock)                 ({ _raw_generic_lock_bh(lock); true; })
 
 #endif  /* _SPINLOCK_DUMMY_H_ */

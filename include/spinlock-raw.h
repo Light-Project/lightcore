@@ -12,36 +12,37 @@
 
 #ifdef CONFIG_INLINE_SPINLOCK
 
-# define raw_spin_lock(lock)                        _raw_spin_lock(&lock->alock)
-# define raw_spin_unlock(lock)                      _raw_spin_unlock(&lock->alock)
-# define raw_spin_lock_bh(lock)                     _raw_spin_lock_bh(&lock->alock)
-# define raw_spin_unlock_bh(lock)                   _raw_spin_unlock_bh(&lock->alock)
-# define raw_spin_lock_irq(lock)                    _raw_spin_lock_irq(&lock->alock)
-# define raw_spin_unlock_irq(lock)                  _raw_spin_unlock_irq(&lock->alock)
-# define raw_spin_lock_irqsave(lock, flags)         _raw_spin_lock_irqsave(&lock->alock, flags)
-# define raw_spin_unlock_irqrestore(lock, flags)    _raw_spin_unlock_irqrestore(&lock->alock, flags)
-# define raw_spin_trylock(lock)                     _raw_spin_trylock(&lock->alock)
-# define raw_spin_trylock_bh(lock)                  _raw_spin_trylock_bh(&lock->alock)
+# define raw_spin_lock(lock)                        _raw_spin_lock(lock)
+# define raw_spin_unlock(lock)                      _raw_spin_unlock(lock)
+# define raw_spin_lock_bh(lock)                     _raw_spin_lock_bh(lock)
+# define raw_spin_unlock_bh(lock)                   _raw_spin_unlock_bh(lock)
+# define raw_spin_lock_irq(lock)                    _raw_spin_lock_irq(lock)
+# define raw_spin_unlock_irq(lock)                  _raw_spin_unlock_irq(lock)
+# define raw_spin_lock_irqsave(lock, flags)         _raw_spin_lock_irqsave(lock, flags)
+# define raw_spin_unlock_irqrestore(lock, flags)    _raw_spin_unlock_irqrestore(lock, flags)
+# define raw_spin_trylock(lock)                     _raw_spin_trylock(lock)
+# define raw_spin_trylock_bh(lock)                  _raw_spin_trylock_bh(lock)
+# define raw_spin_check_lock(lock)                  _raw_spin_check_lock(lock)
 
-# define raw_read_lock(lock)                        _raw_read_lock(&lock->alock)
-# define raw_read_unlock(lock)                      _raw_read_unlock(&lock->alock)
-# define raw_read_lock_bh(lock)                     _raw_read_lock_bh(&lock->alock)
-# define raw_read_unlock_bh(lock)                   _raw_read_unlock_bh(&lock->alock)
-# define raw_read_lock_irq(lock)                    _raw_read_lock_irq(&lock->alock)
-# define raw_read_unlock_irq(lock)                  _raw_read_unlock_irq(&lock->alock)
-# define raw_read_lock_irqsave(lock, flags)         _raw_read_lock_irqsave(&lock->alock, flags)
-# define raw_read_unlock_irqrestore(lock, flags)    _raw_read_unlock_irqrestore(&lock->alock, flags)
-# define raw_read_trylock(lock)                     _raw_read_trylock(&lock->alock)
+# define raw_read_lock(lock)                        _raw_read_lock(lock)
+# define raw_read_unlock(lock)                      _raw_read_unlock(lock)
+# define raw_read_lock_bh(lock)                     _raw_read_lock_bh(lock)
+# define raw_read_unlock_bh(lock)                   _raw_read_unlock_bh(lock)
+# define raw_read_lock_irq(lock)                    _raw_read_lock_irq(lock)
+# define raw_read_unlock_irq(lock)                  _raw_read_unlock_irq(lock)
+# define raw_read_lock_irqsave(lock, flags)         _raw_read_lock_irqsave(lock, flags)
+# define raw_read_unlock_irqrestore(lock, flags)    _raw_read_unlock_irqrestore(lock, flags)
+# define raw_read_trylock(lock)                     _raw_read_trylock(lock)
 
-# define raw_write_lock(lock)                       _raw_write_lock(&lock->alock)
-# define raw_write_unlock(lock)                     _raw_write_unlock(&lock->alock)
-# define raw_write_lock_bh(lock)                    _raw_write_lock_bh(&lock->alock)
-# define raw_write_unlock_bh(lock)                  _raw_write_unlock_bh(&lock->alock)
-# define raw_write_lock_irq(lock)                   _raw_write_lock_irq(&lock->alock)
-# define raw_write_unlock_irq(lock)                 _raw_write_unlock_irq(&lock->alock)
-# define raw_write_lock_irqsave(lock, flags)        _raw_write_lock_irqsave(&lock->alock, flags)
-# define raw_write_unlock_irqrestore(lock, flags)   _raw_write_unlock_irqrestore(&lock->alock, flags)
-# define raw_write_trylock(lock)                    _raw_write_trylock(&lock->alock)
+# define raw_write_lock(lock)                       _raw_write_lock(lock)
+# define raw_write_unlock(lock)                     _raw_write_unlock(lock)
+# define raw_write_lock_bh(lock)                    _raw_write_lock_bh(lock)
+# define raw_write_unlock_bh(lock)                  _raw_write_unlock_bh(lock)
+# define raw_write_lock_irq(lock)                   _raw_write_lock_irq(lock)
+# define raw_write_unlock_irq(lock)                 _raw_write_unlock_irq(lock)
+# define raw_write_lock_irqsave(lock, flags)        _raw_write_lock_irqsave(lock, flags)
+# define raw_write_unlock_irqrestore(lock, flags)   _raw_write_unlock_irqrestore(lock, flags)
+# define raw_write_trylock(lock)                    _raw_write_trylock(lock)
 
 #else   /* !CONFIG_INLINE_SPINLOCK */
 
@@ -55,6 +56,8 @@ extern void raw_spin_lock_irqsave                   (raw_spinlock_t *lock, irqfl
 extern void raw_spin_unlock_irqrestore              (raw_spinlock_t *lock, irqflags_t *flags);
 extern bool raw_spin_trylock                        (raw_spinlock_t *lock);
 extern bool raw_spin_trylock_bh                     (raw_spinlock_t *lock);
+extern bool raw_spin_locked                         (raw_spinlock_t *lock);
+extern bool raw_spin_contended                      (raw_spinlock_t *lock);
 
 extern void raw_read_lock                           (raw_rwlock_t *lock);
 extern void raw_read_unlock                         (raw_rwlock_t *lock);

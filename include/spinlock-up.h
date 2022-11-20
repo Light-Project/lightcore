@@ -7,7 +7,7 @@
 
 #ifdef CONFIG_DEBUG_SPINLOCK
 
-static inline bool arch_spin_is_lock(arch_spinlock_t *lock)
+static inline bool arch_spin_locked(arch_spinlock_t *lock)
 {
     return lock->cnt == 0;
 }
@@ -36,18 +36,20 @@ static inline bool arch_spin_trylock(arch_spinlock_t *lock)
 
 #else
 
-#define arch_spin_is_lock(lock)     ((void)(lock), 0)
 #define arch_spin_lock(lock)        do { barrier(); (void)(lock); } while (0)
 #define arch_spin_unlock(lock)      do { barrier(); (void)(lock); } while (0)
-#define arch_spin_trylock(lock)     ({ barrier(); (void)(lock); 1; })
+#define arch_spin_trylock(lock)     ({ barrier(); (void)(lock); true; })
+#define arch_spin_locked(lock)      ((void)(lock), false)
 
 #endif  /* CONFIG_DEBUG_SPINLOCK */
 
+#define arch_spin_contended(lock)   ((void)(lock), false)
+
 #define arch_read_lock(lock)        do { barrier(); (void)(lock); } while (0)
 #define arch_write_lock(lock)       do { barrier(); (void)(lock); } while (0)
-#define arch_read_trylock(lock)     ({ barrier(); (void)(lock); 1; })
-#define arch_write_trylock(lock)    ({ barrier(); (void)(lock); 1; })
 #define arch_read_unlock(lock)      do { barrier(); (void)(lock); } while (0)
 #define arch_write_unlock(lock)     do { barrier(); (void)(lock); } while (0)
+#define arch_read_trylock(lock)     ({ barrier(); (void)(lock); true; })
+#define arch_write_trylock(lock)    ({ barrier(); (void)(lock); true; })
 
 #endif  /* _SPINLOCK_UP_H_ */

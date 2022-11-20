@@ -68,6 +68,18 @@ bool raw_spin_trylock_bh(raw_spinlock_t *lock)
 }
 EXPORT_SYMBOL(raw_spin_trylock_bh);
 
+bool raw_spin_locked(raw_spinlock_t *lock)
+{
+    return _raw_spin_locked(lock);
+}
+EXPORT_SYMBOL(raw_spin_locked);
+
+bool raw_spin_contended(raw_spinlock_t *lock)
+{
+    return _raw_spin_contended(lock);
+}
+EXPORT_SYMBOL(raw_spin_contended);
+
 void raw_read_lock(raw_rwlock_t *lock)
 {
     _raw_read_lock(lock);
