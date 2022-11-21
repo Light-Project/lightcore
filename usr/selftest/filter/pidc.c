@@ -13,20 +13,20 @@
 static state pidc_testing(struct kshell_context *ctx, void *pdata)
 {
     PIDC_STATE(pctx, INT16_MAX * 0.6, INT16_MAX * 0.5, INT16_MAX * 0.125, 0, 1000);
-    int32_t retval, curr = 100;
-    unsigned int count = 0;
+    int32_t retval, curr;
+    unsigned int count;
 
-    for (count = 0; count < TEST_LOOP; ++count) {
+    for (count = 0, curr = 100; count < TEST_LOOP; ++count) {
         retval = pidc_update(&pctx, 1000, curr);
         curr += retval - 200;
-        kshell_printf(ctx, "pidc static test%02d: %d\n", count, curr);
+        kshell_printf(ctx, "pidc static test%02d: %d -> %d\n", count, retval, curr);
     }
 
     pidc_reset(&pctx);
-    for (count = 0; count < TEST_LOOP; ++count) {
+    for (count = 0, curr = 100; count < TEST_LOOP; ++count) {
         retval = pidc_update(&pctx, 1000, curr);
         curr += retval - prandom_value() % 200;
-        kshell_printf(ctx, "pidc dynamic test%02d: %d\n", count, curr);
+        kshell_printf(ctx, "pidc dynamic test%02d: %d -> %d\n", count, retval, curr);
     }
 
     return -ENOERR;
