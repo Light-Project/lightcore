@@ -25,4 +25,34 @@ extern uint32_t prandom_value(void);
 extern void prandom_bytes(void *buff, size_t len);
 extern void prandom_seed(uint64_t seed);
 
+static inline uint64_t prandom_state_u64(struct prandom_state *pstate)
+{
+    uint32_t high = prandom_state_value(pstate);
+    return ((uint64_t)high << 32) + prandom_state_value(pstate);
+}
+
+static inline uint64_t prandom_u64(void)
+{
+    uint32_t high = prandom_value();
+    return ((uint64_t)high << 32) + prandom_value();
+}
+
+static inline unsigned long prandom_state_long(struct prandom_state *pstate)
+{
+#if BITS_PER_LONG == 32
+    return prandom_state_value(pstate);
+#else /* BITS_PER_LONG == 64 */
+    return prandom_state_u64(pstate);
+#endif
+}
+
+static inline unsigned long prandom_long(void)
+{
+#if BITS_PER_LONG == 32
+    return prandom_value();
+#else /* BITS_PER_LONG == 64 */
+    return prandom_u64();
+#endif
+}
+
 #endif  /* _PRANDOM_H_ */
