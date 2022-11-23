@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 #ifndef _BOOT_H_
 #define _BOOT_H_
 
@@ -42,6 +43,10 @@ struct bios_reg {
         };
     };
 } __packed;
+
+#define MACHINE_SCRATCH_ADDR    0x68000
+#define MACHINE_SCRATCH_SEG     (MACHINE_SCRATCH_ADDR >> 4)
+#define MACHINE_SCRATCH_SIZE    0x9000
 
 #define load_seek 63
 #define memory_top 0xa0000
@@ -154,4 +159,4 @@ extern void serial_print(const char *str);
 extern void serial_init(void);
 extern void a20_enable(void);
 
-#endif
+#endif  /* _BOOT_H_ */
