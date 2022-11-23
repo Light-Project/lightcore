@@ -7,8 +7,8 @@
 #include <ioops.h>
 #include <driver/video/vga.h>
 
-#define xres    80
-#define yres    25
+#define xres 80
+#define yres 25
 
 struct vga_text {
     uint8_t ch;
