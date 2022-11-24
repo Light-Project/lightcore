@@ -51,7 +51,7 @@ c_flags += $(if $(patsubst n%,, \
             $(CFLAGS_KGCOV))
 endif
 
-unexport asflags-y cxflags-y ccflags-y cppflags-y acflags-y ldsflags-y ldflags-y
+unexport asflags-y cxflags-y ccflags-y cppflags-y acflags-y ldsflags-y
 export acflags_y cxflags_y asflags_y ccflags_y cxxflags_y ldsflags_y symflags_y
 
 ########################################

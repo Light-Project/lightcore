@@ -13,10 +13,6 @@ typedef unsigned int UQItype __mode(QI);
 typedef unsigned int USItype __mode(SI);
 typedef unsigned int UDItype __mode(DI);
 typedef          int WDtype  __mode(word);
-typedef        float SFtype  __mode(SF);
-typedef        float DFtype  __mode(DF);
-typedef int CMPtype __mode(__libgcc_cmp_return__);
-typedef int SHCtype __mode(__libgcc_shift_count__);
 
 #if BITS_PER_LONG == 8
 # define Wtype      DItype

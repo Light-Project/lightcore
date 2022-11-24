@@ -163,7 +163,7 @@ L(a20t_retry):
 
     cmpl    %eax, %edx
     jne     L(a20t_finish)
-    loopl   L(a20t_retry)
+    loop    L(a20t_retry)
 
 L(a20t_finish):
     popw    %es
