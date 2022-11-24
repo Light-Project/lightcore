@@ -103,7 +103,7 @@ struct gpio_channel *gpio_dt_channel(struct dt_node *node, const char *label,
 
 finish:
     if (bind_flags & GPIO_ACTIVE_LOW)
-        *flags |= GPIOC_ACTIVE_LOW;
+        *flags |= GPIOL_ACTIVE_LOW;
 
     if (bind_flags & GPIO_SINGLE_ENDED) {
         if (bind_flags & GPIO_LINE_OPEN_DRAIN)

@@ -53,8 +53,8 @@ enum gpio_channel_flags {
 enum gpio_lookup_flags {
     GPIOL_ACTIVE_LOW        = BIT(0),
     GPIOL_FLOAT_INPUT       = BIT(1),
-    GPIOL_OPEN_DRAIN        = BIT(1),
-    GPIOL_OPEN_SOURCE       = BIT(2),
+    GPIOL_OPEN_DRAIN        = BIT(2),
+    GPIOL_OPEN_SOURCE       = BIT(3),
     GPIOL_TRANSITORY        = BIT(4),
     GPIOL_PULL_UP           = BIT(5),
     GPIOL_PULL_DOWN         = BIT(6),
