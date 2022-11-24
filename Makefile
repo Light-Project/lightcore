@@ -11,7 +11,7 @@ include scripts/top.mk
 
 include $(srctree)/platform.mk
 
-sys-include-y += include/ include/kconfig.h             \
+sys-include-y += include/kconfig.h                      \
                  include/compiler/compiler-attributes.h \
                  include/compiler/compiler-type.h       \
                  include/compiler/compiler-gcc.h        \
@@ -19,26 +19,34 @@ sys-include-y += include/ include/kconfig.h             \
                  include/compiler/pointer.h             \
                  include/compiler/sections.h            \
                  include/compiler/stringify.h
-sys-include-y += arch/$(arch)/                          \
+sys-include-y += include/ arch/$(arch)/                 \
                  arch/$(arch)/include/                  \
                  arch/$(arch)/include/generated/
 
-sys-cxflags-$(CONFIG_CC_OPTIMIZE_FOR_DEBUG)         += -O0
-sys-cxflags-$(CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE)   += -O2
-sys-cxflags-$(CONFIG_CC_OPTIMIZE_FOR_SIZE)          += -Os
+optimize-flags-$(CONFIG_CC_OPTIMIZE_FOR_DEBUG)       := -O0
+optimize-flags-$(CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE) := -O2
+optimize-flags-$(CONFIG_CC_OPTIMIZE_FOR_SIZE)        := -Os
+
+stackp-flags-y                               := -fno-stack-protector
+stackp-flags-$(CONFIG_STACKPROTECTOR)        := -fstack-protector
+stackp-flags-$(CONFIG_STACKPROTECTOR_STRONG) := -fstack-protector-strong
+
+sys-ccflags-y += $(optimize-flags-y) $(stackp-flags-y)
 sys-ccflags-$(CONFIG_STRICT) += -Werror
 
 sys-acflags-y  += -fno-pic -fno-pie
 sys-cxflags-y  += -nostdinc -fno-builtin -static
-sys-cxflags-y  += -fno-common -fno-stack-protector
+sys-cxflags-y  += -fno-common
 sys-cxflags-y  += -ffreestanding
 sys-ccflags-y  += -std=gnu17
 sys-cxxflags-y += -std=gnu++17 -fpermissive -Wno-pointer-arith
 
+# disable pointer signed / unsigned warnings in gcc 4.0
+sys-ccflags-y += -Wno-pointer-sign
+
 sys-acflags-y  += -D__KERNEL__
 sys-asflags-y  += -D__ASSEMBLY__
 sys-ldsflags-y += -D__ASSEMBLY__
-sys-symflags-y += -D__SYMBOL__
 
 asflags-y  := $(strip $(sys-asflags-y) $(platform-asflags-y))
 ccflags-y  := $(strip $(sys-ccflags-y) $(platform-ccflags-y))
@@ -46,7 +54,6 @@ cxxflags-y := $(strip $(sys-cxxflags-y) $(platform-cxxflags-y))
 acflags-y  := $(strip $(sys-acflags-y) $(platform-acflags-y))
 cxflags-y  := $(strip $(sys-cxflags-y) $(platform-cxflags-y))
 ldsflags-y := $(strip $(sys-ldsflags-y) $(platform-ldsflags-y))
-symflags-y := $(strip $(sys-symflags-y) $(platform-symflags-y))
 ldflags-y  := $(strip $(sys-ldflags-y) $(platform-ldflags-y))
 include-direct-y := $(strip $(sys-include-y) $(platform-include-y))
 
@@ -69,7 +76,7 @@ export CROSS_COMPILE AS CC LD
 export include-direct-y
 export acflags-y cxflags-y cxxflags-y
 export ccflags-y asflags-y cppflags-y
-export symflags-y ldsflags-y ldflags-y
+export ldsflags-y ldflags-y
 
 #####################################
 # Generic headers                   #

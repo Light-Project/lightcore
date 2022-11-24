@@ -46,7 +46,7 @@ cc-name := $(shell,set -- $(cc-info) && echo $1)
 cc-version := $(shell,set -- $(cc-info) && echo $2)
 
 # Get the assembler name, version, and error out if it is not supported.
-as-info := $(shell,$(srctree)/scripts/tools/as-version.sh $(CC))
+as-info := $(shell, $(srctree)/scripts/tools/as-version.sh $(AS))
 $(error-if,$(success,test -z "$(as-info)"),Sorry$(comma) this assembler is not supported.)
 as-name := $(shell,set -- $(as-info) && echo $1)
 as-version := $(shell,set -- $(as-info) && echo $2)

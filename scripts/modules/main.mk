@@ -26,14 +26,12 @@ asflags_y   += $(asflags-y)
 ccflags_y   += $(ccflags-y)
 cxxflags_y  += $(cxxflags-y)
 ldsflags_y  += $(ldsflags-y)
-symflags_y  += $(symflags-y)
 
 a_flags     = $(gcc-warning) $(acflags_y) $(asflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
 c_flags     = $(gcc-warning) $(acflags_y) $(cxflags_y) $(ccflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
 cxx_flags   = $(gcc-warning) $(acflags_y) $(cxflags_y) $(cxxflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
 cpp_flags   = $(gcc-warning) $(cppflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
 lds_flags   = $(ldsflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
-sym_flags   = $(symflags_y) -Wp,-MD,$(depfile) $(include_path) $(include_file) $($(basetarget)-flags-y)
 
 ifdef CONFIG_KASAN
 c_flags += $(if $(patsubst n%,, \
@@ -109,12 +107,9 @@ $(obj)/%.lds: $(src)/%.lds.S FORCE
 # Assembly constants (.sym -> .h)
 # ---------------------------------------------------------------------------
 
-PTHREAD_GENERATE_MANGLE = "s/^.*@@@name@@@\([^@]*\)@@@value@@@[^0-9Xxa-fA-F-]*\([0-9Xxa-fA-F-][0-9Xxa-fA-F-]*\).*@@@end@@@.*\$$/\#define \1 \2/p"
-
 quiet_cmd_cc_sym_h = $(ECHO_SYM) $@
-      cmd_cc_sym_h = $(AWK) $(build_home)/tools/gen-as-const.awk $< | \
-                     $(CC) $(sym_flags) -x c - -S -o - | \
-                     $(SED) -n $(PTHREAD_GENERATE_MANGLE) > $@; \
+      cmd_cc_sym_h = $(PYTHON) $(build_home)/tools/gen-as-const.py \
+                     --cc "$(CC) $(c_flags)" $< > $@; \
                      if test ! -s $@; then $(RM) $@; false; fi
 $(obj)/%.h: $(src)/%.sym FORCE
 	$(call if_changed_dep,cc_sym_h)

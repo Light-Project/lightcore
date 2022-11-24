@@ -86,6 +86,7 @@ ECHO            := echo -e "    "
 AWK             := awk -f
 SED             := sed
 PERL            := perl
+PYTHON          := python3
 CONFIG_SHELL    := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
                     else if [ -x /bin/bash ]; then echo /bin/bash; \
                     else echo sh; fi ; fi)

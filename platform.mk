@@ -66,7 +66,6 @@ ifdef CONFIG_ARCH_X86_32
 platform-acflags-y  += -m32
 platform-acflags-y  += -march=i386
 platform-ccflags-y  += $(cc_stack_align4)
-platform-symflags-y += -m32
 platform-ldflags-y  += -m elf_i386
 platform-elfflags-y += -m elf_i386
 endif # CONFIG_ARCH_X86_32
@@ -76,7 +75,6 @@ platform-acflags-y  += -m64
 platform-acflags-y  += -mno-red-zone
 platform-acflags-y  += -mcmodel=kernel
 platform-ccflags-y  += $(cc_stack_align8)
-platform-symflags-y += -m64
 platform-ldflags-y  += -m elf_x86_64
 platform-elfflags-y += -m elf_x86_64
 endif # CONFIG_ARCH_X86_64
