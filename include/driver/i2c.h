@@ -42,8 +42,11 @@ struct i2c_host {
     struct device *dev;
     struct list_head list;
     struct i2c_ops *ops;
+    void *host_data;
+
     struct list_head devices;
     unsigned int capability;
+    unsigned int retries;
 };
 
 /**
@@ -59,6 +62,11 @@ struct i2c_ops {
 extern spinlock_t i2c_host_lock;
 extern struct list_head i2c_host_list;
 extern struct bus_type i2c_bus;
+
+static inline uint8_t i2c_transfer_addr8(const struct i2c_transfer *trans)
+{
+	return (trans->addr << 1) | !!(trans->flags & I2C_M_RD);
+}
 
 extern state i2c_device_register(struct i2c_device *idev);
 extern void i2c_device_unregister(struct i2c_device *idev);
