@@ -90,13 +90,13 @@ const void *dt_attribute_get_array(const struct dt_node *node, const char *name,
 {
     struct dt_attribute *attribute = dt_attribute_find(node, name);
 
-    if (attribute)
+    if (!attribute)
         return ERR_PTR(-ENOENT);
     if (!attribute->value)
         return ERR_PTR(-ENODATA);
     if (attribute->len < min)
         return ERR_PTR(-EOVERFLOW);
-    if (attribute->len > max)
+    if (max && attribute->len > max)
         return ERR_PTR(-EOVERFLOW);
 
     if (len)
@@ -213,7 +213,7 @@ int dt_attribute_read_u16_index_array_range(const struct dt_node *node, const ch
 
     value += index;
     for (count = 0; count < len; ++count)
-        *buff++ = *value++;
+        *buff++ = be16_to_cpup(value++);
 
     return len;
 }
@@ -241,7 +241,7 @@ int dt_attribute_read_u32_index_array_range(const struct dt_node *node, const ch
 
     value += index;
     for (count = 0; count < len; ++count)
-        *buff++ = *value++;
+        *buff++ = be32_to_cpup(value++);
 
     return len;
 }
@@ -269,7 +269,7 @@ int dt_attribute_read_u64_index_array_range(const struct dt_node *node, const ch
 
     value += index;
     for (count = 0; count < len; ++count)
-        *buff++ = *value++;
+        *buff++ = be64_to_cpup(value++);
 
     return len;
 }
