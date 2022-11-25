@@ -82,33 +82,33 @@ EXPORT_SYMBOL(kshell_unregister);
 state kshell_exec(struct kshell_context *ctx, const struct kshell_command *cmd, int argc, char *argv[])
 {
     unsigned int count;
-    char *string, **vbuff;
+    size_t total, length;
+    char **newptr, *newstr;
     state retval;
 
     if (!cmd->exec)
         return -ENXIO;
 
-    vbuff = kzalloc(sizeof(char *) * (argc + 1), GFP_KERNEL);
-    if (!vbuff)
+    total = sizeof(*argv) * (argc + 1);
+    for (count = 0; count < argc; ++count)
+        total += strlen(argv[count]) + 1;
+
+    newptr = kmalloc(total, GFP_KERNEL);
+    if (unlikely(!newptr))
         return -ENOMEM;
 
+    newstr = (void *)(newptr + argc + 1);
     for (count = 0; count < argc; ++count) {
-        string = strdup(argv[count]);
-        if (!string) {
-            retval = -ENOMEM;
-            goto finish;
-        }
-        vbuff[count] = string;
+        length = strlen(argv[count]) + 1;
+        memcpy(newstr, argv[count], length);
+        newptr[count] = newstr;
+        newstr += length;
     }
 
-    vbuff[argc] = NULL;
-    retval = cmd->exec(ctx, argc, vbuff);
+    newptr[argc] = NULL;
+    retval = cmd->exec(ctx, argc, newptr);
 
-finish:
-    for (count = 0; vbuff[count]; ++count)
-        kfree(vbuff[count]);
-
-    kfree(vbuff);
+    kfree(newptr);
     return retval;
 }
 EXPORT_SYMBOL(kshell_exec);
