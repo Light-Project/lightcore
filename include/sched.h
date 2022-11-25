@@ -287,8 +287,8 @@ static inline void task_set_state(struct sched_task *task, unsigned long state)
     WRITE_ONCE(task->state, state);
 }
 
-GENERIC_STRUCT_BITOPS(task, struct sched_task, flags)
-GENERIC_STRUCT_BITOPS(task, struct sched_task, queued)
+GENERIC_STRUCT_BITOPS(task, struct sched_task, flags, false)
+GENERIC_STRUCT_BITOPS(task, struct sched_task, queued, false)
 
 #define SCHED_TASK_FLAG_OPS(ops, name, bit)                                     \
 static inline void task_set_##name(struct sched_task *task)                     \

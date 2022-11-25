@@ -36,7 +36,7 @@ struct console_ops {
     void (*shutdown)(struct console *con);
 };
 
-GENERIC_STRUCT_BITOPS(console, struct console, flags)
+GENERIC_STRUCT_BITOPS(console, struct console, flags, false)
 GENERIC_STRUCT_FLAG(console, struct console, flags, boot, __CONSOLE_BOOT)
 GENERIC_STRUCT_FLAG(console, struct console, flags, enabled, __CONSOLE_ENABLED)
 GENERIC_STRUCT_FLAG(console, struct console, flags, consdev, __CONSOLE_CONSDEV)

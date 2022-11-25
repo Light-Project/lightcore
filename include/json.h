@@ -36,7 +36,7 @@ struct json_node {
     };
 };
 
-GENERIC_STRUCT_BITOPS(json, struct json_node, flags)
+GENERIC_STRUCT_BITOPS(json, struct json_node, flags, false)
 GENERIC_STRUCT_FLAG(json, struct json_node, flags, array, __JSON_IS_ARRAY)
 GENERIC_STRUCT_FLAG(json, struct json_node, flags, object, __JSON_IS_OBJECT)
 GENERIC_STRUCT_FLAG(json, struct json_node, flags, string, __JSON_IS_STRING)

@@ -62,7 +62,7 @@ struct ts_algorithm {
     unsigned int (*pattern_len)(struct ts_context *tsc);
 };
 
-GENERIC_STRUCT_BITOPS(ts, struct ts_context, flags)
+GENERIC_STRUCT_BITOPS(ts, struct ts_context, flags, false)
 GENERIC_STRUCT_FLAG(ts, struct ts_context, flags, ignorecase, __TS_IGNORECASE)
 
 static inline unsigned int textsearch_find(struct ts_context *tsc, struct ts_state *tss)

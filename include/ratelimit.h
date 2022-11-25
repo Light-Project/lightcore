@@ -45,7 +45,7 @@ struct ratelimit {
 #define DEFAULT_RATELIMIT(NAME) \
     DEFINE_RATELIMIT(NAME, DEFAULT_RATELIMIT_INTERVAL, DEFAULT_RATELIMIT_BURST)
 
-GENERIC_STRUCT_BITOPS(ratelimit, struct ratelimit, flags)
+GENERIC_STRUCT_BITOPS(ratelimit, struct ratelimit, flags, false)
 GENERIC_STRUCT_FLAG(ratelimit, struct ratelimit, flags, msgquiet, __RATELIMIT_MSGQUIET)
 
 extern bool ratelimit(struct ratelimit *limit, const char *prompt);
