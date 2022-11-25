@@ -33,7 +33,7 @@ struct xml_node {
     };
 };
 
-GENERIC_STRUCT_BITOPS(xml, struct xml_node, flags)
+GENERIC_STRUCT_BITOPS(xml, struct xml_node, flags, false)
 GENERIC_STRUCT_FLAG(xml, struct xml_node, flags, object, __XML_IS_OBJECT)
 GENERIC_STRUCT_FLAG(xml, struct xml_node, flags, attribute, __XML_IS_ATTRIBUTE)
 GENERIC_STRUCT_FLAG(xml, struct xml_node, flags, string, __XML_IS_STRING)

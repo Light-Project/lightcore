@@ -102,7 +102,7 @@ struct gpio_channel {
     unsigned long flags;
 };
 
-GENERIC_STRUCT_BITOPS(gpioc, struct gpio_channel, flags)
+GENERIC_STRUCT_BITOPS(gpioc, struct gpio_channel, flags, false)
 GENERIC_STRUCT_FLAG(gpioc, struct gpio_channel, flags, active_low, __GPIOC_ACTIVE_LOW)
 GENERIC_STRUCT_FLAG(gpioc, struct gpio_channel, flags, soft_drain, __GPIOC_SOFT_DRAIN)
 GENERIC_STRUCT_FLAG(gpioc, struct gpio_channel, flags, soft_source, __GPIOC_SOFT_SOURCE)

@@ -26,7 +26,7 @@ struct crash_entry {
     unsigned int line;
 };
 
-GENERIC_STRUCT_BITOPS(crash, struct crash_entry, flags);
+GENERIC_STRUCT_BITOPS(crash, struct crash_entry, flags, false);
 GENERIC_STRUCT_FLAG(crash, struct crash_entry, flags, ncut_here, __CRASH_FLAG_NCUT_HERE);
 GENERIC_STRUCT_FLAG(crash, struct crash_entry, flags, warning, __CRASH_FLAG_WARNING);
 GENERIC_STRUCT_FLAG(crash, struct crash_entry, flags, once, __CRASH_FLAG_ONCE);

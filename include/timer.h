@@ -43,7 +43,7 @@ struct timer {
 
 #define TIMER_EXPIRE_DELTA_MAX ((1ULL << 62) - 1)
 
-GENERIC_STRUCT_BITOPS(timer, struct timer, flags)
+GENERIC_STRUCT_BITOPS(timer, struct timer, flags, false)
 GENERIC_STRUCT_FLAG(timer, struct timer, flags, irq_safe, __TIMER_IRQ_SAFE)
 GENERIC_STRUCT_FLAG(timer, struct timer, flags, periodic, __TIMER_PERIODIC)
 

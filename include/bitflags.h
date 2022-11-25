@@ -4,89 +4,111 @@
 
 #include <bitops.h>
 
-#define GENERIC_STRUCT_BITOPS(name, type, member)               \
+#define GENERIC_STRUCT_BITOPS(name, type, member, safe)         \
 static __always_inline void                                     \
 name##_##member##_clr(type *ptr, unsigned int bit)              \
 {                                                               \
-    bit_clr(&ptr->member, bit);                                 \
+    if (!safe || ptr)                                           \
+        bit_clr(&ptr->member, bit);                             \
 }                                                               \
                                                                 \
 static __always_inline void                                     \
 name##_##member##_set(type *ptr, unsigned int bit)              \
 {                                                               \
-    bit_set(&ptr->member, bit);                                 \
+    if (!safe || ptr)                                           \
+        bit_set(&ptr->member, bit);                             \
 }                                                               \
                                                                 \
 static __always_inline void                                     \
 name##_##member##_flip(type *ptr, unsigned int bit)             \
 {                                                               \
-    bit_flip(&ptr->member, bit);                                \
+    if (!safe || ptr)                                           \
+        bit_flip(&ptr->member, bit);                            \
 }                                                               \
                                                                 \
 static __always_inline bool                                     \
 name##_##member##_test(type *ptr, unsigned int bit)             \
 {                                                               \
-    return bit_test(&ptr->member, bit);                         \
+    if (!safe || ptr)                                           \
+        return bit_test(&ptr->member, bit);                     \
+    return false;                                               \
 }                                                               \
                                                                 \
 static __always_inline bool                                     \
 name##_##member##_test_clr(type *ptr, unsigned int bit)         \
 {                                                               \
-    return bit_test_clr(&ptr->member, bit);                     \
+    if (!safe || ptr)                                           \
+        return bit_test_clr(&ptr->member, bit);                 \
+    return false;                                               \
 }                                                               \
                                                                 \
 static __always_inline bool                                     \
 name##_##member##_test_set(type *ptr, unsigned int bit)         \
 {                                                               \
-    return bit_test_set(&ptr->member, bit);                     \
+    if (!safe || ptr)                                           \
+        return bit_test_set(&ptr->member, bit);                 \
+    return false;                                               \
 }                                                               \
                                                                 \
 static __always_inline bool                                     \
 name##_##member##_test_flip(type *ptr, unsigned int bit)        \
 {                                                               \
-    return bit_test_flip(&ptr->member, bit);                    \
+    if (!safe || ptr)                                           \
+        return bit_test_flip(&ptr->member, bit);                \
+    return false;                                               \
 }                                                               \
                                                                 \
 static __always_inline void                                     \
 name##_##member##_atomic_clr(type *ptr, unsigned int bit)       \
 {                                                               \
-    bit_atomic_clr(&ptr->member, bit);                          \
+    if (!safe || ptr)                                           \
+        bit_atomic_clr(&ptr->member, bit);                      \
 }                                                               \
                                                                 \
 static __always_inline void                                     \
 name##_##member##_atomic_set(type *ptr, unsigned int bit)       \
 {                                                               \
-    bit_atomic_set(&ptr->member, bit);                          \
+    if (!safe || ptr)                                           \
+        bit_atomic_set(&ptr->member, bit);                      \
 }                                                               \
                                                                 \
 static __always_inline void                                     \
 name##_##member##_atomic_flip(type *ptr, unsigned int bit)      \
 {                                                               \
-    bit_atomic_flip(&ptr->member, bit);                         \
+    if (!safe || ptr)                                           \
+        bit_atomic_flip(&ptr->member, bit);                     \
 }                                                               \
                                                                 \
 static __always_inline bool                                     \
 name##_##member##_atomic_test(type *ptr, unsigned int bit)      \
 {                                                               \
-    return bit_atomic_test(&ptr->member, bit);                  \
+    if (!safe || ptr)                                           \
+        return bit_atomic_test(&ptr->member, bit);              \
+    return false;                                               \
 }                                                               \
                                                                 \
 static __always_inline bool                                     \
 name##_##member##_atomic_test_clr(type *ptr, unsigned int bit)  \
 {                                                               \
-    return bit_atomic_test_clr(&ptr->member, bit);              \
+    if (!safe || ptr)                                           \
+        return bit_atomic_test_clr(&ptr->member, bit);          \
+    return false;                                               \
 }                                                               \
                                                                 \
 static __always_inline bool                                     \
 name##_##member##_atomic_test_set(type *ptr, unsigned int bit)  \
 {                                                               \
-    return bit_atomic_test_set(&ptr->member, bit);              \
+    if (!safe || ptr)                                           \
+        return bit_atomic_test_set(&ptr->member, bit);          \
+    return false;                                               \
 }                                                               \
                                                                 \
 static __always_inline bool                                     \
 name##_##member##_atomic_test_flip(type *ptr, unsigned int bit) \
 {                                                               \
-    return bit_atomic_test_flip(&ptr->member, bit);             \
+    if (!safe || ptr)                                           \
+        return bit_atomic_test_flip(&ptr->member, bit);         \
+    return false;                                               \
 }
 
 #define GENERIC_STRUCT_FLAG(name, type, member, flag, index)    \

@@ -24,7 +24,7 @@ struct fwnode {
     unsigned long flags;
 };
 
-GENERIC_STRUCT_BITOPS(fwnode, struct fwnode, flags)
+GENERIC_STRUCT_BITOPS(fwnode, struct fwnode, flags, true)
 GENERIC_STRUCT_FLAG(fwnode, struct fwnode, flags, dtree, __FWNODE_IS_DTREE)
 GENERIC_STRUCT_FLAG(fwnode, struct fwnode, flags, acpi, __FWNODE_IS_DTREE)
 

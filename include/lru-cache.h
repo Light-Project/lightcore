@@ -80,7 +80,7 @@ struct lrc_head {
     unsigned long starve;
 };
 
-GENERIC_STRUCT_BITOPS(lrc, struct lrc_head, flags);
+GENERIC_STRUCT_BITOPS(lrc, struct lrc_head, flags, false);
 GENERIC_STRUCT_FLAG(lrc, struct lrc_head, flags, dirty, __LRC_DIRTY);
 GENERIC_STRUCT_FLAG(lrc, struct lrc_head, flags, starving, __LRC_STARVING);
 

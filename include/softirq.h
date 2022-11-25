@@ -38,7 +38,7 @@ struct softirq {
 #define DEFINE_SOFTIRQ(name, entry, pdata, flags) \
     struct softirq name = SOFTIRQ_INITIALIZER(#name, entry, pdata, flags)
 
-GENERIC_STRUCT_BITOPS(softirq, struct softirq, flags)
+GENERIC_STRUCT_BITOPS(softirq, struct softirq, flags, false)
 GENERIC_STRUCT_FLAG(softirq, struct softirq, flags, irq_safe, __SOFTIRQ_IRQ_SAFE)
 GENERIC_STRUCT_FLAG(softirq, struct softirq, flags, periodic, __SOFTIRQ_PERIODIC)
 
