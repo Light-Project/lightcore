@@ -13,6 +13,7 @@ obj-$(CONFIG_KCMD_EXIT)     += exit.o
 obj-$(CONFIG_KCMD_EXPORT)   += export.o
 obj-$(CONFIG_KCMD_FALSE)    += false.o
 obj-$(CONFIG_KCMD_GOTO)     += goto.o
+obj-$(CONFIG_KCMD_GPIO)     += gpio.o
 obj-$(CONFIG_KCMD_GREP)     += grep.o
 obj-$(CONFIG_KCMD_HEAD)     += head.o
 obj-$(CONFIG_KCMD_LOOP)     += loop.o
