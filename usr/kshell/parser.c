@@ -8,7 +8,7 @@
 #include <kmalloc.h>
 
 #define PASER_TEXT_DEF  64
-#define PASER_VARN_DEF  32
+#define PASER_VARG_DEF  32
 #define PASER_PIPE_DEF  64
 
 struct paser_transition {
@@ -279,7 +279,7 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
 {
     enum paser_state nstate, cstate = KSHELL_STATE_TEXT;
     unsigned int tpos = 0, tsize = PASER_TEXT_DEF, count;
-    unsigned int vpos = 0, vsize = PASER_VARN_DEF;
+    unsigned int vpos = 0, vsize = PASER_VARG_DEF;
     const char *walk, *cmdline = *pcmdline;
     char *vbuff, brack_buff[12];
     char *tbuff, code;
@@ -321,7 +321,6 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
             PARSER_EXP_TBUF(count);
             strcpy(tbuff + tpos, brack_buff);
             tpos += count;
-            goto finish;
         }
 
         if (is_output(cstate) && !is_output(nstate)) {
@@ -335,30 +334,39 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
                     (*argc) += pipeline_parser(tbuff + tpos, &count);
                 tpos += count;
             }
-            goto finish;
         }
 
         if (is_variable(nstate) || is_retvalue(nstate) || is_output(nstate)) {
-            if (code)
+            if (code) {
+                PARSER_EXP_VBUF(1);
                 vbuff[vpos++] = code;
-        } else if (is_text(nstate, cstate) && code == ' ') {
+            }
+        }
+
+        else if (is_text(nstate, cstate) && code == ' ') {
             if (tpos != 0 && tbuff[tpos - 1]) {
+                PARSER_EXP_TBUF(1);
                 tbuff[tpos++] = '\0';
                 ++*argc;
             }
-        } else if (is_text(nstate, cstate) && code == ';') {
+        }
+
+        else if (is_text(nstate, cstate) && code == ';') {
             if (tpos != 0 && tbuff[tpos - 1]) {
+                PARSER_EXP_TBUF(1);
                 tbuff[tpos++] = '\0';
                 ++*argc;
             }
             *pcmdline = walk + 1;
             break;
-        } else if (code) {
+        }
+
+        else if (code) {
+            PARSER_EXP_TBUF(1);
             tbuff[tpos++] = code;
         }
 
-        PARSER_EXP_BUFF(1, 1);
-        finish: cstate = nstate;
+        cstate = nstate;
     }
 
     /* If the last one is a variable, parse it out */
@@ -373,31 +381,31 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
         }
     }
 
-    /* if there is no end flag, end it */
+    /* If there is no end flag, end it */
     if (!*walk-- && tbuff[tpos - 1] && code != ' ') {
         tbuff[tpos++] = '\0';
         ++*argc;
     }
 
-    /* allocate an argv area */
+    /* Allocate an argv area */
     count = (*argc + 1) * sizeof(**argv);
     *argv = kmalloc(count + tpos, GFP_KERNEL);
     if (!*argv)
         goto errmem;
 
-    /* use unified memory to store parameters */
+    /* Use unified memory to store parameters */
     vbuff = (char *)*argv + count;
     memcpy(vbuff, tbuff, tpos);
 
-    /* generate argv pointer */
-    for (count = 0; count < *argc; ++count) {
-        (*argv)[count] = vbuff;
-        while (*vbuff)
-            ++vbuff;
-        while (!*vbuff)
-            ++vbuff;
+    /* Generate argv pointer */
+    for (count = vpos = 0; vpos < tpos; ++vpos) {
+        if (!vbuff[vpos])
+            continue;
+        (*argv)[count++] = vbuff + vpos;
+        vpos += strlen(vbuff + vpos);
     }
 
+    BUG_ON(count != *argc);
     (*argv)[count] = NULL;
     kfree(tbuff);
 
