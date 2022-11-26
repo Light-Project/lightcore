@@ -52,7 +52,8 @@ static state coretemp_read(struct hwmon_device *hdev, enum hwmon_sensor sensor,
             else
                 msr = MSR_IA32_THERM_STATUS;
             value = msr_get(msr);
-            *val = 100 - ((lower_32_bits(value) >> 16) & 0x7f);
+            value = 100 - ((lower_32_bits(value) >> 16) & 0x7f);
+            *val = value * 1000;
             break;
 
         default:

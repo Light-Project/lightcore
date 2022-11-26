@@ -15,4 +15,8 @@ config HWMON_DELL_SMM
     bool "Dell-SMM Hwmon Support"
     depends on ARCH_X86
 
+config HWMON_DHT11
+    bool "DHT11 Hwmon Support"
+    depends on GPIO
+
 endif
