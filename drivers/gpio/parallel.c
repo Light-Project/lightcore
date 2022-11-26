@@ -130,13 +130,13 @@ static const struct parallel_pin_desc parallel_desc[] = {
 };
 
 struct parallel_gpio_device {
-    struct gpio_device gpio_device;
+    struct gpio_device gpio;
     struct parallel_device *pdev;
     uint8_t data, ctrl;
 };
 
 #define gpio_to_parallel_gpio(ptr) \
-    container_of(ptr, struct parallel_gpio_device, gpio_device)
+    container_of(ptr, struct parallel_gpio_device, gpio)
 
 static state parallel_gpio_value_get(struct gpio_device *gdev, unsigned int port, bool *val)
 {
@@ -265,7 +265,7 @@ static state parallel_gpio_dt_xlate(struct gpio_device *gdev, const struct dt_ph
     uint32_t pinnum;
 
     pinnum = args->args[0];
-    if (pinnum >gdev->channel_nr)
+    if (pinnum >gdev->gpio_num)
         return -EINVAL;
 
     if (index)
@@ -296,7 +296,7 @@ static state parallel_gpio_hwinit(struct gpio_device *gdev)
     for (count = 0; count < ARRAY_SIZE(parallel_desc); ++count) {
         switch (parallel_desc[count].type) {
             case PARALLEL_REG_DATA:
-                ret = parallel_gpio_value_set(gdev, count, 0);
+                ret = parallel_gpio_value_set(gdev, count, 1);
                 if (ret)
                     return ret;
                 break;
@@ -325,19 +325,20 @@ static state parallel_gpio_probe(struct parallel_device *pdev, const void *pdata
         return -ENOMEM;
 
     pgpio->pdev = pdev;
-    pgpio->gpio_device.dev = &pdev->dev;
-    pgpio->gpio_device.dt_node = pdev->dt_node;
-    pgpio->gpio_device.ops = &parallel_gpio_ops;
-    pgpio->gpio_device.channel_nr = ARRAY_SIZE(parallel_desc);
+    pgpio->gpio.dev = &pdev->dev;
+    pgpio->gpio.dt_node = pdev->dt_node;
+    pgpio->gpio.ops = &parallel_gpio_ops;
+    pgpio->gpio.gpio_base = UINT_MAX;
+    pgpio->gpio.gpio_num = ARRAY_SIZE(parallel_desc);
     parallel_set_devdata(pdev, pgpio);
 
-    ret = parallel_gpio_hwinit(&pgpio->gpio_device);
+    ret = parallel_gpio_hwinit(&pgpio->gpio);
     if (ret) {
         parallel_err(pdev, "failed to initialize parallel hardware\n");
         return ret;
     }
 
-    return gpio_register(&pgpio->gpio_device);
+    return gpio_register(&pgpio->gpio);
 }
 
 static const struct dt_device_id parallel_gpio_ids[] = {

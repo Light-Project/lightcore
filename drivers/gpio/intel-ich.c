@@ -130,7 +130,8 @@ static state ich_gpio_probe(struct platform_device *pdev, const void *pdata)
     idev->base = platform_resource_start(pdev, 0);
     idev->gpio.dev = &pdev->dev;
     idev->gpio.ops = &intel_gpio_ops;
-    idev->gpio.channel_nr = BITS_PER_U32 * ICH_GPIO_INDEX_NUM;
+    idev->gpio.gpio_base = UINT_MAX;
+    idev->gpio.gpio_num = BITS_PER_U32 * ICH_GPIO_INDEX_NUM;
     platform_set_devdata(pdev, idev);
 
     return gpio_register(&idev->gpio);

@@ -17,10 +17,11 @@ static state buzzer_testing(struct kshell_context *ctx, void *pdata)
 
     spin_lock(&gpio_lock);
     list_for_each_entry(gdev, &gpio_list, list) {
-        for (index = 0; index < gdev->channel_nr; ++index) {
+        for (index = 0; index < gdev->gpio_num; ++index) {
             retval = gpio_raw_value_get(gdev, index, &value);
-            kshell_printf(ctx, "gpio %s raw read index %d: %s ret (%d)\n",
-                    gdev->dev->name, index, value ? "high" : "low", retval);
+            kshell_printf(ctx, "gpio %s raw read index %d (%d): %s\n",
+                          gdev->dev->name, gdev->gpio_base + index,
+                          index, value ? "high" : "low");
             if (retval)
                 break;
         }

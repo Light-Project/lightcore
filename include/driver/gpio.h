@@ -4,6 +4,7 @@
 
 #include <fwnode.h>
 #include <driver/dt.h>
+#include <asm/gpio.h>
 
 enum gpio_direction {
     GPIO_DIRECTION_INPUT    = 0,
@@ -98,8 +99,10 @@ struct gpio_channel {
     struct list_head list;
     struct gpio_device *gdev;
     const char *label;
-    unsigned int index;
+
     unsigned long flags;
+    unsigned int index;
+    unsigned int using;
 };
 
 GENERIC_STRUCT_BITOPS(gpioc, struct gpio_channel, flags, false)
@@ -117,16 +120,19 @@ GENERIC_STRUCT_FLAG(gpioc, struct gpio_channel, flags, is_hogged, __GPIOC_IS_HOG
  * @ops: operations method of gpio device.
  * @dt_node: device tree node pointing to the gpio device.
  * @channel: linked list of allocated channels for the gpio device.
- * @channel_nr: number of channels owned by the gpio device.
+ * @gpio_num: number of channels owned by the gpio device.
  */
 struct gpio_device {
     spinlock_t lock;
     struct device *dev;
     struct list_head list;
-    struct gpio_ops *ops;
     struct dt_node *dt_node;
+
+    struct gpio_ops *ops;
     struct list_head channel;
-    unsigned int channel_nr;
+
+    unsigned int gpio_base;
+    unsigned int gpio_num;
 };
 
 /**
@@ -226,7 +232,8 @@ extern struct gpio_channel *gpio_fwnode_channel(struct fwnode *node, const char 
 /* gpio registration */
 extern struct gpio_device *gpio_device_find(bool (*match)(struct gpio_device *gdev, void *pdata), void *pdata);
 extern struct gpio_channel *gpio_channel_get(struct gpio_device *gdev, unsigned int index);
-extern void gpio_channel_release(struct gpio_channel *channel);
+extern void gpio_channel_put(struct gpio_channel *channel);
+extern struct gpio_channel *gpio_channel_number(unsigned int index);
 extern state gpio_register(struct gpio_device *gdev);
 extern void gpio_unregister(struct gpio_device *gdev);
 

@@ -46,13 +46,16 @@ struct gpio_channel *gpio_channel_get(struct gpio_device *gdev, unsigned int ind
     struct gpio_channel *channel;
     irqflags_t irqflags;
 
-    if (index >= gdev->channel_nr)
+    if (index >= gdev->gpio_num)
         return NULL;
 
     spin_lock_irqsave(&gdev->lock, &irqflags);
     list_for_each_entry(channel, &gdev->channel, list) {
-        if (channel->index == index)
+        if (channel->index == index) {
+            channel->using++;
+            spin_unlock_irqrestore(&gdev->lock, &irqflags);
             return channel;
+        }
     }
 
     channel = gpio_alloc_channel(gdev, index);
@@ -62,28 +65,88 @@ struct gpio_channel *gpio_channel_get(struct gpio_device *gdev, unsigned int ind
 }
 EXPORT_SYMBOL(gpio_channel_get);
 
-void gpio_channel_release(struct gpio_channel *channel)
+void gpio_channel_put(struct gpio_channel *channel)
 {
     struct gpio_device *gdev = channel->gdev;
     irqflags_t irqflags;
 
     spin_lock_irqsave(&gdev->lock, &irqflags);
+    if (channel->using--)
+        return;
+
     list_del(&channel->list);
     spin_unlock_irqrestore(&gdev->lock, &irqflags);
+
     dev_kfree(gdev->dev, channel);
 }
-EXPORT_SYMBOL(gpio_channel_release);
+
+static state gpio_channel_base(unsigned int ngpio, unsigned int *base)
+{
+    struct gpio_device *gdev;
+    unsigned int find = 0;
+
+	list_for_each_entry(gdev, &gpio_list, list) {
+        if (find + ngpio < gdev->gpio_base)
+            break;
+        find = gdev->gpio_base + gdev->gpio_num;
+    }
+
+    if (gpio_valid(find + ngpio)) {
+        pr_debug("found new base at %u\n", find);
+        *base = find;
+        return -ENOERR;
+    } else {
+        pr_err("cannot find free range for %u\n", ngpio);
+        return -ENOSPC;
+    }
+}
+
+struct gpio_channel *gpio_channel_number(unsigned int index)
+{
+    struct gpio_channel *channel;
+    struct gpio_device *gdev;
+    irqflags_t irqflags;
+
+	spin_lock_irqsave(&gpio_lock, &irqflags);
+    list_for_each_entry(gdev, &gpio_list, list) {
+        if (index < gdev->gpio_base ||
+            index >= gdev->gpio_base + gdev->gpio_num)
+            continue;
+
+        channel = gpio_channel_get(gdev, index - gdev->gpio_base);
+	    spin_unlock_irqrestore(&gpio_lock, &irqflags);
+        return channel;
+    }
+
+	spin_unlock_irqrestore(&gpio_lock, &irqflags);
+    pr_warn("invalid gpio %u\n", index);
+
+    return NULL;
+}
+EXPORT_SYMBOL(gpio_channel_number);
 
 state gpio_register(struct gpio_device *gdev)
 {
+    unsigned int base;
     irqflags_t irqflags;
+    state retval;
 
     if (!gdev->ops || !gdev->dev)
         return -EINVAL;
 
     list_head_init(&gdev->channel);
     spin_lock_irqsave(&gpio_lock, &irqflags);
-    list_add(&gpio_list, &gdev->list);
+
+    if (gdev->gpio_base == UINT_MAX) {
+        retval = gpio_channel_base(gdev->gpio_num, &base);
+        if (unlikely(retval)) {
+            spin_unlock_irqrestore(&gpio_lock, &irqflags);
+            return retval;
+        }
+        gdev->gpio_base = base;
+    }
+
+    list_add_prev(&gpio_list, &gdev->list);
     spin_unlock_irqrestore(&gpio_lock, &irqflags);
 
     return -ENOERR;
