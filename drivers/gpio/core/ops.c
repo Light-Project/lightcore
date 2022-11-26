@@ -196,13 +196,13 @@ state gpioc_request_configure(struct gpio_channel *channel, enum gpio_request_fl
     if ((flags & GPIOR_FLAG_DIR_IN) && dir != GPIO_DIRECTION_INPUT)
         return gpioc_raw_direction_set(channel, GPIO_DIRECTION_INPUT);
 
-    if (flags & GPIOR_FLAG_OPEN_DRAIN && dir != GPIO_DIRECTION_DRAIN
-        && !gpioc_test_soft_drain(channel))
-        retval = gpioc_raw_direction_set(channel, GPIO_DIRECTION_DRAIN);
-    else if (flags & GPIOR_FLAG_OPEN_SOURCE && dir != GPIO_DIRECTION_SOURCE
-        && !gpioc_test_soft_source(channel))
-        retval = gpioc_raw_direction_set(channel, GPIO_DIRECTION_SOURCE);
-    else if (dir != GPIO_DIRECTION_PUSH)
+    if (flags & GPIOR_FLAG_OPEN_DRAIN) {
+        if (dir != GPIO_DIRECTION_DRAIN && !gpioc_test_soft_drain(channel))
+            retval = gpioc_raw_direction_set(channel, GPIO_DIRECTION_DRAIN);
+    } else if (flags & GPIOR_FLAG_OPEN_SOURCE) {
+        if (dir != GPIO_DIRECTION_SOURCE && !gpioc_test_soft_source(channel))
+            retval = gpioc_raw_direction_set(channel, GPIO_DIRECTION_SOURCE);
+    } else if (dir != GPIO_DIRECTION_PUSH)
         retval = gpioc_raw_direction_set(channel, GPIO_DIRECTION_PUSH);
 
     if (retval)

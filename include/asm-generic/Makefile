@@ -5,6 +5,7 @@ mandatory-y += bitops.h
 mandatory-y += bug.h
 mandatory-y += errno.h
 mandatory-y += extable.h
+mandatory-y += gpio.h
 mandatory-y += delay.h
 mandatory-y += io.h
 mandatory-y += linkage.h
