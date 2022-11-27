@@ -10,9 +10,8 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: func [option] name {body}\n");
-    kshell_printf(ctx, "\t-f  declaration function\n");
-    kshell_printf(ctx, "\t-d  delete function\n");
+    kshell_printf(ctx, "usage: func [option] @name {body}\n");
+    kshell_printf(ctx, "\t-d  <name> delete function\n");
     kshell_printf(ctx, "\t-h  display this message\n");
 }
 
@@ -84,7 +83,7 @@ static state call_function(struct kshell_context *ctx, char *name, int argc, cha
     struct rb_node *rb;
     struct kshell_func *node;
     unsigned int count;
-    char number[12];
+    char number[13];
     state retval;
 
     rb = rb_find(&ctx->func, name, func_rb_find);
@@ -93,29 +92,27 @@ static state call_function(struct kshell_context *ctx, char *name, int argc, cha
         return -EALREADY;
     }
 
-    kshell_local_push(ctx);
-    kshell_local_set(ctx, "a0", name, false);
+    kshell_symbol_push(ctx);
+    kshell_symbol_set(ctx, "0", name, false);
 
     intoa(argc + 1, number, 10, 12);
-    kshell_local_set(ctx, "#", number, false);
+    kshell_symbol_set(ctx, "#", number, false);
 
     for (count = 0; count < argc; ++count) {
-        snprintf(number, 12, "a%d", count + 1);
-        kshell_local_set(ctx, number, argv[count], false);
+        snprintf(number, 12, "%d", count + 1);
+        kshell_symbol_set(ctx, number, argv[count], false);
     }
 
     node = func_to_kshell(rb);
     retval = kshell_system(ctx, node->body);
     ctx->breakfunc = false;
-    kshell_local_pop(ctx);
+    kshell_symbol_pop(ctx);
 
     return retval;
 }
 
 static state func_main(struct kshell_context *ctx, int argc, char *argv[])
 {
-    bool fflag = false;
-    bool dflag = false;
     unsigned int count;
     state retval;
 
@@ -126,12 +123,13 @@ static state func_main(struct kshell_context *ctx, int argc, char *argv[])
             break;
 
         switch (para[1]) {
-            case 'f':
-                fflag = true;
-                break;
-
             case 'd':
-                dflag = true;
+                if ((++count) >= argc)
+                    goto usage;
+                retval = delete_func(ctx, argv[count]);
+                if (!retval)
+                    goto usage;
+                break;
                 break;
 
             case 'h': default:
@@ -142,16 +140,10 @@ static state func_main(struct kshell_context *ctx, int argc, char *argv[])
     if (argc == count)
         goto usage;
 
-    if (dflag) for (; count < argc; ++count) {
-        retval = delete_func(ctx, argv[count]);
-        if (retval)
-            return retval;
-    }
-
-    else if (fflag) {
+    if (*argv[count] == '@') {
         if (argc != count + 2)
             goto usage;
-        return define_func(ctx, argv[count], argv[count + 1]);
+        return define_func(ctx, argv[count] + 1, argv[count + 1]);
     }
 
     return call_function(ctx, argv[count], argc - count - 1, &argv[count + 1]);

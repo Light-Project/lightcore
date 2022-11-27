@@ -18,6 +18,7 @@ struct kshell_context {
     struct rb_root func;
     struct rb_root env;
     struct list_head local;
+    struct list_head symbol;
     unsigned int *depth;
     bool tryrun;
 
@@ -65,8 +66,16 @@ extern const char *kshell_local_get(struct kshell_context *ctx, const char *name
 extern state kshell_local_set(struct kshell_context *ctx, const char *name, const char *val, bool overwrite);
 extern state kshell_local_put(struct kshell_context *ctx, char *string);
 extern state kshell_local_unset(struct kshell_context *ctx, const char *name);
+
+extern const char *kshell_symbol_get(struct kshell_context *ctx, const char *name);
+extern state kshell_symbol_set(struct kshell_context *ctx, const char *name, const char *val, bool overwrite);
+extern state kshell_symbol_put(struct kshell_context *ctx, char *string);
+extern state kshell_symbol_unset(struct kshell_context *ctx, const char *name);
+
 extern state kshell_local_push(struct kshell_context *ctx);
 extern state kshell_local_pop(struct kshell_context *ctx);
+extern state kshell_symbol_push(struct kshell_context *ctx);
+extern state kshell_symbol_pop(struct kshell_context *ctx);
 
 extern state kshell_exec(struct kshell_context *ctx, const struct kshell_command *cmd, int argc, char *argv[]);
 extern state kshell_execv(struct kshell_context *ctx, const char *name, int argc, char *argv[]);
