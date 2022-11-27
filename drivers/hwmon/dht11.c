@@ -103,15 +103,15 @@ static state dht11_tranfer(struct dht11_device *dht11, uint64_t *value)
     if ((retval = dht11_wait(dht11, NULL, false)) ||
         (retval = dht11_wait(dht11, NULL, true))  ||
         (retval = dht11_wait(dht11, NULL, false))) {
-        dev_err(dht11->hwmon.dev, "device response error %d\n", retval);
+        dev_warn(dht11->hwmon.dev, "device response error %d\n", retval);
         return retval;
     }
 
     /* Read 40bit sensor data */
-    for (index = 40; index; --index) {
+    for (*value = 0, index = 40; index; --index) {
         if ((retval = dht11_wait(dht11, NULL, true)) ||
             (retval = dht11_wait(dht11, &delta, false))) {
-            dev_err(dht11->hwmon.dev, "read data error %d\n", retval);
+            dev_warn(dht11->hwmon.dev, "read data error %d\n", retval);
             return retval;
         }
         if (delta > DHT11_DATA_THRESHOLD)
@@ -124,7 +124,8 @@ static state dht11_tranfer(struct dht11_device *dht11, uint64_t *value)
 static state dht11_data(struct dht11_device *dht11, union dht11_packet *packet)
 {
     ktime_t currtime = timekeeping_get_time();
-    uint64_t value = 0;
+    unsigned int count;
+    uint64_t value;
     state retval;
 
     if (ktime_before(currtime, dht11->last_time + DHT11_DATA_INTERVAL)) {
@@ -132,9 +133,19 @@ static state dht11_data(struct dht11_device *dht11, union dht11_packet *packet)
         return -ENOERR;
     }
 
-    retval = dht11_tranfer(dht11, &value);
-    if (retval)
+    for (count = 0; count < 3; ++count) {
+        preempt_disable();
+        retval = dht11_tranfer(dht11, &value);
+        preempt_enable();
+
+        if (retval != -ETIMEDOUT)
+            break;
+    }
+
+    if (retval) {
+        dev_err(dht11->hwmon.dev, "give up after three attempts\n");
         return retval;
+    }
 
     dev_debug(dht11->hwmon.dev, "tranfer data %#llx\n", value);
     packet->value = cpu_to_le64(value);
