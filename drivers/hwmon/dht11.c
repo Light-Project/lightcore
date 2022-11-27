@@ -7,6 +7,7 @@
 #define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
 #include <initcall.h>
+#include <mutex.h>
 #include <delay.h>
 #include <timekeeping.h>
 #include <driver/platform.h>
@@ -41,6 +42,7 @@ struct dht11_device {
     struct gpio_channel *bus;
     union dht11_packet last_data;
     ktime_t last_time;
+    struct mutex lock;
 };
 
 #define hwmon_to_dht11(ptr) \
@@ -79,7 +81,7 @@ static state dht11_wait(struct dht11_device *dht11, ktime_t *delta, bool value)
     }
 
     if (!retval && delta)
-        *delta = timekeeping_get_time() - start;
+        *delta = ktime_sub(timekeeping_get_time(), start);
 
     return retval;
 }
@@ -114,7 +116,7 @@ static state dht11_tranfer(struct dht11_device *dht11, uint64_t *value)
             dev_warn(dht11->hwmon.dev, "read data error %d\n", retval);
             return retval;
         }
-        if (delta > DHT11_DATA_THRESHOLD)
+        if (ktime_to_ns(delta) > DHT11_DATA_THRESHOLD)
             *value |= BIT_ULL(index - 1);
     }
 
@@ -133,6 +135,7 @@ static state dht11_data(struct dht11_device *dht11, union dht11_packet *packet)
         return -ENOERR;
     }
 
+    mutex_lock(&dht11->lock);
     for (count = 0; count < 3; ++count) {
         preempt_disable();
         retval = dht11_tranfer(dht11, &value);
@@ -143,6 +146,7 @@ static state dht11_data(struct dht11_device *dht11, union dht11_packet *packet)
     }
 
     if (retval) {
+        mutex_unlock(&dht11->lock);
         dev_err(dht11->hwmon.dev, "give up after three attempts\n");
         return retval;
     }
@@ -151,6 +155,7 @@ static state dht11_data(struct dht11_device *dht11, union dht11_packet *packet)
     packet->value = cpu_to_le64(value);
 
     if (dht11_checksum(packet) != packet->checksum) {
+        mutex_unlock(&dht11->lock);
         dev_err(dht11->hwmon.dev, "data checksum error %#04x -> %#04x\n",
                 packet->checksum, dht11_checksum(packet));
         return -EPROTO;
@@ -158,6 +163,7 @@ static state dht11_data(struct dht11_device *dht11, union dht11_packet *packet)
 
     dht11->last_time = timekeeping_get_time();
     dht11->last_data = *packet;
+    mutex_unlock(&dht11->lock);
 
     return -ENOERR;
 }
