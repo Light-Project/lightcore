@@ -96,20 +96,13 @@ static state do_system(struct kshell_context *ctx, const char *cmdline)
 
 state kshell_system(struct kshell_context *ctx, const char *cmdline)
 {
-    char *ncmdline;
-    state ret;
-
     if (!cmdline) {
         kshell_printf(ctx, "kshell: command inval\n");
         return -EINVAL;
     }
 
     BUG_ON(ctx->breakdown);
-    ncmdline = strdup(cmdline);
-    ret = do_system(ctx, ncmdline);
-    kfree(ncmdline);
-
-    return ret;
+    return do_system(ctx, cmdline);
 }
 EXPORT_SYMBOL(kshell_system);
 
