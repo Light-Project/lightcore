@@ -4,6 +4,7 @@
  */
 
 #include "kshell.h"
+#include <ctype.h>
 #include <string.h>
 #include <mhelper.h>
 #include <kmalloc.h>
@@ -30,12 +31,9 @@ static struct kshell_env *interior_find(struct rb_root *head, const char *name)
     return rb ? env_to_kshell(rb) : NULL;
 }
 
-static const char *interior_getenv(struct rb_root *head, const char *name)
+static const char *interior_getenv(struct rb_root *head, bool check, const char *name)
 {
     struct kshell_env *env;
-
-    if (strchr(name, '='))
-        return NULL;
 
     env = interior_find(head, name);
     if (!env)
@@ -44,11 +42,18 @@ static const char *interior_getenv(struct rb_root *head, const char *name)
     return env->val;
 }
 
-static state interior_setenv(struct rb_root *head, const char *name,
-                             const char *val, bool overwrite)
+static state interior_setenv(struct rb_root *head, bool check,
+                             const char *name, const char *val, bool overwrite)
 {
     struct kshell_env *env;
     size_t nlen, vlen;
+
+    if (check) {
+        if (!isalpha(*name))
+            return -EINVAL;
+        if (strchr(name, ' '))
+            return -EINVAL;
+    }
 
     env = interior_find(head, name);
     if (env && !overwrite)
@@ -73,7 +78,7 @@ static state interior_setenv(struct rb_root *head, const char *name,
     return -ENOERR;
 }
 
-static state interior_putenv(struct rb_root *head, char *string)
+static state interior_putenv(struct rb_root *head, bool check, char *string)
 {
     char *equal;
     state ret;
@@ -83,17 +88,17 @@ static state interior_putenv(struct rb_root *head, char *string)
         return -EINVAL;
 
     if (!equal)
-        ret = interior_setenv(head, string, "", true);
+        ret = interior_setenv(head, check, string, "", true);
     else {
         *equal = '\0';
-        ret = interior_setenv(head, string, equal + 1, true);
+        ret = interior_setenv(head, check, string, equal + 1, true);
         *equal = '=';
     }
 
     return ret;
 }
 
-static state interior_unsetenv(struct rb_root *head, const char *name)
+static state interior_unsetenv(struct rb_root *head, bool check, const char *name)
 {
     struct kshell_env *env;
 
@@ -107,32 +112,33 @@ static state interior_unsetenv(struct rb_root *head, const char *name)
     return -ENOERR;
 }
 
-#define GENERIC_ENV_NOPS(name, func, child, rtype, argnr, ...)                  \
-rtype kshell_##name                                                             \
-(struct kshell_context *ctx, MMAP_DECLN(argnr, MARGFN_DECL, __VA_ARGS__))       \
-{                                                                               \
-    struct rb_root *head = child;                                               \
-    return interior_##func(head, MMAP_DECLN(argnr, MARGFN_ARGS, __VA_ARGS__));  \
-}                                                                               \
+#define GENERIC_ENV_NOPS(name, func, child, check, rtype, argnr, ...)       \
+rtype kshell_##name                                                         \
+(struct kshell_context *ctx, MMAP_DECLN(argnr, MARGFN_DECL, __VA_ARGS__))   \
+{                                                                           \
+    struct rb_root *head = child;                                           \
+    return interior_##func(head, check,                                     \
+           MMAP_DECLN(argnr, MARGFN_ARGS, __VA_ARGS__));                    \
+}                                                                           \
 EXPORT_SYMBOL(kshell_##name)
 
-#define GENERIC_ENV_OPS(name, func, child, rtype, ...) \
-    GENERIC_ENV_NOPS(name, func, child, rtype, COUNT_ARGS(__VA_ARGS__), __VA_ARGS__)
+#define GENERIC_ENV_OPS(name, func, child, check, rtype, ...) \
+    GENERIC_ENV_NOPS(name, func, child, check, rtype, COUNT_ARGS(__VA_ARGS__), __VA_ARGS__)
 
-GENERIC_ENV_OPS(global_get, getenv, &ctx->env, const char *, const char *);
-GENERIC_ENV_OPS(global_set, setenv, &ctx->env, state, const char *, const char *, bool);
-GENERIC_ENV_OPS(global_put, putenv, &ctx->env, state, char *);
-GENERIC_ENV_OPS(global_unset, unsetenv, &ctx->env, state, const char *);
+GENERIC_ENV_OPS(global_get, getenv, &ctx->env, true, const char *, const char *);
+GENERIC_ENV_OPS(global_set, setenv, &ctx->env, true, state, const char *, const char *, bool);
+GENERIC_ENV_OPS(global_put, putenv, &ctx->env, true, state, char *);
+GENERIC_ENV_OPS(global_unset, unsetenv, &ctx->env, true, state, const char *);
 
-GENERIC_ENV_OPS(local_get, getenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env, const char *, const char *);
-GENERIC_ENV_OPS(local_set, setenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env, state, const char *, const char *, bool);
-GENERIC_ENV_OPS(local_put, putenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env, state, char *);
-GENERIC_ENV_OPS(local_unset, unsetenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env, state, const char *);
+GENERIC_ENV_OPS(local_get, getenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env, true, const char *, const char *);
+GENERIC_ENV_OPS(local_set, setenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env, true, state, const char *, const char *, bool);
+GENERIC_ENV_OPS(local_put, putenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env, true, state, char *);
+GENERIC_ENV_OPS(local_unset, unsetenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env, true, state, const char *);
 
-GENERIC_ENV_OPS(symbol_get, getenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env, const char *, const char *);
-GENERIC_ENV_OPS(symbol_set, setenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env, state, const char *, const char *, bool);
-GENERIC_ENV_OPS(symbol_put, putenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env, state, char *);
-GENERIC_ENV_OPS(symbol_unset, unsetenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env, state, const char *);
+GENERIC_ENV_OPS(symbol_get, getenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env, false, const char *, const char *);
+GENERIC_ENV_OPS(symbol_set, setenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env, false, state, const char *, const char *, bool);
+GENERIC_ENV_OPS(symbol_put, putenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env, false, state, char *);
+GENERIC_ENV_OPS(symbol_unset, unsetenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env, false, state, const char *);
 
 #define GENERIC_ENV_STACK(name, child)                                  \
 state kshell_##name##_push(struct kshell_context *ctx)                  \
@@ -242,103 +248,65 @@ static state kshell_env_clone(struct kshell_context *ctx, struct kshell_context 
 
 static void usage(struct kshell_context *ctx, const char *cmd)
 {
-    kshell_printf(ctx, "usage %s [option] name[=value]...\n", cmd);
+    kshell_printf(ctx, "usage: %s [option] name[=value]...\n", cmd);
     kshell_printf(ctx, "\t-u  remove variable from the environment\n");
     kshell_printf(ctx, "\t-h  display this message\n");
 }
 
-static state kshell_local_main(struct kshell_context *ctx, int argc, char *argv[])
-{
-    struct kshell_stack *local = list_first_entry(&ctx->local, struct kshell_stack, list);
-    struct kshell_env *env = NULL;
-    unsigned int count;
-    state retval = -ENOERR;
-
-    for (count = 1; count < argc; ++count) {
-        char *para = argv[count];
-
-        if (para[0] != '-')
-            break;
-
-        switch (para[1]) {
-            case 'l':
-                env = (void *)true;
-                break;
-
-            case 'u':
-                if ((++count) >= argc)
-                    goto usage;
-                kshell_local_unset(ctx, argv[count]);
-                break;
-
-            case 'h': default:
-                goto usage;
-        }
-    }
-
-    while (count < argc) {
-        retval = kshell_local_put(ctx, argv[count++]);
-        if (retval)
-            break;
-    }
-
-    if (count == 1 || (env && !retval)) {
-        rb_for_each_entry(env, &local->env, node)
-            kshell_printf(ctx, "\t%s=%s\n", env->name, env->val);
-    }
-
-    return retval;
-
-usage:
-    usage(ctx, argv[0]);
-    return -EINVAL;
+#define GENERIC_ENV_MAIN(cmd, func, variable, child)                                    \
+static state kshell_##cmd##_main(struct kshell_context *ctx, int argc, char *argv[])    \
+{                                                                                       \
+    struct kshell_env *env = NULL;                                                      \
+    state retval = -ENOERR;                                                             \
+    unsigned int count;                                                                 \
+    variable;                                                                           \
+                                                                                        \
+    for (count = 1; count < argc; ++count) {                                            \
+        char *para = argv[count];                                                       \
+                                                                                        \
+        if (para[0] != '-')                                                             \
+            break;                                                                      \
+                                                                                        \
+        switch (para[1]) {                                                              \
+            case 'l':                                                                   \
+                env = (void *)true;                                                     \
+                break;                                                                  \
+                                                                                        \
+            case 'u':                                                                   \
+                if ((++count) >= argc)                                                  \
+                    goto usage;                                                         \
+                kshell_##func##_unset(ctx, argv[count]);                                \
+                break;                                                                  \
+                                                                                        \
+            case 'h': default:                                                          \
+                goto usage;                                                             \
+        }                                                                               \
+    }                                                                                   \
+                                                                                        \
+    while (count < argc) {                                                              \
+        retval = kshell_##func##_put(ctx, argv[count]);                                 \
+        if (retval == -EINVAL)                                                          \
+            kshell_printf(ctx, __stringify(cmd)                                         \
+                          ": not a identifier: %s\n", argv[count]);                     \
+        count++;                                                                        \
+        if (retval)                                                                     \
+            break;                                                                      \
+    }                                                                                   \
+                                                                                        \
+    if (count == 1 || (env && !retval)) {                                               \
+        rb_for_each_entry(env, child, node)                                             \
+            kshell_printf(ctx, "\t%s=%s\n", env->name, env->val);                       \
+    }                                                                                   \
+                                                                                        \
+    return retval;                                                                      \
+                                                                                        \
+usage:                                                                                  \
+    usage(ctx, argv[0]);                                                                \
+    return -EINVAL;                                                                     \
 }
 
-static state kshell_env_main(struct kshell_context *ctx, int argc, char *argv[])
-{
-    struct kshell_env *env = NULL;
-    unsigned int count;
-    state retval = -ENOERR;
-
-    for (count = 1; count < argc; ++count) {
-        char *para = argv[count];
-
-        if (para[0] != '-')
-            break;
-
-        switch (para[1]) {
-            case 'l':
-                env = (void *)true;
-                break;
-
-            case 'u':
-                if ((++count) >= argc)
-                    goto usage;
-                kshell_local_unset(ctx, argv[count]);
-                break;
-
-            case 'h': default:
-                goto usage;
-        }
-    }
-
-    while (count < argc) {
-        retval = kshell_local_put(ctx, argv[count++]);
-        if (retval)
-            break;
-    }
-
-    if (count == 1 || (env && !retval)) {
-        rb_for_each_entry(env, &ctx->env, node)
-            kshell_printf(ctx, "\t%s=%s\n", env->name, env->val);
-    }
-
-    return retval;
-
-usage:
-    usage(ctx, argv[0]);
-    return -EINVAL;
-}
+GENERIC_ENV_MAIN(env, global, , &ctx->env)
+GENERIC_ENV_MAIN(local, local, struct kshell_stack *local = list_first_entry(&ctx->local, struct kshell_stack, list), &local->env)
 
 static struct kshell_command kshell_local_cmd = {
     .name = "local",

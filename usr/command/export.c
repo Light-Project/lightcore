@@ -26,16 +26,21 @@ static state export_main(struct kshell_context *ctx, int argc, char *argv[])
     unsigned int count;
     state retval;
 
-    if (argc == 1)
+    if (argc <= 1) {
         usage(ctx);
+        retval = -EINVAL;
+    }
 
     else for (count = 1; count < argc; ++count) {
         retval = PROGRAM_FUNC(ctx, argv[count]);
+        if (retval == -EINVAL)
+            kshell_printf(ctx, __stringify(PROGRAM_NAME)
+                          ": not a identifier: %s\n", argv[count]);
         if (retval)
             break;
     }
 
-    return -ENOERR;
+    return retval;
 }
 
 static struct kshell_command export_cmd = {
