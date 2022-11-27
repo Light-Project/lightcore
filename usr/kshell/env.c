@@ -124,10 +124,48 @@ GENERIC_ENV_OPS(global_set, setenv, &ctx->env, state, const char *, const char *
 GENERIC_ENV_OPS(global_put, putenv, &ctx->env, state, char *);
 GENERIC_ENV_OPS(global_unset, unsetenv, &ctx->env, state, const char *);
 
-GENERIC_ENV_OPS(local_get, getenv, &list_first_entry(&ctx->local, struct kshell_local, list)->env, const char *, const char *);
-GENERIC_ENV_OPS(local_set, setenv, &list_first_entry(&ctx->local, struct kshell_local, list)->env, state, const char *, const char *, bool);
-GENERIC_ENV_OPS(local_put, putenv, &list_first_entry(&ctx->local, struct kshell_local, list)->env, state, char *);
-GENERIC_ENV_OPS(local_unset, unsetenv, &list_first_entry(&ctx->local, struct kshell_local, list)->env, state, const char *);
+GENERIC_ENV_OPS(local_get, getenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env, const char *, const char *);
+GENERIC_ENV_OPS(local_set, setenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env, state, const char *, const char *, bool);
+GENERIC_ENV_OPS(local_put, putenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env, state, char *);
+GENERIC_ENV_OPS(local_unset, unsetenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env, state, const char *);
+
+GENERIC_ENV_OPS(symbol_get, getenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env, const char *, const char *);
+GENERIC_ENV_OPS(symbol_set, setenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env, state, const char *, const char *, bool);
+GENERIC_ENV_OPS(symbol_put, putenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env, state, char *);
+GENERIC_ENV_OPS(symbol_unset, unsetenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env, state, const char *);
+
+#define GENERIC_ENV_STACK(name, child)                                  \
+state kshell_##name##_push(struct kshell_context *ctx)                  \
+{                                                                       \
+    struct kshell_stack *stack;                                         \
+                                                                        \
+    stack = kmalloc(sizeof(*stack), GFP_KERNEL);                        \
+    if (unlikely(!stack))                                               \
+        return -ENOMEM;                                                 \
+                                                                        \
+    stack->env = RB_INIT;                                               \
+    list_add(&ctx->child, &stack->list);                                \
+                                                                        \
+    return -ENOERR;                                                     \
+}                                                                       \
+EXPORT_SYMBOL(kshell_##name##_push);                                    \
+                                                                        \
+state kshell_##name##_pop(struct kshell_context *ctx)                   \
+{                                                                       \
+    struct kshell_stack *stack;                                         \
+    struct kshell_env *env, *tmp;                                       \
+                                                                        \
+    stack = list_first_entry(&ctx->child, struct kshell_stack, list);   \
+    rb_post_for_each_entry_safe(env, tmp, &stack->env, node)            \
+        kfree(env);                                                     \
+                                                                        \
+    list_del(&stack->list);                                             \
+    return -ENOERR;                                                     \
+}                                                                       \
+EXPORT_SYMBOL(kshell_##name##_pop)
+
+GENERIC_ENV_STACK(local, local);
+GENERIC_ENV_STACK(symbol, symbol);
 
 const char *kshell_getenv(struct kshell_context *ctx, const char *name)
 {
@@ -172,34 +210,6 @@ state kshell_unsetenv(struct kshell_context *ctx, const char *name)
 }
 EXPORT_SYMBOL(kshell_unsetenv);
 
-state kshell_local_push(struct kshell_context *ctx)
-{
-    struct kshell_local *local;
-
-    local = kmalloc(sizeof(*local), GFP_KERNEL);
-    if (unlikely(!local))
-        return -ENOMEM;
-
-    local->env = RB_INIT;
-    list_add(&ctx->local, &local->list);
-
-    return -ENOERR;
-}
-EXPORT_SYMBOL(kshell_local_push);
-
-state kshell_local_pop(struct kshell_context *ctx)
-{
-    struct kshell_local *local = list_first_entry(&ctx->local, struct kshell_local, list);
-    struct kshell_env *env, *tmp;
-
-    rb_post_for_each_entry_safe(env, tmp, &local->env, node)
-        kfree(env);
-
-    list_del(&local->list);
-    return -ENOERR;
-}
-EXPORT_SYMBOL(kshell_local_pop);
-
 static void kshell_env_destory(struct kshell_context *ctx)
 {
     struct kshell_env *env, *tmp;
@@ -215,7 +225,9 @@ static state kshell_env_clone(struct kshell_context *ctx, struct kshell_context 
 
     ctx->env = RB_INIT;
     list_head_init(&ctx->local);
+    list_head_init(&ctx->symbol);
     kshell_local_push(ctx);
+    kshell_symbol_push(ctx);
 
     rb_for_each_entry(env, &old->env, node) {
         if (kshell_setenv(ctx, env->name, env->val, true)) {
@@ -237,7 +249,7 @@ static void usage(struct kshell_context *ctx, const char *cmd)
 
 static state kshell_local_main(struct kshell_context *ctx, int argc, char *argv[])
 {
-    struct kshell_local *local = list_first_entry(&ctx->local, struct kshell_local, list);
+    struct kshell_stack *local = list_first_entry(&ctx->local, struct kshell_stack, list);
     struct kshell_env *env = NULL;
     unsigned int count;
     state retval = -ENOERR;

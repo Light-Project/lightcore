@@ -49,7 +49,7 @@ struct readline_state {
     struct readline_history *curr;
 };
 
-struct kshell_local {
+struct kshell_stack {
     struct list_head list;
     struct rb_root env;
 };
