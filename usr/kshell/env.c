@@ -220,9 +220,11 @@ static void kshell_env_destory(struct kshell_context *ctx)
 {
     struct kshell_env *env, *tmp;
 
-    kshell_local_pop(ctx);
     rb_post_for_each_entry_safe(env, tmp, &ctx->env, node)
         kfree(env);
+
+    kshell_local_pop(ctx);
+    kshell_symbol_pop(ctx);
 }
 
 static state kshell_env_clone(struct kshell_context *ctx, struct kshell_context *old)
