@@ -82,7 +82,7 @@ void delay_change(struct clocksource_device *cdev)
  */
 void msleep(unsigned int msecs)
 {
-    ttime_t timeout = ttime_to_ms(msecs);
+    ttime_t timeout = ms_to_ttime(msecs);
     do
         timeout = sched_timeout_uninterruptible(timeout);
     while (timeout);
