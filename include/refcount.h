@@ -21,6 +21,10 @@ enum refcount_saturation {
     REFCOUNT_SUB_LEAK,
 };
 
+#define REFCOUNT_STATIC { 1 }
+#define REFCOUNT_INIT (refcount_t)REFCOUNT_STATIC
+#define DEFINE_REFCOUNT(name) refcount_t name = REFCOUNT_INIT
+
 #ifdef CONFIG_DEBUG_REFCOUNT
 extern void refcount_saturation_report(refcount_t *ref, enum refcount_saturation type);
 #endif
