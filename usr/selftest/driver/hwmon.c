@@ -23,6 +23,16 @@ static const char *thermal_attributes_names[] = {
     ATTRIBUTE_TEST(HWMON_THERMAL_CRIT_HYST),
 };
 
+static const char *humidity_attributes_names[] = {
+    ATTRIBUTE_TEST(HWMON_HUMIDITY_LABEL),
+    ATTRIBUTE_TEST(HWMON_HUMIDITY_ENABLE),
+    ATTRIBUTE_TEST(HWMON_HUMIDITY_DATA),
+    ATTRIBUTE_TEST(HWMON_HUMIDITY_MIN),
+    ATTRIBUTE_TEST(HWMON_HUMIDITY_MIN_HYST),
+    ATTRIBUTE_TEST(HWMON_HUMIDITY_MAX),
+    ATTRIBUTE_TEST(HWMON_HUMIDITY_MAX_HYST),
+};
+
 static const char *fan_attributes_names[] = {
     ATTRIBUTE_TEST(HWMON_FAN_LABEL),
     ATTRIBUTE_TEST(HWMON_FAN_ENABLE),
@@ -52,6 +62,11 @@ static state hwmon_test_channels(struct kshell_context *ctx, struct hwmon_device
             attname = thermal_attributes_names;
             break;
 
+        case HWMON_SENSOR_HUMIDITY:
+            attmax = ARRAY_SIZE(humidity_attributes_names);
+            attname = humidity_attributes_names;
+            break;
+
         case HWMON_SENSOR_FAN:
             attmax = ARRAY_SIZE(fan_attributes_names);
             attname = fan_attributes_names;
@@ -79,15 +94,22 @@ static state hwmon_test_channels(struct kshell_context *ctx, struct hwmon_device
             if (index == 1) {
                 const char *value;
                 retval = hwmon_device_string(hdev, info->sensor, channel, index - 1, &value);
-                kshell_printf(ctx, "hwmon test '%s' string: %s\n", attname[index - 1], value);
+                if (retval)
+                    kshell_printf(ctx, "hwmon %s '%s' failed: %d\n",
+                                  hdev->dev->name, attname[index - 1], retval);
+                else
+                    kshell_printf(ctx, "hwmon %s '%s' passed: %s\n",
+                                  hdev->dev->name, attname[index - 1], value);
             } else {
                 ssize_t value;
                 retval = hwmon_device_read(hdev, info->sensor, channel, index - 1, &value);
-                kshell_printf(ctx, "hwmon test '%s' read: %ld\n", attname[index - 1], value);
+                if (retval)
+                    kshell_printf(ctx, "hwmon %s '%s' failed: %d\n",
+                                  hdev->dev->name, attname[index - 1], retval);
+                else
+                    kshell_printf(ctx, "hwmon %s '%s' passed: %ld\n",
+                                  hdev->dev->name, attname[index - 1], value);
             }
-
-            if (retval)
-                return retval;
         }
     }
 

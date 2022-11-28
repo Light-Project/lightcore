@@ -6,8 +6,9 @@
 
 enum hwmon_sensor {
     HWMON_SENSOR_THERMAL        = 1,
-    HWMON_SENSOR_FAN            = 2,
-    HWMON_SENSOR_PWM            = 3,
+    HWMON_SENSOR_HUMIDITY       = 2,
+    HWMON_SENSOR_FAN            = 3,
+    HWMON_SENSOR_PWM            = 4,
 };
 
 enum hwmon_thermal_attributes {
@@ -31,6 +32,24 @@ enum hwmon_thermal_attributes {
 #define HWMON_THERMAL_HAS_MAX_HYST  BIT(HWMON_THERMAL_MAX_HYST)
 #define HWMON_THERMAL_HAS_CRIT      BIT(HWMON_THERMAL_CRIT)
 #define HWMON_THERMAL_HAS_CRIT_HYST BIT(HWMON_THERMAL_CRIT_HYST)
+
+enum hwmon_humidity_attributes {
+    HWMON_HUMIDITY_LABEL        = 0,
+    HWMON_HUMIDITY_ENABLE       = 1,
+    HWMON_HUMIDITY_DATA         = 2,
+    HWMON_HUMIDITY_MIN          = 3,
+    HWMON_HUMIDITY_MIN_HYST     = 4,
+    HWMON_HUMIDITY_MAX          = 5,
+    HWMON_HUMIDITY_MAX_HYST     = 6,
+};
+
+#define HWMON_HUMIDITY_HAS_ENABLE   BIT(HWMON_HUMIDITY_ENABLE)
+#define HWMON_HUMIDITY_HAS_LABEL    BIT(HWMON_HUMIDITY_LABEL)
+#define HWMON_HUMIDITY_HAS_DATA     BIT(HWMON_HUMIDITY_DATA)
+#define HWMON_HUMIDITY_HAS_MIN      BIT(HWMON_HUMIDITY_MIN)
+#define HWMON_HUMIDITY_HAS_MIN_HYST BIT(HWMON_HUMIDITY_MIN_HYST)
+#define HWMON_HUMIDITY_HAS_MAX      BIT(HWMON_HUMIDITY_MAX)
+#define HWMON_HUMIDITY_HAS_MAX_HYST BIT(HWMON_HUMIDITY_MAX_HYST)
 
 enum hwmon_fan_attributes {
     HWMON_FAN_LABEL             = 0,
