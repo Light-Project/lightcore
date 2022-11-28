@@ -249,7 +249,8 @@ static state bitbang_send_addr(struct i2c_host *host, struct i2c_transfer *trans
         if (trans->flags & I2C_M_REV_DIR_ADDR)
             address ^= 1;
         retval = bitbang_try_addr(adap, address, host->retries);
-        if ((retval != -ECONNABORTED) && trans->flags & I2C_M_REV_DIR_ADDR)
+        if (retval && (retval != -ECONNABORTED ||
+            !(trans->flags & I2C_M_IGNORE_NAK)))
             return retval;
     } else {
 
@@ -279,17 +280,16 @@ static state bitbang_transfer(struct i2c_host *host, unsigned int num,
 
         if (!(xfer->flags & I2C_M_NOSTART)) {
             if (count) {
-                if ((xfer - 1)->flags & I2C_M_STOP) {
+                if (!((xfer - 1)->flags & I2C_M_STOP))
+                    bitbang_restart(adap);
+                else {
                     bitbang_stop(adap);
                     bitbang_start(adap);
-                } else {
-                    bitbang_restart(adap);
                 }
             }
 			retval = bitbang_send_addr(host, xfer);
-			if ((retval != -ECONNABORTED) && (xfer->flags & I2C_M_IGNORE_NAK)) {
+			if (retval)
                 goto finish;
-            }
         }
 
         if (xfer->flags & I2C_M_RD) {

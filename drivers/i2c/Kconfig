@@ -3,8 +3,18 @@ menuconfig I2C
     bool "Inter Integrated Circuit (I2C) Support"
 if I2C
 
+config I2C_DT
+    bool "I2C Device Tree Linkage"
+    depends on DT
+    default y
+
 config I2C_BITBANGING
     bool "I2C Bitbanging Support"
+
+config I2C_GPIO
+    bool "GPIO I2C Bridge"
+    depends on GPIO
+    select I2C_BITBANGING
 
 config I2C_I801
     bool "Intel 82801 Support"
