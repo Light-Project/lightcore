@@ -20,26 +20,30 @@
  */
 void *krealloc(const void *block, size_t rsize, gfp_t flags)
 {
-    size_t size;
-    void *ret;
+    size_t osize;
+    void *newblk;
 
     if (unlikely(!rsize)) {
         kfree(block);
         return NULL;
     }
 
-    size = ksize(block);
-    if (unlikely(!size))
+    if (likely(!IS_INVAL(block)))
+        osize = ksize(block);
+    else
+        osize = 0;
+
+    if (osize >= rsize)
+        return (void *)block;
+
+    newblk = kmalloc(rsize, flags);
+    if (unlikely(!newblk))
         return NULL;
 
-    ret = kmalloc(rsize, flags);
-    if (unlikely(!ret))
-        return NULL;
-
-    memcpy(ret, block, size);
+    memcpy(newblk, block, osize);
     kfree(block);
 
-    return ret;
+    return newblk;
 }
 EXPORT_SYMBOL(krealloc);
 

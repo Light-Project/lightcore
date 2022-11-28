@@ -16,7 +16,7 @@
 #include <asm/page.h>
 #include <asm/cache.h>
 
-#if (PAGE_SHIFT > 15)
+#if (PAGE_SHIFT >= 15)
 # define slobidx_t   uint32_t
 #else
 # define slobidx_t   uint16_t
@@ -26,26 +26,27 @@ struct slob_node {
 #ifdef CONFIG_DEBUG_SLOB
     uint32_t magic;
 #endif
-    slobidx_t size;
-    bool use;
+    slobidx_t size:PAGE_SHIFT + 1;
+    slobidx_t using:1;
 };
 
-#define SLOB_PAGEUSE NULL
-#define SLOB_ALIGN max(CACHE_LINE_SIZE, MSIZE)
+#define SLOB_PAGEUSE    NULL
+#define SLOB_ALIGN      max(CACHE_LINE_SIZE, MSIZE)
+#define SLOB_OFFSET     max(SLOB_ALIGN, sizeof(struct slob_node))
 
+static SPIN_LOCK(slob_lock);
 static LIST_HEAD(slob_free_small);
 static LIST_HEAD(slob_free_medium);
 static LIST_HEAD(slob_free_large);
-static SPIN_LOCK(slob_lock);
 
 static inline struct slob_node *slob_node_next(struct slob_node *node)
 {
-    return (struct slob_node *)((size_t)node + node->size);
+    return (struct slob_node *)((uintptr_t)node + node->size);
 }
 
 static inline bool slob_node_last(struct slob_node *node)
 {
-	return !((size_t)slob_node_next(node) & ~PAGE_MASK);
+	return !((uintptr_t)slob_node_next(node) & ~PAGE_MASK);
 }
 
 static struct page *slob_get_page(int order, gfp_t gfp, int numa)
@@ -68,11 +69,11 @@ static struct page *slob_get_page(int order, gfp_t gfp, int numa)
 
 /**
  * slob_node_find - find a slob node within a given page.
- * @slob_page: page to find node
- * @block: address of node
- * @pnext: used to return next node
- * @pprev: used to return prev node
- * @offset: offset in the allocated block that will be aligned
+ * @slob_page: page to find node.
+ * @block: address of node.
+ * @pnext: used to return next node.
+ * @pprev: used to return prev node.
+ * @offset: offset in the allocated block that will be aligned.
  */
 static struct slob_node *slob_node_find(struct slob_page *slob, const void *block,
                 struct slob_node **pnext, struct slob_node **pprev, size_t offset)
@@ -105,17 +106,17 @@ static struct slob_node *slob_node_find(struct slob_page *slob, const void *bloc
 
 /**
  * slob_page_alloc - allocates memory within a given page.
- * @slob_page: page to allocate memory
- * @size: size of the allocation
- * @align: allocation alignment
- * @offset: offset in the allocated block that will be aligned
- * @bsize: size of the minimum allocation
+ * @slob_page: page to allocate memory.
+ * @size: size of the allocation.
+ * @align: allocation alignment.
+ * @offset: offset in the allocated block that will be aligned.
+ * @bsize: size of the minimum allocation.
  */
 static void *slob_page_alloc(struct slob_page *slob_page, size_t size,
                              size_t align, size_t offset, size_t bsize)
 {
     struct slob_node *node, *aligned, *free, *prev = NULL;
-    slobidx_t used, avail, delta = 0;
+    slobidx_t using, avail, delta = 0;
 
     /*
      * SLOB adjustment: (offset = 32, align = 32)
@@ -123,7 +124,7 @@ static void *slob_page_alloc(struct slob_page *slob_page, size_t size,
      *  addr:  0      3       32       64
      *  size:         | delta | offset |  size (free)
      *   map:  ++++++ | ##### | ###### | #############
-     *  type:   used  |          avail
+     *  type:   using  |          avail
      */
 
     for (node = slob_page->node;; node = slob_node_next(node)) {
@@ -135,20 +136,18 @@ static void *slob_page_alloc(struct slob_page *slob_page, size_t size,
             return NULL;
 #endif
 
-        if (node->use)
-            goto skip;
+        if (!node->using) {
+            if (align) {
+                aligned = (struct slob_node *)(align_high
+                          ((uintptr_t)node + offset, align) - offset);
+                delta = (uintptr_t)aligned - (uintptr_t)node;
+            }
 
-        if (align) {
-            aligned = (struct slob_node *)(align_high
-                      ((size_t)node + offset, align) - offset);
-            delta = (size_t)aligned - (size_t)node;
+            /* Is there enough space */
+            if (avail >= delta + offset + size)
+                break;
         }
 
-        /* Is there enough space */
-        if (avail >= delta + offset + size)
-            break;
-
-skip:
         /* It's the last node. There's no memory available. */
         if (slob_node_last(node))
             return NULL;
@@ -160,7 +159,7 @@ skip:
         if (delta > (offset + bsize)) {
             /* delta is availability */
             node->size = delta;
-            node->use = false;
+            node->using = false;
         } else {
             /* delta is not available */
             if (prev)
@@ -179,32 +178,32 @@ skip:
 
     /* avail = offset + size (free) */
     slob_page->avail -= avail;
-    used = offset + size;
+    using = offset + size;
 
     /* avail = free */
-    avail -= used;
+    avail -= using;
 
     /* avoid generating unusable fragments */
     if (avail >= (offset + bsize)) {
-        node->size = used;
+        node->size = using;
         free = slob_node_next(node);
         free->size = avail;
-        free->use = false;
+        free->using = false;
 #ifdef CONFIG_DEBUG_SLOB
         free->magic = KMAGIC;
 #endif
         slob_page->avail += avail;
     }
 
-    node->use = true;
+    node->using = true;
     return (void *)node + offset;
 }
 
 /**
  * slob_page_free - free memory within a given page.
- * @slob_page: page to free memory
- * @block: address of node
- * @offset: offset in the allocated block that will be aligned
+ * @slob_page: page to free memory.
+ * @block: address of node.
+ * @offset: offset in the allocated block that will be aligned.
  */
 static int slob_page_free(struct slob_page *slob_page, const void *block, size_t offset)
 {
@@ -213,7 +212,7 @@ static int slob_page_free(struct slob_page *slob_page, const void *block, size_t
 
     node = slob_node_find(slob_page, block, &next, &prev, offset);
 #ifdef CONFIG_DEBUG_SLOB
-    if (DEBUG_DATA_CHECK(!node || !node->use,
+    if (DEBUG_DATA_CHECK(!node || !node->using,
         "page_free illegal release %p\n", block))
         return -1;
 #endif
@@ -221,17 +220,17 @@ static int slob_page_free(struct slob_page *slob_page, const void *block, size_t
     free = node->size;
 
     /* merge the next free node */
-    if (!slob_node_last(node) && !next->use)
+    if (!slob_node_last(node) && !next->using)
         node->size += next->size;
 
     /* merge the prev free node */
-    if (prev && !prev->use)
+    if (prev && !prev->using)
         prev->size += node->size;
 
     /* release first node pad */
     if (!prev && !page_ptr_aligned(slob_page->node)) {
         prev = page_address(slob_to_page(slob_page));
-        delta = (size_t)slob_page->node - (size_t)prev;
+        delta = (uintptr_t)slob_page->node - (uintptr_t)prev;
         node = prev;
         node->size = delta + slob_page->node->size;
         slob_page->node = node;
@@ -241,7 +240,7 @@ static int slob_page_free(struct slob_page *slob_page, const void *block, size_t
         free += delta;
     }
 
-    node->use = false;
+    node->using = false;
     slob_page->avail += free;
 
     return slob_node_last(slob_page->node);
@@ -257,9 +256,6 @@ static void *slob_alloc_node(struct list_head *slob_list, size_t size, size_t of
     spin_lock_irqsave(&slob_lock, &irq_save);
 
     list_for_each_entry_safe(slob_page, next, slob_list, list) {
-        if (slob_page->node == SLOB_PAGEUSE)
-            continue;
-
         /* Is there enough space */
         if (slob_page->avail < offset + size)
             continue;
@@ -273,11 +269,10 @@ static void *slob_alloc_node(struct list_head *slob_list, size_t size, size_t of
          * to the last used node (LRU) to improve
          * the fragment distribution
          */
-        if (slob_page->avail) {
-            if (!list_check_first(slob_list, &slob_page->list))
-                list_move(slob_list, &slob_page->list);
-        } else
+        if (slob_page->avail)
             list_del(&slob_page->list);
+        else if (!list_check_first(slob_list, &slob_page->list))
+            list_move(slob_list, &slob_page->list);
 
         break;
     }
@@ -301,7 +296,7 @@ static void *slob_alloc_node(struct list_head *slob_list, size_t size, size_t of
         slob_page->avail = PAGE_SIZE;
         slob_page->node = page_address(page);
         slob_page->node->size = PAGE_SIZE;
-        slob_page->node->use = false;
+        slob_page->node->using = false;
 #ifdef CONFIG_DEBUG_SLOB
         slob_page->node->magic = KMAGIC;
 #endif
@@ -341,14 +336,14 @@ static void *slob_alloc(size_t size, gfp_t flags, size_t align, int numa)
         break_size = CONFIG_SLOB_HUGE_LINE;
     }
 
-    return slob_alloc_node(slob_list, size,
-        SLOB_ALIGN, align, break_size, flags, numa);
+    return slob_alloc_node(slob_list, size, SLOB_OFFSET,
+                           align, break_size, flags, numa);
 }
 
 static void slob_free(const void *block)
 {
     struct page *page = va_to_page(block);
-    struct slob_page *slob_page = &page->slob;
+    struct slob_page *slob_page;
     irqflags_t irq_save;
     int retval;
 
@@ -365,6 +360,7 @@ static void slob_free(const void *block)
         return;
     }
 
+    slob_page = &page->slob;
     spin_lock_irqsave(&slob_lock, &irq_save);
 
     retval = slob_page_free(slob_page, block, SLOB_ALIGN);
@@ -413,11 +409,11 @@ size_t ksize(const void *block)
     if (page->slob.node == SLOB_PAGEUSE)
         return page_size(page);
 
-    node = slob_node_find(&page->slob, block, NULL, NULL, SLOB_ALIGN);
+    node = slob_node_find(&page->slob, block, NULL, NULL, SLOB_OFFSET);
     if (!node)
         return 0;
 
-    return node->size - SLOB_ALIGN;
+    return node->size - SLOB_OFFSET;
 }
 EXPORT_SYMBOL(ksize);
 
