@@ -12,5 +12,6 @@ obj-y += crc8.o
 obj-y += crc16.o
 obj-y += crc32.o
 obj-y += crc64.o
+obj-y += jhash.o
 obj-y += sha1.o
 obj-y += sha256.o
