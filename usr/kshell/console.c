@@ -61,7 +61,7 @@ int kshell_vprintf(struct kshell_context *ctx, const char *fmt, va_list args)
     char strbuf[256];
     int len;
 
-    len = vsnprintf(strbuf, sizeof(strbuf), fmt, args);
+    len = vscnprintf(strbuf, sizeof(strbuf), fmt, args);
     kshell_write(ctx, strbuf, len);
 
     return len;
