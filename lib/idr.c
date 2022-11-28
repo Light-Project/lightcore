@@ -25,11 +25,11 @@ static long idr_rb_find(const struct rb_node *rb, const void *key)
 }
 
 /**
- * idr_get_free_range - get the first unused id
- * @idr: the idr handle
- * @min: minimum id to get
- * @max: maximum id to get
- * @nextp: return the next linked list node
+ * idr_get_free_range - get the first unused id.
+ * @idr: the idr handle.
+ * @min: minimum id to get.
+ * @max: maximum id to get.
+ * @nextp: return the next linked list node.
  */
 static unsigned long idr_get_free_range(struct idr_root *idr, unsigned long min, unsigned long max, bool *fusep,
                                         struct list_head **nextp, struct rb_node **parentp, struct rb_node ***linkp)
@@ -68,12 +68,12 @@ finish:
 }
 
 /**
- * idr_node_alloc_range - sequence add an node to the idr
- * @idr: the idr handle
- * @node: idr node to add
- * @pdata: node pdata
- * @min: minimum id
- * @max: maximum id
+ * idr_node_alloc_range - sequence add an node to the idr.
+ * @idr: the idr handle.
+ * @node: idr node to add.
+ * @pdata: node pdata.
+ * @min: minimum id.
+ * @max: maximum id.
  */
 unsigned long idr_node_alloc_range(struct idr_root *idr, struct idr_node *node, void *pdata, unsigned long min, unsigned long max)
 {
@@ -104,12 +104,12 @@ finish:
 EXPORT_SYMBOL(idr_node_alloc_range);
 
 /**
- * idr_node_alloc_cyclic_range - cyclic add an node to the idr
- * @idr: the idr handle
- * @node: idr node to add
- * @pdata: node pdata
- * @min: minimum id
- * @max: maximum id
+ * idr_node_alloc_cyclic_range - cyclic add an node to the idr.
+ * @idr: the idr handle.
+ * @node: idr node to add.
+ * @pdata: node pdata.
+ * @min: minimum id.
+ * @max: maximum id.
  */
 unsigned long idr_node_alloc_cyclic_range(struct idr_root *idr, struct idr_node *node, void *pdata, unsigned long min, unsigned long max)
 {
@@ -131,9 +131,9 @@ unsigned long idr_node_alloc_cyclic_range(struct idr_root *idr, struct idr_node 
 EXPORT_SYMBOL(idr_node_alloc_cyclic_range);
 
 /**
- * idr_node_free - remove an id from the idr
- * @idr: the idr handle
- * @id: the id to release
+ * idr_node_free - remove an id from the idr.
+ * @idr: the idr handle.
+ * @id: the id to release.
  */
 struct idr_node *idr_node_free(struct idr_root *idr, unsigned long id)
 {
@@ -158,12 +158,12 @@ finish:
 EXPORT_SYMBOL(idr_node_free);
 
 /**
- * idr_alloc_range - alloc a node and sequence add the id to idr
- * @idr: the idr handle
- * @pdata: node pdata
- * @min: minimum id
- * @max: maximum id
- * @flags: gfp flags
+ * idr_alloc_range - alloc a node and sequence add the id to idr.
+ * @idr: the idr handle.
+ * @pdata: node pdata.
+ * @min: minimum id.
+ * @max: maximum id.
+ * @flags: gfp flags.
  */
 unsigned long idr_alloc_range(struct idr_root *idr, void *pdata, unsigned long min, unsigned long max, gfp_t flags)
 {
@@ -183,12 +183,12 @@ unsigned long idr_alloc_range(struct idr_root *idr, void *pdata, unsigned long m
 EXPORT_SYMBOL(idr_alloc_range);
 
 /**
- * idr_alloc_cyclic_range - alloc a node and cyclic add the id to idr
- * @idr: the idr handle
- * @pdata: node pdata
- * @min: minimum id
- * @max: maximum id
- * @flags: gfp flags
+ * idr_alloc_cyclic_range - alloc a node and cyclic add the id to idr.
+ * @idr: the idr handle.
+ * @pdata: node pdata.
+ * @min: minimum id.
+ * @max: maximum id.
+ * @flags: gfp flags.
  */
 unsigned long idr_alloc_cyclic_range(struct idr_root *idr, void *pdata, unsigned long min, unsigned long max, gfp_t flags)
 {
@@ -208,9 +208,9 @@ unsigned long idr_alloc_cyclic_range(struct idr_root *idr, void *pdata, unsigned
 EXPORT_SYMBOL(idr_alloc_cyclic_range);
 
 /**
- * idr_free - remove id from the idr and free
- * @idr: the idr handle
- * @id: the id to release
+ * idr_free - remove id from the idr and free.
+ * @idr: the idr handle.
+ * @id: the id to release.
  */
 void idr_free(struct idr_root *idr, unsigned long id)
 {
@@ -223,9 +223,9 @@ void idr_free(struct idr_root *idr, unsigned long id)
 EXPORT_SYMBOL(idr_free);
 
 /**
- * idr_find_node - find an idr node from the idr tree.
- * @idr: the idr handle
- * @id: the id to find
+ * idr_find_node - find an idr node from the idr tree..
+ * @idr: the idr handle.
+ * @id: the id to find.
  */
 struct idr_node *idr_find_node(struct idr_root *idr, unsigned long id)
 {
@@ -243,9 +243,9 @@ struct idr_node *idr_find_node(struct idr_root *idr, unsigned long id)
 EXPORT_SYMBOL(idr_find_node);
 
 /**
- * idr_find - Look for the data of an IDR from the idr tree.
- * @idr: the idr handle
- * @id: the id to find
+ * idr_find - look for the data of an IDR from the idr tree..
+ * @idr: the idr handle.
+ * @id: the id to find.
  */
 void *idr_find(struct idr_root *idr, unsigned long id)
 {
@@ -256,8 +256,8 @@ void *idr_find(struct idr_root *idr, unsigned long id)
 EXPORT_SYMBOL(idr_find);
 
 /**
- * idr_release - remove id from the idr and free
- * @idr: the idr handle
+ * idr_release - remove id from the idr and free.
+ * @idr: the idr handle.
  */
 void idr_release(struct idr_root *idr)
 {
@@ -272,8 +272,8 @@ void idr_release(struct idr_root *idr)
 EXPORT_SYMBOL(idr_release);
 
 /**
- * idr_root_init - create an idr
- * @base: id number base
+ * idr_root_init - create an idr.
+ * @base: id number base.
  */
 void idr_root_init(struct idr_root *idr, unsigned long base)
 {
@@ -285,15 +285,15 @@ void idr_root_init(struct idr_root *idr, unsigned long base)
 EXPORT_SYMBOL(idr_root_init);
 
 /**
- * idr_create - create an idr
- * @base: id number base
+ * idr_create - create an idr.
+ * @base: id number base.
  */
 struct idr_root *idr_create(unsigned long base)
 {
     struct idr_root *idr;
 
     idr = kcache_alloc(idr_cache, GFP_KERNEL);
-    if (idr)
+    if (likely(idr))
         idr_root_init(idr, base);
 
     return idr;
@@ -301,8 +301,8 @@ struct idr_root *idr_create(unsigned long base)
 EXPORT_SYMBOL(idr_create);
 
 /**
- * idr_delete - delete an idr
- * @idr: the idr handle
+ * idr_delete - delete an idr.
+ * @idr: the idr handle.
  */
 void idr_delete(struct idr_root *idr)
 {

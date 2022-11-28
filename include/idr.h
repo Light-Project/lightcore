@@ -24,6 +24,19 @@ struct idr_node {
     void *pdata;
 };
 
+#define IDR_ROOT_STATIC(name, base) {       \
+    .lock = SPIN_LOCK_STATIC(name.lock),    \
+    .list = LIST_HEAD_STATIC(name.list),    \
+    .root = RB_STATIC,                      \
+    .id_base = base,                        \
+}
+
+#define IDR_ROOT_INIT(name, base) \
+    (struct idr_root)IDR_ROOT_STATIC(name, base)
+
+#define IDR_ROOT(name, base) \
+    struct idr_root name = IDR_ROOT_INIT(name, base)
+
 #define rb_to_idr(ptr) \
     rb_entry(ptr, struct idr_node, rb)
 
