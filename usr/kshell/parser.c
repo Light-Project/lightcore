@@ -374,7 +374,9 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
     /* If the last one is a variable, parse it out */
     if (is_shortvar(cstate)) {
         vbuff[vpos] = '\0';
-        var = kshell_getenv(ctx, vbuff);
+        var = kshell_symbol_get(ctx, vbuff);
+        if (!var)
+            var = kshell_getenv(ctx, vbuff);
         if (var) {
             count = strlen(var);
             PARSER_EXP_TBUF(count);

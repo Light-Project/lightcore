@@ -78,7 +78,7 @@ static state define_func(struct kshell_context *ctx, char *name, char *body)
     return -ENOERR;
 }
 
-static state call_function(struct kshell_context *ctx, char *name, int argc, char *argv[])
+static state call_function(struct kshell_context *ctx, int argc, char *argv[])
 {
     struct rb_node *rb;
     struct kshell_func *node;
@@ -86,27 +86,30 @@ static state call_function(struct kshell_context *ctx, char *name, int argc, cha
     char number[13];
     state retval;
 
-    rb = rb_find(&ctx->func, name, func_rb_find);
+    rb = rb_find(&ctx->func, argv[0], func_rb_find);
     if (!rb) {
-        kshell_printf(ctx, "function '%s' undeclared\n", name);
+        kshell_printf(ctx, "function '%s' undeclared\n", argv[0]);
         return -EALREADY;
     }
 
+    kshell_local_push(ctx);
     kshell_symbol_push(ctx);
-    kshell_symbol_set(ctx, "0", name, false);
 
-    intoa(argc + 1, number, 10, 12);
+    intoa(argc, number, 10, 12);
     kshell_symbol_set(ctx, "#", number, false);
+    kshell_symbol_set(ctx, "0", argv[0], false);
 
-    for (count = 0; count < argc; ++count) {
-        snprintf(number, 12, "%d", count + 1);
+    for (count = 1; count < argc; ++count) {
+        intoa(count, number, 10, 12);
         kshell_symbol_set(ctx, number, argv[count], false);
     }
 
     node = func_to_kshell(rb);
     retval = kshell_system(ctx, node->body);
     ctx->breakfunc = false;
+
     kshell_symbol_pop(ctx);
+    kshell_local_pop(ctx);
 
     return retval;
 }
@@ -146,7 +149,7 @@ static state func_main(struct kshell_context *ctx, int argc, char *argv[])
         return define_func(ctx, argv[count] + 1, argv[count + 1]);
     }
 
-    return call_function(ctx, argv[count], argc - count - 1, &argv[count + 1]);
+    return call_function(ctx, argc - count, &argv[count]);
 
 usage:
     usage(ctx);
