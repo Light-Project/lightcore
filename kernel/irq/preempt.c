@@ -19,7 +19,7 @@ void preempt_count_add(unsigned long val)
 
     DEBUG_DATA_CHECK(((preempt_count() + val) & PREEMPT_MASK)
         >= PREEMPT_MASK - 10,
-        "preempt add will overflow");
+        "preempt add will overflow\n");
 #endif
 
     raw_preempt_count_add(val);
