@@ -68,7 +68,6 @@ struct parallel_driver {
  */
 struct parallel_host {
     struct device *dev;
-    struct dt_node *dt_node;
     struct list_head list;
     struct parallel_ops *ops;
 };

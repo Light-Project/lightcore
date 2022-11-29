@@ -10,7 +10,8 @@
 #include <export.h>
 
 static struct kcache *parallel_device_cache;
-static LIST_HEAD(parallel_host_list);
+SPIN_LOCK(parallel_host_lock);
+LIST_HEAD(parallel_host_list);
 
 static state parallel_match(struct device *dev, struct driver *drv)
 {
@@ -168,7 +169,10 @@ state parallel_host_register(struct parallel_host *host)
     dt_populate_parallel(host);
 #endif
 
+    spin_lock(&parallel_host_lock);
     list_add(&parallel_host_list, &host->list);
+    spin_unlock(&parallel_host_lock);
+
     return -ENOERR;
 }
 EXPORT_SYMBOL(parallel_host_register);
@@ -179,7 +183,9 @@ EXPORT_SYMBOL(parallel_host_register);
  */
 void parallel_host_unregister(struct parallel_host *host)
 {
+    spin_lock(&parallel_host_lock);
     list_del(&host->list);
+    spin_unlock(&parallel_host_lock);
 }
 EXPORT_SYMBOL(parallel_host_unregister);
 
