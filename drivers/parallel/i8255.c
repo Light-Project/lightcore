@@ -106,7 +106,6 @@ static state i8255_probe(struct platform_device *pdev, const void *pdata)
     idev->base = platform_resource_start(pdev, 0);
     idev->parallel.dev = &pdev->dev;
     idev->parallel.ops = &i8255_ops;
-    idev->parallel.dt_node = pdev->dt_node;
     platform_set_devdata(pdev, idev);
 
     if (!i8255_detect(idev))
