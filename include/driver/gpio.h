@@ -155,6 +155,8 @@ struct gpio_ops {
     state (*release)(struct gpio_device *gdev, unsigned int port);
     state (*value_get)(struct gpio_device *gdev, unsigned int port, bool *value);
     state (*value_set)(struct gpio_device *gdev, unsigned int port, bool value);
+    state (*multiple_get)(struct gpio_device *gdev, unsigned long *mask, unsigned long *value);
+    state (*multiple_set)(struct gpio_device *gdev, unsigned long *mask, unsigned long *value);
     state (*direction_get)(struct gpio_device *gdev, unsigned int port, enum gpio_direction *dir);
     state (*direction_set)(struct gpio_device *gdev, unsigned int port, enum gpio_direction dir);
     state (*pull_get)(struct gpio_device *gdev, unsigned int port, enum gpio_pull *pull);
