@@ -7,6 +7,7 @@
 
 #include <initcall.h>
 #include <ioops.h>
+#include <crash.h>
 #include <driver/platform.h>
 #include <driver/pci.h>
 

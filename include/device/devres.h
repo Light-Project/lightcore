@@ -5,22 +5,26 @@
 #include <irq.h>
 #include <mm/gfp.h>
 #include <resource.h>
-#include <panic.h>
 
-enum devres_type {
-    DEVRES_KMEM,
-    DEVRES_VMEM,
-    DEVRES_IOMAP,
-    DEVRES_IRQ,
-    DEVRES_IRQCHIP,
-};
+struct devres;
+typedef void (*devres_release_t)(struct device *dev, struct devres *res);
+typedef bool (*devres_find_t)(struct device *dev, struct devres *res, const void *data);
 
 struct devres {
     const char *name;
-    enum devres_type type;
     struct list_head list;
-    void *addr;
+    devres_release_t release;
 };
+
+/* device resource manager */
+extern struct devres *devres_find(struct device *dev, devres_find_t find, const void *data);
+extern void devres_insert(struct device *dev, struct devres *res);
+extern void devres_remove(struct device *dev, struct devres *res);
+extern void devres_release(struct device *dev, struct devres *res);
+extern struct devres *devres_find_remove(struct device *dev, devres_find_t find, const void *data);
+extern struct devres *devres_find_release(struct device *dev, devres_find_t find, const void *data);
+extern void devres_release_all(struct device *dev);
+extern void __init devres_init(void);
 
 /* device resource alloc function */
 extern void __malloc *dev_kmalloc(struct device *dev, size_t size, gfp_t flags);
@@ -40,12 +44,6 @@ extern void dev_kfree(struct device *dev, void *block);
 extern void dev_vfree(struct device *dev, void *block);
 extern void dev_iounmap(struct device *dev, void *block);
 extern void dev_irq_release(struct device *dev, irqnr_t vector);
-
-/* device resource core */
-extern struct devres *devres_find(struct device *dev, enum devres_type type, void *addr);
-extern void devres_release(struct devres *devres);
-extern void devres_release_all(struct device *dev);
-extern void __init devres_init(void);
 
 #define BUS_DEVRES_GENERIC(busn, type, member)                                  \
 static __always_inline void __malloc *                                          \

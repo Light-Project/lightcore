@@ -748,8 +748,10 @@ static state floppy_probe(struct platform_device *pdev, const void *pdata)
     platform_set_devdata(pdev, fdc);
 
     fdc->version = fdc_version(fdc);
-    if (!fdc->version)
-        return -ENODEV;
+    if (!fdc->version) {
+        ret = -ENODEV;
+        goto error;
+    }
 
     irq_request(FLOPPY_IRQ, 0, floppy_interrupt, NULL, DRIVER_NAME);
     irqchip_pass(fdc->irqchip);

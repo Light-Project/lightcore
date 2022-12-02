@@ -28,4 +28,7 @@
 #define dev_debug(dev, fmt, ...) \
     pr_debug("%s: "fmt, (dev)->name, ##__VA_ARGS__)
 
+#define dev_none(dev, fmt, ...) \
+    pr_none("%s: "fmt, (dev)->name, ##__VA_ARGS__)
+
 #endif  /* _DEVICE_DEVINFO_H_ */
