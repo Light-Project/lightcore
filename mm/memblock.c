@@ -20,7 +20,7 @@ static __init void memblock_node_remove(struct range_node *range, void *pdata);
 static __init void memblock_node_copy(struct range_node *dest, const struct range_node *src);
 static DEFINE_RANGE(memblock_range, memblock_node_alloc, memblock_node_remove, memblock_node_copy, NULL);
 
-#ifdef CONFIG_MEMBLK_DBG
+#ifdef CONFIG_DEBUG_MEMBLOCK
 # define memblk_debug(fmt, ...) pr_debug(fmt, ##__VA_ARGS__)
 #else
 # define memblk_debug(fmt, ...) pr_none(fmt, ##__VA_ARGS__)

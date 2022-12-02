@@ -89,6 +89,15 @@ config KGCOV_ALL
 
 endif # KGCOV
 
+menu "Device Driver Debugging"
+
+config DEBUG_DEVRES
+	bool "Managed device resources verbose debug messages"
+	depends on DEBUG_KERNEL
+    default y
+
+endmenu # Device Driver Debugging
+
 menu "Scheduler Debugging"
 
 config DEBUG_PREEMPT
@@ -112,6 +121,11 @@ menu "Memory Debugging"
 config DEBUG_SLOB
     bool "Debug slob out of bounds"
     depends on DEBUG_KERNEL && MM_SLOB
+    default y
+
+config DEBUG_MEMBLOCK
+    bool "Debug memblock"
+    depends on DEBUG_KERNEL
     default y
 
 endmenu # Memory Debugging

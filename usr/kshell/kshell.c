@@ -5,6 +5,7 @@
 
 #include "kshell.h"
 #include <string.h>
+#include <crash.h>
 #include <kmalloc.h>
 #include <initcall.h>
 #include <errname.h>

@@ -5,6 +5,7 @@
 
 #include <initcall.h>
 #include <timer.h>
+#include <crash.h>
 #include <driver/led.h>
 
 static SPIN_LOCK(heartbeat_lock);

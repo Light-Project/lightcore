@@ -6,6 +6,7 @@
 #include "kshell.h"
 #include <string.h>
 #include <kmalloc.h>
+#include <crash.h>
 
 #define PASER_TEXT_DEF  64
 #define PASER_VARG_DEF  32

@@ -8,6 +8,7 @@
 #include <initcall.h>
 #include <irq.h>
 #include <ioops.h>
+#include <crash.h>
 #include <export.h>
 #include <timekeeping.h>
 #include <driver/platform.h>

@@ -10,6 +10,7 @@
 #include <irq.h>
 #include <gunit.h>
 #include <delay.h>
+#include <crash.h>
 #include <ioops.h>
 #include <driver/platform.h>
 #include <driver/irqchip.h>
