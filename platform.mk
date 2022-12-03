@@ -63,6 +63,15 @@ platform-ccflags-y  += -mno-mmx -mno-3dnow
 platform-ccflags-y  += -mno-sse -mno-sse2 -mno-avx
 
 ifdef CONFIG_ARCH_X86_32
+ifdef CONFIG_STACKPROTECTOR
+ifndef CONFIG_SMP
+sys-ccflags-y += -mstack-protector-guard=global
+else
+sys-ccflags-y += -mstack-protector-guard-reg=fs
+sys-ccflags-y += -mstack-protector-guard-symbol=__stack_chk_guard
+endif # CONFIG_SMP
+endif # CONFIG_STACKPROTECTOR
+
 platform-acflags-y  += -m32
 platform-acflags-y  += -march=i386
 platform-ccflags-y  += $(cc_stack_align4)

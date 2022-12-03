@@ -18,6 +18,7 @@
 #include <pid.h>
 #include <kcoro.h>
 #include <kthread.h>
+#include <stackprotector.h>
 #include <namespace.h>
 #include <filesystem.h>
 
@@ -80,6 +81,8 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
     lrc_init();
 
     sched_init();
+    boot_stack_canary();
+
     softirq_init();
     timer_init();
     bootargs_init(boot_args);
