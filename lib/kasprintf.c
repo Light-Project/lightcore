@@ -30,40 +30,78 @@ char *kvasprintf(gfp_t flags, const char *fmt, va_list args)
 }
 EXPORT_SYMBOL(kvasprintf);
 
-const char *kvasprintf_const(gfp_t gfp, const char *fmt, va_list args)
+const char *kvasprintf_const(gfp_t flags, const char *fmt, va_list args)
 {
     if (!strchr(fmt, '%'))
-        return kstrdup_const(fmt, gfp);
+        return kstrdup_const(fmt, flags);
 
     if (!strcmp(fmt, "%s"))
-        return kstrdup_const(va_arg(args, const char *), gfp);
+        return kstrdup_const(va_arg(args, const char *), flags);
 
-    return kvasprintf(gfp, fmt, args);
+    return kvasprintf(flags, fmt, args);
 }
 EXPORT_SYMBOL(kvasprintf_const);
 
-char *kasprintf(gfp_t gfp, const char *fmt, ...)
+char *kasprintf(gfp_t flags, const char *fmt, ...)
 {
     va_list args;
     char *block;
 
     va_start(args, fmt);
-    block = kvasprintf(gfp, fmt, args);
+    block = kvasprintf(flags, fmt, args);
     va_end(args);
 
     return block;
 }
 EXPORT_SYMBOL(kasprintf);
 
-const char *kasprintf_const(gfp_t gfp, const char *fmt, ...)
+const char *kasprintf_const(gfp_t flags, const char *fmt, ...)
 {
     va_list args;
     const char *block;
 
     va_start(args, fmt);
-    block = kvasprintf_const(gfp, fmt, args);
+    block = kvasprintf_const(flags, fmt, args);
     va_end(args);
 
     return block;
 }
 EXPORT_SYMBOL(kasprintf_const);
+
+char *vasprintf(const char *fmt, va_list args)
+{
+    return kvasprintf(GFP_KERNEL, fmt, args);
+}
+EXPORT_SYMBOL(vasprintf);
+
+const char *vasprintf_const(const char *fmt, va_list args)
+{
+    return kvasprintf_const(GFP_KERNEL, fmt, args);
+}
+EXPORT_SYMBOL(vasprintf_const);
+
+char *asprintf(const char *fmt, ...)
+{
+    va_list args;
+    char *block;
+
+    va_start(args, fmt);
+    block = vasprintf(fmt, args);
+    va_end(args);
+
+    return block;
+}
+EXPORT_SYMBOL(asprintf);
+
+const char *asprintf_const(const char *fmt, ...)
+{
+    va_list args;
+    const char *block;
+
+    va_start(args, fmt);
+    block = vasprintf_const(fmt, args);
+    va_end(args);
+
+    return block;
+}
+EXPORT_SYMBOL(asprintf_const);
