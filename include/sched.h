@@ -146,16 +146,20 @@ struct sched_task {
     state errnum;
     state exit_code;
 
-#ifdef CONFIG_UBSAN
-    unsigned int ubsan_depth;
-#endif
+    struct filesystem *fs;
+    void *pdata;
 
 #ifdef CONFIG_SMP
     struct sched_queue *queue;
 #endif
 
-    struct filesystem *fs;
-    void *pdata;
+#ifdef CONFIG_UBSAN
+    unsigned int ubsan_depth;
+#endif
+
+#ifdef CONFIG_STACKPROTECTOR
+    unsigned long stack_canary;
+#endif
 };
 
 #define kcontext_to_task(ptr) \

@@ -100,3 +100,10 @@ SMIREG_ECX      smireg(ecx)
 SMIREG_EDX      smireg(edx)
 SMIREG_ESI      smireg(esi)
 SMIREG_EDI      smireg(edi)
+
+-- sched
+
+#include <sched.h>
+#define schedtask(member) offsetof(struct sched_task, member)
+
+TASK_SCANARY    schedtask(stack_canary)

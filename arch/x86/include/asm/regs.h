@@ -85,8 +85,6 @@ struct regs {
 
 #endif  /* CONFIG_ARCH_X86_64 */
 
-#ifndef __SYMBOL__
-
 static inline unsigned long eflags_get(void)
 {
     unsigned long flags;
@@ -421,6 +419,5 @@ REG_SET_OP(size_t, db7)
 #define dr6_set generic_set_db6
 #define dr7_set generic_set_db7
 
-#endif /* __SYMBOL__ */
 #endif /* __ASSEMBLY__ */
 #endif /* _ASM_X86_REGS_H_ */

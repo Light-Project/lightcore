@@ -10,13 +10,14 @@
 #include <task.h>
 #include <linkage.h>
 #include <string.h>
+#include <init.h>
 #include <irqflags.h>
 #include <initcall.h>
 #include <syscall.h>
-#include <export.h>
+#include <stackprotector.h>
 #include <printk.h>
 #include <panic.h>
-#include <init.h>
+#include <export.h>
 
 static inline struct sched_task *
 task_pick_next(struct sched_queue *queue, struct sched_task *curr)
@@ -116,8 +117,9 @@ context_switch(struct sched_queue *queue, struct sched_task *prev, struct sched_
 
     /* switch processor context */
     prev = kcontext_to_task(prevc);
-    proc_thread_switch(prev);
+    stack_canary_switch(current);
 
+    proc_thread_switch(prev);
     context_switch_finish(prev);
 }
 

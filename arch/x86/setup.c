@@ -4,6 +4,7 @@
  */
 
 #include <mm/memblock.h>
+#include <asm/stackprotector.h>
 #include <asm/doublefault.h>
 #include <asm/segment.h>
 #include <asm/idt.h>
@@ -11,6 +12,12 @@
 #include <asm/tsc.h>
 #include <asm/pgtable.h>
 #include <asm/header.h>
+#include <export.h>
+
+#ifdef CONFIG_STACKPROTECTOR
+DEFINE_PERCPU(unsigned long, __stack_chk_guard);
+EXPORT_SYMBOL(__stack_chk_guard);
+#endif
 
 void arch_setup(void)
 {

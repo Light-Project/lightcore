@@ -11,6 +11,7 @@
 #include <kmalloc.h>
 #include <vmalloc.h>
 #include <timekeeping.h>
+#include <stackprotector.h>
 #include <memory.h>
 #include <proc.h>
 
@@ -144,9 +145,14 @@ static struct sched_task *task_alloc(struct task_clone_args *args)
         goto err_task;
 
     memcpy(child, current, sizeof(*child));
+    list_head_init(&child->child);
 
     child->stack = stack;
     task_stack_magic(child);
+
+#ifdef CONFIG_STACKPROTECTOR
+    child->stack_canary = random_canary();
+#endif
 
     return child;
 

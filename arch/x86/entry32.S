@@ -6,6 +6,7 @@
 #include <linkage.h>
 #include <asm-offset.h>
 #include <asm/segment.h>
+#include <asm/percpu.h>
 #include <asm/irq.h>
 
 .macro SWITCH_TO_KERNEL
@@ -53,13 +54,19 @@
 
 /**
  * entry_kthread_return - Kthread start entry.
- * %esi: prev task we switched from
- * %edi: kernel thread func
- * arg1: kernel thread arg
+ * %esi: prev task we switched from.
+ * %edi: next task we switched to.
+ * %ebx: kernel thread func.
+ * arg1: kernel thread arg.
  */
 SYM_CODE_START(entry_kthread_return)
     pushl   %ebp
     movl    %esp, %ebp
+
+#ifdef CONFIG_STACKPROTECTOR
+    movl    TASK_SCANARY(%edi), %eax
+    movl    %eax, PERCPU_VAR(__stack_chk_guard)
+#endif
 
     /**
      * Notify the scheduler that we have
@@ -73,8 +80,8 @@ SYM_CODE_START(entry_kthread_return)
      * Enter the kernel thread after
      * loading the parameters.
      */
-    pushl   8(%ebp)
-    call    *%edi
+    pushl   12(%ebp)
+    call    *8(%ebp)
     addl    $4, %esp
 
     leave

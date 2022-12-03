@@ -29,6 +29,18 @@ config STRICT
         Use -Wall and -Werror, To ensure kernel
         security, please keep it open in the mainline
 
+config STACKPROTECTOR
+	bool "Stack Protector buffer overflow detection"
+	depends on ARCH_HAS_STACKPROTECTOR
+	depends on $(cc-option,-fstack-protector)
+	default y
+
+config STACKPROTECTOR_STRONG
+	bool "Strong Stack Protector"
+	depends on STACKPROTECTOR
+	depends on $(cc-option,-fstack-protector-strong)
+	default y
+
 config KERNEL_DEBUG
     bool "Kernel Generate Debug File"
     depends on CC_OPTIMIZE_FOR_DEBUG || CC_OPTIMIZE_FOR_PERFORMANCE
