@@ -43,7 +43,7 @@ __base64_encode(uint8_t *buff, const uint8_t *data, size_t size)
     unsigned int bstate = 0;
 
     for (; size >= 3; size -= 3) {
-        *buff++ = base64_encode_table[(*data++ >> 2) & 0x3f];
+        *buff++ = base64_encode_table[*data++ >> 2];
         *buff++ = base64_encode_table[((*prev++ & 0x3) << 4) | (*data++ >> 4)];
         *buff++ = base64_encode_table[((*prev++ & 0xf) << 2) | (*data++ >> 6)];
         *buff++ = base64_encode_table[*prev++ & 0x3f];
@@ -51,7 +51,7 @@ __base64_encode(uint8_t *buff, const uint8_t *data, size_t size)
 
     while (size--) switch (bstate) {
         case 0:
-            *buff++ = base64_encode_table[(*data++ >> 2) & 0x3f];
+            *buff++ = base64_encode_table[*data++ >> 2];
             bstate = 1;
             break;
 
@@ -87,16 +87,16 @@ __base64_encode(uint8_t *buff, const uint8_t *data, size_t size)
 }
 
 static __always_inline state
-__base64_decode(uint8_t *buff, const uint8_t *data)
+__base64_decode(uint8_t *buff, const uint8_t *data, size_t size)
 {
     unsigned int bstate = 0;
     uint8_t decode;
 
-    for (;;) {
+    while (size--) {
         if ((*data < '+') || (*data > 'z'))
             return -EINVAL;
         else if (*data == '=')
-            return -ENOERR;
+            break;
 
         decode = base64_decode_table[*data++];
         if (decode == 0xff)
@@ -104,25 +104,26 @@ __base64_decode(uint8_t *buff, const uint8_t *data)
 
         switch (bstate++ & 0x3) {
             case 0:
-                *buff = (decode << 2) & 0xff;
+                *buff = decode << 2;
                 break;
 
             case 1:
                 *buff++ |= (decode >> 4) & 0x3;
-                *buff = (decode & 0xf) << 4;
+                *buff = decode << 4;
                 break;
 
             case 2:
                 *buff++ |= (decode >> 2) & 0xf;
-                *buff = (decode & 0x3) << 6;
+                *buff = decode << 6;
                 break;
 
             default:
                 *buff++ |= decode;
                 break;
         }
-
     }
+
+    return -ENOERR;
 }
 
 void base64_encode(void *buff, const void *data, size_t size)
@@ -131,8 +132,8 @@ void base64_encode(void *buff, const void *data, size_t size)
 }
 EXPORT_SYMBOL(base64_encode);
 
-state base64_decode(void *buff, const void *data)
+state base64_decode(void *buff, const void *data, size_t size)
 {
-    return __base64_decode(buff, data);
+    return __base64_decode(buff, data, size);
 }
 EXPORT_SYMBOL(base64_decode);

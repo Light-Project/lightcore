@@ -4,18 +4,19 @@
 
 #include <types.h>
 #include <state.h>
+#include <math.h>
 
 static inline size_t base64_encode_length(size_t size)
 {
-    return (size + 2) / 3 * 4 + 1;
+    return DIV_ROUND_UP(size, 3) * 4 + 1;
 }
 
 static inline size_t base64_decode_length(size_t size)
 {
-    return size / 4 * 3;
+    return DIV_ROUND_UP(size, 4) * 3;
 }
 
 extern void base64_encode(void *buff, const void *data, size_t size);
-extern state base64_decode(void *buff, const void *data);
+extern state base64_decode(void *buff, const void *data, size_t size);
 
 #endif  /* _CRYPTO_BASE64_H_ */

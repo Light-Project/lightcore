@@ -53,11 +53,11 @@ static state base64_main(struct kshell_context *ctx, int argc, char *argv[])
         return -ENOMEM;
 
     if (decode)
-        base64_decode(buff, argv[count]);
+        base64_decode(buff, argv[count], slen);
     else
         base64_encode(buff, argv[count], slen);
 
-    kshell_printf(ctx, "%s\n", buff);
+    kshell_printf(ctx, "%.*s\n", (int)blen, buff);
     kfree(buff);
 
     return -ENOERR;

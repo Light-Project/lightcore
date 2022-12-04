@@ -42,23 +42,22 @@ static state ascii85_main(struct kshell_context *ctx, int argc, char *argv[])
     if (argc != count + 1)
         goto usage;
 
+    slen = strlen(argv[count]);
     if (decode)
-        blen = ascii85_decode_length(argv[count]);
-    else {
-        slen = strlen(argv[count]);
+        blen = ascii85_decode_length(argv[count], slen);
+    else
         blen = ascii85_encode_length(argv[count], slen);
-    }
 
     buff = kmalloc(blen, GFP_KERNEL);
     if (!buff)
         return -ENOMEM;
 
     if (decode)
-        ascii85_decode(buff, argv[count]);
+        ascii85_decode(buff, argv[count], slen);
     else
         ascii85_encode(buff, argv[count], slen);
 
-    kshell_printf(ctx, "%s\n", buff);
+    kshell_printf(ctx, "%.*s\n", (int)blen, buff);
     kfree(buff);
 
     return -ENOERR;
