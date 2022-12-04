@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 obj-y += aes.o
 obj-y += ascii85.o
+obj-y += base32.o
 obj-y += base64.o
 obj-y += chacha.o
 obj-y += crc-ccitt.o
