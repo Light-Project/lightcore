@@ -51,9 +51,8 @@ __ascii85_encode(char *buff, const void *data, size_t size)
 }
 
 static __always_inline state
-__ascii85_decode(void *buff, const char *data)
+__ascii85_decode(void *buff, const char *data, size_t size)
 {
-    size_t size = strlen(data);
     unsigned int index;
     uint32_t value;
 
@@ -103,16 +102,14 @@ __ascii85_encode_length(const uint32_t *data, size_t size)
 }
 
 static __always_inline size_t
-__ascii85_decode_length(const char *data)
+__ascii85_decode_length(const char *data, size_t size)
 {
-    size_t length = strlen(data);
-
     while ((data = strchr(data, 'z'))) {
-        length += 4;
+        size += 4;
         data++;
     }
 
-    return DIV_ROUND_UP(length, 5) * 4;
+    return DIV_ROUND_UP(size, 5) * 4;
 }
 
 void ascii85_encode(void *buff, const void *data, size_t size)
@@ -121,9 +118,9 @@ void ascii85_encode(void *buff, const void *data, size_t size)
 }
 EXPORT_SYMBOL(ascii85_encode);
 
-state ascii85_decode(void *buff, const void *data)
+state ascii85_decode(void *buff, const void *data, size_t size)
 {
-    return __ascii85_decode(buff, data);
+    return __ascii85_decode(buff, data, size);
 }
 EXPORT_SYMBOL(ascii85_decode);
 
@@ -133,8 +130,8 @@ size_t ascii85_encode_length(const void *data, size_t size)
 }
 EXPORT_SYMBOL(ascii85_encode_length);
 
-size_t ascii85_decode_length(const void *data)
+size_t ascii85_decode_length(const void *data, size_t size)
 {
-    return __ascii85_decode_length(data);
+    return __ascii85_decode_length(data, size);
 }
 EXPORT_SYMBOL(ascii85_decode_length);
