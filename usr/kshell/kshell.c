@@ -86,7 +86,7 @@ static state do_system(struct kshell_context *ctx, const char *cmdline)
         kfree(argv);
 
         snprintf(retbuf, sizeof(retbuf), "%d", retval);
-        kshell_local_set(ctx, "?", retbuf, true);
+        kshell_symbol_set(ctx, "?", retbuf, true);
 
         if (ctx->tryrun && retval)
             break;
