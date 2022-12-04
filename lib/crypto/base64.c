@@ -44,8 +44,8 @@ __base64_encode(uint8_t *buff, const uint8_t *data, size_t size)
 
     for (; size >= 3; size -= 3) {
         *buff++ = base64_encode_table[(*data++ >> 2) & 0x3f];
-        *buff++ = base64_encode_table[((*prev++ & 0x3) << 4) | ((*data++ >> 4) & 0xf)];
-        *buff++ = base64_encode_table[((*prev++ & 0xf) << 2) | ((*data++ >> 6) & 0x3)];
+        *buff++ = base64_encode_table[((*prev++ & 0x3) << 4) | (*data++ >> 4)];
+        *buff++ = base64_encode_table[((*prev++ & 0xf) << 2) | (*data++ >> 6)];
         *buff++ = base64_encode_table[*prev++ & 0x3f];
     }
 
@@ -56,12 +56,12 @@ __base64_encode(uint8_t *buff, const uint8_t *data, size_t size)
             break;
 
         case 1:
-            *buff++ = base64_encode_table[((*prev++ & 0x3) << 4) | ((*data++ >> 4) & 0xf)];
+            *buff++ = base64_encode_table[((*prev++ & 0x3) << 4) | (*data++ >> 4)];
             bstate = 2;
             break;
 
         default:
-            *buff++ = base64_encode_table[((*prev++ & 0xf) << 2) | ((*data++ >> 6) & 0x3)];
+            *buff++ = base64_encode_table[((*prev++ & 0xf) << 2) | (*data++ >> 6)];
             *buff++ = base64_encode_table[*prev++ & 0x3f];
             bstate = 0;
             break;
@@ -69,13 +69,13 @@ __base64_encode(uint8_t *buff, const uint8_t *data, size_t size)
 
     switch (bstate) {
         case 1:
-            *buff++ = base64_encode_table[*data & 0x3 << 4];
+            *buff++ = base64_encode_table[(*prev & 0x3) << 4];
             *buff++ = '=';
             *buff++ = '=';
             break;
 
         case 2:
-            *buff++ = base64_encode_table[*data & 0xf << 2];
+            *buff++ = base64_encode_table[(*prev & 0xf) << 2];
             *buff++ = '=';
             break;
 
