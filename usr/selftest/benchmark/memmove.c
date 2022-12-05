@@ -53,7 +53,7 @@ static void memmove_release(struct kshell_context *ctx, void *pdata)
 }
 
 static struct selftest_command memmove_command = {
-    .group = "string",
+    .group = "benchmark",
     .name = "memmove",
     .desc = "benchmark memmove",
     .testing = memmove_testing,

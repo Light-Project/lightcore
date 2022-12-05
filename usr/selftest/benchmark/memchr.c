@@ -54,7 +54,7 @@ static void memchr_release(struct kshell_context *ctx, void *pdata)
 }
 
 static struct selftest_command memchr_command = {
-    .group = "string",
+    .group = "benchmark",
     .name = "memchr",
     .desc = "benchmark memchr",
     .testing = memchr_testing,

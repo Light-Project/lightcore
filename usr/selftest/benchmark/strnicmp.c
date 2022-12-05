@@ -59,7 +59,7 @@ static void strnicmp_release(struct kshell_context *ctx, void *pdata)
 }
 
 static struct selftest_command strnicmp_command = {
-    .group = "string",
+    .group = "benchmark",
     .name = "strnicmp",
     .desc = "benchmark strnicmp",
     .testing = strnicmp_testing,

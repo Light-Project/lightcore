@@ -57,7 +57,7 @@ static void strnlen_release(struct kshell_context *ctx, void *pdata)
 }
 
 static struct selftest_command strnlen_command = {
-    .group = "string",
+    .group = "benchmark",
     .name = "strnlen",
     .desc = "benchmark strnlen",
     .testing = strnlen_testing,

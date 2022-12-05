@@ -5,6 +5,8 @@ menuconfig KSH_SELFTEST
     default y
 if KSH_SELFTEST
 
+source "usr/selftest/benchmark/Kconfig"
+
 source "usr/selftest/driver/Kconfig"
 
 source "usr/selftest/filter/Kconfig"
@@ -16,7 +18,5 @@ source "usr/selftest/kshell/Kconfig"
 source "usr/selftest/lib/Kconfig"
 
 source "usr/selftest/memory/Kconfig"
-
-source "usr/selftest/string/Kconfig"
 
 endif
