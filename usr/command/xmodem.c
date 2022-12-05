@@ -76,7 +76,7 @@ static state receive_test(struct kshell_context *ctx, struct xmodem_ops *xops)
         return retval;
 
     kshell_scanf(ctx, " ");
-    memdump_print(xmodem_dump, ctx, "", MEMDUMP_PREFIX_OFFSET,
+    memdump_print(xmodem_dump, ctx, "", FMTDUMP_PREFIX_OFFSET,
                   buff, sizeof(buff), 16, 4, 16, true);
 
     return -ENOERR;

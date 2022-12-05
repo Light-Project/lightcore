@@ -21,6 +21,7 @@ obj-y += btree.o
 obj-y += bytefill.o
 obj-y += cmdline.o
 obj-y += errname.o
+obj-y += fmtdump.o
 obj-y += getopt-long.o
 obj-y += getopt.o
 obj-y += glob.o

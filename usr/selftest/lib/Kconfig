@@ -21,6 +21,10 @@ config SELFTEST_LIB_DCALL
     bool "Dynamic Call Test"
     default y
 
+config SELFTEST_LIB_FMTDUMP
+    bool "Fmtdump Test"
+    default y
+
 config SELFTEST_LIB_GLOB
     bool "Glob Parser Test"
     default y
@@ -56,10 +60,6 @@ config SELFTEST_LIB_LIBCPIO
 
 config SELFTEST_LIB_LIST
     bool "List Test"
-    default y
-
-config SELFTEST_LIB_MEMDUMP
-    bool "Hexdump Test"
     default y
 
 config SELFTEST_LIB_MINPOOL
