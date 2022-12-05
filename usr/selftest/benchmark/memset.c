@@ -52,7 +52,7 @@ static void memset_release(struct kshell_context *ctx, void *pdata)
 }
 
 static struct selftest_command memset_command = {
-    .group = "string",
+    .group = "benchmark",
     .name = "memset",
     .desc = "benchmark memset",
     .testing = memset_testing,

@@ -57,7 +57,7 @@ static void memcpy_release(struct kshell_context *ctx, void *pdata)
 }
 
 static struct selftest_command memcpy_command = {
-    .group = "string",
+    .group = "benchmark",
     .name = "memcpy",
     .desc = "benchmark memcpy",
     .testing = memcpy_testing,

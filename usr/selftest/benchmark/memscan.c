@@ -55,7 +55,7 @@ static void memscan_release(struct kshell_context *ctx, void *pdata)
 }
 
 static struct selftest_command memscan_command = {
-    .group = "string",
+    .group = "benchmark",
     .name = "memscan",
     .desc = "benchmark memscan",
     .testing = memscan_testing,

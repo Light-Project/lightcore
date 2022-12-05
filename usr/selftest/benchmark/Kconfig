@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig SELFTEST_BENCHMARK
+    bool "Benchmark"
+    default y
+if SELFTEST_BENCHMARK
+
+config SELFTEST_MARK_MEMCHR
+    bool "memchr"
+    default y
+
+config SELFTEST_MARK_MEMCMP
+    bool "memcmp"
+    default y
+
+config SELFTEST_MARK_MEMCPY
+    bool "memcpy"
+    default y
+
+config SELFTEST_MARK_MEMMOVE
+    bool "memmove"
+    default y
+
+config SELFTEST_MARK_MEMSCAN
+    bool "memscan"
+    default y
+
+config SELFTEST_MARK_MEMSET
+    bool "memset"
+    default y
+
+config SELFTEST_MARK_STRCMP
+    bool "strcmp"
+    default y
+
+config SELFTEST_MARK_STRLEN
+    bool "strlen"
+    default y
+
+config SELFTEST_MARK_STRNCMP
+    bool "strncmp"
+    default y
+
+config SELFTEST_MARK_STRNICMP
+    bool "strnicmp"
+    default y
+
+config SELFTEST_MARK_STRNLEN
+    bool "strnlen"
+    default y
+
+endif

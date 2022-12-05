@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 include-direct-y += $(src)/
 obj-y += selftest.o
-obj-$(CONFIG_SELFTEST_DRIVER)   += driver/
-obj-$(CONFIG_SELFTEST_FILTER)   += filter/
-obj-$(CONFIG_SELFTEST_KERNEL)   += kernel/
-obj-$(CONFIG_SELFTEST_KSHELL)   += kshell/
-obj-$(CONFIG_SELFTEST_LIB)      += lib/
-obj-$(CONFIG_SELFTEST_MEMORY)   += memory/
-obj-$(CONFIG_SELFTEST_STRING)   += string/
+obj-$(CONFIG_SELFTEST_BENCHMARK) += benchmark/
+obj-$(CONFIG_SELFTEST_DRIVER) += driver/
+obj-$(CONFIG_SELFTEST_FILTER) += filter/
+obj-$(CONFIG_SELFTEST_KERNEL) += kernel/
+obj-$(CONFIG_SELFTEST_KSHELL) += kshell/
+obj-$(CONFIG_SELFTEST_LIB) += lib/
+obj-$(CONFIG_SELFTEST_MEMORY) += memory/

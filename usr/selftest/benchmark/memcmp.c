@@ -59,7 +59,7 @@ static void memcmp_release(struct kshell_context *ctx, void *pdata)
 }
 
 static struct selftest_command memcmp_command = {
-    .group = "string",
+    .group = "benchmark",
     .name = "memcmp",
     .desc = "benchmark memcmp",
     .testing = memcmp_testing,
