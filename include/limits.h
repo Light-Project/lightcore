@@ -44,28 +44,28 @@
 #define LLONG_MAX       ((signed long long)(ULLONG_MAX >> 1))
 #define LLONG_MIN       ((signed long long)(-LLONG_MAX - 1))
 
-/* Maximum of unsigned integral types.  */
+/* Maximum of unsigned integral types */
 #define UINT8_MAX       ((uint8_t)~0U)
 #define UINT16_MAX      ((uint16_t)~0U)
 #define UINT32_MAX      ((uint32_t)~0U)
 #define UINT64_MAX      ((uint64_t)~0ULL)
 
-/* Minimum of unsigned integral types.  */
+/* Minimum of unsigned integral types */
 #define UINT8_MIN       ((uint8_t)0U)
 #define UINT16_MIN      ((uint16_t)0U)
 #define UINT32_MIN      ((uint32_t)0U)
 #define UINT64_MIN      ((uint64_t)0ULL)
 
-/* Maximum of signed integral types.  */
+/* Maximum of signed integral types */
 #define INT8_MAX        ((int8_t)(UINT8_MAX >> 1))
 #define INT16_MAX       ((int16_t)(UINT16_MAX >> 1))
 #define INT32_MAX       ((int32_t)(UINT32_MAX >> 1))
 #define INT64_MAX       ((int64_t)(UINT64_MAX >> 1))
 
-/* Minimum of signed integral types.  */
-#define INT8_MIN        ((int8_t)(-INT8_MAX- 1))
-#define INT16_MIN       ((int16_t)(-INT16_MAX- 1))
-#define INT32_MIN       ((int32_t)(-INT32_MAX- 1))
-#define INT64_MIN       ((int64_t)(-INT64_MAX- 1))
+/* Minimum of signed integral types */
+#define INT8_MIN        ((int8_t)(-INT8_MAX - 1))
+#define INT16_MIN       ((int16_t)(-INT16_MAX - 1))
+#define INT32_MIN       ((int32_t)(-INT32_MAX - 1))
+#define INT64_MIN       ((int64_t)(-INT64_MAX - 1))
 
 #endif /* _LIMIT_H_ */
