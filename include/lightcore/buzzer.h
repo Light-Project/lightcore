@@ -2,6 +2,8 @@
 #ifndef _LIGHTCORE_BUZZER_H_
 #define _LIGHTCORE_BUZZER_H_
 
+#include <lightcore/ioctl.h>
+
 enum buzzer_frequency {
     BUZZER_FREQ_C0      = 16,
     BUZZER_FREQ_CS0     = 17,
@@ -112,5 +114,27 @@ enum buzzer_frequency {
     BUZZER_FREQ_D8      = 4699,
     BUZZER_FREQ_DS8     = 4978,
 };
+
+enum buzzer_ioctl {
+    BUZZER_IOCTL_ENABLE     = 0,
+    BUZZER_IOCTL_DISABLE    = 1,
+    BUZZER_IOCTL_FREQ_GET   = 2,
+    BUZZER_IOCTL_FREQ_SET   = 3,
+    BUZZER_IOCTL_PLAY       = 4,
+};
+
+struct buzzer_param {
+    unsigned int length;
+    struct {
+        unsigned int freq;
+        unsigned int delay;
+    } table[0];
+};
+
+#define BUZZER_ENABLE       IOCTL_NONE('p', BUZZER_IOCTL_ENABLE)
+#define BUZZER_DISABLE      IOCTL_NONE('p', BUZZER_IOCTL_DISABLE)
+#define BUZZER_FREQ_GET     IOCTL_INPUT('p', BUZZER_IOCTL_FREQ_GET, sizeof(unsigned int *))
+#define BUZZER_FREQ_SET     IOCTL_OUTPUT('p', BUZZER_IOCTL_FREQ_SET, sizeof(unsigned int))
+#define BUZZER_PLAY         IOCTL_OUTPUT('p', BUZZER_IOCTL_PLAY, sizeof(struct buzzer_param))
 
 #endif  /* _LIGHTCORE_BUZZER_H_ */
