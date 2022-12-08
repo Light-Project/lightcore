@@ -7,12 +7,6 @@
 #include <kshell.h>
 #include <panic.h>
 
-enum panic_type {
-    PANIC_WARN      = 0,
-    PANIC_BUG       = 1,
-    PANIC_PANIC     = 2,
-};
-
 static void usage(struct kshell_context *ctx)
 {
     kshell_printf(ctx, "usage: panic [option] \"message\"\n");
@@ -24,7 +18,6 @@ static void usage(struct kshell_context *ctx)
 
 static state panic_main(struct kshell_context *ctx, int argc, char *argv[])
 {
-    enum panic_type type = PANIC_PANIC;
     unsigned int count;
 
     for (count = 1; count < argc; ++count) {
@@ -35,36 +28,25 @@ static state panic_main(struct kshell_context *ctx, int argc, char *argv[])
 
         switch (para[1]) {
             case 'w':
-                type = PANIC_WARN;
-                break;
+                WARN();
+                return -ENOERR;
 
             case 'b':
-                type = PANIC_BUG;
-                break;
+                BUG();
 
             case 'p':
-                type = PANIC_PANIC;
-                break;
+                goto finish;
 
             case 'h': default:
                 goto usage;
         }
     }
 
-    switch (type) {
-        case PANIC_WARN:
-            WARN();
-            break;
+finish:
+    if (count >= argc)
+        goto usage;
 
-        case PANIC_BUG:
-            BUG();
-            break;
-
-        case PANIC_PANIC:
-            panic("%s", argv[1]);
-            unreachable();
-    }
-
+    panic("%s", argv[count]);
     return -ENOERR;
 
 usage:
