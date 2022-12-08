@@ -14,7 +14,12 @@
     corruption;                                     \
 })
 
+extern int panic_timeout;
+extern unsigned int panic_timestep;
+
 DECLARE_NOTIFIER_SPIN_HEAD(panic_notifier);
+DECLARE_NOTIFIER_SPIN_HEAD(panic_blink);
+
 extern __printf(1, 2) __noreturn __cold void panic(const char *fmt, ...);
 
 #endif  /* _PANIC_H_ */
