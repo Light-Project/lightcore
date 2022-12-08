@@ -79,7 +79,7 @@ endif # UBSAN
 menuconfig KGCOV
     bool "Enable gcov-based kernel profiling"
     depends on DEBUG_KERNEL
-	select CONSTRUCTORS
+    select CONSTRUCTORS
     default y
 if KGCOV
 
@@ -92,8 +92,8 @@ endif # KGCOV
 menu "Device Driver Debugging"
 
 config DEBUG_DEVRES
-	bool "Managed device resources verbose debug messages"
-	depends on DEBUG_KERNEL
+    bool "Managed device resources verbose debug messages"
+    depends on DEBUG_KERNEL
     default y
 
 endmenu # Device Driver Debugging
@@ -163,4 +163,13 @@ config DEBUG_REFCOUNT
     default y
 
 endmenu # Debug data structures
+
+config PANIC_TIMEOUT
+    int "panic timeout"
+    default 0
+
+config PANIC_TIMESTEP
+    int "panic timestep"
+    default 200
+
 endmenu # Kernel Hacking
