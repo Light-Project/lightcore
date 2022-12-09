@@ -3,14 +3,14 @@
 #include <initcall.h>
 #include <export.h>
 
-unsigned short __udivmodhi4(unsigned short u, unsigned short d, int modwanted)
+unsigned short __weak __udivmodhi4(unsigned short u, unsigned short d, int modwanted)
 {
     unsigned short bit = 1;
     unsigned short res = 0;
 
     while (d < u && bit && !(d & BIT(BITS_PER_U16 - 1))) {
-        d <<=1;
-        bit <<=1;
+        d <<= 1;
+        bit <<= 1;
     }
 
     while (bit) {
@@ -18,12 +18,13 @@ unsigned short __udivmodhi4(unsigned short u, unsigned short d, int modwanted)
             u -= d;
             res |= bit;
         }
-        bit >>=1;
-        d >>=1;
+        bit >>= 1;
+        d >>= 1;
     }
 
     return modwanted ? u : res;
 }
+EXPORT_SYMBOL(__udivmodhi4);
 
 unsigned short __weak __udivhi3(unsigned short u, unsigned short v)
 {
