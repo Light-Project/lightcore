@@ -26,7 +26,7 @@ ttime_t sched_timeout(ttime_t timeout)
     ttime_t expire;
 
     if (timeout == TTIME_MAX) {
-        sched_yield();
+        sched_resched();
         goto finish;
     } else if (timeout < 0) {
 		pr_err("wrong timeout value %lld\n", timeout);
@@ -37,7 +37,7 @@ ttime_t sched_timeout(ttime_t timeout)
     expire = timeout + ticktime;
     DEFINE_TIMER(timer, timeout_wakeup, current, timeout, 0);
     timer_pending(&timer);
-    sched_yield();
+    sched_resched();
     timeout = expire - ticktime;
 
 finish:
