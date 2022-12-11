@@ -77,14 +77,23 @@ void delay_change(struct clocksource_device *cdev)
 }
 
 /**
+ * tsleep - uninterruptible sleep until timeout.
+ * @timeout: timeout value in ticktime.
+ */
+void tsleep(ttime_t timeout)
+{
+    do timeout = sched_timeout_uninterruptible(timeout);
+    while (timeout);
+}
+EXPORT_SYMBOL(tsleep);
+
+/**
  * msleep - uninterruptible sleep until timeout.
  * @msecs: timeout value in millisecond.
  */
 void msleep(unsigned int msecs)
 {
     ttime_t timeout = ms_to_ttime(msecs);
-    do
-        timeout = sched_timeout_uninterruptible(timeout);
-    while (timeout);
+    tsleep(timeout);
 }
 EXPORT_SYMBOL(msleep);
