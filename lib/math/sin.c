@@ -73,5 +73,5 @@ type sin##name(int angle)                       \
 }                                               \
 EXPORT_SYMBOL(sin##name)
 
-GENERIC_SIN_OPS(s16, int16_t, sin16_table);
-GENERIC_SIN_OPS(s32, int32_t, sin32_table);
+GENERIC_SIN_OPS(16, int16_t, sin16_table);
+GENERIC_SIN_OPS(32, int32_t, sin32_table);

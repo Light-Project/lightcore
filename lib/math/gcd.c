@@ -30,14 +30,26 @@ type name(type first, type second)          \
                                             \
         first -= second;                    \
     }                                       \
-}                                           \
-EXPORT_SYMBOL(name)
-
-GENERIC_GCD_OPS(gcdi, unsigned int, ffsuf);
-GENERIC_GCD_OPS(gcdl, unsigned long, ffsuf);
-GENERIC_GCD_OPS(gcdll, unsigned long long, ffsuf64);
+}
 
 GENERIC_GCD_OPS(gcd8, uint8_t, ffsuf);
 GENERIC_GCD_OPS(gcd16, uint16_t, ffsuf);
 GENERIC_GCD_OPS(gcd32, uint32_t, ffsuf);
 GENERIC_GCD_OPS(gcd64, uint64_t, ffsuf64);
+
+#define GCDI_ALIAS __stringify(__PASTE(gcd, INT_WIDTH))
+#define GCDL_ALIAS __stringify(__PASTE(gcd, LONG_WIDTH))
+#define GCDLL_ALIAS __stringify(__PASTE(gcd, LLONG_WIDTH))
+
+extern unsigned int gcdi(unsigned int first, unsigned int second) __alias(GCDI_ALIAS);
+extern unsigned long gcdl(unsigned long first, unsigned long second) __alias(GCDL_ALIAS);
+extern unsigned long long gcdll(unsigned long long first, unsigned long long second) __alias(GCDLL_ALIAS);
+
+EXPORT_SYMBOL(gcd8);
+EXPORT_SYMBOL(gcd16);
+EXPORT_SYMBOL(gcd32);
+EXPORT_SYMBOL(gcd64);
+
+EXPORT_SYMBOL(gcdi);
+EXPORT_SYMBOL(gcdl);
+EXPORT_SYMBOL(gcdll);

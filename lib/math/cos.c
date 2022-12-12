@@ -13,5 +13,5 @@ type cos##name(int angle)                   \
 }                                           \
 EXPORT_SYMBOL(cos##name)
 
-GENERIC_COS_OPS(s16, int16_t, sins16);
-GENERIC_COS_OPS(s32, int32_t, sins32);
+GENERIC_COS_OPS(16, int16_t, sin16);
+GENERIC_COS_OPS(32, int32_t, sin32);

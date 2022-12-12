@@ -102,5 +102,12 @@ typedef __kernel_mqd_t          mqd_t;
 #define BYTES_PER_UINTMAX       sizeof(uintmax_t)
 #define BYTES_PER_UINTPTR       sizeof(uintptr_t)
 
+#define CHAR_WIDTH              __SCHAR_WIDTH__
+#define SHRT_WIDTH              __SHRT_WIDTH__
+#define INT_WIDTH               __INT_WIDTH__
+#define LONG_WIDTH              __LONG_WIDTH__
+#define LLONG_WIDTH             __LONG_LONG_WIDTH__
+#define INTMAX_WIDTH            __LONG_LONG_WIDTH__
+
 #endif  /* __ASSEMBLY__ */
 #endif  /* _TYPES_H_ */
