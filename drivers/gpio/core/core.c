@@ -71,8 +71,10 @@ void gpio_channel_put(struct gpio_channel *channel)
     irqflags_t irqflags;
 
     spin_lock_irqsave(&gdev->lock, &irqflags);
-    if (channel->using--)
+    if (channel->using--) {
+        spin_unlock_irqrestore(&gdev->lock, &irqflags);
         return;
+    }
 
     list_del(&channel->list);
     spin_unlock_irqrestore(&gdev->lock, &irqflags);
