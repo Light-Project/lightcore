@@ -26,3 +26,37 @@ const unsigned int sched_prio_to_wmult[40] = {
 
 EXPORT_SYMBOL(sched_prio_to_weight);
 EXPORT_SYMBOL(sched_prio_to_wmult);
+
+uint64_t sched_calc_delta(unsigned int dyprio, uint64_t delta)
+{
+    uint64_t fact = 1024;
+    uint32_t upper = upper_32_bits(fact);
+    unsigned int offset, shift = 32;
+
+    if (unlikely(upper)) {
+        offset = fls(upper);
+        fact >>= offset;
+        shift -= offset;
+    }
+
+    fact = mul_u32_u32(fact, sched_prio_to_wmult[dyprio]);
+    upper = upper_32_bits(fact);
+
+    if (upper) {
+        offset = fls(upper);
+        fact >>= offset;
+        shift -= offset;
+    }
+
+    return mul_u64_u32_shr(delta, fact, shift);
+}
+EXPORT_SYMBOL(sched_calc_delta);
+
+uint64_t sched_calc_fair(unsigned int dyprio, uint64_t delta)
+{
+    if (unlikely(dyprio != 20))
+        return sched_calc_delta(dyprio, delta);
+
+    return delta;
+}
+EXPORT_SYMBOL(sched_calc_fair);

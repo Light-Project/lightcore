@@ -245,6 +245,9 @@ extern struct kcache *task_cache;
 extern const unsigned int sched_prio_to_weight[40];
 extern const unsigned int sched_prio_to_wmult[40];
 
+extern uint64_t sched_calc_delta(unsigned int dyprio, uint64_t delta);
+extern uint64_t sched_calc_fair(unsigned int dyprio, uint64_t delta);
+
 #define current_queue sched_current_queue()
 static inline struct sched_queue *sched_current_queue(void)
 {

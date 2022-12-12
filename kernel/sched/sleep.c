@@ -26,16 +26,17 @@ ttime_t sched_timeout(ttime_t timeout)
     ttime_t expire;
 
     if (timeout == TTIME_MAX) {
-        sched_resched();
+        sched_yield();
         goto finish;
     } else if (timeout < 0) {
-		pr_err("wrong timeout value %lld\n", timeout);
+        pr_err("wrong timeout value %lld\n", timeout);
         current_set_state(SCHED_TASK_RUNNING);
         goto finish;
-	}
+    }
 
     expire = timeout + ticktime;
     DEFINE_TIMER(timer, timeout_wakeup, current, timeout, 0);
+
     timer_pending(&timer);
     sched_resched();
     timeout = expire - ticktime;

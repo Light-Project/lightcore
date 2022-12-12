@@ -97,6 +97,11 @@ static inline uint64_t mul_u64_u32_shr(uint64_t a, uint32_t mul, unsigned int sh
 
 #endif  /* TYPE_HAS_INT128 */
 
+static inline uint64_t mul_u32_u32(uint32_t a, uint32_t b)
+{
+    return (uint64_t)a * b;
+}
+
 extern int16_t sins16(int angle);
 extern int32_t sins32(int angle);
 extern int16_t coss16(int angle);
