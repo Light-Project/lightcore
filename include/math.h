@@ -71,6 +71,12 @@
     __x < 0 ? -__x : __x; }), ((void)0))))))                \
 )
 
+#define mult_frac(value, numer, denom) ({               \
+    typeof(x) __quot = (value) / (denom);               \
+    typeof(x) __rem = (value) % (denom);                \
+    (__quot * (numer)) + ((__rem * (numer)) / (denom)); \
+})
+
 #ifdef TYPE_HAS_INT128
 
 static inline uint64_t mul_u64_u32_shr(uint64_t a, uint32_t mul, unsigned int shift)
