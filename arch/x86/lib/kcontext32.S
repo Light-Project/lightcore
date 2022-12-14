@@ -145,7 +145,7 @@ L(context_ret):
     testl   %ecx, %ecx
     jz      L(exit)
 
-    pushl   %edx
+    pushl   %ecx
     call    setcontext
 
 L(exit):
