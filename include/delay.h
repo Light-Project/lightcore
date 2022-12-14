@@ -15,21 +15,20 @@ struct clocksource_device;
 
 #ifndef proc_ndelay
 #define proc_ndelay proc_ndelay
-static inline void ndelay(unsigned long nsecs)
+static inline void proc_ndelay(unsigned long nsecs)
 {
-    udelay(DIV_ROUND_UP(nsecs, 1000));
+    proc_udelay(DIV_ROUND_UP(nsecs, 1000));
 }
 #endif
 
 #ifndef proc_mdelay
 #define proc_mdelay(msecs) (                            \
-    (__builtin_constant_p(n) && (n) <= MAX_UDELAY_MS) ? \
-            udelay((n) * 1000)                          \
-        : ({                                            \
-            unsigned long __ms = (n);                   \
-            while (__ms--)                              \
-                udelay(1000);                           \
-        })                                              \
+    (__builtin_constant_p(n) && (n) <= MAX_UDELAY_MS)   \
+    ? udelay((n) * 1000) : ({                           \                                                \
+        unsigned long __ms = (n);                       \
+        while (__ms--)                                  \
+            proc_udelay(1000);                          \
+    })                                                  \
 )
 #endif
 

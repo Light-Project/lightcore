@@ -3,6 +3,7 @@
 #define _MATH_H_
 
 #include <types.h>
+#include <macro.h>
 
 /*
  * This looks more complex than it should be. But we need to
@@ -79,26 +80,26 @@
 
 #ifdef TYPE_HAS_INT128
 
-static inline uint64_t mul_u64_u32_shr(uint64_t a, uint32_t mul, unsigned int shift)
+static inline uint64_t mul_u64_u32_shr(uint64_t value, uint32_t mul, unsigned int shift)
 {
-    return (uint64_t)(((uint128_t)a * mul) >> shift);
+    return (uint64_t)(((uint128_t)value * mul) >> shift);
 }
 
 #else /* !TYPE_HAS_INT128 */
 
-static inline uint64_t mul_u64_u32_shr(uint64_t a, uint32_t mul, unsigned int shift)
+static inline uint64_t mul_u64_u32_shr(uint64_t value, uint32_t mul, unsigned int shift)
 {
-    uint32_t ah, al;
-    uint64_t ret;
+    uint32_t high, low;
+    uint64_t retval;
 
-    al = a;
-    ah = a >> 32;
+    low = lower_32_bits(value);
+    high = upper_32_bits(value);
 
-    ret = (al * mul) >> shift;
-    if (ah)
-        ret += (ah * mul) << (32 - shift);
+    retval = (low * mul) >> shift;
+    if (high)
+        retval += (high * mul) << (32 - shift);
 
-    return ret;
+    return retval;
 }
 
 #endif  /* TYPE_HAS_INT128 */
