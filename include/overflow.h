@@ -2,6 +2,8 @@
 #ifndef _OVERFLOW_H_
 #define _OVERFLOW_H_
 
+#include <types.h>
+
 #define overflow_check_add(a, b, d) ({          \
     typeof(a) ___a = (a);                       \
     typeof(b) ___b = (b);                       \
@@ -75,6 +77,7 @@ GENERIC_OVERFLOW_OPS(s8, int8_t)
 GENERIC_OVERFLOW_OPS(s16, int16_t)
 GENERIC_OVERFLOW_OPS(s32, int32_t)
 GENERIC_OVERFLOW_OPS(s64, int64_t)
+
 GENERIC_OVERFLOW_OPS(u8, uint8_t)
 GENERIC_OVERFLOW_OPS(u16, uint16_t)
 GENERIC_OVERFLOW_OPS(u32, uint32_t)
