@@ -46,8 +46,8 @@ struct ioremap_find {
 
 static long ioremap_rb_cmp(const struct rb_node *rba, const struct rb_node *rbb)
 {
-    struct ioremap_node *node_a = rb_to_ioremap(rba);
-    struct ioremap_node *node_b = rb_to_ioremap(rbb);
+    const struct ioremap_node *node_a = rb_to_ioremap(rba);
+    const struct ioremap_node *node_b = rb_to_ioremap(rbb);
 
     if (node_a->flags != node_b->flags)
         return node_a->flags < node_b->flags ? -1 : 1;
@@ -64,25 +64,25 @@ static long ioremap_rb_cmp(const struct rb_node *rba, const struct rb_node *rbb)
 
 static long ioremap_rb_find(const struct rb_node *rb, const void *key)
 {
-    struct ioremap_node *node = rb_to_ioremap(rb);
+    const struct ioremap_node *node = rb_to_ioremap(rb);
     const struct ioremap_find *cmp = key;
     phys_addr_t node_end, cmp_end;
 
-    node_end = node->addr + node->vm_area.size - 1;
-    cmp_end = cmp->addr + cmp->size - 1;
+    node_end = node->addr + node->vm_area.size;
+    cmp_end = cmp->addr + cmp->size;
 
     if (node->flags == cmp->flags &&
         node->addr <= cmp->addr && cmp_end <= node_end)
         return 0;
 
     if (node->flags != cmp->flags)
-        return node->flags > cmp->flags ? -1 : 1;
+        return node->flags < cmp->flags ? -1 : 1;
 
     if (node->addr != cmp->addr)
-        return node->addr > cmp->addr ? -1 : 1;
+        return node->addr < cmp->addr ? -1 : 1;
 
     if (node->vm_area.size != cmp->size)
-        return node->vm_area.size > cmp->size ? -1 : 1;
+        return node->vm_area.size < cmp->size ? -1 : 1;
 
     return LONG_MIN;
 }

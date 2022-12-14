@@ -585,9 +585,9 @@ struct rb_node *rb_find(const struct rb_root *root, const void *key, rb_find_t c
         ret = cmp(node, key);
         if (ret == LONG_MIN)
             return NULL;
-        else if (ret < 0)
-            node = node->left;
         else if (ret > 0)
+            node = node->left;
+        else if (ret < 0)
             node = node->right;
         else
             return node;
@@ -620,9 +620,9 @@ struct rb_node *rb_find_last(struct rb_root *root, const void *key, rb_find_t cm
         ret = cmp((*parentp = **linkp), key);
         if (ret == LONG_MIN)
             return NULL;
-        else if (ret < 0)
-            *linkp = &(**linkp)->left;
         else if (ret > 0)
+            *linkp = &(**linkp)->left;
+        else if (ret < 0)
             *linkp = &(**linkp)->right;
         else
             return **linkp;

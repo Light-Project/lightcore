@@ -21,7 +21,7 @@ static long env_rb_cmp(const struct rb_node *rba, const struct rb_node *rbb)
 static long env_rb_find(const struct rb_node *rb, const void *name)
 {
     const struct kshell_env *env = env_to_kshell(rb);
-    return strcmp(name, env->name);
+    return strcmp(env->name, name);
 }
 
 static struct kshell_env *interior_find(struct rb_root *head, const char *name)

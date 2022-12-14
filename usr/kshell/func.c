@@ -25,7 +25,7 @@ static long func_rb_cmp(const struct rb_node *rba, const struct rb_node *rbb)
 static long func_rb_find(const struct rb_node *rb, const void *name)
 {
     const struct kshell_func *func = func_to_kshell(rb);
-    return strcmp(name, func->name);
+    return strcmp(func->name, name);
 }
 
 static state delete_func(struct kshell_context *ctx, char *name)

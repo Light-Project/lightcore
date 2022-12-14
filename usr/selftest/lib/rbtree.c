@@ -29,14 +29,14 @@ static long rbtest_rb_cmp(const struct rb_node *rba, const struct rb_node *rbb)
 {
     struct rbtree_test_node *nodea = rbnode_to_test(rba);
     struct rbtree_test_node *nodeb = rbnode_to_test(rbb);
-    return nodea->num > nodeb->num ? -1 : 1;
+    return nodea->num < nodeb->num ? -1 : 1;
 }
 
 static long rbtest_rb_find(const struct rb_node *rb, const void *key)
 {
     struct rbtree_test_node *node = rbnode_to_test(rb);
     if (node->num == (unsigned long)key) return 0;
-    return (unsigned long)key > node->num ? -1 : 1;
+    return node->num < (unsigned long)key ? -1 : 1;
 }
 
 static state rbtree_test_testing(struct kshell_context *ctx, void *pdata)

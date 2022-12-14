@@ -30,21 +30,16 @@ static bool __read_mostly vmem_initialized;
 
 static long vmem_rb_cmp(const struct rb_node *rba, const struct rb_node *rbb)
 {
-    struct vmem_area *vma_a = rb_to_vma(rba);
-    struct vmem_area *vma_b = rb_to_vma(rbb);
-    return vma_a->addr - vma_b->addr;
+    const struct vmem_area *vma_a = rb_to_vma(rba);
+    const struct vmem_area *vma_b = rb_to_vma(rbb);
+    return vma_a->addr < vma_b->addr ? -1 : 1;
 }
 
 static long vmem_rb_find(const struct rb_node *rb, const void *key)
 {
-    struct vmem_area *vma = rb_to_vma(rb);
-
-    if ((size_t)key < vma->addr)
-        return -1;
-    if ((size_t)key >= vma->addr + vma->size)
-        return 1;
-
-    return 0;
+    const struct vmem_area *vma = rb_to_vma(rb);
+    if (vma->addr == (uintptr_t)key) return 0;
+    return vma->addr < (uintptr_t)key ? -1 : 1;
 }
 
 struct vmem_area *vmem_area_find(size_t addr)

@@ -26,7 +26,7 @@ static long syscall_rb_cmp(const struct rb_node *rba, const struct rb_node *rbb)
     struct syscall_desc *desca = node_to_rbtree(rba);
     struct syscall_desc *descb = node_to_rbtree(rbb);
     if (desca->callnr == descb->callnr) return 0;
-    return desca->callnr > descb->callnr ? -1 : 1;
+    return desca->callnr < descb->callnr ? -1 : 1;
 }
 
 asmlinkage long syscall_handle(unsigned long callnr, long arg1, long arg2,

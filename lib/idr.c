@@ -12,16 +12,16 @@ static struct kcache *idrn_cache;
 
 static long idr_rb_cmp(const struct rb_node *rba, const struct rb_node *rbb)
 {
-    struct idr_node *node_a = rb_to_idr(rba);
-    struct idr_node *node_b = rb_to_idr(rbb);
+    const struct idr_node *node_a = rb_to_idr(rba);
+    const struct idr_node *node_b = rb_to_idr(rbb);
     return node_a->index < node_b->index ? -1 : 1;
 }
 
 static long idr_rb_find(const struct rb_node *rb, const void *key)
 {
-    struct idr_node *node = rb_to_idr(rb);
+    const struct idr_node *node = rb_to_idr(rb);
     if (node->index == (unsigned long)key) return 0;
-    return node->index > (unsigned long)key ? -1 : 1;
+    return node->index < (unsigned long)key ? -1 : 1;
 }
 
 /**
