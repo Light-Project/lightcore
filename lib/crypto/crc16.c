@@ -7,7 +7,7 @@
 #include <crypto/crc16-table.h>
 #include <export.h>
 
-uint16_t crc16(const uint8_t *src, size_t len, uint16_t crc)
+uint16_t __weak crc16(const uint8_t *src, size_t len, uint16_t crc)
 {
     return crc16_inline(src, len, crc);
 }

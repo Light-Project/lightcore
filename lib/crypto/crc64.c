@@ -7,7 +7,7 @@
 #include <crypto/crc64-table.h>
 #include <export.h>
 
-uint64_t crc64(const uint8_t *src, size_t len, uint64_t crc)
+uint64_t __weak crc64(const uint8_t *src, size_t len, uint64_t crc)
 {
     return crc64_inline(src, len, crc);
 }

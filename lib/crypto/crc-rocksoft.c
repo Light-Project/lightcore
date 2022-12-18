@@ -7,7 +7,7 @@
 #include <crypto/crc-rocksoft-table.h>
 #include <export.h>
 
-uint64_t crc_rocksoft(const uint8_t *src, size_t len, uint64_t crc)
+uint64_t __weak crc_rocksoft(const uint8_t *src, size_t len, uint64_t crc)
 {
     return crc_rocksoft_inline(src, len, crc);
 }

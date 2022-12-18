@@ -7,7 +7,7 @@
 #include <crypto/crc32-table.h>
 #include <export.h>
 
-uint32_t crc32(const uint8_t *src, size_t len, uint32_t crc)
+uint32_t __weak crc32(const uint8_t *src, size_t len, uint32_t crc)
 {
     return crc32_inline(src, len, crc);
 }

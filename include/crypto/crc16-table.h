@@ -71,7 +71,7 @@ static const uint16_t crc16_table[256] = {
 
 static inline uint16_t crc16_byte(uint16_t crc, const uint8_t data)
 {
-	return (crc >> 8) ^ crc16_table[(crc ^ data) & 0xff];
+    return (crc >> 8) ^ crc16_table[(crc ^ data) & 0xff];
 }
 
 static inline uint16_t crc16_inline(const uint8_t *src, size_t len, uint16_t crc)

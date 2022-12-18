@@ -7,7 +7,7 @@
 #include <crypto/crc8-table.h>
 #include <export.h>
 
-uint8_t crc8(const uint8_t *src, size_t len, uint8_t crc)
+uint8_t __weak crc8(const uint8_t *src, size_t len, uint8_t crc)
 {
     return crc8_inline(src, len, crc);
 }

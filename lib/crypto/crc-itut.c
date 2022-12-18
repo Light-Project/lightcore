@@ -7,7 +7,7 @@
 #include <crypto/crc-itut-table.h>
 #include <export.h>
 
-uint16_t crc_itut(const uint8_t *src, size_t len, uint16_t crc)
+uint16_t __weak crc_itut(const uint8_t *src, size_t len, uint16_t crc)
 {
     return crc_itut_inline(src, len, crc);
 }
