@@ -4,6 +4,50 @@ menuconfig SELFTEST_BENCHMARK
     default y
 if SELFTEST_BENCHMARK
 
+config SELFTEST_MARK_CRC4
+    bool "crc4"
+    default y
+
+config SELFTEST_MARK_CRC4
+    bool "crc7"
+    default y
+
+config SELFTEST_MARK_CRC8
+    bool "crc8"
+    default y
+
+config SELFTEST_MARK_CRC16
+    bool "crc16"
+    default y
+
+config SELFTEST_MARK_CRC32
+    bool "crc32"
+    default y
+
+config SELFTEST_MARK_CRC64
+    bool "crc64"
+    default y
+
+config SELFTEST_MARK_CRC_CCITT
+    bool "crc-ccitt"
+    default y
+
+config SELFTEST_MARK_CRC_CCITTF
+    bool "crc-ccittf"
+    default y
+
+config SELFTEST_MARK_CRC_ITUT
+    bool "crc-itut"
+    default y
+
+config SELFTEST_MARK_CRC_T10DIF
+    bool "crc-t10dif"
+    default y
+
+config SELFTEST_MARK_CRC_ROCKSOFT
+    bool "crc-rocksoft"
+    default y
+
 config SELFTEST_MARK_MEMCHR
     bool "memchr"
     default y
