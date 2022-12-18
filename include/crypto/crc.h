@@ -4,7 +4,8 @@
 
 #include <types.h>
 
-extern uint8_t crc4(const uint8_t *src, size_t len, uint8_t crc);
+extern uint8_t crc4(const uint8_t *src, size_t bits, uint8_t crc);
+extern uint8_t crc7(const uint8_t *src, size_t len, uint8_t crc);
 extern uint8_t crc8(const uint8_t *src, size_t len, uint8_t crc);
 extern uint16_t crc16(const uint8_t *src, size_t len, uint16_t crc);
 extern uint32_t crc32(const uint8_t *src, size_t len, uint32_t crc);

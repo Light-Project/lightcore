@@ -69,12 +69,12 @@ static const uint8_t crc8_table[256] = {
     0xfa, 0xfd, 0xf4, 0xf3,
 };
 
-static inline uint8_t crc8_byte(uint16_t crc, const uint8_t data)
+static inline uint8_t crc8_byte(uint8_t crc, const uint8_t data)
 {
     return crc8_table[crc ^ data];
 }
 
-static inline uint16_t crc8_inline(const uint8_t *src, size_t len, uint16_t crc)
+static inline uint8_t crc8_inline(const uint8_t *src, size_t len, uint8_t crc)
 {
     for (; len >= 8; len -= 8) {
         crc = crc8_byte(crc, *src++);
