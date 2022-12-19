@@ -3,15 +3,15 @@
  * Copyright(c) 2022 Sanpe <sanpeqf@gmail.com>
  */
 
-#include <stddef.h>
+#include <math.h>
 #include <filter/ewma.h>
 #include <export.h>
 
 int32_t ewma_update(struct ewma_state *state, int32_t value)
 {
-    if (state->ready) {
-        state->last = (int64_t)value * state->weight / INT32_MAX +
-            (int64_t)state->last * (INT32_MAX - state->weight) / INT32_MAX;
+    if (likely(state->ready)) {
+        state->last = DIV_ROUND_CLOSEST((int64_t)value * state->weight, INT32_MAX) +
+            DIV_ROUND_CLOSEST((int64_t)state->last * (INT32_MAX - state->weight), INT32_MAX);
     } else {
         state->last = value;
         state->ready = true;
