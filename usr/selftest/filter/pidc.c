@@ -12,7 +12,7 @@
 
 static state pidc_testing(struct kshell_context *ctx, void *pdata)
 {
-    PIDC_STATE(pctx, INT16_MAX * 0.6, INT16_MAX * 0.5, INT16_MAX * 0.125, 0, 1000);
+    PIDC_STATE(pctx, 600, 1000, 500, 1000, 125, 1000, 0, 1000);
     int32_t retval, curr;
     unsigned int count;
 
