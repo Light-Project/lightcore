@@ -109,11 +109,15 @@ static inline uint64_t mul_u32_u32(uint32_t a, uint32_t b)
     return (uint64_t)a * b;
 }
 
+#define BEZIER_VALUE_SHIFT 10
+#define BEZIER_VALUE_MAX (1 << BEZIER_VALUE_SHIFT)
+
 extern int16_t sin16(int angle);
 extern int32_t sin32(int angle);
 extern int16_t cos16(int angle);
 extern int32_t cos32(int angle);
 extern unsigned int atan2i(int x, int y);
+extern uint32_t bezier3(uint32_t time, uint32_t p0, uint32_t p1, uint32_t p2, uint32_t p3);
 
 extern unsigned int gcdi(unsigned int first, unsigned int second);
 extern unsigned long gcdl(unsigned long first, unsigned long second);

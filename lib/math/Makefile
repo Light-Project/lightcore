@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 obj-y += atan2.o
+obj-y += bezier.o
 obj-y += cos.o
 obj-y += gcd.o
 obj-y += lcm.o
