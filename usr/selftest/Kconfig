@@ -17,6 +17,8 @@ source "usr/selftest/kshell/Kconfig"
 
 source "usr/selftest/lib/Kconfig"
 
+source "usr/selftest/math/Kconfig"
+
 source "usr/selftest/memory/Kconfig"
 
 endif

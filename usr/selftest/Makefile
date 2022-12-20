@@ -7,4 +7,5 @@ obj-$(CONFIG_SELFTEST_FILTER) += filter/
 obj-$(CONFIG_SELFTEST_KERNEL) += kernel/
 obj-$(CONFIG_SELFTEST_KSHELL) += kshell/
 obj-$(CONFIG_SELFTEST_LIB) += lib/
+obj-$(CONFIG_SELFTEST_MATH) += math/
 obj-$(CONFIG_SELFTEST_MEMORY) += memory/

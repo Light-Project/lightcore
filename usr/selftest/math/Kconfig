@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig SELFTEST_MATH
+    bool "Test Math library Unit"
+    default y
+if SELFTEST_MATH
+
+config SELFTEST_MATH_BEZIER3
+    bool "Bezier3"
+    default y
+
+endif # SELFTEST_MATH
