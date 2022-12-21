@@ -5,6 +5,7 @@
 
 #include "kshell.h"
 #include <string.h>
+#include <stdlib.h>
 #include <crash.h>
 #include <kmalloc.h>
 #include <initcall.h>
@@ -85,8 +86,11 @@ static state do_system(struct kshell_context *ctx, const char *cmdline)
         ++*ctx->depth;
         kfree(argv);
 
-        snprintf(retbuf, sizeof(retbuf), "%d", retval);
+        intoa(retval, retbuf, 10, sizeof(retbuf));
         kshell_symbol_set(ctx, "?", retbuf, true);
+
+        intoa(errno, retbuf, 10, sizeof(retbuf));
+        kshell_symbol_set(ctx, "!", retbuf, true);
 
         if (ctx->tryrun) {
             if (unlikely(retval))

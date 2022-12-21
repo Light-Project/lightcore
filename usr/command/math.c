@@ -798,6 +798,7 @@ error:
          *((error = skip_spaces(curr)) == end ? "" : error)))) {
         error = skip_spaces(error);
         kshell_printf(ctx, "math: parse error near '%c'\n", *error);
+        errno = -EINVAL;
         result = 0;
     }
 
@@ -851,14 +852,11 @@ finish:
         result = math_parser(ctx, argv[count], argv[count] + len, xflag, pflag);
     }
 
-    if (oflag) {
-        if (xflag)
-            kshell_printf(ctx, "%#x", result);
-        else
-            kshell_printf(ctx, "%d", result);
-    }
+    if (!oflag)
+        return result;
 
-    return result;
+    kshell_printf(ctx, "%d\n", result);
+    return errno;
 
 usage:
     usage(ctx);
