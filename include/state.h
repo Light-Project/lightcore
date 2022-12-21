@@ -28,7 +28,7 @@
 
 #define ERRNO_MAX               4096
 
-#define errno *sched_current_errno
+#define errno (*sched_current_errno())
 extern state *sched_current_errno(void);
 
 #endif  /* _STATE_H_ */

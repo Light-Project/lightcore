@@ -9,6 +9,6 @@
 
 state *sched_current_errno(void)
 {
-    return &current->errnum;
+    return &current->errno_code;
 }
 EXPORT_SYMBOL(sched_current_errno);

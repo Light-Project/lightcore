@@ -143,7 +143,7 @@ struct sched_task {
     unsigned long flags;
     unsigned long queued;
 
-    state errnum;
+    state errno_code;
     state exit_code;
 
     struct filesystem *fs;
@@ -365,9 +365,10 @@ extern state sched_task_clone(struct sched_task *task, enum clone_flags flags);
 extern struct sched_task *sched_task_create(void);
 extern void sched_task_destroy(struct sched_task *task);
 
-static inline void sched_task_get(struct sched_task *task)
+static inline struct sched_task *sched_task_get(struct sched_task *task)
 {
     refcount_inc(&task->refcount);
+    return task;
 }
 
 static inline void sched_task_put(struct sched_task *task)
