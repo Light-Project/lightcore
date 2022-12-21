@@ -88,8 +88,14 @@ static state do_system(struct kshell_context *ctx, const char *cmdline)
         snprintf(retbuf, sizeof(retbuf), "%d", retval);
         kshell_symbol_set(ctx, "?", retbuf, true);
 
-        if (ctx->tryrun && retval)
-            break;
+        if (ctx->tryrun) {
+            if (unlikely(retval))
+                break;
+            else if (unlikely(errno)) {
+                errno = -ENOERR;
+                break;
+            }
+        }
     }
 
     return retval;
