@@ -11,6 +11,7 @@ obj-$(CONFIG_KCMD_CONTINUE)	+= continue.o
 obj-$(CONFIG_KCMD_DELAY)    += delay.o
 obj-$(CONFIG_KCMD_ECHO)     += echo.o
 obj-$(CONFIG_KCMD_EXIT)     += exit.o
+obj-$(CONFIG_KCMD_ERRNAME)	+= errname.o
 obj-$(CONFIG_KCMD_EXPORT)   += export.o
 obj-$(CONFIG_KCMD_FALSE)    += false.o
 obj-$(CONFIG_KCMD_GOTO)     += goto.o

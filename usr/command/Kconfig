@@ -3,179 +3,183 @@ menu "Kshell Command Shell"
     depends on KSHELL
 
 config KCMD_ASCII85
-    bool "Ascii85 Command Support"
+    bool "ascii85"
     default y
 
 config KCMD_BASE32
-    bool "Base32 Command Support"
+    bool "base32"
     default y
 
 config KCMD_BASE64
-    bool "Base64 Command Support"
+    bool "base64"
     default y
 
 config KCMD_BASENAME
-    bool "Basename Command Support"
+    bool "basename"
     default y
 
 config KCMD_BREAK
-    bool "Break Command Support"
+    bool "break"
     default y
 
 config KCMD_CLEAR
-    bool "Clear Command Support"
+    bool "clear"
     default y
 
 config KCMD_COND
-    bool "Cond Command Support"
+    bool "cond"
     default y
 
 config KCMD_CONTINUE
-    bool "Continue Command Support"
+    bool "continue"
     default y
 
 config KCMD_DELAY
-    bool "Delay Command Support"
+    bool "delay"
     default y
 
 config KCMD_ECHO
-    bool "Echo Command Support"
+    bool "echo"
+    default y
+
+config KCMD_ERRNAME
+    bool "errname"
     default y
 
 config KCMD_EXIT
-    bool "Exit Command Support"
+    bool "exit"
     default y
 
 config KCMD_EXPORT
-    bool "Export Command Support"
+    bool "export"
     default y
 
 config KCMD_FALSE
-    bool "False Command Support"
+    bool "false"
     default y
 
 config KCMD_GOTO
-    bool "Goto Command Support"
+    bool "goto"
     default y
 
 config KCMD_GPIO
-    bool "Gpio Command Support"
+    bool "gpio"
     default y
 
 config KCMD_GREP
-    bool "Grep Command Support"
+    bool "grep"
     default y
 
 config KCMD_HEAD
-    bool "Head Command Support"
+    bool "head"
     default y
 
 config KCMD_LOOP
-    bool "Loop Command Support"
+    bool "loop"
     default y
 
 config KCMD_LSPCI
-    bool "Lspci Command Support"
+    bool "lspci"
     default y
 
 config KCMD_MATH
-    bool "Math Command Support"
+    bool "math"
     default y
 
 config KCMD_MEM
-    bool "Memory Command Support"
+    bool "memory"
     default y
 
 config KCMD_NATIVE
-    bool "Native Command Support"
+    bool "native"
     default y
 
 config KCMD_PANIC
-    bool "Panic Command Support"
+    bool "panic"
     default y
 
 config KCMD_PRINTF
-    bool "Printf Command Support"
+    bool "printf"
     default y
 
 config KCMD_REBOOT
-    bool "Reboot Command Support"
+    bool "reboot"
     default y
 
 config KCMD_REPEAT
-    bool "Repeat Command Support"
+    bool "repeat"
     default y
 
 config KCMD_RETURN
-    bool "Return Command Support"
+    bool "return"
     default y
 
 config KCMD_SELECT
-    bool "Select Command Support"
+    bool "select"
     default y
 
 config KCMD_SEQ
-    bool "Seq Command Support"
+    bool "seq"
     default y
 
 config KCMD_SILENT
-    bool "Silent Command Support"
+    bool "silent"
     default y
 
 config KCMD_SLEEP
-    bool "Sleep Command Support"
+    bool "sleep"
     default y
 
 config KCMD_SWITCH
-    bool "Switch Command Support"
+    bool "switch"
     default y
 
 config KCMD_TAIL
-    bool "Tail Command Support"
+    bool "tail"
     default y
 
 config KCMD_TIME
-    bool "Time Command Support"
+    bool "time"
     default y
 
 config KCMD_TRUE
-    bool "True Command Support"
+    bool "true"
     default y
 
 config KCMD_TRYRUN
-    bool "Tryrun Command Support"
+    bool "tryrun"
     default y
 
 config KCMD_UNTIL
-    bool "Until Command Support"
+    bool "until"
     default y
 
 config KCMD_UPTIME
-    bool "Uptime Command Support"
+    bool "uptime"
     default y
 
 config KCMD_VERSION
-    bool "Verison Command Support"
+    bool "verison"
     default y
 
 config KCMD_WATCH
-    bool "Watch Command Support"
+    bool "watch"
     default y
 
 config KCMD_WC
-    bool "WC Command Support"
+    bool "wc"
     default y
 
 config KCMD_WHILE
-    bool "While Command Support"
+    bool "while"
     default y
 
 config KCMD_XMODEM
-    bool "Xmodem Command Support"
+    bool "xmodem"
     default y
 
 config KCMD_YES
-    bool "Yes Command Support"
+    bool "yes"
     default y
 
 source "usr/command/arch/Kconfig"
