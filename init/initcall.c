@@ -113,7 +113,7 @@ static state __init do_one_initcall(initcall_entry_t *fn)
     if (retval == -ENOERR)
         pr_debug("started %s\n", fn->name);
     else {
-        const char *name = errname(retval) ?: "EUNKNOW";
+        const char *name = errname(retval, NULL) ?: "EUNKNOW";
         pr_err("abandoned %s, exit %d (code=%s)\n", fn->name, retval, name);
     }
 

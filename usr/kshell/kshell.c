@@ -9,7 +9,6 @@
 #include <crash.h>
 #include <kmalloc.h>
 #include <initcall.h>
-#include <errname.h>
 #include <console.h>
 #include <export.h>
 

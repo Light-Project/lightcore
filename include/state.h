@@ -5,8 +5,8 @@
 #include <types.h>
 #include <asm/errno.h>
 
-#define ERESTARTSYS             512
-#define ERESTARTNOINTR          513
+#define ERESTARTSYS             512     /* restart if system call.. */
+#define ERESTARTNOINTR          513     /* restart if no interrupt.. */
 #define ERESTARTNOHAND          514     /* restart if no handler.. */
 #define ENOIOCTLCMD             515     /* No ioctl command */
 #define ERESTART_RESTARTBLOCK   516     /* restart by calling sys_restart_syscall */
