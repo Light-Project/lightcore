@@ -37,6 +37,9 @@ fold_hash(unsigned long x, unsigned long y)
 }
 #endif /* BITS_PER_LONG == 64 */
 
+#define PJWHASH_BITS 32
+
 extern uint64_t stringhash(const char *str, unsigned long salt);
+extern unsigned long pjwhash(const char *str);
 
 #endif  /* _STRINGHASH_H_ */

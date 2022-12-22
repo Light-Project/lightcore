@@ -26,3 +26,22 @@ uint64_t __weak stringhash(const char *str, unsigned long salt)
     return strhash_create(fold_hash(hash, salt), word_find_zero(temp));
 }
 EXPORT_SYMBOL(stringhash);
+
+unsigned long __weak pjwhash(const char *str)
+{
+    unsigned long value, hash = 0;
+
+    while (*str) {
+        hash <<= 4;
+        hash += *str++;
+
+        value = hash & BIT_SHIFT(0xf, PJWHASH_BITS - 4);
+        if (value) {
+            hash ^= value >> (PJWHASH_BITS - 8);
+            hash ^= value;
+        }
+    }
+
+    return hash;
+}
+EXPORT_SYMBOL(pjwhash);
