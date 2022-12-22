@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# Copyright(c) 2022 Sanpe <sanpeqf@gmail.com>
+#
+
+msgid ""
+msgstr ""
+"Language: zh_CN\n"
+"Content-Type: text/plain; charset=utf-8\n"
+
+msgid "kshell: trigger recursive protection\n"
+msgstr "kshell: 触发递归保护\n"
+
+msgid "kshell: command not found: %s\n"
+msgstr "kshell: 命令未找到: %s\n"

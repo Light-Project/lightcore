@@ -110,6 +110,7 @@ endif
 
 obj-y += arch/
 obj-y += doc/logo/
+obj-y += doc/translate/
 obj-y += drivers/
 obj-y += fs/
 obj-y += init/

@@ -1,0 +1,1 @@
+../../../../doc/translate/kshell/zh_CN.mo

@@ -86,6 +86,7 @@ ECHO            := echo -e "    "
 AWK             := awk -f
 SED             := sed
 PERL            := perl
+MSGFMT          := msgfmt
 PYTHON          := python3
 CONFIG_SHELL    := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
                     else if [ -x /bin/bash ]; then echo /bin/bash; \
@@ -157,6 +158,7 @@ ECHO_DUMP       := \e[34mDUMP\e[0m
 ECHO_BIN        := \e[34mMKBIN\e[0m
 
 ECHO_INCBIN     := \e[33mMKINCBIN\e[0m
+ECHO_MSGFMT     := \e[33mMSGFMT\e[0m
 ECHO_CPIO       := \e[33mCPIO\e[0m
 ECHO_GZIP       := \e[33mGZIP\e[0m
 ECHO_BZIP2      := \e[33mBZIP2\e[0m

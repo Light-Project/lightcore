@@ -7,7 +7,7 @@
 # ---------------------------------------------------------------------------
 
 quiet_cmd_cpio = $(ECHO_CPIO)  $@
-      cmd_cpio = cd $(dirprereq); find . | $(CPIO) -o -H newc           \
+      cmd_cpio = cd $(dirprereq); find . | $(CPIO) -o -L -H newc \
                  --quiet > $(fulltarget); cd - > /dev/null
 
 # Gzip

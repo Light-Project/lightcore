@@ -58,6 +58,13 @@ export acflags_y cxflags_y asflags_y ccflags_y cxxflags_y ldsflags_y symflags_y
 # Start rule                           #
 ########################################
 
+# Generate binary message catalog from textual translation description.
+# ---------------------------------------------------------------------------
+quiet_cmd_po_o_mo = $(ECHO_MSGFMT) $@
+      cmd_po_o_mo = $(MSGFMT) -o $@ $<
+$(obj)/%.mo: $(src)/%.po FORCE
+	$(call if_changed,po_o_mo)
+
 # Compile C++ sources (.cpp)
 # ---------------------------------------------------------------------------
 quiet_cmd_cxx_o_cpp = $(ECHO_CXX) $@

@@ -28,5 +28,7 @@
 /include/config/
 /include/generated/
 /arch/*/include/generated/
+/doc/translate/*.mo
+/doc/translate/*/*.mo
 /lightcore
 /bochsout.txt
