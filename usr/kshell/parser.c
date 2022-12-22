@@ -4,6 +4,7 @@
  */
 
 #include "kshell.h"
+#include <ctype.h>
 #include <string.h>
 #include <kmalloc.h>
 #include <crash.h>
@@ -300,6 +301,8 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
         return -ENOMEM;
 
     for (walk = cmdline; *walk; ++walk) {
+        if (!isprint(*walk))
+            continue;
         nstate = parser_state(cstate, *walk, &code, &depth);
 
         if (is_variable(cstate) && !is_variable(nstate)) {
