@@ -43,6 +43,7 @@ extern char *strim(char *s);
 /* Memory manipulation */
 extern void *memset(void *s, int c, size_t n);
 extern void *memcpy(void *dest, const void *src, size_t len);
+extern void *mempcpy(void *dest, const void *src, size_t len);
 extern void *memmove(void *dest, const void *src, size_t n);
 extern void *memchr(const void *s, int c, size_t n);
 extern void *memscan(void *addr, int c, size_t size);

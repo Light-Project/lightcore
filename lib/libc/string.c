@@ -457,6 +457,18 @@ __weak void *memcpy(void *dest, const void *src, size_t len)
 }
 EXPORT_SYMBOL(memcpy);
 
+__weak void *mempcpy(void *dest, const void *src, size_t len)
+{
+    uint8_t * restrict ndest = dest;
+    const uint8_t * restrict nsrc = src;
+
+    while (len--)
+        *ndest++ = *nsrc++;
+
+    return ndest;
+}
+EXPORT_SYMBOL(mempcpy);
+
 __weak void *memmove(void *dest, const void *src, size_t n)
 {
     char *tmp;
