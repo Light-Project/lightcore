@@ -100,7 +100,7 @@ state kshell_func_delete(struct kshell_context *ctx, const char *name)
     struct kshell_func *node;
 
     rb = rb_find(&ctx->func, name, func_rb_find);
-    if (rb) {
+    if (unlikely(!rb)) {
         kshell_printf(ctx, "function '%s' not found to delete\n", name);
         return -ENOENT;
     }
