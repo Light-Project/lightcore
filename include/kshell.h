@@ -37,6 +37,27 @@ struct kshell_context {
     char *pipeline;
 };
 
+struct kshell_stack {
+    struct list_head list;
+    struct rb_root env;
+};
+
+struct kshell_env {
+    struct rb_node node;
+    char *val, name[0];
+};
+
+struct kshell_func {
+    struct rb_node node;
+    char *body, name[0];
+};
+
+#define env_to_kshell(ptr) \
+    rb_entry(ptr, struct kshell_env, node)
+
+#define func_to_kshell(ptr) \
+    rb_entry(ptr, struct kshell_func, node)
+
 struct kshell_command {
     const char *name;
     const char *desc;

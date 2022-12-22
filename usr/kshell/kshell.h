@@ -49,30 +49,6 @@ struct readline_state {
     struct readline_history *curr;
 };
 
-struct kshell_stack {
-    struct list_head list;
-    struct rb_root env;
-};
-
-struct kshell_env {
-    struct rb_node node;
-    char *val, name[0];
-};
-
-struct kshell_func {
-    struct rb_node node;
-    char *body, name[0];
-};
-
-#define env_to_kshell(ptr) \
-    rb_entry(ptr, struct kshell_env, node)
-
-#define func_to_kshell(ptr) \
-    rb_entry(ptr, struct kshell_func, node)
-
-#define list_to_kshell(ptr) \
-    list_entry(ptr, struct kshell_command, list)
-
 extern spinlock_t kshell_lock;
 extern struct list_head kshell_list;
 

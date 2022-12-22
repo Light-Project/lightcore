@@ -248,90 +248,13 @@ static state kshell_env_clone(struct kshell_context *ctx, struct kshell_context 
     return -ENOERR;
 }
 
-static void usage(struct kshell_context *ctx, const char *cmd)
-{
-    kshell_printf(ctx, "usage: %s [option] name[=value]...\n", cmd);
-    kshell_printf(ctx, "\t-u  remove variable from the environment\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
-}
-
-#define GENERIC_ENV_MAIN(cmd, func, variable, child)                                    \
-static state kshell_##cmd##_main(struct kshell_context *ctx, int argc, char *argv[])    \
-{                                                                                       \
-    struct kshell_env *env = NULL;                                                      \
-    state retval = -ENOERR;                                                             \
-    unsigned int count;                                                                 \
-    variable;                                                                           \
-                                                                                        \
-    for (count = 1; count < argc; ++count) {                                            \
-        char *para = argv[count];                                                       \
-                                                                                        \
-        if (para[0] != '-')                                                             \
-            break;                                                                      \
-                                                                                        \
-        switch (para[1]) {                                                              \
-            case 'l':                                                                   \
-                env = (void *)true;                                                     \
-                break;                                                                  \
-                                                                                        \
-            case 'u':                                                                   \
-                if ((++count) >= argc)                                                  \
-                    goto usage;                                                         \
-                kshell_##func##_unset(ctx, argv[count]);                                \
-                break;                                                                  \
-                                                                                        \
-            case 'h': default:                                                          \
-                goto usage;                                                             \
-        }                                                                               \
-    }                                                                                   \
-                                                                                        \
-    while (count < argc) {                                                              \
-        retval = kshell_##func##_put(ctx, argv[count]);                                 \
-        if (retval == -EINVAL)                                                          \
-            kshell_printf(ctx, __stringify(cmd)                                         \
-                          ": not a identifier: %s\n", argv[count]);                     \
-        count++;                                                                        \
-        if (retval)                                                                     \
-            break;                                                                      \
-    }                                                                                   \
-                                                                                        \
-    if (count == 1 || (env && !retval)) {                                               \
-        rb_for_each_entry(env, child, node)                                             \
-            kshell_printf(ctx, "\t%s=%s\n", env->name, env->val);                       \
-    }                                                                                   \
-                                                                                        \
-    return retval;                                                                      \
-                                                                                        \
-usage:                                                                                  \
-    usage(ctx, argv[0]);                                                                \
-    return -EINVAL;                                                                     \
-}
-
-GENERIC_ENV_MAIN(env, global, , &ctx->env)
-GENERIC_ENV_MAIN(local, local, struct kshell_stack *local = list_first_entry(&ctx->local, struct kshell_stack, list), &local->env)
-
-static struct kshell_command kshell_local_cmd = {
-    .name = "local",
-    .desc = "setting local variables",
-    .exec = kshell_local_main,
-};
-
-static struct kshell_command kshell_env_cmd = {
-    .name = "env",
-    .desc = "setting environment variables",
-    .exec = kshell_env_main,
+static struct kshell_command kshell_env = {
     .prepare = kshell_env_clone,
     .release = kshell_env_destory,
 };
 
 static state env_init(void)
 {
-    state retval;
-
-    retval = kshell_register(&kshell_env_cmd);
-    if (retval)
-        return retval;
-
-    return kshell_register(&kshell_local_cmd);
+    return kshell_register(&kshell_env);
 }
 kshell_initcall(env_init);

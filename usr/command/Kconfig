@@ -42,6 +42,10 @@ config KCMD_ECHO
     bool "echo"
     default y
 
+config KCMD_ENV
+    bool "env"
+    default y
+
 config KCMD_ERRNAME
     bool "errname"
     default y
@@ -76,6 +80,10 @@ config KCMD_GREP
 
 config KCMD_HEAD
     bool "head"
+    default y
+
+config KCMD_LOCAL
+    bool "local"
     default y
 
 config KCMD_LOOP
@@ -136,6 +144,10 @@ config KCMD_SLEEP
 
 config KCMD_SWITCH
     bool "switch"
+    default y
+
+config KCMD_SYMBOL
+    bool "symbol"
     default y
 
 config KCMD_TAIL
