@@ -28,43 +28,56 @@ static void kshell_console_write(const char *str, unsigned int len, void *data)
     console_write(str, len);
 }
 
-static long kshell_sort(struct list_head *a, struct list_head *b, void *pdata)
-{
-    struct kshell_command *ca = list_to_kshell(a);
-    struct kshell_command *cb = list_to_kshell(b);
-    return strcmp(ca->name, cb->name);
-}
-
-struct kshell_command *kshell_find(const char *name)
+static struct kshell_command *find_unlock(const char *name)
 {
     struct kshell_command *cmd, *find = NULL;
 
-    spin_lock(&kshell_lock);
-
     list_for_each_entry(cmd, &kshell_list, list) {
+        if (unlikely(!cmd->name))
+            break;
         if (!strcmp(name, cmd->name)) {
             find = cmd;
             break;
         }
     }
 
-    spin_unlock(&kshell_lock);
     return find;
+}
+
+struct kshell_command *kshell_find(const char *name)
+{
+    struct kshell_command *cmd;
+
+    spin_lock(&kshell_lock);
+    cmd = find_unlock(name);
+    spin_unlock(&kshell_lock);
+
+    return cmd;
 }
 EXPORT_SYMBOL(kshell_find);
 
 state kshell_register(struct kshell_command *cmd)
 {
-    if (!cmd->name || !cmd->desc || !cmd->exec)
-        return -EINVAL;
+    struct kshell_command *walk;
+    struct list_head *head;
 
-    if (kshell_find(cmd->name)) {
+    spin_lock(&kshell_lock);
+    if (cmd->name && find_unlock(cmd->name)) {
         pr_err("cmd %s already registered\n", cmd->name);
         return -EINVAL;
     }
 
-    spin_lock(&kshell_lock);
-    list_add(&kshell_list, &cmd->list);
+    if (!cmd->name)
+        list_add_prev(&kshell_list, &cmd->list);
+    else {
+        head = &kshell_list;
+        list_for_each_entry(walk, &kshell_list, list) {
+            if (!walk->name || strcmp(walk->name, cmd->name) > 0)
+                break;
+            head = &walk->list;
+        }
+        list_add(head, &cmd->list);
+    }
     spin_unlock(&kshell_lock);
 
     return -ENOERR;
@@ -178,9 +191,8 @@ void ksh_init(void)
     printk("Welcome to lightcore shell\n");
 
     ksh_initcall();
-    list_qsort(&kshell_list, kshell_sort, NULL);
-
     bootarg_record();
+
     kshell_global_set(&ctx, "PS1", "kshell: /# ", false);
     kshell_global_set(&ctx, "PS2", "-> ", false);
     kshell_global_set(&ctx, "PS3", "?# ", false);

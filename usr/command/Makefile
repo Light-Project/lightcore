@@ -14,6 +14,7 @@ obj-$(CONFIG_KCMD_EXIT)     += exit.o
 obj-$(CONFIG_KCMD_ERRNAME)	+= errname.o
 obj-$(CONFIG_KCMD_EXPORT)   += export.o
 obj-$(CONFIG_KCMD_FALSE)    += false.o
+obj-$(CONFIG_KCMD_FUNC)     += func.o
 obj-$(CONFIG_KCMD_GOTO)     += goto.o
 obj-$(CONFIG_KCMD_GPIO)     += gpio.o
 obj-$(CONFIG_KCMD_GREP)     += grep.o

@@ -76,13 +76,13 @@ static state do_system(struct kshell_context *ctx, const char *cmdline)
         cmd = kshell_find(argv[0]);
         if (!cmd) {
             kshell_printf(ctx, "kshell: command not found: %s\n", argv[0]);
-            kfree(argv);
-            return -EBADF;
+            retval = -EBADF;
+        } else {
+            --*ctx->depth;
+            retval = cmd->exec(ctx, argc, argv);
+            ++*ctx->depth;
         }
 
-        --*ctx->depth;
-        retval = cmd->exec(ctx, argc, argv);
-        ++*ctx->depth;
         kfree(argv);
 
         intoa(retval, retbuf, 10, sizeof(retbuf));
@@ -95,7 +95,7 @@ static state do_system(struct kshell_context *ctx, const char *cmdline)
             if (unlikely(retval))
                 break;
             else if (unlikely(errno)) {
-                errno = -ENOERR;
+                retval = errno;
                 break;
             }
         }
@@ -150,6 +150,7 @@ state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
             cmdline = readline(rstate, kshell_getenv(&nctx, "PS1"), kshell_getenv(&nctx, "PS2"));
             if (!rstate->len)
                 continue;
+            errno = -ENOERR;
             nctx.breakdown = false;
             retval = do_system(&nctx, cmdline);
         }
@@ -164,10 +165,15 @@ state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
 static state help_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     struct kshell_command *cmd;
+
     spin_lock(&kshell_lock);
-    list_for_each_entry(cmd, &kshell_list, list)
+    list_for_each_entry(cmd, &kshell_list, list) {
+        if (unlikely(!cmd->name))
+            break;
         kshell_printf(ctx, "\t%-16s - %s\n", cmd->name, cmd->desc);
+    }
     spin_unlock(&kshell_lock);
+
     return -ENOERR;
 }
 

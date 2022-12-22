@@ -353,13 +353,14 @@ static state readline_complete(struct readline_state *rstate)
 
     spin_lock(&kshell_lock);
     list_for_each_entry(cmd, &kshell_list, list) {
+        if (!cmd->name)
+            break;
         if ((!start && strncmp(cmd->name, rstate->buff, rstate->pos)) ||
             (start && strncmp(cmd->name, start, rstate->pos - line)))
             continue;
         count++;
         list_add(&complete, &cmd->complete);
     }
-    spin_unlock(&kshell_lock);
 
     if (count == 0)
         return -ENOERR;
@@ -383,6 +384,7 @@ static state readline_complete(struct readline_state *rstate)
         }
         readline_write(rstate, "\n", 1);
     }
+    spin_unlock(&kshell_lock);
 
     readline_state_setup(rstate);
     readline_write(rstate, rstate->prompt, rstate->plen);

@@ -58,6 +58,10 @@ config KCMD_FALSE
     bool "false"
     default y
 
+config KCMD_FUNC
+    bool "func"
+    default y
+
 config KCMD_GOTO
     bool "goto"
     default y
