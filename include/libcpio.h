@@ -4,7 +4,7 @@
 
 #include <types.h>
 
-#define CPIO_NAME_MAX 16
+#define CPIO_NAME_MAX 64
 
 struct cpio_data {
     char name[CPIO_NAME_MAX];
