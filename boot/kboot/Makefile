@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-include $(srctree)/platform.mk
+include $(build_home)/platform.mk
 export KASAN_SANITIZE = n
 export UBSAN_SANITIZE = n
 export KGCOV_PROFILE = n

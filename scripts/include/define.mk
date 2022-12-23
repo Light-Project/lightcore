@@ -80,6 +80,7 @@ RM              := rm -f
 RMDIR           := rm -r
 LN              := ln -fsn
 CD              := cd
+CAT             := cat
 MV              := mv
 FIND            := find
 ECHO            := echo -e "    "
@@ -241,13 +242,13 @@ dot-target = $(dir $@).$(notdir $@)
 depfile = $(subst $(comma),_,$(dot-target).d)
 
 # real prerequisites without phony targets
-real-prereqs = $(filter-out $(PHONY), $^)
+real-prereqs = $(filter-out $(PHONY),$^)
 
 # Escape single quote for use in echo statements
-escsq    = $(subst $(squote),'\$(squote)',$1)
+escsq = $(subst $(squote),'\$(squote)',$1)
 
 # Find all -I options and call addtree
-flags    = $(foreach o,$($(1)),$(if $(filter -I%,$(o)),$(call addtree,$(o)),$(o)))
+flags = $(foreach o,$($(1)),$(if $(filter -I%,$(o)),$(call addtree,$(o)),$(o)))
 
 # Easy method for doing a status message
        kecho := :

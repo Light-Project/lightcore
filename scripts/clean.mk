@@ -40,7 +40,7 @@ clean_files     := $(wildcard $(clean_files))
 
 # These folders will be cleaned up
 clean_dirs      := $(strip $(sort $(clean-y)))
-clean_dirs      := $(filter %/, $(clean_dirs))
+clean_dirs      := $(filter %/,$(clean_dirs))
 clean_dirs      := $(patsubst %/,%,$(clean_dirs))
 clean_dirs      := $(addprefix $(obj)/,$(clean_dirs))
 clean_dirs      := $(wildcard $(clean_dirs))
@@ -48,7 +48,7 @@ clean_dirs      := $(wildcard $(clean_dirs))
 # The system recurses these folders down
 clean_subdir    := $(clean-subdir-y)
 clean_subdir    := $(strip $(sort $(clean_subdir)))
-clean_subdir    := $(filter %/, $(clean_subdir))
+clean_subdir    := $(filter %/,$(clean_subdir))
 clean_subdir    := $(patsubst %/,%,$(clean_subdir))
 clean_subdir    := $(addprefix $(obj)/,$(clean_subdir))
 clean_subdir    += $(clean-subdirs)
