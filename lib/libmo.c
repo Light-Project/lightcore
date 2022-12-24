@@ -167,19 +167,23 @@ state libmo_verify(const struct libmo_context *ctx)
             uint32_t entry;
 
             retval = get_uint32(ctx, LIBMO_HASH_OFFSET(ctx, index), &entry);
-            if (retval)
+            if (retval) {
+                bitmap_free(bitmap);
                 return retval;
+            }
 
             if (entry--) {
                 if (entry < ctx->index_num && !bit_test_set(bitmap, entry))
                     continue;
                 pr_warn("%p: hash table contains invalid entries\n", ctx);
+                bitmap_free(bitmap);
                 return -EINVAL;
             }
         }
 
         if (!bitmap_full(bitmap, ctx->index_num)) {
             pr_warn("%p: some messages are not present in hash table\n", ctx);
+            bitmap_free(bitmap);
             return -EINVAL;
         }
 
