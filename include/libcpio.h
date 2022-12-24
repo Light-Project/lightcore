@@ -12,6 +12,6 @@ struct cpio_data {
     size_t size;
 };
 
-extern state cpio_data_find(struct cpio_data *cdata, const void *data, size_t length, const char *path, intptr_t *offset);
+extern state cpio_lookup(struct cpio_data *cdata, const void *data, size_t length, const char *path, intptr_t *offset);
 
 #endif  /* _LIBCPIO_H_ */

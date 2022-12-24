@@ -14,7 +14,7 @@ static state libcpio_test_testing(struct kshell_context *ctx, void *pdata)
     struct cpio_data cdata;
     intptr_t offset;
 
-    while (!cpio_data_find(&cdata, cpioptr, ROMDISK_SIZE, "", &offset)) {
+    while (!cpio_lookup(&cdata, cpioptr, ROMDISK_SIZE, "", &offset)) {
         kshell_printf(ctx, "libcpio romdisk: %s %lu\n", cdata.name, cdata.size);
         cpioptr += offset;
     }

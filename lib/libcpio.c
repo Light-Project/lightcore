@@ -14,7 +14,7 @@
 #include <printk.h>
 #include <export.h>
 
-state cpio_data_find(struct cpio_data *cdata, const void *data, size_t length, const char *path, intptr_t *offset)
+state cpio_lookup(struct cpio_data *cdata, const void *data, size_t length, const char *path, intptr_t *offset)
 {
     const void * const start = data;
     size_t pathlen = strlen(path);
@@ -59,4 +59,4 @@ state cpio_data_find(struct cpio_data *cdata, const void *data, size_t length, c
 
     return -ENOENT;
 }
-EXPORT_SYMBOL(cpio_data_find);
+EXPORT_SYMBOL(cpio_lookup);
