@@ -35,6 +35,7 @@ obj-y += kasprintf.o
 obj-y += kfifo.o
 obj-y += klist.o
 obj-y += libcpio.o
+obj-y += libmo.o
 obj-y += librtc.o
 obj-$(CONFIG_DEBUG_LIST) += list-debug.o
 obj-y += list-sort.o
