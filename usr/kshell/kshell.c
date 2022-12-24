@@ -68,7 +68,7 @@ static state do_system(struct kshell_context *ctx, const char *cmdline)
             continue;
         }
 
-        if (!*ctx->depth) {
+        if (!ctx->depth) {
             kshell_printf(ctx, "kshell: trigger recursive protection\n");
             return -EFBIG;
         }
@@ -78,9 +78,9 @@ static state do_system(struct kshell_context *ctx, const char *cmdline)
             kshell_printf(ctx, "kshell: command not found: %s\n", argv[0]);
             retval = -EBADF;
         } else {
-            --*ctx->depth;
+            ctx->depth--;
             retval = cmd->exec(ctx, argc, argv);
-            ++*ctx->depth;
+            ctx->depth++;
         }
 
         kfree(argv);

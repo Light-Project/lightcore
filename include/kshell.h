@@ -19,7 +19,7 @@ struct kshell_context {
     struct rb_root env;
     struct list_head local;
     struct list_head symbol;
-    unsigned int *depth;
+    unsigned int depth;
     bool tryrun;
 
     union {

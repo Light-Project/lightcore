@@ -175,14 +175,13 @@ bootarg_initcall("kshell", kshell_bootarg);
 
 void ksh_init(void)
 {
-    unsigned int maxdepth = CONFIG_KSHELL_DEPTH;
     struct readline_state rstate;
     struct kshell_context ctx;
 
     ctx.read = kshell_console_read;
     ctx.write = kshell_console_write;
     ctx.env = RB_INIT;
-    ctx.depth = &maxdepth;
+    ctx.depth = CONFIG_KSHELL_DEPTH;
     ctx.readline = &rstate;
     rstate.read = kshell_console_read;
     rstate.write = kshell_console_write;
