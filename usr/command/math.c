@@ -262,6 +262,13 @@ static int math_parser(struct kshell_context *ctx, char *start, char *end, bool 
             snprintf(curr, plen + 1, "%d", ~result);
             curr[plen] = ' ';
             curr += max(size, ext) - 1;
+        } else if (*curr == '!' && (right = next_number(ctx, end, curr + 1, &result, NULL))) {
+            /* !variable */
+            plen = snprintf(0, 0, "%d", !result);
+            string_extension(&start, &end, &curr, (size = right - curr), (ext = plen + 1));
+            snprintf(curr, plen + 1, "%d", !result);
+            curr[plen] = ' ';
+            curr += max(size, ext) - 1;
         }
     }
 
