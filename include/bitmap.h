@@ -5,6 +5,7 @@
 #include <string.h>
 #include <bitops.h>
 #include <kernel.h>
+#include <mm/gfp.h>
 
 #ifdef CONFIG_ARCH_LITTLE_ENDIAN
 # define BITMAP_MEM_ALIGNMENT BITS_PER_BYTE
