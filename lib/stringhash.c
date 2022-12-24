@@ -35,7 +35,7 @@ unsigned long __weak pjwhash(const char *str)
         hash <<= 4;
         hash += *str++;
 
-        value = hash & BIT_SHIFT(0xf, PJWHASH_BITS - 4);
+        value = hash & (0xfUL << (PJWHASH_BITS - 4));
         if (value) {
             hash ^= value >> (PJWHASH_BITS - 8);
             hash ^= value;
