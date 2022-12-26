@@ -53,8 +53,8 @@ static state load_context(struct libmo_context *ctx)
     if ((retval = load_swab(ctx)))
         return retval;
 
-    ctx->major = upper_16_bits(LIBMO_SWAB(ctx, head->revision));
-    ctx->minor = lower_16_bits(LIBMO_SWAB(ctx, head->revision));
+    ctx->major = LIBMO_MAJOR(LIBMO_SWAB(ctx, head->revision));
+    ctx->minor = LIBMO_MINOR(LIBMO_SWAB(ctx, head->revision));
 
     if (ctx->major != 0 && ctx->major != 1) {
         pr_warn("%p: unknow revision\n", ctx);

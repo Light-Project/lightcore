@@ -91,8 +91,8 @@ struct libmo_context {
 #define LIBMO_MAGIC 0x950412de
 #define LIBMO_MAGIC_SWAB 0xde120495
 
-#define LIBMO_MAJOR(revision) ((revision) >> 8)
-#define LIBMO_MINOR(revision) ((revision) & 0xff)
+#define LIBMO_MAJOR(revision) ((revision) >> 16)
+#define LIBMO_MINOR(revision) ((revision) & 0xffff)
 
 #define LIBMO_ORIG_OFFSET(ctx, index) ((ctx)->orig_offset + (sizeof(struct libmo_sdesc) * (index)))
 #define LIBMO_TRAN_OFFSET(ctx, index) ((ctx)->tran_offset + (sizeof(struct libmo_sdesc) * (index)))
@@ -105,7 +105,7 @@ extern const char *libmo_lookup(const struct libmo_context *ctx, const char *ori
 static inline const char *libmo_gettext(const struct libmo_context *ctx, const char *orig)
 {
     const char *tran = libmo_lookup(ctx, orig, 0, NULL);
-    return tran ?: orig;
+    return IS_INVAL(tran) ? orig : tran;
 }
 
 #endif  /* _LIBMO_H_ */
