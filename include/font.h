@@ -4,6 +4,7 @@
 
 #include <state.h>
 #include <slist.h>
+#include <math.h>
 
 /**
  * struct font - describes a lattice font.
@@ -24,7 +25,7 @@ struct font {
 
 static inline const void *font_index(struct font *font, char ch)
 {
-    unsigned int bpc = ((font->width + 7) / 8) * font->height;
+    unsigned int bpc = DIV_ROUND_UP(font->width, 8) * font->height;
     return font->data + bpc * (ch & (font->limit - 1));
 }
 
