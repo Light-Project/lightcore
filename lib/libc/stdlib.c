@@ -12,6 +12,13 @@ int chtoi(unsigned char ch)
 }
 EXPORT_SYMBOL(chtoi);
 
+unsigned char itoch(int val)
+{
+    const char conv[] = "0123456789abcdef";
+    return (unsigned char)conv[val % sizeof(conv)];
+}
+EXPORT_SYMBOL(itoch);
+
 #define GENERIC_XBNTOA_OPS(name, type, signed)              \
 int name(type val, char *buff, int base, size_t length)     \
 {                                                           \
