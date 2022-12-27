@@ -112,6 +112,8 @@ extern int __scanf(2, 0) kshell_vscanf(struct kshell_context *ctx, const char *f
 extern int __scanf(2, 3) kshell_scanf(struct kshell_context *ctx, const char *fmt, ...);
 extern int __printf(2, 0) kshell_vprintf(struct kshell_context *ctx, const char *str, va_list args);
 extern int __printf(2, 3) kshell_printf(struct kshell_context *ctx, const char *str, ...);
+extern void kshell_putc(struct kshell_context *ctx, const char ch);
+extern void kshell_puts(struct kshell_context *ctx, const char *str);
 extern bool kshell_ctrlc(struct kshell_context *ctx);
 
 extern state kshell_register(struct kshell_command *cmd);

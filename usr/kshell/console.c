@@ -81,6 +81,19 @@ int kshell_printf(struct kshell_context *ctx, const char *fmt, ...)
 }
 EXPORT_SYMBOL(kshell_printf);
 
+void kshell_putc(struct kshell_context *ctx, const char ch)
+{
+    kshell_write(ctx, &ch, sizeof(ch));
+}
+EXPORT_SYMBOL(kshell_putc);
+
+void kshell_puts(struct kshell_context *ctx, const char *str)
+{
+    size_t length = strlen(str);
+    kshell_write(ctx, str, length);
+}
+EXPORT_SYMBOL(kshell_puts);
+
 bool kshell_ctrlc(struct kshell_context *ctx)
 {
     unsigned int len;
@@ -90,11 +103,9 @@ bool kshell_ctrlc(struct kshell_context *ctx)
         return true;
 
     len = kshell_read(ctx, buff, sizeof(buff));
-    while (len--) {
-        if (buff[len] == ASCII_ETX) {
-            ctx->canceled = true;
-            return true;
-        }
+    if (memchr(buff, ASCII_ETX, len)) {
+        ctx->canceled = true;
+        return true;
     }
 
     return false;
