@@ -114,6 +114,10 @@ config KCMD_PRINTF
     bool "printf"
     default y
 
+config KCMD_READ
+    bool "read"
+    default y
+
 config KCMD_REBOOT
     bool "reboot"
     default y
