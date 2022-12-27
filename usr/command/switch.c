@@ -10,7 +10,7 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: switch [option] condition case 'cmp' {commands}...\n");
+    kshell_printf(ctx, "usage: switch [option] condition case 'cmp'/default {commands}...\n");
     kshell_printf(ctx, "\t-h  display this message\n");
 }
 
@@ -53,6 +53,7 @@ finish:
             goto usage;
 
         retval = kshell_system(ctx, argv[count + 1]);
+        break;
     }
 
     return retval;
