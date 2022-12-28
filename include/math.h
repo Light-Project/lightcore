@@ -119,6 +119,9 @@ extern int32_t cos32(int angle);
 extern unsigned int atan2i(int x, int y);
 extern uint32_t bezier3(uint32_t time, uint32_t p0, uint32_t p1, uint32_t p2, uint32_t p3);
 
+extern bool prime_check(unsigned long num);
+extern unsigned long prime_next(unsigned long num);
+
 extern unsigned int gcdi(unsigned int first, unsigned int second);
 extern unsigned long gcdl(unsigned long first, unsigned long second);
 extern unsigned long long gcdll(unsigned long long first, unsigned long long second);
