@@ -72,6 +72,10 @@ config SELFTEST_MARK_MEMSET
     bool "memset"
     default y
 
+config SELFTEST_MARK_PRIME
+    bool "prime"
+    default y
+
 config SELFTEST_MARK_STRCMP
     bool "strcmp"
     default y

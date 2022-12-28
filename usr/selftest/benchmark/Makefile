@@ -16,6 +16,7 @@ obj-$(CONFIG_SELFTEST_MARK_MEMCPY) += memcpy.o
 obj-$(CONFIG_SELFTEST_MARK_MEMMOVE) += memmove.o
 obj-$(CONFIG_SELFTEST_MARK_MEMSCAN) += memscan.o
 obj-$(CONFIG_SELFTEST_MARK_MEMSET) += memset.o
+obj-$(CONFIG_SELFTEST_MARK_PRIME) += prime.o
 obj-$(CONFIG_SELFTEST_MARK_STRCMP) += strcmp.o
 obj-$(CONFIG_SELFTEST_MARK_STRLEN) += strlen.o
 obj-$(CONFIG_SELFTEST_MARK_STRNCMP)	+= strncmp.o
