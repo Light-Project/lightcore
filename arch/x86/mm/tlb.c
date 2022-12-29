@@ -9,12 +9,11 @@
 
 void tlb_inval_one(size_t addr)
 {
-	asm volatile("invlpg (%0)" ::"r" (addr) : "memory");
+    asm volatile("invlpg (%0)" ::"r" (addr) : "memory");
 }
 
 void tlb_inval_range(size_t addr, size_t size)
 {
-	for (; size; addr += PAGE_SIZE, size += PAGE_SIZE)
-		tlb_inval_one(addr);
+    for (; size; addr += PAGE_SIZE, size -= PAGE_SIZE)
+        tlb_inval_one(addr);
 }
-
