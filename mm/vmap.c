@@ -10,6 +10,7 @@
 #include <mm/page.h>
 #include <asm/cache.h>
 #include <asm/tlb.h>
+#include <crash.h>
 #include <export.h>
 
 static inline pte_t *vmap_pte_get(pmd_t *pmd, size_t addr, enum pgtbl_modified *mod)
@@ -235,7 +236,7 @@ static state vmap_pte_pages(pmd_t *pmd, struct page **pages, unsigned long *inde
     pte_t *pte;
 
     pte = vmap_pte_get(pmd, addr, mod);
-    if (!pte)
+    if (unlikely(!pte))
         return -ENOMEM;
 
     for (; size; (*index)++, addr += PAGE_SIZE, size -= PAGE_SIZE) {
@@ -243,7 +244,7 @@ static state vmap_pte_pages(pmd_t *pmd, struct page **pages, unsigned long *inde
         if (unlikely(!page))
             return -ENOMEM;
 
-        if (unlikely(pte_get_used(pte)))
+        if (WARN_ON(pte_get_used(pte)))
             return -EBUSY;
 
         pte_set(pte, page_to_pa(page), flags);
@@ -354,11 +355,15 @@ static state vmap_pte_range(pmd_t *pmd, phys_addr_t phys, size_t addr, size_t si
     pte_t *pte;
 
     pte = vmap_pte_get(pmd, addr, mod);
-    if (!pte)
+    if (unlikely(!pte))
         return -ENOMEM;
 
     for (; size; phys += PAGE_SIZE, addr += PAGE_SIZE, size -= PAGE_SIZE) {
+        if (WARN_ON(pte_get_used(pte)))
+            return -EBUSY;
+
         pte_set(pte, phys, flags);
+
         pte++;
     }
 

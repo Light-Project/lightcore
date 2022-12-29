@@ -23,7 +23,7 @@ static struct kcache *ioremap_cache;
 
 struct ioremap_node {
     struct rb_node rb;
-    struct vmem_area vm_area;
+    struct vmem_area *vma;
     phys_addr_t addr;
     gvm_t flags;
     unsigned int count;
@@ -34,9 +34,6 @@ struct ioremap_node {
 
 #define rb_to_ioremap_safe(io) \
     rb_entry_safe(io, struct ioremap_node, rb)
-
-#define vm_to_ioremap(io) \
-    container_of(io, struct ioremap_node, vm_area)
 
 struct ioremap_find {
     phys_addr_t addr;
@@ -55,8 +52,8 @@ static long ioremap_rb_cmp(const struct rb_node *rba, const struct rb_node *rbb)
     if (node_a->addr != node_b->addr)
         return node_a->addr < node_b->addr ? -1 : 1;
 
-    if (node_a->vm_area.size != node_b->vm_area.size)
-        return node_a->vm_area.size < node_b->vm_area.size ? -1 : 1;
+    if (node_a->vma->size != node_b->vma->size)
+        return node_a->vma->size < node_b->vma->size ? -1 : 1;
 
     BUG();
     return 0;
@@ -68,7 +65,7 @@ static long ioremap_rb_find(const struct rb_node *rb, const void *key)
     const struct ioremap_find *cmp = key;
     phys_addr_t node_end, cmp_end;
 
-    node_end = node->addr + node->vm_area.size;
+    node_end = node->addr + node->vma->size;
     cmp_end = cmp->addr + cmp->size;
 
     if (node->flags == cmp->flags &&
@@ -81,8 +78,8 @@ static long ioremap_rb_find(const struct rb_node *rb, const void *key)
     if (node->addr != cmp->addr)
         return node->addr < cmp->addr ? -1 : 1;
 
-    if (node->vm_area.size != cmp->size)
-        return node->vm_area.size < cmp->size ? -1 : 1;
+    if (node->vma->size != cmp->size)
+        return node->vma->size < cmp->size ? -1 : 1;
 
     return LONG_MIN;
 }
@@ -103,24 +100,25 @@ static struct ioremap_node *ioremap_alloc(phys_addr_t phys, size_t size, gvm_t f
     if (unlikely(!node))
         return NULL;
 
-    ret = vmem_area_alloc(&node->vm_area, size);
-    if (unlikely(ret))
+    node->vma = vmem_alloc(size);
+    if (unlikely(!node->vma))
         goto error_free;
 
-    ret = vmap_range(&init_mm, phys, node->vm_area.addr, node->vm_area.size, flags, PGDIR_SHIFT);
+    ret = vmap_range(&init_mm, phys, node->vma->addr, node->vma->size, flags, PGDIR_SHIFT);
     if (unlikely(ret))
         goto error_vmfree;
 
     node->addr = phys;
     node->flags = flags;
+    node->vma->pdata = node;
     rb_insert(&ioremap_root, &node->rb, ioremap_rb_cmp);
 
     return node;
 
 error_vmfree:
-    vmem_area_free(&node->vm_area);
+    vmem_free(node->vma);
 error_free:
-    kfree(node);
+    kcache_free(ioremap_cache, node);
     return NULL;
 }
 
@@ -136,7 +134,7 @@ void *ioremap_node(phys_addr_t phys, size_t size, gvm_t flags)
 
     /* page-align mappings */
     offset = phys & ~PAGE_MASK;
-    phys &= PAGE_MASK;
+    align_low_adj(phys, PAGE_SIZE);
     size = page_align(last_addr + 1) - phys;
 
     spin_lock(&ioremap_lock);
@@ -152,7 +150,7 @@ void *ioremap_node(phys_addr_t phys, size_t size, gvm_t flags)
 done:
     node->count++;
     spin_unlock(&ioremap_lock);
-    return (void *)(node->vm_area.addr + offset);
+    return (void *)(node->vma->addr + offset);
 
 error:
     spin_unlock(&ioremap_lock);
@@ -193,29 +191,35 @@ EXPORT_SYMBOL(ioremap_wt);
 
 void iounmap(void *block)
 {
-    size_t addr = (size_t)block;
+    uintptr_t addr = (uintptr_t)block;
     struct ioremap_node *node;
-    struct vmem_area *vm;
+    struct vmem_area *vma;
 
-    if (addr < CONFIG_HIGHMAP_OFFSET)
+    if (unlikely(!addr))
+        return;
+
+    if (WARN_ON(addr < CONFIG_HIGHMAP_OFFSET))
         return;
 
     spin_lock(&ioremap_lock);
-    vm = vmem_area_find(addr);
-    if (!vm) {
+    align_low_adj(addr, PAGE_SIZE);
+
+    vma = vmem_find(addr);
+    if (!vma) {
         pr_crit("abort iounmap %p\n", block);
         goto finish;
     }
 
-    node = vm_to_ioremap(vm);
+    node = vma->pdata;
     if (--node->count)
         goto finish;
 
     rb_delete(&ioremap_root, &node->rb);
     spin_unlock(&ioremap_lock);
 
-    vmem_area_free(vm);
-    vunmap_range(&init_mm, vm->addr, vm->size);
+    vunmap_range(&init_mm, vma->addr, vma->size);
+    vmem_free(vma);
+
     kcache_free(ioremap_cache, node);
 
     return;

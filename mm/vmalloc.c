@@ -16,13 +16,10 @@
 #include <export.h>
 
 struct vmalloc_area {
-    struct vmem_area vmem;
+    struct vmem_area *vma;
     struct page **page_map;
     unsigned long page_nr;
 };
-
-#define vmem_to_vmalloc(vmp) \
-    container_of(vmp, struct vmalloc_area, vmem)
 
 static struct kcache *vmalloc_cache;
 static atomic_t vmalloc_page_nr;
@@ -48,29 +45,31 @@ static void release_pages(struct page **page_area, unsigned long page_nr)
 
 static void vfree_pages_internal(void *block, bool free_pages)
 {
+    uintptr_t addr = (uintptr_t)block;
     struct vmalloc_area *vmalloc;
-    struct vmem_area *vmem;
+    struct vmem_area *vma;
 
-    if (WARN_ON(!block))
+    if (unlikely(!block))
         return;
 
-    if ((size_t)block < CONFIG_HIGHMAP_OFFSET)
+    if (WARN_ON(addr < CONFIG_HIGHMAP_OFFSET))
         return;
 
-    vmem = vmem_area_find((size_t)block);
-    if (!vmem) {
+    vma = vmem_find(addr);
+    if (unlikely(!vma)) {
         pr_err("unmap not found\n");
         return;
     }
 
-    vmalloc = vmem_to_vmalloc(vmem);
+    vmalloc = vma->pdata;
     if (free_pages) {
         release_pages(vmalloc->page_map, vmalloc->page_nr);
         kfree(vmalloc->page_map);
     }
 
-    vmem_area_free(vmem);
-    vunmap_range(&init_mm, vmem->addr, vmem->size);
+    vunmap_range(&init_mm, vma->addr, vma->size);
+    vmem_free(vma);
+
     kcache_free(vmalloc_cache, vmalloc);
 }
 
@@ -109,18 +108,21 @@ void *vmalloc_pages(struct page **pages, unsigned int count, gvm_t flags)
     if (unlikely(!vmalloc))
         return NULL;
 
-    if (vmem_area_alloc(&vmalloc->vmem, size))
+    vmalloc->vma = vmem_alloc(size);
+    if (unlikely(!vmalloc->vma))
         goto err_free;
 
-    if (vmap_pages(&init_mm, pages, vmalloc->vmem.addr, size, 0, PGDIR_SHIFT))
+    if (vmap_pages(&init_mm, pages, vmalloc->vma->addr, size, 0, PGDIR_SHIFT))
         goto err_vmem;
 
     vmalloc->page_nr = count;
     vmalloc->page_map = pages;
-    return (void *)vmalloc->vmem.addr;
+    vmalloc->vma->pdata = vmalloc;
+
+    return (void *)vmalloc->vma->addr;
 
 err_vmem:
-    vmem_area_free(&vmalloc->vmem);
+    vmem_free(vmalloc->vma);
 err_free:
     kcache_free(vmalloc_cache, vmalloc);
     return NULL;
@@ -171,24 +173,26 @@ void *vmalloc_numa(size_t size, size_t align, gfp_t gfp, int numa)
     if (unlikely(!page_area))
         goto err_vmalloc;
 
-    if (vmem_area_alloc(&vmalloc->vmem, size))
+    vmalloc->vma = vmem_alloc(size);
+    if (unlikely(!vmalloc->vma))
         goto err_area;
 
     vmalloc->page_nr = page_nr;
     vmalloc->page_map = page_area;
+    vmalloc->vma->pdata = vmalloc;
 
     if (alloc_pages(vmalloc, gfp))
         goto err_vmem;
 
-    if (vmap_pages(&init_mm, page_area, vmalloc->vmem.addr, size, 0, PAGE_SHIFT))
+    if (vmap_pages(&init_mm, page_area, vmalloc->vma->addr, size, 0, PAGE_SHIFT))
         goto err_pages;
 
-    return (void *)vmalloc->vmem.addr;
+    return (void *)vmalloc->vma->addr;
 
 err_pages:
     release_pages(page_area, page_nr);
 err_vmem:
-    vmem_area_free(&vmalloc->vmem);
+    vmem_free(vmalloc->vma);
 err_area:
     kfree(page_area);
 err_vmalloc:

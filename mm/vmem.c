@@ -42,7 +42,7 @@ static long vmem_rb_find(const struct rb_node *rb, const void *key)
     return vma->addr < (uintptr_t)key ? -1 : 1;
 }
 
-struct vmem_area *vmem_area_find(size_t addr)
+struct vmem_area *vmem_find(uintptr_t addr)
 {
     struct rb_node *rb;
     spin_lock(&vm_area_lock);
@@ -50,7 +50,7 @@ struct vmem_area *vmem_area_find(size_t addr)
     spin_unlock(&vm_area_lock);
     return rb_to_vma_safe(rb);
 }
-EXPORT_SYMBOL(vmem_area_find);
+EXPORT_SYMBOL(vmem_find);
 
 static struct list_head *vma_next_sibling(struct rb_node *parent, struct rb_node **link)
 {
@@ -193,6 +193,7 @@ static state vma_merge(struct vmem_area *vma, struct rb_root *root, struct list_
         if (sibling->addr == vma->addr + vma->size) {
             sibling->addr = vma->addr;
             sibling->size += vma->size;
+            kcache_free(vmem_cache, vma);
             vma = sibling;
             merged = true;
         }
@@ -211,19 +212,15 @@ static state vma_merge(struct vmem_area *vma, struct rb_root *root, struct list_
             sibling->size += vma->size;
             if (merged)
                 vma_delete(vma, root);
+            kcache_free(vmem_cache, vma);
             vma = sibling;
             merged = true;
         }
     }
 
 insert:
-    if (!merged) {
-        sibling = kcache_alloc(vmem_cache, GFP_KERNEL);
-        if (BUG_ON(!sibling))
-            return -ENOMEM;
-        *sibling = *vma;
-        vma_link(sibling, root, head, parent, link);
-    }
+    if (!merged)
+        vma_link(vma, root, head, parent, link);
 
     return -ENOERR;
 }
@@ -269,7 +266,8 @@ static state vma_free_alloc(size_t *raddr, size_t size, size_t align, uintptr_t 
     return -ENOERR;
 }
 
-state vmem_area_alloc_node(struct vmem_area *vma, size_t size, size_t align, uintptr_t vstart, uintptr_t vend)
+static state vmem_area_alloc_node(struct vmem_area *vma, size_t size, size_t align,
+                                  uintptr_t vstart, uintptr_t vend)
 {
     uintptr_t addr;
     state ret;
@@ -284,7 +282,7 @@ state vmem_area_alloc_node(struct vmem_area *vma, size_t size, size_t align, uin
     ret = vma_free_alloc(&addr, size, align, vstart, vend);
     spin_unlock(&vm_free_area_lock);
 
-    if (ret)
+    if (unlikely(ret))
         return ret;
 
     vma->addr = addr;
@@ -296,21 +294,8 @@ state vmem_area_alloc_node(struct vmem_area *vma, size_t size, size_t align, uin
 
     return -ENOERR;
 }
-EXPORT_SYMBOL(vmem_area_alloc_node);
 
-state vmem_area_alloc_align(struct vmem_area *vma, size_t size, size_t align)
-{
-    return vmem_area_alloc_node(vma, size, PAGE_SIZE, VMALLOC_START, VMALLOC_END);
-}
-EXPORT_SYMBOL(vmem_area_alloc_align);
-
-state vmem_area_alloc(struct vmem_area *vma, size_t size)
-{
-    return vmem_area_alloc_align(vma, size, PAGE_SIZE);
-}
-EXPORT_SYMBOL(vmem_area_alloc);
-
-void vmem_area_free(struct vmem_area *vma)
+static void vmem_area_free(struct vmem_area *vma)
 {
     if (BUG_ON(!vmem_initialized))
         return;
@@ -323,7 +308,6 @@ void vmem_area_free(struct vmem_area *vma)
     vma_merge(vma, &vm_free_area_root, &vm_free_area_list);
     spin_unlock(&vm_free_area_lock);
 }
-EXPORT_SYMBOL(vmem_area_free);
 
 struct vmem_area *vmem_alloc_node(size_t size, size_t align, gfp_t gfp, size_t vstart, size_t vend)
 {
@@ -365,17 +349,17 @@ void vmem_free(struct vmem_area *vma)
 {
     if (BUG_ON(!vmem_initialized))
         return;
-
     vmem_area_free(vma);
-    kcache_free(vmem_cache, vma);
 }
 EXPORT_SYMBOL(vmem_free);
 
 static void __init vmem_free_space_init(void)
 {
-    size_t vmem_start = CONFIG_HIGHMAP_OFFSET;
-    size_t vmem_end = vmem_start + CONFIG_HIGHMAP_SIZE;
+    uintptr_t vmem_start, vmem_end;
     struct vmem_area *vma;
+
+    vmem_start = CONFIG_HIGHMAP_OFFSET;
+    vmem_end = vmem_start + CONFIG_HIGHMAP_SIZE;
 
     if (vmem_start < vmem_end) {
         vma = kcache_zalloc(vmem_cache, GFP_KERNEL);
@@ -394,7 +378,7 @@ static void __init vmem_populate(void)
 
 void __init vmem_init(void)
 {
-    vmem_cache = kcache_create("kmalloc", sizeof(struct vmem_area), KCACHE_PANIC);
+    vmem_cache = KCACHE_CREATE(struct vmem_area, KCACHE_PANIC);
     vmem_populate();
     vmem_free_space_init();
     vmem_initialized = true;
