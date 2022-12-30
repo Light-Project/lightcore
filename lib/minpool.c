@@ -39,6 +39,12 @@ gnode_set_size(struct minpool_node *node, size_t size)
     node->usize |= size & BIT_HIGH_MASK(0);
 }
 
+static __always_inline void
+gnode_set(struct minpool_node *node, size_t size, bool used)
+{
+    node->usize = (size & BIT_HIGH_MASK(0)) | used;
+}
+
 /**
  * gpool_find - Get first qualified node in mempool.
  * @head: Minimum mempool to get node.
@@ -63,26 +69,25 @@ static struct minpool_node *gpool_find(struct minpool_head *head, size_t size)
  */
 void *minpool_alloc(struct minpool_head *head, size_t size)
 {
-    struct minpool_node *node, *free;
+    struct minpool_node *node;
     size_t fsize;
 
-    size = align_high(size, MSIZE);
+    align_high_adj(size, MINPOOL_ALIGN);
     if (unlikely(size > head->avail))
         return NULL;
 
     /* Get the free memory block */
     node = gpool_find(head, size);
-    if (!node)
+    if (unlikely(!node))
         return NULL;
 
     fsize = gnode_get_size(node);
-    if (fsize > sizeof(*free) + MSIZE + size) {
+    if (fsize - size >= sizeof(*node) + MINPOOL_ALIGN) {
         struct minpool_node *free;
 
         /* Setup the new free block */
-        free = (void *)(node->data + size);
-        gnode_set_size(free, fsize - size - sizeof(*free));
-        gnode_set_used(free, false);
+        free = (void *)node->data + size;
+        gnode_set(free, fsize - size - sizeof(*free), false);
 
         list_add(&head->free_list, &free->free);
         list_add(&node->block, &free->block);
@@ -115,7 +120,7 @@ void minpool_free(struct minpool_head *head, void *block)
         return;
 
     /* Check whether it's a legal node */
-    node = block - offsetof(struct minpool_node, data);
+    node = container_of(block, struct minpool_node, data);
     if (unlikely(!list_check_empty(&node->free)))
         return;
 
@@ -124,23 +129,22 @@ void minpool_free(struct minpool_head *head, void *block)
     gnode_set_used(node, false);
     list_add(&head->free_list, &node->free);
 
-    /* Merge previous node */
-    other = list_prev_entry(node, block);
-    if (!list_entry_check_head(other, &head->block_list, block) && !gnode_get_used(other)) {
-        gnode_set_size(other, sizeof(*node) + gnode_get_size(node));
-        list_del(&node->block);
-        list_del(&node->free);
-        head->avail += sizeof(*node);
-        node = other;
-    }
-
     /* Merge next node */
-    other = list_next_entry(node, block);
-    if (!list_entry_check_head(other, &head->block_list, block) && !gnode_get_used(other)) {
+    other = list_next_entry_or_null(node, &head->block_list, block);
+    if (other && !gnode_get_used(other)) {
         gnode_set_size(node, sizeof(*other) + gnode_get_size(node));
         list_del(&other->block);
         list_del(&other->free);
         head->avail += sizeof(*other);
+    }
+
+    /* Merge previous node */
+    other = list_prev_entry_or_null(node, &head->block_list, block);
+    if (other && !gnode_get_used(other)) {
+        gnode_set_size(other, sizeof(*node) + gnode_get_size(node));
+        list_del(&node->block);
+        list_del(&node->free);
+        head->avail += sizeof(*node);
     }
 }
 EXPORT_SYMBOL(minpool_free);
