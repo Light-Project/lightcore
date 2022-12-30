@@ -20,7 +20,7 @@ enum io_delay_type {
 };
 
 static const char *io_delay_name[] = {
-    "" "0xed", "udelay", "none",
+    "p80", "ped", "udelay", "none",
 };
 
 #if defined(CONFIG_IO_DELAY_0X80)
@@ -41,12 +41,15 @@ void io_delay(void)
         case IO_DELAY_TYPE_0X80: default:
             asm volatile("outb %al, $0x80");
             break;
+
         case IO_DELAY_TYPE_0XED:
             asm volatile("outb %al, $0xed");
             break;
+
         case IO_DELAY_TYPE_UDELAY:
             udelay(2);
             break;
+
         case IO_DELAY_TYPE_NONE:
             break;
     }
