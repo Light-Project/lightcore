@@ -6,7 +6,6 @@
 #include <kshell.h>
 #include <ctype.h>
 #include <string.h>
-#include <kmalloc.h>
 #include <cmdline.h>
 #include <initcall.h>
 #include <dynamic-call.h>
@@ -21,8 +20,7 @@ static state printf_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     unsigned int count, index = 2;
     void *printf_args[32] = {};
-    const char *fmt, *walk;
-    char *paraph;
+    char *fmt, *walk;
 
     for (count = 1; count < argc; ++count) {
         char *para = argv[count];
@@ -40,19 +38,13 @@ static state printf_main(struct kshell_context *ctx, int argc, char *argv[])
         goto usage;
 
     fmt = argv[count++];
-    paraph = kmalloc(strlen(fmt) + 1, GFP_KERNEL);
-    if (unlikely(!paraph))
-        return -ENOMEM;
+    escape_string(fmt, ~0, fmt);
 
-    escape_string(paraph, ~0, fmt);
-    fmt = paraph;
-
-    while ((fmt = strchr(fmt, '%'))) {
-        walk = fmt; repeat:
+    for (walk = fmt; (walk = strchr(walk, '%'));) {
+        repeat:
 
         if (unlikely(index >= ARRAY_SIZE(printf_args))) {
             kshell_printf(ctx, "too many parameters\n");
-            kfree(paraph);
             return -EFBIG;
         }
 
@@ -100,13 +92,11 @@ static state printf_main(struct kshell_context *ctx, int argc, char *argv[])
                 }
                 goto repeat;
         }
-        fmt = walk;
     }
 
     printf_args[0] = ctx;
-    printf_args[1] = paraph;
+    printf_args[1] = fmt;
     dynamic_call((dynamic_call_t)kshell_printf, index, printf_args);
-    kfree(paraph);
 
     return -ENOERR;
 
