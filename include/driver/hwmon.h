@@ -5,22 +5,57 @@
 #include <device.h>
 
 enum hwmon_sensor {
-    HWMON_SENSOR_THERMAL        = 1,
-    HWMON_SENSOR_HUMIDITY       = 2,
-    HWMON_SENSOR_FAN            = 3,
-    HWMON_SENSOR_PWM            = 4,
+    HWMON_SENSOR_IN = 1,
+    HWMON_SENSOR_THERMAL,
+    HWMON_SENSOR_HUMIDITY,
+    HWMON_SENSOR_FAN,
+    HWMON_SENSOR_PWM,
 };
 
+enum hwmon_voltage_attributes {
+    HWMON_IN_LABEL,
+    HWMON_IN_ENABLE,
+    HWMON_IN_DATA,
+    HWMON_IN_MIN,
+    HWMON_IN_MAX,
+    HWMON_IN_CRIT,
+    HWMON_IN_AVERAGE,
+    HWMON_IN_LOWEST,
+    HWMON_IN_HIGHEST,
+    HWMON_IN_ALARM,
+    HWMON_IN_MIN_ALARM,
+    HWMON_IN_MAX_ALARM,
+    HWMON_IN_CRIT_ALARM,
+    HWMON_IN_RATED_MIN,
+    HWMON_IN_RATED_MAX,
+};
+
+#define HWMON_IN_HAS_LABEL          BIT(HWMON_IN_LABEL)
+#define HWMON_IN_HAS_ENABLE         BIT(HWMON_IN_ENABLE)
+#define HWMON_IN_HAS_DATA           BIT(HWMON_IN_DATA)
+#define HWMON_IN_HAS_MIN            BIT(HWMON_IN_MIN)
+#define HWMON_IN_HAS_MAX            BIT(HWMON_IN_MAX)
+#define HWMON_IN_HAS_CRIT           BIT(HWMON_IN_CRIT)
+#define HWMON_IN_HAS_AVERAGE        BIT(HWMON_IN_AVERAGE)
+#define HWMON_IN_HAS_LOWEST         BIT(HWMON_IN_LOWEST)
+#define HWMON_IN_HAS_HIGHEST        BIT(HWMON_IN_HIGHEST)
+#define HWMON_IN_HAS_ALARM          BIT(HWMON_IN_ALARM)
+#define HWMON_IN_HAS_MIN_ALARM      BIT(HWMON_IN_MIN_ALARM)
+#define HWMON_IN_HAS_MAX_ALARM      BIT(HWMON_IN_MAX_ALARM)
+#define HWMON_IN_HAS_CRIT_ALARM     BIT(HWMON_IN_CRIT_ALARM)
+#define HWMON_IN_HAS_RATED_MIN      BIT(HWMON_IN_RATED_MIN)
+#define HWMON_IN_HAS_RATED_MAX      BIT(HWMON_IN_RATED_MAX)
+
 enum hwmon_thermal_attributes {
-    HWMON_THERMAL_LABEL         = 0,
-    HWMON_THERMAL_ENABLE        = 1,
-    HWMON_THERMAL_DATA          = 2,
-    HWMON_THERMAL_MIN           = 3,
-    HWMON_THERMAL_MIN_HYST      = 4,
-    HWMON_THERMAL_MAX           = 5,
-    HWMON_THERMAL_MAX_HYST      = 6,
-    HWMON_THERMAL_CRIT          = 7,
-    HWMON_THERMAL_CRIT_HYST     = 8,
+    HWMON_THERMAL_LABEL,
+    HWMON_THERMAL_ENABLE,
+    HWMON_THERMAL_DATA,
+    HWMON_THERMAL_MIN,
+    HWMON_THERMAL_MIN_HYST,
+    HWMON_THERMAL_MAX,
+    HWMON_THERMAL_MAX_HYST,
+    HWMON_THERMAL_CRIT,
+    HWMON_THERMAL_CRIT_HYST,
 };
 
 #define HWMON_THERMAL_HAS_ENABLE    BIT(HWMON_THERMAL_ENABLE)
@@ -34,13 +69,13 @@ enum hwmon_thermal_attributes {
 #define HWMON_THERMAL_HAS_CRIT_HYST BIT(HWMON_THERMAL_CRIT_HYST)
 
 enum hwmon_humidity_attributes {
-    HWMON_HUMIDITY_LABEL        = 0,
-    HWMON_HUMIDITY_ENABLE       = 1,
-    HWMON_HUMIDITY_DATA         = 2,
-    HWMON_HUMIDITY_MIN          = 3,
-    HWMON_HUMIDITY_MIN_HYST     = 4,
-    HWMON_HUMIDITY_MAX          = 5,
-    HWMON_HUMIDITY_MAX_HYST     = 6,
+    HWMON_HUMIDITY_LABEL,
+    HWMON_HUMIDITY_ENABLE,
+    HWMON_HUMIDITY_DATA,
+    HWMON_HUMIDITY_MIN,
+    HWMON_HUMIDITY_MIN_HYST,
+    HWMON_HUMIDITY_MAX,
+    HWMON_HUMIDITY_MAX_HYST,
 };
 
 #define HWMON_HUMIDITY_HAS_ENABLE   BIT(HWMON_HUMIDITY_ENABLE)
@@ -52,12 +87,12 @@ enum hwmon_humidity_attributes {
 #define HWMON_HUMIDITY_HAS_MAX_HYST BIT(HWMON_HUMIDITY_MAX_HYST)
 
 enum hwmon_fan_attributes {
-    HWMON_FAN_LABEL             = 0,
-    HWMON_FAN_ENABLE            = 1,
-    HWMON_FAN_DATA              = 2,
-    HWMON_FAN_MIN               = 3,
-    HWMON_FAN_MAX               = 4,
-    HWMON_FAN_TARGET            = 5,
+    HWMON_FAN_LABEL,
+    HWMON_FAN_ENABLE,
+    HWMON_FAN_DATA,
+    HWMON_FAN_MIN,
+    HWMON_FAN_MAX,
+    HWMON_FAN_TARGET,
 };
 
 #define HWMON_FAN_HAS_ENABLE        BIT(HWMON_FAN_ENABLE)
@@ -68,16 +103,22 @@ enum hwmon_fan_attributes {
 #define HWMON_FAN_HAS_TARGET        BIT(HWMON_FAN_TARGET)
 
 enum hwmon_pwm_attributes {
-    HWMON_PWM_LABEL             = 0,
-    HWMON_PWM_ENABLE            = 1,
-    HWMON_PWM_DATA              = 2,
-    HWMON_PWM_MODE              = 3,
-    HWMON_PWM_FREQ              = 4,
+    HWMON_PWM_LABEL,
+    HWMON_PWM_ENABLE,
+    HWMON_PWM_DATA,
+    HWMON_PWM_MIN,
+    HWMON_PWM_MAX,
+    HWMON_PWM_RAMP,
+    HWMON_PWM_MODE,
+    HWMON_PWM_FREQ,
 };
 
 #define HWMON_PWM_HAS_ENABLE        BIT(HWMON_PWM_ENABLE)
 #define HWMON_PWM_HAS_LABEL         BIT(HWMON_PWM_LABEL)
 #define HWMON_PWM_HAS_DATA          BIT(HWMON_PWM_DATA)
+#define HWMON_PWM_HAS_MIN           BIT(HWMON_PWM_MIN)
+#define HWMON_PWM_HAS_MAX           BIT(HWMON_PWM_MAX)
+#define HWMON_PWM_HAS_RAMP          BIT(HWMON_PWM_RAMP)
 #define HWMON_PWM_HAS_MODE          BIT(HWMON_PWM_MODE)
 #define HWMON_PWM_HAS_FREQ          BIT(HWMON_PWM_FREQ)
 

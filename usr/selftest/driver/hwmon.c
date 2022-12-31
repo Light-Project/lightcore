@@ -11,6 +11,24 @@
 #define ATTRIBUTE_TEST(attribute) \
     [attribute] = __stringify(attribute)
 
+static const char *in_attributes_names[] = {
+    ATTRIBUTE_TEST(HWMON_IN_LABEL),
+    ATTRIBUTE_TEST(HWMON_IN_ENABLE),
+    ATTRIBUTE_TEST(HWMON_IN_DATA),
+    ATTRIBUTE_TEST(HWMON_IN_MIN),
+    ATTRIBUTE_TEST(HWMON_IN_MAX),
+    ATTRIBUTE_TEST(HWMON_IN_CRIT),
+    ATTRIBUTE_TEST(HWMON_IN_AVERAGE),
+    ATTRIBUTE_TEST(HWMON_IN_LOWEST),
+    ATTRIBUTE_TEST(HWMON_IN_HIGHEST),
+    ATTRIBUTE_TEST(HWMON_IN_ALARM),
+    ATTRIBUTE_TEST(HWMON_IN_MIN_ALARM),
+    ATTRIBUTE_TEST(HWMON_IN_MAX_ALARM),
+    ATTRIBUTE_TEST(HWMON_IN_CRIT_ALARM),
+    ATTRIBUTE_TEST(HWMON_IN_RATED_MIN),
+    ATTRIBUTE_TEST(HWMON_IN_RATED_MAX),
+};
+
 static const char *thermal_attributes_names[] = {
     ATTRIBUTE_TEST(HWMON_THERMAL_LABEL),
     ATTRIBUTE_TEST(HWMON_THERMAL_ENABLE),
@@ -46,6 +64,9 @@ static const char *pwm_attributes_names[] = {
     ATTRIBUTE_TEST(HWMON_PWM_LABEL),
     ATTRIBUTE_TEST(HWMON_PWM_ENABLE),
     ATTRIBUTE_TEST(HWMON_PWM_DATA),
+    ATTRIBUTE_TEST(HWMON_PWM_MIN),
+    ATTRIBUTE_TEST(HWMON_PWM_MAX),
+    ATTRIBUTE_TEST(HWMON_PWM_RAMP),
     ATTRIBUTE_TEST(HWMON_PWM_MODE),
     ATTRIBUTE_TEST(HWMON_PWM_FREQ),
 };
@@ -57,6 +78,11 @@ static state hwmon_test_channels(struct kshell_context *ctx, struct hwmon_device
     const uint32_t *atts;
 
     switch (info->sensor) {
+        case HWMON_SENSOR_IN:
+            attmax = ARRAY_SIZE(in_attributes_names);
+            attname = in_attributes_names;
+            break;
+
         case HWMON_SENSOR_THERMAL:
             attmax = ARRAY_SIZE(thermal_attributes_names);
             attname = thermal_attributes_names;
