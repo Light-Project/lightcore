@@ -4,6 +4,7 @@
  */
 
 #define DRIVER_NAME "dell-smm"
+#define pr_fmt(fmt) DRIVER_NAME ": " fmt
 
 #include <initcall.h>
 #include <delay.h>
@@ -582,7 +583,7 @@ static state dell_smm_match(struct isa_device *idev, unsigned int index)
 
     if ((retval = dell_check_signature(DELL_SMM_SIG1_GET)) &&
         (retval = dell_check_signature(DELL_SMM_SIG2_GET))) {
-		pr_err("unable to get smm signature\n");
+		isa_err(idev, "unable to get smm signature\n");
         return retval;
     }
 
