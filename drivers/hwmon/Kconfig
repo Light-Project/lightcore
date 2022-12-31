@@ -19,4 +19,7 @@ config HWMON_DHT11
     bool "DHT11 Hwmon Support"
     depends on GPIO
 
+config HWMON_DME1737
+    bool "DME1737 Hwmon Support"
+
 endif
