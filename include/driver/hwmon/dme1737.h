@@ -5,8 +5,8 @@
 #include <bits.h>
 
 enum dme1737_register {
-    DME1737_ADDR    = 0x00,
-    DME1737_DATA    = 0x01,
+    DME1737_INDEX_ADDR      = 0x00,
+    DME1737_INDEX_DATA      = 0x01,
 };
 
 enum dme1737_sio_index {
@@ -18,8 +18,8 @@ enum dme1737_sio_index {
     DME1737_SIO_DEVID       = 0x20,
     DME1737_SIO_DEVREV      = 0x21,
     DME1737_SIO_POWER       = 0x22,
-    DME1737_SIO_BASE_LOW    = 0x60,
-    DME1737_SIO_BASE_HIGH   = 0x61,
+    DME1737_SIO_BASE_MSB    = 0x60,
+    DME1737_SIO_BASE_LSB    = 0x61,
 };
 
 enum dme1737_runtime_registers {
@@ -37,11 +37,14 @@ enum dme1737_hwmon_index {
     DME1737_HWM_COMPANY     = 0x3e,
     DME1737_HWM_VERSTEP     = 0x3f,
     DME1737_HWM_CONFIG      = 0x40,
+    DME1737_HWM_VID         = 0x43,
     DME1737_HWM_VLMIN0      = 0x44,
     DME1737_HWM_VLMAX0      = 0x45,
+    DME1737_HWM_TLMIN       = 0x4e,
+    DME1737_HWM_TLMAX       = 0x4f,
     DME1737_HWM_CONFIG1     = 0x7f,
-    DME1737_HWM_VID         = 0x43,
     DME1737_HWM_TACH_PWM    = 0x81,
+    DME1737_HWM_ADLSB       = 0x84,
     DME1737_HWM_VIN1        = 0x99,
     DME1737_HWM_VLMIN1      = 0x9b,
     DME1737_HWM_VLMAX1      = 0x9c,
@@ -60,14 +63,17 @@ enum dme1737_devid {
 #define DME1737_SIO_BASE2 0x162e
 #define DME1737_SIO_BASE3 0x164e
 
-#define DME1737_ADDR(base) ((base) + DME1737_ADDR)
-#define DME1737_DATA(base) ((base) + DME1737_DATA)
+#define DME1737_ADDR(base) ((base) + DME1737_INDEX_ADDR)
+#define DME1737_DATA(base) ((base) + DME1737_INDEX_DATA)
 
-#define DME1737_HWM_VIN(idx) (((idx) < 5 ? DME1737_HWM_VIN0 : DME1737_HWM_VIN1) + (idx))
-#define DME1737_HWM_VMIN(idx) (((idx) < 5 ? DME1737_HWM_VLMIN0 : DME1737_HWM_VLMIN1) + (idx))
-#define DME1737_HWM_VMAX(idx) (((idx) < 5 ? DME1737_HWM_VLMAX0 : DME1737_HWM_VLMAX1) + (idx))
+#define DME1737_HWM_VIN(idx) (((idx) < 5 ? DME1737_HWM_VIN0 : DME1737_HWM_VIN1 - 5) + (idx))
+#define DME1737_HWM_VMIN(idx) (((idx) < 5 ? DME1737_HWM_VLMIN0 : DME1737_HWM_VLMIN1 - 10) + (idx) * 2)
+#define DME1737_HWM_VMAX(idx) (((idx) < 5 ? DME1737_HWM_VLMAX0 : DME1737_HWM_VLMAX1 - 10) + (idx) * 2)
 
 #define DME1737_HWM_TEMP(idx) (DME1737_HWM_TEMP + (idx))
+#define DME1737_HWM_TMIN(idx) (DME1737_HWM_TLMIN + (idx) * 2)
+#define DME1737_HWM_TMAX(idx) (DME1737_HWM_TLMAX + (idx) * 2)
+#define DME1737_HWM_ADLSB(idx) (DME1737_HWM_ADLSB + (idx))
 
 #define DME1737_HWM_CONFIG_VBAT_MON     BIT(4)
 #define DME1737_HWM_CONFIG_OVRID        BIT(3)

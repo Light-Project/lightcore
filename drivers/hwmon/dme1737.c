@@ -110,6 +110,22 @@ static struct hwmon_channel_info dme1737_info[] = {
     { }, /* NULL */
 };
 
+static const unsigned int dme1737_reg_in_lsb[] = {
+    3, 4, 4, 3, 2, 0, 0, 5
+};
+
+static const unsigned int dme1737_reg_in_lsb_shl[] = {
+    4, 4, 0, 0, 0, 0, 4, 4
+};
+
+static const unsigned int dme1737_reg_temp_lsb[] = {
+    1, 2, 1
+};
+
+static const unsigned int dme1737_reg_temp_lsb_shl[] = {
+    4, 4, 0
+};
+
 static const unsigned int sch311x_in_nominal[8] = {
     2500, 1500, 3300, 5000,
     12000, 3300, 3300
@@ -128,26 +144,27 @@ struct dme1737_device {
     resource_size_t sio;
     resource_size_t runtime;
 
+    bool valid;
     ktime_t last_data;
     ktime_t last_vbat;
     const unsigned int *in_nominal;
 
     struct {
-        uint8_t data;
+        uint16_t data;
         uint8_t min;
         uint8_t max;
     } in[8];
 
     struct {
-        uint8_t data;
+        int16_t data;
         uint8_t min;
         uint8_t max;
         uint8_t offset;
     } temp[3];
 
     struct {
-        uint8_t data;
-        uint8_t min;
+        uint16_t data;
+        uint16_t min;
         uint8_t max;
         uint8_t opt;
     } fan[6];
@@ -205,48 +222,80 @@ dme1737_hwm_write(struct dme1737_device *dme1737, uint8_t index, uint8_t data)
     dme1737_index_write(base, index, data);
 }
 
-static __always_inline unsigned int
-dme1737_regin(uint8_t reg, unsigned int nominal, unsigned int res)
+static __always_inline int
+dme1737_regin(int reg, unsigned int nominal, unsigned int res)
 {
     return (reg * nominal + (3 << (res - 3))) / (3 << (res - 2));
 }
 
-static __always_inline uint8_t
-dme1737_inreg(unsigned int val, unsigned int nominal)
+static __always_inline int
+dme1737_inreg(int val, unsigned int nominal)
 {
     clamp_adj(val, 0, 255 * nominal / 192);
     return DIV_ROUND_CLOSEST(val * 192, nominal);
 }
 
-static state dme1737_hwm_update(struct dme1737_device *dme1737)
+static __always_inline int
+dme1737_regtemp(int reg, unsigned int res)
+{
+	return (reg * 1000) >> (res - 8);
+}
+
+static __always_inline int
+dme1737_tempreg(int val, unsigned int nominal)
+{
+	clamp_adj(val, -128000, 127000);
+	return DIV_ROUND_CLOSEST(val, 1000);
+}
+
+static void dme1737_hwm_update(struct dme1737_device *dme1737)
 {
     ktime_t currtime = timekeeping_get_time();
-    state retval = -ENOERR;
+    uint8_t value, lsb[6];
     unsigned int count;
-    uint8_t value;
 
     mutex_lock(&dme1737->lock);
 
-    if (ktime_after(currtime, dme1737->last_vbat + DME1737_VBAT_INTERVAL)) {
+    if (ktime_after(currtime, dme1737->last_vbat + DME1737_VBAT_INTERVAL) || !dme1737->valid) {
         value = dme1737_hwm_read(dme1737, DME1737_HWM_CONFIG);
         value |= DME1737_HWM_CONFIG_VBAT_MON;
         dme1737_hwm_write(dme1737, DME1737_HWM_CONFIG, value);
         dme1737->last_vbat = currtime;
     }
 
-    if (ktime_before(currtime, dme1737->last_data + DME1737_DATA_INTERVAL))
+    if (ktime_before(currtime, dme1737->last_data + DME1737_DATA_INTERVAL) && dme1737->valid)
         goto finish;
 
     for (count = 0; count < ARRAY_SIZE(dme1737->in); ++count) {
-        dme1737->in[count].data = dme1737_hwm_read(dme1737, DME1737_HWM_VIN(count));
+        dme1737->in[count].data = dme1737_hwm_read(dme1737, DME1737_HWM_VIN(count)) << 8;
         dme1737->in[count].min = dme1737_hwm_read(dme1737, DME1737_HWM_VMIN(count));
         dme1737->in[count].max = dme1737_hwm_read(dme1737, DME1737_HWM_VMAX(count));
     }
 
+    for (count = 0; count < ARRAY_SIZE(dme1737->temp); ++count) {
+        dme1737->temp[count].data = dme1737_hwm_read(dme1737, DME1737_HWM_TEMP(count)) << 8;
+        dme1737->temp[count].min = dme1737_hwm_read(dme1737, DME1737_HWM_TMIN(count));
+        dme1737->temp[count].max = dme1737_hwm_read(dme1737, DME1737_HWM_TMAX(count));
+    }
+
+    for (count = 0; count < ARRAY_SIZE(lsb); ++count)
+        lsb[count] = dme1737_hwm_read(dme1737, DME1737_HWM_ADLSB(count));
+
+    for (count = 0; count < ARRAY_SIZE(dme1737->in); ++count) {
+        dme1737->in[count].data |=
+            (lsb[dme1737_reg_in_lsb[count]] << dme1737_reg_in_lsb_shl[count]) & 0xf0;
+    }
+
+    for (count = 0; count < ARRAY_SIZE(dme1737->temp); ++count) {
+        dme1737->temp[count].data |=
+            (lsb[dme1737_reg_temp_lsb[count]] << dme1737_reg_temp_lsb_shl[count]) & 0xf0;
+    }
+
+    dme1737->last_data = currtime;
+    dme1737->valid = true;
 
 finish:
     mutex_unlock(&dme1737->lock);
-    return retval;
 }
 
 static state dme1737_string(struct hwmon_device *hdev, enum hwmon_sensor sensor,
@@ -286,12 +335,9 @@ static state dme1737_read(struct hwmon_device *hdev, enum hwmon_sensor sensor,
                           unsigned int index, uint32_t att, ssize_t *val)
 {
     struct dme1737_device *dme1737 = hwmon_to_dme1737(hdev);
-    unsigned int value;
-    state retval;
+    int value;
 
-    retval = dme1737_hwm_update(dme1737);
-    if (retval)
-        return retval;
+    dme1737_hwm_update(dme1737);
 
     switch (sensor) {
         case HWMON_SENSOR_IN:
@@ -311,6 +357,28 @@ static state dme1737_read(struct hwmon_device *hdev, enum hwmon_sensor sensor,
                 case HWMON_IN_MAX:
                     value = dme1737_regin(dme1737->in[index].max,
                                           dme1737->in_nominal[index], 8);
+                    *val = (ssize_t)value;
+                    break;
+
+                default:
+                    return -EOPNOTSUPP;
+            }
+            break;
+
+        case HWMON_SENSOR_THERMAL:
+            switch (att) {
+                case HWMON_THERMAL_DATA:
+                    value = dme1737_regtemp(dme1737->temp[index].data, 16);
+                    *val = (ssize_t)value;
+                    break;
+
+                case HWMON_THERMAL_MIN:
+                    value = dme1737_regtemp(dme1737->temp[index].min, 8);
+                    *val = (ssize_t)value;
+                    break;
+
+                case HWMON_THERMAL_MAX:
+                    value = dme1737_regtemp(dme1737->temp[index].max, 8);
                     *val = (ssize_t)value;
                     break;
 
@@ -403,8 +471,8 @@ static state dme1737_detect(struct dme1737_device *dme1737, resource_size_t sio)
     dme1737_index_write(sio, DME1737_SIO_LOGICAL, 0x0a);
 
     /* Get the base address of the runtime registers */
-    dme1737->runtime = dme1737_index_read(sio, DME1737_SIO_BASE_HIGH) << 8;
-    dme1737->runtime |= dme1737_index_read(sio, DME1737_SIO_BASE_LOW);
+    dme1737->runtime = dme1737_index_read(sio, DME1737_SIO_BASE_MSB) << 8;
+    dme1737->runtime |= dme1737_index_read(sio, DME1737_SIO_BASE_LSB);
     dme1737->sio = sio;
 
     if (!dme1737->runtime) {
