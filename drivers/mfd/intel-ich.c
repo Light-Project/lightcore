@@ -847,6 +847,7 @@ static state intel_ich_tco_setup(struct pci_device *pdev, const struct ich_chipi
     idev->tco.name = info->itco_version;
     idev->tco.resource = idev->tco_res;
     idev->tco.resources_nr = ARRAY_SIZE(idev->tco_res);
+
     return platform_device_register(&idev->tco);
 }
 
@@ -891,6 +892,7 @@ gpio_base:
     idev->gpio.name = info->gpio_version;
     idev->gpio.resource = idev->gpio_res;
     idev->gpio.resources_nr = ARRAY_SIZE(idev->gpio_res);
+
     return platform_device_register(&idev->gpio);
 }
 
@@ -959,6 +961,7 @@ static state intel_ich_spi_setup(struct pci_device *pdev, const struct ich_chipi
     idev->spi.name = info->spi_version;
     idev->spi.resource = idev->spi_res;
     idev->spi.resources_nr = ARRAY_SIZE(idev->spi_res);
+
     return platform_device_register(&idev->spi);
 }
 
@@ -972,10 +975,10 @@ static state intel_ich_probe(struct pci_device *pdev, const void *pdata)
     dev_info(&pdev->dev, "chipset %s detect\n", info->name);
 
     idev = dev_kzalloc(&pdev->dev, sizeof(*idev), GFP_KERNEL);
-    if (!pdev)
+    if (unlikely(!pdev))
         return -ENOMEM;
-    pci_set_devdata(pdev, idev);
 
+    pci_set_devdata(pdev, idev);
     if (info->itco_version == ich_tco_v1) {
         idev->gpio_base = INTEL_ICH0_GBA;
         idev->gctl_base = INTEL_ICH0_GCTL;
@@ -1002,7 +1005,7 @@ static state intel_ich_probe(struct pci_device *pdev, const void *pdata)
             pr_warn("spi register failed %d\n", ret3);
     }
 
-    return ret1 && ret2 && ret3 ? ret1 : -ENOERR;
+    return ret1 && ret2 && ret3 ? (ret1 ?: ret2 ?: ret3) : -ENOERR;
 }
 
 static void intel_ich_remove(struct pci_device *pdev)
