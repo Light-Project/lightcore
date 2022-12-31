@@ -139,25 +139,26 @@ struct ncache *ncache_create(ncache_alloc_t alloc, ncache_free_t free, unsigned 
     struct ncache *cache;
 
     cache = kzalloc(sizeof(*cache) + (sizeof(void *) * num), GFP_KERNEL);
-    if (!cache) {
-        if (flags & NCACHE_PANIC)
-            panic("create kcache fail");
-        return NULL;
-    }
+    if (unlikely(!cache))
+        goto error;
 
     cache->num = num;
     cache->alloc = alloc;
     cache->free = free;
     cache->pdata = pdata;
 
-    if (!(flags & NCACHE_NOFULL))
-        if (ncache_charge(cache))
+    if (!(flags & NCACHE_NOFULL)) {
+        if (unlikely(ncache_charge(cache)))
             goto error;
+    }
 
     return cache;
 
 error:
-    kfree(cache);
+    if (flags & NCACHE_PANIC)
+        panic("ncache create failed");
+
+    pr_err("ncache create failed\n");
     return NULL;
 }
 EXPORT_SYMBOL(ncache_create);
