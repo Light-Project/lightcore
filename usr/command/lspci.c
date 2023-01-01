@@ -50,9 +50,9 @@ static void lspci_device_dump(struct kshell_context *ctx, uint8_t flags, unsigne
             pci_raw_config_read(0, bus, devfn, offset++, 1, &value);
             kshell_printf(ctx, " %02x", value);
         }
-        kshell_printf(ctx, "\n");
+        kshell_putc(ctx, '\n');
     }
-    kshell_printf(ctx, "\n");
+    kshell_putc(ctx, '\n');
 }
 
 static bool lspci_scan_device(struct kshell_context *ctx, uint8_t flags, unsigned int bus, unsigned int devfn)

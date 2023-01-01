@@ -48,11 +48,11 @@ static state yes_main(struct kshell_context *ctx, int argc, char *argv[])
     do {
         if (kshell_ctrlc(ctx))
             return -ECANCELED;
-        kshell_printf(ctx, "%s", argv[count]);
+        kshell_puts(ctx, argv[count]);
         for (walk = count + 1; walk < argc; ++walk)
             kshell_printf(ctx, " %s", argv[walk]);
         if (!nflag)
-            kshell_printf(ctx, "\n");
+            kshell_putc(ctx, '\n');
     } while (--time);
 
     return -ENOERR;

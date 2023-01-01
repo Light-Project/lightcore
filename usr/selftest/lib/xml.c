@@ -50,7 +50,7 @@ static void xml_dumpinfo(struct kshell_context *ctx, struct xml_node *parent, un
             kshell_printf(ctx, "attribute: %s=%s", child->attr_name, child->attr_value);
         else if (xml_test_string(child))
             kshell_printf(ctx, "string: %s", child->attr_name);
-        kshell_printf(ctx, "\n");
+        kshell_putc(ctx, '\n');
     }
 
     for (count = 0; count < depth - 1; ++count)

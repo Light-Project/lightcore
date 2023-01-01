@@ -42,10 +42,9 @@ static void perform_basename(struct kshell_context *ctx, char *name,
     if (suffix)
         remove_suffix(name, suffix);
 
-    if (flags & FLAG_NULL)
-        kshell_printf(ctx, "%s", name);
-    else
-        kshell_printf(ctx, "%s\n", name);
+    kshell_puts(ctx, name);
+    if (!(flags & FLAG_NULL))
+        kshell_putc(ctx, '\n');
 }
 
 static state basename_main(struct kshell_context *ctx, int argc, char *argv[])

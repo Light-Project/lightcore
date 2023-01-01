@@ -500,7 +500,7 @@ static void json_dumpinfo(struct kshell_context *ctx, struct json_node *parent, 
             kshell_printf(ctx, "true");
         else /* json_test_false(child) */
             kshell_printf(ctx, "false");
-        kshell_printf(ctx, "\n");
+        kshell_putc(ctx, '\n');
     }
 
     for (count = 0; count < depth - 1; ++count)

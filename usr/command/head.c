@@ -86,7 +86,7 @@ static state head_main(struct kshell_context *ctx, int argc, char *argv[])
         lines = 10;
 
     string = PROGRAM_FUNC(argv[count], lines, chars);
-    kshell_printf(ctx, "%s", string);
+    kshell_puts(ctx, string);
 
     return -ENOERR;
 

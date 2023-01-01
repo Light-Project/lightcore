@@ -20,7 +20,7 @@ static void uuid_print(struct kshell_context *ctx, uint8_t uuid[16], const char 
             kshell_printf(ctx, "-");
         kshell_printf(ctx, "%02x", uuid[count]);
     }
-    kshell_printf(ctx, "\n");
+    kshell_putc(ctx, '\n');
 }
 
 static state uuid_test_testing(struct kshell_context *ctx, void *pdata)

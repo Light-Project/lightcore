@@ -66,17 +66,17 @@ static state echo_main(struct kshell_context *ctx, int argc, char *argv[])
         para = *argv++;
         if (eflag)
             escape_string(para, ~0, para);
-        kshell_printf(ctx, "%s", para);
+        kshell_puts(ctx, para);
         if (argc) {
             if (iflag)
-                kshell_printf(ctx, "\n");
+                kshell_putc(ctx, '\n');
             else
-                kshell_printf(ctx, " ");
+                kshell_putc(ctx, ' ');
         }
     }
 
     if (!nflag)
-        kshell_printf(ctx, "\n");
+        kshell_putc(ctx, '\n');
 
     return -ENOERR;
 }

@@ -83,7 +83,7 @@ static state wc_main(struct kshell_context *ctx, int argc, char *argv[])
     if (flags & WC_FLAG_CHAR)
         kshell_printf(ctx, "%u\t", ccnt);
 
-    kshell_printf(ctx, "\n");
+    kshell_putc(ctx, '\n');
     return -ENOERR;
 
 usage:

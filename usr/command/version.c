@@ -65,7 +65,7 @@ static state version_main(struct kshell_context *ctx, int argc, char *argv[])
     if (flags & VERSION_FLAG_KRELE)
         kshell_printf(ctx, "%s", CONFIG_VERSION);
 
-    kshell_printf(ctx, "\n");
+    kshell_putc(ctx, '\n');
 
     return -ENOERR;
 

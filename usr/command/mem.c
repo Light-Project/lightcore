@@ -368,7 +368,7 @@ exit:
             addr += byte;
             kshell_printf(ctx, "  ");
         }
-        kshell_printf(ctx, "\n");
+        kshell_putc(ctx, '\n');
     }
 
     iounmap(block);
@@ -643,7 +643,7 @@ exit:
             base += byte;
             kshell_printf(ctx, "  ");
         }
-        kshell_printf(ctx, "\n");
+        kshell_putc(ctx, '\n');
     }
 
     return -ENOERR;
@@ -866,7 +866,7 @@ exit:
             base += byte;
             kshell_printf(ctx, "  ");
         }
-        kshell_printf(ctx, "\n");
+        kshell_putc(ctx, '\n');
     }
 
     return -ENOERR;
