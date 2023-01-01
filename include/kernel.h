@@ -18,7 +18,7 @@
 #include <container.h>
 #include <lightcore/kernel.h>
 
-#define KMAGIC 0x4c434d4bU
+#define KMAGIC 0xdeadbeefU
 #define MSIZE (sizeof(void *))
 
 #endif  /* _KERNEL_H_ */
