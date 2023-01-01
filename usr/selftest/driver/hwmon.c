@@ -121,20 +121,20 @@ static state hwmon_test_channels(struct kshell_context *ctx, struct hwmon_device
                 const char *value;
                 retval = hwmon_device_string(hdev, info->sensor, channel, index - 1, &value);
                 if (retval)
-                    kshell_printf(ctx, "hwmon %s '%s' failed: %d\n",
-                                  hdev->dev->name, attname[index - 1], retval);
+                    kshell_printf(ctx, "hwmon %s chan %d: %s failed: %d\n",
+                                  hdev->dev->name, channel, attname[index - 1], retval);
                 else
-                    kshell_printf(ctx, "hwmon %s '%s' passed: %s\n",
-                                  hdev->dev->name, attname[index - 1], value);
+                    kshell_printf(ctx, "hwmon %s chan %d: %s passed: %s\n",
+                                  hdev->dev->name, channel, attname[index - 1], value);
             } else {
                 ssize_t value;
                 retval = hwmon_device_read(hdev, info->sensor, channel, index - 1, &value);
                 if (retval)
-                    kshell_printf(ctx, "hwmon %s '%s' failed: %d\n",
-                                  hdev->dev->name, attname[index - 1], retval);
+                    kshell_printf(ctx, "hwmon %s chan %d: %s failed: %d\n",
+                                  hdev->dev->name, channel, attname[index - 1], retval);
                 else
-                    kshell_printf(ctx, "hwmon %s '%s' passed: %ld\n",
-                                  hdev->dev->name, attname[index - 1], value);
+                    kshell_printf(ctx, "hwmon %s chan %d: %s passed: %ld\n",
+                                  hdev->dev->name, channel, attname[index - 1], value);
             }
         }
     }

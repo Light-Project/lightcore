@@ -10,8 +10,8 @@
 #include <selftest.h>
 #include <export.h>
 
-#define MESSAGE_PASS  "[\e[32mPASS\e[0m]"
-#define MESSAGE_FAIL  "[\e[31mFAIL\e[0m]"
+#define MESSAGE_PASS "[\e[32mPASS\e[0m]"
+#define MESSAGE_FAIL "[\e[31mFAIL\e[0m]"
 
 static LIST_HEAD(selftest_list);
 static SPIN_LOCK(selftest_lock);
@@ -65,7 +65,7 @@ static void usage(struct kshell_context *ctx)
 
     kshell_printf(ctx, "usage: selftest [option] [group:name]...\n");
     kshell_printf(ctx, "\t-c  <count>  number of repetitions for each test\n");
-    kshell_printf(ctx, "\t-i  output detailed debugging information\n");
+    kshell_printf(ctx, "\t-d  do not print debugging information\n");
     kshell_printf(ctx, "\t-h  show this help\n");
     kshell_printf(ctx, "Supported selftests:\n");
 
@@ -187,7 +187,7 @@ static state selftest_main(struct kshell_context *ctx, int argc, char *argv[])
     struct selftest_command *cmd;
     unsigned int count, loop = 1;
     state retval = -ENOERR;
-    bool iflag = false;
+    bool sflag = false;
 
     for (count = 1; count < argc; ++count) {
         char *para = argv[count];
@@ -204,8 +204,8 @@ static state selftest_main(struct kshell_context *ctx, int argc, char *argv[])
                     goto usage;
                 break;
 
-            case 'i':
-                iflag = true;
+            case 's':
+                sflag = true;
                 break;
 
             case 'h': default:
@@ -214,14 +214,14 @@ static state selftest_main(struct kshell_context *ctx, int argc, char *argv[])
     }
 
     if (count == argc)
-        retval = selftest_all(ctx, iflag, loop);
+        retval = selftest_all(ctx, !sflag, loop);
 
     else for ((void)((cmd = selftest_iter(argv[count], NULL)) || ({goto usage; 1;}));
               cmd && !retval; cmd = selftest_iter(argv[count], cmd)) {
         if (kshell_ctrlc(ctx))
             retval = -ECANCELED;
         else
-            retval = selftest_one(ctx, cmd, iflag, loop, argc - count + 1, &argv[count]);
+            retval = selftest_one(ctx, cmd, !sflag, loop, argc - count + 1, &argv[count]);
     }
 
     return retval;
