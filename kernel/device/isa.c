@@ -15,10 +15,11 @@ static state isa_bus_match(struct device *dev, struct driver *drv)
     struct isa_device *idev = device_to_isa_device(dev);
     struct isa_driver *idrv = driver_to_isa_driver(drv);
 
-    if (unlikely(!idrv->match)) {
-        pr_warn("match not supported\n");
-        return -ENXIO;
-    }
+	if (dev->platform_data != idrv)
+        return -EINVAL;
+
+    if (!idrv->match)
+        return -ENOERR;
 
     return idrv->match(idev, idev->index);
 }
@@ -126,6 +127,7 @@ state isa_driver_register(struct isa_driver *idrv, unsigned int num, const void 
         idev->index = count;
         idev->dev.bus = &isa_bus;
         idev->dev.parent = &isa_root;
+        idev->dev.platform_data = idrv;
         idev->dev.release = isa_device_release;
         isa_set_devdata(idev, (void *)pdata);
 
