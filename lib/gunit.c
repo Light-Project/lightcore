@@ -49,3 +49,15 @@ int gfreq(char *buff, uintmax_t value)
                  ARRAY_SIZE(gfreq_unit), GFREQ_BUFF);
 }
 EXPORT_SYMBOL(gfreq);
+
+static const char *gtime_unit[4] = {
+    "ns",
+    "us", "ms", "s",
+};
+
+int gtime(char *buff, uintmax_t value)
+{
+    return gunit(buff, value, 1000, gtime_unit,
+                 ARRAY_SIZE(gtime_unit), GTIME_BUFF);
+}
+EXPORT_SYMBOL(gtime);
