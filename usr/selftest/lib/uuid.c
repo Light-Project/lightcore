@@ -17,7 +17,7 @@ static void uuid_print(struct kshell_context *ctx, uint8_t uuid[16], const char 
     for (count = 0; count < 16; ++count) {
         if (count == 4 || count == 6 ||
             count == 8 || count == 10)
-            kshell_puts(ctx, "-");
+            kshell_putc(ctx, '-');
         kshell_printf(ctx, "%02x", uuid[count]);
     }
     kshell_putc(ctx, '\n');

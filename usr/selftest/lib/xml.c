@@ -41,7 +41,7 @@ static void xml_dumpinfo(struct kshell_context *ctx, struct xml_node *parent, un
     kshell_printf(ctx, "object: %s {\n", parent->name);
     list_for_each_entry(child, &parent->child, sibling) {
         for (count = 0; count < depth; ++count)
-            kshell_puts(ctx, "    ");
+            kshell_putc(ctx, '\t');
         if (xml_test_object(child)) {
             xml_dumpinfo(ctx, child, depth + 1);
             continue;
@@ -54,7 +54,7 @@ static void xml_dumpinfo(struct kshell_context *ctx, struct xml_node *parent, un
     }
 
     for (count = 0; count < depth - 1; ++count)
-        kshell_puts(ctx, "    ");
+        kshell_putc(ctx, '\t');
     kshell_puts(ctx, "}\n");
 }
 

@@ -484,7 +484,7 @@ static void json_dumpinfo(struct kshell_context *ctx, struct json_node *parent, 
 
     list_for_each_entry(child, &parent->child, sibling) {
         for (count = 0; count < depth; ++count)
-            kshell_puts(ctx, "    ");
+            kshell_putc(ctx, '\t');
         if (json_test_array(child) || json_test_object(child)) {
             json_dumpinfo(ctx, child, depth + 1);
             continue;
@@ -504,7 +504,7 @@ static void json_dumpinfo(struct kshell_context *ctx, struct json_node *parent, 
     }
 
     for (count = 0; count < depth - 1; ++count)
-        kshell_puts(ctx, "    ");
+        kshell_putc(ctx, '\t');
     kshell_puts(ctx, "}\n");
 }
 
