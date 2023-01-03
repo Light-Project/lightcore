@@ -238,14 +238,14 @@ dme1737_inreg(int val, unsigned int nominal)
 static __always_inline int
 dme1737_regtemp(int reg, unsigned int res)
 {
-	return (reg * 1000) >> (res - 8);
+    return (reg * 1000) >> (res - 8);
 }
 
 static __always_inline int
 dme1737_tempreg(int val, unsigned int nominal)
 {
-	clamp_adj(val, -128000, 127000);
-	return DIV_ROUND_CLOSEST(val, 1000);
+    clamp_adj(val, -128000, 127000);
+    return DIV_ROUND_CLOSEST(val, 1000);
 }
 
 static void dme1737_hwm_update(struct dme1737_device *dme1737)
@@ -257,9 +257,9 @@ static void dme1737_hwm_update(struct dme1737_device *dme1737)
     mutex_lock(&dme1737->lock);
 
     if (ktime_after(currtime, dme1737->last_vbat + DME1737_VBAT_INTERVAL) || !dme1737->valid) {
-        value = dme1737_hwm_read(dme1737, DME1737_HWM_CONFIG);
+        value = dme1737_hwm_read(dme1737, DME1737_HWM_CONFIG0);
         value |= DME1737_HWM_CONFIG_VBAT_MON;
-        dme1737_hwm_write(dme1737, DME1737_HWM_CONFIG, value);
+        dme1737_hwm_write(dme1737, DME1737_HWM_CONFIG0, value);
         dme1737->last_vbat = currtime;
     }
 
@@ -406,14 +406,47 @@ static struct hwmon_ops dme1737_ops = {
     .write = dme1737_write,
 };
 
+static state dme1737_hwinit(struct dme1737_device *dme1737)
+{
+    uint8_t value;
+
+    value = dme1737_hwm_read(dme1737, DME1737_HWM_CONFIG0);
+    /* Inform if part is not ready */
+    if (!(value & DME1737_HWM_CONFIG_READY)) {
+        isa_err(dme1737->isa, "device is not ready\n");
+        return -EBUSY;
+    }
+
+    /* Inform if part is not monitoring/started */
+    if (!(value & DME1737_HWM_CONFIG_START)) {
+        isa_warn(dme1737->isa, "device monitor force start\n");
+        value |= DME1737_HWM_CONFIG_START;
+        dme1737_hwm_write(dme1737, DME1737_HWM_CONFIG0, value);
+    }
+
+    value = dme1737_hwm_read(dme1737, DME1737_HWM_TACH_PWM);
+    /* Inform if fan-to-pwm mapping differs from the default */
+    if (value != 0x24) {
+        isa_warn(dme1737->isa, "non-standard fan-pwm mapping: fan0->pwm%d, fan1->pwm%d, fan2->pwm%d\n",
+                 value & 0x03, (value >> 2) & 0x03, (value >> 4) & 0x03);
+    }
+
+    return -ENOERR;
+}
+
 static state dme1737_probe(struct isa_device *idev, unsigned int index, const void *pdata)
 {
     struct dme1737_device *dme1737 = (void *)pdata;
+    state retval;
 
     dme1737->hwmon.dev = &idev->dev;
     dme1737->hwmon.ops = &dme1737_ops;
     dme1737->hwmon.info = dme1737_info;
     isa_set_devdata(idev, dme1737);
+
+    retval = dme1737_hwinit(dme1737);
+    if (retval)
+        return retval;
 
     return hwmon_register(&dme1737->hwmon);
 }
@@ -490,6 +523,7 @@ static state dme1737_match(struct isa_device *idev, unsigned int index)
     struct dme1737_device *dme1737;
     state retval;
 
+    /* TODO: Failure of probe will cause memory leak. */
     dme1737 = kzalloc(sizeof(*dme1737), GFP_KERNEL);
     if (unlikely(!dme1737))
         return -ENOMEM;

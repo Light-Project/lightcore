@@ -36,7 +36,7 @@ enum dme1737_hwmon_index {
     DME1737_HWM_DEVICE      = 0x3d,
     DME1737_HWM_COMPANY     = 0x3e,
     DME1737_HWM_VERSTEP     = 0x3f,
-    DME1737_HWM_CONFIG      = 0x40,
+    DME1737_HWM_CONFIG0     = 0x40,
     DME1737_HWM_VID         = 0x43,
     DME1737_HWM_VLMIN0      = 0x44,
     DME1737_HWM_VLMAX0      = 0x45,
@@ -74,6 +74,11 @@ enum dme1737_devid {
 #define DME1737_HWM_TMIN(idx) (DME1737_HWM_TLMIN + (idx) * 2)
 #define DME1737_HWM_TMAX(idx) (DME1737_HWM_TLMAX + (idx) * 2)
 #define DME1737_HWM_ADLSB(idx) (DME1737_HWM_ADLSB + (idx))
+
+#define DME1737_HWM_FAN(idx) (DME1737_HWM_TEMP + (idx))
+#define DME1737_HWM_FMIN(idx) (DME1737_HWM_TLMIN + (idx) * 2)
+#define DME1737_HWM_FMAX(idx) (DME1737_HWM_TLMAX + (idx) * 2)
+#define DME1737_HWM_FOPT(idx) (DME1737_HWM_ADLSB + (idx))
 
 #define DME1737_HWM_CONFIG_VBAT_MON     BIT(4)
 #define DME1737_HWM_CONFIG_OVRID        BIT(3)
