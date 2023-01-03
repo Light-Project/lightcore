@@ -9,8 +9,8 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: errname [option] value...\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: errname [option] value...\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static inline void errname_show(struct kshell_context *ctx, state value)

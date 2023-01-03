@@ -18,7 +18,7 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: "__stringify(PROGRAM_NAME)" name[=value]...\n");
+    kshell_puts(ctx, "usage: "__stringify(PROGRAM_NAME)" name[=value]...\n");
 }
 
 static state export_main(struct kshell_context *ctx, int argc, char *argv[])

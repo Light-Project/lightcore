@@ -11,10 +11,10 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: read [option] var\n");
-    kshell_printf(ctx, "\t-s  does not echo the user's input\n");
-    kshell_printf(ctx, "\t-n  returns after reading the specified number of characters\n");
-    kshell_printf(ctx, "\t-t  times out after the specified time in millisecond\n");
+    kshell_puts(ctx, "usage: read [option] var\n");
+    kshell_puts(ctx, "\t-s  does not echo the user's input\n");
+    kshell_puts(ctx, "\t-n  returns after reading the specified number of characters\n");
+    kshell_puts(ctx, "\t-t  times out after the specified time in millisecond\n");
 }
 
 static state read_main(struct kshell_context *ctx, int argc, char *argv[])

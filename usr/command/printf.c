@@ -12,8 +12,8 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: printf [option] \"format\" ...\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: printf [option] \"format\" ...\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static state printf_main(struct kshell_context *ctx, int argc, char *argv[])
@@ -44,7 +44,7 @@ static state printf_main(struct kshell_context *ctx, int argc, char *argv[])
         repeat:
 
         if (unlikely(index >= ARRAY_SIZE(printf_args))) {
-            kshell_printf(ctx, "too many parameters\n");
+            kshell_puts(ctx, "too many parameters\n");
             return -EFBIG;
         }
 

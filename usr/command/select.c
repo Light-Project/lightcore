@@ -8,8 +8,8 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: select [option] varname in args {commands}\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: select [option] varname in args {commands}\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 #define CHECK_PARAM {                       \

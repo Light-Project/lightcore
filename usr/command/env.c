@@ -16,9 +16,9 @@
 
 static void usage(struct kshell_context *ctx, const char *cmd)
 {
-    kshell_printf(ctx, "usage: "__stringify(PROGRAM_NAME)" [option] name[=value]...\n");
-    kshell_printf(ctx, "\t-u  remove variable from the environment\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: "__stringify(PROGRAM_NAME)" [option] name[=value]...\n");
+    kshell_puts(ctx, "\t-u  remove variable from the environment\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static state cmd_main(struct kshell_context *ctx, int argc, char *argv[])

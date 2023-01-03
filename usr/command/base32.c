@@ -11,9 +11,9 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: base32 [option] ...\n");
-    kshell_printf(ctx, "\t-d  decode data\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: base32 [option] ...\n");
+    kshell_puts(ctx, "\t-d  decode data\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static state base32_main(struct kshell_context *ctx, int argc, char *argv[])

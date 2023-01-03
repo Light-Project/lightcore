@@ -29,7 +29,7 @@ static state timer_testing(struct kshell_context *ctx, void *pdata)
         kshell_printf(ctx, "timer test%02u: ", count);
         timer_pending(&timer);
         completion_wait(&timer_waiter);
-        kshell_printf(ctx, "handled\n");
+        kshell_puts(ctx, "handled\n");
     }
 
     return -ENOERR;

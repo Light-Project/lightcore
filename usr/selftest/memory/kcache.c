@@ -21,7 +21,7 @@ static state kcache_testing(struct kshell_context *ctx, void *pdata)
 
     cache = kcache_create("kcache-test", TEST_SIZE, 0);
     if (!cache) {
-        kshell_printf(ctx, "kcache create failed\n");
+        kshell_puts(ctx, "kcache create failed\n");
         return -ENOMEM;
     }
 
@@ -29,12 +29,12 @@ static state kcache_testing(struct kshell_context *ctx, void *pdata)
         test_pool[count] = kcache_alloc(cache, GFP_KERNEL);
         kshell_printf(ctx, "kcache alloc size ("__stringify(TEST_SIZE)") test%02u: ", count);
         if (!test_pool[count]) {
-            kshell_printf(ctx, "failed\n");
+            kshell_puts(ctx, "failed\n");
             ret = -ENOMEM;
             goto error;
         }
         memset(test_pool[count], 0, TEST_SIZE);
-        kshell_printf(ctx, "pass\n");
+        kshell_puts(ctx, "pass\n");
     }
 
 error:

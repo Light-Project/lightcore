@@ -12,10 +12,10 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: basename [option] name [suffix] ...\n");
-    kshell_printf(ctx, "\t-a  support multiple arguments and treat each as a NAME\n");
-    kshell_printf(ctx, "\t-s  remove a trailing suffix; implies -a\n");
-    kshell_printf(ctx, "\t-z  end each output line with NUL, not newline\n");
+    kshell_puts(ctx, "usage: basename [option] name [suffix] ...\n");
+    kshell_puts(ctx, "\t-a  support multiple arguments and treat each as a NAME\n");
+    kshell_puts(ctx, "\t-s  remove a trailing suffix; implies -a\n");
+    kshell_puts(ctx, "\t-z  end each output line with NUL, not newline\n");
 }
 
 static void remove_suffix(char *name, const char *suffix)

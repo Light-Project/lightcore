@@ -9,14 +9,14 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: reboot [option] ...\n");
-    kshell_printf(ctx, "\t-H  halt the machine\n");
-    kshell_printf(ctx, "\t-S  switch off the machine\n");
-    kshell_printf(ctx, "\t-R  cold restart the machine\n");
-    kshell_printf(ctx, "\t-r  warn restart the machine\n");
-    kshell_printf(ctx, "\t-s  soft restart the machine\n");
-    kshell_printf(ctx, "\t-f  hard restart the machine\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: reboot [option] ...\n");
+    kshell_puts(ctx, "\t-H  halt the machine\n");
+    kshell_puts(ctx, "\t-S  switch off the machine\n");
+    kshell_puts(ctx, "\t-R  cold restart the machine\n");
+    kshell_puts(ctx, "\t-r  warn restart the machine\n");
+    kshell_puts(ctx, "\t-s  soft restart the machine\n");
+    kshell_puts(ctx, "\t-f  hard restart the machine\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static state reset_main(struct kshell_context *ctx, int argc, char *argv[])

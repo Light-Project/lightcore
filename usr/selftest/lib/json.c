@@ -484,7 +484,7 @@ static void json_dumpinfo(struct kshell_context *ctx, struct json_node *parent, 
 
     list_for_each_entry(child, &parent->child, sibling) {
         for (count = 0; count < depth; ++count)
-            kshell_printf(ctx, "    ");
+            kshell_puts(ctx, "    ");
         if (json_test_array(child) || json_test_object(child)) {
             json_dumpinfo(ctx, child, depth + 1);
             continue;
@@ -495,17 +495,17 @@ static void json_dumpinfo(struct kshell_context *ctx, struct json_node *parent, 
         else if (json_test_string(child))
             kshell_printf(ctx, "'%s'", child->string);
         else if (json_test_null(child))
-            kshell_printf(ctx, "null");
+            kshell_puts(ctx, "null");
         else if (json_test_true(child))
-            kshell_printf(ctx, "true");
+            kshell_puts(ctx, "true");
         else /* json_test_false(child) */
-            kshell_printf(ctx, "false");
+            kshell_puts(ctx, "false");
         kshell_putc(ctx, '\n');
     }
 
     for (count = 0; count < depth - 1; ++count)
-        kshell_printf(ctx, "    ");
-    kshell_printf(ctx, "}\n");
+        kshell_puts(ctx, "    ");
+    kshell_puts(ctx, "}\n");
 }
 
 static state json_test_testing(struct kshell_context *ctx, void *pdata)
@@ -519,10 +519,10 @@ static state json_test_testing(struct kshell_context *ctx, void *pdata)
     if (retval)
         return retval;
 
-    kshell_printf(ctx, "pseudo expression:\n");
+    kshell_puts(ctx, "pseudo expression:\n");
     json_dumpinfo(ctx, jnode, 1);
 
-    kshell_printf(ctx, "json encode:\n");
+    kshell_puts(ctx, "json encode:\n");
     length = json_encode(jnode, NULL, 0);
 
     buff = kmalloc(length, GFP_KERNEL);

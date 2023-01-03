@@ -22,12 +22,12 @@ static state buddy_testing(struct kshell_context *ctx, void *pdata)
         kshell_printf(ctx, "buddy alloc test%02u order (%02u): ", count, tmp);
         test_pool[count] = page_alloc(tmp, GFP_KERNEL);
         if (!test_pool[count]) {
-            kshell_printf(ctx, "failed\n");
+            kshell_puts(ctx, "failed\n");
             ret = -ENOMEM;
             goto error;
         }
         memset(page_address(test_pool[count]), 0, page_size(test_pool[count]));
-        kshell_printf(ctx, "pass\n");
+        kshell_puts(ctx, "pass\n");
     }
 
 error:

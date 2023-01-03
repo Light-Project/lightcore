@@ -8,8 +8,8 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: silent [option] commands ...\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: silent [option] commands ...\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static state silent_main(struct kshell_context *ctx, int argc, char *argv[])

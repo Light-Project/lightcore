@@ -10,9 +10,9 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: gpio [option] index=val index\n");
-    kshell_printf(ctx, "\t-d  dump all gpio status\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: gpio [option] index=val index\n");
+    kshell_puts(ctx, "\t-d  dump all gpio status\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static void gpio_dumpall(struct kshell_context *ctx)

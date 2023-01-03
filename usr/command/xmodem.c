@@ -13,14 +13,14 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: xmodem [option]\n");
-    kshell_printf(ctx, "\t-r  <times> transmission retry time\n");
-    kshell_printf(ctx, "\t-t  <10ms> transmission timeout\n");
-    kshell_printf(ctx, "\t-e  use extend packet size\n");
-    kshell_printf(ctx, "\t-c  use crc16 as verification func\n");
-    kshell_printf(ctx, "\t-y  receive test demo\n");
-    kshell_printf(ctx, "\t-u  transmit test demo\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: xmodem [option]\n");
+    kshell_puts(ctx, "\t-r  <times> transmission retry time\n");
+    kshell_puts(ctx, "\t-t  <10ms> transmission timeout\n");
+    kshell_puts(ctx, "\t-e  use extend packet size\n");
+    kshell_puts(ctx, "\t-c  use crc16 as verification func\n");
+    kshell_puts(ctx, "\t-y  receive test demo\n");
+    kshell_puts(ctx, "\t-u  transmit test demo\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static state xmodem_read(void *buff, int size, void *pdata)

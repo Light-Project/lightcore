@@ -18,12 +18,12 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: watch [option] command\n");
-    kshell_printf(ctx, "\t-n  <millisecond> millisecond to wait between updates\n");
-    kshell_printf(ctx, "\t-b  beep if command has a non-zero exit");
-    kshell_printf(ctx, "\t-e  exit if command has a non-zero exit");
-    kshell_printf(ctx, "\t-t  turn off header message\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: watch [option] command\n");
+    kshell_puts(ctx, "\t-n  <millisecond> millisecond to wait between updates\n");
+    kshell_puts(ctx, "\t-b  beep if command has a non-zero exit");
+    kshell_puts(ctx, "\t-e  exit if command has a non-zero exit");
+    kshell_puts(ctx, "\t-t  turn off header message\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static state watch_main(struct kshell_context *ctx, int argc, char *argv[])
@@ -71,7 +71,7 @@ static state watch_main(struct kshell_context *ctx, int argc, char *argv[])
         goto usage;
 
     for (;;) {
-        kshell_printf(ctx, "\e[2J\e[1;1H");
+        kshell_puts(ctx, "\e[2J\e[1;1H");
         if (!(flags & FLAG_NOHEAD))
             kshell_printf(ctx, "Every %dms: %s\n\n", delay, argv[count]);
 

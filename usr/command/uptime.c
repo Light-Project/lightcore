@@ -15,17 +15,17 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: uptime [option]\n");
-    kshell_printf(ctx, "\t-k  output the kernel time\n");
-    kshell_printf(ctx, "\t-K  not output the kernel time (default)\n");
-    kshell_printf(ctx, "\t-t  output the tai clock\n");
-    kshell_printf(ctx, "\t-T  not output the tai clock (default)\n");
-    kshell_printf(ctx, "\t-u  output the startup time (default)\n");
-    kshell_printf(ctx, "\t-U  not output the startup time\n");
-    kshell_printf(ctx, "\t-r  output the real time\n");
-    kshell_printf(ctx, "\t-R  not output the real time (default)\n");
-    kshell_printf(ctx, "\t-a  display all informations\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: uptime [option]\n");
+    kshell_puts(ctx, "\t-k  output the kernel time\n");
+    kshell_puts(ctx, "\t-K  not output the kernel time (default)\n");
+    kshell_puts(ctx, "\t-t  output the tai clock\n");
+    kshell_puts(ctx, "\t-T  not output the tai clock (default)\n");
+    kshell_puts(ctx, "\t-u  output the startup time (default)\n");
+    kshell_puts(ctx, "\t-U  not output the startup time\n");
+    kshell_puts(ctx, "\t-r  output the real time\n");
+    kshell_puts(ctx, "\t-R  not output the real time (default)\n");
+    kshell_puts(ctx, "\t-a  display all informations\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static state uptime_main(struct kshell_context *ctx, int argc, char *argv[])

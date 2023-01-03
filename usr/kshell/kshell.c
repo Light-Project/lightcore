@@ -69,7 +69,7 @@ static state do_system(struct kshell_context *ctx, const char *cmdline)
         }
 
         if (!ctx->depth) {
-            kshell_printf(ctx, "kshell: trigger recursive protection\n");
+            kshell_puts(ctx, "kshell: trigger recursive protection\n");
             return -EFBIG;
         }
 
@@ -107,7 +107,7 @@ static state do_system(struct kshell_context *ctx, const char *cmdline)
 state kshell_system(struct kshell_context *ctx, const char *cmdline)
 {
     if (!cmdline) {
-        kshell_printf(ctx, "kshell: command inval\n");
+        kshell_puts(ctx, "kshell: command inval\n");
         return -EINVAL;
     }
 

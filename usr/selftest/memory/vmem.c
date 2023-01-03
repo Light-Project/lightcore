@@ -26,11 +26,11 @@ static state vmem_testing(struct kshell_context *ctx, void *pdata)
         kshell_printf(ctx, "vmem alloc test%02u size (%s): ", count, sbuff);
         test_pool[count] = vmem_alloc(size);
         if (!test_pool[count]) {
-            kshell_printf(ctx, "failed\n");
+            kshell_puts(ctx, "failed\n");
             ret = -ENOMEM;
             goto error;
         }
-        kshell_printf(ctx, "pass\n");
+        kshell_puts(ctx, "pass\n");
     }
 
 error:

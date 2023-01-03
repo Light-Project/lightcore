@@ -63,11 +63,11 @@ static void usage(struct kshell_context *ctx)
     struct selftest_command *cmd;
     char buff[64];
 
-    kshell_printf(ctx, "usage: selftest [option] [group:name]...\n");
-    kshell_printf(ctx, "\t-c  <count>  number of repetitions for each test\n");
-    kshell_printf(ctx, "\t-d  do not print debugging information\n");
-    kshell_printf(ctx, "\t-h  show this help\n");
-    kshell_printf(ctx, "Supported selftests:\n");
+    kshell_puts(ctx, "usage: selftest [option] [group:name]...\n");
+    kshell_puts(ctx, "\t-c  <count>  number of repetitions for each test\n");
+    kshell_puts(ctx, "\t-d  do not print debugging information\n");
+    kshell_puts(ctx, "\t-h  show this help\n");
+    kshell_puts(ctx, "Supported selftests:\n");
 
     spin_lock(&selftest_lock);
     list_for_each_entry(cmd, &selftest_list, list) {

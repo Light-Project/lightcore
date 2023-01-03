@@ -28,11 +28,11 @@ static const char * const priority_name[14] = {
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: math [option] \"grammar\" ...\n");
-    kshell_printf(ctx, "\t-x  output to env in hexadecimal\n");
-    kshell_printf(ctx, "\t-p  print calculation process\n");
-    kshell_printf(ctx, "\t-o  printout results\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: math [option] \"grammar\" ...\n");
+    kshell_puts(ctx, "\t-x  output to env in hexadecimal\n");
+    kshell_puts(ctx, "\t-p  print calculation process\n");
+    kshell_puts(ctx, "\t-o  printout results\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static inline int is_value(int c)

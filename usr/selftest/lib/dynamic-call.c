@@ -89,11 +89,11 @@ static state dcall_test_testing(struct kshell_context *ctx, void *pdata)
                 addsum += (long)args[count2 + 1];
 
             if (addsum != result) {
-                kshell_printf(ctx, "failed\n");
+                kshell_puts(ctx, "failed\n");
                 return -EFAULT;
             }
 
-            kshell_printf(ctx, "pass\n");
+            kshell_puts(ctx, "pass\n");
         }
     }
 

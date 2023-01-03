@@ -10,8 +10,8 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: if/elif [option] condition {commands} else {commands}\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: if/elif [option] condition {commands} else {commands}\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static state cond_main(struct kshell_context *ctx, int argc, char *argv[])

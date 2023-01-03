@@ -13,11 +13,11 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: verison [option]...\n");
-    kshell_printf(ctx, "\t-l  print the terminal logo\n");
-    kshell_printf(ctx, "\t-n  print the host name\n");
-    kshell_printf(ctx, "\t-r  print the kernel release\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: verison [option]...\n");
+    kshell_puts(ctx, "\t-l  print the terminal logo\n");
+    kshell_puts(ctx, "\t-n  print the host name\n");
+    kshell_puts(ctx, "\t-r  print the kernel release\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static state version_main(struct kshell_context *ctx, int argc, char *argv[])

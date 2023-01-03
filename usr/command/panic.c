@@ -9,11 +9,11 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: panic [option] \"message\"\n");
-    kshell_printf(ctx, "\t-w  trigger a warn\n");
-    kshell_printf(ctx, "\t-b  trigger a bug\n");
-    kshell_printf(ctx, "\t-p  trigger a panic\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: panic [option] \"message\"\n");
+    kshell_puts(ctx, "\t-w  trigger a warn\n");
+    kshell_puts(ctx, "\t-b  trigger a bug\n");
+    kshell_puts(ctx, "\t-p  trigger a panic\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static state panic_main(struct kshell_context *ctx, int argc, char *argv[])

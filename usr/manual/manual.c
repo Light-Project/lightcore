@@ -16,9 +16,9 @@ static void usage(struct kshell_context *ctx)
 {
     struct kshell_manual *manual;
 
-    kshell_printf(ctx, "usage: man [option] cmdname\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
-    kshell_printf(ctx, "Loaded manuals:\n");
+    kshell_puts(ctx, "usage: man [option] cmdname\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "Loaded manuals:\n");
 
     spin_lock(&manual_lock);
     list_for_each_entry(manual, &manual_list, list)

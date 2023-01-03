@@ -8,10 +8,10 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: yes [option] [string]...\n");
-    kshell_printf(ctx, "\t-t  <time> total output times\n");
-    kshell_printf(ctx, "\t-n  not output the trailing newline\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: yes [option] [string]...\n");
+    kshell_puts(ctx, "\t-t  <time> total output times\n");
+    kshell_puts(ctx, "\t-n  not output the trailing newline\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static state yes_main(struct kshell_context *ctx, int argc, char *argv[])

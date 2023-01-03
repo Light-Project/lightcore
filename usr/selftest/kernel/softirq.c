@@ -31,7 +31,7 @@ static state softirq_test_testing(struct kshell_context *ctx, void *pdata)
         kshell_printf(ctx, "softirq test%02u: ", count);
         softirq_pending(&softirq_test);
         spin_lock(&lock);
-        kshell_printf(ctx, "lock ack\n");
+        kshell_puts(ctx, "lock ack\n");
     }
 
     softirq_unregister(&softirq_test);

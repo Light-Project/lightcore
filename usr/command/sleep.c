@@ -19,7 +19,7 @@
 
 static void usage(struct kshell_context *ctx)
 {
-	kshell_printf(ctx, "usage: " __stringify(PROGRAM_NAME) " [millisecond]\n");
+	kshell_puts(ctx, "usage: " __stringify(PROGRAM_NAME) " [millisecond]\n");
 }
 
 static state sleep_main(struct kshell_context *ctx, int argc, char *argv[])

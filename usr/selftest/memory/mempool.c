@@ -27,12 +27,12 @@ static state mempool_testing(struct kshell_context *ctx, void *pdata)
         kshell_printf(ctx, "mempool alloc test%02u: ", count);
         test_pool[count] = mempool_alloc(pool, GFP_KERNEL);
         if (!test_pool[count]) {
-            kshell_printf(ctx, "failed\n");
+            kshell_puts(ctx, "failed\n");
             ret = -ENOMEM;
             goto error;
         }
         memset(test_pool[count], 0, TEST_SIZE);
-        kshell_printf(ctx, "pass\n");
+        kshell_puts(ctx, "pass\n");
     }
 
 error:

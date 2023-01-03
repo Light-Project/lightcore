@@ -41,7 +41,7 @@ static void xml_dumpinfo(struct kshell_context *ctx, struct xml_node *parent, un
     kshell_printf(ctx, "object: %s {\n", parent->name);
     list_for_each_entry(child, &parent->child, sibling) {
         for (count = 0; count < depth; ++count)
-            kshell_printf(ctx, "    ");
+            kshell_puts(ctx, "    ");
         if (xml_test_object(child)) {
             xml_dumpinfo(ctx, child, depth + 1);
             continue;
@@ -54,8 +54,8 @@ static void xml_dumpinfo(struct kshell_context *ctx, struct xml_node *parent, un
     }
 
     for (count = 0; count < depth - 1; ++count)
-        kshell_printf(ctx, "    ");
-    kshell_printf(ctx, "}\n");
+        kshell_puts(ctx, "    ");
+    kshell_puts(ctx, "}\n");
 }
 
 static state xml_test_testing(struct kshell_context *ctx, void *pdata)
@@ -69,10 +69,10 @@ static state xml_test_testing(struct kshell_context *ctx, void *pdata)
     if (retval)
         return retval;
 
-    kshell_printf(ctx, "pseudo expression:\n");
+    kshell_puts(ctx, "pseudo expression:\n");
     xml_dumpinfo(ctx, xnode, 1);
 
-    kshell_printf(ctx, "xml encode:\n");
+    kshell_puts(ctx, "xml encode:\n");
     length = xml_encode(xnode, NULL, 0);
 
     buff = kmalloc(length, GFP_KERNEL);

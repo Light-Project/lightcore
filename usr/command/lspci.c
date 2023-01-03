@@ -16,11 +16,11 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: lspci [option] bus:slot.func\n");
-    kshell_printf(ctx, "\t-x  show the standard part of the config space\n");
-    kshell_printf(ctx, "\t-a  show the whole config space\n");
-    kshell_printf(ctx, "\t-e  show the 4096-byte extended config space\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: lspci [option] bus:slot.func\n");
+    kshell_puts(ctx, "\t-x  show the standard part of the config space\n");
+    kshell_puts(ctx, "\t-a  show the whole config space\n");
+    kshell_puts(ctx, "\t-e  show the 4096-byte extended config space\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static void lspci_device_show(struct kshell_context *ctx, unsigned int bus, unsigned int devfn,

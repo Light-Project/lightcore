@@ -8,7 +8,7 @@
 
 static state clear_main(struct kshell_context *ctx, int argc, char *argv[])
 {
-    kshell_printf(ctx, "\e[2J");
+    kshell_puts(ctx, "\e[2J");
     return -ENOERR;
 }
 

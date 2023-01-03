@@ -240,18 +240,18 @@ skip_type:
 
 static void mem_read_usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: mem -r /nfu <addr>\n");
-    kshell_printf(ctx, "\t/n - length\n");
-    kshell_printf(ctx, "\t/o - octal\n");
-    kshell_printf(ctx, "\t/x - hexadecimal\n");
-    kshell_printf(ctx, "\t/d - decimal\n");
-    kshell_printf(ctx, "\t/u - unsigned decimal\n");
-    kshell_printf(ctx, "\t/a - address\n");
-    kshell_printf(ctx, "\t/c - char\n");
-    kshell_printf(ctx, "\t/b - byte (8-bit)\n");
-    kshell_printf(ctx, "\t/h - halfword (16-bit)\n");
-    kshell_printf(ctx, "\t/w - word (32-bit)\n");
-    kshell_printf(ctx, "\t/g - giant word (64-bit)\n");
+    kshell_puts(ctx, "usage: mem -r /nfu <addr>\n");
+    kshell_puts(ctx, "\t/n - length\n");
+    kshell_puts(ctx, "\t/o - octal\n");
+    kshell_puts(ctx, "\t/x - hexadecimal\n");
+    kshell_puts(ctx, "\t/d - decimal\n");
+    kshell_puts(ctx, "\t/u - unsigned decimal\n");
+    kshell_puts(ctx, "\t/a - address\n");
+    kshell_puts(ctx, "\t/c - char\n");
+    kshell_puts(ctx, "\t/b - byte (8-bit)\n");
+    kshell_puts(ctx, "\t/h - halfword (16-bit)\n");
+    kshell_puts(ctx, "\t/w - word (32-bit)\n");
+    kshell_puts(ctx, "\t/g - giant word (64-bit)\n");
 }
 
 static state mem_read(struct kshell_context *ctx, int argc, char *argv[])
@@ -339,7 +339,7 @@ exit:
     phys = axtoul(argv[argc - 1]);
     addr = block = ioremap(phys, num * byte);
     if (!addr) {
-        kshell_printf(ctx, "failed to remapio\n");
+        kshell_puts(ctx, "failed to remapio\n");
         return -ENOMEM;
     }
 
@@ -366,7 +366,7 @@ exit:
             }
             phys += byte;
             addr += byte;
-            kshell_printf(ctx, "  ");
+            kshell_puts(ctx, "  ");
         }
         kshell_putc(ctx, '\n');
     }
@@ -381,38 +381,38 @@ usage:
 
 static void operator_value_usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "Operator types:\n");
-    kshell_printf(ctx, "\t+=  - add target memory\n");
-    kshell_printf(ctx, "\t-=  - sub target memory\n");
-    kshell_printf(ctx, "\t*=  - mul target memory\n");
-    kshell_printf(ctx, "\t/=  - div target memory\n");
-    kshell_printf(ctx, "\t%%=  - mod target memory\n");
-    kshell_printf(ctx, "\t&=  - and target memory\n");
-    kshell_printf(ctx, "\t|=  - or  target memory\n");
-    kshell_printf(ctx, "\t^=  - xor target memory\n");
-    kshell_printf(ctx, "\t<<= - shl target memory\n");
-    kshell_printf(ctx, "\t>>= - shr target memory\n");
-    kshell_printf(ctx, "Value types:\n");
-    kshell_printf(ctx, "\tBIT(shift)       - create a bitmask\n");
-    kshell_printf(ctx, "\tSHIFT(shift,val) - create a shifted bitmask\n");
-    kshell_printf(ctx, "\tRANGE(high,low)  - create a contiguous bitmask\n");
-    kshell_printf(ctx, "\t~expression      - bit inversion\n");
-    kshell_printf(ctx, "Expression example:\n");
-    kshell_printf(ctx, "\taddr &= ~RANGE(7,0)    - 0x000012ff -> 0x00001200\n");
-    kshell_printf(ctx, "\taddr <<= 16            - 0x00001200 -> 0x12000000\n");
-    kshell_printf(ctx, "\taddr |= SHIFT(16,0x34) - 0x12000000 -> 0x12340000\n");
-    kshell_printf(ctx, "\taddr += 0x5670         - 0x12340000 -> 0x12345670\n");
-    kshell_printf(ctx, "\taddr |= BIT(3)         - 0x12345670 -> 0x12345678\n");
+    kshell_puts(ctx, "Operator types:\n");
+    kshell_puts(ctx, "\t+=  - add target memory\n");
+    kshell_puts(ctx, "\t-=  - sub target memory\n");
+    kshell_puts(ctx, "\t*=  - mul target memory\n");
+    kshell_puts(ctx, "\t/=  - div target memory\n");
+    kshell_puts(ctx, "\t%%=  - mod target memory\n");
+    kshell_puts(ctx, "\t&=  - and target memory\n");
+    kshell_puts(ctx, "\t|=  - or  target memory\n");
+    kshell_puts(ctx, "\t^=  - xor target memory\n");
+    kshell_puts(ctx, "\t<<= - shl target memory\n");
+    kshell_puts(ctx, "\t>>= - shr target memory\n");
+    kshell_puts(ctx, "Value types:\n");
+    kshell_puts(ctx, "\tBIT(shift)       - create a bitmask\n");
+    kshell_puts(ctx, "\tSHIFT(shift,val) - create a shifted bitmask\n");
+    kshell_puts(ctx, "\tRANGE(high,low)  - create a contiguous bitmask\n");
+    kshell_puts(ctx, "\t~expression      - bit inversion\n");
+    kshell_puts(ctx, "Expression example:\n");
+    kshell_puts(ctx, "\taddr &= ~RANGE(7,0)    - 0x000012ff -> 0x00001200\n");
+    kshell_puts(ctx, "\taddr <<= 16            - 0x00001200 -> 0x12000000\n");
+    kshell_puts(ctx, "\taddr |= SHIFT(16,0x34) - 0x12000000 -> 0x12340000\n");
+    kshell_puts(ctx, "\taddr += 0x5670         - 0x12340000 -> 0x12345670\n");
+    kshell_puts(ctx, "\taddr |= BIT(3)         - 0x12345670 -> 0x12345678\n");
 }
 
 static void mem_write_usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: mem -w /nu <addr> <operator> <value>\n");
-    kshell_printf(ctx, "\t/n - length\n");
-    kshell_printf(ctx, "\t/b - byte (8-bit)\n");
-    kshell_printf(ctx, "\t/h - halfword (16-bit)\n");
-    kshell_printf(ctx, "\t/w - word (32-bit)\n");
-    kshell_printf(ctx, "\t/g - giant word (64-bit)\n");
+    kshell_puts(ctx, "usage: mem -w /nu <addr> <operator> <value>\n");
+    kshell_puts(ctx, "\t/n - length\n");
+    kshell_puts(ctx, "\t/b - byte (8-bit)\n");
+    kshell_puts(ctx, "\t/h - halfword (16-bit)\n");
+    kshell_puts(ctx, "\t/w - word (32-bit)\n");
+    kshell_puts(ctx, "\t/g - giant word (64-bit)\n");
     operator_value_usage(ctx);
 }
 
@@ -489,7 +489,7 @@ pass:
     value = convert_val(argv[argc - 1]);
     addr = block = ioremap(phys, num * byte);
     if (!addr) {
-        kshell_printf(ctx, "failed to remapio\n");
+        kshell_puts(ctx, "failed to remapio\n");
         return -ENOMEM;
     }
 
@@ -533,17 +533,17 @@ usage:
 #ifdef CONFIG_ARCH_HAS_PMIO
 static void ioport_in_usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: mem -i /nfu <addr>\n");
-    kshell_printf(ctx, "\t/n - length\n");
-    kshell_printf(ctx, "\t/o - octal\n");
-    kshell_printf(ctx, "\t/x - hexadecimal\n");
-    kshell_printf(ctx, "\t/d - decimal\n");
-    kshell_printf(ctx, "\t/u - unsigned decimal\n");
-    kshell_printf(ctx, "\t/a - address\n");
-    kshell_printf(ctx, "\t/c - char\n");
-    kshell_printf(ctx, "\t/b - byte (8-bit)\n");
-    kshell_printf(ctx, "\t/h - halfword (16-bit)\n");
-    kshell_printf(ctx, "\t/w - word (32-bit)\n");
+    kshell_puts(ctx, "usage: mem -i /nfu <addr>\n");
+    kshell_puts(ctx, "\t/n - length\n");
+    kshell_puts(ctx, "\t/o - octal\n");
+    kshell_puts(ctx, "\t/x - hexadecimal\n");
+    kshell_puts(ctx, "\t/d - decimal\n");
+    kshell_puts(ctx, "\t/u - unsigned decimal\n");
+    kshell_puts(ctx, "\t/a - address\n");
+    kshell_puts(ctx, "\t/c - char\n");
+    kshell_puts(ctx, "\t/b - byte (8-bit)\n");
+    kshell_puts(ctx, "\t/h - halfword (16-bit)\n");
+    kshell_puts(ctx, "\t/w - word (32-bit)\n");
 }
 
 static state ioport_in(struct kshell_context *ctx, int argc, char *argv[])
@@ -641,7 +641,7 @@ exit:
                     break;
             }
             base += byte;
-            kshell_printf(ctx, "  ");
+            kshell_puts(ctx, "  ");
         }
         kshell_putc(ctx, '\n');
     }
@@ -655,11 +655,11 @@ usage:
 
 static void ioport_out_usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: mem -o /nu <addr> <operator> <value>\n");
-    kshell_printf(ctx, "\t/n - length\n");
-    kshell_printf(ctx, "\t/b - byte (8-bit)\n");
-    kshell_printf(ctx, "\t/h - halfword (16-bit)\n");
-    kshell_printf(ctx, "\t/w - word (32-bit)\n");
+    kshell_puts(ctx, "usage: mem -o /nu <addr> <operator> <value>\n");
+    kshell_puts(ctx, "\t/n - length\n");
+    kshell_puts(ctx, "\t/b - byte (8-bit)\n");
+    kshell_puts(ctx, "\t/h - halfword (16-bit)\n");
+    kshell_puts(ctx, "\t/w - word (32-bit)\n");
     operator_value_usage(ctx);
 }
 
@@ -764,17 +764,17 @@ usage:
 #ifdef CONFIG_PCI
 static void pcidev_read_usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: mem -p domain:bus:slot.func /nfu <addr>\n");
-    kshell_printf(ctx, "\t/n - length\n");
-    kshell_printf(ctx, "\t/o - octal\n");
-    kshell_printf(ctx, "\t/x - hexadecimal\n");
-    kshell_printf(ctx, "\t/d - decimal\n");
-    kshell_printf(ctx, "\t/u - unsigned decimal\n");
-    kshell_printf(ctx, "\t/a - address\n");
-    kshell_printf(ctx, "\t/c - char\n");
-    kshell_printf(ctx, "\t/b - byte (8-bit)\n");
-    kshell_printf(ctx, "\t/h - halfword (16-bit)\n");
-    kshell_printf(ctx, "\t/w - word (32-bit)\n");
+    kshell_puts(ctx, "usage: mem -p domain:bus:slot.func /nfu <addr>\n");
+    kshell_puts(ctx, "\t/n - length\n");
+    kshell_puts(ctx, "\t/o - octal\n");
+    kshell_puts(ctx, "\t/x - hexadecimal\n");
+    kshell_puts(ctx, "\t/d - decimal\n");
+    kshell_puts(ctx, "\t/u - unsigned decimal\n");
+    kshell_puts(ctx, "\t/a - address\n");
+    kshell_puts(ctx, "\t/c - char\n");
+    kshell_puts(ctx, "\t/b - byte (8-bit)\n");
+    kshell_puts(ctx, "\t/h - halfword (16-bit)\n");
+    kshell_puts(ctx, "\t/w - word (32-bit)\n");
 }
 
 static state pcidev_read(struct kshell_context *ctx, int argc, char *argv[])
@@ -864,7 +864,7 @@ exit:
             pci_raw_config_read(domain, bus, PCI_DEVFN(slot, func), base, byte, &value);
             kshell_printf(ctx, buff, value, value);
             base += byte;
-            kshell_printf(ctx, "  ");
+            kshell_puts(ctx, "  ");
         }
         kshell_putc(ctx, '\n');
     }
@@ -878,11 +878,11 @@ usage:
 
 static void pcidev_write_usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: mem -o domain:bus:slot.func /nu <addr> <operator> <value>\n");
-    kshell_printf(ctx, "\t/n - length\n");
-    kshell_printf(ctx, "\t/b - byte (8-bit)\n");
-    kshell_printf(ctx, "\t/h - halfword (16-bit)\n");
-    kshell_printf(ctx, "\t/w - word (32-bit)\n");
+    kshell_puts(ctx, "usage: mem -o domain:bus:slot.func /nu <addr> <operator> <value>\n");
+    kshell_puts(ctx, "\t/n - length\n");
+    kshell_puts(ctx, "\t/b - byte (8-bit)\n");
+    kshell_puts(ctx, "\t/h - halfword (16-bit)\n");
+    kshell_puts(ctx, "\t/w - word (32-bit)\n");
     operator_value_usage(ctx);
 }
 
@@ -972,19 +972,19 @@ usage:
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: mem [option] ...\n");
-    kshell_printf(ctx, "\t-r  memory read (default)\n");
-    kshell_printf(ctx, "\t-w  memory write\n");
+    kshell_puts(ctx, "usage: mem [option] ...\n");
+    kshell_puts(ctx, "\t-r  memory read (default)\n");
+    kshell_puts(ctx, "\t-w  memory write\n");
 #ifdef CONFIG_ARCH_HAS_PMIO
-    kshell_printf(ctx, "\t-i  ioport input\n");
-    kshell_printf(ctx, "\t-o  ioport output\n");
+    kshell_puts(ctx, "\t-i  ioport input\n");
+    kshell_puts(ctx, "\t-o  ioport output\n");
 #endif
 #ifdef CONFIG_PCI
-    kshell_printf(ctx, "\t-p  pci configuration read\n");
-    kshell_printf(ctx, "\t-q  pci configuration write\n");
+    kshell_puts(ctx, "\t-p  pci configuration read\n");
+    kshell_puts(ctx, "\t-q  pci configuration write\n");
 #endif
-    kshell_printf(ctx, "\t-s  show after modification\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "\t-s  show after modification\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static state mem_main(struct kshell_context *ctx, int argc, char *argv[])

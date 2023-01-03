@@ -11,9 +11,9 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: func [option] @name {body}\n");
-    kshell_printf(ctx, "\t-d  <name> delete function\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: func [option] @name {body}\n");
+    kshell_puts(ctx, "\t-d  <name> delete function\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static state func_main(struct kshell_context *ctx, int argc, char *argv[])

@@ -9,8 +9,8 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: x86-tsc [option]\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: x86-tsc [option]\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static state tsc_main(struct kshell_context *ctx, int argc, char *argv[])

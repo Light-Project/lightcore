@@ -10,12 +10,12 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: for [option] varname in (start..end..step) {commands}\n");
-    kshell_printf(ctx, "\t-v  generate an environment variable (default)\n");
-    kshell_printf(ctx, "\t-V  does not generate environment variables\n");
-    kshell_printf(ctx, "\t-x  hexadecimal format output\n");
-    kshell_printf(ctx, "\t-X  decimal format output (default)\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: for [option] varname in (start..end..step) {commands}\n");
+    kshell_puts(ctx, "\t-v  generate an environment variable (default)\n");
+    kshell_puts(ctx, "\t-V  does not generate environment variables\n");
+    kshell_puts(ctx, "\t-x  hexadecimal format output\n");
+    kshell_puts(ctx, "\t-X  decimal format output (default)\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 #define CHECK_PARAM {                       \

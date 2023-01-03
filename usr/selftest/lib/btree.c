@@ -80,10 +80,10 @@ static state btree_test_testing(struct kshell_context *ctx, void *pdata)
         lookup = btree_lookup(&root32, &nodes[count].key);
         kshell_printf(ctx, "btree random lookup test%d: ", count);
         if (!lookup || (lookup != &nodes[count] && list_check_empty(&lookup->list))) {
-            kshell_printf(ctx, "failed\n");
+            kshell_puts(ctx, "failed\n");
             return -ENOENT;
         }
-        kshell_printf(ctx, "pass\n");
+        kshell_puts(ctx, "pass\n");
     }
 
     btree_for_each(&root32, &insert, value) {
@@ -127,10 +127,10 @@ static state btree_test_testing(struct kshell_context *ctx, void *pdata)
         lookup = btree_lookup(&rootstr, &insert);
         kshell_printf(ctx, "btree uuid lookup test%d: ", count);
         if (!lookup || (lookup != &nodes[count] && list_check_empty(&lookup->list))) {
-            kshell_printf(ctx, "failed\n");
+            kshell_puts(ctx, "failed\n");
             return -ENOENT;
         }
-        kshell_printf(ctx, "pass\n");
+        kshell_puts(ctx, "pass\n");
     }
 
     btree_for_each(&rootstr, &insert, value) {

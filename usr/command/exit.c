@@ -9,7 +9,7 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: exit [retval]\n");
+    kshell_puts(ctx, "usage: exit [retval]\n");
 }
 
 static state exit_main(struct kshell_context *ctx, int argc, char *argv[])

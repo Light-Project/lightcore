@@ -9,8 +9,8 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: try {commands} catch/finally {commands}\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: try {commands} catch/finally {commands}\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static state tryrun_main(struct kshell_context *ctx, int argc, char *argv[])

@@ -11,10 +11,10 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: grep [option]... patterns [strings]...\n");
-    kshell_printf(ctx, "\t-g  patterns are basic regular expressions\n");
-    kshell_printf(ctx, "\t-f  patterns are fixed strings\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: grep [option]... patterns [strings]...\n");
+    kshell_puts(ctx, "\t-g  patterns are basic regular expressions\n");
+    kshell_puts(ctx, "\t-f  patterns are fixed strings\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static state grep_main(struct kshell_context *ctx, int argc, char *argv[])

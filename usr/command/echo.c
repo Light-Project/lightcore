@@ -11,23 +11,23 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: echo [option]...\n");
-    kshell_printf(ctx, "\t-n  not output the trailing newline\n");
-    kshell_printf(ctx, "\t-e  enable interpretation\n");
-    kshell_printf(ctx, "\t-i  enable index information\n");
-    kshell_printf(ctx, "\t-h  show this help\n");
+    kshell_puts(ctx, "usage: echo [option]...\n");
+    kshell_puts(ctx, "\t-n  not output the trailing newline\n");
+    kshell_puts(ctx, "\t-e  enable interpretation\n");
+    kshell_puts(ctx, "\t-i  enable index information\n");
+    kshell_puts(ctx, "\t-h  show this help\n");
 
-    kshell_printf(ctx, "If -e is in effect:\n");
-    kshell_printf(ctx, "\t\\\\  backslash\n");
-    kshell_printf(ctx, "\t\\a  alert (BEL)\n");
-    kshell_printf(ctx, "\t\\b  backspace\n");
-    kshell_printf(ctx, "\t\\c  produce no further output\n");
-    kshell_printf(ctx, "\t\\e  escape\n");
-    kshell_printf(ctx, "\t\\f  form feed\n");
-    kshell_printf(ctx, "\t\\n  new line\n");
-    kshell_printf(ctx, "\t\\r  carriage return\n");
-    kshell_printf(ctx, "\t\\t  horizontal tab\n");
-    kshell_printf(ctx, "\t\\v  vertical tab\n");
+    kshell_puts(ctx, "If -e is in effect:\n");
+    kshell_puts(ctx, "\t\\\\  backslash\n");
+    kshell_puts(ctx, "\t\\a  alert (BEL)\n");
+    kshell_puts(ctx, "\t\\b  backspace\n");
+    kshell_puts(ctx, "\t\\c  produce no further output\n");
+    kshell_puts(ctx, "\t\\e  escape\n");
+    kshell_puts(ctx, "\t\\f  form feed\n");
+    kshell_puts(ctx, "\t\\n  new line\n");
+    kshell_puts(ctx, "\t\\r  carriage return\n");
+    kshell_puts(ctx, "\t\\t  horizontal tab\n");
+    kshell_puts(ctx, "\t\\v  vertical tab\n");
 }
 
 static state echo_main(struct kshell_context *ctx, int argc, char *argv[])

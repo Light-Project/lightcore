@@ -147,10 +147,10 @@ static state div64_test_testing(struct kshell_context *ctx, void *pdata)
                        test_div64_divisors[divisor];
             if (quotient != test_div64_dividends[dividend].
                             results[divisor].quotient) {
-                kshell_printf(ctx, "failed\n");
+                kshell_puts(ctx, "failed\n");
                 return -EFAULT;
             }
-            kshell_printf(ctx, "passed\n");
+            kshell_puts(ctx, "passed\n");
 
             kshell_printf(ctx, "div64 test %#018llx %% %#010x: ",
                           test_div64_dividends[dividend].dividends,
@@ -159,10 +159,10 @@ static state div64_test_testing(struct kshell_context *ctx, void *pdata)
                         test_div64_divisors[divisor];
             if (remainder != test_div64_dividends[dividend].
                              results[divisor].remainder) {
-                kshell_printf(ctx, "failed\n");
+                kshell_puts(ctx, "failed\n");
                 return -EFAULT;
             }
-            kshell_printf(ctx, "passed\n");
+            kshell_puts(ctx, "passed\n");
         }
     }
 

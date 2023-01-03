@@ -40,11 +40,11 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: "__stringify(PROGRAM_NAME)" [option] [string]\n");
-    kshell_printf(ctx, "\t-l  <lines> total output line\n");
-    kshell_printf(ctx, "\t-c  <chars> total output char\n");
-    kshell_printf(ctx, "\t-n  not output the trailing newline\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: "__stringify(PROGRAM_NAME)" [option] [string]\n");
+    kshell_puts(ctx, "\t-l  <lines> total output line\n");
+    kshell_puts(ctx, "\t-c  <chars> total output char\n");
+    kshell_puts(ctx, "\t-n  not output the trailing newline\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static state head_main(struct kshell_context *ctx, int argc, char *argv[])

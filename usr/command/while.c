@@ -18,8 +18,8 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: "__stringify(PROGRAM_NAME)" [option] 'condition' {commands}\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: "__stringify(PROGRAM_NAME)" [option] 'condition' {commands}\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static state while_main(struct kshell_context *ctx, int argc, char *argv[])

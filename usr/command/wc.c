@@ -15,11 +15,11 @@
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_printf(ctx, "usage: wc [option] string...\n");
-    kshell_printf(ctx, "\t-l  print the newline counts\n");
-    kshell_printf(ctx, "\t-w  print the word counts\n");
-    kshell_printf(ctx, "\t-c  print the byte counts\n");
-    kshell_printf(ctx, "\t-h  display this message\n");
+    kshell_puts(ctx, "usage: wc [option] string...\n");
+    kshell_puts(ctx, "\t-l  print the newline counts\n");
+    kshell_puts(ctx, "\t-w  print the word counts\n");
+    kshell_puts(ctx, "\t-c  print the byte counts\n");
+    kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static state wc_main(struct kshell_context *ctx, int argc, char *argv[])

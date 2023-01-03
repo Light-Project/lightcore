@@ -29,7 +29,7 @@ static state ioremap_testing(struct kshell_context *ctx, void *pdata)
         kshell_printf(ctx, "ioremap test%02u addr (%#lx) size (%#lx): ", count, phys, size);
         test_pool[count] = ioremap(phys, size);
         if (!test_pool[count]) {
-            kshell_printf(ctx, "failed\n");
+            kshell_puts(ctx, "failed\n");
             ret = -ENOMEM;
             goto error;
         }
