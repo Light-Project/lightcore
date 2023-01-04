@@ -10,7 +10,8 @@
 void waitqueue_wait_prepare_locked(struct wait_queue_head *queue, struct wait_queue *node)
 {
     node->task = current;
-    list_add_prev(&queue->waits, &node->list);
+    if (list_check_empty(&node->list))
+        list_add_prev(&queue->waits, &node->list);
 }
 EXPORT_SYMBOL(waitqueue_wait_prepare_locked);
 

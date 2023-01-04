@@ -8,9 +8,9 @@
 #include <sched.h>
 #include <export.h>
 
-static ttime_t commin_wait(struct completion *comp, unsigned long state, ttime_t timeout)
+static ttime_t common_wait(struct completion *comp, unsigned long state, ttime_t timeout)
 {
-    struct wait_queue node;
+    DEFINE_WAITQUEUE(node, current);
 
     if (!comp->counter) {
         do {
@@ -33,7 +33,7 @@ static ttime_t commin_wait(struct completion *comp, unsigned long state, ttime_t
 void completion_wait(struct completion *comp)
 {
     spin_lock_irq(&comp->queue.lock);
-    commin_wait(comp, SCHED_TASK_UNINTERRUPTIBLE, TTIME_MAX);
+    common_wait(comp, SCHED_TASK_UNINTERRUPTIBLE, TTIME_MAX);
     spin_unlock_irq(&comp->queue.lock);
 }
 EXPORT_SYMBOL(completion_wait);
@@ -41,7 +41,7 @@ EXPORT_SYMBOL(completion_wait);
 ttime_t completion_wait_timeout(struct completion *comp, ttime_t timeout)
 {
     spin_lock_irq(&comp->queue.lock);
-    timeout = commin_wait(comp, SCHED_TASK_UNINTERRUPTIBLE, timeout);
+    timeout = common_wait(comp, SCHED_TASK_UNINTERRUPTIBLE, timeout);
     spin_unlock_irq(&comp->queue.lock);
     return timeout;
 }

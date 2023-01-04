@@ -9,9 +9,9 @@ struct completion {
     unsigned int counter;
 };
 
-#define COMPLETION_STATIC(name) {               \
-    .queue = WAITQUEUE_STATIC((name).queue),    \
-    .counter = 0,                               \
+#define COMPLETION_STATIC(name) { \
+    .queue = WAITQUEUE_HEAD_STATIC((name).queue), \
+    .counter = 0, \
 }
 
 #define COMPLETION_INIT(name) \

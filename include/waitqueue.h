@@ -17,20 +17,36 @@ struct wait_queue {
     struct sched_task *task;
 };
 
-#define WAITQUEUE_STATIC(name) {                \
-    .waits = LIST_HEAD_STATIC((name).waits),    \
-    .lock = SPIN_LOCK_STATIC(name),             \
+#define WAITQUEUE_HEAD_STATIC(name) { \
+    .waits = LIST_HEAD_STATIC((name).waits), \
+    .lock = SPIN_LOCK_STATIC(name), \
 }
 
-#define WAITQUEUE_INIT(name) \
-    (struct wait_queue_head) WAITQUEUE_STATIC(name)
+#define WAITQUEUE_STATIC(name, ctask) { \
+    .list = LIST_HEAD_STATIC((name).list), \
+    .task = (ctask), \
+}
 
-#define DEFINE_WAITQUEUE(name) \
-    struct wait_queue_head name = WAITQUEUE_INIT(name)
+#define WAITQUEUE_HEAD_INIT(name) \
+    (struct wait_queue_head) WAITQUEUE_HEAD_STATIC(name)
 
-static inline void waitqueue_init(struct wait_queue_head *queue)
+#define WAITQUEUE_INIT(name, ctask) \
+    (struct wait_queue) WAITQUEUE_STATIC(name, ctask)
+
+#define DEFINE_WAITQUEUE_HEAD(name) \
+    struct wait_queue_head name = WAITQUEUE_HEAD_INIT(name)
+
+#define DEFINE_WAITQUEUE(name, ctask) \
+    struct wait_queue name = WAITQUEUE_INIT(name, ctask)
+
+static inline void waitqueue_head_init(struct wait_queue_head *queue)
 {
-    *queue = WAITQUEUE_INIT(*queue);
+    *queue = WAITQUEUE_HEAD_INIT(*queue);
+}
+
+static inline void waitqueue_init(struct wait_queue *queue, struct sched_task *task)
+{
+    *queue = WAITQUEUE_INIT(*queue, task);
 }
 
 /* Wait queue enqueue */
