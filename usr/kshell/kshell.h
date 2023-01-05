@@ -61,5 +61,6 @@ extern void readline_free(struct readline_state *state);
 extern state kshell_parser(struct kshell_context *ctx, const char **pcmdline, int *argc, char ***argv);
 extern state kshell_main(struct kshell_context *ctx, int argc, char *argv[]);
 extern struct kshell_command *kshell_find(const char *name);
+extern struct kshell_command *kshell_closest(const char *name);
 
 #endif  /* _KSHELL_PRIV_H_ */

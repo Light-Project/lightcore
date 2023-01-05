@@ -6,6 +6,7 @@
 #include "kshell.h"
 #include <string.h>
 #include <stdlib.h>
+#include <cmdline.h>
 #include <crash.h>
 #include <kmalloc.h>
 #include <initcall.h>
@@ -69,13 +70,18 @@ static state do_system(struct kshell_context *ctx, const char *cmdline)
         }
 
         if (!ctx->depth) {
-            kshell_puts(ctx, "kshell: trigger recursive protection\n");
+            kshell_puts(ctx, "trigger recursive protection\n");
             return -EFBIG;
         }
 
         cmd = kshell_find(argv[0]);
         if (!cmd) {
-            kshell_printf(ctx, "kshell: command not found: %s\n", argv[0]);
+            kshell_printf(ctx, "command not found: %s\n", argv[0]);
+
+            cmd = kshell_closest(argv[0]);
+            if (cmd)
+                kshell_printf(ctx, "most similar command is: %s\n", cmd->name);
+
             retval = -EBADF;
         } else {
             ctx->depth--;
@@ -107,7 +113,7 @@ static state do_system(struct kshell_context *ctx, const char *cmdline)
 state kshell_system(struct kshell_context *ctx, const char *cmdline)
 {
     if (!cmdline) {
-        kshell_puts(ctx, "kshell: command inval\n");
+        kshell_puts(ctx, "command illegal\n");
         return -EINVAL;
     }
 
@@ -120,8 +126,8 @@ state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     struct readline_state *rstate = ctx->readline;
     struct kshell_context nctx = {};
+    char *cmdline, ps1[32], ps2[32];
     unsigned int count;
-    char *cmdline;
     state retval;
 
     context_clone(&nctx, ctx);
@@ -147,9 +153,13 @@ state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
             return -ENOMEM;
 
         while (!nctx.breakexit) {
-            cmdline = readline(rstate, kshell_getenv(&nctx, "PS1"), kshell_getenv(&nctx, "PS2"));
+            kshell_fmtenv(&nctx, ps1, sizeof(ps1), "PS1");
+            kshell_fmtenv(&nctx, ps2, sizeof(ps2), "PS2");
+
+            cmdline = readline(rstate, ps1, ps2);
             if (!rstate->len)
                 continue;
+
             errno = -ENOERR;
             nctx.breakdown = false;
             retval = do_system(&nctx, cmdline);
