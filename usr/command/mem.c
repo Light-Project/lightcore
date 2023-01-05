@@ -27,6 +27,8 @@ static int oct_align_table[] = {
 enum mem_action {
     ACTION_MEM_READ,
     ACTION_MEM_WRITE,
+    ACTION_VIRT_READ,
+    ACTION_VIRT_WRITE,
     ACTION_IOPORT_IN,
     ACTION_IOPORT_OUT,
     ACTION_PCIDEV_READ,
@@ -254,13 +256,13 @@ static void mem_read_usage(struct kshell_context *ctx)
     kshell_puts(ctx, "\t/g - giant word (64-bit)\n");
 }
 
-static state mem_read(struct kshell_context *ctx, int argc, char *argv[])
+static state mem_read(struct kshell_context *ctx, int argc, char *argv[], bool virtual)
 {
     char buff[10], cstr[20] = {}, fmt = 'x';
     unsigned int count = 0;
     int num, byte = 4;
     void *addr, *block;
-    phys_addr_t phys;
+    unsigned long index;
 
     if (argc == 2 && *argv[0] == '/' && isdigit(*argv[1])) {
         char *para = argv[0] + 1;
@@ -336,16 +338,27 @@ exit:
     } else
         num = 1;
 
-    phys = axtoul(argv[argc - 1]);
-    addr = block = ioremap(phys, num * byte);
-    if (!addr) {
-        kshell_puts(ctx, "failed to remapio\n");
-        return -ENOMEM;
+    if (virtual) {
+        index = axtoul(argv[argc - 1]);
+        addr = block = (void *)index;
+        if (!addr) {
+            kshell_puts(ctx, "illegal virtual address\n");
+            return -ENOMEM;
+        }
+    } else {
+        phys_addr_t phys;
+
+        index = phys = axtoul(argv[argc - 1]);
+        addr = block = ioremap(phys, num * byte);
+        if (!addr) {
+            kshell_puts(ctx, "failed to remapio\n");
+            return -ENOMEM;
+        }
     }
 
     for (; (count = min(num, number_table[byte / 2])); num -= count) {
         unsigned int tmp;
-        kshell_printf(ctx, "0x%08lx: ", phys);
+        kshell_printf(ctx, "0x%08lx: ", index);
         for (tmp = 0; tmp < count; ++tmp) {
             switch (byte) {
                 case 1:
@@ -364,14 +377,16 @@ exit:
                     kshell_printf(ctx, buff, unaligned_get_u64(addr));
                     break;
             }
-            phys += byte;
+            index += byte;
             addr += byte;
             kshell_puts(ctx, "  ");
         }
         kshell_putc(ctx, '\n');
     }
 
-    iounmap(block);
+    if (!virtual)
+        iounmap(block);
+
     return -ENOERR;
 
 usage:
@@ -416,7 +431,7 @@ static void mem_write_usage(struct kshell_context *ctx)
     operator_value_usage(ctx);
 }
 
-static state mem_write(struct kshell_context *ctx, int argc, char *argv[])
+static state mem_write(struct kshell_context *ctx, int argc, char *argv[], bool virtual)
 {
     char cstr[20] = {};
     unsigned int count = 0;
@@ -424,7 +439,6 @@ static state mem_write(struct kshell_context *ctx, int argc, char *argv[])
     int num, byte = 4;
     enum write_operator oper;
     void *addr, *block;
-    phys_addr_t phys;
 
     if (argc == 4 && *argv[0] == '/' && isdigit(*argv[1]) && legal_val(argv[3])) {
         char *para = argv[0] + 1;
@@ -485,13 +499,24 @@ pass:
     } else
         num = 1;
 
-    phys = axtoul(argv[argc - 3]);
-    value = convert_val(argv[argc - 1]);
-    addr = block = ioremap(phys, num * byte);
-    if (!addr) {
-        kshell_puts(ctx, "failed to remapio\n");
-        return -ENOMEM;
+    if (virtual) {
+        addr = block = (void *)axtoul(argv[argc - 1]);
+        if (!addr) {
+            kshell_puts(ctx, "illegal virtual address\n");
+            return -ENOMEM;
+        }
+    } else {
+        phys_addr_t phys;
+
+        phys = axtoul(argv[argc - 1]);
+        addr = block = ioremap(phys, num * byte);
+        if (!addr) {
+            kshell_puts(ctx, "failed to remapio\n");
+            return -ENOMEM;
+        }
     }
+
+    value = convert_val(argv[argc - 1]);
 
     while (num--) {
         switch (byte) {
@@ -522,7 +547,9 @@ pass:
         addr += byte;
     }
 
-    iounmap(block);
+    if (!virtual)
+        iounmap(block);
+
     return -ENOERR;
 
 usage:
@@ -975,6 +1002,8 @@ static void usage(struct kshell_context *ctx)
     kshell_puts(ctx, "usage: mem [option] ...\n");
     kshell_puts(ctx, "\t-r  memory read (default)\n");
     kshell_puts(ctx, "\t-w  memory write\n");
+    kshell_puts(ctx, "\t-v  virtual read\n");
+    kshell_puts(ctx, "\t-b  virtual write\n");
 #ifdef CONFIG_ARCH_HAS_PMIO
     kshell_puts(ctx, "\t-i  ioport input\n");
     kshell_puts(ctx, "\t-o  ioport output\n");
@@ -990,14 +1019,14 @@ static void usage(struct kshell_context *ctx)
 static state mem_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     unsigned int act = 0;
-    bool show = false;
+    bool virt = false, show = false;
     state ret;
 
     if (argc < 2)
         goto usage;
 
     else if (*argv[1] == '/' || isdigit(*argv[1]))
-        return mem_read(ctx, argc - 1, &argv[1]);
+        return mem_read(ctx, argc - 1, &argv[1], false);
 
     else if (*argv[1] == '-') {
         char *para = argv[1] + 1;
@@ -1013,6 +1042,14 @@ static state mem_main(struct kshell_context *ctx, int argc, char *argv[])
 
                 case 'w':
                     act = ACTION_MEM_WRITE;
+                    break;
+
+                case 'v':
+                    act = ACTION_VIRT_READ;
+                    break;
+
+                case 'b':
+                    act = ACTION_VIRT_WRITE;
                     break;
 
 #ifdef CONFIG_ARCH_HAS_PMIO
@@ -1049,18 +1086,26 @@ static state mem_main(struct kshell_context *ctx, int argc, char *argv[])
         goto usage;
 
     switch (act) {
+        case ACTION_VIRT_WRITE:
+            virt = true;
+            fallthrough;
+
         case ACTION_MEM_WRITE:
-            ret = mem_write(ctx, argc - 2, &argv[2]);
+            ret = mem_write(ctx, argc - 2, &argv[2], virt);
             if (ret || !show)
                 return ret;
             show = false;
             argc -= 2;
             fallthrough;
 
+        case ACTION_VIRT_READ:
+            virt = true;
+            fallthrough;
+
         case ACTION_MEM_READ: default:
             if (show)
                 goto usage;
-            return mem_read(ctx, argc - 2, &argv[2]);
+            return mem_read(ctx, argc - 2, &argv[2], virt);
 
 #ifdef CONFIG_ARCH_HAS_PMIO
         case ACTION_IOPORT_OUT:
