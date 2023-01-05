@@ -5,6 +5,7 @@
 
 #include <cmdline.h>
 #include <kernel.h>
+#include <kmalloc.h>
 #include <ctype.h>
 #include <export.h>
 
@@ -172,3 +173,83 @@ finish:
     return buff - str;
 }
 EXPORT_SYMBOL(escape_string);
+
+/**
+ * levenshtein - Calculation string levenshtein edit distance.
+ * @str1: string1 to calculation distance.
+ * @str2: string2 to calculation distance.
+ * @len1: the length of @str1, which is calculated internally if it is zero.
+ * @len2: the length of @str2, which is calculated internally if it is zero.
+ * @s: substitution distance reward.
+ * @w: swap distance reward.
+ * @a: addition distance reward.
+ * @d: deletion distance reward.
+ */
+unsigned int levenshtein(const char *str1, const char *str2,
+                         size_t len1, size_t len2, gfp_t gfp,
+                         unsigned int s, unsigned int w, 
+                         unsigned int a, unsigned int d)
+{
+    unsigned int *row1, *row2, *row3;
+    unsigned int distance, *cache;
+    size_t index1, index2;
+
+    if (!len1)
+        len1 = strlen(str1);
+
+    if (!len2)
+        len2 = strlen(str2);
+
+    if (unlikely(!len1))
+        return len2 * a;
+
+    if (unlikely(!len2))
+        return len1 * a;
+
+    if (len1 > len2) {
+        swap(str1, str2);
+        swap(len1, len2);
+    }
+
+    cache = kmalloc(BYTES_PER_INT * (len1 + 1) * 3, gfp); 
+    if (unlikely(!cache))
+        return UINT_MAX;
+
+    row1 = cache;
+    row2 = row1 + (len1 + 1);
+    row3 = row2 + (len1 + 1);
+
+    for (index1 = 0; index1 < len1; ++index1) 
+        row2[index1] = index1 * a;
+
+    for (index1 = 0; index1 < len1; ++index1) {
+        row3[0] = (index1 + 1) * d;
+
+        for (index2 = 0; index2 < len1; ++index2) {
+            /* substitution distance reward */
+            row3[index2 + 1] = row2[index2] + s * (str1[index1] != str2[index2]);
+
+            /* swap distance reward */
+            if (index1 > 0 && index2 > 0 && str1[index1 - 1] == str2[index2] && 
+                str1[index1] == str2[index2 - 1] && row3[index2 + 1] > row1[index2 - 1] + w)
+                row3[index2 + 1] = row1[index2 - 1] + w;
+
+            /* deletion distance reward */
+            if (row3[index2 + 1] > row2[index2 + 1] + d)
+                row3[index2 + 1] = row2[index2 + 1] + d;
+            
+            /* addition distance reward */
+            if (row3[index2 + 1] > row3[index2] + a)
+                row3[index2 + 1] = row3[index2] + a;
+        }
+
+        swap(row1, row2);
+        swap(row2, row3);
+    }
+
+    distance = row2[len1];
+    kfree(cache);
+
+    return distance;
+}
+EXPORT_SYMBOL(levenshtein);
