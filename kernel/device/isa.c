@@ -150,8 +150,10 @@ void isa_driver_unregister(struct isa_driver *idrv)
 {
     struct isa_device *idev, *tmp;
 
-    list_for_each_entry_safe(idev, tmp, &idrv->devices, list)
+    list_for_each_entry_safe(idev, tmp, &idrv->devices, list) {
         device_unregister(&idev->dev);
+        kcache_free(isa_cache, idev);
+    }
 
     driver_unregister(&idrv->driver);
 }

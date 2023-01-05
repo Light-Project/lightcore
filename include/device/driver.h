@@ -2,18 +2,27 @@
 #ifndef _DEVICES_DRIVER_H_
 #define _DEVICES_DRIVER_H_
 
-#include <device.h>
+#include <list.h>
+#include <spinlock.h>
 #include <device/power.h>
 
+struct device;
 typedef bool (*dfd_match_t)(struct device *, const void *data);
 
 struct driver {
     const char *name;
     struct bus_type *bus;
 
+    spinlock_t lock;
     struct list_head bus_list_driver;
     struct list_head devices_list;
-    spinlock_t lock;
+
+    state (*probe)(struct device *dev);
+    void (*remove)(struct device *dev);
+
+    state (*shutdown)(struct device *dev);
+    state (*suspend)(struct device *dev, pm_message_t state);
+    state (*resume)(struct device *dev);
 };
 
 #define driver_for_each_device(device, driver) \

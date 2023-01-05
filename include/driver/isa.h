@@ -12,9 +12,9 @@
  * @host: parallel controller used with the device.
  */
 struct isa_device {
-	struct device dev;
-	struct list_head list;
-	unsigned int index;
+    struct device dev;
+    struct list_head list;
+    unsigned int index;
 };
 
 /**
@@ -26,14 +26,14 @@ struct isa_device {
  */
 struct isa_driver {
     struct driver driver;
-	struct list_head devices;
+    struct list_head devices;
 
-	state (*match)(struct isa_device *idev, unsigned int index);
-	state (*probe)(struct isa_device *idev, unsigned int index, const void *pdata);
-	void (*remove)(struct isa_device *idev, unsigned int index);
-	void (*shutdown)(struct isa_device *idev, unsigned int index);
-	state (*suspend)(struct isa_device *idev, unsigned int index, pm_message_t msg);
-	state (*resume)(struct isa_device *idev, unsigned int index);
+    state (*match)(struct isa_device *idev, unsigned int index);
+    state (*probe)(struct isa_device *idev, unsigned int index, const void *pdata);
+    void (*remove)(struct isa_device *idev, unsigned int index);
+    void (*shutdown)(struct isa_device *idev, unsigned int index);
+    state (*suspend)(struct isa_device *idev, unsigned int index, pm_message_t msg);
+    state (*resume)(struct isa_device *idev, unsigned int index);
 };
 
 #define device_to_isa_device(ptr) \
@@ -55,7 +55,7 @@ static inline void isa_set_devdata(struct isa_device *pdev, void *data)
 #ifndef CONFIG_ISA_BUS
 static inline state isa_driver_register(struct isa_driver *idrv, unsigned int num, const void *pdata)
 {
-	return -ENODEV;
+    return -ENODEV;
 }
 
 static inline void isa_driver_unregister(struct isa_driver *idrv)

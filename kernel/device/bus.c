@@ -3,15 +3,29 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define MODULE_NAME "bus"
+#define MODULE_NAME "dbus"
 #define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <device/bus.h>
+#include <string.h>
 #include <device.h>
-#include <export.h>
 #include <printk.h>
+#include <export.h>
 
 static LIST_HEAD(bus_list);
+static SPIN_LOCK(bus_lock);
+
+static struct bus_type *bus_find_unlock(const char *name)
+{
+    struct bus_type *walk;
+
+    list_for_each_entry(walk, &bus_list, list) {
+        if (!strcmp(walk->name, name))
+            return walk;
+    }
+
+    return NULL;
+}
 
 /**
  * bus_add_device - add a device into bus
@@ -88,16 +102,27 @@ EXPORT_SYMBOL(bus_remove_driver);
  */
 state bus_register(struct bus_type *bus)
 {
+    state retval = -ENOERR;
+
     if (!bus->match || !bus->probe)
         return -EINVAL;
 
     pr_debug("register %s bus\n", bus->name);
 
+    spin_lock(&bus_lock);
+    if (bus_find_unlock(bus->name)) {
+        retval = -EALREADY;
+        goto finish;
+    }
+
     bus->autoprobe = true;
     list_head_init(&bus->devices_list);
     list_head_init(&bus->drivers_list);
+    list_add(&bus_list, &bus->list);
 
-    return -ENOERR;
+finish:
+    spin_unlock(&bus_lock);
+    return retval;
 }
 EXPORT_SYMBOL(bus_register);
 
@@ -108,6 +133,10 @@ EXPORT_SYMBOL(bus_register);
 void bus_unregister(struct bus_type *bus)
 {
     pr_debug("unregister %s bus\n", bus->name);
+
+    spin_lock(&bus_lock);
+    list_del(&bus->list);
+    spin_unlock(&bus_lock);
 }
 EXPORT_SYMBOL(bus_unregister);
 
