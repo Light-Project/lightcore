@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig KSH_MANUAL
-    bool "Kshell Command Manual"
+    bool "Kshell command manual"
     depends on KSHELL
     default y
 if KSH_MANUAL

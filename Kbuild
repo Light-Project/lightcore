@@ -22,7 +22,7 @@ obj-y += kernel/
 obj-y += lib/
 obj-y += mm/
 obj-y += net/
-obj-$(CONFIG_KUSR) += usr/
+obj-$(CONFIG_KUSER) += usr/
 
 #####################################
 # Generate romdisk                  #

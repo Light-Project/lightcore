@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-menu "Kshell Command Shell"
+menu "Kshell command"
     depends on KSHELL
 
 config KCMD_ASCII85

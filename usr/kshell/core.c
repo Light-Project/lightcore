@@ -6,6 +6,7 @@
 #include "kshell.h"
 #include <string.h>
 #include <initcall.h>
+#include <cmdline.h>
 #include <kmalloc.h>
 #include <printk.h>
 #include <export.h>
@@ -55,6 +56,32 @@ struct kshell_command *kshell_find(const char *name)
     return cmd;
 }
 EXPORT_SYMBOL(kshell_find);
+
+struct kshell_command *kshell_closest(const char *name)
+{
+    struct kshell_command *walk, *best = NULL;
+    unsigned int wscore, bscore = UINT_MAX;
+
+    spin_lock(&kshell_lock);
+    list_for_each_entry(walk, &kshell_list, list) {
+        if (unlikely(!walk->name))
+            break;
+
+        wscore = levenshtein(name, walk->name, 0, 0, GFP_KERNEL, 2, 0, 1, 4);
+        if (wscore == UINT_MAX) {
+            best = NULL;
+            break;
+        }
+
+        if (wscore < bscore) {
+            best = walk;
+            bscore = wscore;
+        }
+    }
+    spin_unlock(&kshell_lock);
+
+    return best;
+}
 
 state kshell_register(struct kshell_command *cmd)
 {
@@ -192,9 +219,9 @@ void ksh_init(void)
     ksh_initcall();
     bootarg_record();
 
-    kshell_global_set(&ctx, "PS1", "kshell: /# ", false);
-    kshell_global_set(&ctx, "PS2", "-> ", false);
-    kshell_global_set(&ctx, "PS3", "?# ", false);
+    kshell_global_set(&ctx, "PS1", CONFIG_KSHELL_DEF_PS1, true);
+    kshell_global_set(&ctx, "PS2", CONFIG_KSHELL_DEF_PS2, true);
+    kshell_global_set(&ctx, "PS3", CONFIG_KSHELL_DEF_PS3, true);
 
     printk("Have a lot of fun..\n");
     kshell_main(&ctx, -bootarg_num - 1, (void *)((uintptr_t)bootarg_ptr - MSIZE));

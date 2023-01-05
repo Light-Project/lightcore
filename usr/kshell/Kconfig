@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menu "Kshell config"
+    depends on KSHELL
+
+config KSHELL_DEPTH
+    int "Kshell maximum depth"
+    default 24
+
+config KSHELL_BOOTARGS
+    int "Kshell maximum bootargs"
+    default 8
+
+config KSHELL_DEF_PS1
+    string "Kshell default PS1"
+    default "kshell: /# "
+
+config KSHELL_DEF_PS2
+    string "Kshell default PS2"
+    default "-> "
+
+config KSHELL_DEF_PS3
+    string "Kshell default PS3"
+    default "?# "
+
+endmenu # Kshell config
