@@ -124,7 +124,7 @@ static void *slob_page_alloc(struct slob_page *slob_page, size_t size,
      *  addr:  0      3       32       64
      *  size:         | delta | offset |  size (free)
      *   map:  ++++++ | ##### | ###### | #############
-     *  type:   using  |          avail
+     *  type:  using  |          avail
      */
 
     for (node = slob_page->node;; node = slob_node_next(node)) {
@@ -269,7 +269,7 @@ static void *slob_alloc_node(struct list_head *slob_list, size_t size, size_t of
          * to the last used node (LRU) to improve
          * the fragment distribution
          */
-        if (slob_page->avail)
+        if (unlikely(!slob_page->avail))
             list_del(&slob_page->list);
         else if (!list_check_first(slob_list, &slob_page->list))
             list_move(slob_list, &slob_page->list);
