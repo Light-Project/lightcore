@@ -2,15 +2,14 @@
 #ifndef _KLIST_H_
 #define _KLIST_H_
 
-#include <list.h>
-#include <spinlock.h>
 #include <kref.h>
+#include <waitqueue.h>
 
 struct klist_node {
     struct list_head list;
     struct klist_head *head;
     struct kref kref;
-    uint8_t dead:1;
+    bool dead;
 };
 
 #define list_to_klist(node) \
@@ -19,8 +18,12 @@ struct klist_node {
 struct klist_head {
     spinlock_t lock;
     struct list_head node;
-    void (*get)(struct klist_node *);
-    void (*put)(struct klist_node *);
+
+    spinlock_t wlock;
+    struct list_head wait;
+
+    void (*get)(struct klist_node *node);
+    void (*put)(struct klist_node *node);
 };
 
 struct klist_iter {

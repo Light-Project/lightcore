@@ -4,10 +4,18 @@
  */
 
 #include <klist.h>
+#include <sched.h>
+#include <crash.h>
 #include <export.h>
-#include <panic.h>
 
-static inline void
+struct klist_wait {
+    struct list_head list;
+    struct sched_task *task;
+    struct klist_node *node;
+    bool woken;
+};
+
+static __always_inline void
 lock_add_next(struct klist_head *head, struct list_head *node, struct list_head *new)
 {
     spin_lock(&head->lock);
@@ -15,7 +23,7 @@ lock_add_next(struct klist_head *head, struct list_head *node, struct list_head 
     spin_unlock(&head->lock);
 }
 
-static inline void
+static __always_inline void
 lock_add_prev(struct klist_head *head, struct list_head *node, struct list_head *new)
 {
     spin_lock(&head->lock);
@@ -23,7 +31,7 @@ lock_add_prev(struct klist_head *head, struct list_head *node, struct list_head 
     spin_unlock(&head->lock);
 }
 
-static inline void
+static __always_inline void
 klist_init(struct klist_head *head, struct klist_node *node)
 {
     list_head_init(&node->list);
@@ -33,7 +41,25 @@ klist_init(struct klist_head *head, struct klist_node *node)
 
 static void klist_release(struct kref *kref)
 {
+    struct klist_node *node = container_of(kref, struct klist_node, kref);
+    struct klist_head *head = node->head;
+    struct klist_wait *walk, *tmp;
 
+    WARN_ON(!node->dead);
+    list_del(&node->list);
+
+    spin_lock(&head->wlock);
+    list_for_each_entry_safe(walk, tmp, &head->wait, list) {
+        if (walk->node != node)
+            continue;
+
+        walk->woken = true;
+        smp_mb();
+
+        sched_wake_up(walk->task);
+        list_del(&walk->list);
+    }
+    spin_unlock(&head->wlock);
 }
 
 static inline bool klist_kref_put(struct klist_node *node)
@@ -121,6 +147,24 @@ void klist_del(struct klist_node *node)
 	klist_put(node, true);
 }
 EXPORT_SYMBOL(klist_del);
+
+void klist_remove(struct klist_node *node)
+{
+    struct klist_head *head = node->head;
+    struct klist_wait wait = {};
+
+	wait.node = node;
+	wait.task = current;
+
+    spin_lock(&head->wlock);
+    list_add(&head->wait, &wait.list);
+    spin_unlock(&head->wlock);
+
+    while (!wait.woken) {
+        current_set_state(SCHED_TASK_UNINTERRUPTIBLE);
+        sched_resched();
+    }
+}
 
 /**
  * klist_iter_next - get next form a klist iteration
