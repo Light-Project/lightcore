@@ -1,103 +1,143 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <ctype.h>
+#include <ascii.h>
 #include <export.h>
 
-int isalnum(int c)
-{
-    return isalpha(c) || isdigit(c);
-}
-EXPORT_SYMBOL(isalnum);
+const unsigned short ctype_table[256] = {
+    [ASCII_NUL] = CTYPE_CNTRL,
+    [ASCII_SOH] = CTYPE_CNTRL,
+    [ASCII_STX] = CTYPE_CNTRL,
+    [ASCII_ETX] = CTYPE_CNTRL,
+    [ASCII_EOT] = CTYPE_CNTRL,
+    [ASCII_ENQ] = CTYPE_CNTRL,
+    [ASCII_ACK] = CTYPE_CNTRL,
+    [ASCII_BEL] = CTYPE_CNTRL,
+    [ASCII_BS ] = CTYPE_CNTRL,
+    [ASCII_HT ] = CTYPE_CNTRL | CTYPE_SPACE,
+    [ASCII_LF ] = CTYPE_CNTRL | CTYPE_SPACE,
+    [ASCII_VT ] = CTYPE_CNTRL | CTYPE_SPACE | CTYPE_BLANK,
+    [ASCII_FF ] = CTYPE_CNTRL | CTYPE_SPACE,
+    [ASCII_CR ] = CTYPE_CNTRL | CTYPE_SPACE,
+    [ASCII_SO ] = CTYPE_CNTRL,
+    [ASCII_SI ] = CTYPE_CNTRL,
+    [ASCII_DLE] = CTYPE_CNTRL,
+    [ASCII_DC1] = CTYPE_CNTRL,
+    [ASCII_DC2] = CTYPE_CNTRL,
+    [ASCII_DC3] = CTYPE_CNTRL,
+    [ASCII_DC4] = CTYPE_CNTRL,
+    [ASCII_NAK] = CTYPE_CNTRL,
+    [ASCII_SYN] = CTYPE_CNTRL,
+    [ASCII_ETB] = CTYPE_CNTRL,
+    [ASCII_CAN] = CTYPE_CNTRL,
+    [ASCII_EM ] = CTYPE_CNTRL,
+    [ASCII_SUB] = CTYPE_CNTRL,
+    [ASCII_ESC] = CTYPE_CNTRL,
+    [ASCII_FS ] = CTYPE_CNTRL,
+    [ASCII_GS ] = CTYPE_CNTRL,
+    [ASCII_RS ] = CTYPE_CNTRL,
+    [ASCII_US ] = CTYPE_CNTRL,
 
-int isalpha(int c)
-{
-    return (((unsigned)c | 32) - 'a') < 26;
-}
-EXPORT_SYMBOL(isalpha);
+    [' ' ] = CTYPE_SPACE | CTYPE_HDSPA | CTYPE_BLANK,
+    ['!' ] = CTYPE_PUNCT,
+    ['"' ] = CTYPE_PUNCT,
+    ['#' ] = CTYPE_PUNCT,
+    ['$' ] = CTYPE_PUNCT,
+    ['%' ] = CTYPE_PUNCT,
+    ['&' ] = CTYPE_PUNCT,
+    ['\''] = CTYPE_PUNCT,
+    ['(' ] = CTYPE_PUNCT,
+    [')' ] = CTYPE_PUNCT,
+    ['*' ] = CTYPE_PUNCT,
+    ['+' ] = CTYPE_PUNCT,
+    [',' ] = CTYPE_PUNCT,
+    ['-' ] = CTYPE_PUNCT,
+    ['.' ] = CTYPE_PUNCT,
+    ['/' ] = CTYPE_PUNCT,
 
-int isascii(int c)
-{
-    return !(c & ~0x7f);
-}
-EXPORT_SYMBOL(isascii);
+    ['0'] = CTYPE_DIGIT,
+    ['1'] = CTYPE_DIGIT,
+    ['2'] = CTYPE_DIGIT,
+    ['3'] = CTYPE_DIGIT,
+    ['4'] = CTYPE_DIGIT,
+    ['5'] = CTYPE_DIGIT,
+    ['6'] = CTYPE_DIGIT,
+    ['7'] = CTYPE_DIGIT,
+    ['8'] = CTYPE_DIGIT,
+    ['9'] = CTYPE_DIGIT,
 
-int isblank(int c)
-{
-    return (c == ' ' || c == '\t');
-}
-EXPORT_SYMBOL(isblank);
+    [':'] = CTYPE_PUNCT,
+    [';'] = CTYPE_PUNCT,
+    ['<'] = CTYPE_PUNCT,
+    ['='] = CTYPE_PUNCT,
+    ['>'] = CTYPE_PUNCT,
+    ['?'] = CTYPE_PUNCT,
+    ['@'] = CTYPE_PUNCT,
 
-int iscntrl(int c)
-{
-    return ((unsigned)c < 0x20) || (c == 0x7f);
-}
-EXPORT_SYMBOL(iscntrl);
+    ['A'] = CTYPE_UPPER | CTYPE_HEXDG,
+    ['B'] = CTYPE_UPPER | CTYPE_HEXDG,
+    ['C'] = CTYPE_UPPER | CTYPE_HEXDG,
+    ['D'] = CTYPE_UPPER | CTYPE_HEXDG,
+    ['E'] = CTYPE_UPPER | CTYPE_HEXDG,
+    ['F'] = CTYPE_UPPER | CTYPE_HEXDG,
+    ['G'] = CTYPE_UPPER,
+    ['H'] = CTYPE_UPPER,
+    ['I'] = CTYPE_UPPER,
+    ['J'] = CTYPE_UPPER,
+    ['K'] = CTYPE_UPPER,
+    ['L'] = CTYPE_UPPER,
+    ['M'] = CTYPE_UPPER,
+    ['N'] = CTYPE_UPPER,
+    ['O'] = CTYPE_UPPER,
+    ['P'] = CTYPE_UPPER,
+    ['Q'] = CTYPE_UPPER,
+    ['R'] = CTYPE_UPPER,
+    ['S'] = CTYPE_UPPER,
+    ['T'] = CTYPE_UPPER,
+    ['U'] = CTYPE_UPPER,
+    ['V'] = CTYPE_UPPER,
+    ['W'] = CTYPE_UPPER,
+    ['X'] = CTYPE_UPPER,
+    ['Y'] = CTYPE_UPPER,
+    ['Z'] = CTYPE_UPPER,
 
-int isdigit(int c)
-{
-    return ((unsigned)c - '0') < 10;
-}
-EXPORT_SYMBOL(isdigit);
+    ['[' ] = CTYPE_PUNCT,
+    ['\\'] = CTYPE_PUNCT,
+    [']' ] = CTYPE_PUNCT,
+    ['^' ] = CTYPE_PUNCT,
+    ['_' ] = CTYPE_PUNCT,
+    ['`' ] = CTYPE_PUNCT,
 
-int isgraph(int c)
-{
-    return ((unsigned)c - 0x21) < 0x5e;
-}
-EXPORT_SYMBOL(isgraph);
+    ['a'] = CTYPE_LOWER | CTYPE_HEXDG,
+    ['b'] = CTYPE_LOWER | CTYPE_HEXDG,
+    ['c'] = CTYPE_LOWER | CTYPE_HEXDG,
+    ['d'] = CTYPE_LOWER | CTYPE_HEXDG,
+    ['e'] = CTYPE_LOWER | CTYPE_HEXDG,
+    ['f'] = CTYPE_LOWER | CTYPE_HEXDG,
+    ['g'] = CTYPE_LOWER,
+    ['h'] = CTYPE_LOWER,
+    ['i'] = CTYPE_LOWER,
+    ['j'] = CTYPE_LOWER,
+    ['k'] = CTYPE_LOWER,
+    ['l'] = CTYPE_LOWER,
+    ['m'] = CTYPE_LOWER,
+    ['n'] = CTYPE_LOWER,
+    ['o'] = CTYPE_LOWER,
+    ['p'] = CTYPE_LOWER,
+    ['q'] = CTYPE_LOWER,
+    ['r'] = CTYPE_LOWER,
+    ['s'] = CTYPE_LOWER,
+    ['t'] = CTYPE_LOWER,
+    ['u'] = CTYPE_LOWER,
+    ['v'] = CTYPE_LOWER,
+    ['w'] = CTYPE_LOWER,
+    ['x'] = CTYPE_LOWER,
+    ['y'] = CTYPE_LOWER,
+    ['z'] = CTYPE_LOWER,
 
-int islower(int c)
-{
-    return ((unsigned)c - 'a') < 26;
-}
-EXPORT_SYMBOL(islower);
-
-int isprint(int c)
-{
-    return ((unsigned)c - 0x20) < 0x5f;
-}
-EXPORT_SYMBOL(isprint);
-
-int ispunct(int c)
-{
-    return isgraph(c) && !isalnum(c);
-}
-EXPORT_SYMBOL(ispunct);
-
-int isspace(int c)
-{
-    return (c == ' ') || ((unsigned)c - '\t' < 5);
-}
-EXPORT_SYMBOL(isspace);
-
-int isupper(int c)
-{
-    return ((unsigned)c - 'A') < 26;
-}
-EXPORT_SYMBOL(isupper);
-
-int isxdigit(int c)
-{
-    return isdigit(c) || (((unsigned)c | 32) - 'a' < 6);
-}
-EXPORT_SYMBOL(isxdigit);
-
-int toascii(int c)
-{
-    return (c & 0x7f);
-}
-EXPORT_SYMBOL(toascii);
-
-int tolower(int c)
-{
-    if (isupper(c))
-        return c | 32;
-    return c;
-}
-EXPORT_SYMBOL(tolower);
-
-int toupper(int c)
-{
-    if (islower(c))
-        return c & 0x5f;
-    return c;
-}
-EXPORT_SYMBOL(toupper);
+    ['{'] = CTYPE_PUNCT,
+    ['|'] = CTYPE_PUNCT,
+    ['}'] = CTYPE_PUNCT,
+    ['~'] = CTYPE_PUNCT,
+    [127] = CTYPE_CNTRL,
+};
+EXPORT_SYMBOL(ctype_table);
