@@ -8,9 +8,13 @@ struct kref {
     refcount_t refcount;
 };
 
+#define KREF_STATIC(name) {.refcount = REFCOUNT_STATIC}
+#define KREF_INIT(name) (struct kref)KREF_STATIC
+#define DEFINE_KREF(name) struct kref name = KREF_INIT
+
 /**
- * kref_read - read reference count
- * @kref: reference object
+ * kref_read - read reference count.
+ * @kref: reference object.
  */
 static inline void kref_read(struct kref *kref)
 {
@@ -18,8 +22,8 @@ static inline void kref_read(struct kref *kref)
 }
 
 /**
- * kref_get - reference count increment
- * @kref: reference object
+ * kref_get - reference count increment.
+ * @kref: reference object.
  */
 static inline void kref_get(struct kref *kref)
 {
@@ -27,23 +31,22 @@ static inline void kref_get(struct kref *kref)
 }
 
 /**
- * kref_put - reference count decrement
- * @kref: reference object
+ * kref_put - reference count decrement.
+ * @kref: reference object.
  */
 static inline bool kref_put(struct kref *kref, void (*release)(struct kref *))
 {
-    bool ret;
+    bool retval;
 
-    ret = refcount_dec_test(&kref->refcount);
-    if (ret)
+    if ((retval = refcount_dec_test(&kref->refcount)))
         release(kref);
 
-    return ret;
+    return retval;
 }
 
 /**
- * kref_get - initialization reference count
- * @kref: reference object
+ * kref_get - initialization reference count.
+ * @kref: reference object.
  */
 static inline void kref_init(struct kref *kref)
 {
