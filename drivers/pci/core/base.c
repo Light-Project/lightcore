@@ -118,6 +118,7 @@ pci_capability_find_next_ttl(struct pci_device *pdev, uint8_t pos, int cap, int 
 
         if (id == 0xff)
             break;
+
         if (id == cap)
             return pos;
 
@@ -145,8 +146,10 @@ pci_capability_find_start(struct pci_device *pdev, uint8_t head)
     switch (head) {
         case PCI_HEADER_TYPE_NORMAL:
             fallthrough;
+
         case PCI_HEADER_TYPE_BRIDGE:
             return PCI_CAPABILITY_LIST;
+
         case PCI_HEADER_TYPE_CARDBUS:
             return PCI_CB_CAPABILITY_LIST;
     }

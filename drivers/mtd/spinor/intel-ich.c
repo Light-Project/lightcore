@@ -28,24 +28,24 @@ static void ich_spi_dump_regs(struct ich_device *idev)
 
     dev_debug(idev->spinor.device, "dump registers:\n");
     for (count = 0; count < ICH_SPI_FREG_NR; ++count)
-        dev_debug(idev->spinor.device, "  FREG%d=0x%08x\n", count, readl(idev->base + ICH_SPI_FREG(count)));
+        dev_debug(idev->spinor.device, "\tFREG%d=0x%08x\n", count, readl(idev->base + ICH_SPI_FREG(count)));
     for (count = 0; count < ICH_SPI_FDATA_NR; ++count)
-        dev_debug(idev->spinor.device, "  FDATA%d=0x%08x\n", count, readl(idev->base + ICH_SPI_FDATA(count)));
+        dev_debug(idev->spinor.device, "\tFDATA%d=0x%08x\n", count, readl(idev->base + ICH_SPI_FDATA(count)));
     for (count = 0; count < ICH_SPI_FPR_NR; ++count)
-        dev_debug(idev->spinor.device, "  FPR%d=0x%08x\n", count, readl(idev->base + ICH_SPI_FPR(count)));
+        dev_debug(idev->spinor.device, "\tFPR%d=0x%08x\n", count, readl(idev->base + ICH_SPI_FPR(count)));
 
-    dev_debug(idev->spinor.device, "  BFPR=0x%08x\n",       readl(idev->base + ICH_SPI_BFPR));
-    dev_debug(idev->spinor.device, "  HSFS=0x%04x\n",       readw(idev->base + ICH_SPI_HSFS));
-    dev_debug(idev->spinor.device, "  HSFC=0x%04x\n",       readw(idev->base + ICH_SPI_HSFC));
-    dev_debug(idev->spinor.device, "  FADDR=0x%08x\n",      readl(idev->base + ICH_SPI_FADDR));
-    dev_debug(idev->spinor.device, "  FRACC=0x%08x\n",      readl(idev->base + ICH_SPI_FRACC));
-    dev_debug(idev->spinor.device, "  SSFS=0x%08x\n",       readw(idev->base + ICH_SPI_SSFS));
-    dev_debug(idev->spinor.device, "  SSFC=0x%08x\n",       readw(idev->base + ICH_SPI_SSFC));
-    dev_debug(idev->spinor.device, "  PREOP=0x%08x\n",      readw(idev->base + ICH_SPI_PREOP));
-    dev_debug(idev->spinor.device, "  OPTYPE=0x%08x\n",     readw(idev->base + ICH_SPI_OPTYPE));
-    dev_debug(idev->spinor.device, "  OPMENU=0x%016llx\n",  readq(idev->base + ICH_SPI_OPMENU));
-    dev_debug(idev->spinor.device, "  FDOC=0x%08x\n",       readl(idev->base + ICH_SPI_FDOC));
-    dev_debug(idev->spinor.device, "  FDOD=0x%08x\n",       readl(idev->base + ICH_SPI_FDOD));
+    dev_debug(idev->spinor.device, "\tBFPR=0x%08x\n",       readl(idev->base + ICH_SPI_BFPR));
+    dev_debug(idev->spinor.device, "\tHSFS=0x%04x\n",       readw(idev->base + ICH_SPI_HSFS));
+    dev_debug(idev->spinor.device, "\tHSFC=0x%04x\n",       readw(idev->base + ICH_SPI_HSFC));
+    dev_debug(idev->spinor.device, "\tFADDR=0x%08x\n",      readl(idev->base + ICH_SPI_FADDR));
+    dev_debug(idev->spinor.device, "\tFRACC=0x%08x\n",      readl(idev->base + ICH_SPI_FRACC));
+    dev_debug(idev->spinor.device, "\tSSFS=0x%08x\n",       readw(idev->base + ICH_SPI_SSFS));
+    dev_debug(idev->spinor.device, "\tSSFC=0x%08x\n",       readw(idev->base + ICH_SPI_SSFC));
+    dev_debug(idev->spinor.device, "\tPREOP=0x%08x\n",      readw(idev->base + ICH_SPI_PREOP));
+    dev_debug(idev->spinor.device, "\tOPTYPE=0x%08x\n",     readw(idev->base + ICH_SPI_OPTYPE));
+    dev_debug(idev->spinor.device, "\tOPMENU=0x%016llx\n",  readq(idev->base + ICH_SPI_OPMENU));
+    dev_debug(idev->spinor.device, "\tFDOC=0x%08x\n",       readl(idev->base + ICH_SPI_FDOC));
+    dev_debug(idev->spinor.device, "\tFDOD=0x%08x\n",       readl(idev->base + ICH_SPI_FDOD));
 }
 
 static int intel_spi_protected(struct ich_device *idev, uint32_t base, uint32_t limit)

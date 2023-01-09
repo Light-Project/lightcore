@@ -3,6 +3,9 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
+#define MODULE_NAME "gpio"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
+
 #include <driver/gpio.h>
 #include <export.h>
 
