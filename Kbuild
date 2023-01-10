@@ -44,3 +44,5 @@ elf-always-y += lightcore
 
 lightcore.dump-obj += lightcore
 dump-always-$(CONFIG_KERNEL_DUMP) += lightcore.dump
+
+clean-subdir-y += boot/

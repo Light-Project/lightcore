@@ -73,5 +73,3 @@ install: FORCE
 	$(Q)$(SHELL) $(srctree)/boot/install.sh \
 		$(KERNELVERSION) $(KBOOT_IMAGE) $(INSTALL_PATH)
 endif
-
-clean-subdir-y += boot/
