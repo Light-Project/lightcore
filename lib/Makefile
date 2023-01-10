@@ -46,6 +46,7 @@ obj-y += lru-cache.o
 obj-y += memdump.o
 obj-y += minpool.o
 obj-y += ncache.o
+obj-y += numalign.o
 obj-y += param.o
 obj-y += popcount.o
 obj-y += prandom.o
