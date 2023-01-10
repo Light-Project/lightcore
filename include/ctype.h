@@ -14,7 +14,6 @@ enum ctype_num {
     __CTYPE_HDSPA,
 };
 
-#define CTYPE_ASCII (1UL << __CTYPE_ASCII)
 #define CTYPE_UPPER (1UL << __CTYPE_UPPER)
 #define CTYPE_LOWER (1UL << __CTYPE_LOWER)
 #define CTYPE_CNTRL (1UL << __CTYPE_CNTRL)
