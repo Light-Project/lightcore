@@ -85,7 +85,7 @@ static state pcspkr_freq_set(struct buzzer_device *bdev, enum buzzer_frequency f
     return -ENOERR;
 }
 
-#ifdef CONFIG_BUZZER_PANIC
+#ifdef CONFIG_BUZZER_PCSPKR_PANIC
 static void pcspkr_panic(struct buzzer_device *bdev)
 {
     struct pcspkr_device *sdev = buzzer_to_pcspkr(bdev);
@@ -106,7 +106,7 @@ static struct buzzer_ops pcspkr_ops = {
     .stop = pcspkr_stop,
     .freq_get = pcspkr_freq_get,
     .freq_set = pcspkr_freq_set,
-#ifdef CONFIG_BUZZER_PANIC
+#ifdef CONFIG_BUZZER_PCSPKR_PANIC
     .panic = pcspkr_panic,
 #endif
 };

@@ -10,7 +10,11 @@ config BUZZER_PANIC
 comment "Buzzer Device Driver"
 
 config BUZZER_PCSPKR
-    bool "PC-Speaker Sound Support"
+    bool "PC-Speaker buzzer"
     depends on CLKEVT_I8253
+
+config BUZZER_PCSPKR_PANIC
+    bool "PC-Speaker panic beep"
+    depends on BUZZER_PANIC && BUZZER_PCSPKR
 
 endif # BUZZER
