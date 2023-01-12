@@ -7,16 +7,9 @@
 #include <kernel.h>
 #include <proc.h>
 #include <memdump.h>
+#include <numalign.h>
 #include <printk.h>
 #include <export.h>
-
-static int dec_align_table[] = {
-    [0] = 3, [1] = 5, [2] = 11, [4] = 20,
-};
-
-static int oct_align_table[] = {
-    [0] = 3, [1] = 6, [2] = 11, [4] = 22,
-};
 
 int memdump_buffer(char *buffer, size_t buffsize, const void *data, size_t data_len,
                    int rowsize, int groupsize, int base, bool ascii)
@@ -24,6 +17,7 @@ int memdump_buffer(char *buffer, size_t buffsize, const void *data, size_t data_
     const char *str = data;
     char fmtbuff[16];
     unsigned int count, ngroup;
+    unsigned int align;
     int retval, length = 0;
     char ch, fmt;
 
@@ -46,30 +40,32 @@ int memdump_buffer(char *buffer, size_t buffsize, const void *data, size_t data_
     switch (base) {
         case 8:
             fmt = 'o';
+            align = oct_align(groupsize);
             break;
 
         case 10:
             fmt = 'u';
+            align = dec_unsigned_align(groupsize);
             break;
 
         case 16: default:
             fmt = 'x';
+            align = groupsize * 2 + 2;
             break;
     }
 
     if (fmt == 'x') {
-        sprintf(fmtbuff, "%%s%%#0%d%s%c", groupsize * 2 + 2,
+        sprintf(fmtbuff, "%%s%%#0%d%s%c", align,
                 groupsize == 8 ? "ll" : "", fmt);
     } else {
-        sprintf(fmtbuff, "%%s%%-%d%s%c", (fmt == 'o' ?
-                oct_align_table : dec_align_table)[groupsize / 2],
+        sprintf(fmtbuff, "%%s%%-%d%s%c", align,
                 groupsize == 8 ? "ll" : "", fmt);
     }
 
     switch (groupsize) {
         case 1: default:
             for (count = 0; count < ngroup; ++count) {
-                retval = snprintf(buffer + length, buffsize - length, fmtbuff, count ? "  " : "",
+                retval = snprintf(buffer + length, buffsize - length, fmtbuff, count ? " " : "",
                                   *(uint8_t *)(data + count * groupsize));
                 if (retval >= buffsize - length)
                     goto overflow1;
@@ -79,7 +75,7 @@ int memdump_buffer(char *buffer, size_t buffsize, const void *data, size_t data_
 
         case 2:
             for (count = 0; count < ngroup; ++count) {
-                retval = snprintf(buffer + length, buffsize - length, fmtbuff, count ? "  " : "",
+                retval = snprintf(buffer + length, buffsize - length, fmtbuff, count ? " " : "",
                                   unaligned_get_u16(data + count * groupsize));
                 if (retval >= buffsize - length)
                     goto overflow1;
@@ -89,7 +85,7 @@ int memdump_buffer(char *buffer, size_t buffsize, const void *data, size_t data_
 
         case 4:
             for (count = 0; count < ngroup; ++count) {
-                retval = snprintf(buffer + length, buffsize - length, fmtbuff, count ? "  " : "",
+                retval = snprintf(buffer + length, buffsize - length, fmtbuff, count ? " " : "",
                                   unaligned_get_u32(data + count * groupsize));
                 if (retval >= buffsize - length)
                     goto overflow1;
@@ -99,7 +95,7 @@ int memdump_buffer(char *buffer, size_t buffsize, const void *data, size_t data_
 
         case 8:
             for (count = 0; count < ngroup; ++count) {
-                retval = snprintf(buffer + length, buffsize - length, fmtbuff, count ? "  " : "",
+                retval = snprintf(buffer + length, buffsize - length, fmtbuff, count ? " " : "",
                                   unaligned_get_u64(data + count * groupsize));
                 if (retval >= buffsize - length)
                     goto overflow1;
@@ -131,17 +127,7 @@ overflow2:
     buffer[length] = '\0';
 
 overflow1:
-    switch (base) {
-        case 8: case 10:
-            count = (base == 8 ? oct_align_table : dec_align_table)[groupsize / 2];
-            break;
-
-        case 16: default:
-            count = (groupsize * 2) + 2;
-            break;
-    }
-
-    count += 2;
+    count = align + 2;
     count *= ngroup;
 
     return ascii ? count + data_len : count;
