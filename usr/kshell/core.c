@@ -202,16 +202,17 @@ bootarg_initcall("kshell", kshell_bootarg);
 
 void ksh_init(void)
 {
-    struct readline_state rstate;
-    struct kshell_context ctx;
+    struct readline_state rstate = {
+        .read = kshell_console_read,
+        .write = kshell_console_write,
+    };
 
-    ctx.read = kshell_console_read;
-    ctx.write = kshell_console_write;
-    ctx.env = RB_INIT;
-    ctx.depth = CONFIG_KSHELL_DEPTH;
-    ctx.readline = &rstate;
-    rstate.read = kshell_console_read;
-    rstate.write = kshell_console_write;
+    struct kshell_context ctx = {
+        .read = kshell_console_read,
+        .write = kshell_console_write,
+        .readline = &rstate,
+        .env = RB_INIT,
+    };
 
     printk("##########################\n");
     printk("Welcome to lightcore shell\n");

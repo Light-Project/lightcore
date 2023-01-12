@@ -66,29 +66,29 @@ static state do_system(struct kshell_context *ctx, const char *cmdline)
 
         if (strchr(argv[0], '=')) {
             kshell_putenv(ctx, argv[0]);
+            kfree(argv);
             continue;
         }
 
-        if (!ctx->depth) {
+        if (ctx->depth > CONFIG_KSHELL_DEPTH) {
             kshell_puts(ctx, "trigger recursive protection\n");
+            kfree(argv);
             return -EFBIG;
         }
 
+        ctx->depth++;
         cmd = kshell_find(argv[0]);
-        if (!cmd) {
-            kshell_printf(ctx, "command not found: %s\n", argv[0]);
+        if (cmd)
+            retval = cmd->exec(ctx, argc, argv);
 
+        else if (!kshell_func_call(ctx, argc, argv, &retval)) {
+            kshell_printf(ctx, "command not found: %s\n", argv[0]);
             cmd = kshell_closest(argv[0]);
             if (cmd)
-                kshell_printf(ctx, "most similar command is: %s\n", cmd->name);
-
-            retval = -EBADF;
-        } else {
-            ctx->depth--;
-            retval = cmd->exec(ctx, argc, argv);
-            ctx->depth++;
+                kshell_printf(ctx, "most similar command: %s\n", cmd->name);
         }
 
+        ctx->depth--;
         kfree(argv);
 
         intoa(retval, retbuf, 10, sizeof(retbuf));
@@ -168,7 +168,9 @@ state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
         readline_free(rstate);
     }
 
+    BUG_ON(nctx.depth);
     commands_release(&nctx);
+
     return retval;
 }
 

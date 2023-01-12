@@ -4,21 +4,21 @@
  */
 
 #include <kshell.h>
-#include <string.h>
-#include <kmalloc.h>
 #include <initcall.h>
 #include <export.h>
 
 static void usage(struct kshell_context *ctx)
 {
-    kshell_puts(ctx, "usage: func [option] @name {body}\n");
+    kshell_puts(ctx, "usage: func [option] name {body}\n");
     kshell_puts(ctx, "\t-d  <name> delete function\n");
+    kshell_puts(ctx, "\t-w  weak declarative function\n");
     kshell_puts(ctx, "\t-h  display this message\n");
 }
 
 static state func_main(struct kshell_context *ctx, int argc, char *argv[])
 {
     unsigned int count;
+    bool weak = false;
     state retval;
 
     for (count = 1; count < argc; ++count) {
@@ -32,8 +32,14 @@ static state func_main(struct kshell_context *ctx, int argc, char *argv[])
                 if ((++count) >= argc)
                     goto usage;
                 retval = kshell_func_delete(ctx, argv[count]);
-                if (!retval)
-                    goto usage;
+                if (retval) {
+                    kshell_printf(ctx, "function '%s' not found\n", argv[count]);
+                    return retval;
+                }
+                break;
+
+            case 'w':
+                weak = true;
                 break;
 
             case 'h': default:
@@ -42,15 +48,13 @@ static state func_main(struct kshell_context *ctx, int argc, char *argv[])
     }
 
     if (argc == count)
-        goto usage;
+        return -ENOERR;
 
-    if (*argv[count] == '@') {
-        if (argc != count + 2)
-            goto usage;
-        return kshell_func_define(ctx, argv[count] + 1, argv[count + 1], true);
-    }
+    retval = kshell_func_define(ctx, argv[count], argv[count + 1], !weak);
+    if (retval)
+        kshell_printf(ctx, "function '%s' already\n", argv[count]);
 
-    return kshell_func_call(ctx, argc - count, &argv[count]);
+    return retval;
 
 usage:
     usage(ctx);
@@ -59,7 +63,7 @@ usage:
 
 static struct kshell_command func_cmd = {
     .name = "func",
-    .desc = "declare execution function",
+    .desc = "declare function",
     .exec = func_main,
 };
 

@@ -98,7 +98,7 @@ extern state kshell_local_pop(struct kshell_context *ctx);
 extern state kshell_symbol_push(struct kshell_context *ctx);
 extern state kshell_symbol_pop(struct kshell_context *ctx);
 
-extern state kshell_func_call(struct kshell_context *ctx, int argc, char *argv[]);
+extern bool kshell_func_call(struct kshell_context *ctx, int argc, char *argv[], state *retptr);
 extern state kshell_func_define(struct kshell_context *ctx, const char *name, const char *body, bool overwrite);
 extern state kshell_func_delete(struct kshell_context *ctx, const char *name);
 extern void kshell_fmtenv(struct kshell_context *ctx, char *buff, size_t size, const char *name);

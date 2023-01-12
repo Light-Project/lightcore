@@ -22,7 +22,7 @@ static long func_rb_find(const struct rb_node *rb, const void *name)
     return strcmp(func->name, name);
 }
 
-state kshell_func_call(struct kshell_context *ctx, int argc, char *argv[])
+bool kshell_func_call(struct kshell_context *ctx, int argc, char *argv[], state *retptr)
 {
     struct rb_node *rb;
     struct kshell_func *node;
@@ -31,10 +31,8 @@ state kshell_func_call(struct kshell_context *ctx, int argc, char *argv[])
     state retval;
 
     rb = rb_find(&ctx->func, argv[0], func_rb_find);
-    if (!rb) {
-        kshell_printf(ctx, "function '%s' undeclared\n", argv[0]);
-        return -EALREADY;
-    }
+    if (!rb)
+        return false;
 
     kshell_local_push(ctx);
     kshell_symbol_push(ctx);
@@ -55,7 +53,10 @@ state kshell_func_call(struct kshell_context *ctx, int argc, char *argv[])
     kshell_symbol_pop(ctx);
     kshell_local_pop(ctx);
 
-    return retval;
+    if (retptr)
+        *retptr = retval;
+
+    return true;
 }
 EXPORT_SYMBOL(kshell_func_call);
 
@@ -100,10 +101,8 @@ state kshell_func_delete(struct kshell_context *ctx, const char *name)
     struct kshell_func *node;
 
     rb = rb_find(&ctx->func, name, func_rb_find);
-    if (unlikely(!rb)) {
-        kshell_printf(ctx, "function '%s' not found to delete\n", name);
+    if (unlikely(!rb))
         return -ENOENT;
-    }
 
     node = func_to_kshell(rb);
     rb_delete(&ctx->func, &node->node);
