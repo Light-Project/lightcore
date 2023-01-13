@@ -5,19 +5,23 @@ menuconfig SELFTEST_FILTER
 if SELFTEST_FILTER
 
 config SELFTEST_FILTER_EWMA
-    bool "Ewma Unit Tests"
+    bool "ewma"
     default y
 
 config SELFTEST_FILTER_MEAN
-    bool "Mean Unit Tests"
+    bool "mean"
     default y
 
 config SELFTEST_FILTER_MEDIAN
-    bool "Median Unit Tests"
+    bool "median"
     default y
 
 config SELFTEST_FILTER_PIDC
-    bool "Pidc Unit Tests"
+    bool "pidc"
+    default y
+
+config SELFTEST_FILTER_WINEXT
+    bool "winext"
     default y
 
 endif # SELFTEST_FILTER
