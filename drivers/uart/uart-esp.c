@@ -133,7 +133,6 @@ static void espressif_uart_remove(struct platform_device *device)
 
 static struct dt_device_id espressif_uart_dt_table[] = {
     { .compatible = "espressif,esp8266-uart" },
-    { .compatible = "espressif,esp32-uart" },
     { }, /* NULL */
 };
 

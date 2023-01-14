@@ -5,7 +5,6 @@ export UBSAN_SANITIZE = n
 export KGCOV_PROFILE = n
 
 obj-$(CONFIG_ARCH_X86)     += bios/
-obj-$(CONFIG_CHIP_ESP32)   += esp32/
 obj-$(CONFIG_CHIP_ESP8266) += esp8266/
 obj-$(CONFIG_CHIP_SUNIV)   += suniv/
 obj-$(CONFIG_CHIP_GX6605S) += gx6605s/

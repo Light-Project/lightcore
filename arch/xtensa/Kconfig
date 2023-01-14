@@ -10,16 +10,8 @@ config XTENSA_VARIANT_LX106
     select ARCH_HAS_XIP
     select ARCH_HAS_PRE_PRINTK
 
-config XTENSA_VARIANT_ESP32
-    bool "ESP32"
-    select ARCH_HAS_NOMMU
-    select ARCH_HAS_XIP
-    select ARCH_HAS_PRE_PRINTK
-
 endchoice
 
 source "arch/xtensa/variants/lx106/Kconfig"
-source "arch/xtensa/variants/esp32/Kconfig"
 
 endmenu
-

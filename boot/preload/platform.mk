@@ -26,11 +26,6 @@ platform-acflags-y      += -pipe -mlongcalls
 platform-elfflags-y     := -T $(src)/esp8266/boot.lds
 endif
 
-ifdef CONFIG_CHIP_ESP32
-include-y               += esp32/include/
-platform-elfflags-y     := -T $(src)/esp32/boot.lds
-endif
-
 ifdef CONFIG_CHIP_GX6605S
 include-y               += gx6605s/include/
 platform-acflags-y      := -mlittle-endian -mcpu=ck610 -Os
