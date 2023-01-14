@@ -1,19 +1,13 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- *  SPDX-License-Identifier: GPL-2.0-or-later
- *  arch/arme/boot/boot.S
- *  Arme serial boot
- *  (C) 2020 wzl
- *
- *  Change Logs:
- *  Date            Notes
- *  2021-02-26      first version
- *
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
 #include <linkage.h>
 
     .arm
-    .section    .setup, "ax"
+    .section .setup, "ax"
+
 GLOBAL(_start)
     ldr pc, =init                                   /* 0x00: jump instruction   */
     .byte 'e', 'G', 'O', 'N', '.', 'B', 'T', '0'    /* 0x04: magic              */
@@ -57,4 +51,3 @@ GLOBAL(halt)
     bkpt
     b   halt
 END(halt)
-

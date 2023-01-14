@@ -1,14 +1,12 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- *  SPDX-License-Identifier: GPLV2
- *  arch/csky/boot/boot.S
- *  X86 serial boot
- *  (C) 2020 wzl
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
 #include <asm-generic/header.h>
 #include <asm/page.h>
 #include <linkage.h>
- 
+
     .section    .startup,"ax"
 
 GLOBAL(boot_head)
@@ -17,12 +15,12 @@ GLOBAL(boot_head)
     .long   0, 0, 0                             /* 0x04: Reserved */
     KERNEL_HEADER
 END(boot_head)
-    
+
     .section    .init.text,"ax"
     .type       init, %function
-    
+
 ENTRY(init)
-    
+
 #ifdef CONFIG_XIP
 Load_segment_Init:
     movi    a8, _ld_load_offset     /* segment lma */
@@ -55,7 +53,7 @@ env:
     call0   kernel_start
     j       halt
 END(init)
-  
+
 ENTRY(halt)
     waiti   15
     j       .

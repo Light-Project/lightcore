@@ -1,13 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- *  SPDX-License-Identifier: GPL-2.0-or-later
- *  tools/esp/mkespboot.h
- *  esp boot image tool 
- *  (C) 2020 wzl finishing
- * 
- *  Change Logs:
- *  Date            Notes
- *  2021-03-14      first version 
- * 
+ * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
 #ifndef _MKESPBOOT_H_
@@ -15,8 +8,7 @@
 
 #include <stdint.h>
 
-enum ESP_symbol{  
-    
+enum ESP_symbol {
     // Commands supported by ESP8266 ROM bootloader
     ESP_FLASH_BEGIN         = 0x02,
     ESP_FLASH_DATA          = 0x03,
@@ -68,7 +60,7 @@ enum ESP_symbol{
     ESP_CHECKSUM_MAGIC      = 0xef,
 };
 
-typedef struct ESP_head{
+typedef struct ESP_head {
     uint8_t magic;
     uint8_t segment_count;
     uint8_t flags0;
@@ -79,7 +71,7 @@ typedef struct ESP_head{
     uint8_t seg;
 } __attribute__((packed)) ESP_head_t;
 
-typedef struct ESP_node{
+typedef struct ESP_node {
     uint8_t magic;
     uint8_t flags0;
     uint8_t flags1;
@@ -88,7 +80,7 @@ typedef struct ESP_node{
     uint32_t size;
 } __attribute__((packed))  ESP_node_t;
 
-typedef struct ESP_check{
+typedef struct ESP_check {
     uint32_t Res0;
     uint32_t Res1;
     uint32_t Res2;
