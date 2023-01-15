@@ -8,8 +8,8 @@
 #include <proc.h>
 #include <driver/uart/8250.h>
 
-#define I8250_BASE  0x3f8
-#define I8250_FREQ  115200
+#define I8250_BASE CONFIG_EARLYCON_SERIAL_BASE
+#define I8250_FREQ CONFIG_EARLYCON_SERIAL_FREQ
 
 void serial_print(const char *str)
 {

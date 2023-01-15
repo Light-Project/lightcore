@@ -169,12 +169,23 @@ choice
     default EARLYCON_SERIAL
 
 config EARLYCON_SERIAL
-    bool "Early Serial"
+    bool "I8250 serial"
 
 config EARLYCON_VGA
-    bool "Early VGA"
+    bool "VGA video"
 
 endchoice # Early Console Choice
+
+config EARLYCON_SERIAL_BASE
+    hex "Early I8250 IO port"
+    depends on EARLYCON_SERIAL
+    default 0x3f8
+
+config EARLYCON_SERIAL_FREQ
+    int "Early I8250 frequency"
+    depends on EARLYCON_SERIAL
+    default 115200
+    range 0 115200
 
 config CPU_CACHE_SHIFT7
     bool
