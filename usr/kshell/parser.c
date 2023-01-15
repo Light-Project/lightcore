@@ -22,28 +22,29 @@ struct paser_transition {
 };
 
 enum paser_state {
-    KSHELL_STATE_TEXT       = 0,
-    KSHELL_STATE_ESC        = 1,
-    KSHELL_STATE_QUOTE      = 2,
-    KSHELL_STATE_DQUOTE     = 3,
-    KSHELL_STATE_GRAMMAR    = 4,
+    KSHELL_STATE_TEXT,
+    KSHELL_STATE_ESC,
+    KSHELL_STATE_QUOTE,
+    KSHELL_STATE_DQUOTE,
+    KSHELL_STATE_GRAMMAR,
+    KSHELL_STATE_IGNORE,
 
-    KSHELL_STATE_VARIABLE   = 5,
-    KSHELL_STATE_QVARIABLE  = 6,
-    KSHELL_STATE_EVARIABLE  = 7,
+    KSHELL_STATE_VARIABLE,
+    KSHELL_STATE_QVARIABLE,
+    KSHELL_STATE_EVARIABLE,
 
-    KSHELL_STATE_OUTPUT     = 8,
-    KSHELL_STATE_LOUTPUT    = 9,
-    KSHELL_STATE_QOUTPUT    = 10,
-    KSHELL_STATE_LQOUTPUT   = 11,
+    KSHELL_STATE_OUTPUT,
+    KSHELL_STATE_LOUTPUT,
+    KSHELL_STATE_QOUTPUT,
+    KSHELL_STATE_LQOUTPUT,
 
-    KSHELL_STATE_RETVAL     = 12,
-    KSHELL_STATE_QRETVAL    = 13,
+    KSHELL_STATE_RETVAL,
+    KSHELL_STATE_QRETVAL,
 
-    KSHELL_STATE_VARNAME    = 14,
-    KSHELL_STATE_QVARNAME   = 15,
-    KSHELL_STATE_LVARNAME   = 16,
-    KSHELL_STATE_LQVARNAME  = 17,
+    KSHELL_STATE_VARNAME,
+    KSHELL_STATE_QVARNAME,
+    KSHELL_STATE_LVARNAME,
+    KSHELL_STATE_LQVARNAME,
 };
 
 static const struct paser_transition transition_table[] = {
@@ -51,10 +52,12 @@ static const struct paser_transition transition_table[] = {
     {KSHELL_STATE_TEXT,       KSHELL_STATE_QUOTE,      '\'',    0,  false},
     {KSHELL_STATE_TEXT,       KSHELL_STATE_DQUOTE,      '"',    0,  false},
     {KSHELL_STATE_TEXT,       KSHELL_STATE_GRAMMAR,     '{',  + 1,  false},
+    {KSHELL_STATE_TEXT,       KSHELL_STATE_IGNORE,      '<',    0,  false},
     {KSHELL_STATE_ESC,        KSHELL_STATE_TEXT,       '\0',    0,   true},
     {KSHELL_STATE_QUOTE,      KSHELL_STATE_TEXT,       '\'',    0,  false},
     {KSHELL_STATE_DQUOTE,     KSHELL_STATE_TEXT,        '"',    0,  false},
     {KSHELL_STATE_GRAMMAR,    KSHELL_STATE_TEXT,        '}',  - 1,  false},
+    {KSHELL_STATE_IGNORE,     KSHELL_STATE_TEXT,        '>',    0,  false},
 
     {KSHELL_STATE_TEXT,       KSHELL_STATE_VARIABLE,    '$',    0,  false},
     {KSHELL_STATE_DQUOTE,     KSHELL_STATE_QVARIABLE,   '$',    0,  false},
@@ -117,6 +120,11 @@ static inline bool is_text(enum paser_state nstate, enum paser_state cstate)
     return nstate == KSHELL_STATE_TEXT && cstate != KSHELL_STATE_ESC;
 }
 
+static inline bool is_ignore(enum paser_state nstate, enum paser_state cstate)
+{
+    return nstate == KSHELL_STATE_IGNORE || cstate == KSHELL_STATE_IGNORE;
+}
+
 static enum paser_state parser_state(enum paser_state state, char code, char *result, int *depth)
 {
     const struct paser_transition *major, *minor = NULL;
@@ -142,8 +150,7 @@ static enum paser_state parser_state(enum paser_state state, char code, char *re
 
     if (major && major->depth) {
         *depth += major->depth;
-        if (*depth < 0)
-            *depth = 0;
+        BUG_ON(*depth < 0);
     }
 
     if (!major || major->cross || (*depth && olddepth))
@@ -300,10 +307,13 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
     if (!tbuff)
         return -ENOMEM;
 
-    for (walk = cmdline; *walk; ++walk) {
+    for (walk = cmdline; *walk; cstate = nstate, ++walk) {
         if (!isprint(*walk))
             continue;
+
         nstate = parser_state(cstate, *walk, &code, &depth);
+        if (is_ignore(nstate, cstate))
+            continue;
 
         if (is_variable(cstate) && !is_variable(nstate)) {
             vbuff[vpos] = '\0';
@@ -371,8 +381,6 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
             PARSER_EXP_TBUF(1);
             tbuff[tpos++] = code;
         }
-
-        cstate = nstate;
     }
 
     /* If the last one is a variable, parse it out */
