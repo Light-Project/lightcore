@@ -23,5 +23,7 @@ EXPORT_SYMBOL(lrc_kfree);
 
 void __init lrc_init(void)
 {
-    lrc_cache = KCACHE_CREATE(struct lrc_node, KCACHE_PANIC);
+    lrc_cache = KCACHE_CREATE(
+        struct lrc_node, KCACHE_PANIC
+    );
 }

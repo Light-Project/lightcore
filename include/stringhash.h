@@ -20,7 +20,7 @@
 static __always_inline uint32_t
 fold_hash(unsigned long x, unsigned long y)
 {
-    return __hash32(y ^ __hash32(x));
+    return hashvl(y ^ hashvl(x));
 }
 #else /* BITS_PER_LONG == 64 */
 # define HASH_MIX(x, y, a) (    \
@@ -33,7 +33,7 @@ fold_hash(unsigned long x, unsigned long y)
 static __always_inline uint32_t
 fold_hash(unsigned long x, unsigned long y)
 {
-    return __hash64(y ^ __hash64(x)) >> 32;
+    return hashvl(y ^ hashvl(x)) >> 32;
 }
 #endif /* BITS_PER_LONG == 64 */
 
