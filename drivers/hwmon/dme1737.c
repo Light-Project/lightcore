@@ -11,6 +11,7 @@
 #include <kmalloc.h>
 #include <timekeeping.h>
 #include <driver/isa.h>
+#include <driver/led.h>
 #include <driver/hwmon.h>
 #include <driver/hwmon/dme1737.h>
 
@@ -141,6 +142,10 @@ struct dme1737_device {
     struct isa_device *isa;
     struct mutex lock;
 
+#ifdef CONFIG_LED_DME1737
+    struct led_device led[2];
+#endif
+
     resource_size_t sio;
     resource_size_t runtime;
 
@@ -221,6 +226,24 @@ dme1737_hwm_write(struct dme1737_device *dme1737, uint8_t index, uint8_t data)
     resource_size_t base = dme1737->runtime + DME1737_RTM_HWM_ADDR;
     dme1737_index_write(base, index, data);
 }
+
+static __always_inline uint8_t
+dme1737_rtm_read(struct dme1737_device *dme1737, uint8_t index)
+{
+    resource_size_t base = dme1737->runtime;
+    return inb(base + index);
+}
+
+static __always_inline void
+dme1737_rtm_write(struct dme1737_device *dme1737, uint8_t index, uint8_t data)
+{
+    resource_size_t base = dme1737->runtime;
+    outb(base + index, data);
+}
+
+#ifdef CONFIG_LED_DME1737
+# include "dme1737-led.c"
+#endif /* LED_DME1737 */
 
 static __always_inline int
 dme1737_regin(int reg, unsigned int nominal, unsigned int res)
@@ -400,7 +423,7 @@ static state dme1737_write(struct hwmon_device *hdev, enum hwmon_sensor sensor,
     return -ENOERR;
 }
 
-static struct hwmon_ops dme1737_ops = {
+static struct hwmon_ops dme1737_hwmon_ops = {
     .string = dme1737_string,
     .read = dme1737_read,
     .write = dme1737_write,
@@ -440,13 +463,17 @@ static state dme1737_probe(struct isa_device *idev, unsigned int index, const vo
     state retval;
 
     dme1737->hwmon.dev = &idev->dev;
-    dme1737->hwmon.ops = &dme1737_ops;
+    dme1737->hwmon.ops = &dme1737_hwmon_ops;
     dme1737->hwmon.info = dme1737_info;
     isa_set_devdata(idev, dme1737);
 
-    retval = dme1737_hwinit(dme1737);
-    if (retval)
+    if ((retval = dme1737_hwinit(dme1737)))
         return retval;
+
+#ifdef CONFIG_LED_DME1737
+    if ((retval = dme1737_led_probe(dme1737)))
+        return retval;
+#endif
 
     return hwmon_register(&dme1737->hwmon);
 }

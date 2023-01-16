@@ -80,6 +80,11 @@ enum dme1737_devid {
 #define DME1737_HWM_FMAX(idx) (DME1737_HWM_TLMAX + (idx) * 2)
 #define DME1737_HWM_FOPT(idx) (DME1737_HWM_ADLSB + (idx))
 
+#define DME1737_RTM_LED_OFF             0x00
+#define DME1737_RTM_LED_BLANK0          0x01
+#define DME1737_RTM_LED_BLANK1          0x02
+#define DME1737_RTM_LED_ON              0x03
+
 #define DME1737_HWM_CONFIG_VBAT_MON     BIT(4)
 #define DME1737_HWM_CONFIG_OVRID        BIT(3)
 #define DME1737_HWM_CONFIG_READY        BIT(2)

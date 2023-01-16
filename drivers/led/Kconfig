@@ -6,8 +6,12 @@ if LED
 source "drivers/led/trigger/Kconfig"
 
 config LED_GPIO
-    bool "GPIO Led Bridge"
+    bool "GPIO LED Bridge"
     depends on DT
     default y
+
+config LED_DME1737
+    bool "DME1737 LED"
+    depends on HWMON_DME1737
 
 endif
