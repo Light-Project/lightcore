@@ -57,11 +57,11 @@ uint64_t hash64(uint64_t value, unsigned int bits)
 
 #if BITS_PER_LONG == 32
 # define GOLDEN_RATIO_LONG GOLDEN_RATIO_32
-# define hashvl(value, bits) hashv32(value, bits)
+# define hashvl(value) hashv32(value)
 # define hashl(value, bits) hash32(value, bits)
 #else /* BITS_PER_LONG == 64 */
 # define GOLDEN_RATIO_LONG GOLDEN_RATIO_64
-# define hashvl(value, bits) hashv64(value, bits)
+# define hashvl(value) hashv64(value)
 # define hashl(value, bits) hash64(value, bits)
 #endif
 
