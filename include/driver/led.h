@@ -16,8 +16,8 @@ enum led_default_state {
  * @dev: points to the parent device of the led device.
  * @ops: operations method of led device.
  * @list: linked list for centralized management of led device.
- * @trigger_list: linked list for trigger management led device.
  * @trigger: the triggers currently used by led device.
+ * @trigger_list: linked list for trigger management led device.
  * @brightness: the brightness of the current led device.
  * @max_brightness: the maximum brightness of the led device.
  * @default_state: default state of led device.
@@ -28,8 +28,11 @@ struct led_device {
     struct fwnode *fwnode;
     struct led_ops *ops;
     struct list_head list;
-    struct list_head trigger_list;
+
     struct led_trigger *trigger;
+    struct list_head trigger_list;
+    const char *default_trigger;
+
     enum led_brightness brightness;
     enum led_brightness max_brightness;
     enum led_default_state default_state;

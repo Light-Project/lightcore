@@ -64,8 +64,12 @@ state led_trigger_activate(struct led_device *ldev)
     state retval;
 
     if (fwnode_attribute_read_string(ldev->fwnode, "default-trigger", &name)) {
-        led_debug(ldev, "device have not default trigger\n");
-        return -ENOERR;
+        if (ldev->default_trigger)
+            name = ldev->default_trigger;
+        else {
+            led_debug(ldev, "device have not default trigger\n");
+            return -ENOERR;
+        }
     }
 
     trigger = led_trigger_find(name);
@@ -91,7 +95,8 @@ void led_trigger_deactivate(struct led_device *ldev)
 {
     struct led_trigger *trigger;
 
-    if ((trigger = ldev->trigger))
+    trigger = ldev->trigger;
+    if (!trigger)
         return;
 
     trigger->deactivate(ldev);
