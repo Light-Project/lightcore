@@ -132,7 +132,8 @@ void minpool_free(struct minpool_head *head, void *block)
     /* Merge next node */
     other = list_next_entry_or_null(node, &head->block_list, block);
     if (other && !gnode_get_used(other)) {
-        gnode_set_size(node, sizeof(*other) + gnode_get_size(node));
+        gnode_set_size(node, gnode_get_size(node) +
+            sizeof(*other) + gnode_get_size(other));
         list_del(&other->block);
         list_del(&other->free);
         head->avail += sizeof(*other);
@@ -141,7 +142,8 @@ void minpool_free(struct minpool_head *head, void *block)
     /* Merge previous node */
     other = list_prev_entry_or_null(node, &head->block_list, block);
     if (other && !gnode_get_used(other)) {
-        gnode_set_size(other, sizeof(*node) + gnode_get_size(node));
+        gnode_set_size(other, gnode_get_size(other) +
+            sizeof(*node) + gnode_get_size(node));
         list_del(&node->block);
         list_del(&node->free);
         head->avail += sizeof(*node);
