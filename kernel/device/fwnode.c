@@ -4,14 +4,19 @@
  */
 
 #include <fwnode.h>
+#include <mhelper.h>
 #include <export.h>
 
 #define GENERIC_FWNODE_NAME(name, operation, rtype, errval, args, ...)  \
 rtype fwnode_##name(const struct fwnode *node, ##__VA_ARGS__)           \
 {                                                                       \
-    struct fwnode_ops *ops = node->ops;                                 \
+    struct fwnode_ops *ops;                                             \
                                                                         \
-    if (!ops || !ops->operation)                                        \
+    if (unlikely(!node))                                                \
+        return errval;                                                  \
+                                                                        \
+    ops = node->ops;                                                    \
+    if (unlikely(!ops || !ops->operation))                              \
         return errval;                                                  \
                                                                         \
     return ops->operation args;                                         \
@@ -152,4 +157,3 @@ GENERIC_DEVICE_VALUE_OP(u8, uint8_t);
 GENERIC_DEVICE_VALUE_OP(u16, uint16_t);
 GENERIC_DEVICE_VALUE_OP(u32, uint32_t);
 GENERIC_DEVICE_VALUE_OP(u64, uint64_t);
-
