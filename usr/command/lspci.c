@@ -24,10 +24,14 @@ static void usage(struct kshell_context *ctx)
 }
 
 static void lspci_device_show(struct kshell_context *ctx, unsigned int bus, unsigned int devfn,
-                              uint16_t class, uint16_t vendor, uint16_t device)
+                              uint32_t class, uint8_t revision, uint16_t vendor, uint16_t device)
 {
-    kshell_printf(ctx, "%02u:%02u.%u Class %#06x: %#06x:%#06x\n",
-        bus, PCI_SLOT(devfn), PCI_FUNC(devfn), class, vendor, device);
+    if (revision)
+        kshell_printf(ctx, "%02u:%02u.%u Class %06x: %04x:%04x (rev %02x)\n",
+                      bus, PCI_SLOT(devfn), PCI_FUNC(devfn), class, vendor, device, revision);
+    else
+        kshell_printf(ctx, "%02u:%02u.%u Class %06x: %04x:%04x\n",
+                      bus, PCI_SLOT(devfn), PCI_FUNC(devfn), class, vendor, device);
 }
 
 static void lspci_device_dump(struct kshell_context *ctx, uint8_t flags, unsigned int bus, unsigned int devfn)
@@ -55,10 +59,12 @@ static void lspci_device_dump(struct kshell_context *ctx, uint8_t flags, unsigne
     kshell_putc(ctx, '\n');
 }
 
-static bool lspci_scan_device(struct kshell_context *ctx, uint8_t flags, unsigned int bus, unsigned int devfn)
+static bool lspci_scan_device(struct kshell_context *ctx, uint8_t flags,
+                              unsigned int bus, unsigned int devfn)
 {
     uint16_t vendor, device;
     uint32_t value, class;
+    uint8_t revision;
 
     if (pci_raw_config_read(0, bus, devfn, PCI_VENDOR_ID, sizeof(value), &value) ||
         pci_raw_config_read(0, bus, devfn, PCI_CLASS_REVISION, sizeof(class), &class))
@@ -70,9 +76,11 @@ static bool lspci_scan_device(struct kshell_context *ctx, uint8_t flags, unsigne
 
     vendor = value & 0xffff;
     device = (value >> 16) & 0xffff;
+
+    revision = class & 0xff;
     class >>= 8;
 
-    lspci_device_show(ctx, bus, devfn, class, vendor, device);
+    lspci_device_show(ctx, bus, devfn, class, revision, vendor, device);
     lspci_device_dump(ctx, flags, bus, devfn);
 
     return true;
