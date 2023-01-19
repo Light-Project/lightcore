@@ -115,6 +115,7 @@ EXPORT_SYMBOL(minpool_alloc);
 void minpool_free(struct minpool_head *head, void *block)
 {
     struct minpool_node *other, *node;
+    size_t fsize;
 
     if (unlikely(!block))
         return;
@@ -125,25 +126,27 @@ void minpool_free(struct minpool_head *head, void *block)
         return;
 
     /* Set node freed */
-    head->avail += gnode_get_size(node);
     gnode_set_used(node, false);
     list_add(&head->free_list, &node->free);
+
+    fsize = gnode_get_size(node);
+    head->avail += fsize;
 
     /* Merge next node */
     other = list_next_entry_or_null(node, &head->block_list, block);
     if (other && !gnode_get_used(other)) {
-        gnode_set_size(node, gnode_get_size(node) +
-            sizeof(*other) + gnode_get_size(other));
+        /* node size = this node + next node + next size */
+        gnode_set_size(node, fsize + sizeof(*other) + gnode_get_size(other));
         list_del(&other->block);
         list_del(&other->free);
         head->avail += sizeof(*other);
     }
 
-    /* Merge previous node */
+    /* Merge prev node */
     other = list_prev_entry_or_null(node, &head->block_list, block);
     if (other && !gnode_get_used(other)) {
-        gnode_set_size(other, gnode_get_size(other) +
-            sizeof(*node) + gnode_get_size(node));
+        /* prev size = prev size + this node + this size */
+        gnode_set_size(other, gnode_get_size(other) + sizeof(*node) + fsize);
         list_del(&node->block);
         list_del(&node->free);
         head->avail += sizeof(*node);
