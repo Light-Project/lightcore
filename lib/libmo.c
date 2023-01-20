@@ -134,6 +134,9 @@ state libmo_verify(const struct libmo_context *ctx)
     unsigned int index;
     state retval;
 
+    if (!ctx->data)
+        return -EINVAL;
+
     /* Verify that the array of messages is sorted. */
     for (index = 0; index < ctx->index_num; ++index) {
         msgid = get_string(ctx, LIBMO_ORIG_OFFSET(ctx, index), NULL);
@@ -231,6 +234,9 @@ const char *libmo_lookup(const struct libmo_context *ctx, const char *orig, size
     uint32_t hashval, entry, incr, value;
     size_t msglen, tranlen;
     state retval;
+
+    if (!ctx->data)
+        return ERR_PTR(-EINVAL);
 
     hashval = pjwhash(orig);
     entry = hashval % ctx->hash_size;
