@@ -21,7 +21,7 @@
 #define ATASIM_TIMEOUT  5000
 
 struct atasim_host {
-    spinlock_t lock;
+    struct mutex lock;
     resource_size_t cmd, ctl;
     struct pci_device *pdev;
     struct list_head ports;
@@ -263,6 +263,7 @@ static state atasim_report_error(struct atasim_host *host)
 
     return retval;
 }
+
 static state atasim_transfer(struct atasim_host *host, void *buffer,
                              unsigned int count, bool iswrite)
 {
@@ -336,7 +337,6 @@ static state atasim_enqueue(struct block_device *bdev, struct block_request *bre
     struct atasim_host *host = port->host;
     struct atasim_cmd atacmd = {};
     sector_t lba = breq->sector;
-    irqflags_t irqflags;
     state retval = -ENOERR;
     bool needext = false;
 
@@ -349,15 +349,21 @@ static state atasim_enqueue(struct block_device *bdev, struct block_request *bre
         needext = true;
     }
 
-    if (breq->type == BLK_REQ_READ) {
-        atacmd.command = needext ?
-            ATA_CMD_READ_SECTORS_EXT : ATA_CMD_READ_SECTORS_WITH_RETRY;
-    } else if (breq->type == BLK_REQ_WRITE) {
-        atacmd.command = needext ?
-            ATA_CMD_WRITE_SECTORS_EXT : ATA_CMD_WRITE_SECTORS_WITH_RETRY;
-    } else {
-        pci_warn(host->pdev, "host%d:port%d request not supported\n", host->host, port->port);
-        return -EINVAL;
+    switch (breq->type) {
+        case BLK_REQ_READ:
+            atacmd.command = needext ? ATA_CMD_READ_SECTORS_EXT :
+                             ATA_CMD_READ_SECTORS_WITH_RETRY;
+            break;
+
+        case BLK_REQ_WRITE:
+            atacmd.command = needext ? ATA_CMD_WRITE_SECTORS_EXT :
+                             ATA_CMD_WRITE_SECTORS_WITH_RETRY;
+            break;
+
+        default:
+            pci_warn(host->pdev, "host%d:port%d request not supported\n",
+                     host->host, port->port);
+            return -EINVAL;
     }
 
     atacmd.sector_count = breq->length;
@@ -366,7 +372,7 @@ static state atasim_enqueue(struct block_device *bdev, struct block_request *bre
     atacmd.lba_high = lba >> 16;
     atacmd.device = ((lba >> 24) & 0xf) | ATA_DEVSEL_LBA;
 
-    spin_lock_irqsave(&host->lock, &irqflags);
+    mutex_lock(&host->lock);
 
     /* disable interrupt */
     atasim_ctl_out(host, ATA_REG_DEVCTL, ATA_DEVCTL_HD15 | ATA_DEVCTL_NIEN);
@@ -384,7 +390,8 @@ static state atasim_enqueue(struct block_device *bdev, struct block_request *bre
 exit:
     /* enable interrupt */
     atasim_ctl_out(host, ATA_REG_DEVCTL, ATA_DEVCTL_HD15);
-    spin_unlock_irqrestore(&host->lock, &irqflags);
+    mutex_unlock(&host->lock);
+
     return retval;
 }
 
@@ -394,9 +401,9 @@ static struct block_ops atasim_ops = {
 
 static void atasim_report_identify(struct atasim_host *host, struct ata_identify_table *table)
 {
-    pci_debug(host->pdev, "  model number: %.40s\n", table->ModelNumber);
-    pci_debug(host->pdev, "  serial number: %.20s\n", table->SerialNumber);
-    pci_debug(host->pdev, "  firmware revision: %.8s\n", table->FirmwareRevision);
+    pci_debug(host->pdev, "\tmodel number: %.40s\n", table->ModelNumber);
+    pci_debug(host->pdev, "\tserial number: %.20s\n", table->SerialNumber);
+    pci_debug(host->pdev, "\tfirmware revision: %.8s\n", table->FirmwareRevision);
 }
 
 static bool atasim_check_atapi(struct atasim_port *port)
@@ -409,7 +416,7 @@ static bool atasim_check_atapi(struct atasim_port *port)
     if (retval)
         return false;
 
-    pci_info(host->pdev, "detected atapi on host%d:port%d:\n",
+    pci_info(host->pdev, "detected atapi on host%d:port%d\n",
              host->host, port->port);
     atasim_report_identify(host, &table);
 
@@ -426,7 +433,7 @@ static bool atasim_check_atadev(struct atasim_port *port)
     if (retval)
         return false;
 
-    pci_info(host->pdev, "detected atadev on host%d:port%d:\n",
+    pci_info(host->pdev, "detected atadev on host%d:port%d\n",
              host->host, port->port);
     atasim_report_identify(host, &table);
 
@@ -444,6 +451,7 @@ static bool atasim_port_setup(struct atasim_port *port)
 
     val = atasmi_devsel(port, 0);
     ndelay(400);
+
     if (!atasim_wait_poweron(host))
         return false;
 
@@ -456,6 +464,9 @@ static bool atasim_port_setup(struct atasim_port *port)
         (atasim_cmd_in(host, ATA_REG_LBAL) != 0xaa)  ||
         (atasim_cmd_in(host, ATA_REG_DEVSEL) != val))
         return false;
+
+    pci_debug(host->pdev, "attempt to detect host%d:port%d\n",
+              host->host, port->port);
 
     if (!(atasim_check_atapi(port) || atasim_check_atadev(port)))
         return false;
