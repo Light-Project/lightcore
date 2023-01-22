@@ -13,13 +13,12 @@ static state libcpio_test_testing(struct kshell_context *ctx, void *pdata)
     const void *cpioptr = _ld_romdisk_start;
     struct cpio_data cdata;
     intptr_t offset;
+    state retval;
 
-    while (!cpio_lookup(&cdata, cpioptr, ROMDISK_SIZE, "", &offset)) {
+    cpio_for_each(&cdata, &offset, &retval, cpioptr, ROMDISK_SIZE, NULL)
         kshell_printf(ctx, "libcpio romdisk: %s %lu\n", cdata.name, cdata.size);
-        cpioptr += offset;
-    }
 
-    return -ENOERR;
+    return retval;
 }
 
 static struct selftest_command libcpio_test_command = {
