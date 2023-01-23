@@ -4,17 +4,13 @@
  */
 
 #include <initcall.h>
+#include <callback.h>
 #include <driver/cpuidle.h>
-
-static unsigned int dummy_select(struct cpuidle_device *cdev)
-{
-    return 0;
-}
 
 static struct cpuidle_governor dummy_governor = {
     .name = "dummy",
     .rating = CPUIDLE_RATING_DUMMY,
-    .select = dummy_select,
+    .select = dummy_ret0,
 };
 
 static state haltpoll_init(void)
