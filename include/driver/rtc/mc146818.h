@@ -19,7 +19,11 @@ enum MC146818_Index {
     MC146818_REGISTER_B     = 0x0b,
     MC146818_REGISTER_C     = 0x0c,
     MC146818_REGISTER_D     = 0x0d,
+    MC146818_NVRAM          = 0x0e,
 };
+
+#define MC146818_NVRAM(index) (MC146818_NVRAM + (index))
+#define MC146818_NVRAM_SIZE (0x100 - MC146818_NVRAM)
 
 /****************************************************************************************/
 /*      Mnemonic                    value       meaning/usage                           */
