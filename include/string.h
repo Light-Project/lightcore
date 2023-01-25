@@ -36,8 +36,9 @@ extern char *strnstr(const char *s1, const char *s2, size_t n);
 extern char *strsep(char **s, const char *ct);
 extern char *strim(char *s);
 
-extern char *kstrdup(const char *s, gfp_t gfp);
-extern const char *kstrdup_const(const char *s, gfp_t gfp);
+extern __malloc char *kstrdup(const char *s, gfp_t gfp);
+extern __malloc const char *kstrdup_const(const char *s, gfp_t gfp);
+extern __malloc char *kstrndup(const char *s, size_t max, gfp_t gfp);
 
 /* Memory manipulation */
 extern void *memset(void *s, int c, size_t n);

@@ -24,9 +24,9 @@ char *kstrdup(const char *s, gfp_t gfp)
 
     block = kmalloc(strlen(s) + 1, gfp);
     if (block)
-        return strcpy(block, s);
+        strcpy(block, s);
 
-    return NULL;
+    return block;
 }
 EXPORT_SYMBOL(kstrdup);
 
@@ -38,3 +38,23 @@ const char *kstrdup_const(const char *s, gfp_t gfp)
     return kstrdup(s, gfp);
 }
 EXPORT_SYMBOL(kstrdup_const);
+
+char *kstrndup(const char *s, size_t max, gfp_t gfp)
+{
+    size_t len;
+    char *block;
+
+    if (!s)
+        return NULL;
+
+    len = strnlen(s, max);
+    block = kmalloc(len + 1, gfp);
+
+    if (block) {
+        strncpy(block, s, len);
+        block[len] = '\0';
+    }
+
+    return block;
+}
+EXPORT_SYMBOL(kstrndup);
