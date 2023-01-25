@@ -1,7 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <string.h>
-#include <sections.h>
-#include <kmalloc.h>
 #include <ctype.h>
 #include <export.h>
 
@@ -355,44 +353,6 @@ __weak char *strnstr(const char *s1, const char *s2, size_t n)
 }
 EXPORT_SYMBOL(strnstr);
 
-__weak char *kstrdup(const char *s, gfp_t gfp)
-{
-    char *p;
-
-    if (!s)
-        return NULL;
-
-    p = kmalloc(strlen(s) + 1, gfp);
-    if (p)
-        return strcpy(p, s);
-
-    return NULL;
-}
-EXPORT_SYMBOL(kstrdup);
-
-__weak const char *kstrdup_const(const char *s, gfp_t gfp)
-{
-    if (in_rodata_section(s))
-        return s;
-
-    return kstrdup(s, gfp);
-}
-EXPORT_SYMBOL(kstrdup_const);
-
-__weak char *strdup(const char *s)
-{
-    return kstrdup(s, GFP_KERNEL);
-}
-EXPORT_SYMBOL(strdup);
-
-__weak const char *strdup_const(const char *s)
-{
-    if (in_rodata_section(s))
-        return s;
-
-    return strdup(s);
-}
-EXPORT_SYMBOL(strdup_const);
 
 __weak char *strsep(char **s, const char *ct)
 {

@@ -1,7 +1,17 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-obj-y += init.o memblock.o kmalloc/
-obj-y += page.o region.o model.o mempool.o
-obj-y += vmem.o highmem.o pgalloc.o
-obj-y += vmap.o ioremap.o vmalloc.o
 obj-$(CONFIG_KASAN) += kasan/
+obj-y += kmalloc/
+obj-y += highmem.o
+obj-y += init.o
+obj-y += ioremap.o
+obj-y += memblock.o
+obj-y += mempool.o
 obj-$(CONFIG_MEMTEST) += memtest.o
+obj-y += model.o
+obj-y += page.o
+obj-y += pgalloc.o
+obj-y += region.o
+obj-y += utils.o
+obj-y += vmalloc.o
+obj-y += vmap.o
+obj-y += vmem.o
