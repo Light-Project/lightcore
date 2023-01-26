@@ -62,7 +62,7 @@ static state cmd_main(struct kshell_context *ctx, int argc, char *argv[])
 
     if (count == 1 || (env && !retval)) {
         rb_for_each_entry(env, PROGRAM_CHILD, node)
-            kshell_printf(ctx, "\t%s=%s\n", env->name, env->val);
+            kshell_printf(ctx, "\t%s=%s\n", env->name, env->value);
     }
 
     return retval;

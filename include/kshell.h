@@ -44,7 +44,8 @@ struct kshell_stack {
 
 struct kshell_env {
     struct rb_node node;
-    char *val, name[0];
+    const char *name;
+    const char *value;
 };
 
 struct kshell_func {

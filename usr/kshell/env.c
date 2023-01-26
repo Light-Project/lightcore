@@ -11,51 +11,32 @@
 #include <export.h>
 #include <initcall.h>
 
-static long env_rb_cmp(const struct rb_node *rba, const struct rb_node *rbb)
+static long kshenv_rb_cmp(const struct rb_node *rba, const struct rb_node *rbb)
 {
     const struct kshell_env *enva = env_to_kshell(rba);
     const struct kshell_env *envb = env_to_kshell(rbb);
     return strcmp(enva->name, envb->name);
 }
 
-static long env_rb_find(const struct rb_node *rb, const void *name)
+static long kshenv_rb_find(const struct rb_node *rb, const void *name)
 {
     const struct kshell_env *env = env_to_kshell(rb);
     return strcmp(env->name, name);
 }
 
-static struct kshell_env *interior_find(struct rb_root *head, const char *name)
+static struct kshell_env *kshenv_find(struct rb_root *head, const char *name)
 {
     const struct rb_node *rb;
-    rb = rb_find(head, name, env_rb_find);
+    rb = rb_find(head, name, kshenv_rb_find);
     return rb ? env_to_kshell(rb) : NULL;
 }
 
-static const char *interior_getenv(struct rb_root *head, bool check, const char *name)
+static state kshenv_setval(struct rb_root *head, const char *name,
+                           const char *value, bool overwrite)
 {
     struct kshell_env *env;
 
-    env = interior_find(head, name);
-    if (!env)
-        return NULL;
-
-    return env->val;
-}
-
-static state interior_setenv(struct rb_root *head, bool check,
-                             const char *name, const char *val, bool overwrite)
-{
-    struct kshell_env *env;
-    size_t nlen, vlen;
-
-    if (check) {
-        if (!isalpha(*name))
-            return -EINVAL;
-        if (strchr(name, ' '))
-            return -EINVAL;
-    }
-
-    env = interior_find(head, name);
+    env = kshenv_find(head, name);
     if (env && !overwrite)
         return -ENOERR;
     else if (env) {
@@ -63,50 +44,176 @@ static state interior_setenv(struct rb_root *head, bool check,
         kfree(env);
     }
 
-    nlen = strlen(name) + 1;
-    vlen = strlen(val) + 1;
-
-    env = kmalloc(sizeof(*env) + nlen + vlen, GFP_KERNEL);
+    env = kmalloc(sizeof(*env), GFP_KERNEL);
     if (!env)
         return -ENOMEM;
 
-    env->val = env->name + nlen;
-    strcpy(env->val, val);
-    strcpy(env->name, name);
-    rb_insert(head, &env->node, env_rb_cmp);
+    env->name = name;
+    env->value = value;
+    rb_insert(head, &env->node, kshenv_rb_cmp);
 
     return -ENOERR;
 }
 
-static state interior_putenv(struct rb_root *head, bool check, char *string)
+static size_t kshenv_checkname(const char *name)
 {
-    char *equal;
-    state ret;
+    size_t index;
 
-    equal = strchr(string, '=');
-    if (string == equal)
-        return -EINVAL;
+    /*
+     * Rule 1: "Foo=bar"
+     * Variable name must start with a letter.
+     */
+    if (!isalpha(*name))
+        return 0;
 
-    if (!equal)
-        ret = interior_setenv(head, check, string, "", true);
-    else {
-        *equal = '\0';
-        ret = interior_setenv(head, check, string, equal + 1, true);
-        *equal = '=';
+    /*
+     * Rule 2: "Foo_123=bar"
+     * Variable name can only contain
+     * alphanumeric characters and underscores.
+     */
+    for (index = 0; name[index]; ++index) {
+        if (!isalnum(name[index]) && name[index] != '_')
+            break;
     }
 
-    return ret;
+    return index;
 }
 
-static state interior_unsetenv(struct rb_root *head, bool check, const char *name)
+static const char *generic_getenv(struct rb_root *head, bool check, const char *name)
 {
     struct kshell_env *env;
 
-    env = interior_find(head, name);
+    env = kshenv_find(head, name);
+    if (!env)
+        return NULL;
+
+    return env->value;
+}
+
+static state generic_setenv(struct rb_root *head, bool check, const char *name,
+                            const char *value, bool overwrite)
+{
+    const char *nname, *nvalue;
+    state retval, namelen;
+
+    if (check) {
+        namelen = kshenv_checkname(name);
+        if (!namelen)
+            return -EINVAL;
+        if (namelen != strlen(name))
+            return -EINVAL;
+    }
+
+    nname = kstrdup_const(name, GFP_KERNEL);
+    nvalue = kstrdup_const(value, GFP_KERNEL);
+
+    if (!nname || !nvalue) {
+        retval = -ENOMEM;
+        goto failed;
+    }
+
+    retval = kshenv_setval(head, nname, nvalue, overwrite);
+    if (retval)
+        goto failed;
+
+    return -ENOERR;
+
+failed:
+    kfree_const(nname);
+    kfree_const(nvalue);
+    return retval;
+}
+
+static state generic_putenv(struct rb_root *head, bool check, const char *string)
+{
+    const char *name, *value = NULL;
+    size_t namelen;
+    state retval;
+
+    namelen = kshenv_checkname(string);
+    if (!namelen)
+        return -EINVAL;
+
+    name = kstrndup(string, namelen, GFP_KERNEL);
+    if (!name)
+        return -ENOMEM;
+
+    if (!string[namelen]) {
+        retval = kshenv_setval(head, name, "", true);
+        if (retval) {
+            retval = -ENOMEM;
+            goto failed;
+        }
+
+        return -ENOERR;
+    }
+
+    if (string[namelen] == '=') {
+        value = kstrdup_const(string + namelen + 1, GFP_KERNEL);
+        if (!value) {
+            retval = -ENOMEM;
+            goto failed;
+        }
+
+        retval = kshenv_setval(head, name, value, true);
+        if (retval) {
+            retval = -ENOMEM;
+            goto failed;
+        }
+
+        return -ENOERR;
+    }
+
+    if (string[namelen + 1] != '=') {
+        retval = -EINVAL;
+        goto failed;
+    }
+
+    value = kstrdup_const(string + namelen + 2, GFP_KERNEL);
+    if (!value) {
+        retval = -ENOMEM;
+        goto failed;
+    }
+
+    switch (string[namelen]) {
+        case '?':
+            retval = kshenv_setval(head, name, value, false);
+            if (retval)
+                goto failed;
+            break;
+
+        case ':':
+            if (!kshenv_find(head, name))
+                break;
+            retval = kshenv_setval(head, name, value, true);
+            if (retval)
+                goto failed;
+            break;
+
+        default:
+            retval = -EINVAL;
+            goto failed;
+    }
+
+    return -ENOERR;
+
+failed:
+    kfree(name);
+    kfree_const(value);
+    return retval;
+}
+
+static state generic_unsetenv(struct rb_root *head, bool check, const char *name)
+{
+    struct kshell_env *env;
+
+    env = kshenv_find(head, name);
     if (!env)
         return -ENODATA;
 
     rb_delete(head, &env->node);
+    kfree_const(env->value);
+    kfree_const(env->name);
     kfree(env);
 
     return -ENOERR;
@@ -117,7 +224,7 @@ rtype kshell_##name                                                         \
 (struct kshell_context *ctx, MMAP_DECLN(argnr, MARGFN_DECL, __VA_ARGS__))   \
 {                                                                           \
     struct rb_root *head = child;                                           \
-    return interior_##func(head, check,                                     \
+    return generic_##func(head, check,                                      \
            MMAP_DECLN(argnr, MARGFN_ARGS, __VA_ARGS__));                    \
 }                                                                           \
 EXPORT_SYMBOL(kshell_##name)
@@ -125,20 +232,32 @@ EXPORT_SYMBOL(kshell_##name)
 #define GENERIC_ENV_OPS(name, func, child, check, rtype, ...) \
     GENERIC_ENV_NOPS(name, func, child, check, rtype, COUNT_ARGS(__VA_ARGS__), __VA_ARGS__)
 
-GENERIC_ENV_OPS(global_get, getenv, &ctx->env, true, const char *, const char *);
-GENERIC_ENV_OPS(global_set, setenv, &ctx->env, true, state, const char *, const char *, bool);
-GENERIC_ENV_OPS(global_put, putenv, &ctx->env, true, state, char *);
-GENERIC_ENV_OPS(global_unset, unsetenv, &ctx->env, true, state, const char *);
+GENERIC_ENV_OPS(global_get, getenv, &ctx->env,
+                true, const char *, const char *);
+GENERIC_ENV_OPS(global_set, setenv, &ctx->env,
+                true, state, const char *, const char *, bool);
+GENERIC_ENV_OPS(global_put, putenv, &ctx->env,
+                true, state, char *);
+GENERIC_ENV_OPS(global_unset, unsetenv, &ctx->env,
+                true, state, const char *);
 
-GENERIC_ENV_OPS(local_get, getenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env, true, const char *, const char *);
-GENERIC_ENV_OPS(local_set, setenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env, true, state, const char *, const char *, bool);
-GENERIC_ENV_OPS(local_put, putenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env, true, state, char *);
-GENERIC_ENV_OPS(local_unset, unsetenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env, true, state, const char *);
+GENERIC_ENV_OPS(local_get, getenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env,
+                true, const char *, const char *);
+GENERIC_ENV_OPS(local_set, setenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env,
+                true, state, const char *, const char *, bool);
+GENERIC_ENV_OPS(local_put, putenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env,
+                true, state, char *);
+GENERIC_ENV_OPS(local_unset, unsetenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env,
+                true, state, const char *);
 
-GENERIC_ENV_OPS(symbol_get, getenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env, false, const char *, const char *);
-GENERIC_ENV_OPS(symbol_set, setenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env, false, state, const char *, const char *, bool);
-GENERIC_ENV_OPS(symbol_put, putenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env, false, state, char *);
-GENERIC_ENV_OPS(symbol_unset, unsetenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env, false, state, const char *);
+GENERIC_ENV_OPS(symbol_get, getenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env,
+                false, const char *, const char *);
+GENERIC_ENV_OPS(symbol_set, setenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env,
+                false, state, const char *, const char *, bool);
+GENERIC_ENV_OPS(symbol_put, putenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env,
+                false, state, char *);
+GENERIC_ENV_OPS(symbol_unset, unsetenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env,
+                false, state, const char *);
 
 #define GENERIC_ENV_STACK(name, child)                                  \
 state kshell_##name##_push(struct kshell_context *ctx)                  \
@@ -220,8 +339,11 @@ static void kshell_env_destory(struct kshell_context *ctx)
 {
     struct kshell_env *env, *tmp;
 
-    rb_post_for_each_entry_safe(env, tmp, &ctx->env, node)
+    rb_post_for_each_entry_safe(env, tmp, &ctx->env, node) {
+        kfree_const(env->value);
+        kfree_const(env->name);
         kfree(env);
+    }
 
     kshell_local_pop(ctx);
     kshell_symbol_pop(ctx);
@@ -238,7 +360,7 @@ static state kshell_env_clone(struct kshell_context *ctx, struct kshell_context 
     kshell_symbol_push(ctx);
 
     rb_for_each_entry(env, &old->env, node) {
-        if (kshell_setenv(ctx, env->name, env->val, true)) {
+        if (kshell_setenv(ctx, env->name, env->value, true)) {
             kshell_local_pop(ctx);
             kshell_env_destory(ctx);
             return -ENOMEM;
