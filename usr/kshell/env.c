@@ -130,7 +130,16 @@ static state generic_putenv(struct rb_root *head, bool check, const char *string
     size_t namelen;
     state retval;
 
-    namelen = kshenv_checkname(string);
+    if (check)
+        namelen = kshenv_checkname(string);
+    else {
+        name = strchr(string, '=');
+        if (name)
+            namelen = name - string;
+        else
+            namelen = strlen(string);
+    }
+
     if (!namelen)
         return -EINVAL;
 
