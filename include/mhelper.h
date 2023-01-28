@@ -12,17 +12,17 @@
 #define MMAP_ARGN(n, fn, ...) MMAP_ARG##n(fn, ##__VA_ARGS__)
 
 #define MMAP_DECL0(fn, ...)
-#define MMAP_DECL1(fn, type, ...) fn(type, a)
-#define MMAP_DECL2(fn, type, ...) fn(type, b), MMAP_DECL1(fn, ##__VA_ARGS__)
-#define MMAP_DECL3(fn, type, ...) fn(type, c), MMAP_DECL2(fn, ##__VA_ARGS__)
-#define MMAP_DECL4(fn, type, ...) fn(type, d), MMAP_DECL3(fn, ##__VA_ARGS__)
-#define MMAP_DECL5(fn, type, ...) fn(type, e), MMAP_DECL4(fn, ##__VA_ARGS__)
-#define MMAP_DECL6(fn, type, ...) fn(type, f), MMAP_DECL5(fn, ##__VA_ARGS__)
+#define MMAP_DECL1(fn, type, ...) fn(type, __arg1)
+#define MMAP_DECL2(fn, type, ...) fn(type, __arg2), MMAP_DECL1(fn, ##__VA_ARGS__)
+#define MMAP_DECL3(fn, type, ...) fn(type, __arg3), MMAP_DECL2(fn, ##__VA_ARGS__)
+#define MMAP_DECL4(fn, type, ...) fn(type, __arg4), MMAP_DECL3(fn, ##__VA_ARGS__)
+#define MMAP_DECL5(fn, type, ...) fn(type, __arg5), MMAP_DECL4(fn, ##__VA_ARGS__)
+#define MMAP_DECL6(fn, type, ...) fn(type, __arg6), MMAP_DECL5(fn, ##__VA_ARGS__)
 #define MMAP_DECLN(n, fn, ...) MMAP_DECL##n(fn, ##__VA_ARGS__)
 
-#define MARGFN_DECL(type, arg)  type arg
-#define MARGFN_LONG(type, arg)  long arg
-#define MARGFN_ARGS(type, arg)  arg
-#define MARGFN_CAST(type, arg)  (type) arg
+#define MARGFN_DECL(type, arg) type arg
+#define MARGFN_LONG(type, arg) long arg
+#define MARGFN_ARGS(type, arg) arg
+#define MARGFN_CAST(type, arg) (type) arg
 
 #endif  /* _MHELPER_H_ */
