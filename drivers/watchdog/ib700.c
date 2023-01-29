@@ -32,7 +32,7 @@ static state ib700wdt_start(struct watchdog_device *wdev)
 static state ib700wdt_stop(struct watchdog_device *wdev)
 {
     struct ib700wdt_device *idev = watchdog_to_ib700wdt(wdev);
-    outb_p(idev->base + IB700_WDT_CLEAR, 0xff);
+    outb_p(idev->base + IB700_WDT_CLEAR, 0x5a); /* Any value */
     return -ENOERR;
 }
 
@@ -53,7 +53,6 @@ static state ib700wdt_timeout_set(struct watchdog_device *wdev, unsigned int sec
 static struct watchdog_ops ib700wdt_ops = {
     .start = ib700wdt_start,
     .stop = ib700wdt_stop,
-    .feed = ib700wdt_start,
     .timeout_get = ib700wdt_timeout_get,
     .timeout_set = ib700wdt_timeout_set,
 };
@@ -70,6 +69,8 @@ static state ib700wdt_probe(struct platform_device *pdev, const void *pdata)
         return -ENOMEM;
 
     idev->base = platform_resource_start(pdev, 0);
+    idev->timeout = 30;
+
     idev->watchdog.dev = &pdev->dev;
     idev->watchdog.ops = &ib700wdt_ops;
     idev->watchdog.timeout_min = 0;

@@ -52,6 +52,13 @@
             compatible = "intel,piix-power";
             reg = <0x0cf9 0x01>;
         };
+
+#ifdef CONFIG_WATCHDOG_IB700
+        wdt@441 {
+            compatible = "ibase,ib700-wdt";
+            reg = <0x0441 0x03>;
+        };
+#endif
     };
 
     board {
