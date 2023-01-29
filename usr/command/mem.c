@@ -614,7 +614,7 @@ pass:
     }
 
     if (fmt == 'x')
-        sprintf(buff, "0x%%0%d%c", align, fmt);
+        sprintf(buff, "%%#0%d%c", align, fmt);
     else
         sprintf(buff, "%%-%d%c", align, fmt);
 
@@ -831,7 +831,7 @@ pass:
     }
 
     if (fmt == 'x')
-        sprintf(buff, "0x%%0%d%c", align, fmt);
+        sprintf(buff, "%%#0%d%c", align, fmt);
     else
         sprintf(buff, "%%-%d%c", align, fmt);
 
