@@ -7,19 +7,26 @@
 #include <driver/platform.h>
 #include <driver/watchdog.h>
 
-static LIST_HEAD(watchdog_list);
+LIST_HEAD(watchdog_list);
+SPIN_LOCK(watchdog_lock);
 
 state watchdog_register(struct watchdog_device *wdev)
 {
-    if (!wdev->ops->feed)
+    if (!wdev->dev || !wdev->ops)
         return -EINVAL;
+
+    spin_lock(&watchdog_lock);
+    list_add(&watchdog_list, &wdev->list);
+    spin_unlock(&watchdog_lock);
 
     return -ENOERR;
 }
 
 void watchdog_unregister(struct watchdog_device *wdev)
 {
-
+    spin_lock(&watchdog_lock);
+    list_del(&wdev->list);
+    spin_unlock(&watchdog_lock);
 }
 
 static __init state watchdog_init(void)

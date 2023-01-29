@@ -3,19 +3,22 @@ menuconfig WATCHDOG
     bool "Watchdog Device Support"
 if WATCHDOG
 
+config WATCHDOG_POWER
+    bool "Watchdog power operations"
+    default y
+
 config WATCHDOG_ESP8266
-    bool "ESP8266 Watchdog Support"
+    bool "ESP8266 Watchdog"
 
 config WATCHDOG_GX6605S
-    bool "GX6605S Watchdog Support"
+    bool "GX6605S Watchdog"
     select POWER
 
 config WATCHDOG_IB700
-    bool "Ibase IB700 Watchdog Support"
+    bool "Ibase IB700 Watchdog"
 
 config WATCHDOG_TCO
-    bool "Intel TCO Watchdog Support"
+    bool "Intel TCO Watchdog"
     depends on ARCH_X86 && MFD_ICH
 
 endif
-
