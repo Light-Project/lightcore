@@ -6,10 +6,12 @@
 # Include dtb rule
 include $(build_home)/modules/dtb_rule.mk
 
-DTC_INCLUDE = include
+include_path = include
+include_file = include/generated/autoconf.h
 
 dtc_cpp_flags += -Wp,-MMD,$(depfile).pre.tmp -nostdinc -undef -D__DTS__
-dtc_cpp_flags += $(addprefix -I,$(DTC_INCLUDE))
+dtc_cpp_flags += $(addprefix -I,$(include_path))
+dtc_cpp_flags += $(addprefix -include,$(include_file))
 dtc_tmp = $(subst $(comma),_,$(dot-target).dts.tmp)
 
 DTC_FLAGS += -Wno-interrupt_provider
