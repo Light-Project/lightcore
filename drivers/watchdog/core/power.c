@@ -66,12 +66,10 @@ static state wdtpower_init(void)
 {
     struct platform_device *pdev;
 
-    wdtpower_reset(NULL);
     pdev = platform_unified_register(&wdtpower_driver, NULL, 0);
     if (IS_INVAL(pdev))
         return PTR_INVAL(pdev);
 
     return -ENOERR;
 }
-// framework_initcall(wdtpower_init);
 driver_initcall_sync(wdtpower_init);
