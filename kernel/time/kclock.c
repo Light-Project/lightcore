@@ -41,7 +41,7 @@ static inline uint64_t kclock_get_delta(struct kclock_data *kclock)
     return nsecs;
 }
 
-static void kclock_forward(struct kclock_data *kclock)
+static uint64_t kclock_forward(struct kclock_data *kclock)
 {
     uint64_t cycle_now, nsecs;
 
@@ -50,7 +50,7 @@ static void kclock_forward(struct kclock_data *kclock)
             kclock->mask, kclock->mult, kclock->shift);
 
     kclock->base = nsecs;
-    kclock->cycle_last = cycle_now;
+    return cycle_now;
 }
 
 void kclock_register(uint64_t (*read)(void), uint64_t freq, uint64_t mask)
@@ -66,7 +66,7 @@ void kclock_register(uint64_t (*read)(void), uint64_t freq, uint64_t mask)
     spin_lock_irqsave(&kclock_lock, &irqflags);
     seqlock_write_start(&kclock_seq);
 
-    if (!(changed = !(kclock.freq > freq)))
+    if (unlikely(!(changed = !(kclock.freq > freq))))
         goto finish;
 
     kclock_forward(&kclock);
@@ -94,6 +94,22 @@ finish:
     }
 }
 EXPORT_SYMBOL(kclock_register);
+
+void kclock_update(void)
+{
+    irqflags_t irqflags;
+    uint64_t cycle_now;
+
+    spin_lock_irqsave(&kclock_lock, &irqflags);
+    seqlock_write_start(&kclock_seq);
+
+    cycle_now = kclock_forward(&kclock);
+    kclock.cycle_last = cycle_now;
+
+    seqlock_write_end(&kclock_seq);
+    spin_unlock_irqrestore(&kclock_lock, &irqflags);
+}
+EXPORT_SYMBOL(kclock_update);
 
 const struct kclock_data *kclock_read_start(unsigned int *seq)
 {

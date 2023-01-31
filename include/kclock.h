@@ -17,9 +17,11 @@ struct kclock_data {
     unsigned int shift;
 };
 
-extern uint64_t kclock_get(void);
+extern void kclock_register(uint64_t (*read)(void), uint64_t freq, uint64_t mask);
+extern void kclock_update(void);
+
 extern const struct kclock_data *kclock_read_start(unsigned int *seq);
 extern bool kclock_read_retry(unsigned int seq);
-extern void kclock_register(uint64_t (*read)(void), uint64_t freq, uint64_t mask);
+extern uint64_t kclock_get(void);
 
 #endif /* _KCLOCK_H_ */
