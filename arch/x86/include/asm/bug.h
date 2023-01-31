@@ -8,8 +8,8 @@
 
 #ifndef __ASSEMBLY__
 
-#define CRASH_FLAGS(flags) ({ \
-    GENERIC_CRASH_OP(BUG_OPCODE, flags, ""); \
+#define CRASH_FLAGS(flags, info) ({ \
+    GENERIC_CRASH_OP(BUG_OPCODE, flags, info, ""); \
 })
 
 #endif  /* __ASSEMBLY__ */

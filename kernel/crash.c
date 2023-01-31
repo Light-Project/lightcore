@@ -65,6 +65,9 @@ enum crash_type crash_report(uintptr_t addr, struct regs *regs)
     if (!crash_test_ncut_here(crash))
         printk(CRASH_CUT_HERE);
 
+    if (crash->info)
+        pr_crit("%s\n", crash->info);
     pr_crit("Kernel BUG at %s:%u!\n", crash->file, crash->line);
+
     return type;
 }

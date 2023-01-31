@@ -21,6 +21,7 @@ enum crash_flags {
 
 struct crash_entry {
     uintptr_t addr;
+    const char *info;
     const char *file;
     unsigned long flags;
     unsigned int line;
@@ -36,39 +37,57 @@ GENERIC_STRUCT_FLAG(crash, struct crash_entry, flags, done, __CRASH_FLAG_DONE);
 # define CRASH_CUT_HERE "------------[ CUT HERE ]------------\n"
 #endif
 
-#define GENERIC_CRASH_OP(opcode, flags, extra) ({   \
-    asm volatile (                                  \
-        ".pushsection .data.bug_table, \"aw\"   \n" \
-        "1: .long   2f                          \n" \
-        "   .long   %c0                         \n" \
-        "   .long   %c2                         \n" \
-        "   .int    %c1                         \n" \
-		"   .org    1b + %c3                    \n" \
-		".popsection                            \n" \
-        "2: "opcode"\n"extra"                   \n" \
-        : : "i" (__FILE__), "i" (__LINE__),         \
-        "i" (flags),                                \
-        "i" (sizeof(struct crash_entry))            \
-    );                                              \
+#define GENERIC_CRASH_OP(opcode, flags, info, extra) ({ \
+    asm volatile (                                      \
+        ".pushsection .data.bug_table, \"aw\"   \n"     \
+        "1: .long   2f                          \n"     \
+        "   .long   %c2                         \n"     \
+        "   .long   %c0                         \n"     \
+        "   .long   %c3                         \n"     \
+        "   .int    %c1                         \n"     \
+		"   .org    1b + %c4                    \n"     \
+		".popsection                            \n"     \
+        "2: "opcode"\n"extra"                   \n"     \
+        : : "i" (__FILE__), "i" (__LINE__),             \
+            "i" (info), "i" (flags),                    \
+            "i" (sizeof(struct crash_entry))            \
+    );                                                  \
 })
 
 #ifdef CRASH_FLAGS
 
 #ifndef BUG
 # define BUG() ({ \
-    CRASH_FLAGS(0); \
+    CRASH_FLAGS(0, NULL); \
+    unreachable(); \
+})
+#endif
+
+#ifndef BUG_INFO
+# define BUG_MSG(info) ({ \
+    CRASH_FLAGS(0, info); \
     unreachable(); \
 })
 #endif
 
 #ifndef WARN
 # define WARN() \
-    CRASH_FLAGS(CRASH_FLAG_WARNING)
+    CRASH_FLAGS(CRASH_FLAG_WARNING, NULL)
+#endif
+
+#ifndef WARN_INFO
+# define WARN_INFO(info) \
+    CRASH_FLAGS(CRASH_FLAG_WARNING, info)
 #endif
 
 #ifndef WARN_ONCE
 # define WARN_ONCE() \
-    CRASH_FLAGS(CRASH_FLAG_WARNING | CRASH_FLAG_ONCE)
+    CRASH_FLAGS(CRASH_FLAG_WARNING | CRASH_FLAG_ONCE, NULL)
+#endif
+
+#ifndef WARN_INFO_ONCE
+# define WARN_INFO_ONCE(info) \
+    CRASH_FLAGS(CRASH_FLAG_WARNING | CRASH_FLAG_ONCE, info)
 #endif
 
 #endif /* CRASH_FLAGS */
