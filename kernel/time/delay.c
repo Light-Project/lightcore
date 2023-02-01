@@ -14,6 +14,9 @@
 #include <printk.h>
 #include <export.h>
 
+static bool delay_mode;
+static SPIN_LOCK(delay_lock);
+
 void static_call_proc_ndelay(unsigned long nsec)
 {
     proc_ndelay(nsec);
@@ -59,20 +62,21 @@ DEFINE_STATIC_CALL(mdelay, static_call_proc_mdelay);
 
 void delay_change(struct clocksource_device *cdev)
 {
-    static bool delay_mode;
-
+    spin_lock(&delay_lock);
     if (!delay_mode && cdev->rating >= CLOCK_RATING_DESIRED) {
         static_call_update(ndelay, timer_ndelay);
         static_call_update(udelay, timer_udelay);
         static_call_update(mdelay, timer_mdelay);
-        pr_info("change to timer-delay mode\n");
         delay_mode = true;
+        spin_unlock(&delay_lock);
+        pr_info("change to timer-delay mode\n");
     } else if (delay_mode) {
         static_call_update(ndelay, static_call_proc_ndelay);
         static_call_update(udelay, static_call_proc_udelay);
         static_call_update(mdelay, static_call_proc_mdelay);
-        pr_info("change to proc-delay mode\n");
         delay_mode = false;
+        spin_unlock(&delay_lock);
+        pr_info("change to proc-delay mode\n");
     }
 }
 
