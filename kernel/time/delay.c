@@ -14,6 +14,9 @@
 #include <printk.h>
 #include <export.h>
 
+unsigned long loops_per_tick;
+EXPORT_SYMBOL(loops_per_tick);
+
 static bool delay_mode;
 static SPIN_LOCK(delay_lock);
 

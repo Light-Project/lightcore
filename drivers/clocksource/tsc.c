@@ -11,7 +11,7 @@
 #include <driver/platform.h>
 #include <driver/clocksource.h>
 #include <asm/regs.h>
-#include <asm/tsc.h>
+#include <delay.h>
 
 static uint64_t tsc_read(struct clocksource_device *cdev)
 {
@@ -39,12 +39,12 @@ static state tsc_probe(struct platform_device *pdev, const void *pdata)
     platform_set_devdata(pdev, cdev);
 
     kclock_register(
-        tsc_get, (uint64_t)tsc_khz * 1000,
+        tsc_get, (uint64_t)loops_per_tick * 1000,
         BIT_RANGE_ULL(63, 0)
     );
 
     return clocksource_config_register(
-        cdev, (uint64_t)tsc_khz * 1000,
+        cdev, (uint64_t)loops_per_tick * 1000,
         BIT_RANGE_ULL(63, 0)
     );
 }

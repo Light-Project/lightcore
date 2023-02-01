@@ -35,7 +35,7 @@ void arch_proc_const_delay(unsigned long loops)
     asm volatile (
         "mull   %%edx"
         :"=d"(loops), "=&a" (d0)
-        :"1"(loops), "0"(tsc_khz * (1000 / 4))
+        :"1"(loops), "0"(loops_per_tick * (1000 / 4))
     );
 
     arch_proc_do_loop(++loops);

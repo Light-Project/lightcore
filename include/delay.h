@@ -8,6 +8,7 @@
 #include <asm/delay.h>
 
 struct clocksource_device;
+extern unsigned long loops_per_tick;
 
 #ifndef MAX_UDELAY_MS
 # define MAX_UDELAY_MS  5
@@ -24,15 +25,13 @@ static inline void proc_ndelay(unsigned long nsecs)
 #ifndef proc_mdelay
 #define proc_mdelay(msecs) (                            \
     (__builtin_constant_p(n) && (n) <= MAX_UDELAY_MS)   \
-    ? udelay((n) * 1000) : ({                           \                                                \
+    ? udelay((n) * 1000) : ({                           \
         unsigned long __ms = (n);                       \
         while (__ms--)                                  \
             proc_udelay(1000);                          \
     })                                                  \
 )
 #endif
-
-extern unsigned long loops_per_tick;
 
 #ifndef CONFIG_HIRES_TIMER_DELAY
 # define ndelay(nsec) proc_ndelay(nsec)

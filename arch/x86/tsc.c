@@ -18,8 +18,6 @@
 #define PIT_CAL2_MS     100
 #define PIT_CAL2_LOOPS  10000
 
-unsigned long tsc_khz;
-
 static unsigned long pit_get_tsc(unsigned long ms, unsigned int minloop)
 {
     uint64_t t1, t2, last, delta;
@@ -99,7 +97,7 @@ void __init arch_tsc_setup(void)
     if (pittsc_min == ULONG_MAX)
         pr_warn("unable to calibrate against pit\n");
 
-    tsc_khz = pittsc_min;
+    loops_per_tick = pittsc_min;
     gfreq(gbuff, pittsc_min * 1000);
     pr_info("tsc detected %s\n", gbuff);
 }
