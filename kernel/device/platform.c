@@ -290,7 +290,7 @@ struct platform_device *platform_unified_register(struct platform_driver *pdrv, 
     pdev->resources_nr = nres;
     pdev->dev.name = pdrv->driver.name;
 
-    strncpy(pids[0].name, pdrv->driver.name, PLATFORM_NAME_LEN);
+    strlcpy(pids[0].name, pdrv->driver.name, PLATFORM_NAME_LEN);
     memset(&pids[1], 0, sizeof(struct platform_device_id));
     pdrv->platform_table = pids;
 

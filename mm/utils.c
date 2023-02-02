@@ -50,10 +50,8 @@ char *kstrndup(const char *s, size_t max, gfp_t gfp)
     len = strnlen(s, max);
     block = kmalloc(len + 1, gfp);
 
-    if (block) {
-        strncpy(block, s, len);
-        block[len] = '\0';
-    }
+    if (block)
+        strlcpy(block, s, len);
 
     return block;
 }
