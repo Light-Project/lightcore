@@ -5,10 +5,12 @@
 
 #include <irq.h>
 #include <printk.h>
+#include <crash.h>
 
 void __weak irq_undefine_ack(irqnr_t vector)
 {
     pr_crit("unexpected handle %ld can't ack\n", vector);
+    WARN_ONCE();
 }
 
 irqreturn_t irq_undefine_handle(irqnr_t vector, void *data)
