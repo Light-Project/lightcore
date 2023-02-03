@@ -79,8 +79,8 @@
 
         i2c0: i2c-gpio-0 {
             compatible = "i2c-gpio";
-            gpios = <&lpt0_gpio GPIO_PARALLEL_INIT GPIO_ACTIVE_HIGH>,
-                    <&lpt0_gpio GPIO_PARALLEL_SELECT GPIO_ACTIVE_HIGH>;
+            gpios = <&lpt0_gpio GPIO_PARALLEL_INIT GPIO_OPEN_DRAIN>,
+                    <&lpt0_gpio GPIO_PARALLEL_SELECT GPIO_OPEN_DRAIN>;
             i2c-gpio,sda-open-drain;
             i2c-gpio,scl-open-drain;
             i2c-gpio,delay-us = <2>;
