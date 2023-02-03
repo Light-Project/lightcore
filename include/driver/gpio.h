@@ -7,42 +7,42 @@
 #include <asm/gpio.h>
 
 enum gpio_direction {
-    GPIO_DIRECTION_INPUT    = 0,
-    GPIO_DIRECTION_DRAIN    = 1,
-    GPIO_DIRECTION_SOURCE   = 2,
-    GPIO_DIRECTION_PUSH     = 3,
+    GPIO_DIRECTION_INPUT = 0,
+    GPIO_DIRECTION_DRAIN,
+    GPIO_DIRECTION_SOURCE,
+    GPIO_DIRECTION_PUSH,
 };
 
 enum gpio_pull {
-    GPIO_PULL_FLOAT         = 0,
-    GPIO_PULL_UP            = 1,
-    GPIO_PULL_DOWN          = 2,
+    GPIO_PULL_FLOAT = 0,
+    GPIO_PULL_UP,
+    GPIO_PULL_DOWN,
 };
 
 enum gpio_drive {
-    GPIO_DRIVER_WEAKEST     = 0,
-    GPIO_DRIVER_WEAKER      = 1,
-    GPIO_DRIVER_WEAK        = 2,
-    GPIO_DRIVER_STRONG      = 3,
-    GPIO_DRIVER_STRONGER    = 4,
-    GPIO_DRIVER_STRONGEST   = 5,
+    GPIO_DRIVER_WEAKEST = 0,
+    GPIO_DRIVER_WEAKER,
+    GPIO_DRIVER_WEAK,
+    GPIO_DRIVER_STRONG,
+    GPIO_DRIVER_STRONGER,
+    GPIO_DRIVER_STRONGEST,
 };
 
 enum gpio_speed {
-    GPIO_SPEED_SLOWEST      = 0,
-    GPIO_SPEED_SLOWER       = 1,
-    GPIO_SPEED_SLOW         = 2,
-    GPIO_SPEED_FAST         = 3,
-    GPIO_SPEED_FASTER       = 4,
-    GPIO_SPEED_FASTEST      = 5,
+    GPIO_SPEED_SLOWEST = 0,
+    GPIO_SPEED_SLOWER,
+    GPIO_SPEED_SLOW,
+    GPIO_SPEED_FAST,
+    GPIO_SPEED_FASTER,
+    GPIO_SPEED_FASTEST,
 };
 
 enum gpio_channel_flags {
-    __GPIOC_ACTIVE_LOW      = 0,
-    __GPIOC_SOFT_DRAIN      = 1,
-    __GPIOC_SOFT_SOURCE     = 2,
-    __GPIOC_TRANSITORY      = 3,
-    __GPIOC_IS_HOGGED       = 4,
+    __GPIOC_ACTIVE_LOW = 0,
+    __GPIOC_SOFT_DRAIN,
+    __GPIOC_SOFT_SOURCE,
+    __GPIOC_TRANSITORY,
+    __GPIOC_IS_HOGGED,
 };
 
 #define GPIOC_ACTIVE_LOW        BIT(__GPIOC_ACTIVE_LOW)
