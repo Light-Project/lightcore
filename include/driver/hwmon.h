@@ -12,7 +12,7 @@ enum hwmon_sensor {
     HWMON_SENSOR_PWM,
 };
 
-enum hwmon_voltage_attributes {
+enum hwmon_in_attributes {
     HWMON_IN_LABEL,
     HWMON_IN_ENABLE,
     HWMON_IN_DATA,

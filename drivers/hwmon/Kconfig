@@ -4,22 +4,26 @@ menuconfig HWMON
 if HWMON
 
 config HWMON_AMD_K10
-    bool "AMD-K10 Hwmon Support"
+    bool "AMD-K10 Hwmon"
     depends on ARCH_X86
 
 config HWMON_CORETEMP
-    bool "Coretemp Hwmon Support"
+    bool "Intel Coretemp Hwmon"
     depends on ARCH_X86
 
 config HWMON_DELL_SMM
-    bool "Dell-SMM Hwmon Support"
+    bool "Dell-SMM Hwmon"
     depends on ARCH_X86
 
 config HWMON_DHT11
-    bool "DHT11 Hwmon Support"
+    bool "DHT11 Hwmon"
     depends on GPIO
 
 config HWMON_DME1737
-    bool "DME1737 Hwmon Support"
+    bool "DME1737 Hwmon"
+
+config HWMON_PCF8591
+    bool "PCF8591 Hwmon"
+    depends on I2C
 
 endif
