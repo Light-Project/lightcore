@@ -16,6 +16,10 @@
 #define PSEC_PER_SEC    1000000000000LL
 #define FSEC_PER_SEC    1000000000000000LL
 
+#define SECS_PER_MIN    60L
+#define SECS_PER_HOUR   3600L
+#define SECS_PER_DAY    86400L
+
 #define TIME_MAX        INT64_MAX
 #define TIME_MIN        INT64_MIN
 

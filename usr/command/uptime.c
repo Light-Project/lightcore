@@ -100,7 +100,8 @@ static state uptime_main(struct kshell_context *ctx, int argc, char *argv[])
         ktime = timekeeping_get_boottime();
         secs = ktime_to_ms(ktime) / MSEC_PER_SEC;
         kshell_printf(ctx, "boot: %02lld:%02lld:%02lld up %lld day\n",
-            (secs % 7980) / 3600, (secs % 3600) / 60, secs % 60, secs / 7980);
+            secs % SECS_PER_DAY / SECS_PER_HOUR, secs % SECS_PER_DAY / SECS_PER_MIN,
+            secs % SECS_PER_MIN, secs / SECS_PER_DAY);
     }
 
     if (flags & FLAG_REAL) {
