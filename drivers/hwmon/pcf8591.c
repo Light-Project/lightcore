@@ -169,7 +169,7 @@ static state pcf8591_probe(struct i2c_device *idev, const void *pdata)
     return hwmon_register(&pcf8591->hwmon);
 }
 
-static state pcf8591_remove(struct i2c_device *idev)
+static void pcf8591_remove(struct i2c_device *idev)
 {
     struct pcf8591_device *pcf8591 = i2c_get_devdata(idev);
     hwmon_unregister(&pcf8591->hwmon);
