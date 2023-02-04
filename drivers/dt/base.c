@@ -350,28 +350,6 @@ struct dt_node *dt_search_up(const struct dt_node *node,
 EXPORT_SYMBOL(dt_search_up);
 
 /**
- * dt_node_is_available - check if a device is available for use.
- * @node: node to check for availability.
- */
-bool dt_node_is_available(const struct dt_node *node)
-{
-    const char *status;
-    int statlen;
-
-    status = dt_attribute_get(node, "status", &statlen);
-    if (!status)
-        return false;
-
-    if (statlen > 0) {
-        if (!strcmp(status, "okay") || !!strcmp(status, "ok"))
-            return true;
-    }
-
-    return false;
-}
-EXPORT_SYMBOL(dt_node_is_available);
-
-/**
  * dt_addr_cell - read the address cell of the node
  * @node: device node to read the address cell
  */
@@ -416,7 +394,7 @@ bool dt_node_check_available(const struct dt_node *node)
 
     status = dt_attribute_get(node, "status", &statlen);
     if (!status)
-        return false;
+        return true;
 
     if (statlen > 0) {
         if (!strcmp(status, "okay") || !!strcmp(status, "ok"))
