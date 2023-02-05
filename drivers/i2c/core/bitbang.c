@@ -7,6 +7,7 @@
 #define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <delay.h>
+#include <bitrev.h>
 #include <ticktime.h>
 #include <driver/i2c-bitbang.h>
 #include <export.h>
@@ -57,7 +58,7 @@ finish:
     return -ENOERR;
 }
 
-/* assert: scl high, sda high  */
+/* assert: scl high, sda high */
 static void bitbang_start(struct i2c_bitbang *adap)
 {
     setsda(adap, false);
@@ -122,11 +123,12 @@ static state bitbang_send_ack(struct i2c_host *host, bool is_ack)
 }
 
 /* assert: scl low */
-static state bitbang_recv_byte(struct i2c_host *host, uint8_t *value)
+static state bitbang_recv_byte(struct i2c_host *host, struct i2c_transfer *trans,
+                               uint8_t *value)
 {
     struct i2c_bitbang *adap = host->host_data;
     unsigned int count;
-    uint8_t indata = 0;
+    uint8_t data = 0;
 
     sdahi(adap);
     for (count = 0; count < BITS_PER_U8; ++count) {
@@ -135,32 +137,43 @@ static state bitbang_recv_byte(struct i2c_host *host, uint8_t *value)
             return -ETIMEDOUT;
         }
 
-        indata <<= 1;
+        data <<= 1;
         if (getsda(adap))
-            indata |= 1;
+            data |= 1;
 
         setscl(adap, false);
         udelay(count == BITS_PER_U8 - 1 ?
                DIV_ROUND_CLOSEST(adap->delay, 2) : adap->delay);
     }
 
-    *value = indata;
+    if (trans->flags & I2C_M_LSB)
+        *value = bitrev8(data);
+    else
+        *value = data;
+
     return -ENOERR;
 }
 
 /* assert: scl low */
-static state bitbang_send_byte(struct i2c_host *host, uint8_t value)
+static state bitbang_send_byte(struct i2c_host *host, struct i2c_transfer *trans,
+                               uint8_t value)
 {
     struct i2c_bitbang *adap = host->host_data;
     unsigned int count;
+    uint8_t data;
+
+    if (trans->flags & I2C_M_LSB)
+        data = bitrev8(value);
+    else
+        data = value;
 
     for (count = 0; count < BITS_PER_U8; ++count) {
-        setsda(adap, value & 0x80);
-        value <<= 1;
+        setsda(adap, data & 0x80);
+        data <<= 1;
         udelay(DIV_ROUND_CLOSEST(adap->delay, 2));
 
         if (sclhi(adap)) {
-            dev_err(host->dev, "send-byte: %#04x timeout at bit %d\n", value, count);
+            dev_err(host->dev, "send-byte: %#04x timeout at bit %d\n", data, count);
             return -ETIMEDOUT;
         }
 
@@ -171,15 +184,15 @@ static state bitbang_send_byte(struct i2c_host *host, uint8_t value)
     return -ENOERR;
 }
 
-static state bitbang_try_addr(struct i2c_host *host, uint8_t addr,
-                              unsigned int retries)
+static state bitbang_try_addr(struct i2c_host *host, struct i2c_transfer *trans,
+                              uint8_t addr, unsigned int retries)
 {
     struct i2c_bitbang *adap = host->host_data;
     unsigned int count;
     state retval = -ENOERR;
 
     for (count = 0; count <= retries; count++) {
-        retval = bitbang_send_byte(host, addr);
+        retval = bitbang_send_byte(host, trans, addr);
         if (retval)
             return retval;
 
@@ -202,7 +215,7 @@ static state bitbang_recv_bytes(struct i2c_host *host, struct i2c_transfer *tran
     state retval;
 
     for (count = 0; count < trans->len; ++count, ++buff) {
-        retval = bitbang_recv_byte(host, buff);
+        retval = bitbang_recv_byte(host, trans, buff);
         if (retval)
             return retval;
 
@@ -231,7 +244,7 @@ static state bitbang_send_bytes(struct i2c_host *host, struct i2c_transfer *tran
     state retval;
 
     for (count = 0; count < trans->len; ++count, ++buff) {
-        retval = bitbang_send_byte(host, *buff);
+        retval = bitbang_send_byte(host, trans, *buff);
         if (retval) {
             dev_err(host->dev, "send-bytes: error %d\n", retval);
             return retval;
@@ -268,7 +281,7 @@ static state bitbang_send_addr(struct i2c_host *host, struct i2c_transfer *trans
         if (trans->flags & I2C_M_REV_DIR_ADDR)
             address ^= 1;
         /* try normal address */
-        retval = bitbang_try_addr(host, address, retries);
+        retval = bitbang_try_addr(host, trans, address, retries);
         if (retval && (retval != -ECONNABORTED ||
             !(trans->flags & I2C_M_IGNORE_NAK))) {
             dev_err(host->dev, "send-addr: try normal address error\n");
@@ -278,14 +291,14 @@ static state bitbang_send_addr(struct i2c_host *host, struct i2c_transfer *trans
         /* 10bit extended address */
         address = trans->addr >> 7;
         /* try extended address */
-        retval = bitbang_try_addr(host, address, retries);
+        retval = bitbang_try_addr(host, trans, address, retries);
         if (retval && (retval != -ECONNABORTED ||
             !(trans->flags & I2C_M_IGNORE_NAK))) {
             dev_err(host->dev, "send-addr: try extended address error\n");
             return retval;
         }
         /* send normal address */
-        retval = bitbang_send_byte(host, trans->addr);
+        retval = bitbang_send_byte(host, trans, trans->addr);
         if (retval && (retval != -ECONNABORTED ||
             !(trans->flags & I2C_M_IGNORE_NAK))) {
             dev_err(host->dev, "send-addr: try remaining address error\n");
@@ -295,7 +308,7 @@ static state bitbang_send_addr(struct i2c_host *host, struct i2c_transfer *trans
         if (trans->flags & I2C_M_RD) {
             bitbang_restart(adap);
             address |= 1;
-            retval = bitbang_send_byte(host, address);
+            retval = bitbang_send_byte(host, trans, address);
             if (retval && (retval != -ECONNABORTED ||
                 !(trans->flags & I2C_M_IGNORE_NAK))) {
                 dev_err(host->dev, "send-addr: try repeated address error\n");
