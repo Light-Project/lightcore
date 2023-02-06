@@ -6,7 +6,8 @@
 #include <mm/types.h>
 #include <mm/gfp.h>
 
-#define PAGE_ORDER_MAX  11
+#define RAM_BASE CONFIG_RAM_BASE
+#define PAGE_ORDER_MAX CONFIG_PAGE_ORDER_MAX
 
 enum region_type {
 #ifdef CONFIG_REGION_DMA
@@ -35,7 +36,7 @@ struct region {
 
 extern struct region region_map[REGION_NR_MAX];
 extern enum region_type gfp_to_region(gfp_t gfp);
-extern enum region_type pa_to_region(phys_addr_t pa);
+extern enum region_type pa_to_region(phys_addr_t phys);
 extern enum region_type page_to_region(const struct page *page);
 extern void __init region_init(void);
 

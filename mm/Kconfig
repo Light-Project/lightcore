@@ -2,155 +2,160 @@
 menu "Memory Management Options"
 
 comment "Architecture has no MMU"
-    depends on !ARCH_HAS_MMU
+	depends on !ARCH_HAS_MMU
 
 config MMU
-    bool "MMU-based Paged Memory Management Support"
-    depends on ARCH_HAS_MMU
-    default y
-    help
-        Select if you want MMU-based virtualised addressing space
-        support by paged memory management. If unsure, say 'Y'.
-
-config RAM_BASE
-    hex "RAM Offset"
-    default 0
-    help
-        Start address of physical memory
-
-config RAM_PAD
-    hex "RAM Pad Size"
-    depends on MMU
-    default 0
-    help
-        Memory pad for special memory model
+	bool "MMU-based Paged Memory Management Support"
+	depends on ARCH_HAS_MMU
+	default y
+	help
+		Select if you want MMU-based virtualised addressing space
+		support by paged memory management. If unsure, say 'Y'.
 
 config XIP
-    bool "Execute-In-Place from ROM"
+	bool "Execute-In-Place from ROM"
+	depends on ARCH_HAS_XIP
 
 config XIP_BASE
-    hex "Xip PHYSADDR(ROM)"
-    depends on XIP
+	hex "XIP base address"
+	depends on XIP
 
-menu "Memory Region"
+config RAM_BASE
+	hex "RAM base address"
+	default 0
+	help
+		Start address of physical memory.
+
+config RAM_PAD
+	hex "RAM padding size"
+	depends on MMU
+	default 0
+	help
+		Memory pad for special memory model.
+
+menu "Memory region"
 
 config REGION_DMA
-    bool "DMA Region"
+	bool "DMA region"
 
 config DMA_SIZE
-    hex "DMA Region Size"
-    depends on REGION_DMA
+	hex "DMA size"
+	depends on REGION_DMA
 
 config REGION_DMA32
-    bool "DMA32 Region"
-    depends on REGION_DMA
+	bool "DMA32 region"
+	depends on REGION_DMA
 
 config DMA32_SIZE
-    hex "DMA32 Region Size"
-    depends on REGION_DMA32
+	hex "DMA32 size"
+	depends on REGION_DMA32
 
 config REGION_HIMEM
-    bool "HIMEM Region"
-    depends on MMU
-    help
-        If direct mapping cannot access all memory, turn on
-        the high-end memory option
+	bool "Himem region"
+	depends on MMU
+	help
+		If direct mapping cannot access all memory, turn on
+		the high-end memory option
 
 config HIGHMEM_OFFSET
-    hex "HIMEM Offset"
-    depends on REGION_HIMEM
+	hex "Himem offset"
+	depends on REGION_HIMEM
 
-endmenu # Memory Region
+endmenu # Memory region
 
 choice
-    prompt "Memory Model"
-    default SPARCEMEM
+	prompt "Memory model"
+	default SPARCEMEM
 
 config FLATMEM
-    bool "Flat Memory Model"
+	bool "Flat model"
 
 config SPARCEMEM
-    bool "Sparce Memory Model"
+	bool "Sparce model"
 
-endchoice # Memory Model
-
-config SPARCE_SHIFT
-    int "Sparce Section Size Shift"
-    depends on SPARCEMEM
+endchoice # Memory model
 
 config PAGE_OFFSET
-    hex "Kernel Offset"
+	hex "Page offset"
+
+config PAGE_ORDER_MAX
+	int "Page max order"
+	default 11
+
+config SPARCE_SHIFT
+	int "Sparce section size shift"
+	depends on SPARCEMEM
 
 config IOREMAP_OFFSET
-    hex "I/O Remap Offset"
-    depends on ARCH_HAS_IOMAP
+	hex "I/O remap offset"
+	depends on ARCH_HAS_IOMAP
 
 config HIGHMAP_OFFSET
-    hex "Highmap Memory Offset"
-    depends on REGION_HIMEM
-    help
-        The virtual address to which the high-end memory
-        will be mapped
+	hex "Highmap memory offset"
+	depends on REGION_HIMEM
+	help
+		The virtual address to which the high-end memory
+		will be mapped.
 
 config HIGHMAP_SIZE
-    hex "Highmap Memory Size"
-    depends on REGION_HIMEM
+	hex "Highmap memory Size"
+	depends on REGION_HIMEM
 
 choice
-    prompt "KMEM Allocator Select"
-    default MM_SLOB
+	prompt "Kmem allocator select"
+	default MM_SLOB
 
 config MM_SLAB
-    bool "SLAB"
+	bool "Slab allocator"
 
 config MM_SLOB
-    bool "SLOB (Simple SLAB)"
+	bool "Slob allocator"
 
-endchoice # KMEM Allocator Select
+endchoice # Kmem allocator select
 
-menu "SLOB Config"
-    depends on MM_SLOB
+menu "Slob config"
+	depends on MM_SLOB
 
 config SLOB_MEDIUM_LINE
-    int "Medium Page Boundary (byte)"
-    default 256
+	int "Medium page boundary"
+	default 256
 
 config SLOB_HUGE_LINE
-    int "Large Page Boundary (byte)"
-    default 512
+	int "Large page boundary"
+	default 512
 
-endmenu # SLOB Config
+endmenu # Slob config
 
 config MEMBLK_REGIONS
-    int "Memblock Maximum Regions"
-    default 128
+	int "Memblock maximum regions"
+	default 128
 
 config MEMBLK_MERGE
-    bool "Memblock Merge Identical Regions"
-    help
-        It may be possible to turn on this feature in
-        the case of insufficient memory blocks.
+	bool "Memblock merge identical regions"
+	help
+		It may be possible to turn on this feature in
+		the case of insufficient memory blocks.
 
 config MEMTEST
-    bool "Memory Test Support"
-    default y
+	bool "Memory test support"
+	default y
 
 endmenu # Memory Management Options
 
 config PGTABLE_LEVEL5
-    bool
-    select PGTABLE_LEVEL4
+	bool
+	select PGTABLE_LEVEL4
 
 config PGTABLE_LEVEL4
-    bool
-    select PGTABLE_LEVEL3
+	bool
+	select PGTABLE_LEVEL3
 
 config PGTABLE_LEVEL3
-    bool
+	bool
 
 config PGTABLE_LEVEL
-    int
-    default 5 if PGTABLE_LEVEL5
-    default 4 if PGTABLE_LEVEL4
-    default 3 if PGTABLE_LEVEL3
-    default 2
+	int
+	default 5 if PGTABLE_LEVEL5
+	default 4 if PGTABLE_LEVEL4
+	default 3 if PGTABLE_LEVEL3
+	default 2

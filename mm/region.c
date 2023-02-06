@@ -50,18 +50,18 @@ enum region_type gfp_to_region(gfp_t gfp)
 }
 EXPORT_SYMBOL(gfp_to_region);
 
-enum region_type pa_to_region(phys_addr_t pa)
+enum region_type pa_to_region(phys_addr_t phys)
 {
 #ifdef CONFIG_REGION_DMA
-    if (pa < (CONFIG_RAM_BASE + CONFIG_DMA_SIZE))
+    if (phys - RAM_BASE < CONFIG_DMA_SIZE)
         return REGION_DMA;
 #endif
 #ifdef CONFIG_REGION_DMA32
-    if (pa < (CONFIG_RAM_BASE + CONFIG_DMA32_SIZE))
+    if (phys - RAM_BASE < CONFIG_DMA32_SIZE))
         return REGION_DMA32;
 #endif
 #ifdef CONFIG_REGION_HIMEM
-    if (pa >= (CONFIG_RAM_BASE + CONFIG_HIGHMEM_OFFSET))
+    if (phys >= (RAM_BASE + CONFIG_HIGHMEM_OFFSET))
         return REGION_HIMEM;
 #endif
     return REGION_NORMAL;
@@ -98,12 +98,14 @@ static bool region_block_add(struct memblock_region *blk)
 static void __init region_free_list_init(void)
 {
     unsigned int region, order;
-    for (region = 0; region < REGION_NR_MAX; ++region)
-    for (order = 0; order <= PAGE_ORDER_MAX; ++order)
-        list_head_init(&region_map[region].page_free[order].list);
+
+    for (region = 0; region < REGION_NR_MAX; ++region) {
+        for (order = 0; order <= PAGE_ORDER_MAX; ++order)
+            list_head_init(&region_map[region].page_free[order].list);
+    }
 }
 
-void __init region_init()
+void __init region_init(void)
 {
     region_free_list_init();
     memblock_takeover(MEMBLOCK_USABLE, region_block_add);
