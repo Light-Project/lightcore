@@ -64,8 +64,13 @@ static struct hwmon_channel_info dht11_hwmon_info[] = {
 
 static uint8_t dht11_checksum(const union dht11_packet *packet)
 {
-    const uint8_t *bytes = packet->bytes + 1;
-    return bytes[0] + bytes[1] + bytes[2] + bytes[3];
+    unsigned int count;
+    uint8_t value = 0;
+
+    for (count = 1; count < 4; ++count)
+        value += packet->bytes[count];
+
+    return value;
 }
 
 static state dht11_wait(struct dht11_device *dht11, ktime_t *delta, bool value)
