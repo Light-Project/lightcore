@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "ioremap: " fmt
+#define MODULE_NAME "ioremap"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <ioremap.h>
 #include <memory.h>

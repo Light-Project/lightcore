@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "rtc: " fmt
+#define MODULE_NAME "rtc"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <string.h>
 #include <timekeeping.h>

@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "mempool: " fmt
+#define MODULE_NAME "mempool"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <mempool.h>
 #include <kmalloc.h>

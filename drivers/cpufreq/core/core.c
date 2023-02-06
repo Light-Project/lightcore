@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "cpufreq: " fmt
+#define MODULE_NAME "cpufreq"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <driver/cpufreq.h>
 #include <export.h>

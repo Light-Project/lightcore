@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "usb: " fmt
+#define MODULE_NAME "usb"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <kmalloc.h>
 #include <driver/usb.h>

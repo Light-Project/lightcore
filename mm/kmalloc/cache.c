@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "kcache: " fmt
+#define MODULE_NAME "kcache"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <kmalloc.h>
 #include <string.h>

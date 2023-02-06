@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "vmem: " fmt
+#define MODULE_NAME "vmem"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <mm/vmem.h>
 #include <kmalloc.h>

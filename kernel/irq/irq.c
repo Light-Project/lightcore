@@ -4,7 +4,7 @@
  */
 
 #define MODULE_NAME "irq"
-#define pr_fmt(fmt) ": " fmt
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <irq.h>
 #include <string.h>

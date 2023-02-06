@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "clk: " fmt
+#define MODULE_NAME "clk"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <initcall.h>
 #include <driver/clk.h>

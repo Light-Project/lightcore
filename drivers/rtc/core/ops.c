@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "rtc-base: " fmt
+#define MODULE_NAME "rtc-base"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <string.h>
 #include <driver/rtc.h>
@@ -100,4 +101,3 @@ state rtc_alarm_set(struct rtc_device *rtc, struct rtc_alarm *time)
     return retval;
 }
 EXPORT_SYMBOL(rtc_alarm_set);
-

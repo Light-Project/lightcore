@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "bios-e820: " fmt
+#define MODULE_NAME "bios-e820"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <printk.h>
 #include <mm/memblock.h>

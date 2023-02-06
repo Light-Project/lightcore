@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "pci-power: " fmt
+#define MODULE_NAME "pci-power"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <driver/pci.h>
 #include <export.h>

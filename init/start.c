@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "start: " fmt
+#define MODULE_NAME "start"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <kernel.h>
 #include <linkage.h>

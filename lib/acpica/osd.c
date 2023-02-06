@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "acpi-osd: " fmt
+#define MODULE_NAME "acpi-osd"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <string.h>
 #include <memory.h>

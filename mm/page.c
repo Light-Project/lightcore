@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "page: " fmt
+#define MODULE_NAME "page"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <mm/page.h>
 #include <mm/region.h>

@@ -3,7 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define pr_fmt(fmt) "power: " fmt
+#define MODULE_NAME "power"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <power.h>
 #include <pevent.h>

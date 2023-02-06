@@ -3,8 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define MUDOLE_NAME "initcall"
-#define pr_fmt(fmt) MUDOLE_NAME ": " fmt
+#define MODULE_NAME "initcall"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <kernel.h>
 #include <string.h>

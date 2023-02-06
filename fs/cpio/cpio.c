@@ -3,8 +3,8 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define MUDULE_NAME "cpio"
-#define pr_fmt(fmt) MUDULE_NAME ": " fmt
+#define MODULE_NAME "cpio"
+#define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <string.h>
 #include <kmalloc.h>
