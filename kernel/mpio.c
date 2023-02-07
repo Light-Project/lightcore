@@ -4,7 +4,6 @@
  */
 
 #include <ioops.h>
-#include <ioops.h>
 #include <panic.h>
 #include <export.h>
 
