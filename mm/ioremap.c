@@ -8,15 +8,14 @@
 
 #include <ioremap.h>
 #include <memory.h>
+#include <kernel.h>
+#include <rbtree.h>
 #include <kmalloc.h>
 #include <mm/vmem.h>
 #include <mm/vmap.h>
-#include <kernel.h>
-#include <rbtree.h>
-#include <refcount.h>
-#include <export.h>
 #include <printk.h>
-#include <panic.h>
+#include <crash.h>
+#include <export.h>
 
 static SPIN_LOCK(ioremap_lock);
 static RB_ROOT(ioremap_root);
@@ -220,7 +219,6 @@ void iounmap(void *block)
 
     vunmap_range(&init_mm, vma->addr, vma->size);
     vmem_free(vma);
-
     kcache_free(ioremap_cache, node);
 
     return;
