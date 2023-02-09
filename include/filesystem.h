@@ -9,6 +9,7 @@
 #include <fstype.h>
 #include <fsdev.h>
 #include <fs/dirent.h>
+#include <lightcore/filesystem.h>
 
 struct vmem_area;
 

@@ -241,7 +241,7 @@ state console_preferred_add(const char *name, unsigned int index, const char *op
     preferred->options = options;
 
     console_preferred = count;
-    strncpy(preferred->name, name, sizeof(preferred->name));
+    strlcpy(preferred->name, name, sizeof(preferred->name));
 
     return -ENOERR;
 }
@@ -265,9 +265,9 @@ static state console_bootarg(char *args)
     /* copy device name and index */
     if (isdigit(*args)) {
         strcpy(buff, "ttyS");
-        strncpy(buff, args, sizeof(buff) - 5);
+        strlcpy(buff, args, sizeof(buff) - 5);
     } else {
-        strncpy(buff, args, sizeof(buff) - 1);
+        strlcpy(buff, args, sizeof(buff) - 1);
     }
     buff[sizeof(buff) - 1] = '\0';
 

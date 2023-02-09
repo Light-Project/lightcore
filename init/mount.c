@@ -13,31 +13,32 @@
 static state __init auto_mount(const char *devn, enum mount_flags flags)
 {
     struct filesystem_type *fs;
-    state ret = -EINVAL;
+    state retval = -ENOENT;
 
     spin_lock(&filesystem_lock);
     list_for_each_entry(fs, &filesystem_list, list) {
         const char *name = fs->name;
 
         pr_info("Try mount '%s' on '%s'\n", name, devn);
+        retval = kernel_mount(devn, name, flags);
 
-        ret = kernel_mount(devn, name, flags);
-        switch (ret) {
+        switch (retval) {
             case -ENOERR:
                 goto exit;
+
             case -EINVAL:
                 continue;
+
             default:
                 break;
         }
 
-        pr_crit("Can't mount root device ");
-
+        pr_crit("Can't mount root device %s\n", devn);
     }
 
 exit:
     spin_unlock(&filesystem_lock);
-    return ret;
+    return -ENOENT;
 }
 
 #ifdef CONFIG_BLOCK
