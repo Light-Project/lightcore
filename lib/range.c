@@ -5,6 +5,7 @@
 
 #include <range.h>
 #include <overflow.h>
+#include <crash.h>
 #include <export.h>
 
 static __always_inline struct range_node *
@@ -43,18 +44,23 @@ struct range_node *range_insert(struct range_head *head, unsigned int type,
 {
     struct range_node *block, *next, *new, *tmp, *last = NULL;
     struct list_head *prev = NULL;
+    unsigned long end;
     state retval;
 
     new = range_node_alloc(head);
     if (unlikely(!new))
         return ERR_PTR(-ENOENT);
 
-    list_for_each_entry_safe(block, next, &head->nodes, list) {
-        unsigned long end, blkend;
+    /* prevent size overflow */
+    end = start + size - 1;
+    if (unlikely(end < start))
+        return ERR_PTR(-EINVAL);
 
-        /* prevent value overflow */
-        end = overflow_add(start, size - 1);
-        blkend = overflow_add(block->start, block->size - 1);
+    list_for_each_entry_safe(block, next, &head->nodes, list) {
+        unsigned long blkend;
+
+        blkend = block->start + block->size - 1;
+        BUG_ON(blkend < block->start);
 
         if (start <= block->start && blkend <= end) {
             /* completely cover */
