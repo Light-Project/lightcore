@@ -224,43 +224,6 @@ static state rbtree_test_testing(struct kshell_context *ctx, void *pdata)
     }
 
     count = 0;
-    rb_level_for_each(rbnode, &count, &test_root.root) {
-        node = rbnode_to_test(rbnode);
-        kshell_printf(ctx, "rbtree 'rb_level_for_each' test: %lu\n", node->num);
-        if (count++ == TEST_LOOP / 2)
-            break;
-    }
-
-    trbnode = rbnode;
-    rb_level_for_each_continue(rbnode, &count, &test_root.root) {
-        node = rbnode_to_test(rbnode);
-        kshell_printf(ctx, "rbtree 'rb_level_for_each_continue' test: %lu\n", node->num);
-    }
-
-    rbnode = trbnode;
-    rb_level_for_each_from(rbnode, &count, &test_root.root) {
-        node = rbnode_to_test(rbnode);
-        kshell_printf(ctx, "rbtree 'rb_level_for_each_from' test: %lu\n", node->num);
-    }
-
-    count = 0;
-    rb_level_for_each_entry(node, &count, &test_root.root, node) {
-        kshell_printf(ctx, "rbtree 'rb_level_for_each_entry' test: %lu\n", node->num);
-        if (count++ == TEST_LOOP / 2)
-            break;
-    }
-
-    tnode = node;
-    rb_level_for_each_entry_from(node, &count, &test_root.root, node) {
-        kshell_printf(ctx, "rbtree 'rb_level_for_each_entry_from' test: %lu\n", node->num);
-    }
-
-    node = tnode;
-    rb_level_for_each_entry_continue(node, &count, &test_root.root, node) {
-        kshell_printf(ctx, "rbtree 'rb_level_for_each_entry_continue' test: %lu\n", node->num);
-    }
-
-    count = 0;
     rb_post_for_each(rbnode, &test_root.root) {
         node = rbnode_to_test(rbnode);
         kshell_printf(ctx, "rbtree 'rb_post_for_each' test: %lu\n", node->num);
@@ -320,15 +283,6 @@ static state rbtree_test_testing(struct kshell_context *ctx, void *pdata)
 
     rb_cached_pre_for_each_entry(node, &test_root, node) {
         kshell_printf(ctx, "rbtree 'rb_cached_pre_for_each_entry' test: %lu\n", node->num);
-    }
-
-    rb_cached_level_for_each(rbnode, &count, &test_root) {
-        node = rbnode_to_test(rbnode);
-        kshell_printf(ctx, "rbtree 'rb_cached_level_for_each' test: %lu\n", node->num);
-    }
-
-    rb_cached_level_for_each_entry(node, &count, &test_root, node) {
-        kshell_printf(ctx, "rbtree 'rb_cached_level_for_each_entry' test: %lu\n", node->num);
     }
 
     rb_cached_post_for_each(rbnode, &test_root) {

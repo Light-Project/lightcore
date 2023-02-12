@@ -713,7 +713,6 @@ TITER_BASE_DEFINE(, rb, struct rb_node, left, right)
 TITER_INORDER_DEFINE(, rb, struct rb_root, node, struct rb_node, parent, left, right)
 TITER_PREORDER_DEFINE(, rb, struct rb_root, node, struct rb_node, parent, left, right)
 TITER_POSTORDER_DEFINE(, rb, struct rb_root, node, struct rb_node, parent, left, right)
-TITER_LEVELORDER_DEFINE(, rb, struct rb_root, node, struct rb_node, left, right)
 
 EXPORT_SYMBOL(rb_left_far);
 EXPORT_SYMBOL(rb_right_far);
@@ -727,5 +726,3 @@ EXPORT_SYMBOL(rb_pre_first);
 EXPORT_SYMBOL(rb_pre_next);
 EXPORT_SYMBOL(rb_post_first);
 EXPORT_SYMBOL(rb_post_next);
-EXPORT_SYMBOL(rb_level_first);
-EXPORT_SYMBOL(rb_level_next);
