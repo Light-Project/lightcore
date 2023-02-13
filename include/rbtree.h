@@ -623,6 +623,9 @@ static inline void rb_delete_augmented(struct rb_root *root, struct rb_node *nod
 #define rb_cached_first(cached) \
     ((cached)->leftmost)
 
+#define rb_cached_last(cached) \
+    rb_last(&(cached)->root);
+
 /**
  * rb_cached_first_entry - get the first element from a cached rbtree.
  * @ptr: the rbtree root to take the element from.
