@@ -63,6 +63,7 @@ obj-y += sort.o
 obj-$(CONFIG_STACKPROTECTOR) += stackprotector.o
 obj-y += stringhash.o
 obj-y += time.o
+obj-y += timerqueue.o
 obj-y += uuid.o
 obj-y += xml.o
 obj-y += xmodem.o
