@@ -27,6 +27,11 @@ static inline void tqueue_init(struct tqueue_head *head)
     head->root = RB_CACHED_INIT;
 }
 
+static inline void tqueue_node_init(struct tqueue_node *node)
+{
+    RB_CLEAR_NODE(&node->node);
+}
+
 /**
  * tqueue_entry - get the struct for this entry or null.
  * @ptr: the &struct tqueue_node pointer.

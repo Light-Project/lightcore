@@ -94,6 +94,10 @@ config SELFTEST_LIB_SORT
     bool "Sort Unit Test"
     default y
 
+config SELFTEST_LIB_TQUEUE
+    bool "Timerqueue Unit Test"
+    default y
+
 config SELFTEST_LIB_UUID
     bool "UUID Unit Test"
     default y

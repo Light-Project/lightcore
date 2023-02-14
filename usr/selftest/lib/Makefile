@@ -21,5 +21,6 @@ obj-$(CONFIG_SELFTEST_LIB_SEGTREE)  += segtree.o
 obj-$(CONFIG_SELFTEST_LIB_SKIPLIST)	+= skiplist.o
 obj-$(CONFIG_SELFTEST_LIB_SLIST)    += slist.o
 obj-$(CONFIG_SELFTEST_LIB_SORT)     += sort.o
+obj-$(CONFIG_SELFTEST_LIB_TQUEUE) 	+= timerqueue.o
 obj-$(CONFIG_SELFTEST_LIB_UUID)     += uuid.o
 obj-$(CONFIG_SELFTEST_LIB_XML)      += xml.o
