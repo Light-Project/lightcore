@@ -39,6 +39,9 @@ state selftest_register(struct selftest_command *cmd)
     if (!cmd->testing || !cmd->group || !cmd->name)
         return -EINVAL;
 
+    if (!cmd->prepare ^ !cmd->release)
+        return -EINVAL;
+
     if (selftest_find(cmd->group, cmd->name))
         return -EINVAL;
 
@@ -156,7 +159,7 @@ static state selftest_one(struct kshell_context *ctx, struct selftest_command *c
             break;
     }
 
-    if (cmd->release) {
+    if (cmd->prepare) {
         selftest_msg(ctx, info, "Releasing...\n");
         cmd->release(ctx, pdata);
         selftest_msg(ctx, info, "Released.\n");
