@@ -10,8 +10,9 @@
 #include <initcall.h>
 #include <panic.h>
 #include <timekeeping.h>
-#include <driver/clockevent.h>
+#include <clockcloc.h>
 #include <driver/clocksource.h>
+#include <driver/clockevent.h>
 #include <export.h>
 
 static LIST_HEAD(clockevent_list);

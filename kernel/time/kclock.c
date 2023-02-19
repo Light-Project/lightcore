@@ -11,7 +11,8 @@
 #include <gunit.h>
 #include <seqlock.h>
 #include <ticktime.h>
-#include <driver/clockevent.h>
+#include <bitops.h>
+#include <clockcloc.h>
 #include <printk.h>
 #include <export.h>
 

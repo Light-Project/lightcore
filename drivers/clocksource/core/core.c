@@ -10,6 +10,7 @@
 #include <initcall.h>
 #include <delay.h>
 #include <timekeeping.h>
+#include <clockcloc.h>
 #include <driver/clocksource.h>
 #include <printk.h>
 #include <export.h>

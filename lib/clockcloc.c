@@ -3,10 +3,10 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define MODULE_NAME "clkevt"
+#define MODULE_NAME "clkcloc"
 #define pr_fmt(fmt) MODULE_NAME ": " fmt
 
-#include <driver/clockevent.h>
+#include <clockcloc.h>
 #include <export.h>
 
 void clock_cloc_mult_shift(unsigned int *mult, unsigned int *shift,

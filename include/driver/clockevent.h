@@ -28,7 +28,7 @@ enum clockevent_capability {
 
 /**
  * clockevent_device - describes clockevent device
- * @delta_min:maximum delta value (ns)
+ * @delta_min: maximum delta value (ns)
  * @delta_max: minimum delta value (ns)
  * @rating: clockevent accuracy rating
  * @mult: nsec to cycles multiplier
@@ -77,11 +77,6 @@ struct clockevent_ops {
     state (*state_resume)(struct clockevent_device *cdev);
 };
 
-/* clock tools */
-extern void clock_cloc_mult_shift(unsigned int *mult, unsigned int *shift, uint64_t from, uint64_t to, uint64_t maxsec);
-extern uint64_t clock_cycle_to_nsec(uint64_t cycles, unsigned int mult, unsigned int shift);
-
-/* clockevent core */
 extern state clockevent_switch_state(struct clockevent_device *cdev, enum clockevent_state cstate);
 extern state clockevent_program_event(struct clockevent_device *cdev, ktime_t stamp);
 extern void clockevent_config(struct clockevent_device *cdev, uint64_t freq, uint64_t delta_min, uint64_t delta_max);

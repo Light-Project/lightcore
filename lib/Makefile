@@ -20,6 +20,7 @@ obj-y += btree-helper.o
 obj-y += btree.o
 obj-y += bytefill.o
 obj-y += callback.o
+obj-y += clockcloc.o
 obj-y += cmdline.o
 obj-y += errname.o
 obj-y += getopt-long.o
