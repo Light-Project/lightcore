@@ -52,7 +52,7 @@ static state acpi_pm_probe(struct platform_device *pdev, const void *pdata)
 
     adev->base = platform_resource_start(pdev, 0);
     adev->clksrc.flags = CLKSRC_CONTINUOUS;
-    adev->clksrc.rating = CLOCK_RATING_GOOD;
+    adev->clksrc.rating = DEVICE_RATING_GOOD;
     adev->clksrc.device = &pdev->dev;
     adev->clksrc.ops = &acpi_pm_ops;
     platform_set_devdata(pdev, adev);
@@ -129,4 +129,3 @@ static state acpi_pm_init(void)
     return -ENOERR;
 }
 clockevent_initcall(acpi_pm_init);
-

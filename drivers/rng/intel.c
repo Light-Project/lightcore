@@ -107,7 +107,7 @@ static state intel_rng_probe(struct platform_device *pdev, const void *pdata)
 
     idev->rng.dev = &pdev->dev;
     idev->rng.ops = &intel_rng_ops;
-    idev->rng.rating = RNG_RATING_GOOD;
+    idev->rng.rating = DEVICE_RATING_GOOD;
 
     return rng_register(&idev->rng);
 }

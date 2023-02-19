@@ -35,7 +35,7 @@ static state tsc_probe(struct platform_device *pdev, const void *pdata)
 
     cdev->device = &pdev->dev;
     cdev->ops = &tsc_ops;
-    cdev->rating = CLOCK_RATING_DESIRED;
+    cdev->rating = DEVICE_RATING_DESIRED;
     platform_set_devdata(pdev, cdev);
 
     kclock_register(

@@ -3,12 +3,7 @@
 #define _DRIVER_RNG_H_
 
 #include <device.h>
-
-#define RNG_RATING_UNSAFE       0
-#define RNG_RATING_BASE         100
-#define RNG_RATING_GOOD         200
-#define RNG_RATING_DESIRED      300
-#define RNG_RATING_PERFECT      400
+#include <rating.h>
 
 /**
  * struct rng_device - describe a rng device.

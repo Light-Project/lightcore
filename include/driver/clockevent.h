@@ -4,12 +4,7 @@
 
 #include <ktime.h>
 #include <device.h>
-
-#define CLOCK_RATING_UNSAFE     0
-#define CLOCK_RATING_BASE       100
-#define CLOCK_RATING_GOOD       200
-#define CLOCK_RATING_DESIRED    300
-#define CLOCK_RATING_PERFECT    400
+#include <rating.h>
 
 enum clockevent_state {
     CLKEVT_STATE_UNINIT     = 0,

@@ -309,7 +309,7 @@ static state hpet_probe(struct platform_device *pdev, const void *pdata)
 
 #ifdef CONFIG_CLKSRC_HPET
     hdev->clksrc.device = &pdev->dev;
-    hdev->clksrc.rating = CLOCK_RATING_GOOD + 20;
+    hdev->clksrc.rating = DEVICE_RATING_GOOD + 20;
     hdev->clksrc.ops = &hpet_clocksource_ops;
     ret = clocksource_config_register(&hdev->clksrc, hdev->freq, BIT_RANGE(31, 0));
     BUG_ON(ret);

@@ -42,7 +42,7 @@ static state rdrand_probe(struct platform_device *pdev, const void *pdata)
 
     rdev->dev = &pdev->dev;
     rdev->ops = &rdrand_ops;
-    rdev->rating = RNG_RATING_PERFECT;
+    rdev->rating = DEVICE_RATING_PERFECT;
 
     return rng_register(rdev);
 }

@@ -66,7 +66,7 @@ DEFINE_STATIC_CALL(mdelay, static_call_proc_mdelay);
 void delay_change(struct clocksource_device *cdev)
 {
     spin_lock(&delay_lock);
-    if (!delay_mode && cdev->rating >= CLOCK_RATING_DESIRED) {
+    if (!delay_mode && cdev->rating >= DEVICE_RATING_DESIRED) {
         static_call_update(ndelay, timer_ndelay);
         static_call_update(udelay, timer_udelay);
         static_call_update(mdelay, timer_mdelay);

@@ -2,7 +2,9 @@
 #ifndef _DRIVER_CLOCKSOURCE_H_
 #define _DRIVER_CLOCKSOURCE_H_
 
-#include <driver/clockevent.h>
+#include <ktime.h>
+#include <device.h>
+#include <rating.h>
 
 /**
  * clocksource_flags - clocksource flags
