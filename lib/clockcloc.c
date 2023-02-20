@@ -41,15 +41,3 @@ void clock_cloc_mult_shift(unsigned int *mult, unsigned int *shift,
     *shift = sft;
 }
 EXPORT_SYMBOL(clock_cloc_mult_shift);
-
-/**
- * clock_cycle_to_nsec - converts clock cycles to nanoseconds
- * @cycles: cycles
- * @mult: cycle to nanosecond multiplier
- * @shift: cycle to nanosecond divisor (power of two)
- */
-uint64_t clock_cycle_to_nsec(uint64_t cycles, unsigned int mult, unsigned int shift)
-{
-    return (cycles * mult) >> shift;
-}
-EXPORT_SYMBOL(clock_cycle_to_nsec);
