@@ -37,7 +37,7 @@ static inline uint64_t kclock_get_delta(struct kclock_data *kclock)
 
     cycle = kclock->read();
     cycle = (cycle - kclock->cycle_last) & kclock->mask;
-    nsecs = clock_cycle_to_nsec(cycle, kclock->mult, kclock->shift);
+    nsecs = clock_delta_to_nsec(cycle, kclock->mult, kclock->shift);
 
     return nsecs;
 }
@@ -47,7 +47,7 @@ static uint64_t kclock_forward(struct kclock_data *kclock)
     uint64_t cycle_now, nsecs;
 
     cycle_now = kclock->read();
-    nsecs = kclock->base + clock_cycle_to_nsec((cycle_now - kclock->cycle_last) &
+    nsecs = kclock->base + clock_delta_to_nsec((cycle_now - kclock->cycle_last) &
             kclock->mask, kclock->mult, kclock->shift);
 
     kclock->base = nsecs;
@@ -87,7 +87,7 @@ finish:
         char gbuff[GFREQ_BUFF];
         uint64_t granu;
 
-        granu = clock_cycle_to_nsec(1ULL, mult, shift);
+        granu = clock_delta_to_nsec(1ULL, mult, shift);
         gfreq(gbuff, freq);
 
         pr_info("%s in %u bits, granularity %lluns\n", gbuff, fls(mask), granu);
