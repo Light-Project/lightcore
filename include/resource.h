@@ -4,7 +4,6 @@
 
 #include <bits.h>
 #include <list.h>
-#include <rbtree.h>
 
 enum resource_type {
     /* Resource types */
@@ -28,20 +27,17 @@ enum resource_type {
 
 struct resource {
     struct list_head siblings;
-    struct list_head child;
     struct resource *parent;
-    struct rb_node sort;
+    struct list_head child;
+
     const char *name;
     resource_size_t start;
     resource_size_t size;
     enum resource_type type;
 };
 
-#define rb_to_resource(io) \
-    rb_entry(io, struct resource, sort)
-
-#define rb_to_resource_safe(io) \
-    rb_entry_safe(io, struct resource, sort)
+extern struct resource root_mmio;
+extern struct resource root_pmio;
 
 static inline resource_size_t resource_end(const struct resource *resource)
 {
@@ -53,8 +49,8 @@ static inline enum resource_type resource_type(const struct resource *resource)
     return resource->type & RESOURCE_TYPE;
 }
 
-extern struct resource *resource_register_conflict(struct resource *parent, struct resource *res);
-extern state resource_register(struct resource *parent, struct resource *res);
-extern state resource_unregister(struct resource *res);
+extern struct resource *resource_request_conflict(struct resource *parent, struct resource *res);
+extern state resource_request(struct resource *parent, struct resource *res);
+extern state resource_release(struct resource *res);
 
 #endif  /* _RESOURCE_H_ */

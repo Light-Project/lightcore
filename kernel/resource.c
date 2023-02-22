@@ -3,86 +3,112 @@
  * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
  */
 
-#define MODULE_NAME "res"
+#define MODULE_NAME "resource"
 #define pr_fmt(fmt) MODULE_NAME ": " fmt
 
-#include <spinlock.h>
 #include <resource.h>
-#include <panic.h>
+#include <spinlock.h>
+#include <ioops.h>
 #include <export.h>
 
-static RB_ROOT(resource_sort);
-static LIST_HEAD(resource_root);
+struct resource root_mmio = {
+    .name = "root mmio",
+    .start = 0,
+    .size = -1,
+    .type = RESOURCE_MMIO,
+};
+EXPORT_SYMBOL(root_mmio);
+
+struct resource root_pmio = {
+    .name = "root pmio",
+    .start = 0,
+    .size = IO_SPACE_LIMIT,
+    .type = RESOURCE_PMIO,
+};
+EXPORT_SYMBOL(root_pmio);
+
 static SPIN_LOCK(resource_lock);
 
-static long resource_rb_find(const struct rb_node *rb, const void *key)
+static struct resource *request_resource(struct resource *parent, struct resource *res)
 {
-    const struct resource *node = rb_to_resource(rb);
-    const struct resource *cmp = key;
+    struct list_head *head;
+    struct resource *walk;
 
-    if (resource_type(node) == resource_type(cmp) && !(
-        resource_end(cmp) < node->start || resource_end(node) < cmp->start))
-        return 0;
+    if (!res->size)
+        return ERR_PTR(-EINVAL);
 
-    if (node->type != cmp->type)
-        return node->type > cmp->type ? -1 : 1;
+    if (res->start < parent->start ||
+        resource_end(res) > resource_end(parent))
+        return ERR_PTR(-EADDRNOTAVAIL);
 
-    if (node->parent != cmp->parent)
-        return node->parent > cmp->parent ? -1 : 1;
+    head = &parent->child;
+    list_for_each_entry(walk, &parent->child, siblings) {
+        if (walk->start > res->start)
+            break;
+        if (resource_end(walk) > resource_end(res))
+            return walk;
+        head = &walk->siblings;
+    }
 
-    if (node->start != cmp->start)
-        return node->start > cmp->start ? -1 : 1;
+    res->parent = parent;
+    list_add(head, &res->siblings);
 
-    if (node->size != cmp->size)
-        return node->size > cmp->size ? -1 : 1;
-
-    return LONG_MIN;
+    return NULL;
 }
 
-struct resource *resource_register_conflict(struct resource *parent, struct resource *res)
+static state release_resource(struct resource *res)
 {
-    struct rb_node *node, *rbparent, **rblink;
+    struct resource *parent = res->parent;
+    struct resource *walk, *find;
+
+    list_for_each_entry(walk, &parent->child, siblings) {
+        if (walk == res) {
+            find = walk;
+            break;
+        }
+    }
+
+    if (unlikely(!find))
+        return -ENOENT;
+
+    res->parent = NULL;
+    list_del(&res->siblings);
+
+    return -ENOERR;
+}
+
+struct resource *resource_request_conflict(struct resource *parent, struct resource *res)
+{
     struct resource *find;
 
     spin_lock(&resource_lock);
-
-    node = rb_find_last(&resource_sort, res, resource_rb_find, &rbparent, &rblink);
-    if (unlikely(find = rb_to_resource_safe(node)))
-        goto exit;
-
-    res->parent = parent;
-    list_head_init(&res->child);
-    list_add(&parent->child, &res->siblings);
-    rb_insert_node(&resource_sort, rbparent, rblink, &res->sort);
-
-exit:
+    find = request_resource(parent, res);
     spin_unlock(&resource_lock);
+
     return find;
 }
-EXPORT_SYMBOL(resource_register_conflict);
+EXPORT_SYMBOL(resource_request_conflict);
 
-state resource_register(struct resource *parent, struct resource *res)
+state resource_request(struct resource *parent, struct resource *res)
 {
     struct resource *conflict;
-    conflict = resource_register_conflict(parent, res);
+
+    conflict = resource_request_conflict(parent, res);
+    if (IS_ERR(conflict))
+        return PTR_ERR(conflict);
+
     return conflict ? -EBUSY : -ENOERR;
 }
-EXPORT_SYMBOL(resource_register);
+EXPORT_SYMBOL(resource_request);
 
-state resource_unregister(struct resource *res)
+state resource_release(struct resource *res)
 {
-    state retval = -ENOERR;
+    state retval;
 
     spin_lock(&resource_lock);
-
-    if (!list_check_empty(&res->child))
-        retval = -EBUSY;
-    else {
-        list_del(&res->siblings);
-        rb_delete(&resource_sort, &res->sort);
-    }
-
+    retval = release_resource(res);
     spin_unlock(&resource_lock);
+
     return retval;
 }
-EXPORT_SYMBOL(resource_unregister);
+EXPORT_SYMBOL(resource_release);
