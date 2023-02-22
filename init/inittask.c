@@ -46,8 +46,8 @@ static __noreturn void auto_reboot(void)
     unsigned int count;
 
     pr_emerg("No init executable found, system will reset:\n");
-    for (count = 5; count; count--) {
-        pr_emerg("%d\n", count);
+    for (count = 5; count; --count) {
+        pr_emerg("%d %.*s\n", count, count, "******");
         mdelay(1000);
     }
 
