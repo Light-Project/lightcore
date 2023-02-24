@@ -59,16 +59,16 @@ asmlinkage long syscall_handle(unsigned long callnr, long arg1, long arg2,
 
 state syscall_register(struct syscall_desc *syscall)
 {
-    state retval;
+    bool conflict;
 
     if (!syscall->entry || syscall->argnr > 6)
         return -EINVAL;
 
     write_lock(&syscall_lock);
-    retval = rb_insert_conflict(&syscall_root, &syscall->node, syscall_rb_cmp);
+    conflict = rb_insert_conflict(&syscall_root, &syscall->node, syscall_rb_cmp);
     write_unlock(&syscall_lock);
 
-    return retval;
+    return conflict ? -EBUSY : -ENOERR;
 }
 EXPORT_SYMBOL(syscall_register);
 
