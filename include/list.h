@@ -399,7 +399,8 @@ static inline void list_splice_tail_init(struct list_head *head, struct list_hea
  * @head: the head for your list.
  */
 #define list_for_each(pos, head) \
-    for ((pos) = (head)->next; (pos) != (head); pos = (pos)->next)
+    for ((pos) = (head)->next; !list_check_head(head, pos); \
+         pos = (pos)->next)
 
 /**
  * list_for_each_reverse - iterate over a list backwards.
@@ -407,7 +408,8 @@ static inline void list_splice_tail_init(struct list_head *head, struct list_hea
  * @head: the head for your list.
  */
 #define list_for_each_reverse(pos, head) \
-    for ((pos) = (head)->prev; (pos) != (head); (pos) = (pos)->prev)
+    for ((pos) = (head)->prev; !list_check_head(head, pos); \
+         (pos) = (pos)->prev)
 
 /**
  * list_for_each_from - iterate over a list from the current point.
