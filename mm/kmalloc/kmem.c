@@ -15,33 +15,32 @@
 /**
  * krealloc - reallocate memory.
  * @block: object to reallocate memory for.
- * @rsize: how many bytes of memory are required.
+ * @resize: how many bytes of memory are required.
  * @flags: the type of memory to allocate.
  */
-void *krealloc(const void *block, size_t rsize, gfp_t flags)
+void *krealloc(const void *block, size_t resize, gfp_t flags)
 {
-    size_t osize;
+    size_t origin;
     void *newblk;
 
-    if (unlikely(!rsize)) {
+    if (unlikely(!resize)) {
         kfree(block);
         return NULL;
     }
 
     if (likely(!IS_INVAL(block)))
-        osize = ksize(block);
+        origin = ksize(block);
     else
-        osize = 0;
+        origin = 0;
 
-    if (osize >= rsize)
+    if (origin >= resize)
         return (void *)block;
 
-    newblk = kmalloc(rsize, flags);
-    if (unlikely(!newblk))
-        return NULL;
-
-    memcpy(newblk, block, osize);
-    kfree(block);
+    newblk = kmalloc(resize, flags);
+    if (likely(newblk && !IS_INVAL(block))) {
+        memcpy(newblk, block, origin);
+        kfree(block);
+    }
 
     return newblk;
 }

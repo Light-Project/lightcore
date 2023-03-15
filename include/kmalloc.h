@@ -25,7 +25,7 @@ extern void __malloc *kmalloc(size_t size, gfp_t flags);
 extern void __malloc *kmalloc_numa(size_t size, gfp_t flags, int numa);
 extern void __malloc *kmalloc_align(size_t size, gfp_t flags, size_t align);
 extern void __malloc *kmalloc_numa_align(size_t size, gfp_t flags, int numa, size_t align);
-extern void __malloc *krealloc(const void *block, size_t rsize, gfp_t flags);
+extern void __malloc *krealloc(const void *block, size_t resize, gfp_t flags);
 
 extern void kfree(const void *block);
 extern void kfree_const(const char *block);
