@@ -9,11 +9,12 @@
 #include <prandom.h>
 #include <selftest.h>
 
+#define POOL_SIZE SZ_128KiB
 #define TEST_SIZE SZ_64KiB
 #define TEST_LOOP 64
 
 struct minpool_test {
-    uint8_t pool[TEST_SIZE];
+    uint8_t pool[POOL_SIZE];
     void *result[TEST_LOOP];
 };
 
@@ -24,11 +25,18 @@ static state minpool_testing(struct kshell_context *ctx, void *pdata)
     unsigned int count, index;
     size_t size;
 
-    minpool_setup(&minpool_test, &mtest->pool, TEST_SIZE);
+    minpool_setup(&minpool_test, &mtest->pool, POOL_SIZE);
     for (count = 0; count < TEST_LOOP; ++count) {
         size = prandom_value() % (TEST_SIZE / TEST_LOOP);
         mtest->result[count] = minpool_alloc(&minpool_test, size);
         kshell_printf(ctx, "minpool random alloc%02u: %p\n",
+                      count, mtest->result[count]);
+        if (!mtest->result[count])
+            return -ENOMEM;
+
+        size = prandom_value() % (TEST_SIZE / TEST_LOOP);
+        mtest->result[count] = minpool_realloc(&minpool_test, mtest->result[count], size);
+        kshell_printf(ctx, "minpool random realloc%02u: %p\n",
                       count, mtest->result[count]);
         if (!mtest->result[count])
             return -ENOMEM;
