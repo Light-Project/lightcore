@@ -16,6 +16,7 @@ struct minpool_head {
 };
 
 extern void __malloc *minpool_alloc(struct minpool_head *head, size_t size);
+extern void __malloc *minpool_realloc(struct minpool_head *head, void *block, size_t resize);
 extern void minpool_free(struct minpool_head *head, void *block);
 extern void minpool_setup(struct minpool_head *head, void *array, size_t size);
 

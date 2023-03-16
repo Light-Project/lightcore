@@ -22,7 +22,7 @@ gnode_get_used(struct minpool_node *node)
 static __always_inline size_t
 gnode_get_size(struct minpool_node *node)
 {
-    return node->usize & BIT_HIGH_MASK(0);
+    return node->usize & BIT_HIGH_MASK(1);
 }
 
 static __always_inline void
@@ -36,21 +36,21 @@ static __always_inline void
 gnode_set_size(struct minpool_node *node, size_t size)
 {
     node->usize &= ~BIT_HIGH_MASK(0);
-    node->usize |= size & BIT_HIGH_MASK(0);
+    node->usize |= size & BIT_HIGH_MASK(1);
 }
 
 static __always_inline void
 gnode_set(struct minpool_node *node, size_t size, bool used)
 {
-    node->usize = (size & BIT_HIGH_MASK(0)) | used;
+    node->usize = (size & BIT_HIGH_MASK(1)) | used;
 }
 
 /**
- * gpool_find - Get first qualified node in mempool.
+ * minpool_find - Get first qualified node in mempool.
  * @head: Minimum mempool to get node.
  * @size: Node minimum size to get.
  */
-static struct minpool_node *gpool_find(struct minpool_head *head, size_t size)
+static struct minpool_node *minpool_find(struct minpool_head *head, size_t size)
 {
     struct minpool_node *node;
 
@@ -60,6 +60,18 @@ static struct minpool_node *gpool_find(struct minpool_head *head, size_t size)
     }
 
     return NULL;
+}
+
+static inline struct minpool_node *minpool_check(void *block)
+{
+    struct minpool_node *node;
+
+    /* Check whether it's a legal node */
+    node = container_of(block, struct minpool_node, data);
+    if (unlikely(!list_check_empty(&node->free)))
+        return NULL;
+
+    return node;
 }
 
 /**
@@ -77,7 +89,7 @@ void *minpool_alloc(struct minpool_head *head, size_t size)
         return NULL;
 
     /* Get the free memory block */
-    node = gpool_find(head, size);
+    node = minpool_find(head, size);
     if (unlikely(!node))
         return NULL;
 
@@ -120,9 +132,8 @@ void minpool_free(struct minpool_head *head, void *block)
     if (unlikely(!block))
         return;
 
-    /* Check whether it's a legal node */
-    node = container_of(block, struct minpool_node, data);
-    if (unlikely(!list_check_empty(&node->free)))
+    node = minpool_check(block);
+    if (unlikely(!node))
         return;
 
     /* Set node freed */
@@ -153,6 +164,70 @@ void minpool_free(struct minpool_head *head, void *block)
     }
 }
 EXPORT_SYMBOL(minpool_free);
+
+void *minpool_realloc(struct minpool_head *head, void *block, size_t resize)
+{
+    struct minpool_node *node, *expand;
+    size_t origin, exsize;
+    void *newblk;
+
+    if (unlikely(!resize)) {
+        minpool_free(head, block);
+        return NULL;
+    }
+
+    if (unlikely(!block))
+        return minpool_alloc(head, resize);
+
+    node = minpool_check(block);
+    if (unlikely(!node))
+        return NULL;
+
+    align_high_adj(resize, MINPOOL_ALIGN);
+    if (unlikely(resize > head->avail))
+        return NULL;
+
+    origin = gnode_get_size(node);
+    if (origin >= resize)
+        return block;
+
+    expand = list_next_entry_or_null(node, &head->block_list, block);
+    if (expand && !gnode_get_used(expand) && sizeof(*expand) +
+        gnode_get_size(expand) >= (exsize = resize - origin)) {
+        size_t fsize;
+
+        fsize = gnode_get_size(expand);
+        list_del(&expand->block);
+        list_del(&expand->free);
+
+        if (fsize - exsize < sizeof(*node) + MINPOOL_ALIGN) {
+            /* Use all space of the next node */
+            exsize = sizeof(*node) + fsize;
+            resize = origin + exsize;
+        } else {
+            /* Detach free node */
+            expand = (void *)expand + exsize;
+            gnode_set(expand, fsize - exsize - sizeof(*node), false);
+            list_add(&node->block, &expand->block);
+            list_add(&head->free_list, &expand->free);
+        }
+
+        gnode_set_size(node, resize);
+        head->avail -= exsize;
+
+        return block;
+    }
+
+    newblk = minpool_alloc(head, resize);
+    if (unlikely(!newblk))
+        return NULL;
+
+    memcpy(newblk, block, origin);
+    minpool_free(head, block);
+
+    return newblk;
+}
+EXPORT_SYMBOL(minpool_realloc);
 
 /**
  * minpool_setup - Minimum mempool setup.
