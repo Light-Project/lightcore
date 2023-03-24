@@ -8,6 +8,7 @@ sys-include-y += include/kconfig.h                      \
                  include/compiler/compiler-type.h       \
                  include/compiler/compiler-gcc.h        \
                  include/compiler/compiler.h            \
+                 include/compiler/incbin.h              \
                  include/compiler/pointer.h             \
                  include/compiler/sections.h            \
                  include/compiler/stringify.h
