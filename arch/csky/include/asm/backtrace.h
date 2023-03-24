@@ -8,4 +8,4 @@ void backtrace_regs(struct regs *regs);
 void backtrace_stack(size_t *sp);
 void backtrace(struct regs *regs);
 
-#endif  /* _ASM_X86_RECALL_H_ */
+#endif /* _ASM_X86_RECALL_H_ */

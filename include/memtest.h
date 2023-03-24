@@ -21,4 +21,4 @@ memtest_once(memtest_report_t func, size_t pattern,
              void *block, size_t size, size_t step) {}
 #endif
 
-#endif  /* _MEMTEST_H_ */
+#endif /* _MEMTEST_H_ */

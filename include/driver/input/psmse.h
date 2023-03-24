@@ -28,4 +28,4 @@ enum psmse_command {
     PSMSE_RET_NAK           = 0xfe,
 };
 
-#endif  /* _DRIVER_INPUT_PSMSE_H_ */
+#endif /* _DRIVER_INPUT_PSMSE_H_ */

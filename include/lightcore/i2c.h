@@ -111,4 +111,4 @@ union smbus_transfer {
     __u8 block[SMBUS_BLOCK_MAX + 2];
 };
 
-#endif  /* _LIGHTCORE_I2C_H_ */
+#endif /* _LIGHTCORE_I2C_H_ */

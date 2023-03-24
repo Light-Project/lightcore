@@ -99,4 +99,4 @@ extern void led_unregister(struct led_device *ldev);
 #define led_info(ldev, fmt, ...)        dev_info((ldev)->dev, fmt, ##__VA_ARGS__)
 #define led_debug(ldev, fmt, ...)       dev_debug((ldev)->dev, fmt, ##__VA_ARGS__)
 
-#endif  /* _DRIVER_LED_H_ */
+#endif /* _DRIVER_LED_H_ */

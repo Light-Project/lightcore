@@ -184,4 +184,4 @@ name##_atomic_test_flip_##flag(type *ptr)                       \
     return name##_##member##_atomic_test_flip(ptr, index);      \
 }
 
-#endif  /* _BITFLAGS_H_ */
+#endif /* _BITFLAGS_H_ */

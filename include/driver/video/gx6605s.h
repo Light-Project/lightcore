@@ -229,4 +229,4 @@ enum gx6605s_color_format {
 #define GX6605S_OSDR_ALPHA_RATIO_EN             BIT(24)
 #define GX6605S_OSDR_LIST_END                   BIT(31)
 
-#endif  /* _DRIVER_VIDEO_GX6605S_H_ */
+#endif /* _DRIVER_VIDEO_GX6605S_H_ */

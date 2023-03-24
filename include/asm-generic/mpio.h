@@ -15,4 +15,4 @@ extern void mpio_writel(void *addr, uint32_t val);
 extern void *mpio_map(unsigned long port, unsigned int nr);
 extern void mpio_unmap(void *addr);
 
-#endif  /* _ASM_GENERIC_MPIO_H_ */
+#endif /* _ASM_GENERIC_MPIO_H_ */

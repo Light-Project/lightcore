@@ -38,4 +38,4 @@ enum dell_smm_types {
 #define DELL_FAN_HIGH           2
 #define DELL_FAN_TURBO          3
 
-#endif  /* _DRIVER_HWMON_AMD_K10_H_ */
+#endif /* _DRIVER_HWMON_AMD_K10_H_ */

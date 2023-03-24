@@ -53,4 +53,4 @@ struct sun_head {
 #define SUN_LABEL_MAGIC     0xdabe
 #define SUN_VTOC_SANITY     0x600ddeee
 
-#endif  /* _DRIVER_BLOCK_SUN_H_ */
+#endif /* _DRIVER_BLOCK_SUN_H_ */

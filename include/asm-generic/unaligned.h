@@ -139,4 +139,4 @@ static inline void unaligned_set_be64(void *p, uint64_t val)
     unaligned_set_type(be64, p, cpu_to_be64(val));
 }
 
-#endif  /* _ASM_GENERIC_UNALIGNED_H_ */
+#endif /* _ASM_GENERIC_UNALIGNED_H_ */

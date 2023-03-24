@@ -52,4 +52,4 @@ struct fpux_regs {
     uint32_t xmm_regs[64];
 };
 
-#endif  /* _ASM_X86_FPU_H_ */
+#endif /* _ASM_X86_FPU_H_ */

@@ -27,4 +27,4 @@ struct cpufreq_sched {
 extern state cpufreq_sched_register(struct cpufreq_sched *);
 extern void cpufreq_sched_unregister(struct cpufreq_sched *);
 
-#endif  /* _DRIVER_CPUFREQ_H_ */
+#endif /* _DRIVER_CPUFREQ_H_ */

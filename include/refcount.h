@@ -168,4 +168,4 @@ REFCOUNT_TEST_OPS(sub, dec, refcount_fetch_sub_test)
 #define refcount_fetch_dec(ref, oldp)           generic_refcount_fetch_dec(ref, oldp)
 #define refcount_fetch_dec_test(ref, oldp)      generic_refcount_fetch_test_dec(ref, oldp)
 
-#endif  /* _REFCOUNT_H_ */
+#endif /* _REFCOUNT_H_ */

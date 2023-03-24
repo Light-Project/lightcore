@@ -9,4 +9,4 @@ extern void backtrace(size_t *bp);
 extern void show_regs(struct regs *regs, unsigned long error_code);
 extern void oops(struct regs *regs, unsigned long error_code, const char *str);
 
-#endif  /* _ASM_X86_RECALL_H_ */
+#endif /* _ASM_X86_RECALL_H_ */

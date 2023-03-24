@@ -72,7 +72,7 @@ struct kshell_command {
 
 static inline void ksh_init(void) {}
 
-#else  /* !CONFIG_KSHELL */
+#else /* !CONFIG_KSHELL */
 
 extern const char *kshell_getenv(struct kshell_context *ctx, const char *name);
 extern state kshell_setenv(struct kshell_context *ctx, const char *name, const char *val, bool overwrite);
@@ -122,5 +122,5 @@ extern state kshell_register(struct kshell_command *cmd);
 extern void kshell_unregister(struct kshell_command *cmd);
 extern void ksh_init(void);
 
-#endif  /* CONFIG_KSHELL */
-#endif  /* _KSHELL_H_ */
+#endif /* CONFIG_KSHELL */
+#endif /* _KSHELL_H_ */

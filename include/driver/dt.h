@@ -155,4 +155,4 @@ extern state dt_irq_parse_one(struct dt_node *node, int index, struct dt_phandle
 
 #include <driver/dt/helper.h>
 
-#endif  /* _DRIVER_DT_H_ */
+#endif /* _DRIVER_DT_H_ */

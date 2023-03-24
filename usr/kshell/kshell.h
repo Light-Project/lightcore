@@ -63,4 +63,4 @@ extern state kshell_main(struct kshell_context *ctx, int argc, char *argv[]);
 extern struct kshell_command *kshell_find(const char *name);
 extern struct kshell_command *kshell_closest(const char *name);
 
-#endif  /* _KSHELL_PRIV_H_ */
+#endif /* _KSHELL_PRIV_H_ */

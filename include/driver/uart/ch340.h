@@ -48,4 +48,4 @@ enum ch340_register {
 #define CH340_LCR_CS6               0x01        // 6 bit character length
 #define CH340_LCR_CS5               0x00        // 5 bit character length
 
-#endif  /* _DRIVER_UART_CH340_H_ */
+#endif /* _DRIVER_UART_CH340_H_ */

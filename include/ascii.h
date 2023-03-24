@@ -40,4 +40,4 @@
 #define ASCII_US    0x1f    /* Unit Separator */
 #define ASCII_DEL   0x7f    /* Delete */
 
-#endif  /* _ASCII_H_ */
+#endif /* _ASCII_H_ */

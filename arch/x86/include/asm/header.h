@@ -64,5 +64,5 @@ struct bootparam {
 
 #include <asm-generic/header.h>
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _ASM_X86_BOOTPARAM_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _ASM_X86_BOOTPARAM_H_ */

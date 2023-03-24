@@ -103,4 +103,4 @@ extern struct ts_context *textsearch_prepare(const char *name, const void *patte
 extern state textsearch_register(struct ts_algorithm *algo);
 extern state textsearch_unregister(struct ts_algorithm *algo);
 
-#endif  /* _TEXTSEARCH_H_ */
+#endif /* _TEXTSEARCH_H_ */

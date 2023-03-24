@@ -34,4 +34,4 @@ struct cpio_inode {
 
 #define CPIO_TRAILER_NAME "TRAILER!!!"
 
-#endif  /* _FS_CPIO_H_ */
+#endif /* _FS_CPIO_H_ */

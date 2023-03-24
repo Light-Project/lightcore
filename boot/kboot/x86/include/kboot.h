@@ -77,5 +77,5 @@ extern void video_clear(void);
 extern void serial_print(const char *str);
 extern void serial_init(void);
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _KBOOT_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _KBOOT_H_ */

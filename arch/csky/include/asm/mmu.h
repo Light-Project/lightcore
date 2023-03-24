@@ -74,4 +74,4 @@ static inline void mmu_msa1_set(uint32_t value)
     cpwcr("cpcr31", value);
 }
 
-#endif  /* _ASM_CSKY_MMU_H_ */
+#endif /* _ASM_CSKY_MMU_H_ */

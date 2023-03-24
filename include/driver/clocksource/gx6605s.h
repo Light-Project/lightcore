@@ -25,4 +25,4 @@ enum gx6605s_timer_registers {
 
 #define GX6605S_TIM_LATCH(fin, hz)  (((fin) / (hz)) - 1)
 
-#endif  /* _DRIVER_CLOCKSOURCT_GX6605S_H_ */
+#endif /* _DRIVER_CLOCKSOURCT_GX6605S_H_ */

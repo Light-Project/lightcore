@@ -62,4 +62,4 @@ enum esp_uart_registers {
 #define ESP8266_UART_HIGHPULSE_DEFAULT  0x000fffff
 #define ESP8266_UART_RXDCNT_DEFAULT     0x00000000
 
-#endif  /* _DRIVER_UART_ESP_H_ */
+#endif /* _DRIVER_UART_ESP_H_ */

@@ -14,4 +14,4 @@ extern struct crash_entry *crash_find(uintptr_t addr);
 extern enum crash_type crash_report(uintptr_t addr, struct regs *regs);
 extern void __init crash_init(void);
 
-#endif  /* _CRASH_H_ */
+#endif /* _CRASH_H_ */

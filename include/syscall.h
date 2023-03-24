@@ -62,4 +62,4 @@ extern long syscall_handle(unsigned long callnr, long arg1, long arg2, long arg3
 extern state syscall_register(struct syscall_desc *syscall);
 extern void syscall_unregister(struct syscall_desc *syscall);
 
-#endif  /* _SYSCALL_H_ */
+#endif /* _SYSCALL_H_ */

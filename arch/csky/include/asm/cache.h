@@ -21,5 +21,5 @@
 void icache_inval_all(void);
 void dcache_writeback_all(void);
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* __ASM_CSKY_CACHE_H */
+#endif /* __ASSEMBLY__ */
+#endif /* __ASM_CSKY_CACHE_H */

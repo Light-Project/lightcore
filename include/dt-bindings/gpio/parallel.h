@@ -20,4 +20,4 @@
 #define GPIO_PARALLEL_INIT          15
 #define GPIO_PARALLEL_SELECT        16
 
-#endif  /* _DT_BINDINGS_GPIO_PARALLEL_H_ */
+#endif /* _DT_BINDINGS_GPIO_PARALLEL_H_ */

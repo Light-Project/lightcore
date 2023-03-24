@@ -46,4 +46,4 @@ enum piix4_power_registers {
 #define PIIX4_POWER_CNTRL_GBL_RLS
 #define PIIX4_POWER_CNTRL_SCI       BIT(0)
 
-#endif  /* _DRIVER_POWER_PIIX4_H_ */
+#endif /* _DRIVER_POWER_PIIX4_H_ */

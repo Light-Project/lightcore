@@ -26,4 +26,4 @@ struct uart8250_ops {
 state uart8250_register(struct uart8250_device *);
 void uart8250_unregister(struct uart8250_device *);
 
-#endif  /* _UART8250_H_ */
+#endif /* _UART8250_H_ */

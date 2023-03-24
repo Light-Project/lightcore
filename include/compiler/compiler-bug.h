@@ -10,4 +10,4 @@
  */
 #define BUILD_ASSERT(e) ((int)(sizeof(struct { int:(-!!(e)); })))
 
-#endif  /* _COMPILER_BUG_H_ */
+#endif /* _COMPILER_BUG_H_ */

@@ -111,4 +111,4 @@ enum ohci_status {
 #define OHCI_RH_B_DR        (0xffff	<< 0)   /* device removable flags */
 #define OHCI_RH_B_PPCM      (0xffff	<< 16)  /* port power control mask */
 
-#endif  /* _DRIVER_USB_OHCI_H_ */
+#endif /* _DRIVER_USB_OHCI_H_ */

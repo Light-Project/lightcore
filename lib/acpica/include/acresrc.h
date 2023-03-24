@@ -564,4 +564,4 @@ extern ACPI_RSDUMP_INFO         AcpiRsDumpPinGroupFunction[];
 extern ACPI_RSDUMP_INFO         AcpiRsDumpPinGroupConfig[];
 #endif
 
-#endif  /* __ACRESRC_H__ */
+#endif /* __ACRESRC_H__ */

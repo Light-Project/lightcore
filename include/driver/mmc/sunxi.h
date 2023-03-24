@@ -117,4 +117,4 @@ enum SUNXI_mmc_states {
 #define SUNXI_MMC_STAR_FIFO_RX_LEVEL        BIT(0)      // FIFO RX Water Level flag
 
 
-#endif  /* _DRIVER_MMC_SUNXI_H_ */
+#endif /* _DRIVER_MMC_SUNXI_H_ */

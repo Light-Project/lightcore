@@ -116,5 +116,5 @@ word_zero_mask(unsigned long mask)
     return mask;
 }
 
-#endif  /* CONFIG_ARCH_LITTLE_ENDIAN */
-#endif  /* _ASM_GENERIC_WORDOPS_H_ */
+#endif /* CONFIG_ARCH_LITTLE_ENDIAN */
+#endif /* _ASM_GENERIC_WORDOPS_H_ */

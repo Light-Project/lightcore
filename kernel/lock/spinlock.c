@@ -200,4 +200,4 @@ bool raw_write_trylock_bh(raw_rwlock_t *lock)
 }
 EXPORT_SYMBOL(raw_write_trylock_bh);
 
-#endif  /* CONFIG_INLINE_SPINLOCK */
+#endif /* CONFIG_INLINE_SPINLOCK */

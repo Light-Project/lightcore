@@ -19,4 +19,4 @@ extern bool mutex_trylock(struct mutex *mutex);
 extern void mutex_lock(struct mutex *mutex);
 extern void mutex_unlock(struct mutex *mutex);
 
-#endif  /* _MUTEX_H_ */
+#endif /* _MUTEX_H_ */

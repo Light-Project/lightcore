@@ -107,4 +107,4 @@ extern void device_unregister(struct device *dev);
 extern void __init early_device_init(void);
 extern void __init device_init(void);
 
-#endif  /* _DEVICE_H_ */
+#endif /* _DEVICE_H_ */

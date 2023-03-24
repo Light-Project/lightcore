@@ -180,4 +180,4 @@ extern void video_unregister(struct video_device *);
 #define video_info(vdev, fmt, ...)   dev_info(&(vdev)->dev, fmt, ##__VA_ARGS__)
 #define video_debug(vdev, fmt, ...)  dev_debug(&(vdev)->dev, fmt, ##__VA_ARGS__)
 
-#endif  /* _DRIVER_VIDEO_H_ */
+#endif /* _DRIVER_VIDEO_H_ */

@@ -140,4 +140,4 @@ extern state timekeeping_change(struct clocksource_device *cdev);
 /* systick core */
 extern state systick_change(struct clockevent_device *cdev);
 
-#endif  /* _TIMERKEEPING_H_ */
+#endif /* _TIMERKEEPING_H_ */

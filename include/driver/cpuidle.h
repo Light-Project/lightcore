@@ -129,4 +129,4 @@ extern void cpuidle_governor_switch(struct cpuidle_governor *governor);
 extern state cpuidle_governor_register(struct cpuidle_governor *governor);
 extern void cpuidle_governor_unregister(struct cpuidle_governor *governor);
 
-#endif  /* _DRIVER_CPUIDLE_H_ */
+#endif /* _DRIVER_CPUIDLE_H_ */

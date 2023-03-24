@@ -24,4 +24,4 @@
 
 #include <asm-generic/setjmp.h>
 
-#endif  /* _ASM_X86_SETJMP_H_ */
+#endif /* _ASM_X86_SETJMP_H_ */

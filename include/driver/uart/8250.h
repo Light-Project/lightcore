@@ -116,4 +116,4 @@ enum uart8250_registers {
 #define UART8250_MSR_DDSR               BIT(1)              /* Delta Data Set Ready Indicator */
 #define UART8250_MSR_DCTS               BIT(0)              /* Delta Clear to Send Indicator */
 
-#endif  /* _DRIVER_UART_8250_H_ */
+#endif /* _DRIVER_UART_8250_H_ */

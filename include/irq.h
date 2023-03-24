@@ -33,4 +33,4 @@ extern void irq_handle(irqnr_t vector);
 extern state irq_request(irqnr_t vector, enum irq_flags flags, irq_handler_t handler, void *data, const char *name);
 extern void irq_release(irqnr_t vector);
 
-#endif  /* _IRQ_H_ */
+#endif /* _IRQ_H_ */

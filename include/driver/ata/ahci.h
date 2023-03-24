@@ -188,4 +188,4 @@ struct ahci_fis_table {
 #define AHCI_CMDTF_ATAPI        BIT(5)
 #define AHCI_CMDTF_CFL          BIT_RANGE(4, 0)
 
-#endif  /* _DRIVER_ATA_AHCI_H_ */
+#endif /* _DRIVER_ATA_AHCI_H_ */

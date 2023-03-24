@@ -18,4 +18,4 @@ struct selftest_command {
 extern state selftest_register(struct selftest_command *command);
 extern void selftest_unregister(struct selftest_command *command);
 
-#endif  /* _LOCAL_BENCHMARK_H_ */
+#endif /* _LOCAL_BENCHMARK_H_ */

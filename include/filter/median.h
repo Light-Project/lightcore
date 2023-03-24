@@ -27,4 +27,4 @@ extern void median_clear(struct median_state *state);
 extern struct median_state *median_alloc(unsigned int length, gfp_t flags);
 extern void median_free(struct median_state *state);
 
-#endif  /* _FILTER_MEDIAN_H_ */
+#endif /* _FILTER_MEDIAN_H_ */

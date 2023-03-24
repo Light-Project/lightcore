@@ -46,4 +46,4 @@ extern state rng_filled(struct rng_device *rdev, void *data, size_t len);
 extern state rng_register(struct rng_device *rdev);
 extern void rng_unregister(struct rng_device *rdev);
 
-#endif  /* _DRIVER_RNG_H_ */
+#endif /* _DRIVER_RNG_H_ */

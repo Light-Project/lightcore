@@ -504,4 +504,4 @@ GENERIC_BIT_FIND_BYTEORDER_SWAB_OPS(le)
          (b) = find_next_zero((addr), (size), (e) + 1),                             \
          (e) = find_next_bit((addr), (size), (b) + 1))
 
-#endif  /* _BITOPS_H_ */
+#endif /* _BITOPS_H_ */

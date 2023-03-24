@@ -19,4 +19,4 @@ static inline size_t base32_decode_length(size_t size)
 extern void base32_encode(void *buff, const void *data, size_t size);
 extern state base32_decode(void *buff, const void *data, size_t size);
 
-#endif  /* _CRYPTO_BASE32_H_ */
+#endif /* _CRYPTO_BASE32_H_ */

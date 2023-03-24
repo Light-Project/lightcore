@@ -36,4 +36,4 @@ extern struct driver *driver_find(struct bus_type *bus, const char *name);
 extern state driver_register(struct driver *drv);
 extern void driver_unregister(struct driver *drv);
 
-#endif  /* _DEVICES_DRIVER_H_ */
+#endif /* _DEVICES_DRIVER_H_ */

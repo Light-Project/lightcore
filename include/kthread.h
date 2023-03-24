@@ -31,4 +31,4 @@ extern void kthread_work_dequeue(struct kthread_worker *worker, struct kthread_w
 
 extern state kthread_daemon(void *pdata);
 
-#endif  /* _KTHREAD_H_ */
+#endif /* _KTHREAD_H_ */

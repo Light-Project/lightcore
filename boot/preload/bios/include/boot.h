@@ -159,4 +159,4 @@ extern void serial_print(const char *str);
 extern void serial_init(void);
 extern void a20_enable(void);
 
-#endif  /* _BOOT_H_ */
+#endif /* _BOOT_H_ */

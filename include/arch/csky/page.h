@@ -31,5 +31,5 @@ struct pte {
 #define PAGE_CACHE      0x03
 #define PAGE_UNCACHE    0x02
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _ARCH_ARM_PAGE_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _ARCH_ARM_PAGE_H_ */

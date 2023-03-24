@@ -10,4 +10,4 @@ enum led_brightness {
     LED_BRIGHTNESS_FULL     = 255,
 };
 
-#endif  /* _LIGHTCORE_LED_H_ */
+#endif /* _LIGHTCORE_LED_H_ */

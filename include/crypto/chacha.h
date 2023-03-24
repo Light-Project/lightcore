@@ -19,4 +19,4 @@ static inline void chacha20_block(uint32_t *state, uint8_t *stream)
     chacha_block(state, stream, 20);
 }
 
-#endif  /* _CRYPTO_CHACHA_H_ */
+#endif /* _CRYPTO_CHACHA_H_ */

@@ -68,4 +68,4 @@ enum pl11x_registers {
 #define PL11X_CNTL_1XBPP_565    BIT(18)
 #define PL11X_CNTL_1XBPP_5551   BIT(17)
 
-#endif  /* _DRIVER_VIDEO_PL11X_H_ */
+#endif /* _DRIVER_VIDEO_PL11X_H_ */

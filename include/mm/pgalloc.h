@@ -74,4 +74,4 @@ extern state p4d_alloc(pgd_t *pgd, size_t addr);
 extern void p4d_free(pgd_t *pgd, size_t addr);
 #endif
 
-#endif  /* _MM_PGTABLE_H_ */
+#endif /* _MM_PGTABLE_H_ */

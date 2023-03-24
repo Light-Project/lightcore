@@ -20,4 +20,4 @@ static inline void arm32_domain_set(uint32_t domain)
 
 state proc_thread_switch(struct sched_task *prev, struct sched_task *next);
 
-#endif  /* _ASM_ARM_PROC_H_ */
+#endif /* _ASM_ARM_PROC_H_ */

@@ -27,4 +27,4 @@ void halt(void);
 /* page.c */
 void kernel_map(void);
 
-#endif  /* _KBOOT_H_ */
+#endif /* _KBOOT_H_ */

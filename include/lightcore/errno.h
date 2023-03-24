@@ -38,4 +38,4 @@
 #define EDOM                    33      /* Math argument out of domain of func */
 #define ERANGE                  34      /* Math result not representable */
 
-#endif  /* _LIGHTCORE_ERRNO_H_ */
+#endif /* _LIGHTCORE_ERRNO_H_ */

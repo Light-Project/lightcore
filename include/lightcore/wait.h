@@ -15,4 +15,4 @@
 #define P_PGID		2
 #define P_PIDFD		3
 
-#endif  /* _LIGHTCORE_WAIT_H_ */
+#endif /* _LIGHTCORE_WAIT_H_ */

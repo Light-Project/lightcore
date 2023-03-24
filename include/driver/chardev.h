@@ -8,4 +8,4 @@ struct chardev {
     struct list_head list;
 };
 
-#endif  /* _CHARDEV_H_ */
+#endif /* _CHARDEV_H_ */

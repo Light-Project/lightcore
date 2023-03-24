@@ -26,4 +26,4 @@ static inline bool pmd_get_present(pmd_t *pmd)
 state arch_page_map(size_t pa, size_t va, size_t size);
 void arch_page_setup(void);
 
-#endif  /* _ASM_CSKY_PGALLOC_H_ */
+#endif /* _ASM_CSKY_PGALLOC_H_ */

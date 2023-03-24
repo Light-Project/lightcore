@@ -16,4 +16,4 @@ typedef struct {
     arch_rwlock_t alock;
 } raw_rwlock_t;
 
-#endif  /* _SPINLOCK_RAW_TYPES_H_ */
+#endif /* _SPINLOCK_RAW_TYPES_H_ */

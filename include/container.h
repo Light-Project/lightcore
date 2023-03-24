@@ -18,4 +18,4 @@
     _ptr ? container_of(_ptr, type, member) : NULL;     \
 })
 
-#endif  /* _CONTAINER_H_ */
+#endif /* _CONTAINER_H_ */

@@ -6,4 +6,4 @@
 #include <asm/page.h>
 #include <ioremap.h>
 
-#endif  /* _IOOPS_H_ */
+#endif /* _IOOPS_H_ */

@@ -33,4 +33,4 @@ extern state semaphore_down_timeout(struct semaphore *sem, ttime_t timeout);
 extern bool semaphore_down_trylock(struct semaphore *sem);
 extern void semaphore_up(struct semaphore *sem);
 
-#endif  /* _SEMAPHORE_H_ */
+#endif /* _SEMAPHORE_H_ */

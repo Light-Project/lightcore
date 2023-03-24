@@ -108,4 +108,4 @@ static inline const char *libmo_gettext(const struct libmo_context *ctx, const c
     return IS_INVAL(tran) ? orig : tran;
 }
 
-#endif  /* _LIBMO_H_ */
+#endif /* _LIBMO_H_ */

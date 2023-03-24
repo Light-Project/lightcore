@@ -10,4 +10,4 @@ static __always_inline unsigned int flsuf(unsigned long value)
 	return BITS_PER_LONG - 1 - __builtin_clzl(value);
 }
 
-#endif  /* _ASM_GENERIC_BUILTIN_FLSUF_H_ */
+#endif /* _ASM_GENERIC_BUILTIN_FLSUF_H_ */

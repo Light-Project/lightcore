@@ -59,4 +59,4 @@ static inline state pmd_alloc(pud_t *pud, size_t addr)
     return -ENOERR;
 }
 
-#endif  /* _ASM_GENERIC_PGTABLE_PMD_H_ */
+#endif /* _ASM_GENERIC_PGTABLE_PMD_H_ */

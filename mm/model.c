@@ -75,4 +75,4 @@ void memmodel_init(void)
     sparce_alloc();
 }
 
-#endif  /* CONFIG_SPARCEMEM */
+#endif /* CONFIG_SPARCEMEM */

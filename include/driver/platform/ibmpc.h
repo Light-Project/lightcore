@@ -25,4 +25,4 @@
 #define IBMPC_FA20_GATE                 BIT(1)          /* Alternate A20 Gate */
 #define IBMPC_FA20_INIT                 BIT(0)          /* Init Now */
 
-#endif  /* _DRIVER_PLATFORM_IBMPC_H_ */
+#endif /* _DRIVER_PLATFORM_IBMPC_H_ */

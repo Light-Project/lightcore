@@ -23,4 +23,4 @@ struct getopt_ctx {
 #define GETOPT_INIT (struct getopt_ctx){.optreset = true}
 extern int getopt(struct getopt_ctx *ctx, int argc, char *argv[], const char *optstr);
 
-#endif  /* _GETOPT_H_ */
+#endif /* _GETOPT_H_ */

@@ -21,4 +21,4 @@ typedef struct {
 #define ARCH_SPIN_LOCK_UNLOCK   (arch_spinlock_t) ARCH_SPIN_LOCK_STATIC
 #define ARCH_RW_LOCK_UNLOCK     (arch_rwlock_t) ARCH_RW_LOCK_STATIC
 
-#endif  /* _SPINLOCK_DUMMY_TYPES_H_ */
+#endif /* _SPINLOCK_DUMMY_TYPES_H_ */

@@ -35,4 +35,4 @@ static inline unsigned int fls(unsigned long val)
 
 #include <asm-generic/bitops.h>
 
-#endif  /* _ASM_CSKY_BITOPS_H_ */
+#endif /* _ASM_CSKY_BITOPS_H_ */

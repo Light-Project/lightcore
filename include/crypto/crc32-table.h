@@ -95,4 +95,4 @@ static inline uint32_t crc32_inline(const uint8_t *src, int len, uint32_t crc)
     return loop ^ crc;
 }
 
-#endif  /* _CRYPTO_CRC32_TABLE_H_ */
+#endif /* _CRYPTO_CRC32_TABLE_H_ */

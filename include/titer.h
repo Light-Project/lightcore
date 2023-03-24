@@ -227,4 +227,4 @@ TINAME##_level_next(const TIROOT *root, unsigned long *index)           \
     return node;                                                        \
 }
 
-#endif  /* _TITER_H_ */
+#endif /* _TITER_H_ */

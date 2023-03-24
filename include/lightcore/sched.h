@@ -10,4 +10,4 @@ enum clone_flags {
     CLONE_VFORK     = 0x00004000,   /* wake up the child process first */
 };
 
-#endif  /* _LIGHTCORE_SCHED_H_ */
+#endif /* _LIGHTCORE_SCHED_H_ */

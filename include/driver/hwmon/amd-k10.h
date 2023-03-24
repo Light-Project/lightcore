@@ -9,4 +9,4 @@
 
 #define K10_TEMP_MAX    (70 * 1000)
 
-#endif  /* _DRIVER_HWMON_AMD_K10_H_ */
+#endif /* _DRIVER_HWMON_AMD_K10_H_ */

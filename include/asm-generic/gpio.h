@@ -18,4 +18,4 @@ static inline bool gpio_valid(unsigned int number)
     return number < ARCH_GPIO_LIMIT;
 }
 
-#endif  /* _ASM_GENERIC_GPIO_H_ */
+#endif /* _ASM_GENERIC_GPIO_H_ */

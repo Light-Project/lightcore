@@ -30,4 +30,4 @@ extern void uart_init(void);
 extern void uart_deinit(void);
 extern void uart_print(const char *);
 
-#endif  /* _BOOT_H_ */
+#endif /* _BOOT_H_ */

@@ -73,4 +73,4 @@ struct fat_dir_entry {
     le32 size;                  /* 0x1c: file size (in bytes) */
 } __packed;
 
-#endif  /* _FS_FAT_H_ */
+#endif /* _FS_FAT_H_ */

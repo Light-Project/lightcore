@@ -80,5 +80,5 @@
     rsync
 .endm
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _ASM_XTENSA_ENTRY_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _ASM_XTENSA_ENTRY_H_ */

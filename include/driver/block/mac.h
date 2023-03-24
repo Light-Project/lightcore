@@ -35,4 +35,4 @@ struct mac_partition {
 #define MAC_PARTITION_MAGIC	0x504d
 #define MAC_BOOTABLE 8
 
-#endif  /* _DRIVER_BLOCK_MAC_H_ */
+#endif /* _DRIVER_BLOCK_MAC_H_ */

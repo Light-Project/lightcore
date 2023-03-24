@@ -10,4 +10,4 @@
 #define irq_local_save()            ({ arch_irq_save();         })
 #define irq_local_restore(flags)    ({ arch_irq_restore(flags); })
 
-#endif  /* _IRQFLAGS_H_ */
+#endif /* _IRQFLAGS_H_ */

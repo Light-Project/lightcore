@@ -960,4 +960,4 @@ static inline bool RBNAME##_compute_max(RBSTRUCT *node, bool exit)              
 }                                                                                                       \
 RB_DECLARE_CALLBACKS(RBSTATIC, RBNAME, RBSTRUCT, RBFIELD, RBAUGMENTED, RBNAME##_compute_max)
 
-#endif  /* _RBTREE_H_ */
+#endif /* _RBTREE_H_ */

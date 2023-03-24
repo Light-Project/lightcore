@@ -53,4 +53,4 @@ struct iomux_ops {
     void (*drv_set)(struct gpio_device *, unsigned int port, enum gpio_drv);
 };
 
-#endif  /* _DRIVER_IOMUX_H_ */
+#endif /* _DRIVER_IOMUX_H_ */

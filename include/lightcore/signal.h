@@ -40,4 +40,4 @@ struct sigaltstack {
     unsigned long ss_size;
 };
 
-#endif  /* _LIGHTCORE_SIGNAL_H_ */
+#endif /* _LIGHTCORE_SIGNAL_H_ */

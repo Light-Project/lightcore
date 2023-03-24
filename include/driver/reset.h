@@ -63,5 +63,5 @@ extern void reset_channel_release(struct reset_channel *);
 extern state reset_register(struct reset_device *);
 extern void reset_unregister(struct reset_device *);
 
-#endif  /* CONFIG_RESET */
-#endif  /* _DRIVER_RESET_ */
+#endif /* CONFIG_RESET */
+#endif /* _DRIVER_RESET_ */

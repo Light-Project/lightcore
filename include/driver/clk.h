@@ -50,5 +50,5 @@ extern state clk_register(struct clk_device *);
 extern void clk_unregister(struct clk_device *);
 extern void clk_init(void);
 
-#endif  /* CONFIG_CLK */
-#endif  /* _DRIVER_CLK_ */
+#endif /* CONFIG_CLK */
+#endif /* _DRIVER_CLK_ */

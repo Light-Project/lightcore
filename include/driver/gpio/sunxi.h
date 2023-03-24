@@ -54,4 +54,4 @@ enum sunxi_iobase {
 #define SUNXI_GPIO_DRV_LEVEL2   0x02
 #define SUNXI_GPIO_DRV_LEVEL3   0x03
 
-#endif  /* _CHIP_GPIO_SUNXI_H_ */
+#endif /* _CHIP_GPIO_SUNXI_H_ */

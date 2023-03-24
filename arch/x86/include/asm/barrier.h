@@ -14,4 +14,4 @@
 
 #include <asm-generic/barrier.h>
 
-#endif  /* _ASM_X86_BARRIER_H_ */
+#endif /* _ASM_X86_BARRIER_H_ */

@@ -43,4 +43,4 @@ extern void klist_iter_exit(struct klist_iter *iter);
 extern struct klist_node *klist_iter_next(struct klist_iter *iter);
 extern struct klist_node *klist_iter_prev(struct klist_iter *iter);
 
-#endif  /* _KLIST_H_ */
+#endif /* _KLIST_H_ */

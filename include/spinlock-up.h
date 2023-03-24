@@ -41,7 +41,7 @@ static inline bool arch_spin_trylock(arch_spinlock_t *lock)
 #define arch_spin_trylock(lock)     ({ barrier(); (void)(lock); true; })
 #define arch_spin_locked(lock)      ((void)(lock), false)
 
-#endif  /* CONFIG_DEBUG_SPINLOCK */
+#endif /* CONFIG_DEBUG_SPINLOCK */
 
 #define arch_spin_contended(lock)   ((void)(lock), false)
 
@@ -52,4 +52,4 @@ static inline bool arch_spin_trylock(arch_spinlock_t *lock)
 #define arch_read_trylock(lock)     ({ barrier(); (void)(lock); true; })
 #define arch_write_trylock(lock)    ({ barrier(); (void)(lock); true; })
 
-#endif  /* _SPINLOCK_UP_H_ */
+#endif /* _SPINLOCK_UP_H_ */

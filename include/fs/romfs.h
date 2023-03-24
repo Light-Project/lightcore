@@ -39,4 +39,4 @@ enum romfs_type {
 #define ROMFH_PAD   (ROMFH_SIZE - 1)
 #define ROMFH_MASK  (~ROMFH_PAD)
 
-#endif  /* _FS_ROMFS_H_ */
+#endif /* _FS_ROMFS_H_ */

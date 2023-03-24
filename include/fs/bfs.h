@@ -38,4 +38,4 @@ struct bfs_superblock {
 	uint32_t padding[118];  /* 0x00:  */
 } __packed;
 
-#endif  /* _FS_BFS_H_ */
+#endif /* _FS_BFS_H_ */

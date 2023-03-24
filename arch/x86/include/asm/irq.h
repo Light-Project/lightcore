@@ -68,8 +68,8 @@ static inline void arch_irq_restore(irqflags_t flags)
         arch_irq_enable();
 }
 
-#endif  /* __ASSEMBLY__ */
+#endif /* __ASSEMBLY__ */
 
 #include <asm-generic/irq.h>
 
-#endif  /* _ASM_X86_IRQ_H_ */
+#endif /* _ASM_X86_IRQ_H_ */

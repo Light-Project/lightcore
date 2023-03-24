@@ -6,4 +6,4 @@ typedef struct mcontext {
     unsigned long regs[KC_BUF_REGS];
 } mcontext_t;
 
-#endif  /* _ASM_GENERIC_CONTEXT_H_ */
+#endif /* _ASM_GENERIC_CONTEXT_H_ */

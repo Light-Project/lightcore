@@ -7,4 +7,4 @@
 typedef long (*dynamic_call_t)(void);
 extern long dynamic_call(dynamic_call_t fn, unsigned int num, void *args[]);
 
-#endif  /* _DYNAMIC_CALL_H_ */
+#endif /* _DYNAMIC_CALL_H_ */

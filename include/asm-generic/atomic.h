@@ -74,7 +74,7 @@ generic_atomic_return_##op(atomic_t *atomic, atomic_t val)  \
     return ret;                                             \
 }
 
-#endif  /* CONFIG_SMP */
+#endif /* CONFIG_SMP */
 
 ATOMIC_OP(add, +=)
 ATOMIC_OP(sub, -=)
@@ -414,4 +414,4 @@ static __always_inline bool arch_atomic_try_cmpxchg(atomic_t *atomic, atomic_t *
 }
 #endif
 
-#endif  /* _ASM_GENERIC_ATOMIC_H_ */
+#endif /* _ASM_GENERIC_ATOMIC_H_ */

@@ -18,4 +18,4 @@
 extern void sha1_transform(uint32_t *digest, uint32_t *buff, const char *data);
 extern void sha1_init(uint32_t *digest);
 
-#endif  /* _CRYPTO_SHA1_H_ */
+#endif /* _CRYPTO_SHA1_H_ */

@@ -98,4 +98,4 @@ extern state notifier_spin_chain_register(struct notifier_spin_head *head, struc
 extern void notifier_spin_chain_unregister(struct notifier_spin_head *head, struct notifier_node *node);
 extern notifier_return_t notifier_spin_chain_call(struct notifier_spin_head *head, void *pdata, int call_num, int *called_num);
 
-#endif  /* _NOTIFIER_H_ */
+#endif /* _NOTIFIER_H_ */

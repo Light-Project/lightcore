@@ -3,4 +3,4 @@
 #define _ASM_X86_UACCESS_H_
 
 
-#endif  /* _ASM_X86_UACCESS_H_ */
+#endif /* _ASM_X86_UACCESS_H_ */

@@ -214,4 +214,4 @@
 #define ES_REG_UF_BYTEM (0xff << 0)
 #define ES_REG_UF_BYTEI(i) (((i) >> 0) & 0xff)
 
-#endif  /* _DRIVER_SOUND_ES1370_H_ */
+#endif /* _DRIVER_SOUND_ES1370_H_ */

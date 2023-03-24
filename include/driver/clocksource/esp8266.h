@@ -29,4 +29,4 @@ enum esp8266_timer_registers {
 
 #define ESP8266_TIMER_INT_CLR           BIT(0)
 
-#endif  /* _DRIVER_TIMER_ESP8266_H_ */
+#endif /* _DRIVER_TIMER_ESP8266_H_ */

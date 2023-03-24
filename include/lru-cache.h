@@ -114,4 +114,4 @@ static inline struct lrc_node *lrc_cumulative(struct lrc_head *head, unsigned in
     return lrc_obtain(head, tag, LRC_CHANGE | LRC_UNCOMMITTED);
 }
 
-#endif  /* _LRU_CACHE_H_ */
+#endif /* _LRU_CACHE_H_ */

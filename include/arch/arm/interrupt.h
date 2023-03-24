@@ -18,5 +18,5 @@ enum exception_vector {
     FIQ_VECTOR      = 6,
 };
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _ARCH_ARM_INTERRUPT_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _ARCH_ARM_INTERRUPT_H_ */

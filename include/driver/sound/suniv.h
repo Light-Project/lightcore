@@ -37,4 +37,4 @@ enum suniv_sound_registers {
 };
 
 
-#endif  /* _DRIVER_SOUND_SUNIV_H_ */
+#endif /* _DRIVER_SOUND_SUNIV_H_ */

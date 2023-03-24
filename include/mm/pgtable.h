@@ -165,4 +165,4 @@ extern state pud_set_huge(pud_t *pud, phys_addr_t addr, gvm_t flags);
 extern state p4d_set_huge(p4d_t *p4d, phys_addr_t addr, gvm_t flags);
 extern state pgd_set_huge(pgd_t *pgd, phys_addr_t addr, gvm_t flags);
 
-#endif  /* _MM_PGTABLE_H_ */
+#endif /* _MM_PGTABLE_H_ */

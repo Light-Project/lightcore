@@ -12,4 +12,4 @@
 # define CANARY_MASK 0xffffffffUL
 #endif
 
-#endif  /* _ASM_GENERIC_STACKPROTECTOR_H_ */
+#endif /* _ASM_GENERIC_STACKPROTECTOR_H_ */

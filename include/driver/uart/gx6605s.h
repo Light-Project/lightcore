@@ -18,4 +18,4 @@ enum gx6605s_uart_registers {
 #define GX6605S_UART_STA_THRE       BIT(7)      // register empty
 #define GX6605S_UART_STA_DR         BIT(2)      // data ready
 
-#endif  /* _DRIVER_UART_GX6605S_H_ */
+#endif /* _DRIVER_UART_GX6605S_H_ */

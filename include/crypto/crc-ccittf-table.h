@@ -93,4 +93,4 @@ static inline uint16_t crc_ccittf_inline(const uint8_t *src, size_t len, uint16_
     return crc;
 }
 
-#endif  /* _CRYPTO_CRC_CCITTF_TABLE_H_ */
+#endif /* _CRYPTO_CRC_CCITTF_TABLE_H_ */

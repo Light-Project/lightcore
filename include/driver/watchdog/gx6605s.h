@@ -23,4 +23,4 @@ enum gx6605s_wdt_registers {
 #define GX6605S_WDT_WSR_MASK2       0xaaaa
 #define GX6605S_WDT_WSR_MASK1       0x5555
 
-#endif  /* _DRIVER_WATCHDOG_GX6605S_H_ */
+#endif /* _DRIVER_WATCHDOG_GX6605S_H_ */

@@ -18,4 +18,4 @@
 #define PCF8591_CHANNEL_MASK    BIT_RANGE(1, 0)
 #define PCF8591_CHANNEL_MAX     3
 
-#endif  /* _DRIVER_HWMON_PCF8591_H_ */
+#endif /* _DRIVER_HWMON_PCF8591_H_ */

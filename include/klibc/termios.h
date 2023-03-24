@@ -95,4 +95,4 @@ __state cfsetspeed(struct termios *termios, speed_t speed)
     return -EINVAL;
 }
 
-#endif  /* _KLIBC_TERMIOS_H_ */
+#endif /* _KLIBC_TERMIOS_H_ */

@@ -89,5 +89,5 @@ struct pte {
 #define PAGE_DOMAIN_CLIENT  0x01    // Accesses are checked against the access permission bits
 #define PAGE_DOMAIN_MANAGER 0x03    // Accesses are not checked against the access permission bits
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _ARCH_ARM_PAGE_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _ARCH_ARM_PAGE_H_ */

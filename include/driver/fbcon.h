@@ -31,4 +31,4 @@ extern state fbcon_rotate_set(struct fbcon_device *fdev);
 extern state fbcon_rotate_register(struct fbcon_rotate *ops);
 extern void fbcon_rotate_unregister(struct fbcon_rotate *ops);
 
-#endif  /* _DRIVER_FBCON_H_ */
+#endif /* _DRIVER_FBCON_H_ */

@@ -15,4 +15,4 @@ struct logo {
 extern const struct logo logo_info;
 extern const char terminal_logo[];
 
-#endif  /* _LOGO_H_ */
+#endif /* _LOGO_H_ */

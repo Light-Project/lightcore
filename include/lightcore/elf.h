@@ -156,4 +156,4 @@ struct elf64_shdr {
     Elf64_Xword sh_entsize;     /* Entry size if section holds table */
 };
 
-#endif  /* _LIGHTCORE_ELF_H_ */
+#endif /* _LIGHTCORE_ELF_H_ */

@@ -586,7 +586,7 @@ static inline void mpio_unmap(void *addr)
     /* Nothing */
 }
 #endif
-#endif  /* CONFIG_GENERIC_MPIO */
+#endif /* CONFIG_GENERIC_MPIO */
 
 #ifndef CONFIG_ARCH_HAS_PMIO
 # define ioreadb(addr) readb(addr)
@@ -602,7 +602,7 @@ static inline void mpio_unmap(void *addr)
 # define iowriteb(addr, val) outb((unsigned long)addr, val)
 # define iowritew(addr, val) outw((unsigned long)addr, val)
 # define iowritel(addr, val) outl((unsigned long)addr, val)
-#endif  /* CONFIG_ARCH_HAS_PMIO */
+#endif /* CONFIG_ARCH_HAS_PMIO */
 
 #ifndef memset_io
 #define memset_io memset_io

@@ -59,4 +59,4 @@ static inline state pud_alloc(p4d_t *p4d, size_t addr)
     return -ENOERR;
 }
 
-#endif  /* _ASM_GENERIC_PGTABLE_PUD_H_ */
+#endif /* _ASM_GENERIC_PGTABLE_PUD_H_ */

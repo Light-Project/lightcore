@@ -8,4 +8,4 @@ struct tty_device {
 
 };
 
-#endif  /* _DRIVER_TTY_H_ */
+#endif /* _DRIVER_TTY_H_ */

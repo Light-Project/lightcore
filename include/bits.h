@@ -144,5 +144,5 @@
     (~0ULL >> (BITS_PER_LONG_LONG - 1 - (hi)))  \
 )
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _BITS_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _BITS_H_ */

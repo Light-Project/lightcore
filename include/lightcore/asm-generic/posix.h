@@ -43,4 +43,4 @@ typedef signed int          __kernel_clockid_t;
 typedef signed char *       __kernel_caddr_t;
 typedef __kernel_long_t     __kernel_clock_t;
 
-#endif  /* _LIGHTCORE_ASM_GENERIC_POSIX_H_ */
+#endif /* _LIGHTCORE_ASM_GENERIC_POSIX_H_ */

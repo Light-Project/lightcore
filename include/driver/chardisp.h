@@ -34,4 +34,4 @@ struct chardisp_ops {
 extern state chardisp_register(struct chardisp_device *cdev);
 extern void chardisp_unregister(struct chardisp_device *cdev);
 
-#endif  /* _CHARDISP_H_ */
+#endif /* _CHARDISP_H_ */

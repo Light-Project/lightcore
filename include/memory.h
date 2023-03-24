@@ -23,4 +23,4 @@ static inline bool memory_put(struct memory *mem)
 
 extern void __init mem_init(void);
 
-#endif  /* _MEMORY_H_ */
+#endif /* _MEMORY_H_ */

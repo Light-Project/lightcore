@@ -129,4 +129,4 @@ enum VGA_Registers {
 /* VGA graphics controller bit masks */
 #define VGA_GR06_GRAPHICS_MODE         0x01
 
-#endif  /* _DRIVER_VIDEO_VGA_H_ */
+#endif /* _DRIVER_VIDEO_VGA_H_ */

@@ -4,4 +4,4 @@
 
 /* Nothing */
 
-#endif  /* _ASM_GENERIC_LINKAGE_H_ */
+#endif /* _ASM_GENERIC_LINKAGE_H_ */

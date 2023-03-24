@@ -22,8 +22,8 @@
 # define INIT_PERCPU_VAR(var) var
 #endif
 
-#endif  /* __ASSEMBLY__ */
+#endif /* __ASSEMBLY__ */
 
 #include <asm-generic/percpu.h>
 
-#endif  /* _ASM_X86_PERCPU_H */
+#endif /* _ASM_X86_PERCPU_H */

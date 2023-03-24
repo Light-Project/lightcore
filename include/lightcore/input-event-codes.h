@@ -264,4 +264,4 @@
 
 #define KEY_MICMUTE             248     /* Mute / unmute the microphone */
 
-#endif  /* _LIGHTCORE_INPUT_EVENT_CODES_H_ */
+#endif /* _LIGHTCORE_INPUT_EVENT_CODES_H_ */

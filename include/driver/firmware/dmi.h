@@ -155,4 +155,4 @@ extern uint16_t dmi_get_release(enum dmi_region_type region);
 extern const void *dmi_system_check(struct dmi_device_id *dmi);
 extern void __init dmi_init(void);
 
-#endif  /* _DRIVER_DMI_H_ */
+#endif /* _DRIVER_DMI_H_ */

@@ -130,5 +130,5 @@ static inline void dcache_writeback_range(size_t start, size_t end)
     dsb();
 }
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _ASM_ARM_CACHE_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _ASM_ARM_CACHE_H_ */

@@ -7,4 +7,4 @@
 typedef int __kernel_key_t;
 typedef int __kernel_mqd_t;
 
-#endif  /* _LIGHTCORE_POSIX_TYPES_H_ */
+#endif /* _LIGHTCORE_POSIX_TYPES_H_ */

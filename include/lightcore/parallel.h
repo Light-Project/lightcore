@@ -13,4 +13,4 @@
 #define PARALLEL_CONTROL_INIT       0x04    /* PIN  16: Initialization Status */
 #define PARALLEL_CONTROL_SELECT     0x08    /* PIN ~17: Select-printer Status */
 
-#endif  /* _LIGHTCORE_PARALLEL_H_ */
+#endif /* _LIGHTCORE_PARALLEL_H_ */

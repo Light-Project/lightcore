@@ -16,4 +16,4 @@ struct binfmt_type {
 state binfmt_register(struct binfmt_type *);
 void binfmt_unregister(struct binfmt_type *);
 
-#endif  /* _BINFMT_H_ */
+#endif /* _BINFMT_H_ */

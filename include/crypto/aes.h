@@ -38,4 +38,4 @@ extern void aes_encrypt(struct aes_context *ctx, const uint8_t *src, uint8_t *de
 extern void aes_decrypt(struct aes_context *ctx, const uint8_t *src, uint8_t *dest);
 extern state aes_expandkey(struct aes_context *ctx, const uint8_t *inkey, unsigned int keylen);
 
-#endif  /* _CRYPTO_AES_H_ */
+#endif /* _CRYPTO_AES_H_ */

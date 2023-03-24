@@ -10,4 +10,4 @@ extern state random_generator_change(struct rng_device *rdev);
 extern long random_bytes(void *buff, size_t len);
 extern long random_long(void);
 
-#endif  /* _RANDOM_H_ */
+#endif /* _RANDOM_H_ */

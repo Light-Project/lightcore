@@ -27,7 +27,7 @@ struct gdt_table {
     struct gdt_entry *gdt;  /* Point to GDT_ENTRY */
 } __packed;
 
-#endif  /* __ASSEMBLY__ */
+#endif /* __ASSEMBLY__ */
 
 #define GDT_LIMIT_G_4KiB    0x00001 /* 4KiB limit segment */
 #define GDT_LIMIT_G_4MiB    0x00400 /* 4MiB limit segment */
@@ -83,4 +83,4 @@ struct gdt_table {
 #define GDT_G_1BYTE         0x00    /* Segments granularity 1Byte */
 #define GDT_G_4KiB          0x01    /* Segments granularity 1KiB */
 
-#endif  /* _ARCH_X86_SEGMENT_H_ */
+#endif /* _ARCH_X86_SEGMENT_H_ */

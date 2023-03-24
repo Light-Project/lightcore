@@ -48,4 +48,4 @@ extern state lrange_array_get_selector_high(const struct lrange *lrange, unsigne
 extern state lrange_array_get_selector_low_within(const struct lrange *lrange, unsigned int num, unsigned int value, unsigned int *selector);
 extern state lrange_array_get_selector_high_within(const struct lrange *lrange, unsigned int num, unsigned int value, unsigned int *selector);
 
-#endif  /* _LRANGE_H_ */
+#endif /* _LRANGE_H_ */

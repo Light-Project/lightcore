@@ -41,4 +41,4 @@ extern void bytefill_u16(void *buffer, size_t size, uint16_t (*fillfn)(void *pda
 extern void bytefill_u32(void *buffer, size_t size, uint32_t (*fillfn)(void *pdata), void *pdata);
 extern void bytefill_u64(void *buffer, size_t size, uint64_t (*fillfn)(void *pdata), void *pdata);
 
-#endif  /* _BYTEFILED_H_ */
+#endif /* _BYTEFILED_H_ */

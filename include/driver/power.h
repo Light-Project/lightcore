@@ -48,4 +48,4 @@ extern void power_shutdown(void);
 extern state power_register(struct power_device *pdev);
 extern void power_unregister(struct power_device *pdev);
 
-#endif  /* _DEVICE_POWER_H_ */
+#endif /* _DEVICE_POWER_H_ */

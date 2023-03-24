@@ -77,4 +77,4 @@ extern void isa_driver_unregister(struct isa_driver *idrv);
 #define isa_debug(idev, fmt, ...)  	dev_debug(&(idev)->dev, fmt, ##__VA_ARGS__)
 BUS_DEVRES_GENERIC(isa, struct isa_device, dev)
 
-#endif  /* _DRIVER_ISA_H_ */
+#endif /* _DRIVER_ISA_H_ */

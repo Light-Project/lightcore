@@ -44,4 +44,4 @@ enum spd_ddr5 {
     SPD_DDR5_VOLTAGE    = 0x10,     /* SDRAM nominal voltage, VDD */
 };
 
-#endif  /* _DRIVER_MTD_SPD_H_ */
+#endif /* _DRIVER_MTD_SPD_H_ */

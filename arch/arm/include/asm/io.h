@@ -4,4 +4,4 @@
 
 #include <asm-generic/io.h>
 
-#endif  /* _ASM_ARM_IO_H_ */
+#endif /* _ASM_ARM_IO_H_ */

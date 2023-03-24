@@ -84,4 +84,4 @@ enum suniv_spi_registers {
 
 #define SUNIV_SPI_FIFO_SIZE         64
 
-#endif  /* _DRIVER_SPI_SUNIV_H_ */
+#endif /* _DRIVER_SPI_SUNIV_H_ */

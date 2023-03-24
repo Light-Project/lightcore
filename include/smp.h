@@ -11,4 +11,4 @@
 # define smp_processor_id()     0
 #endif
 
-#endif  /* _SMP_H_ */
+#endif /* _SMP_H_ */

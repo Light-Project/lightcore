@@ -93,4 +93,4 @@ static inline uint16_t crc_itut_inline(const uint8_t *src, size_t len, uint16_t 
     return crc;
 }
 
-#endif  /* _CRYPTO_CRC_ITUT_TABLE_H_ */
+#endif /* _CRYPTO_CRC_ITUT_TABLE_H_ */

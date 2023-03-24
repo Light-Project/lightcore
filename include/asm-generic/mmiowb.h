@@ -12,5 +12,5 @@
 #define mmiowb_spin_lock()      do { } while (0)
 #define mmiowb_spin_unlock()    do { } while (0)
 
-#endif  /* CONFIG_MMIOWB */
-#endif  /* _ASM_GENERIC_MMIOWB_H_ */
+#endif /* CONFIG_MMIOWB */
+#endif /* _ASM_GENERIC_MMIOWB_H_ */

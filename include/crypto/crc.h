@@ -17,4 +17,4 @@ extern uint16_t crc_itut(const uint8_t *src, size_t len, uint16_t crc);
 extern uint16_t crc_t10dif(const uint8_t *src, size_t len, uint16_t crc);
 extern uint64_t crc_rocksoft(const uint8_t *src, size_t len, uint64_t crc);
 
-#endif  /* _CRYPTO_CRC_H_ */
+#endif /* _CRYPTO_CRC_H_ */

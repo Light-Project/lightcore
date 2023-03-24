@@ -157,4 +157,4 @@ static inline uint64_t crc_rocksoft_inline(const uint8_t *src, int len, uint64_t
     return crc;
 }
 
-#endif  /* _CRYPTO_CRC_ROCKSOFT_TABLE_H_ */
+#endif /* _CRYPTO_CRC_ROCKSOFT_TABLE_H_ */

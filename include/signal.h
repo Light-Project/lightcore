@@ -7,4 +7,4 @@ struct signal {
 
 };
 
-#endif  /* _SIGNAL_H_ */
+#endif /* _SIGNAL_H_ */

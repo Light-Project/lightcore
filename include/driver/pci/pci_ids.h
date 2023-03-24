@@ -3258,4 +3258,4 @@
 #define PCI_VENDOR_ID_ENDRUN 0x7401
 #define PCI_DEVICE_ID_ENDRUN_1588 0xe100
 
-#endif  /* _DRIVER_PCI_PCI_IDS_H_ */
+#endif /* _DRIVER_PCI_PCI_IDS_H_ */

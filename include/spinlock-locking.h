@@ -226,4 +226,4 @@ static inline bool _raw_write_trylock_bh(raw_rwlock_t *lock)
     return false;
 }
 
-#endif  /* _SPINLOCK_LOCKING_H_ */
+#endif /* _SPINLOCK_LOCKING_H_ */

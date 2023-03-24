@@ -91,4 +91,4 @@ enum dme1737_devid {
 #define DME1737_HWM_CONFIG_LOCK         BIT(1)
 #define DME1737_HWM_CONFIG_START        BIT(0)
 
-#endif  /* _DRIVER_HWMON_DME1737_H_ */
+#endif /* _DRIVER_HWMON_DME1737_H_ */

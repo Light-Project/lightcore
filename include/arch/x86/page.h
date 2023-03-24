@@ -156,8 +156,8 @@ struct pte {
     };
 } __packed;
 
-#endif  /* CONFIG_ARCH_X86_64 */
-#endif  /* __ASSEMBLY__ */
+#endif /* CONFIG_ARCH_X86_64 */
+#endif /* __ASSEMBLY__ */
 
 #define PAGE_RW_R           0x00
 #define PAGE_RW_RW          0x01
@@ -172,4 +172,4 @@ struct pte {
 #define PAGE_PDT_OFF        0x00
 #define PAGE_PDT_ON         0x01
 
-#endif  /* _ARCH_X86_PAGE_H_ */
+#endif /* _ARCH_X86_PAGE_H_ */

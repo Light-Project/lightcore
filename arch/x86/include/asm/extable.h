@@ -33,4 +33,4 @@
 
 #include <asm-generic/extable.h>
 
-#endif  /* _ASM_X86_EXTABLE_H_ */
+#endif /* _ASM_X86_EXTABLE_H_ */

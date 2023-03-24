@@ -78,7 +78,7 @@ static inline void tlb_inval(uint32_t entry)
     );
 }
 
-#endif  /* CONFIG_SMP */
+#endif /* CONFIG_SMP */
 
 void tlb_inval(uint32_t entry);
 void itlb_inval_all(void);

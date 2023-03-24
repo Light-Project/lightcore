@@ -33,4 +33,4 @@ struct ihex_state {
 typedef state (*ihex_report_t)(struct ihex_state *ihex, enum ihex_type type, const void *data, size_t length, void *pdata);
 extern state ihex_parser(const void *image, ihex_report_t report, void *pdata);
 
-#endif  /* _IHEX_PARSER_H_ */
+#endif /* _IHEX_PARSER_H_ */

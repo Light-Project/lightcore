@@ -18,4 +18,4 @@ extern time_t rtc_tm_to_time(struct rtc_time *tm);
 extern struct timespec rtc_tm_to_timespec(struct rtc_time *tm);
 extern ktime_t rtc_tm_to_ktime(struct rtc_time *tm);
 
-#endif  /* _LIBRTC_H_ */
+#endif /* _LIBRTC_H_ */

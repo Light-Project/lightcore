@@ -497,4 +497,4 @@ void
 AcpiEvTerminate (
     void))
 
-#endif  /* __ACEVENTS_H__  */
+#endif /* __ACEVENTS_H__  */

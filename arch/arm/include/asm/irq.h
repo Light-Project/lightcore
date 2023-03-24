@@ -40,4 +40,4 @@ static inline void irq_local_restore(irqflags_t flags)
 
 void arch_irq_set(void(*)(struct regs *));
 
-#endif  /* _ASM_ARM_IRQ_H */
+#endif /* _ASM_ARM_IRQ_H */

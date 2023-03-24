@@ -95,4 +95,4 @@ extern void __ubsan_handle_builtin_unreachable(struct unreachable *data);
 extern void __ubsan_handle_load_invalid_value(struct invalid_value *data, void *val);
 extern void __ubsan_handle_alignment_assumption(struct alignment_assumption *data, uintptr_t ptr, uintptr_t align, uintptr_t offset);
 
-#endif  /* _UBSAN_H_ */
+#endif /* _UBSAN_H_ */

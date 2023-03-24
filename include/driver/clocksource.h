@@ -60,4 +60,4 @@ extern state clocksource_register(struct clocksource_device *cdev);
 extern void clocksource_unregister(struct clocksource_device *cdev);
 extern void __init clocksource_init(void);
 
-#endif  /* _DRIVER_CLOCKSOURCE_H_ */
+#endif /* _DRIVER_CLOCKSOURCE_H_ */

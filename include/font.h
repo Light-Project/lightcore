@@ -34,4 +34,4 @@ extern struct font *font_suitable(unsigned int xres, unsigned int yres, unsigned
 extern state font_register(struct font *font);
 extern void font_unregister(struct font *font);
 
-#endif  /* _FONT_H_ */
+#endif /* _FONT_H_ */

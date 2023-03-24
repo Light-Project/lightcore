@@ -81,4 +81,4 @@ extern state irqchip_register(struct irqchip_device *);
 extern void irqchip_unregister(struct irqchip_device *);
 extern void __init irqchip_init(void);
 
-#endif  /* _DRIVER_IRQCHIP_H_ */
+#endif /* _DRIVER_IRQCHIP_H_ */

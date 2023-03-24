@@ -23,4 +23,4 @@ struct rtc_alarm {
     unsigned char pending:1;
 };
 
-#endif  /* _LIGHTCORE_RTC_H_ */
+#endif /* _LIGHTCORE_RTC_H_ */

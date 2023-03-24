@@ -51,4 +51,4 @@ enum ata_registers {
 #define ATA_DEVCTL_SRST         BIT(2)          /* Soft reset */
 #define ATA_DEVCTL_NIEN         BIT(1)          /* Disable interrupts */
 
-#endif  /* _DRIVER_ATA_ATAREG_H_ */
+#endif /* _DRIVER_ATA_ATAREG_H_ */

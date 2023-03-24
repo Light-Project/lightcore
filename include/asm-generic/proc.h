@@ -4,4 +4,4 @@
 
 /* Nothing */
 
-#endif  /* _ASM_GENERIC_PROC_H_ */
+#endif /* _ASM_GENERIC_PROC_H_ */

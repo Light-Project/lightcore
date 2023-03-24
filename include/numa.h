@@ -13,4 +13,4 @@
 #define NUMA_NONE   (-1)
 #define NUMA_MAX    (1 << NUMA_SHIFT)
 
-#endif  /* _NUMA_H_ */
+#endif /* _NUMA_H_ */

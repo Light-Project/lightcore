@@ -15,4 +15,4 @@ extern void __malloc *ioremap_wt(phys_addr_t phys, size_t size);
 extern void iounmap(void *addr);
 extern void __init ioremap_init(void);
 
-#endif  /* _MM_IOREMAP_H_ */
+#endif /* _MM_IOREMAP_H_ */

@@ -48,4 +48,4 @@ mempool_zalloc(struct mempool *pool, gfp_t flags)
 
 extern void __init mempool_init(void);
 
-#endif  /* _MEMPOOL_H_ */
+#endif /* _MEMPOOL_H_ */

@@ -105,4 +105,4 @@ extern int __popcountDI2(UDWtype x);
 extern int __paritySI2(UWtype x);
 extern int __parityDI2(UDWtype x);
 
-#endif  /* _LOCAL_LIBGCC_H_ */
+#endif /* _LOCAL_LIBGCC_H_ */

@@ -35,4 +35,4 @@ enum gx6605s_spi_registers {
 #define GX6605S_SPI_STAT_BUSY           BIT(1)
 #define GX6605S_SPI_STAT_OPE_RDY        BIT(0)
 
-#endif  /* _DRIVER_SPI_GX6605S_H_ */
+#endif /* _DRIVER_SPI_GX6605S_H_ */

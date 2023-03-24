@@ -219,4 +219,4 @@ extern void *btree_prev(struct btree_root *root, uintptr_t *key);
          btree_key_copy(root, key, tkey),                                   \
          value = tval, tval = btree_prev(root, tkey))
 
-#endif  /* _BTREE_H_ */
+#endif /* _BTREE_H_ */

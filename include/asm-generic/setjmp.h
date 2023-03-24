@@ -6,4 +6,4 @@ typedef struct {
     long regs[JMP_BUF_REGS];
 } jmp_buf;
 
-#endif  /* _ASM_GENERIC_SETJMP_H_ */
+#endif /* _ASM_GENERIC_SETJMP_H_ */

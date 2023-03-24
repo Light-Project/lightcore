@@ -7,4 +7,4 @@
 #define GX6605S_CLOCK_UART          11
 #define GX6605S_CLOCK_CPU           12
 
-#endif  /* _DT_BINDINGS_CLK_GX6605S_H_ */
+#endif /* _DT_BINDINGS_CLK_GX6605S_H_ */

@@ -135,4 +135,4 @@
 #define arch_cmpxchg_local(ptr, old, val)   __cmpxchg(ptr, old, val, "")
 #define arch_try_cmpxchg(ptr, pold, val)    __try_cmpxchg(ptr, pold, val, LOCK_PREFIX)
 
-#endif  /* _ASM_X86_CMPXCHG_H_ */
+#endif /* _ASM_X86_CMPXCHG_H_ */

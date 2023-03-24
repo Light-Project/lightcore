@@ -32,4 +32,4 @@
  */
 #define asm_volatile_goto(x...)	do { asm goto(x); asm (""); } while (0)
 
-#endif  /* _COMPILER_GCC_H_ */
+#endif /* _COMPILER_GCC_H_ */

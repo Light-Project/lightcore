@@ -277,4 +277,4 @@ static __always_inline unsigned int fls(unsigned long value)
 #include <asm-generic/bitops.h>
 #include <asm-generic/bitops-endian.h>
 
-#endif  /* _ASM_X86_BITOPS_H_ */
+#endif /* _ASM_X86_BITOPS_H_ */

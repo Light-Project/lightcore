@@ -43,4 +43,4 @@ static inline void prefetchw_range(const void *addr, size_t len)
 #endif
 }
 
-#endif  /* _PREFETCH_H_ */
+#endif /* _PREFETCH_H_ */

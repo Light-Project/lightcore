@@ -40,4 +40,4 @@
 #define SUNIV_CLK_UART1     85
 #define SUNIV_CLK_UART2     86
 
-#endif  /* _DT_BINDINGS_CLK_SUNIV_H_ */
+#endif /* _DT_BINDINGS_CLK_SUNIV_H_ */

@@ -18,4 +18,4 @@ extern void mean_clear(struct mean_state *state);
 extern struct mean_state *mean_alloc(unsigned int length, gfp_t flags);
 extern void mean_free(struct mean_state *state);
 
-#endif  /* _FILTER_MEAN_H_ */
+#endif /* _FILTER_MEAN_H_ */

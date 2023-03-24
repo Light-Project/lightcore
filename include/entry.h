@@ -10,4 +10,4 @@ extern noinline void entry_irqhandle_exit_to_user(struct regs *regs);
 extern noinline void entry_irqhandle_enter(struct regs *regs);
 extern noinline void entry_irqhandle_exit(struct regs *regs);
 
-#endif  /* _ENTRY_H_ */
+#endif /* _ENTRY_H_ */

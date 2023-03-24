@@ -4,4 +4,4 @@
 
 extern void __init arch_tsc_setup(void);
 
-#endif  /* _ASM_X86_TSC_H_ */
+#endif /* _ASM_X86_TSC_H_ */

@@ -55,4 +55,4 @@ void bus_unregister(struct bus_type *);
 
 void bus_init(void);
 
-#endif  /* _DEVICE_BUS_H_ */
+#endif /* _DEVICE_BUS_H_ */

@@ -16,4 +16,4 @@ enum intel_rng_registers {
 #define INTEL_RNG_BASE  0xffbc015f
 #define INTEL_RNG_SIZE  0x03
 
-#endif  /* _DRIVER_RNG_INTEL_H_ */
+#endif /* _DRIVER_RNG_INTEL_H_ */

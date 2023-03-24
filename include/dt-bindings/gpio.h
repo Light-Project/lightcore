@@ -31,4 +31,4 @@
 /* Bit 5 express pull down */
 #define GPIO_PULL_DOWN 32
 
-#endif  /* _DT_BINDINGS_GPIO_H */
+#endif /* _DT_BINDINGS_GPIO_H */

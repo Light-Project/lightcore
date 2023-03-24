@@ -19,4 +19,4 @@ struct pvpanic_device {
 extern state pvpanic_probe(struct pvpanic_device *pdev);
 extern void pvpanic_remove(struct pvpanic_device *pdev);
 
-#endif  /* _PVPANIC_H_ */
+#endif /* _PVPANIC_H_ */

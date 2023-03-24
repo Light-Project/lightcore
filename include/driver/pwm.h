@@ -34,4 +34,4 @@ struct pwm_ops {
 state pwm_register(struct pwm_device *pwm);
 void pwm_unregister(struct pwm_device *pwm);
 
-#endif  /* _DRIVER_PWM_H_ */
+#endif /* _DRIVER_PWM_H_ */

@@ -25,4 +25,4 @@ extern void pevent_shutdown(void);
 extern state pevent_register(struct pevent *pevent);
 extern void pevent_unregister(struct pevent *pevent);
 
-#endif  /* _PEVENT_H_ */
+#endif /* _PEVENT_H_ */

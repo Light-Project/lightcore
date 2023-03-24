@@ -69,4 +69,4 @@ enum uhci_pci_config {
 #define UHCI_PCI_LEGSUP_RWC  0x8f00  /* the R/WC bits */
 #define UHCI_PCI_LEGSUP_RO   0x5040  /* R/O and reserved bits */
 
-#endif  /* _DRIVER_USB_UHCI_H_ */
+#endif /* _DRIVER_USB_UHCI_H_ */

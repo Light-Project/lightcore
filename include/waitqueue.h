@@ -61,4 +61,4 @@ extern void waitqueue_wakeup_all_locked(struct wait_queue_head *queue);
 extern void waitqueue_wakeup_one(struct wait_queue_head *queue);
 extern void waitqueue_wakeup_all(struct wait_queue_head *queue);
 
-#endif  /* _WAITQUEUE_H_ */
+#endif /* _WAITQUEUE_H_ */

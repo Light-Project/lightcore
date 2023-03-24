@@ -162,4 +162,4 @@ extern void timespec_set_normalized(struct timespec *ts, time_t sec, int64_t nse
 extern struct timespec timespec_add(struct timespec *lts, struct timespec *rts);
 extern struct timespec timespec_sub(struct timespec *lts, struct timespec *rts);
 
-#endif  /* _TIME_H_ */
+#endif /* _TIME_H_ */

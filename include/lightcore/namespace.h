@@ -7,4 +7,4 @@ enum namespace_flags {
     NAMESPACE_NEWIPC    = 0x02,
 };
 
-#endif  /* _LIGHTCORE_NAMESPACE_H_ */
+#endif /* _LIGHTCORE_NAMESPACE_H_ */

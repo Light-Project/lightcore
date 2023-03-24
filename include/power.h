@@ -22,4 +22,4 @@ extern __noreturn void kernel_reboot();
 extern __noreturn void kernel_poweroff(void);
 extern __noreturn void kernel_halt(void);
 
-#endif  /* _POWER_H_ */
+#endif /* _POWER_H_ */

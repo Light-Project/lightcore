@@ -34,5 +34,5 @@ static inline void cache_flush_vunmap(void)
 }
 #endif
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _ASM_GENERIC_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _ASM_GENERIC_H_ */

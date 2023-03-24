@@ -204,4 +204,4 @@ bool popparity64_dynamic(uint64_t value)
     : popparity64_dynamic(__value); \
 })
 
-#endif  /* _POPCOUNT_H_ */
+#endif /* _POPCOUNT_H_ */

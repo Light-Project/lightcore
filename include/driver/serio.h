@@ -99,4 +99,4 @@ extern void serio_host_unregister(struct serio_host *host);
 #define serio_debug(sdev, fmt, ...)     dev_debug(&(sdev)->dev, fmt, ##__VA_ARGS__)
 BUS_DEVRES_GENERIC(serio, struct serio_device, dev)
 
-#endif  /* _DRIVER_SERIO_H_ */
+#endif /* _DRIVER_SERIO_H_ */

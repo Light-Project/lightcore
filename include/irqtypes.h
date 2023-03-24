@@ -18,4 +18,4 @@ struct irq_cpustat {
 
 DECLARE_PERCPU(struct irq_cpustat, irq_stat);
 
-#endif  /* _IRQTYPES_H_ */
+#endif /* _IRQTYPES_H_ */

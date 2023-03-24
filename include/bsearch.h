@@ -33,4 +33,4 @@ bsearch_inline(const void *base, size_t num, size_t esize, bsearch_cmp_t cmp, vo
 
 extern void *bsearch(const void *base, size_t num, size_t esize, bsearch_cmp_t cmp, void *pdata);
 
-#endif  /* _BSEARCH_H_ */
+#endif /* _BSEARCH_H_ */

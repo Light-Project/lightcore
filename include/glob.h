@@ -7,4 +7,4 @@
 
 extern __pure bool glob_match(const char *glob, const char *string);
 
-#endif  /* _GLOB_H_ */
+#endif /* _GLOB_H_ */

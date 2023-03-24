@@ -9,4 +9,4 @@
 #define IRQ_NR_MAX ULONG_MAX
 #endif
 
-#endif  /* _ASM_GENERIC_IRQ_H_ */
+#endif /* _ASM_GENERIC_IRQ_H_ */

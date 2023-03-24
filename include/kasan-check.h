@@ -22,5 +22,5 @@ static inline bool kasan_check_write(const volatile void *addr, unsigned int siz
 extern bool kasan_check_read(const volatile void *addr, unsigned int size);
 extern bool kasan_check_write(const volatile void *addr, unsigned int size);
 
-#endif  /* CONFIG_KASAN */
-#endif  /* _KASAN_CHECK_H_ */
+#endif /* CONFIG_KASAN */
+#endif /* _KASAN_CHECK_H_ */

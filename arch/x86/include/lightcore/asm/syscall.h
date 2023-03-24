@@ -37,4 +37,4 @@ syscall(unsigned int callnr, long arg1, long arg2,
     return retval;
 }
 
-#endif  /* _LIGHTCORE_ASM_X86_SYSCALL_H_ */
+#endif /* _LIGHTCORE_ASM_X86_SYSCALL_H_ */

@@ -39,4 +39,4 @@ extern void vmem_free(struct vmem_area *vma);
 extern struct vmem_area *vmem_find(uintptr_t addr);
 extern void __init vmem_init(void);
 
-#endif  /* _MM_VMEM_H_ */
+#endif /* _MM_VMEM_H_ */

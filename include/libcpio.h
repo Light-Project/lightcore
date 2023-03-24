@@ -21,4 +21,4 @@ extern state cpio_lookup(struct cpio_data *cdata, const void *data, size_t lengt
     for (*(retval) = cpio_lookup(cdata, data, length, path, offset); *(retval); \
          data += *(offset), *(retval) = cpio_lookup(cdata, data, length, path, offset))
 
-#endif  /* _LIBCPIO_H_ */
+#endif /* _LIBCPIO_H_ */

@@ -9,5 +9,4 @@
 #define IRQ_TYPE_LEVEL_HIGH     4
 #define IRQ_TYPE_LEVEL_LOW	    8
 
-#endif  /* _DT_BINDINGS_IRQ_H_ */
-
+#endif /* _DT_BINDINGS_IRQ_H_ */

@@ -218,4 +218,4 @@ static inline void heap_delete(struct heap_root *root, struct heap_node *node, h
     node->parent = POISON_HPNODE3;
 }
 
-#endif  /* _HEAP_H_ */
+#endif /* _HEAP_H_ */

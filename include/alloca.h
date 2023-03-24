@@ -19,4 +19,4 @@ extern __malloc void *alloca(unsigned int size);
     stack;                      \
 })
 
-#endif  /* _ALLOCA_H */
+#endif /* _ALLOCA_H */

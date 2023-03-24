@@ -45,4 +45,4 @@ struct xmodem_ops {
 extern int xmodem_receive(struct xmodem_ops *ops, void *data, int size);
 extern int xmodem_transmit(struct xmodem_ops *ops, const void *data, int size);
 
-#endif  /* _XMODEM_H_ */
+#endif /* _XMODEM_H_ */

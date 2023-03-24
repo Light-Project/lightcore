@@ -62,4 +62,4 @@ GENERIC_SECTION_FUNC(bss)
 #define RESERVE_SIZE page_align((uintptr_t)_ld_reserve_end - (uintptr_t)_ld_image_start)
 #define ROMDISK_SIZE ((uintptr_t)_ld_romdisk_end - (uintptr_t)_ld_romdisk_start)
 
-#endif  /* _SECTIONS_H_ */
+#endif /* _SECTIONS_H_ */

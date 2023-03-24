@@ -28,4 +28,4 @@
 #define DO_ONCE(func, ...) \
     DO_ONCE_ON(true, func, ##__VA_ARGS__)
 
-#endif  /* _ONCE_H_ */
+#endif /* _ONCE_H_ */

@@ -179,4 +179,4 @@ int usb_request_submit(struct usb_request *request);
 state usb_host_request_submit(struct usb_request *request);
 state usb_host_register(struct usb_host *);
 
-#endif  /* _DRIVER_USB_H_ */
+#endif /* _DRIVER_USB_H_ */

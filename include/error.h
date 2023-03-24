@@ -68,4 +68,4 @@ static inline state PTR_INVAL_ZERO(const void *ptr)
     return unlikely(IS_INVAL(ptr)) ? PTR_INVAL(ptr) : -ENOERR;
 }
 
-#endif  /* _ERROR_H_ */
+#endif /* _ERROR_H_ */

@@ -24,4 +24,4 @@ extern int32_t ewma_update(struct ewma_state *state, int32_t value);
 extern void ewma_clear(struct ewma_state *state);
 extern void ewma_init(struct ewma_state *state, int32_t weight);
 
-#endif  /* _FILTER_EWMA_H_ */
+#endif /* _FILTER_EWMA_H_ */

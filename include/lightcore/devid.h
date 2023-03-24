@@ -9,4 +9,4 @@
 #define MAJOR(dev)      (dev >> MINOR_BITS)
 #define DEVID(ma, mi)   ((ma << MINOR_BITS) | (mi))
 
-#endif  /* _LIGHTCORE_DEVID_H_ */
+#endif /* _LIGHTCORE_DEVID_H_ */

@@ -63,4 +63,4 @@ enum ch9200_registers {
 #define CH9200_DEPTH_ETH_RXBD           BIT(7)
 #define CH9200_DEPTH_ETH_RX_FIFO_DEPTH  BIT(0)
 
-#endif  /* _DRIVER_NET_CH9200_H_ */
+#endif /* _DRIVER_NET_CH9200_H_ */

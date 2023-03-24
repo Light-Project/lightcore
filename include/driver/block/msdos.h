@@ -44,4 +44,4 @@ enum msdos_type {
 
 #define MSDOS_MAGIC 0x55aa
 
-#endif  /* _DRIVER_BLOCK_MSDOS_H_ */
+#endif /* _DRIVER_BLOCK_MSDOS_H_ */

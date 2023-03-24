@@ -26,4 +26,4 @@ struct uart_ops {
 state uart_register(struct uart_device *);
 void uart_unregister(struct uart_device *);
 
-#endif  /* _DRIVER_UART_H_ */
+#endif /* _DRIVER_UART_H_ */

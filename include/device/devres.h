@@ -118,4 +118,4 @@ busn##_irq_release(type *bdev, irqnr_t vector)                                  
     return dev_irq_release(&bdev->member, vector);                              \
 }
 
-#endif  /* _DEVICE_DEVRES_H_ */
+#endif /* _DEVICE_DEVRES_H_ */

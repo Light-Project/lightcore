@@ -113,4 +113,4 @@ IDR_ALLOC_OP(alloc_cyclic, alloc_cyclic_range)
 #define idr_alloc_cyclic_min(idr, pdata, min, flags)        generic_idr_alloc_cyclic_min(idr, pdata, min, flags)
 #define idr_alloc_cyclic_max(idr, pdata, max, flags)        generic_idr_alloc_cyclic_max(idr, pdata, max, flags)
 
-#endif  /* _IDR_H_ */
+#endif /* _IDR_H_ */

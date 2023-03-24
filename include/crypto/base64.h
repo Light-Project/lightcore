@@ -19,4 +19,4 @@ static inline size_t base64_decode_length(size_t size)
 extern void base64_encode(void *buff, const void *data, size_t size);
 extern state base64_decode(void *buff, const void *data, size_t size);
 
-#endif  /* _CRYPTO_BASE64_H_ */
+#endif /* _CRYPTO_BASE64_H_ */

@@ -40,4 +40,4 @@ extern unsigned int kgcov_info_version(struct kgcov_info *info);
 extern void kgcov_info_link(struct kgcov_info *info);
 extern void kgcov_info_unlink(struct kgcov_info *prev, struct kgcov_info *info);
 
-#endif  /* _KGCOV_GCC_H_ */
+#endif /* _KGCOV_GCC_H_ */

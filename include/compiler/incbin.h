@@ -14,4 +14,4 @@
     extern void *name##_start[];                    \
     extern void *name##_end[]
 
-#endif  /* _COMPILER_INCBIN_H_ */
+#endif /* _COMPILER_INCBIN_H_ */

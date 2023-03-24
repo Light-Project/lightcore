@@ -7,4 +7,4 @@ enum ib700_wdt_register {
     IB700_WDT_TIMEOUT   = 0x02,
 };
 
-#endif  /* _DRIVER_WATCHDOG_IB700_H_ */
+#endif /* _DRIVER_WATCHDOG_IB700_H_ */

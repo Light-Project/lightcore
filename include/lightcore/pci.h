@@ -10,4 +10,4 @@
 #define PCI_SLOT(devfn)         (((devfn) >> 3) & 0x1f)
 #define PCI_FUNC(devfn)         ((devfn) & 0x07)
 
-#endif  /* _LIGHTCORE_PCI_H_ */
+#endif /* _LIGHTCORE_PCI_H_ */

@@ -39,7 +39,7 @@ struct boot_head {
 
 extern struct boot_head boot_head;
 
-#else  /* !__ASSEMBLY__ */
+#else /* !__ASSEMBLY__ */
 
 .macro  KERNEL_HEADER
     .asciz  "lightcore!"            /* 0x10: Kernel Magic               */
@@ -55,5 +55,5 @@ extern struct boot_head boot_head;
     .long   0, 0                    /* 0x48: Boot_params                */
 .endm
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _ASM_GENERIC_HEAD_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _ASM_GENERIC_HEAD_H_ */

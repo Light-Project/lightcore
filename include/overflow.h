@@ -83,4 +83,4 @@ GENERIC_OVERFLOW_OPS(u16, uint16_t)
 GENERIC_OVERFLOW_OPS(u32, uint32_t)
 GENERIC_OVERFLOW_OPS(u64, uint64_t)
 
-#endif  /* _OVERFLOW_H_ */
+#endif /* _OVERFLOW_H_ */

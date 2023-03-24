@@ -24,4 +24,4 @@ enum gx6605s_i2c_registers {
 /* bug for hardware, if 4 division, it fail often */
 #define GX6605S_I2C_CLKDIV(IN, HZ)  (((IN) / (HZ) / 4) - 1)
 
-#endif  /* _DRIVER_I2C_GX6605S_H_ */
+#endif /* _DRIVER_I2C_GX6605S_H_ */

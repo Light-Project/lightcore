@@ -81,7 +81,7 @@ extern void raw_write_unlock_irqrestore             (raw_rwlock_t *lock, irqflag
 extern bool raw_write_trylock                       (raw_rwlock_t *lock);
 extern bool raw_write_trylock_bh                    (raw_rwlock_t *lock);
 
-#endif  /* CONFIG_INLINE_SPINLOCK */
+#endif /* CONFIG_INLINE_SPINLOCK */
 
 #define raw_spin_trylock_irq(lock) ({                   \
     irq_local_disable();                                \
@@ -119,4 +119,4 @@ extern bool raw_write_trylock_bh                    (raw_rwlock_t *lock);
     1 : ({ irq_local_restore(*irqflags); 0; });         \
 })
 
-#endif  /* _SPINLOCK_RAW_H_ */
+#endif /* _SPINLOCK_RAW_H_ */

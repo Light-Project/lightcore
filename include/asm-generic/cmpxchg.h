@@ -116,4 +116,4 @@ generic_cmpxchg_function(volatile void *ptr, unsigned long old, unsigned long va
 # define arch_cmpxchg(ptr, old, val) generic_cmpxchg(ptr, old, val)
 #endif
 
-#endif  /* _ASM_GENERIC_CMPXCHG_H_ */
+#endif /* _ASM_GENERIC_CMPXCHG_H_ */

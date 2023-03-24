@@ -662,5 +662,5 @@ static inline unsigned int clz64(uint64_t value)
 # define clz64 clz
 #endif
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _ASM_GENERIC_BITOPS_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _ASM_GENERIC_BITOPS_H_ */

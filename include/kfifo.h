@@ -428,4 +428,4 @@ extern unsigned long kfifo_in_record(struct kfifo *kfifo, const void *buff, unsi
 extern state kfifo_dynamic_alloc(struct kfifo *kfifo, size_t esize, size_t size, gfp_t flags);
 extern void kfifo_dynamic_free(struct kfifo *kfifo);
 
-#endif  /* _KFIFO_H_ */
+#endif /* _KFIFO_H_ */

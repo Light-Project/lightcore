@@ -619,4 +619,4 @@ AcpiDbUint32ToHexString (
     UINT32                  Value,
     char                    *Buffer);
 
-#endif  /* __ACDEBUG_H__ */
+#endif /* __ACDEBUG_H__ */

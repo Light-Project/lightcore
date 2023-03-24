@@ -55,4 +55,4 @@ static inline unsigned long prandom_long(void)
 #endif
 }
 
-#endif  /* _PRANDOM_H_ */
+#endif /* _PRANDOM_H_ */

@@ -157,4 +157,4 @@ extern state device_attribute_read_u64_array(const struct device *device, const 
     for (iter = device_next_available_child(device, NULL); iter;    \
          iter = device_next_available_child(device, iter))
 
-#endif  /* _FWNODE_H_ */
+#endif /* _FWNODE_H_ */

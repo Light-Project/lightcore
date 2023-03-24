@@ -906,4 +906,4 @@ Exit:
     return_VOID;
 }
 
-#endif  /* ACPI_DBG_TRACK_ALLOCATIONS */
+#endif /* ACPI_DBG_TRACK_ALLOCATIONS */

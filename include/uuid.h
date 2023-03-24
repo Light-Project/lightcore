@@ -27,4 +27,4 @@ extern bool uuid_valid(const char *uuid);
 extern state guid_parse(const char *str, guid_t *guid);
 extern state uuid_parse(const char *str, uuid_t *uuid);
 
-#endif  /* _UUID_H_ */
+#endif /* _UUID_H_ */

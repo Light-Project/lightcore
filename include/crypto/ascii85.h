@@ -10,4 +10,4 @@ extern state ascii85_decode(void *buff, const void *data, size_t size);
 extern size_t ascii85_encode_length(const void *data, size_t size);
 extern size_t ascii85_decode_length(const void *data, size_t size);
 
-#endif  /* _CRYPTO_ASCII85_H_ */
+#endif /* _CRYPTO_ASCII85_H_ */

@@ -13,4 +13,4 @@
     sizeof(arr) / sizeof((arr)[0]) \
 )
 
-#endif  /* _LIGHTCORE_KERNEL_H_ */
+#endif /* _LIGHTCORE_KERNEL_H_ */

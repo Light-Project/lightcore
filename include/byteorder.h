@@ -34,4 +34,4 @@
 #define be_long_to_cpu(val)         be_type_to_cpu(BITS_PER_LONG)(val)
 #define be_long_long_to_cpu(val)    be_type_to_cpu(BITS_PER_LONG_LONG)(val)
 
-#endif  /* _BYTEORDER_H_ */
+#endif /* _BYTEORDER_H_ */

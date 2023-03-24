@@ -61,4 +61,4 @@ static inline void free_page(void *addr)
     page_free(page);
 }
 
-#endif  /* _MM_PAGE_H_ */
+#endif /* _MM_PAGE_H_ */

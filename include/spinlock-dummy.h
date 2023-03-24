@@ -89,4 +89,4 @@ do {                                                \
 #define _raw_write_trylock(lock)                    ({ _raw_generic_lock(lock); true; })
 #define _raw_write_trylock_bh(lock)                 ({ _raw_generic_lock_bh(lock); true; })
 
-#endif  /* _SPINLOCK_DUMMY_H_ */
+#endif /* _SPINLOCK_DUMMY_H_ */

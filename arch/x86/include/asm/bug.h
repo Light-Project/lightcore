@@ -12,8 +12,8 @@
     GENERIC_CRASH_OP(BUG_OPCODE, flags, info, ""); \
 })
 
-#endif  /* __ASSEMBLY__ */
+#endif /* __ASSEMBLY__ */
 
 #include <asm-generic/bug.h>
 
-#endif  /* _ASM_X86_BUG_H_ */
+#endif /* _ASM_X86_BUG_H_ */

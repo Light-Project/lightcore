@@ -7,4 +7,4 @@
 extern unsigned long random_canary(void);
 extern void __weak __visible __stack_chk_fail(void);
 
-#endif  /* _STACKPROTECTOR_H_ */
+#endif /* _STACKPROTECTOR_H_ */

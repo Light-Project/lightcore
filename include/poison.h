@@ -24,4 +24,4 @@
 #define POISON_HPNODE2  ((void *) POISON_OFFSET + 0x510)
 #define POISON_HPNODE3  ((void *) POISON_OFFSET + 0x520)
 
-#endif  /* _POISON_H_ */
+#endif /* _POISON_H_ */

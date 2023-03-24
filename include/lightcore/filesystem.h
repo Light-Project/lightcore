@@ -8,4 +8,4 @@
 #define SEEK_HOLE   4   /* seek to the next hole */
 #define SEEK_MAX    SEEK_HOLE
 
-#endif  /* _LIGHTCORE_FILESYSTEM_H_ */
+#endif /* _LIGHTCORE_FILESYSTEM_H_ */

@@ -57,4 +57,4 @@ static inline void ratelimit_default_init(struct ratelimit *limit)
     ratelimit_init(limit, DEFAULT_RATELIMIT_INTERVAL, DEFAULT_RATELIMIT_BURST);
 }
 
-#endif  /* _RATELIMIT_H_ */
+#endif /* _RATELIMIT_H_ */

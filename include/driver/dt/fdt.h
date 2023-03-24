@@ -28,4 +28,4 @@ extern __init state dt_get_subnode_by_name(unsigned long node, const char *uname
 extern __init const void *dt_get_prop(unsigned long node, const char *name, int *size);
 extern __init state early_dt_scan(void *addr);
 
-#endif  /* _DRIVER_DT_LIBFDT_H_ */
+#endif /* _DRIVER_DT_LIBFDT_H_ */

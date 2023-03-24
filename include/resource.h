@@ -53,4 +53,4 @@ extern struct resource *resource_request_conflict(struct resource *parent, struc
 extern state resource_request(struct resource *parent, struct resource *res);
 extern state resource_release(struct resource *res);
 
-#endif  /* _RESOURCE_H_ */
+#endif /* _RESOURCE_H_ */

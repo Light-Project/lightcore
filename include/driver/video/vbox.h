@@ -40,4 +40,4 @@ enum vbox_index {
 #define VGA_PORT_HGSMI_HOST             0x3b0
 #define VGA_PORT_HGSMI_GUEST            0x3d0
 
-#endif  /* _DRIVER_GPU_VBOX_H_ */
+#endif /* _DRIVER_GPU_VBOX_H_ */

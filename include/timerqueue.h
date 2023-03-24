@@ -173,4 +173,4 @@ static inline void tqueue_node_init(struct tqueue_node *node)
     for (pos = tqueue_prev_entry(pos, member); pos; \
          pos = tqueue_prev_entry(pos, member))
 
-#endif  /* _TIMERQUEUE_H_ */
+#endif /* _TIMERQUEUE_H_ */

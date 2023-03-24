@@ -137,7 +137,7 @@ static void qemu_fdd_type(struct fdd_device *fdd)
     fdd->type = &floppy_type[index];
 }
 
-#endif  /* CONFIG_ARCH_X86 */
+#endif /* CONFIG_ARCH_X86 */
 
 static __always_inline uint8_t
 fdc_in(struct fdc_device *fdc, int reg)

@@ -357,4 +357,4 @@ static inline void hlist_move_list(struct hlist_head *old, struct hlist_head *ne
          (pos) && ({(tmp) = hlist_next_entry(pos, member); 1;}); \
          (pos) = (tmp), ((tmp) && ((tmp) = hlist_next_entry(pos, member))))
 
-#endif  /* _HLIST_H_ */
+#endif /* _HLIST_H_ */

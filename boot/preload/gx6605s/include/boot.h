@@ -57,4 +57,4 @@ extern void norflash_read(uint8_t *buff, size_t addr, uint32_t len);
 
 extern void __noreturn panic_reboot(void);
 
-#endif  /* _BOOT_H_ */
+#endif /* _BOOT_H_ */

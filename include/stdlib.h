@@ -266,4 +266,4 @@ GENERIC_ATOX_OPS(ahtou16, strtou16, uint16_t, 16)
 GENERIC_ATOX_OPS(ahtou32, strtou32, uint32_t, 16)
 GENERIC_ATOX_OPS(ahtou64, strtou64, uint64_t, 16)
 
-#endif  /* _STDLIB_H_ */
+#endif /* _STDLIB_H_ */

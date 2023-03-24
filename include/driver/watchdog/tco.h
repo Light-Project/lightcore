@@ -31,4 +31,4 @@ enum tco_resources {
 #define TCO_RLD_COUNT       BIT_RANGE(9, 0)
 #define TCO_MATCH_ID(ver)  "intel,tco" __stringify(ver)
 
-#endif  /* _DRIVER_WATCHDOG_TCO_ */
+#endif /* _DRIVER_WATCHDOG_TCO_ */

@@ -50,4 +50,4 @@ extern struct softirq *softirq_create(const char *name, softirq_entry_t entry, v
 extern void softirq_destroy(struct softirq *irq);
 extern void __init softirq_init(void);
 
-#endif  /* _SOFTIRQ_H_ */
+#endif /* _SOFTIRQ_H_ */

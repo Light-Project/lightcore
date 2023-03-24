@@ -10,4 +10,4 @@
 
 #include <asm-generic/cache.h>
 
-#endif  /* _ASM_X86_CACHE_H_ */
+#endif /* _ASM_X86_CACHE_H_ */

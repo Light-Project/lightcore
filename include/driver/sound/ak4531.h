@@ -31,4 +31,4 @@ enum ak4531_registers {
     AK4531_MIC_GAIN     = 0x19,     /* MIC amplified gain */
 };
 
-#endif  /* _DRIVER_SOUND_AK4531_H_ */
+#endif /* _DRIVER_SOUND_AK4531_H_ */

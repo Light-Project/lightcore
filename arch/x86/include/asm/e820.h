@@ -31,5 +31,5 @@ struct e820_table {
 
 extern void arch_e820_setup(struct e820_table *);
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _ASM_X86_E820_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _ASM_X86_E820_H_ */

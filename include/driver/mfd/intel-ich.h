@@ -39,4 +39,4 @@ enum intel_ich_registers {
     INTEL_ICH_APL_SZ        = 0x1000,
 };
 
-#endif  /* _DRIVER_MFD_INTEL_ICH_H_ */
+#endif /* _DRIVER_MFD_INTEL_ICH_H_ */

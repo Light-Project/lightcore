@@ -102,7 +102,7 @@ static inline uint64_t mul_u64_u32_shr(uint64_t value, uint32_t mul, unsigned in
     return retval;
 }
 
-#endif  /* TYPE_HAS_INT128 */
+#endif /* TYPE_HAS_INT128 */
 
 static inline uint64_t mul_u32_u32(uint32_t a, uint32_t b)
 {
@@ -176,4 +176,4 @@ extern uint16_t sqrt16(uint16_t value);
 extern uint32_t sqrt32(uint32_t value);
 extern uint64_t sqrt64(uint64_t value);
 
-#endif  /* _MATH_H_ */
+#endif /* _MATH_H_ */

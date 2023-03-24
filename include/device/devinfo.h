@@ -31,4 +31,4 @@
 #define dev_none(dev, fmt, ...) \
     pr_none("%s: "fmt, (dev)->name, ##__VA_ARGS__)
 
-#endif  /* _DEVICE_DEVINFO_H_ */
+#endif /* _DEVICE_DEVINFO_H_ */

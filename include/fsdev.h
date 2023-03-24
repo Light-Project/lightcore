@@ -30,4 +30,4 @@ extern state fsdev_write(struct fsdev *fsdev, unsigned long pos, void *buf, size
 extern state fsdev_register(struct fsdev *fsdev);
 extern void fsdev_unregister(struct fsdev *fsdev);
 
-#endif  /* _FSDEV_H_ */
+#endif /* _FSDEV_H_ */

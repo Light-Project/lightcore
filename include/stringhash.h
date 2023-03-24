@@ -42,4 +42,4 @@ fold_hash(unsigned long x, unsigned long y)
 extern uint64_t stringhash(const char *str, unsigned long salt);
 extern unsigned long pjwhash(const char *str);
 
-#endif  /* _STRINGHASH_H_ */
+#endif /* _STRINGHASH_H_ */

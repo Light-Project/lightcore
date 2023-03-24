@@ -25,4 +25,4 @@
 #define MARGFN_ARGS(type, arg) arg
 #define MARGFN_CAST(type, arg) (type) arg
 
-#endif  /* _MHELPER_H_ */
+#endif /* _MHELPER_H_ */

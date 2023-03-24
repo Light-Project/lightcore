@@ -137,4 +137,4 @@ struct buzzer_param {
 #define BUZZER_FREQ_SET     IOCTL_OUTPUT('p', BUZZER_IOCTL_FREQ_SET, sizeof(unsigned int))
 #define BUZZER_PLAY         IOCTL_OUTPUT('p', BUZZER_IOCTL_PLAY, sizeof(struct buzzer_param))
 
-#endif  /* _LIGHTCORE_BUZZER_H_ */
+#endif /* _LIGHTCORE_BUZZER_H_ */

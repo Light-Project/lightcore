@@ -182,4 +182,4 @@ static inline uint64_t bitrev64_dynamic(uint64_t value)
     : bitrev64_dynamic(__value);            \
 })
 
-#endif  /* _BITREV_H_ */
+#endif /* _BITREV_H_ */

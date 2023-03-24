@@ -68,4 +68,4 @@ enum intel_spi_resisters {
 #define INTEL_SPI_BXT_MATCH_ID          "intel,spi-bxt"
 #define INTEL_SPI_CNL_MATCH_ID          "intel,spi-cnl"
 
-#endif  /* _DRIVER_MTD_INTEL_ */
+#endif /* _DRIVER_MTD_INTEL_ */

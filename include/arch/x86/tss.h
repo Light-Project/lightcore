@@ -55,11 +55,11 @@ struct tss_entry {
     uint16_t    iomap_base;
 } __packed;
 
-#endif  /* CONFIG_X86_64 */
-#endif  /* __ASSEMBLY__ */
+#endif /* CONFIG_X86_64 */
+#endif /* __ASSEMBLY__ */
 
 #define IO_BITMAP_BITS      65536
 #define IO_BITMAP_BYTES     (IO_BITMAP_BITS / 8)
 #define IO_BITMAP_LONGS     (IO_BITMAP_BYTES / MSIZE)
 
-#endif  /* _ARCH_X86_TSS_H_ */
+#endif /* _ARCH_X86_TSS_H_ */

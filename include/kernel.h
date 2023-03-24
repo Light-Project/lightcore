@@ -21,4 +21,4 @@
 #define KMAGIC 0xdeadbeefU
 #define MSIZE (sizeof(void *))
 
-#endif  /* _KERNEL_H_ */
+#endif /* _KERNEL_H_ */

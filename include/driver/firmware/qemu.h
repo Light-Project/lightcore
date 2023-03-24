@@ -15,4 +15,4 @@ struct qemu_dma_access {
 #define QEMU_DMA_CTRL_SELECT    0x08
 #define QEMU_DMA_CTRL_WRITE     0x10
 
-#endif  /* _DRIVER_FIRMWARE_QEMU_H_ */
+#endif /* _DRIVER_FIRMWARE_QEMU_H_ */

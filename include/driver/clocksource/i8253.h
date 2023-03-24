@@ -103,4 +103,4 @@ enum i8253_registers {
 #define I8253_CLKRATE               0x1234DE
 #define I8253_LATCH(HZ)             DIV_ROUND_CLOSEST(I8253_CLKRATE, HZ)
 
-#endif  /* _DRIVER_CLOCKSOURCE_I8253_H_ */
+#endif /* _DRIVER_CLOCKSOURCE_I8253_H_ */

@@ -35,4 +35,4 @@ extern void ncache_flush(struct ncache *cache);
 extern struct ncache *ncache_create(ncache_alloc_t, ncache_free_t, unsigned int num, enum ncache_flags, void *pdata);
 extern void ncache_destroy(struct ncache *cache);
 
-#endif  /* _NCACHE_H_ */
+#endif /* _NCACHE_H_ */

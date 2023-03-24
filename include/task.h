@@ -50,4 +50,4 @@ extern void __noreturn kernel_exit(state exit_code);
 
 extern void __init clone_init(void);
 
-#endif  /* _TASK_H_ */
+#endif /* _TASK_H_ */

@@ -20,4 +20,4 @@ enum gx6605s_iir_registers {
 
 #define GX6605S_IIR_CLKDIV(IN, HZ)  ((IN) / (HZ) - 1)
 
-#endif  /* _DRIVER_IR_GX6605S_H_ */
+#endif /* _DRIVER_IR_GX6605S_H_ */

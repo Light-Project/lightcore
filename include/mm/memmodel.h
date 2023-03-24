@@ -69,11 +69,11 @@ sparce_nr_page(const struct sparce_block *sparce, unsigned long pnr)
 
 extern void __init memmodel_init(void);
 
-#endif  /* CONFIG_SPARCEMEM */
+#endif /* CONFIG_SPARCEMEM */
 
 #define page_to_pa(page)    (page_to_nr(page) << PAGE_SHIFT)
 #define page_to_va(page)    (pa_to_va(page_to_pa(page)))
 #define pa_to_page(paddr)   (nr_to_page(paddr >> PAGE_SHIFT))
 #define va_to_page(vaddr)   (pa_to_page(va_to_pa(vaddr)))
 
-#endif  /* _MM_MEMMODEL_H_ */
+#endif /* _MM_MEMMODEL_H_ */

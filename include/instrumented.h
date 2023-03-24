@@ -40,4 +40,4 @@ instrument_atomic_read_write(const volatile void *addr, size_t size)
     kasan_check_write(addr, size);
 }
 
-#endif  /* _INSTRUMENTED_H_ */
+#endif /* _INSTRUMENTED_H_ */

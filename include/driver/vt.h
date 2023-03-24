@@ -62,4 +62,4 @@ struct vt_ops {
     void (*putcs)(struct vt_device *vt, const char *str, unsigned int len, unsigned int xpos, unsigned int ypos);
 };
 
-#endif  /* _DRIVER_VT_H_ */
+#endif /* _DRIVER_VT_H_ */

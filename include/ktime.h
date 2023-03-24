@@ -149,4 +149,4 @@ static inline ktime_t ktime_make(const uint64_t secs, const unsigned long nsecs)
     return secs * NSEC_PER_SEC + nsecs;
 }
 
-#endif  /* _KTIME_H_ */
+#endif /* _KTIME_H_ */

@@ -41,4 +41,4 @@ extern struct kcontext *swapcontext(struct kcontext *okc, const struct kcontext 
  */
 extern void makecontext(struct kcontext *kc, state (*entry)(void), int argc, ...);
 
-#endif  /* _LIGHTCORE_UCONTEXT_H_ */
+#endif /* _LIGHTCORE_UCONTEXT_H_ */

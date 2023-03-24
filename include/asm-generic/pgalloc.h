@@ -4,4 +4,4 @@
 
 /* Nothing */
 
-#endif  /* _ASM_GENERIC_PGALLOC_H_ */
+#endif /* _ASM_GENERIC_PGALLOC_H_ */

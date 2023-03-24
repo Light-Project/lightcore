@@ -375,4 +375,4 @@ struct ata_identify_table {
     uint16_t CheckSum:8;
 } __packed;
 
-#endif  /* _DRIVER_ATA_IDENTIFY_H_ */
+#endif /* _DRIVER_ATA_IDENTIFY_H_ */

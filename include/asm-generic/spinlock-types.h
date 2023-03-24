@@ -11,4 +11,4 @@ typedef atomic_t arch_rwlock_t;
 #define ARCH_SPINLOCK_INIT 0
 #define ARCH_RWLOCK_INIT 0
 
-#endif  /* _ASM_GENERIC_SPINLOCK_TYPES_H_ */
+#endif /* _ASM_GENERIC_SPINLOCK_TYPES_H_ */

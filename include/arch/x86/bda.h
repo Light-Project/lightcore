@@ -102,4 +102,4 @@ enum bios_data_area {
     X86_BDA_INTRAAREA   = X86_BDA_OFFSET + 0xf0,    /*              16 bytes    Intra-applications communications area */
 };
 
-#endif  /* _ARCH_X86_BDA_H_ */
+#endif /* _ARCH_X86_BDA_H_ */

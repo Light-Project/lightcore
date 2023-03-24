@@ -147,4 +147,4 @@ extern struct bootarg _ld_boot_param_end[];
     for (args = (struct bootarg *)_ld_##sec##_start;    \
         args < (struct bootarg *)_ld_##sec##_end; ++args)
 
-#endif  /* _INITCALL_H_ */
+#endif /* _INITCALL_H_ */

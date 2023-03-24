@@ -53,4 +53,4 @@ static inline void kref_init(struct kref *kref)
     refcount_set(&kref->refcount, 1);
 }
 
-#endif  /* _KREF_H_ */
+#endif /* _KREF_H_ */

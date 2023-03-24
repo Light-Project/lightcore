@@ -57,4 +57,4 @@ enum ioapic_indexes {
 #define IOAPIC_REDIR_DEL_MODE       BIT_RANGE(10, 8)    /*  */
 #define IOAPIC_REDIR_VECTOR         BIT_RANGE(7, 0)     /*  */
 
-#endif  /* _DRIVER_IRQCHIP_IOAPIC_H_ */
+#endif /* _DRIVER_IRQCHIP_IOAPIC_H_ */

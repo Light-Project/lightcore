@@ -67,4 +67,4 @@ extern struct timer *timer_create(timer_entry_t entry, void *pdata, ttime_t delt
 extern void timer_destroy(struct timer *timer);
 extern void __init timer_init(void);
 
-#endif  /* _TIMER_H_ */
+#endif /* _TIMER_H_ */

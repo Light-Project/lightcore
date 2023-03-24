@@ -64,4 +64,4 @@ static inline bool __raw_write_trylock(raw_rwlock_t *lock)
     return arch_write_trylock(&lock->alock);
 }
 
-#endif  /* _SPINLOCK_ARCH_H_ */
+#endif /* _SPINLOCK_ARCH_H_ */

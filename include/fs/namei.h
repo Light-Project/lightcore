@@ -12,4 +12,4 @@ enum namei_lookup {
 
 #define NAMEI_SYM_MAX   40
 
-#endif  /* _FS_NAMEI_H_ */
+#endif /* _FS_NAMEI_H_ */

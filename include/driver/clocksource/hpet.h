@@ -42,4 +42,4 @@ enum hpet_registers {
 #define HPET_CONF_INT_LEVEL     BIT_SHIFT(0, 1)     /* Timer Interrupt Type: Level Triggered */
 #define HPET_CONF_INT_EDGE      BIT_SHIFT(0, 0)     /* Timer Interrupt Type: Edge Triggered */
 
-#endif  /* _DRIVER_CLOCKSOURCE_HPET_H_ */
+#endif /* _DRIVER_CLOCKSOURCE_HPET_H_ */

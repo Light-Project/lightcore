@@ -80,4 +80,4 @@
 #define EKEYREVOKED             128     /* Key has been revoked */
 #define EKEYREJECTED            129     /* Key was rejected by service */
 
-#endif  /* _LIGHTCORE_ASM_GENERIC_ERRNO_H_ */
+#endif /* _LIGHTCORE_ASM_GENERIC_ERRNO_H_ */

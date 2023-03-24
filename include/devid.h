@@ -6,4 +6,4 @@
 #include <state.h>
 #include <lightcore/devid.h>
 
-#endif  /* _DEVID_H_ */
+#endif /* _DEVID_H_ */

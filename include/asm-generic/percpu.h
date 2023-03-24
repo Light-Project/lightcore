@@ -36,4 +36,4 @@
 # define thiscpu(name) percpu(0, name)
 #endif
 
-#endif  /* _ASM_GENERIC_PERCPU_H_ */
+#endif /* _ASM_GENERIC_PERCPU_H_ */

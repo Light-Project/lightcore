@@ -35,4 +35,4 @@ extern int32_t pidc_update(struct pidc_state *pctx, int32_t expect, int32_t valu
 extern void pidc_reset(struct pidc_state *pctx);
 extern void pidc_init(struct pidc_state *pctx, uint32_t kpm, int32_t kpd, uint32_t kim, int32_t kid, uint32_t kdm, int32_t kdd, int32_t min, int32_t max);
 
-#endif  /* _FILTER_PIDC_H_ */
+#endif /* _FILTER_PIDC_H_ */

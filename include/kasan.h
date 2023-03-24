@@ -62,4 +62,4 @@ extern void __asan_set_shadow_f8(const void *addr, size_t size);
 /* kasan core */
 extern bool kasan_report(unsigned long addr, size_t size, bool is_write, unsigned long ip);
 
-#endif  /* _KASAN_H_ */
+#endif /* _KASAN_H_ */

@@ -48,4 +48,4 @@
     align_check((size_t)(ptr), align)               \
 )
 
-#endif  /* _ALIGN_H_ */
+#endif /* _ALIGN_H_ */

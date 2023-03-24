@@ -88,4 +88,4 @@ extern state block_add_fsdev(struct block_device *bdev);
 extern state block_device_register(struct block_device *bdev);
 extern void block_device_unregister(struct block_device *bdev);
 
-#endif  /* _DRIVER_BLOCK_H_ */
+#endif /* _DRIVER_BLOCK_H_ */

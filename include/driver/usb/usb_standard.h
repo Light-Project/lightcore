@@ -168,7 +168,7 @@ enum bDeviceClass {
 struct usb_config_descriptor {
     uint8_t bLength;
     uint8_t bDescriptorType;
-    
+
     le16    wTotalLength;
     uint8_t bNumInterfaces;
     uint8_t bConfigurationValue;
@@ -205,4 +205,4 @@ enum endpoint_bmAttributes {
     USB_ENDPOINT_XFER_MASK      = 3,
 };
 
-#endif  /* _DRIVER_USB_STANDARD_H_ */
+#endif /* _DRIVER_USB_STANDARD_H_ */

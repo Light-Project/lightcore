@@ -89,4 +89,4 @@ void spi_driver_unregister(struct spi_driver *);
 state spi_host_register(struct spi_host *);
 void spi_host_unregister(struct spi_host *);
 
-#endif  /* _DRIVER_SPI_H_ */
+#endif /* _DRIVER_SPI_H_ */

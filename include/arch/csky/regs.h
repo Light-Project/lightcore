@@ -67,4 +67,4 @@
 #define MSA_DIRTY       BIT(2)
 #define MSA_VAILD       BIT(1)
 
-#endif  /* _ARCH_CSKY_REGS_H_ */
+#endif /* _ARCH_CSKY_REGS_H_ */

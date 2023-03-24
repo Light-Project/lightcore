@@ -10,4 +10,4 @@
 #define PS2_GET_SEND(cmd) (((cmd) >> 8) & 0xf)
 #define PS2_GET_RECV(cmd) (((cmd) >> 12) & 0xf)
 
-#endif  /* _DRIVER_PS2_H_ */
+#endif /* _DRIVER_PS2_H_ */

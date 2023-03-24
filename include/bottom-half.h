@@ -30,4 +30,4 @@ static inline void bh_local_unlock(void)
 extern void softirq_irq_entry(void);
 extern void softirq_handle(void);
 
-#endif  /* _BOTTOM_HALF_H_ */
+#endif /* _BOTTOM_HALF_H_ */

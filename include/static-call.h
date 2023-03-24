@@ -91,4 +91,4 @@ __static_call_update(struct static_call_key *key, void *tramp, void *func)
 #define DEFINE_STATIC_CALL_RET0(name, func)                 \
     __DEFINE_STATIC_CALL(name, func, __static_call_ret0)
 
-#endif  /* _STATIC_CALL_H_ */
+#endif /* _STATIC_CALL_H_ */

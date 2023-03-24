@@ -33,7 +33,7 @@ struct idt_table {
     struct idt_entry *idt;      /* Point to IDT_ENTRY */
 } __packed;
 
-#endif  /* __ASSEMBLY__ */
+#endif /* __ASSEMBLY__ */
 
 #define IDT_TYPE_TASK           0x05    /* Task Gate */
 #define IDT_TYPE_INTERRUPT      0x06    /* Interrupt Gate */
@@ -70,4 +70,4 @@ struct idt_table {
 #define TRAP_VE         20      /* Virtualization Exception         EPT violations                                                              */
 #define TRAP_CP         21      /* Control Protection Exception     RET, IRET, RSTORSSP, and SETSSBSY                                           */
 
-#endif  /* _ARCH_X86_INTERRUPT_H_ */
+#endif /* _ARCH_X86_INTERRUPT_H_ */

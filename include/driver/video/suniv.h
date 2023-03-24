@@ -179,4 +179,4 @@ enum suniv_defe_registers {
     SUNIV_DEFE_CH1_VERTCOEF     = 0x700,   /* 0x400 + N * 4 */
 };
 
-#endif  /* _DRIVER_VIDEO_SUNIV_H_ */
+#endif /* _DRIVER_VIDEO_SUNIV_H_ */

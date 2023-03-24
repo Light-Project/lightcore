@@ -111,6 +111,6 @@ extern void preempt_count_sub(unsigned long val);
 #else
 #define preempt_disable()
 #define preempt_enable()
-#endif  /* CONFIG_PREEMPTION */
+#endif /* CONFIG_PREEMPTION */
 
-#endif  /* _PREEMPT_H_ */
+#endif /* _PREEMPT_H_ */

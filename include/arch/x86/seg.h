@@ -117,4 +117,4 @@
 #define GDT_ENTRY_MAX 16
 #endif
 
-#endif  /* _ARCH_X86_SEG_H_ */
+#endif /* _ARCH_X86_SEG_H_ */

@@ -43,4 +43,4 @@ extern void wakequeue_add(struct wake_queue_head *queue, struct sched_task *task
 extern void wakequeue_add_safe(struct wake_queue_head *queue, struct sched_task *task);
 extern void wakequeue_action(struct wake_queue_head *queue);
 
-#endif  /* _WAKEQUEUE_H_ */
+#endif /* _WAKEQUEUE_H_ */

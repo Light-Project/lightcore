@@ -31,4 +31,4 @@
 
 #include <asm-generic/kcontext.h>
 
-#endif  /* _ASM_X86_KCONTEXT_H_ */
+#endif /* _ASM_X86_KCONTEXT_H_ */

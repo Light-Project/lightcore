@@ -64,4 +64,4 @@
     (val) = clamp(val, lo, hi);     \
 })
 
-#endif  /* _MINMAX_H_ */
+#endif /* _MINMAX_H_ */

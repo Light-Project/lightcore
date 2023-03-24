@@ -26,4 +26,4 @@ enum qemu_rtc_registers {
     MC146818_BIOS_SMP_COUNT      = 0x5f,
 };
 
-#endif  /* _DRIVER_RTC_QEMU_H_ */
+#endif /* _DRIVER_RTC_QEMU_H_ */

@@ -40,4 +40,4 @@ enum intel_gpio_resources {
 #define INTEL_GPIO_V10CP    "intel,gpio-v10cp"
 #define INTEL_GPIO_V10CS    "intel,gpio-v10cs"
 
-#endif  /* _DRIVER_GPIO_ICH_H_ */
+#endif /* _DRIVER_GPIO_ICH_H_ */

@@ -40,4 +40,4 @@ static inline void rw_lock_init(rwlock_t *rwlock)
     *rwlock = RW_LOCK_UNLOCK(rwlock);
 }
 
-#endif  /* _SPINLOCK_TYPES_H_ */
+#endif /* _SPINLOCK_TYPES_H_ */

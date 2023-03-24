@@ -17,4 +17,4 @@ struct raw_ops {
     state (*write)(struct raw_channel *, ssize_t val);
 };
 
-#endif  /* _DEVICE_RAW_H_ */
+#endif /* _DEVICE_RAW_H_ */

@@ -7,4 +7,4 @@ struct ringbuffer {
 };
 
 
-#endif  /* _RINGBUFER_H_ */
+#endif /* _RINGBUFER_H_ */

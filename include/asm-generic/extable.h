@@ -22,5 +22,5 @@ struct extable_entry {
     ".popsection                            \n"
 #endif
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _ASM_GENERIC_EXTABLE_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _ASM_GENERIC_EXTABLE_H_ */

@@ -331,5 +331,5 @@
     SYM_DATA_END(name)
 #endif
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _LINKAGE_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _LINKAGE_H_ */

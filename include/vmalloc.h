@@ -15,4 +15,4 @@ extern void vfree_pages(void *block);
 extern void vfree(void *block);
 extern void __init vmalloc_init(void);
 
-#endif  /* _MM_VMAP_H_ */
+#endif /* _MM_VMAP_H_ */

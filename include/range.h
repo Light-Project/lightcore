@@ -51,4 +51,4 @@ extern struct range_node *range_insert(struct range_head *head, unsigned int typ
 extern state range_subtract(struct range_head *head, unsigned long start, unsigned long size);
 extern void range_release(struct range_head *head);
 
-#endif  /* _RANGE_H_ */
+#endif /* _RANGE_H_ */

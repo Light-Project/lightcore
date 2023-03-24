@@ -75,4 +75,4 @@ extern state rtc_alarm_set(struct rtc_device *rdev, struct rtc_alarm *rtc);
 extern state rtc_register(struct rtc_device *rdev);
 extern void rtc_unregister(struct rtc_device *rdev);
 
-#endif  /* _DRIVER_RTC_H_ */
+#endif /* _DRIVER_RTC_H_ */

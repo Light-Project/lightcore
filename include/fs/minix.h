@@ -76,4 +76,4 @@ struct minix3_superblock {
 
 #define MINIX_ROOT_INO  1
 
-#endif  /* _FS_MINIX_H_ */
+#endif /* _FS_MINIX_H_ */

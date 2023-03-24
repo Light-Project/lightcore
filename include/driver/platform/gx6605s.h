@@ -129,4 +129,4 @@ enum gx6605s_gctl_registers {
 #define GX6605S_DRAM_CTRL2_ADDR_PD          BIT_RANGE(10, 7)
 #define GX6605S_DRAM_CTRL2_ADDR_PU          BIT_RANGE(6, 3)
 
-#endif  /* _DRIVER_PLATFORM_GX6605S_H_ */
+#endif /* _DRIVER_PLATFORM_GX6605S_H_ */

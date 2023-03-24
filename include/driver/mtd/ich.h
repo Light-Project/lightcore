@@ -78,4 +78,4 @@ enum ich_spi_registers {
 #define INTEL_SPI_LEG_MATCH_ID          "intel,spi-leg"
 #define INTEL_SPI_ICH_MATCH_ID          "intel,spi-ich"
 
-#endif  /* _DRIVER_MTD_ICH_H_ */
+#endif /* _DRIVER_MTD_ICH_H_ */

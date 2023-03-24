@@ -4,4 +4,4 @@
 
 #include <lightcore/asm/errno.h>
 
-#endif  /* _ASM_GENERIC_ERRNO_H_ */
+#endif /* _ASM_GENERIC_ERRNO_H_ */

@@ -29,4 +29,4 @@
 
 #include <asm-generic/page.h>
 
-#endif  /* _ASM_CSKY_PAGE_H_ */
+#endif /* _ASM_CSKY_PAGE_H_ */

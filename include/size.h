@@ -59,4 +59,4 @@
 #define SZ_256TiB       _AC(0x1000000000000, ULL)
 #define SZ_512TiB       _AC(0x2000000000000, ULL)
 
-#endif  /* _SIZE_H_ */
+#endif /* _SIZE_H_ */

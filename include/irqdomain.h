@@ -64,4 +64,4 @@ extern irqnr_t irq_domain_fwspec_mapping(struct irq_domain_fwspec *fwspec);
 extern struct irq_domain *irq_domain_register(irqnr_t size, irqnr_t hwmax);
 extern void irq_domain_unregister(struct irq_domain *domain);
 
-#endif  /* _IRQDOMAIN_H_ */
+#endif /* _IRQDOMAIN_H_ */

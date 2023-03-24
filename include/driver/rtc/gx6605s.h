@@ -53,4 +53,4 @@ enum gx6605s_rtc_registers {
 #define GX6605S_RTC_INT_ALM1        BIT(1)
 #define GX6605S_RTC_INT_EN          BIT(0)
 
-#endif  /* _DRIVER_RTC_GX6605S_H_ */
+#endif /* _DRIVER_RTC_GX6605S_H_ */

@@ -22,4 +22,4 @@ extern int getopt_long(struct getopt_ctx *ctx, int argc, char *argv[],
                        const char *optstr, const struct getopt_option longopts[],
                        int *idx, bool lonly);
 
-#endif  /* _GETOPT_LONG_H_ */
+#endif /* _GETOPT_LONG_H_ */

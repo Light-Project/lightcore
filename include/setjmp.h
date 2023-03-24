@@ -16,4 +16,4 @@ extern int __returns_twice setjmp(jmp_buf *env);
  */
 extern void __noreturn longjmp(jmp_buf *env, int val);
 
-#endif  /* _LIGHTCORE_SETJMP_H_ */
+#endif /* _LIGHTCORE_SETJMP_H_ */

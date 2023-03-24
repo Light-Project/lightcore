@@ -188,4 +188,4 @@ extern state kernel_mount(const char *devn, const char *fsn, enum mount_flags fl
 extern state kernel_unmount(const char *pathname);
 extern state kernel_execve(const char *file, const char *const *argv, const char *const *envp);
 
-#endif  /* _FILESYSTEM_H_ */
+#endif /* _FILESYSTEM_H_ */

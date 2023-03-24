@@ -9,4 +9,4 @@ typedef state (*param_entry_t)(char *param, char *val, void *pdata);
 extern char *param_next_arg(char *args, char **param, char **val);
 extern state param_parser(char *cmdline, param_entry_t entry, void *pdata);
 
-#endif  /* _PARAM_H_ */
+#endif /* _PARAM_H_ */

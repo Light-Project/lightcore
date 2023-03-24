@@ -15,4 +15,4 @@ extern const struct errname_entry errname_table[];
 extern struct errname_entry *errname_find(state error);
 extern const char *errname(state error, const char **infop);
 
-#endif  /* _ERRNAME_H_ */
+#endif /* _ERRNAME_H_ */

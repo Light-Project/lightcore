@@ -25,4 +25,4 @@ enum suniv_intc_registers {
 /********************************************************************/
 /*      Mnemonic            value    meaning/usage                  */
 
-#endif  /* _DRIVER_IRQCHIP_SUNIV_H_ */
+#endif /* _DRIVER_IRQCHIP_SUNIV_H_ */

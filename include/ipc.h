@@ -8,4 +8,4 @@ struct ipc_type {
     state (*create)(struct namespace_ipc *, int flags);
 };
 
-#endif  /* _IPC_H_ */
+#endif /* _IPC_H_ */

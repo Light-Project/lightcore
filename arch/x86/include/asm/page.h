@@ -86,15 +86,15 @@
 # define PTRS_PER_P4D       ptrs_per_p4d
 # define PTRS_PER_PGD       512
 
-#endif  /* CONFIG_ARCH_X86_64 */
+#endif /* CONFIG_ARCH_X86_64 */
 
 #ifndef __ASSEMBLY__
 
 extern unsigned int pgdir_shift;
 extern unsigned int ptrs_per_p4d;
 
-#endif  /* __ASSEMBLY__ */
+#endif /* __ASSEMBLY__ */
 
 #include <asm-generic/page.h>
 
-#endif  /* _ASM_X86_PAGE_H_ */
+#endif /* _ASM_X86_PAGE_H_ */

@@ -19,4 +19,4 @@ struct smi_regs {
 
 extern void smi_trigger(struct smi_regs *regs);
 
-#endif  /* _ASM_X86_SMI_H_ */
+#endif /* _ASM_X86_SMI_H_ */

@@ -7,4 +7,4 @@
 extern struct extable_entry *extable_find(uintptr_t addr);
 extern void __init extable_init(void);
 
-#endif  /* _EXTABLE_H_ */
+#endif /* _EXTABLE_H_ */

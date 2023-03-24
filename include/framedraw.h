@@ -68,4 +68,4 @@ extern void imageblit(const struct framedraw_info *info, const struct video_imag
 extern void fillrect(const struct framedraw_info *info, const struct video_fillrect *fillrect);
 extern void copyarray(const struct framedraw_info *info, const struct video_copyarray *copyarray);
 
-#endif  /* _FRAMEDRAW_H_ */
+#endif /* _FRAMEDRAW_H_ */

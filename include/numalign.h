@@ -6,4 +6,4 @@ extern unsigned int oct_align(unsigned int byte);
 extern unsigned int dec_signed_align(unsigned int byte);
 extern unsigned int dec_unsigned_align(unsigned int byte);
 
-#endif  /* _NUMALIGN_H_ */
+#endif /* _NUMALIGN_H_ */

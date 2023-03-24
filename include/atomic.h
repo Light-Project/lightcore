@@ -225,4 +225,4 @@ static __always_inline bool atomic_try_cmpxchg(atomic_t *atomic, atomic_t *old, 
     arch_try_cmpxchg(__ai_ptr, __ai_oldp, __VA_ARGS__);     \
 })
 
-#endif  /* _ATOMIC_H_ */
+#endif /* _ATOMIC_H_ */

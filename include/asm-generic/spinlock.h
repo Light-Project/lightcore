@@ -20,4 +20,4 @@ static inline bool arch_spin_trylock(arch_spinlock_t *lock)
 
 }
 
-#endif  /* _ASM_GENERIC_SPINLOCK_H_ */
+#endif /* _ASM_GENERIC_SPINLOCK_H_ */

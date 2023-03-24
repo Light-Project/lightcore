@@ -18,4 +18,4 @@ struct kernel_symbol {
 #define EXPORT_SYMBOL(sym)      __EXPORT_SYMBOL(sym, )
 #define EXPORT_SYMBOL_GPL(sym)  __EXPORT_SYMBOL(sym, _gpl)
 
-#endif  /* _EXPORT_H_ */
+#endif /* _EXPORT_H_ */

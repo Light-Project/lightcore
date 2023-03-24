@@ -158,4 +158,4 @@ static inline uint64_t crc64_inline(const uint8_t *src, int len, uint64_t crc)
     return crc;
 }
 
-#endif  /* _CRYPTO_CRC64_TABLE_H_ */
+#endif /* _CRYPTO_CRC64_TABLE_H_ */

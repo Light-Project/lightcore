@@ -33,7 +33,7 @@ struct regs {
     ::"b"(val));            \
 })
 
-#endif  /* CONFIG_CSKY_ABIV1 */
+#endif /* CONFIG_CSKY_ABIV1 */
 
 #define mfcr(reg) ({        \
     unsigned int tmp;       \

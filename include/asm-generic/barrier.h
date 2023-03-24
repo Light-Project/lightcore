@@ -65,5 +65,5 @@
 #define smp_wmb()   barrier()
 #endif
 
-#endif  /* CONFIG_SMP */
-#endif  /* _ASM_GENERIC_BARRIER_H_ */
+#endif /* CONFIG_SMP */
+#endif /* _ASM_GENERIC_BARRIER_H_ */

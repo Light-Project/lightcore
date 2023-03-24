@@ -47,4 +47,4 @@ static inline void pcid_inval_all_nonglobals(size_t pcid, size_t addr)
     pcid_inval(PCID_ALL_NON_GLOBAL, pcid, addr);
 }
 
-#endif  /* _ASM_X86_PCID_H_ */
+#endif /* _ASM_X86_PCID_H_ */

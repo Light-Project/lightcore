@@ -80,4 +80,4 @@ extern struct pid *pid_alloc(struct namespace_pid *ns, pid_t *tid, size_t tid_si
 extern void pid_free(struct pid *pid);
 extern void __init pid_init(void);
 
-#endif  /* _PID_H_ */
+#endif /* _PID_H_ */

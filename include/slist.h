@@ -262,4 +262,4 @@ static inline bool slist_check_another(const struct slist_head *head, const stru
          (tmp) = slist_next_entry(pos, member); (pos); (pos) = (tmp), \
          ((tmp) && ((tmp) = slist_next_entry(pos, member))))
 
-#endif  /* _SLIST_H_ */
+#endif /* _SLIST_H_ */

@@ -110,4 +110,4 @@ static inline bool ttime_before_equal(const ttime_t timea, const ttime_t timeb)
     return ttime_compare(timea, timeb) <= 0;
 }
 
-#endif  /* _TICKTIME_H_ */
+#endif /* _TICKTIME_H_ */

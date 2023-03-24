@@ -72,4 +72,4 @@ enum gfp_flags {
 #define GFP_KERNEL              (GFP_IO | GFP_FS)
 #define GFP_USER                (GFP_IO | GFP_FS | GFP_HARDWALL)
 
-#endif  /* _MM_GFP_H_ */
+#endif /* _MM_GFP_H_ */

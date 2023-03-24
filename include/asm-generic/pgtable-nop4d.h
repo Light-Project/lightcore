@@ -61,4 +61,4 @@ static inline state p4d_alloc(pgd_t *pgd, size_t addr)
     return -ENOERR;
 }
 
-#endif  /* _ASM_GENERIC_PGTABLE_P4D_H_ */
+#endif /* _ASM_GENERIC_PGTABLE_P4D_H_ */

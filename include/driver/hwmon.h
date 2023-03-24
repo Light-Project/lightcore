@@ -171,4 +171,4 @@ extern state hwmon_device_string(struct hwmon_device *hdev, enum hwmon_sensor se
 extern state hwmon_register(struct hwmon_device *hdev);
 extern void hwmon_unregister(struct hwmon_device *hdev);
 
-#endif  /* _DRIVER_HWMON_H_ */
+#endif /* _DRIVER_HWMON_H_ */

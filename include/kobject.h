@@ -19,4 +19,4 @@ static inline const char *kobject_get_name(const struct kobject *kobj)
 extern state kobject_set_name_vargs(struct kobject *kobj, const char *fmt, va_list vargs);
 extern state kobject_set_name(struct kobject *kobj, const char *fmt, ...);
 
-#endif  /* _KOBJECT_H_ */
+#endif /* _KOBJECT_H_ */

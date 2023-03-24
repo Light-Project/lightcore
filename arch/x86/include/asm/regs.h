@@ -54,7 +54,7 @@ struct regs {
     uint64_t uss;
 } __packed;
 
-#else  /* !CONFIG_ARCH_X86_64 */
+#else /* !CONFIG_ARCH_X86_64 */
 
 struct regs {
     /* generic registers */
@@ -83,7 +83,7 @@ struct regs {
     uint32_t uss;
 } __packed;
 
-#endif  /* CONFIG_ARCH_X86_64 */
+#endif /* CONFIG_ARCH_X86_64 */
 
 static inline unsigned long eflags_get(void)
 {

@@ -19,4 +19,4 @@ void __noreturn proc_poweroff(void);
 
 #define cpu_relax() barrier()
 
-#endif  /* _ASM_CSKY_PROC_H_ */
+#endif /* _ASM_CSKY_PROC_H_ */

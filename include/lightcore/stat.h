@@ -42,4 +42,4 @@
 #define S_ISCHR(m)  (((m) & S_IFMT) == S_IFCHR)
 #define S_ISFIFO(m) (((m) & S_IFMT) == S_IFIFO)
 
-#endif  /* _LIGHTCORE_TYPES_H_ */
+#endif /* _LIGHTCORE_TYPES_H_ */

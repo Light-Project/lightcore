@@ -12,4 +12,3 @@
 #define __stringify(x...)   ___stringify(x)
 
 #endif	/* _COMPILER_STRINGIFY_H_ */
-

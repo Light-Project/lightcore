@@ -88,4 +88,4 @@ extern void spinor_type_unregister(struct spinor_type *stype);
 extern state spinor_register(struct spinor_device *);
 extern void spinor_unregister(struct spinor_device *);
 
-#endif  /* _DRIVER_MTD_SPINOR_H_ */
+#endif /* _DRIVER_MTD_SPINOR_H_ */

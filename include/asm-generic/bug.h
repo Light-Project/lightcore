@@ -139,5 +139,5 @@ GENERIC_STRUCT_FLAG(crash, struct crash_entry, flags, done, __CRASH_FLAG_DONE);
 })
 #endif
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _ASM_GENERIC_BUG_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _ASM_GENERIC_BUG_H_ */

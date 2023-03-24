@@ -152,4 +152,4 @@ static inline bool bit_atomic_test_flip_be(void *addr, long bit)
     return bit_atomic_test_flip(addr, bit ^ BITOP_BE_SWIZZLE);
 }
 
-#endif  /* _ASM_GENERIC_BITOPS_ENDIAN_H_ */
+#endif /* _ASM_GENERIC_BITOPS_ENDIAN_H_ */

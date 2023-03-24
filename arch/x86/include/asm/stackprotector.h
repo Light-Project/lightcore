@@ -39,5 +39,5 @@ static __always_inline void boot_stack_canary(void)
 static inline void stack_canary_switch(struct sched_task *task) {}
 static inline void boot_stack_canary(void) {}
 
-#endif  /* CONFIG_STACKPROTECTOR */
-#endif  /* _ASM_X86_STACKPROTECTOR_H */
+#endif /* CONFIG_STACKPROTECTOR */
+#endif /* _ASM_X86_STACKPROTECTOR_H */

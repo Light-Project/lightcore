@@ -91,5 +91,5 @@ extern state buzzer_beep(struct buzzer_device *bdev, enum buzzer_frequency freq,
 extern state buzzer_register(struct buzzer_device *bdev);
 extern void buzzer_unregister(struct buzzer_device *bdev);
 
-#endif  /* CONFIG_BUZZER */
-#endif  /* _DRIVER_BUZZER_H_ */
+#endif /* CONFIG_BUZZER */
+#endif /* _DRIVER_BUZZER_H_ */

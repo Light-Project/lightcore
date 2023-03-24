@@ -195,4 +195,4 @@ static __always_inline bool write_trylock_irqsave(rwlock_t *lock, irqflags_t *ir
     return raw_write_trylock_irqsave(&lock->rlock, irqflags);
 }
 
-#endif  /* _SPINLOCK_H_ */
+#endif /* _SPINLOCK_H_ */

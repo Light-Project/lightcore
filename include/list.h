@@ -745,4 +745,4 @@ static inline void list_splice_tail_init(struct list_head *head, struct list_hea
          !list_entry_check_head(pos, head, member); \
          (pos) = (tmp), (tmp) = list_prev_entry(tmp, member))
 
-#endif  /* _LIST_H_ */
+#endif /* _LIST_H_ */

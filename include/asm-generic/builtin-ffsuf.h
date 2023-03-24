@@ -8,4 +8,4 @@ static __always_inline unsigned int ffsuf(unsigned long value)
 	return __builtin_ctzl(value);
 }
 
-#endif  /* _ASM_GENERIC_BUILTIN_FFSUF_H_ */
+#endif /* _ASM_GENERIC_BUILTIN_FFSUF_H_ */

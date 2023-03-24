@@ -93,4 +93,4 @@ static inline uint8_t crc8_inline(const uint8_t *src, size_t len, uint8_t crc)
     return crc;
 }
 
-#endif  /* _CRYPTO_CRC8_TABLE_H_ */
+#endif /* _CRYPTO_CRC8_TABLE_H_ */

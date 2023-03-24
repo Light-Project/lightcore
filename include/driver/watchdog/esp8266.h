@@ -24,4 +24,4 @@ enum esp8266_wdt_registers {
 
 #define ESP8266_WDT_RST_FEED_MASK       0x73
 
-#endif  /* _DRIVER_WATCHDOG_ESP8266_H_ */
+#endif /* _DRIVER_WATCHDOG_ESP8266_H_ */

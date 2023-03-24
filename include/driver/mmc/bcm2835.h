@@ -55,4 +55,4 @@ enum bcm2835_mmc_registers {
 
 #define BCM2835_MMC_VDD_POWER_ON        0x1
 
-#endif  /* _DRIVER_MMC_BCM2835_H_ */
+#endif /* _DRIVER_MMC_BCM2835_H_ */

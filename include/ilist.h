@@ -308,4 +308,4 @@ static inline bool ilist_node_empty(struct ilist_node *inode)
 #define ilist_for_each_entry_reverse_continue_safe(pos, tmp, head, member) \
     list_for_each_entry_reverse_continue_safe(pos, tmp, &(head)->node_list, member.node_list)
 
-#endif  /* _ILIST_H_ */
+#endif /* _ILIST_H_ */

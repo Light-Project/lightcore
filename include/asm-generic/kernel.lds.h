@@ -516,4 +516,4 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
     .strtab 0 : { *(.strtab) }                              \
     .shstrtab 0 : { *(.shstrtab) }
 
-#endif  /* _ASM_GENERIC_KERNEL_LDS_H_ */
+#endif /* _ASM_GENERIC_KERNEL_LDS_H_ */

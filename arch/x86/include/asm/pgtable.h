@@ -260,4 +260,4 @@ extern void __init arch_report_nx(void);
 extern void __init arch_setup_nx(void);
 extern void __init arch_page_setup(void);
 
-#endif  /* _ASM_X86_PGTABLE_H_ */
+#endif /* _ASM_X86_PGTABLE_H_ */

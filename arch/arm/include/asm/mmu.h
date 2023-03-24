@@ -22,4 +22,4 @@ static inline void mmu_disable()
     );
 }
 
-#endif  /* _ASM_ARM_MMU_H_ */
+#endif /* _ASM_ARM_MMU_H_ */

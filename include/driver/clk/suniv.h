@@ -141,4 +141,4 @@ enum suniv_dramc {
 #define SUNIV_DRAMC_STMG1_REF       (0x07<<16)
 #define SUNIV_DRAMC_STMG1_INIT      (0x08<<0)
 
-#endif  /* _DRIVER_CLK_SUNIV_H_ */
+#endif /* _DRIVER_CLK_SUNIV_H_ */

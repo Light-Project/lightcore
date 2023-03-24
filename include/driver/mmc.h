@@ -23,4 +23,4 @@ enum mmc_response {
     MMC_RESP_R7     = MMC_RESP_PRESENT | MMC_RESP_CRC | MMC_RESP_OPCODE,
 };
 
-#endif  /* _DRIVER_MMC_H_ */
+#endif /* _DRIVER_MMC_H_ */

@@ -20,4 +20,4 @@ extern void __malloc *minpool_realloc(struct minpool_head *head, void *block, si
 extern void minpool_free(struct minpool_head *head, void *block);
 extern void minpool_setup(struct minpool_head *head, void *array, size_t size);
 
-#endif  /* _MINPOOL_H_ */
+#endif /* _MINPOOL_H_ */

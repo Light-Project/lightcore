@@ -45,4 +45,4 @@ static inline state action_call(struct action *act)
     return -ENODATA;
 }
 
-#endif  /* _ACTION_H_ */
+#endif /* _ACTION_H_ */

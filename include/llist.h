@@ -18,4 +18,4 @@ static inline struct slist_head *llist_destroy(struct slist_head *head)
     return xchg(&head->next, NULL);
 }
 
-#endif  /* _LLIST_H_ */
+#endif /* _LLIST_H_ */

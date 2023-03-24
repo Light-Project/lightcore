@@ -49,4 +49,4 @@ static inline state dt_parse_phandle_with_args(const struct dt_node *node, const
     return dt_parse_phandle_with_args_count(node, list_name, cells_name, cell_count, index, args);
 }
 
-#endif  /* _DRIVER_DT_HELP_H_ */
+#endif /* _DRIVER_DT_HELP_H_ */

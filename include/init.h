@@ -16,4 +16,4 @@ extern __init void ctors_init(void);
 extern __init void earlyargs_init(const char *cmd);
 extern __init void bootargs_init(const char *cmd);
 
-#endif  /* _INIT_H_ */
+#endif /* _INIT_H_ */

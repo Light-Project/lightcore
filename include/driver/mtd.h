@@ -52,4 +52,4 @@ extern void mtd_fsdev_unregister(struct mtd_device *mdev);
 extern state mtd_register(struct mtd_device *mdev, struct mtd_part *part, unsigned int pnr);
 extern void mtd_unregister(struct mtd_device *mdev);
 
-#endif  /* _DRIVER_MTD_H_ */
+#endif /* _DRIVER_MTD_H_ */

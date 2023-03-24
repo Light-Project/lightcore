@@ -26,8 +26,8 @@ static inline void tlb_inval_all(void)
     cpwcr("cpcr8", MCIR_TLBINVA);
 }
 
-#endif  /* CONFIG_CSKY_ABIV1 */
+#endif /* CONFIG_CSKY_ABIV1 */
 
 void tlb_refresh(size_t addr);
 
-#endif  /* _ASM_CSKY_TLBFLUSH_H_ */
+#endif /* _ASM_CSKY_TLBFLUSH_H_ */

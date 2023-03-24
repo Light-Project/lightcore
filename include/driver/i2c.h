@@ -160,4 +160,4 @@ extern void i2c_host_unregister(struct i2c_host *host);
 #define i2c_debug(idev, fmt, ...)  	dev_debug(&(idev)->dev, fmt, ##__VA_ARGS__)
 BUS_DEVRES_GENERIC(i2c, struct i2c_device, dev)
 
-#endif  /* _DRIVER_I2C_H_ */
+#endif /* _DRIVER_I2C_H_ */

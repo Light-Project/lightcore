@@ -36,4 +36,4 @@ enum suniv_pwm_registers {
 #define SUNIV_PWM_CH1_ENTIRE_CYS    BIT_RANGE(31, 16)   /* Number of the entire cycles (24M/n) */
 #define SUNIV_PWM_CH1_ACT_CYS       BIT_RANGE(15, 0)    /* Number of the active cycles (24M/n) */
 
-#endif  /* _DRIVER_PWM_SUNIV_H_ */
+#endif /* _DRIVER_PWM_SUNIV_H_ */

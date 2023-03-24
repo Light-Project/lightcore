@@ -64,4 +64,4 @@
 #define BCM2835_AUX_CLOCK_SPI2      2
 #define BCM2835_AUX_CLOCK_COUNT     3
 
-#endif  /* _DT_BINDINGS_CLK_BCM2835_H_ */
+#endif /* _DT_BINDINGS_CLK_BCM2835_H_ */

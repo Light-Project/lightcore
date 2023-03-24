@@ -25,4 +25,4 @@
 #define SIGCONTEXT_SS       18
 #define SIGCONTEXT_REGS     19
 
-#endif  /* _LIGHTCORE_ASM_X86_SIGCONTEXT_H_ */
+#endif /* _LIGHTCORE_ASM_X86_SIGCONTEXT_H_ */

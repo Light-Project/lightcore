@@ -10,5 +10,5 @@
 
 #include <asm-generic/barrier.h>
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _ASM_XTENSA_BARRIER_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _ASM_XTENSA_BARRIER_H_ */

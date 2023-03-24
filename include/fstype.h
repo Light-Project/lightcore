@@ -24,4 +24,4 @@ struct filesystem {
     struct path pwd;
 };
 
-#endif  /* _FS_TYPE_H_ */
+#endif /* _FS_TYPE_H_ */

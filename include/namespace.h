@@ -31,4 +31,4 @@ extern struct namespace root_ns;
 
 extern void __init namespace_init(void);
 
-#endif  /* _NAMESPACE_H_ */
+#endif /* _NAMESPACE_H_ */

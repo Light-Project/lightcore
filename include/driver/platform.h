@@ -109,4 +109,4 @@ extern void __init platform_bus_init(void);
 #define platform_debug(pdev, fmt, ...)  dev_debug(&(pdev)->dev, fmt, ##__VA_ARGS__)
 BUS_DEVRES_GENERIC(platform, struct platform_device, dev)
 
-#endif  /* _DEVICE_PLATFORM_H_ */
+#endif /* _DEVICE_PLATFORM_H_ */

@@ -27,4 +27,4 @@ extern void sha224_transform(uint32_t *digest, uint32_t *buff, const char *data)
 extern void sha256_init(uint32_t *digest);
 extern void sha224_init(uint32_t *digest);
 
-#endif  /* _CRYPTO_SHA256_H_ */
+#endif /* _CRYPTO_SHA256_H_ */

@@ -21,4 +21,4 @@
     1;                                      \
 })
 
-#endif  /* _TYPECHECK_H_ */
+#endif /* _TYPECHECK_H_ */

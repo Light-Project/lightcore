@@ -126,4 +126,4 @@ extern struct kcoro_worker *kcoro_worker_create(void);
 extern void kcoro_worker_destroy(struct kcoro_worker *worker);
 extern void __init kcoro_init(void);
 
-#endif  /* _KCORO_H_ */
+#endif /* _KCORO_H_ */

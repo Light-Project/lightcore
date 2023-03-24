@@ -63,4 +63,4 @@ struct memory {
 
 extern struct memory init_mm;
 
-#endif  /* _MM_PAGE_DEF_H_ */
+#endif /* _MM_PAGE_DEF_H_ */

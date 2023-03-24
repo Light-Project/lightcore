@@ -20,4 +20,4 @@ struct i2c_bitbang {
 
 extern state i2c_bitbang_register(struct i2c_host *host);
 
-#endif  /* _DRIVER_I2C_BITBANG_H_ */
+#endif /* _DRIVER_I2C_BITBANG_H_ */

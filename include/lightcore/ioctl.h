@@ -42,4 +42,4 @@
 #define IOCTL_OUTPUT(type, fn, size)    IOCTL(IOCTL_DIR_OUTPUT, type, fn, size)
 #define IOCTL_BIDIR(type, fn, size)     IOCTL(IOCTL_DIR_INPUT | IOCTL_DIR_OUTPUT, type, fn, size)
 
-#endif  /* _LIGHTCORE_IOCTL_H_ */
+#endif /* _LIGHTCORE_IOCTL_H_ */

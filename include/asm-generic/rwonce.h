@@ -10,4 +10,4 @@
     *(volatile typeof(x) *)&(x) = (val);    \
 })
 
-#endif  /* _ASM_GENERIC_RWONCE_H_ */
+#endif /* _ASM_GENERIC_RWONCE_H_ */

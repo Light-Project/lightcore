@@ -19,4 +19,4 @@ enum gvm_flags {
 #define GVM_WRPROTECT       BIT(__GVM_WRPROTECT)
 #define GVM_NOEXECUTE       BIT(__GVM_NOEXECUTE)
 
-#endif  /* _MM_GVM_H_ */
+#endif /* _MM_GVM_H_ */

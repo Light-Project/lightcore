@@ -15,6 +15,6 @@
 /* brcm,pull property */
 #define BCM2835_PUD_OFF		0
 #define BCM2835_PUD_DOWN	1
-#define BCM2835_PUD_UP		2 
+#define BCM2835_PUD_UP		2
 
-#endif  /* _DT_BINDINGS_IOMUX_BCM2835_H_ */
+#endif /* _DT_BINDINGS_IOMUX_BCM2835_H_ */

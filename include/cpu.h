@@ -6,7 +6,7 @@
 
 #ifdef CONFIG_SMP
 
-#else  /* !CONFIG_SMP */
+#else /* !CONFIG_SMP */
 
 static inline bool cpu_online(unsigned int cpu)
 {
@@ -32,8 +32,8 @@ static inline bool cpu_active(unsigned int cpu)
 # define cpu_for_each_online(cpu)       cpu_for_each(cpu)
 # define cpu_for_each_present(cpu)      cpu_for_each(cpu)
 # define cpu_for_each_possible(cpu)     cpu_for_each(cpu)
-#endif  /* CONFIG_SMP */
+#endif /* CONFIG_SMP */
 
 #define cpu_offline(cpu) unlikely(!cpu_online(cpu))
 
-#endif  /* _CPU_H_ */
+#endif /* _CPU_H_ */

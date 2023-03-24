@@ -20,5 +20,5 @@ typedef __signed__ long long __s64;
 typedef unsigned long long __u64;
 #endif
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _LIGHTCORE_ASM_GENERIC_TYPES_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _LIGHTCORE_ASM_GENERIC_TYPES_H_ */

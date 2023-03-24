@@ -190,5 +190,5 @@ extern asmlinkage void entry_irq_vector(void);
 extern void arch_idt_int_gate(irqnr_t nr, void *handle);
 extern void arch_idt_setup(void);
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _ASM_X86_IDT_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _ASM_X86_IDT_H_ */

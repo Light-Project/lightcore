@@ -24,4 +24,4 @@ extern int printf(const char *str, ...);
 extern int pr_boot(const char *str, ...);
 extern void __noreturn panic(const char *str, ...);
 
-#endif  /* _LIB_H_ */
+#endif /* _LIB_H_ */

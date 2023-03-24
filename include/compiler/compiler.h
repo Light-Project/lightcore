@@ -43,5 +43,5 @@ static inline void *offset_to_ptr(unsigned long *off)
 
 #include <asm/rwonce.h>
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _COMPILER_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _COMPILER_H_ */

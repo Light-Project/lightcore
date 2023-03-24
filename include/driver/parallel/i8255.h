@@ -29,4 +29,4 @@ enum i8255_registers {
 #define I8255_CTRL_AUTOLF       BIT(1)
 #define I8255_CTRL_STROBE       BIT(0)
 
-#endif  /* _DRIVER_PARALLEL_I8255_H_ */
+#endif /* _DRIVER_PARALLEL_I8255_H_ */

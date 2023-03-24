@@ -29,4 +29,4 @@ static inline void swab64_array(uint64_t *buff, unsigned int words)
     }
 }
 
-#endif  /* _SWAB_H_ */
+#endif /* _SWAB_H_ */

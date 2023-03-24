@@ -24,4 +24,4 @@ struct dirent {
     struct inode *inode;
 };
 
-#endif  /* _FS_DIRENT_H_ */
+#endif /* _FS_DIRENT_H_ */

@@ -7,4 +7,4 @@ struct msgbuf {
     char mtext[1];
 };
 
-#endif  /* _LIGHTCORE_MSG_H_ */
+#endif /* _LIGHTCORE_MSG_H_ */

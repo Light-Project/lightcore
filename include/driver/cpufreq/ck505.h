@@ -29,4 +29,4 @@ enum ck404_registers {
     CK505_MN_EN         = 0x15,     /* RW: M/N Enables */
 };
 
-#endif  /* _DRIVER_CPUFREQ_CK505_H_ */
+#endif /* _DRIVER_CPUFREQ_CK505_H_ */

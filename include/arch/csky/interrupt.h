@@ -34,7 +34,7 @@ enum fault_vector {
     VEC_TLBINVALIDS     = 21,   /* 0x54: TLB Invalid Save Error                 */
 };
 
-#endif  /* __ASSEMBLY__ */
+#endif /* __ASSEMBLY__ */
 
 #define IRQ_NR_MAX  128
 

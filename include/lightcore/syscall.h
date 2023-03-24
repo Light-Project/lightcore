@@ -186,4 +186,4 @@ GENERIC_SYSCALL_ARG3(write, syscall_write, long, int, void *, unsigned long)
 GENERIC_SYSCALL_ARG6(selftest, syscall_selftest, int, int, int, int, int, int, int)
 #define lightcore_selftest(a1, a2, a3, a4, a5, a6) generic_syscall_selftest(a1, a2, a3, a4, a5, a6)
 
-#endif  /* _LIGHTCORE_SYSCALL_H_ */
+#endif /* _LIGHTCORE_SYSCALL_H_ */

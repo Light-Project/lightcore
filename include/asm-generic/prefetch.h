@@ -16,4 +16,4 @@
 # define arch_prefetchw(addr) __builtin_prefetch(addr, 1)
 #endif
 
-#endif  /* _ASM_GENERIC_PREFETCH_H_ */
+#endif /* _ASM_GENERIC_PREFETCH_H_ */

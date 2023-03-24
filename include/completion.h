@@ -31,4 +31,4 @@ extern void complete_one(struct completion *comp);
 extern void complete_all(struct completion *comp);
 extern bool completion_done(struct completion *comp);
 
-#endif  /* _COMPLETION_H_ */
+#endif /* _COMPLETION_H_ */

@@ -67,4 +67,4 @@ enum gx6605s_intc_registers {
 #define GX6605S_INTC_SOURCE_NR      64
 #define GX6605S_FIQC_SOURCE_NR      64
 
-#endif  /* _DRIVER_IRQCHIP_GX6605S_H_ */
+#endif /* _DRIVER_IRQCHIP_GX6605S_H_ */

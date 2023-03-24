@@ -6,4 +6,4 @@ typedef struct pm_message {
 	int event;
 } pm_message_t;
 
-#endif  /* _DEVICE_POWER_H_ */
+#endif /* _DEVICE_POWER_H_ */

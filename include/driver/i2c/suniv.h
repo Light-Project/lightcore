@@ -14,4 +14,4 @@ enum suniv_i2c_registers {
     SUNIV_I2C_LCR       = 0x20,
 };
 
-#endif  /* _DRIVER_I2C_SUNIV_H_ */
+#endif /* _DRIVER_I2C_SUNIV_H_ */

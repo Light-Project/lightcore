@@ -24,4 +24,4 @@ struct snd_device {
 
 };
 
-#endif  /* _DEVICE_SOUND_H_ */
+#endif /* _DEVICE_SOUND_H_ */

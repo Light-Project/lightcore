@@ -54,7 +54,7 @@ DECLARE_STATIC_CALL(mdelay, static_call_proc_mdelay);
 # define ndelay(nsec) static_call_cond(ndelay)(nsec)
 # define udelay(usec) static_call_cond(udelay)(usec)
 # define mdelay(msec) static_call_cond(mdelay)(msec)
-#endif  /* CONFIG_HIRES_TIMER_DELAY */
+#endif /* CONFIG_HIRES_TIMER_DELAY */
 
 extern void tsleep(ttime_t timeout);
 extern void msleep(unsigned int msecs);
@@ -64,4 +64,4 @@ static inline void ssleep(unsigned int seconds)
     msleep(seconds * MSEC_PER_SEC);
 }
 
-#endif  /* _DELAY_H_ */
+#endif /* _DELAY_H_ */

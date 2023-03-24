@@ -18,5 +18,5 @@ extern int printf(const char *str, ...);
 extern int pr_boot(const char *str, ...);
 extern __noreturn void panic(const char *str, ...);
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _LIB_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _LIB_H_ */

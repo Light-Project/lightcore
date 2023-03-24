@@ -39,4 +39,4 @@ static inline uint8_t crc4_inline(const uint8_t *src, size_t bits, uint8_t crc)
     return crc;
 }
 
-#endif  /* _CRYPTO_CRC4_TABLE_H_ */
+#endif /* _CRYPTO_CRC4_TABLE_H_ */

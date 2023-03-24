@@ -129,4 +129,4 @@ extern struct skip_head *skiplist_create(unsigned int levels, gfp_t flags);
 #define skip_for_each_reverse_continue_safe(pos, tmp, head, level) \
     list_for_each_entry_reverse_continue_safe(pos, tmp, &(head)->nodes[level], list[level])
 
-#endif  /* _SKIPLIST_H_ */
+#endif /* _SKIPLIST_H_ */

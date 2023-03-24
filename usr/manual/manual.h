@@ -27,4 +27,4 @@ kshell_initcall(mname##_manual_init)
 extern state kshell_manual_register(struct kshell_manual *manual);
 extern void kshell_manual_unregister(struct kshell_manual *manual);
 
-#endif  /* _LOCAL_MANUAL_H_ */
+#endif /* _LOCAL_MANUAL_H_ */

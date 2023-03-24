@@ -10,4 +10,4 @@ typedef struct {
     __u8 byte[GUID_SIZE];
 } guid_t;
 
-#endif  /* _LIGHTCORE_UUID_H_ */
+#endif /* _LIGHTCORE_UUID_H_ */

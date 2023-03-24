@@ -115,4 +115,4 @@ enum ehci_qtd {
 #define EHCI_HOSTPC_PSPD        (3<<25)     // Port speed detection
 #define EHCI_HOSTPC_PHCD        BIT(22)     // Phy clock disable
 
-#endif  /* _DRIVER_USB_EHCI_H_ */
+#endif /* _DRIVER_USB_EHCI_H_ */

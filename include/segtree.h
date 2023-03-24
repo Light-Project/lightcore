@@ -219,4 +219,4 @@ STSTATIC STSTRUCT *STNAME##_next(STSTRUCT *node, STTYPE start, STTYPE end)      
     }                                                                                           \
 }
 
-#endif  /* _SEGTREE_ */
+#endif /* _SEGTREE_ */

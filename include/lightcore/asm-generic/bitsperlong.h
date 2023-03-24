@@ -13,4 +13,4 @@
     (nbits) <= BITS_PER_LONG && (nbits) > 0 \
 )
 
-#endif  /* _LIGHTCORE_ASM_GENERIC_BITPERLONG_H_ */
+#endif /* _LIGHTCORE_ASM_GENERIC_BITPERLONG_H_ */

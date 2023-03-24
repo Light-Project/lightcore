@@ -55,4 +55,4 @@ struct nvme_sqe {
 
 #define NVME_CC_ENABLE          BIT(0)
 
-#endif  /* _DRIVER_NVME_H_ */
+#endif /* _DRIVER_NVME_H_ */

@@ -35,4 +35,4 @@ enum bochs_index {
 #define VBE_DISPI_LFB_ENABLED            0x40
 #define VBE_DISPI_NOCLEARMEM             0x80
 
-#endif  /* _DRIVER_VIDEO_BOCHS_H_ */
+#endif /* _DRIVER_VIDEO_BOCHS_H_ */

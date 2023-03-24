@@ -93,4 +93,4 @@ static inline uint16_t crc16_inline(const uint8_t *src, size_t len, uint16_t crc
     return crc;
 }
 
-#endif  /* _CRYPTO_CRC16_TABLE_H_ */
+#endif /* _CRYPTO_CRC16_TABLE_H_ */

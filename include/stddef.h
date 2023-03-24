@@ -63,5 +63,5 @@ enum bool {
 #define struct_group_attr(name, attrs, members...) \
     __struct_group(/* no tag */, NAME, ATTRS, MEMBERS)
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _STDDEF_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _STDDEF_H_ */

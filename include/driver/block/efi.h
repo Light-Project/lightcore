@@ -46,4 +46,4 @@ struct efi_head {
 #define EFI_HEAD_LBA 1
 #define EFI_SECTOR_LBA 2
 
-#endif  /* _DRIVER_BLOCK_EFI_H_ */
+#endif /* _DRIVER_BLOCK_EFI_H_ */

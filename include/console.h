@@ -66,4 +66,4 @@ extern void console_register(struct console *con);
 extern void console_unregister(struct console *con);
 extern void console_init(void);
 
-#endif  /* _CONSOLE_H_ */
+#endif /* _CONSOLE_H_ */

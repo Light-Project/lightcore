@@ -7,4 +7,4 @@
 #include <asm/barrier.h>
 #include <asm/unaligned.h>
 
-#endif  /* _PROC_H_ */
+#endif /* _PROC_H_ */

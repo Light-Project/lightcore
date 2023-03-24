@@ -73,4 +73,4 @@ enum rtl8139_registers {
 
 #define RTL8139_CONFIG4_LWPTN           BIT(2)
 
-#endif  /* _DRIVER_NET_RTL8139_H_ */
+#endif /* _DRIVER_NET_RTL8139_H_ */

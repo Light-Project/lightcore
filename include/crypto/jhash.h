@@ -31,4 +31,4 @@
 
 extern uint32_t jhash(const void *data, size_t length, uint32_t initval);
 
-#endif  /* _CRYPTO_JHASH_H_ */
+#endif /* _CRYPTO_JHASH_H_ */

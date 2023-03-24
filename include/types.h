@@ -109,5 +109,5 @@ typedef __kernel_mqd_t          mqd_t;
 #define LLONG_WIDTH             __LONG_LONG_WIDTH__
 #define INTMAX_WIDTH            __LONG_LONG_WIDTH__
 
-#endif  /* __ASSEMBLY__ */
-#endif  /* _TYPES_H_ */
+#endif /* __ASSEMBLY__ */
+#endif /* _TYPES_H_ */

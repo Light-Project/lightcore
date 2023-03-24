@@ -135,5 +135,4 @@ extern void parallel_host_unregister(struct parallel_host *host);
 #define parallel_debug(sdev, fmt, ...)  dev_debug(&(sdev)->dev, fmt, ##__VA_ARGS__)
 BUS_DEVRES_GENERIC(parallel, struct parallel_device, dev)
 
-#endif  /* _DRIVER_PARALLEL_H_ */
-
+#endif /* _DRIVER_PARALLEL_H_ */

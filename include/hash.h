@@ -65,4 +65,4 @@ uint64_t hash64(uint64_t value, unsigned int bits)
 # define hashl(value, bits) hash64(value, bits)
 #endif
 
-#endif  /* _HASH_H_ */
+#endif /* _HASH_H_ */

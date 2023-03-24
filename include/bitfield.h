@@ -20,4 +20,4 @@
     (typeof(mask))(((_reg) & (mask)) >> __bf_shf(mask));	\
 })
 
-#endif  /* _BITFIELD_H_ */
+#endif /* _BITFIELD_H_ */

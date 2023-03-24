@@ -155,4 +155,4 @@ static inline bool is_power_of_2(unsigned long val)
     rounddown_pow2_dynamic(val)     \
 )
 
-#endif  /* _LOG2_H_ */
+#endif /* _LOG2_H_ */

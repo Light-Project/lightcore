@@ -24,4 +24,4 @@ struct dma_ops {
     state (*memcpy)(struct dma_device *,  );
 };
 
-#endif  /* _DRIVER_DMA_H_ */
+#endif /* _DRIVER_DMA_H_ */

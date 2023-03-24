@@ -174,4 +174,4 @@ extern unsigned long *bitmap_alloc(unsigned int bits, gfp_t flags);
 extern unsigned long *bitmap_zalloc(unsigned int bits, gfp_t flags);
 extern void bitmap_free(unsigned long *bitmap);
 
-#endif  /* _BITMAP_H_ */
+#endif /* _BITMAP_H_ */

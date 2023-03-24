@@ -5,4 +5,4 @@
 #include <lightcore/wait.h>
 
 
-#endif  /* _WAIT_H_ */
+#endif /* _WAIT_H_ */

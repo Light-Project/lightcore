@@ -15,4 +15,4 @@
 extern void hardirq_entry(void);
 extern void hardirq_exit(void);
 
-#endif  /* _HARDIRQ_H_ */
+#endif /* _HARDIRQ_H_ */
