@@ -231,12 +231,12 @@ static inline void hlist_move_list(struct hlist_head *old, struct hlist_head *ne
 
 /**
  * hlist_first_entry - get the first element from a list.
- * @ptr: the list head to take the element from.
+ * @head: the list head to take the element from.
  * @type: the type of the struct this is embedded in.
  * @member: the name of the list_head within the struct.
  */
-#define hlist_first_entry(ptr, type, member) \
-    hlist_entry((ptr)->node, type, member)
+#define hlist_first_entry(head, type, member) \
+    hlist_entry((head)->node, type, member)
 
 /**
  * hlist_next_entry - get the next element in list.

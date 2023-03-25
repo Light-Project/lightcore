@@ -313,21 +313,21 @@ static inline void list_splice_tail_init(struct list_head *head, struct list_hea
 
 /**
  * list_first_entry - get the first element from a list.
- * @ptr: the list head to take the element from.
+ * @head: the list head to take the element from.
  * @type: the type of the struct this is embedded in.
  * @member: the name of the list_head within the struct.
  */
-#define list_first_entry(ptr, type, member) \
-    list_entry((ptr)->next, type, member)
+#define list_first_entry(head, type, member) \
+    list_entry((head)->next, type, member)
 
 /**
  * list_last_entry - get the last element from a list.
- * @ptr: the list head to take the element from.
+ * @head: the list head to take the element from.
  * @type: the type of the struct this is embedded in.
  * @member: the name of the list_head within the struct.
  */
-#define list_last_entry(ptr, type, member) \
-    list_entry((ptr)->prev, type, member)
+#define list_last_entry(head, type, member) \
+    list_entry((head)->prev, type, member)
 
 /**
  * list_next_entry - get the next element in list.

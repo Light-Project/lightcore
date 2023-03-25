@@ -141,8 +141,8 @@ static inline bool slist_check_another(const struct slist_head *head, const stru
  * @type: the type of the struct this is embedded in.
  * @member:	the name of the slist_head within the struct.
  */
-#define slist_first_entry(ptr, type, member) \
-    slist_entry((ptr)->next, type, member)
+#define slist_first_entry(head, type, member) \
+    slist_entry((head)->next, type, member)
 
 /**
  * slist_next_entry - get the next element in slist.
