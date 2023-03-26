@@ -9,8 +9,8 @@
 typedef void (*softirq_entry_t)(void *pdata);
 
 enum sofirq_flags {
-    __SOFTIRQ_IRQ_SAFE      = 0,
-    __SOFTIRQ_PERIODIC      = 1,
+    __SOFTIRQ_IRQ_SAFE = 0,
+    __SOFTIRQ_PERIODIC,
 };
 
 #define SOFTIRQ_IRQ_SAFE    BIT(__SOFTIRQ_IRQ_SAFE)
@@ -42,12 +42,18 @@ GENERIC_STRUCT_BITOPS(softirq, struct softirq, flags, false)
 GENERIC_STRUCT_FLAG(softirq, struct softirq, flags, irq_safe, __SOFTIRQ_IRQ_SAFE)
 GENERIC_STRUCT_FLAG(softirq, struct softirq, flags, periodic, __SOFTIRQ_PERIODIC)
 
+/* Softirq interface */
 extern state softirq_pending(struct softirq *irq);
 extern void softirq_clear(struct softirq *irq);
 extern state softirq_register(struct softirq *irq);
 extern void softirq_unregister(struct softirq *irq);
+
+/* Softirq allocator */
 extern struct softirq *softirq_create(const char *name, softirq_entry_t entry, void *pdata, unsigned long flags);
 extern void softirq_destroy(struct softirq *irq);
+
+/* Softirq initialization */
+extern void __init softirq_alloc_init(void);
 extern void __init softirq_init(void);
 
 #endif /* _SOFTIRQ_H_ */

@@ -9,8 +9,8 @@
 typedef void (*timer_entry_t)(void *pdata);
 
 enum timer_flags {
-    __TIMER_IRQ_SAFE        = 0,
-    __TIMER_PERIODIC        = 1,
+    __TIMER_IRQ_SAFE = 0,
+    __TIMER_PERIODIC,
 };
 
 #define TIMER_IRQ_SAFE      BIT(__TIMER_IRQ_SAFE)
@@ -57,14 +57,19 @@ static inline bool timer_check_pending(struct timer *timer)
     return !hlist_check_unhashed(&timer->list);
 }
 
+/* Timer interface */
 extern state timer_pending(struct timer *timer);
 extern state timer_clear(struct timer *timer);
 extern state timer_reduce(struct timer *timer, ttime_t delta);
 extern state timer_modified(struct timer *timer, ttime_t delta);
 extern void timer_update(void);
 
+/* Timer allocator */
 extern struct timer *timer_create(timer_entry_t entry, void *pdata, ttime_t delta, enum timer_flags flags);
 extern void timer_destroy(struct timer *timer);
+
+/* Timer initialization */
+extern void __init timer_alloc_init(void);
 extern void __init timer_init(void);
 
 #endif /* _TIMER_H_ */

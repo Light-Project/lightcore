@@ -8,7 +8,6 @@
 
 #include <timer.h>
 #include <cpu.h>
-#include <kmalloc.h>
 #include <softirq.h>
 #include <ticktime.h>
 #include <panic.h>
@@ -50,7 +49,6 @@ struct timer_base {
 static void timer_softirq_handle(void *pdata);
 static DEFINE_SOFTIRQ(timer_softirq, timer_softirq_handle, NULL, 0);
 static DEFINE_PERCPU(struct timer_base, timer_bases);
-static struct kcache *timer_cache;
 
 static void base_enqueue(struct timer_base *base, struct timer *timer, unsigned int idx, ttime_t expiry)
 {
@@ -69,7 +67,6 @@ static void base_dequeue(struct timer *timer, bool clear)
     struct hlist_node *list = &timer->list;
 
     hlist_deluf(&timer->list);
-
     if (clear)
         list->pprev = NULL;
     list->next = POISON_HLIST2;
@@ -81,7 +78,6 @@ static bool base_try_dequeue(struct timer_base *base, struct timer *timer, bool 
         return false;
 
     base_dequeue(timer, clear);
-
     if (hlist_check_empty(base->wheels + timer->index)) {
         bit_clr(base->pending_map, timer->index);
         base->next_recalc = true;
@@ -346,41 +342,6 @@ state timer_modified(struct timer *timer, ttime_t delta)
 }
 EXPORT_SYMBOL(timer_modified);
 
-/**
- * timer_create - Create a timer node
- * @entry: the timer handle entry
- * @pdata: handle entry pdata
- * @delta: timer expires delta
- * @flags: timer flags
- */
-struct timer *timer_create(timer_entry_t entry, void *pdata, ttime_t delta, enum timer_flags flags)
-{
-    struct timer *timer;
-
-    timer = kcache_zalloc(timer_cache, GFP_KERNEL);
-    if (unlikely(!timer))
-        return NULL;
-
-    timer->entry = entry;
-    timer->pdata = pdata;
-    timer->delta = delta;
-    timer->flags = flags;
-
-    return timer;
-}
-EXPORT_SYMBOL(timer_create);
-
-/**
- * softirq_destroy - Destroy a timer node
- * @irq: the softirq to destroy
- */
-void timer_destroy(struct timer *timer)
-{
-    timer_clear(timer);
-    kcache_free(timer_cache, timer);
-}
-EXPORT_SYMBOL(timer_destroy);
-
 static __init void timer_init_cpu(unsigned int cpu)
 {
     struct timer_base *base = percpu_ptr(cpu, &timer_bases);
@@ -400,7 +361,7 @@ static __init void timer_init_cpus(void)
 
 void __init timer_init(void)
 {
-    timer_cache = KCACHE_CREATE(struct timer, KCACHE_PANIC);
+    timer_alloc_init();
     softirq_register(&timer_softirq);
     timer_init_cpus();
 }

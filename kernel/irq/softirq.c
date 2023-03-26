@@ -7,15 +7,12 @@
 #define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <linkage.h>
-#include <kmalloc.h>
 #include <softirq.h>
 #include <bottom-half.h>
 #include <export.h>
 #include <panic.h>
 
 #define SOFTIRQ_LIMIT CONFIG_SOFTIRQ_LIMIT
-
-static struct kcache *softirq_cache;
 static struct idr_root *softirq_idr;
 
 static inline void bh_handle_entry(void)
@@ -136,8 +133,8 @@ state softirq_register(struct softirq *irq)
 EXPORT_SYMBOL(softirq_register);
 
 /**
- * softirq_unregister - unregister a softirq
- * @irq: the softirq to unregister
+ * softirq_unregister - unregister a softirq.
+ * @irq: the softirq to unregister.
  */
 void softirq_unregister(struct softirq *irq)
 {
@@ -146,43 +143,8 @@ void softirq_unregister(struct softirq *irq)
 }
 EXPORT_SYMBOL(softirq_unregister);
 
-/**
- * softirq_create - Create a softirq node
- * @name: the name of softirq
- * @entry: the softirq handle entry
- * @pdata: handle entry pdata
- * @flags: softirq flags
- */
-struct softirq *softirq_create(const char *name, softirq_entry_t entry, void *pdata, unsigned long flags)
-{
-    struct softirq *irq;
-
-    irq = kcache_zalloc(softirq_cache, GFP_KERNEL);
-    if (unlikely(!irq))
-        return NULL;
-
-    irq->name = name;
-    irq->entry = entry;
-    irq->pdata = pdata;
-    irq->flags = flags;
-
-    return irq;
-}
-EXPORT_SYMBOL(softirq_create);
-
-/**
- * softirq_destroy - Destroy a softirq node
- * @irq: the softirq to destroy
- */
-void softirq_destroy(struct softirq *irq)
-{
-    softirq_unregister(irq);
-    kcache_free(softirq_cache, irq);
-}
-EXPORT_SYMBOL(softirq_destroy);
-
 void __init softirq_init(void)
 {
-    softirq_cache = KCACHE_CREATE(struct softirq, KCACHE_PANIC);
+    softirq_alloc_init();
     softirq_idr = idr_create(0);
 }
