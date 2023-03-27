@@ -6,23 +6,23 @@
 #include <stddef.h>
 
 #define DO_ONCE_DONE(condition) ({                  \
-    static bool __section(".data.once") __already;  \
-    bool __cond = !!(condition);                    \
-    bool __retval = false;                          \
+    static bool __once __done_already;              \
+    bool __done_cond = !!(condition);               \
+    bool __done_retval = false;                     \
                                                     \
-    if (unlikely(__cond && !__already)) {           \
-        __already = true;                           \
-        __retval = true;                            \
+    if (unlikely(__done_cond && !__done_already)) { \
+        __done_already = true;                      \
+        __done_retval = true;                       \
     }                                               \
                                                     \
-    unlikely(__retval);                             \
+    unlikely(__done_retval);                        \
 })
 
 #define DO_ONCE_ON(condition, func, ...) ({         \
-    bool __cond = !!(condition);                    \
-    if (DO_ONCE_DONE(__cond))                       \
+    bool __once_cond = !!(condition);               \
+    if (DO_ONCE_DONE(__once_cond))                  \
         func(__VA_ARGS__);                          \
-    unlikely(__cond);                               \
+    unlikely(__once_cond);                          \
 })
 
 #define DO_ONCE(func, ...) \
