@@ -3,9 +3,10 @@
 #define _ASM_GENERIC_BUG_H_
 
 #ifndef __ASSEMBLY__
-# include <printk.h>
-# include <bitflags.h>
 # include <once.h>
+# include <bitflags.h>
+# include <printk.h>
+# include <panic.h>
 
 enum crash_flags {
     __CRASH_FLAG_NCUT_HERE  = 0,
@@ -45,8 +46,8 @@ GENERIC_STRUCT_FLAG(crash, struct crash_entry, flags, done, __CRASH_FLAG_DONE);
         "   .long   %c0                         \n"     \
         "   .long   %c3                         \n"     \
         "   .int    %c1                         \n"     \
-		"   .org    1b + %c4                    \n"     \
-		".popsection                            \n"     \
+        "   .org    1b + %c4                    \n"     \
+        ".popsection                            \n"     \
         "2: "opcode"\n"extra"                   \n"     \
         : : "i" (__FILE__), "i" (__LINE__),             \
             "i" (info), "i" (flags),                    \
@@ -64,7 +65,7 @@ GENERIC_STRUCT_FLAG(crash, struct crash_entry, flags, done, __CRASH_FLAG_DONE);
 #endif
 
 #ifndef BUG_INFO
-# define BUG_MSG(info) ({ \
+# define BUG_INFO(info) ({ \
     CRASH_FLAGS(0, info); \
     unreachable(); \
 })
@@ -101,6 +102,13 @@ GENERIC_STRUCT_FLAG(crash, struct crash_entry, flags, done, __CRASH_FLAG_DONE);
 } while (0)
 #endif
 
+#ifndef BUG_INFO
+# define BUG_INFO(info) do {                        \
+    printk("%s\n", info);                           \
+    WARN();                                         \
+} while (0)
+#endif
+
 #ifndef WARN
 # define WARN() do {                                \
     printk("Generic Warn: failure at %s:%d\n",      \
@@ -108,11 +116,35 @@ GENERIC_STRUCT_FLAG(crash, struct crash_entry, flags, done, __CRASH_FLAG_DONE);
 } while (0)
 #endif
 
+#ifndef WARN_INFO
+# define WARN_INFO(info) do {                       \
+    printk("%s\n", info);                           \
+    WARN();                                         \
+} while (0)
+#endif
+
+#ifndef WARN_ONCE
+# define WARN_ONCE() DO_ONCE(WARN)
+#endif
+
+#ifndef WARN_ONCE_INFO
+# define WARN_ONCE_INFO(info) DO_ONCE(WARN_INFO, info)
+#endif
+
 #ifndef BUG_ON
 # define BUG_ON(condition) ({                       \
     bool __cond = !!(condition);                    \
     if (unlikely(__cond))                           \
         BUG();                                      \
+    unlikely(__cond);                               \
+})
+#endif
+
+#ifndef BUG_ON_INFO
+# define BUG_ON_INFO(condition, info) ({            \
+    bool __cond = !!(condition);                    \
+    if (unlikely(__cond))                           \
+        BUG_INFO(info);                             \
     unlikely(__cond);                               \
 })
 #endif
@@ -126,15 +158,20 @@ GENERIC_STRUCT_FLAG(crash, struct crash_entry, flags, done, __CRASH_FLAG_DONE);
 })
 #endif
 
-#ifndef WARN_ONCE
-# define WARN_ONCE() DO_ONCE(WARN)
-#endif
-
 #ifndef WARN_ON_ONCE
 # define WARN_ON_ONCE(condition) ({                 \
     bool __cond = !!(condition);                    \
     if (unlikely(__cond))                           \
         WARN_ONCE();                                \
+    unlikely(__cond);                               \
+})
+#endif
+
+#ifndef WARN_ON_ONCE_INFO
+# define WARN_ON_ONCE_INFO(condition, info) ({      \
+    bool __cond = !!(condition);                    \
+    if (unlikely(__cond))                           \
+        WARN_ONCE_INFO(info);                       \
     unlikely(__cond);                               \
 })
 #endif
