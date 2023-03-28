@@ -132,6 +132,9 @@ endmenu # Memory Debugging
 
 menu "Debugging data structures"
 
+config DEBUG_DATACHECK_BUG
+    bool "Trigger BUG when data corruption"
+
 config DEBUG_LIST
     bool "Debug list manipulation"
     depends on DEBUG_KERNEL

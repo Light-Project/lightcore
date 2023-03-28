@@ -9,7 +9,10 @@
     bool corruption = unlikely(condition);          \
     if (corruption) {                               \
         pr_crit(fmt, ##__VA_ARGS__);                \
-        BUG();                                      \
+        if (IS_ENABLED(CONFIG_DATA_CHECK_BUG))      \
+            BUG();                                  \
+        else                                        \
+            WARN();                                 \
     }                                               \
     corruption;                                     \
 })
