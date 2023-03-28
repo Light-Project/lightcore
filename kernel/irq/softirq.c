@@ -10,7 +10,7 @@
 #include <softirq.h>
 #include <bottom-half.h>
 #include <export.h>
-#include <panic.h>
+#include <crash.h>
 
 #define SOFTIRQ_LIMIT CONFIG_SOFTIRQ_LIMIT
 static struct idr_root *softirq_idr;

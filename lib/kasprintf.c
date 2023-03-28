@@ -6,7 +6,7 @@
 #include <kernel.h>
 #include <string.h>
 #include <kmalloc.h>
-#include <panic.h>
+#include <crash.h>
 #include <export.h>
 
 char *kvasprintf(gfp_t flags, const char *fmt, va_list args)

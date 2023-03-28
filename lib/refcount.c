@@ -8,7 +8,7 @@
 
 #include <refcount.h>
 #include <printk.h>
-#include <panic.h>
+#include <crash.h>
 
 void refcount_saturation_report(refcount_t *ref, enum refcount_saturation type)
 {

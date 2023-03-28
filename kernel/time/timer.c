@@ -10,7 +10,7 @@
 #include <cpu.h>
 #include <softirq.h>
 #include <ticktime.h>
-#include <panic.h>
+#include <crash.h>
 #include <export.h>
 
 #define CLOCK_SHIFT         CONFIG_TIMER_SHIFT

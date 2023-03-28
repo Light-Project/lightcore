@@ -4,7 +4,7 @@
  */
 
 #include <ilist.h>
-#include <panic.h>
+#include <datacheck.h>
 #include <export.h>
 
 #ifdef CONFIG_DEBUG_ILIST

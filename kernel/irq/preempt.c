@@ -4,8 +4,8 @@
  */
 
 #include <preempt.h>
+#include <datacheck.h>
 #include <export.h>
-#include <panic.h>
 
 DEFINE_PERCPU(unsigned long, preempt_counts);
 EXPORT_SYMBOL(preempt_counts);
@@ -13,7 +13,7 @@ EXPORT_SYMBOL(preempt_counts);
 void preempt_count_add(unsigned long val)
 {
 #ifdef CONFIG_DEBUG_PREEMPT
-    if (DEBUG_DATA_CHECK(preempt_count() < 0 ,
+    if (DEBUG_DATA_CHECK(preempt_count() < 0,
         "preempt add leaking\n"))
         return;
 

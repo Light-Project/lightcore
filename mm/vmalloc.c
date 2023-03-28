@@ -13,7 +13,7 @@
 #include <mm/page.h>
 #include <kmalloc.h>
 #include <printk.h>
-#include <panic.h>
+#include <crash.h>
 #include <export.h>
 
 struct vmalloc_area {

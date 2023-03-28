@@ -8,8 +8,8 @@
 #include <dynamic-call.h>
 #include <spinlock.h>
 #include <atomic.h>
+#include <printk.h>
 #include <export.h>
-#include <panic.h>
 
 static RB_ROOT(syscall_root);
 static RW_LOCK(syscall_lock);

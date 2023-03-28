@@ -3,16 +3,6 @@
 #define _PANIC_H_
 
 #include <notifier.h>
-#include <crash.h>
-
-#define DEBUG_DATA_CHECK(condition, fmt, ...) ({    \
-    bool corruption = unlikely(condition);          \
-    if (corruption) {                               \
-        pr_crit(fmt, ##__VA_ARGS__);                \
-        BUG();                                      \
-    }                                               \
-    corruption;                                     \
-})
 
 extern int panic_timeout;
 extern unsigned int panic_timestep;

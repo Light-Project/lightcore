@@ -11,7 +11,7 @@
 #include <mm/page.h>
 #include <export.h>
 #include <printk.h>
-#include <panic.h>
+#include <crash.h>
 
 static struct kcache *mempool_cache;
 

@@ -4,7 +4,7 @@
  */
 
 #include <ioops.h>
-#include <panic.h>
+#include <datacheck.h>
 #include <export.h>
 
 #ifndef ARCH_HAS_MPIO_SIZE

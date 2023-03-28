@@ -27,7 +27,7 @@
 #include <console.h>
 #include <printk.h>
 #include <extable.h>
-#include <panic.h>
+#include <crash.h>
 
 #include <driver/clk.h>
 #include <driver/irqchip.h>

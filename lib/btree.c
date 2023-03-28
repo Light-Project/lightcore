@@ -5,7 +5,7 @@
 
 #include <btree.h>
 #include <kernel.h>
-#include <panic.h>
+#include <crash.h>
 #include <string.h>
 #include <export.h>
 

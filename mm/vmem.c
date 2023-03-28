@@ -12,7 +12,7 @@
 #include <spinlock.h>
 #include <export.h>
 #include <printk.h>
-#include <panic.h>
+#include <crash.h>
 #include <asm/page.h>
 
 #define VMALLOC_START   (CONFIG_HIGHMAP_OFFSET)

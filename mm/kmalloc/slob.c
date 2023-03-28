@@ -12,7 +12,7 @@
 #include <string.h>
 #include <export.h>
 #include <printk.h>
-#include <panic.h>
+#include <datacheck.h>
 #include <asm/page.h>
 #include <asm/cache.h>
 

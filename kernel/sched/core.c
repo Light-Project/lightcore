@@ -16,7 +16,7 @@
 #include <syscall.h>
 #include <stackprotector.h>
 #include <printk.h>
-#include <panic.h>
+#include <crash.h>
 #include <export.h>
 
 static inline struct sched_task *

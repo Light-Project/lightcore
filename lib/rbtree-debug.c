@@ -7,7 +7,7 @@
 #define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <rbtree.h>
-#include <panic.h>
+#include <datacheck.h>
 #include <export.h>
 
 bool rb_debug_link_check(struct rb_node *parent, struct rb_node **link, struct rb_node *node)

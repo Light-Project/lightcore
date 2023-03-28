@@ -7,7 +7,7 @@
 #define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <list.h>
-#include <panic.h>
+#include <datacheck.h>
 #include <export.h>
 
 bool list_debug_add_check(struct list_head *prev, struct list_head *next, struct list_head *new)

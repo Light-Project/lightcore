@@ -15,7 +15,7 @@
 #include <initcall.h>
 #include <kmalloc.h>
 #include <printk.h>
-#include <panic.h>
+#include <crash.h>
 
 struct blacklist_entry {
     struct slist_head list;

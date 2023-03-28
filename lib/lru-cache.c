@@ -6,7 +6,7 @@
 #include <log2.h>
 #include <string.h>
 #include <kmalloc.h>
-#include <panic.h>
+#include <crash.h>
 #include <lru-cache.h>
 #include <export.h>
 

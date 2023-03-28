@@ -5,7 +5,7 @@
 
 #include <bottom-half.h>
 #include <softirq.h>
-#include <panic.h>
+#include <crash.h>
 
 void bh_local_enable_count(unsigned long count)
 {
