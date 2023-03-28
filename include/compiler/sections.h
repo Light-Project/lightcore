@@ -15,6 +15,9 @@
 #define __entry         __section(".text.entry")
 #define __irq_entry     __section(".text.irqentry")
 #define __softirq_entry __section(".text.softirqentry")
+#define __lockfunc      __section(".text.spinlock")
+
+#define __once          __section(".data.once")
 #define __read_mostly   __section(".data.readmostly")
 
 #endif   /* _COMPILER_SECTIONS_H_ */

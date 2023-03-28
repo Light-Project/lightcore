@@ -113,6 +113,12 @@
     *(.text.softirqentry)                                   \
     _ld_text_softirqentry_end = .;
 
+#define TEXT_SPINLOCK(align)                                \
+    . = ALIGN(align);                                       \
+    _ld_text_spinlock_start = .;                            \
+    *(.text.spinlock)                                       \
+    _ld_text_spinlock_end = .;
+
 /*
  * RO data Segment
  */
@@ -364,6 +370,7 @@ PROVIDE(_ld_head_size = _ld_startup_end - _ld_startup_start);
         TEXT_ENTRY(cacheline)                               \
         TEXT_IRQENTRY(cacheline)                            \
         TEXT_SOFTIRQENTRY(cacheline)                        \
+        TEXT_SPINLOCK(cacheline)                            \
         _ld_text_end = .;                                   \
     }
 
