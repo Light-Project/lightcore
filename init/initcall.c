@@ -70,7 +70,7 @@ static state initcall_blacklist(char *args)
 }
 bootarg_initcall("initcall_blacklist", initcall_blacklist);
 
-static bool initcall_blacklisted(const char *fname)
+static __init bool initcall_blacklisted(const char *fname)
 {
     struct blacklist_entry *entry;
 
@@ -87,7 +87,7 @@ static bool initcall_blacklisted(const char *fname)
     return false;
 }
 
-static state __init do_one_initcall(initcall_entry_t *fn)
+static __init state do_one_initcall(initcall_entry_t *fn)
 {
     unsigned int count;
     unsigned long preempt;
@@ -155,7 +155,7 @@ void __init ctors_init(void)
         (*ctor)();
 }
 
-static state __init bootargs_entry(char *param, char *val, void *pdata)
+static __init state bootargs_entry(char *param, char *val, void *pdata)
 {
     struct bootarg *arg;
 
@@ -172,13 +172,19 @@ static state __init bootargs_entry(char *param, char *val, void *pdata)
 void __init earlyargs_init(const char *cmd)
 {
     char args_buff[BOOT_PARAM_SIZE];
+
+    pr_debug("initialize early args\n");
     strncpy(args_buff, boot_args, BOOT_PARAM_SIZE);
+
     param_parser(args_buff, bootargs_entry, (void *)true);
 }
 
 void __init bootargs_init(const char *cmd)
 {
     char args_buff[BOOT_PARAM_SIZE];
+
+    pr_debug("initialize boot args\n");
     strncpy(args_buff, boot_args, BOOT_PARAM_SIZE);
+
     param_parser(args_buff, bootargs_entry, (void *)false);
 }
