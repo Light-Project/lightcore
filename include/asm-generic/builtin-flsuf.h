@@ -4,6 +4,10 @@
 
 #include <bits.h>
 
+#if !__has_builtin(__builtin_clzl)
+# error "compiler not supported clzl"
+#endif
+
 #define flsuf flsuf
 static __always_inline unsigned int flsuf(unsigned long value)
 {
