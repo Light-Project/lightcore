@@ -7,30 +7,35 @@
 #ifndef cache_flush_all
 static inline void cache_flush_all(void)
 {
+    /* Nothing */
 }
 #endif
 
 #ifndef dcache_flush_all
 static inline void dcache_flush_all(void)
 {
+    /* Nothing */
 }
 #endif
 
 #ifndef icache_flush_all
 static inline void icache_flush_all(void)
 {
+    /* Nothing */
 }
 #endif
 
 #ifndef cache_flush_vmap
 static inline void cache_flush_vmap(void)
 {
+    /* Nothing */
 }
 #endif
 
 #ifndef cache_flush_vunmap
 static inline void cache_flush_vunmap(void)
 {
+    /* Nothing */
 }
 #endif
 
