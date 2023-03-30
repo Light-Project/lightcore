@@ -7,8 +7,16 @@
 #include <string.h>
 #include <kernel.h>
 #include <console.h>
+#include <initcall.h>
 #include <kclock.h>
 #include <export.h>
+
+unsigned int printk_levels[PRIDX_NUM_MAX] = {
+    [PRIDX_CONSOLE] = CONSOLE_LOGLEVEL_DEFAULT,
+    [PRIDX_DEFAULT] = PRINTK_LOGLEVEL_DEFAULT,
+    [PRIDX_RECORD]  = PRINTK_LOGLEVEL_RECORD,
+};
+EXPORT_SYMBOL(printk_levels);
 
 const unsigned int printk_level_color[] = {
     [KLEVEL_EMERG]      = KERN_COLR_RED,
@@ -22,6 +30,34 @@ const unsigned int printk_level_color[] = {
     [KLEVEL_DEFAULT]    = KERN_COLR_DEFAULT,
 };
 EXPORT_SYMBOL(printk_level_color);
+
+static state bootarg_recordlevel(char *args)
+{
+    printk_record = atoui(args);
+    return -ENOERR;
+}
+earlyarg_initcall("recordlevel", bootarg_recordlevel);
+
+static state bootarg_loglevel(char *args)
+{
+    printk_console = atoui(args);
+    return -ENOERR;
+}
+earlyarg_initcall("loglevel", bootarg_loglevel);
+
+static state bootarg_debug(char *args)
+{
+    printk_console = CONSOLE_LOGLEVEL_DEBUG;
+    return -ENOERR;
+}
+earlyarg_initcall("debug", bootarg_debug);
+
+static state bootarg_quiet(char *args)
+{
+    printk_console = CONSOLE_LOGLEVEL_QUIET;
+    return -ENOERR;
+}
+earlyarg_initcall("quiet", bootarg_quiet);
 
 static inline char printk_get_level(const char *str)
 {
@@ -59,7 +95,7 @@ EXPORT_SYMBOL(printk_level);
 static inline int printk_time(char *buffer, struct timespec *time)
 {
     return sprintf(buffer, "[%5llu.%06lu] ",
-        time->tv_sec, time->tv_nsec / 1000);
+                   time->tv_sec, time->tv_nsec / 1000);
 }
 
 int vprintk(const char *fmt, va_list args)
@@ -69,6 +105,8 @@ int vprintk(const char *fmt, va_list args)
     int len;
 
     klevel = printk_level(fmt, &fmt);
+    if (klevel > printk_record)
+        return 0;
 
 #ifdef CONFIG_PRINTK_TIME
     struct timespec btime;

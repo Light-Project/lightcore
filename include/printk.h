@@ -6,6 +6,25 @@
 #include <stdarg.h>
 #include <klevels.h>
 
+enum printk_index {
+    PRIDX_CONSOLE = 0,
+    PRIDX_DEFAULT,
+    PRIDX_RECORD,
+    PRIDX_NUM_MAX,
+};
+
+#define PRINTK_LOGLEVEL_RECORD CONFIG_PRINTK_LOGLEVEL_RECORD
+#define PRINTK_LOGLEVEL_DEFAULT CONFIG_PRINTK_LOGLEVEL_DEFAULT
+
+#define CONSOLE_LOGLEVEL_DEFAULT CONFIG_CONSOLE_LOGLEVEL_DEFAULT
+#define CONSOLE_LOGLEVEL_DEBUG CONFIG_CONSOLE_LOGLEVEL_DEBUG
+#define CONSOLE_LOGLEVEL_QUIET CONFIG_CONSOLE_LOGLEVEL_QUIET
+
+extern unsigned int printk_levels[PRIDX_NUM_MAX];
+#define printk_console printk_levels[PRIDX_CONSOLE]
+#define printk_default printk_levels[PRIDX_DEFAULT]
+#define printk_record printk_levels[PRIDX_RECORD]
+
 #ifdef CONFIG_EARLYCON
 extern int pr_early(const char *str, ...);
 #else

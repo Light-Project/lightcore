@@ -4,10 +4,6 @@ menuconfig PRINTK
     default y
 if PRINTK
 
-config DYNAMIC_DEBUG
-    bool "Kernel dynamic debug"
-    default y
-
 config PRINTK_TIME
     bool "Show timing information"
     default y
@@ -16,22 +12,42 @@ config PRINTK_COLOR
     bool "Show level color"
     default y
 
-config PRINTK_LOGLEVEL_DEFAULT
-    int "Default console loglevel"
-    depends on PRINTK
-    range 0 PRINTK_LOGLEVEL_MAX
-    default 4
-
-config PRINTK_LOGLEVEL_QUIET
-    int "Quiet console loglevel"
-    range 0 PRINTK_LOGLEVEL_MAX
-    default 4
+config DYNAMIC_DEBUG
+    bool "Kernel dynamic debug"
+    default y
 
 config PRINTK_LOGLEVEL_MAX
     int "Maximum console loglevel"
     range 0 7 if !DYNAMIC_DEBUG
     range 7 7 if DYNAMIC_DEBUG
     default 7
+
+config PRINTK_LOGLEVEL_RECORD
+    int "Record message loglevel"
+    depends on PRINTK
+    range 0 PRINTK_LOGLEVEL_MAX
+    default 7
+
+config PRINTK_LOGLEVEL_DEFAULT
+    int "Default message loglevel"
+    depends on PRINTK
+    range 0 PRINTK_LOGLEVEL_MAX
+    default 4
+
+config CONSOLE_LOGLEVEL_DEFAULT
+    int "Default console loglevel"
+    range 0 PRINTK_LOGLEVEL_MAX
+    default 6
+
+config CONSOLE_LOGLEVEL_DEBUG
+    int "Debug console loglevel"
+    range 0 PRINTK_LOGLEVEL_MAX
+    default 7
+
+config CONSOLE_LOGLEVEL_QUIET
+    int "Quiet console loglevel"
+    range 0 PRINTK_LOGLEVEL_MAX
+    default 4
 
 config CONSOLE_PREFERREDS
     int "Maximum console parameters"
@@ -41,4 +57,4 @@ config EARLYCON
     bool "Early console support"
     default y
 
-endif # Printk Config
+endif # PRINTK
