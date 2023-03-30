@@ -78,15 +78,15 @@ state param_parser(char *cmdline, param_entry_t entry, void *pdata)
             return ret;
 
         ret = entry(param, val, pdata);
-        switch (ret) {
-            case -ENOERR:
+        switch (-ret) {
+            case ENOERR:
                 continue;
 
-            case -ENOENT:
+            case ENOENT:
                 pr_err("Illegal instruction '%s'\n", param);
                 break;
 
-            case -ENOSPC:
+            case ENOSPC:
                 pr_err("Value '%s' too large for '%s'\n", val ?: "", param);
                 break;
 
