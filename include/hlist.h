@@ -25,7 +25,8 @@ struct hlist_head {
 #define HLIST_HEAD(name) \
     struct hlist_head name = HLIST_HEAD_INIT
 
-#ifdef CONFIG_DEBUG_HLIST
+/* Prevent head only enabling debug */
+#if defined(__KERNEL__) && defined(CONFIG_DEBUG_HLIST)
 extern bool hlist_debug_head_add_check(struct hlist_head *head, struct hlist_node *new);
 extern bool hlist_debug_next_add_check(struct hlist_node *next, struct hlist_node *new);
 extern bool hlist_debug_prev_add_check(struct hlist_node *prev, struct hlist_node *new);

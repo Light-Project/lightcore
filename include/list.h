@@ -25,6 +25,7 @@ typedef long (*list_cmp_t)(struct list_head *, struct list_head *, void *);
 extern void list_qsort(struct list_head *head, list_cmp_t cmp, void *data);
 extern void list_bsort(struct list_head *head, list_cmp_t cmp, void *data);
 
+/* Prevent head only enabling debug */
 #if defined(__KERNEL__) && defined(CONFIG_DEBUG_LIST)
 extern bool list_debug_add_check(struct list_head *prev, struct list_head *next, struct list_head *new);
 extern bool list_debug_del_check(struct list_head *node);

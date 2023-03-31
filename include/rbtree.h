@@ -79,7 +79,7 @@ struct rb_callbacks {
 #define rb_entry_safe(ptr, type, member) \
     container_of_safe(ptr, type, member)
 
-#if defined(__KERNEL__) && defined(CONFIG_DEBUG_RBTREE)
+#ifdef CONFIG_DEBUG_RBTREE
 extern bool rb_debug_link_check(struct rb_node *parent, struct rb_node **link, struct rb_node *node);
 extern bool rb_debug_delete_check(struct rb_node *node);
 #define DEBUG_RBTREE

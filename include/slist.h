@@ -20,7 +20,8 @@ struct slist_head {
 #define SLIST_HEAD(name) \
     struct slist_head name = SLIST_HEAD_INIT
 
-#ifdef CONFIG_DEBUG_SLIST
+/* Prevent head only enabling debug */
+#if defined(__KERNEL__) && defined(CONFIG_DEBUG_SLIST)
 extern bool slist_debug_add_check(struct slist_head *node, struct slist_head *new);
 extern bool slist_debug_del_check(struct slist_head *node);
 #define DEBUG_SLIST

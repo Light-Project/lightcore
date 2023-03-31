@@ -61,7 +61,7 @@ struct heap_root {
 #define heap_entry_safe(ptr, type, member) \
     container_of_safe(ptr, type, member)
 
-#if defined(__KERNEL__) && defined(CONFIG_DEBUG_HEAP)
+#ifdef CONFIG_DEBUG_HEAP
 extern bool heap_debug_link_check(struct heap_node *parent, struct heap_node **link, struct heap_node *node);
 extern bool heap_debug_delete_check(struct heap_node *node);
 #define DEBUG_HEAP
@@ -74,12 +74,12 @@ extern struct heap_node *heap_remove(struct heap_root *root, struct heap_node *n
 extern struct heap_node **heap_parent(struct heap_root *root, struct heap_node **parentp, struct heap_node *node);
 extern struct heap_node *heap_find(struct heap_root *root, unsigned int index);
 
-/* Preorder iteration (Root-first) - always access the left node first */
+/* Levelorder iteration (Root-first) - always access the parent node first */
 extern struct heap_node *heap_level_first(const struct heap_root *root, unsigned long *index);
 extern struct heap_node *heap_level_next(const struct heap_root *root, unsigned long *index);
 
 /**
- * heap_pre_first_entry - get the preorder first element from a heaptree.
+ * heap_first_entry - get the preorder first element from a heaptree.
  * @ptr: the heaptree root to take the element from.
  * @type: the type of the struct this is embedded in.
  * @member: the name of the heap_node within the struct.
@@ -88,7 +88,7 @@ extern struct heap_node *heap_level_next(const struct heap_root *root, unsigned 
     heap_entry_safe(heap_level_first(root, index), type, member)
 
 /**
- * heap_pre_next_entry - get the preorder next element in heaptree.
+ * heap_next_entry - get the preorder next element in heaptree.
  * @pos: the type * to cursor.
  * @member: the name of the heap_node within the struct.
  */
@@ -96,7 +96,7 @@ extern struct heap_node *heap_level_next(const struct heap_root *root, unsigned 
     heap_entry_safe(heap_level_next(root, index), type, member)
 
 /**
- * heap_pre_for_each - preorder iterate over a heaptree.
+ * heap_for_each - preorder iterate over a heaptree.
  * @pos: the &struct heap_node to use as a loop cursor.
  * @root: the root for your heaptree.
  */
@@ -105,14 +105,14 @@ extern struct heap_node *heap_level_next(const struct heap_root *root, unsigned 
          pos; pos = heap_level_next(root, index))
 
 /**
- * heap_pre_for_each_from - preorder iterate over a heaptree from the current point.
+ * heap_for_each_from - preorder iterate over a heaptree from the current point.
  * @pos: the &struct heap_node to use as a loop cursor.
  */
 #define heap_for_each_from(pos, index, root) \
     for (; pos; pos = heap_level_next(root, index))
 
 /**
- * heap_pre_for_each_continue - continue preorder iteration over a heaptree.
+ * heap_for_each_continue - continue preorder iteration over a heaptree.
  * @pos: the &struct heap_node to use as a loop cursor.
  */
 #define heap_for_each_continue(pos, index, root) \
@@ -120,7 +120,7 @@ extern struct heap_node *heap_level_next(const struct heap_root *root, unsigned 
          pos; pos = heap_level_next(root, index))
 
 /**
- * heap_pre_for_each_entry - preorder iterate over heaptree of given type.
+ * heap_for_each_entry - preorder iterate over heaptree of given type.
  * @pos: the type * to use as a loop cursor.
  * @root: the root for your heaptree.
  * @member: the name of the heap_node within the struct.
@@ -130,7 +130,7 @@ extern struct heap_node *heap_level_next(const struct heap_root *root, unsigned 
          pos; pos = heap_next_entry(root, index, typeof(*pos), member))
 
 /**
- * heap_pre_for_each_entry_from - preorder iterate over heaptree of given type from the current point.
+ * heap_for_each_entry_from - preorder iterate over heaptree of given type from the current point.
  * @pos: the type * to use as a loop cursor.
  * @member: the name of the heap_node within the struct.
  */
@@ -138,7 +138,7 @@ extern struct heap_node *heap_level_next(const struct heap_root *root, unsigned 
     for (; pos; pos = heap_next_entry(root, index, typeof(*pos), member))
 
 /**
- * heap_pre_for_each_entry_continue - continue preorder iteration over heaptree of given type.
+ * heap_for_each_entry_continue - continue preorder iteration over heaptree of given type.
  * @pos: the type * to use as a loop cursor.
  * @member: the name of the heap_node within the struct.
  */
