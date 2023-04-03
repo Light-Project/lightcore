@@ -146,12 +146,24 @@ static inline void forward_insert(struct timer_base *base, struct timer *timer)
     timer_insert(base, timer);
 }
 
+static void call_timer(struct timer *timer)
+{
+    unsigned long count;
+
+    count = preempt_count();
+    timer->entry(timer->pdata);
+
+    if (WARN_ON_ONCE(count != preempt_count())) {
+        WARN_ONCE_INFO("timer preempt leak");
+        raw_preempt_count_set(count);
+    }
+}
+
 static void expire_timers(struct timer_base *base, struct hlist_head *head)
 {
-    while (!hlist_check_empty(head)) {
-        struct timer *timer;
-        void (*entry)(void *pdata);
+    struct timer *timer;
 
+    while (!hlist_check_empty(head)) {
         timer = hlist_first_entry(head, struct timer, list);
         base_dequeue(timer, true);
 
@@ -159,15 +171,13 @@ static void expire_timers(struct timer_base *base, struct hlist_head *head)
             forward_insert(base, timer);
 
         base->running = timer;
-        entry = timer->entry;
-
         if (timer_test_irq_safe(timer)) {
             spin_unlock(&base->lock);
-            entry(timer->pdata);
+            call_timer(timer);
             spin_lock(&base->lock);
         } else {
             spin_unlock_irq(&base->lock);
-            entry(timer->pdata);
+            call_timer(timer);
             spin_lock_irq(&base->lock);
         }
     }
@@ -277,7 +287,10 @@ static void timer_softirq_handle(void *pdata)
 void timer_update(void)
 {
     struct timer_base *base = thiscpu_ptr(&timer_bases);
-    if (ttime_after_equal(ticktime, base->recent_timer))
+    bool request;
+
+    request = ttime_after_equal(ticktime, base->recent_timer);
+    if (unlikely(request))
         softirq_pending(&timer_softirq);
 }
 
