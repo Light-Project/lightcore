@@ -135,7 +135,7 @@ DEFINE_STATIC_CALL_RET0(sched_cond_resched, sched_cond_resched_handle);
 DEFINE_STATIC_CALL_RET0(sched_might_resched, sched_cond_resched_handle);
 DEFINE_STATIC_CALL(sched_preempt, sched_preempt_handle);
 
-state sched_preempt_updata(enum sched_preempt mode)
+state sched_preempt_update(enum sched_preempt mode)
 {
     switch (mode) {
         case SCHED_PREEMPT_NONE:
@@ -172,10 +172,10 @@ static void __init preempt_dynamic_init(void)
         return;
 
     if (IS_ENABLED(CONFIG_PREEMPT_NONE))
-        sched_preempt_updata(SCHED_PREEMPT_NONE);
+        sched_preempt_update(SCHED_PREEMPT_NONE);
 
     else if (IS_ENABLED(CONFIG_PREEMPT_VOLUNTARY))
-        sched_preempt_updata(SCHED_PREEMPT_VOLUNTARY);
+        sched_preempt_update(SCHED_PREEMPT_VOLUNTARY);
 
     else if (IS_ENABLED(CONFIG_PREEMPT_FULL)) {
         pr_info("Dynamic Preempt: full\n");
