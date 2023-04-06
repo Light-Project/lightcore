@@ -710,9 +710,9 @@ struct rb_node **rb_parent_conflict(struct rb_root *root, struct rb_node **paren
 EXPORT_SYMBOL(rb_parent_conflict);
 
 TITER_BASE_DEFINE(, rb, struct rb_node, left, right)
-TITER_INORDER_DEFINE(, rb, struct rb_root, node, struct rb_node, parent, left, right)
-TITER_PREORDER_DEFINE(, rb, struct rb_root, node, struct rb_node, parent, left, right)
-TITER_POSTORDER_DEFINE(, rb, struct rb_root, node, struct rb_node, parent, left, right)
+TITER_INORDER_DEFINE(, rb, rb, struct rb_root, node, struct rb_node, parent, left, right)
+TITER_PREORDER_DEFINE(, rb_pre, rb, struct rb_root, node, struct rb_node, parent, left, right)
+TITER_POSTORDER_DEFINE(, rb_post, rb, struct rb_root, node, struct rb_node, parent, left, right)
 
 EXPORT_SYMBOL(rb_left_far);
 EXPORT_SYMBOL(rb_right_far);

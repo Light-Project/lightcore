@@ -228,6 +228,12 @@ struct heap_node *heap_find(struct heap_root *root, unsigned int index)
 }
 EXPORT_SYMBOL(heap_find);
 
-TITER_LEVELORDER_DEFINE(, heap, struct heap_root, node, struct heap_node, left, right)
+TITER_BASE_DEFINE(, heap, struct heap_node, left, right)
+TITER_LEVELORDER_DEFINE(, heap_level, heap, struct heap_root, node, struct heap_node, left, right)
+
+EXPORT_SYMBOL(heap_left_far);
+EXPORT_SYMBOL(heap_right_far);
+EXPORT_SYMBOL(heap_left_deep);
+EXPORT_SYMBOL(heap_right_deep);
 EXPORT_SYMBOL(heap_level_first);
 EXPORT_SYMBOL(heap_level_next);
