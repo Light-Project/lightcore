@@ -7,5 +7,6 @@ obj-y += lcm.o
 obj-y += map.o
 obj-y += pow.o
 obj-y += prime.o
+obj-y += rational.o
 obj-y += sin.o
 obj-y += sqrt.o

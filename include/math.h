@@ -3,6 +3,7 @@
 #define _MATH_H_
 
 #include <types.h>
+#include <state.h>
 #include <macro.h>
 
 /*
@@ -118,6 +119,7 @@ extern int16_t cos16(int angle);
 extern int32_t cos32(int angle);
 extern unsigned int atan2i(int x, int y);
 extern uint32_t bezier3(uint32_t time, uint32_t p0, uint32_t p1, uint32_t p2, uint32_t p3);
+extern state rational(unsigned int numer, unsigned int denomin, unsigned int maxnumer, unsigned int maxdenomin, unsigned int *bestnumer, unsigned int *bestdenomin);
 
 extern bool prime_check(unsigned long num);
 extern unsigned long prime_next(unsigned long num);
