@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Copyright(c) 2022 Sanpe <sanpeqf@gmail.com>
+ * Copyright(c) 2022 John Sanpe <sanpeqf@gmail.com>
  */
 
 #include <kshell.h>
@@ -73,4 +73,3 @@ static state yes_init(void)
     return kshell_register(&yes_cmd);
 }
 kshell_initcall(yes_init);
-

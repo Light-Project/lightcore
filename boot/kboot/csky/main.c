@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ * Copyright(c) 2021 John Sanpe <sanpeqf@gmail.com>
  */
 
 #include <linkage.h>
@@ -28,4 +28,3 @@ asmlinkage void main(uint32_t mask, uint32_t dtb_start, void *printf)
     pr_boot("boot to kernel...\n");
     kernel_start(kernel_entry);
 }
-

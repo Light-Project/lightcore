@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ * Copyright(c) 2021 John Sanpe <sanpeqf@gmail.com>
  */
 
 #include <string.h>
@@ -89,4 +89,3 @@ static state msdos_partition_init(void)
     return partition_register(&sun_part);
 }
 fs_initcall(msdos_partition_init);
-

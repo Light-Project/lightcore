@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ * Copyright(c) 2021 John Sanpe <sanpeqf@gmail.com>
  */
 
 #include <memory.h>
@@ -94,4 +94,3 @@ void __init arch_page_setup(void)
     mmu_pgd_set(va_to_pa(page_dir) | MPGD_HRE);
     mmu_entryhi_set(0);
 }
-

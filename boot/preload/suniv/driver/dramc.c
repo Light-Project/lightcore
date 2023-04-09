@@ -4,7 +4,7 @@
  * Copyright(c) 2007-2019 Jianjun Jiang <8192542@qq.com>
  */
 /*
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ * Copyright(c) 2021 John Sanpe <sanpeqf@gmail.com>
  */
 
 #include <boot.h>

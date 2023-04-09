@@ -4,7 +4,7 @@
  * lookup3.c, by Bob Jenkins, May 2006, Public Domain.
  *
  * Copyright (C) 2006. Bob Jenkins (bob_jenkins@burtleburtle.net)
- * Copyright(c) 2022 Sanpe <sanpeqf@gmail.com>
+ * Copyright(c) 2022 John Sanpe <sanpeqf@gmail.com>
  */
 
 #include <crypto/jhash.h>

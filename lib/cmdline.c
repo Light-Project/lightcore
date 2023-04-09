@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Copyright(c) 2022 Sanpe <sanpeqf@gmail.com>
+ * Copyright(c) 2022 John Sanpe <sanpeqf@gmail.com>
  */
 
 #include <cmdline.h>
@@ -187,7 +187,7 @@ EXPORT_SYMBOL(escape_string);
  */
 unsigned int levenshtein(const char *str1, const char *str2,
                          size_t len1, size_t len2, gfp_t gfp,
-                         unsigned int s, unsigned int w, 
+                         unsigned int s, unsigned int w,
                          unsigned int a, unsigned int d)
 {
     unsigned int *row1, *row2, *row3;
@@ -211,7 +211,7 @@ unsigned int levenshtein(const char *str1, const char *str2,
         swap(len1, len2);
     }
 
-    cache = kmalloc(BYTES_PER_INT * (len1 + 1) * 3, gfp); 
+    cache = kmalloc(BYTES_PER_INT * (len1 + 1) * 3, gfp);
     if (unlikely(!cache))
         return UINT_MAX;
 
@@ -219,7 +219,7 @@ unsigned int levenshtein(const char *str1, const char *str2,
     row2 = row1 + (len1 + 1);
     row3 = row2 + (len1 + 1);
 
-    for (index1 = 0; index1 < len1; ++index1) 
+    for (index1 = 0; index1 < len1; ++index1)
         row2[index1] = index1 * a;
 
     for (index1 = 0; index1 < len1; ++index1) {
@@ -230,14 +230,14 @@ unsigned int levenshtein(const char *str1, const char *str2,
             row3[index2 + 1] = row2[index2] + s * (str1[index1] != str2[index2]);
 
             /* swap distance reward */
-            if (index1 > 0 && index2 > 0 && str1[index1 - 1] == str2[index2] && 
+            if (index1 > 0 && index2 > 0 && str1[index1 - 1] == str2[index2] &&
                 str1[index1] == str2[index2 - 1] && row3[index2 + 1] > row1[index2 - 1] + w)
                 row3[index2 + 1] = row1[index2 - 1] + w;
 
             /* deletion distance reward */
             if (row3[index2 + 1] > row2[index2 + 1] + d)
                 row3[index2 + 1] = row2[index2 + 1] + d;
-            
+
             /* addition distance reward */
             if (row3[index2 + 1] > row3[index2] + a)
                 row3[index2 + 1] = row3[index2] + a;

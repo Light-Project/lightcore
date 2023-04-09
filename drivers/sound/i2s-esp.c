@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ * Copyright(c) 2021 John Sanpe <sanpeqf@gmail.com>
  */
 
 #include <chip/esp8266/iomux.h>
@@ -80,4 +80,3 @@ static struct i2s_ops esp8266_i2s_ops = {
     .config = ,
     .write = ,
 };
-

@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ * Copyright(c) 2021 John Sanpe <sanpeqf@gmail.com>
  */
 
 #include <boot.h>
@@ -148,4 +148,3 @@ void mmc_deinit(void)
     val &= ~SUNIV_BUS0_MMC0;
     writel(CCU_BASE + SUNIV_BUS_SOFT_RST_REG0, val);
 }
-

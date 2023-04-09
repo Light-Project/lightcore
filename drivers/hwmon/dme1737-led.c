@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Copyright(c) 2023 Sanpe <sanpeqf@gmail.com>
+ * Copyright(c) 2023 John Sanpe <sanpeqf@gmail.com>
  */
 
 static uint8_t dme1737_led_reg(struct led_device *ldev)

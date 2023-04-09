@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ * Copyright(c) 2021 John Sanpe <sanpeqf@gmail.com>
  */
 
 #include <device.h>
@@ -43,4 +43,3 @@ void pci_bus_devices_probe(const struct pci_bus *bus)
             pci_bus_devices_probe(bridge);
     }
 };
-

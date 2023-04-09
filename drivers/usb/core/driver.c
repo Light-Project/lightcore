@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * Copyright(c) 2021 Sanpe <sanpeqf@gmail.com>
+ * Copyright(c) 2021 John Sanpe <sanpeqf@gmail.com>
  */
 
 #include <types.h>
@@ -113,4 +113,3 @@ void usb_driver_unregister(struct usb_driver *udrv)
     driver_unregister(&udrv->driver);
 }
 EXPORT_SYMBOL(usb_driver_unregister);
-
