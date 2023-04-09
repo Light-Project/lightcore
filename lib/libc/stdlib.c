@@ -15,16 +15,20 @@ EXPORT_SYMBOL(chtoi);
 unsigned char itoch(int val)
 {
     const char conv[] = "0123456789abcdef";
-    return (unsigned char)conv[val % sizeof(conv)];
+
+    if (unlikely(val > sizeof(conv)))
+        val %= sizeof(conv);
+
+    return (unsigned char)conv[val];
 }
 EXPORT_SYMBOL(itoch);
 
 #define GENERIC_XBNTOA_OPS(name, type, signed)              \
 int name(type val, char *buff, int base, size_t length)     \
 {                                                           \
-    char brev[64 + 3], conv[] = "0123456789abcdef";         \
     unsigned int used = 0, index = 0;                       \
     bool negative = false;                                  \
+    char brev[64 + 3];                                      \
                                                             \
     if (signed && val < 0) {                                \
         negative = true;                                    \
@@ -32,7 +36,7 @@ int name(type val, char *buff, int base, size_t length)     \
     }                                                       \
                                                             \
     do {                                                    \
-        brev[index++] = conv[val % base];                   \
+        brev[index++] = itoch(val % base);                  \
         val /= base;                                        \
     } while (val);                                          \
                                                             \
