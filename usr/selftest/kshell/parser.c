@@ -10,9 +10,13 @@
 #include <selftest.h>
 
 static const char parser_string[] = {
-    "TEST " "'QUOTE' " "\"DQUOTE\" "
-    "$TEST_VARNAME " "${TEST_LVARNAME} "
-    "\"$TEST_QVARNAME\" " "\"${TEST_LQVARNAME}\" "
+    "TEST "
+    "'QUOTE' "
+    "\"DQUOTE\" "
+    "$TEST_VARNAME "
+    "${TEST_LVARNAME} "
+    "\"$TEST_QVARNAME\" "
+    "\"${TEST_LQVARNAME}\" "
     ";ESC"
 };
 
@@ -35,25 +39,29 @@ static void parser_unsetenv(struct kshell_context *ctx)
 static state parser_testing(struct kshell_context *ctx, void *pdata)
 {
     const char *cmdline = parser_string;
-    char **argv;
+    char **argv = NULL;
     int argc;
     state retval;
 
-    if ((retval= parser_setenv(ctx)))
+    if ((retval = parser_setenv(ctx)))
         goto exit;
 
     retval = kshell_parser(ctx, &cmdline, &argc, &argv);
     if (retval)
         goto exit;
 
-    kshell_printf(ctx, "TEST: %s\n",            argv[0]);
-    kshell_printf(ctx, "QUOTE: %s\n",           argv[1]);
-    kshell_printf(ctx, "DQUOTE: %s\n",          argv[2]);
-    kshell_printf(ctx, "TEST_VARNAME: %s\n",    argv[3]);
-    kshell_printf(ctx, "TEST_LVARNAME: %s\n",   argv[4]);
-    kshell_printf(ctx, "TEST_QVARNAME: %s\n",   argv[5]);
-    kshell_printf(ctx, "TEST_LQVARNAME: %s\n",  argv[6]);
+    if (argc != 7) {
+        retval = -EINVAL;
+        goto exit;
+    }
 
+    kshell_printf(ctx, "TEST: %s\n", argv[0]);
+    kshell_printf(ctx, "QUOTE: %s\n", argv[1]);
+    kshell_printf(ctx, "DQUOTE: %s\n", argv[2]);
+    kshell_printf(ctx, "TEST_VARNAME: %s\n", argv[3]);
+    kshell_printf(ctx, "TEST_LVARNAME: %s\n", argv[4]);
+    kshell_printf(ctx, "TEST_QVARNAME: %s\n", argv[5]);
+    kshell_printf(ctx, "TEST_LQVARNAME: %s\n", argv[6]);
     if (strcmp(argv[0], "TEST") ||
         strcmp(argv[1], "QUOTE") ||
         strcmp(argv[2], "DQUOTE") ||
@@ -64,20 +72,23 @@ static state parser_testing(struct kshell_context *ctx, void *pdata)
         retval = -EINVAL;
         goto exit;
     }
-    kfree(argv);
 
     retval = kshell_parser(ctx, &cmdline, &argc, &argv);
     if (retval)
         goto exit;
 
-    kshell_printf(ctx, "ESC: %s\n", argv[0]);
+    if (argc != 1) {
+        retval = -EINVAL;
+        goto exit;
+    }
 
+    kshell_printf(ctx, "ESC: %s\n", argv[0]);
     if (strcmp(argv[0], "ESC"))
         retval = -EINVAL;
-    kfree(argv);
 
 exit:
     parser_unsetenv(ctx);
+    kfree(argv);
     return retval;
 }
 

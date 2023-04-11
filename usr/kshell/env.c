@@ -41,6 +41,8 @@ static state kshenv_setval(struct rb_root *head, const char *name,
         return -ENOERR;
     else if (env) {
         rb_delete(head, &env->node);
+        kfree_const(env->value);
+        kfree_const(env->name);
         kfree(env);
     }
 
@@ -246,7 +248,7 @@ GENERIC_ENV_OPS(global_get, getenv, &ctx->env,
 GENERIC_ENV_OPS(global_set, setenv, &ctx->env,
                 true, state, const char *, const char *, bool);
 GENERIC_ENV_OPS(global_put, putenv, &ctx->env,
-                true, state, char *);
+                true, state, const char *);
 GENERIC_ENV_OPS(global_unset, unsetenv, &ctx->env,
                 true, state, const char *);
 
@@ -255,7 +257,7 @@ GENERIC_ENV_OPS(local_get, getenv, &list_first_entry(&ctx->local, struct kshell_
 GENERIC_ENV_OPS(local_set, setenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env,
                 true, state, const char *, const char *, bool);
 GENERIC_ENV_OPS(local_put, putenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env,
-                true, state, char *);
+                true, state, const char *);
 GENERIC_ENV_OPS(local_unset, unsetenv, &list_first_entry(&ctx->local, struct kshell_stack, list)->env,
                 true, state, const char *);
 
@@ -264,7 +266,7 @@ GENERIC_ENV_OPS(symbol_get, getenv, &list_first_entry(&ctx->symbol, struct kshel
 GENERIC_ENV_OPS(symbol_set, setenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env,
                 false, state, const char *, const char *, bool);
 GENERIC_ENV_OPS(symbol_put, putenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env,
-                false, state, char *);
+                false, state, const char *);
 GENERIC_ENV_OPS(symbol_unset, unsetenv, &list_first_entry(&ctx->symbol, struct kshell_stack, list)->env,
                 false, state, const char *);
 
@@ -315,24 +317,27 @@ state kshell_setenv(struct kshell_context *ctx, const char *name, const char *va
 }
 EXPORT_SYMBOL(kshell_setenv);
 
-state kshell_putenv(struct kshell_context *ctx, char *string)
+state kshell_putenv(struct kshell_context *ctx, const char *string)
 {
-    char *equal;
-    state ret;
+    const char *name;
+    size_t namelen;
+    state retval;
 
-    equal = strchr(string, '=');
-    if (string == equal)
+    namelen = kshenv_checkname(string);
+    if (!namelen)
         return -EINVAL;
 
-    if (!equal)
-        ret = kshell_setenv(ctx, string, "", true);
-    else {
-        *equal = '\0';
-        ret = kshell_setenv(ctx, string, equal + 1, true);
-        *equal = '=';
-    }
+    name = kstrndup(string, namelen, GFP_KERNEL);
+    if (!name)
+        return -ENOMEM;
 
-    return ret;
+    if (kshell_local_get(ctx, name))
+        retval = kshell_local_put(ctx, string);
+    else
+        retval = kshell_global_put(ctx, string);
+
+    kfree(name);
+    return retval;
 }
 EXPORT_SYMBOL(kshell_putenv);
 
