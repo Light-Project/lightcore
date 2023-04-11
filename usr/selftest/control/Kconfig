@@ -4,8 +4,12 @@ menuconfig SELFTEST_CONTROL
 	default y
 if SELFTEST_CONTROL
 
-config SELFTEST_FILTER_PIDC
-	bool "pidc"
+config SELFTEST_FILTER_PIDI
+	bool "pidi"
+	default y
+
+config SELFTEST_FILTER_PIDR
+	bool "pidr"
 	default y
 
 config SELFTEST_FILTER_WINEXT

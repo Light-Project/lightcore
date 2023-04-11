@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#ifndef _FILTER_WINEXT_H_
-#define _FILTER_WINEXT_H_
+#ifndef _CONTROL_WINEXT_H_
+#define _CONTROL_WINEXT_H_
 
 #include <types.h>
 #include <stddef.h>
@@ -46,4 +46,4 @@ static inline intptr_t winext_init_max(struct winext_state *winext)
     return (intptr_t)winext_reset(winext, 0, (void *)LONG_MIN);
 }
 
-#endif /* _FILTER_WINEXT_H_ */
+#endif /* _CONTROL_WINEXT_H_ */

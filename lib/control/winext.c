@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * lib/filter/winext.c: windowed extremum tracker.
+ * lib/control/winext.c: windowed extremum tracker.
  * Copyright(c) 2022 John Sanpe <sanpeqf@gmail.com>
  */
 
