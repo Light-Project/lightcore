@@ -6,7 +6,7 @@
 #include <initcall.h>
 #include <selftest.h>
 #include <prandom.h>
-#include <filter/pidc.h>
+#include <control/pidc.h>
 
 #define TEST_LOOP 100
 

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 obj-$(CONFIG_ACPI) += acpica/
 obj-y += bcd.o
+obj-y += control/
 obj-y += crypto/
 obj-$(CONFIG_DT) += fdt/
 obj-y += filter/

@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+menuconfig SELFTEST_CONTROL
+	bool "Contol algorithm library"
+	default y
+if SELFTEST_CONTROL
+
+config SELFTEST_FILTER_PIDC
+	bool "pidc"
+	default y
+
+config SELFTEST_FILTER_WINEXT
+	bool "winext"
+	default y
+
+endif # SELFTEST_CONTROL

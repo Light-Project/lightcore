@@ -3,7 +3,7 @@
  * Copyright(c) 2022 John Sanpe <sanpeqf@gmail.com>
  */
 
-#include <filter/pidc.h>
+#include <control/pidc.h>
 #include <minmax.h>
 #include <math.h>
 #include <export.h>

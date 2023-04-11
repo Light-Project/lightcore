@@ -1,27 +1,19 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 menuconfig SELFTEST_FILTER
-    bool "Test Filter Unit"
-    default y
+	bool "Test Filter Unit"
+	default y
 if SELFTEST_FILTER
 
 config SELFTEST_FILTER_EWMA
-    bool "ewma"
-    default y
+	bool "ewma"
+	default y
 
 config SELFTEST_FILTER_MEAN
-    bool "mean"
-    default y
+	bool "mean"
+	default y
 
 config SELFTEST_FILTER_MEDIAN
-    bool "median"
-    default y
-
-config SELFTEST_FILTER_PIDC
-    bool "pidc"
-    default y
-
-config SELFTEST_FILTER_WINEXT
-    bool "winext"
-    default y
+	bool "median"
+	default y
 
 endif # SELFTEST_FILTER

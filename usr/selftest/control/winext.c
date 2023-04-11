@@ -7,7 +7,7 @@
 #include <selftest.h>
 #include <kmalloc.h>
 #include <prandom.h>
-#include <filter/winext.h>
+#include <control/winext.h>
 
 #define TEST_LOOP 100
 #define TEST_WIN 10
