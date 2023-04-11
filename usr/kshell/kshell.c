@@ -82,10 +82,11 @@ static state do_system(struct kshell_context *ctx, const char *cmdline)
             retval = cmd->exec(ctx, argc, argv);
 
         else if (!kshell_func_call(ctx, argc, argv, &retval)) {
-            kshell_printf(ctx, "command not found: %s\n", argv[0]);
+            kshell_printf(ctx, "command not found: %s", argv[0]);
             cmd = kshell_closest(argv[0]);
             if (cmd)
-                kshell_printf(ctx, "most similar command: %s\n", cmd->name);
+                kshell_printf(ctx, " (%s)", cmd->name);
+            kshell_putc(ctx, '\n');
         }
 
         ctx->depth--;
