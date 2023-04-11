@@ -37,6 +37,10 @@ state cpio_lookup(struct cpio_data *cdata, const void *data, size_t length, cons
         if (nptr > data + length || dptr < data || dptr > nptr)
             return -EOVERFLOW;
 
+        if (unlikely(namelen == sizeof(CPIO_TRAILER_NAME) &&
+            !memcmp(CPIO_TRAILER_NAME, inode->name, namelen)))
+            return -ENOENT;
+
         if ((strntoui(inode->mode, NULL, 16, 8) & S_IFMT) == S_IFREG &&
             namelen >= pathlen && !memcmp(inode->name, path, pathlen)) {
 
@@ -46,14 +50,14 @@ state cpio_lookup(struct cpio_data *cdata, const void *data, size_t length, cons
             if (namelen - pathlen >= CPIO_NAME_MAX)
                 pr_warn("file %s exceeds CPIO_NAME_MAX limit\n", inode->name);
 
-			strlcpy(cdata->name, inode->name, CPIO_NAME_MAX);
+            strlcpy(cdata->name, inode->name, CPIO_NAME_MAX);
             cdata->size = strntoui(inode->filesize, NULL, 16, 8);
             cdata->data = dptr;
 
             return -ENOERR;
         }
 
-		length -= nptr - data;
+        length -= nptr - data;
         data = nptr;
     }
 

@@ -15,8 +15,11 @@ static state libcpio_test_testing(struct kshell_context *ctx, void *pdata)
     intptr_t offset;
     state retval;
 
-    cpio_for_each(&cdata, &offset, &retval, cpioptr, ROMDISK_SIZE, NULL)
+    cpio_for_each(&cdata, &offset, &retval, cpioptr, ROMDISK_SIZE, "")
         kshell_printf(ctx, "libcpio romdisk: %s %lu\n", cdata.name, cdata.size);
+
+    if (retval == -ENOENT)
+        retval = -ENOERR;
 
     return retval;
 }

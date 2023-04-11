@@ -4,8 +4,6 @@
 
 #include <types.h>
 
-#define CPIO_MAGIC  "070701"
-
 struct cpio_inode {
     char magic[6];      /* 0x00: "070701" for newc */
     char ino[8];        /* 0x06: */
@@ -32,6 +30,7 @@ struct cpio_inode {
  * A header for a filename "TRAILER!!!" indicates the end of the archive.
  */
 
+#define CPIO_MAGIC "070701"
 #define CPIO_TRAILER_NAME "TRAILER!!!"
 
 #endif /* _FS_CPIO_H_ */
