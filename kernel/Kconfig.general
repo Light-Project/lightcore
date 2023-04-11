@@ -2,53 +2,66 @@
 menu "General Setup"
 
 config DEFAULT_HOSTNAME
-    string "Default hostname"
-    default "Lightcore"
+	string "Default hostname"
+	default "Lightcore"
 
 config DEFAULT_INIT
-    string "Default Init path"
-    default "init"
+	string "Default Init path"
+	default "init"
 
 config EXPERT
-    bool "Configure Standard Kernel Features"
-    default n
+	bool "Configure Standard Kernel Features"
+	default n
 
 config SMP
-    bool "Symmetric Multi Processing Support"
-    depends on ARCH_HAS_SMP
+	bool "Symmetric Multi Processing Support"
+	depends on ARCH_HAS_SMP
 
 config SYSVIPC
-    bool "System V IPC"
-    default y
+	bool "System V IPC"
+	default y
 
 config SYSTICK_FREQ
-    int "System Tick Frequency"
-    range 100 1000
-    default 1000
+	int "System Tick Frequency"
+	range 100 1000
+	default 1000
 
 config HIRES_TIMER_DELAY
-    bool "Use high-res timer to do delay operations"
-    default y
+	bool "Use high-res timer to do delay operations"
+	default y
 
-config VMAP_STACK
-    bool "Use Virtually Mapped Stack"
-    default y
+choice
+	prompt "Task stack allocation type"
+	default STACK_VIRTUAL
+
+config STACK_KERNEL
+	bool "Use kernel memory"
+
+config STACK_VIRTUAL
+	bool "Use virtual memory"
+	depends on MMU
+
+endchoice
+
+config STACK_CACHE_NR
+	int "Task stack cache number"
+	default 10
 
 config BOOT_PARAMS
-    bool "Accept Kernel Instructions"
-    default y
+	bool "Accept Kernel Instructions"
+	default y
 
 config BUILTIN_DTB
-    bool "Builtin DTB"
-    depends on DT
+	bool "Builtin DTB"
+	depends on DT
 
 config BUILTIN_DTB_PATH
-    string "Builtin DTB path"
-    depends on BUILTIN_DTB
+	string "Builtin DTB path"
+	depends on BUILTIN_DTB
 
 config PID_MAX_DEFAULT
-    int "Default maximum pid numbers"
-    default 4096
+	int "Default maximum pid numbers"
+	default 4096
 
 source "kernel/irq/Kconfig"
 
@@ -57,9 +70,9 @@ source "kernel/time/Kconfig"
 endmenu
 
 config VERSION
-    string
-    default $(KERNELVERSION)
+	string
+	default $(KERNELVERSION)
 
 config GENERIC_MPIO
-    bool
-    depends on ARCH_HAS_PMIO
+	bool
+	depends on ARCH_HAS_PMIO

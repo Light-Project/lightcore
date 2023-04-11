@@ -7,129 +7,17 @@
 #include <string.h>
 #include <initcall.h>
 #include <syscall.h>
-#include <ncache.h>
 #include <kmalloc.h>
 #include <vmalloc.h>
+#include <ncache.h>
 #include <timekeeping.h>
 #include <stackprotector.h>
 #include <memory.h>
 #include <proc.h>
+#include <export.h>
 
-#define STACK_CACHE_NR  10
-static struct ncache *stack_cache;
-static struct kcache *memory_cache;
-
-/***  Allocate and free stack  ***/
-
-void task_stack_magic(struct sched_task *task)
-{
-    uint32_t *magic = stack_end(task->stack);
-    *magic = KMAGIC;
-}
-
-bool task_stack_check(struct sched_task *task)
-{
-    uint32_t *magic = task->stack;
-    return *magic == KMAGIC;
-}
-
-static void *task_stack_ncache_alloc(void *pdata)
-{
-#ifdef CONFIG_VMAP_STACK
-    return vmalloc(THREAD_SIZE);
-#else
-    return get_free_pages(THREAD_ORDER, GFP_ACCOUNT);
-#endif
-}
-
-static void task_stack_ncache_free(void *stack, void *pdata)
-{
-#ifdef CONFIG_VMAP_STACK
-    vfree(stack);
-#else
-    free_page(stack);
-#endif
-}
-
-void *task_stack_alloc(void)
-{
-    void *stack= ncache_get(stack_cache);
-
-    if (!stack)
-        return NULL;
-
-    memset(stack, 0, THREAD_SIZE);
-    return stack;
-}
-EXPORT_SYMBOL(task_stack_alloc);
-
-void task_stack_free(void *stack)
-{
-    ncache_put(stack_cache, stack);
-}
-EXPORT_SYMBOL(task_stack_free);
-
-/***  Allocate and init memory struct  ***/
-
-static struct memory *task_memory_init(struct memory *mm)
-{
-    return mm;
-}
-
-static void task_memory_remove(struct memory *mm)
-{
-
-}
-
-struct memory *task_memory_alloc(void)
-{
-    struct memory *mem;
-
-    mem = kcache_zalloc(memory_cache, GFP_KERNEL);
-    if (!mem)
-        return NULL;
-
-    return task_memory_init(mem);
-}
-EXPORT_SYMBOL(task_memory_alloc);
-
-void task_memory_free(struct memory *mem)
-{
-    if (memory_put(mem))
-        task_memory_remove(mem);
-}
-EXPORT_SYMBOL(task_memory_free);
-
-/***  Allocate task and sub struct  ***/
-
-static state copy_memory(struct task_clone_args *args, struct sched_task *child)
-{
-    enum clone_flags flags = args->flags;
-    struct memory *mem, *omem;
-
-    /* clone a kernel thread */
-    if (!(omem = current->mem)) {
-        child->mem = NULL;
-        child->active_mem = NULL;
-        return -ENOERR;
-    }
-
-    if (flags & CLONE_VM) {
-        memory_get(omem);
-        mem = omem;
-    } else {
-        mem = kcache_zalloc(memory_cache, GFP_KERNEL);
-        if (!mem)
-            return -ENOMEM;
-
-        memcpy(mem, omem, sizeof(*mem));
-    }
-
-    child->mem = mem;
-    child->active_mem = mem;
-
-    return -ENOERR;
-}
+#include "clone/memory.c"
+#include "clone/stack.c"
 
 static struct sched_task *task_alloc(struct task_clone_args *args)
 {
@@ -266,8 +154,6 @@ DEFINE_SYSCALL5(clone, unsigned long, clone_flags, unsigned long, newsp,
 
 void __init clone_init(void)
 {
-    stack_cache = ncache_create(task_stack_ncache_alloc,
-        task_stack_ncache_free, STACK_CACHE_NR, NCACHE_PANIC, NULL);
-    memory_cache = kcache_create("memory",
-        sizeof(struct memory), KCACHE_PANIC);
+    clone_memory_init();
+    clone_stack_init();
 }
