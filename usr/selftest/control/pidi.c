@@ -33,7 +33,7 @@ static state pidi_testing(struct kshell_context *ctx, void *pdata)
 }
 
 static struct selftest_command pidi_command = {
-    .group = "filter",
+    .group = "control",
     .name = "pidi",
     .desc = "pid controller unit test",
     .testing = pidi_testing,

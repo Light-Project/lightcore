@@ -84,7 +84,7 @@ static void winext_release(struct kshell_context *ctx, void *pdata)
 }
 
 static struct selftest_command winext_command = {
-    .group = "filter",
+    .group = "control",
     .name = "winext",
     .desc = "windowed extremum tracker test",
     .testing = winext_testing,
