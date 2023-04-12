@@ -18,7 +18,6 @@ struct pidi_state {
     int32_t outmin;
     int32_t outmax;
 
-    int64_t iterm;
     int32_t lasterr[2];
 };
 

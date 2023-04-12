@@ -19,10 +19,10 @@ int32_t pidi_update(struct pidi_state *pctx, int32_t expect, int32_t value)
     iout = DIV_ROUND_CLOSEST((int64_t)pctx->kim * error, pctx->kid);
 
     retval = error - pctx->lasterr[0] * 2 + pctx->lasterr[1];
-    dout = DIV_ROUND_CLOSEST((int64_t)pctx->kdm * value, pctx->kdd);
+    dout = DIV_ROUND_CLOSEST((int64_t)pctx->kdm * retval, pctx->kdd);
 
-    pctx->lasterr[0] = error;
     pctx->lasterr[1] = pctx->lasterr[0];
+    pctx->lasterr[0] = error;
 
     retval = pout + iout + dout;
     clamp_adj(retval, pctx->outmin, pctx->outmax);
@@ -33,7 +33,6 @@ EXPORT_SYMBOL(pidi_update);
 
 void pidi_reset(struct pidi_state *pctx)
 {
-    pctx->iterm = 0;
     pctx->lasterr[0] = 0;
     pctx->lasterr[1] = 0;
 }
