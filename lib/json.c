@@ -14,17 +14,17 @@
 #define PASER_STATE_DEPTH   36
 
 enum json_state {
-    JSON_STATE_NULL     = 0,
-    JSON_STATE_ESC      = 1,
-    JSON_STATE_BODY     = 2,
-    JSON_STATE_COLON    = 3,
-    JSON_STATE_WAIT     = 4,
-    JSON_STATE_ARRAY    = 5,
-    JSON_STATE_OBJECT   = 6,
-    JSON_STATE_NAME     = 7,
-    JSON_STATE_STRING   = 8,
-    JSON_STATE_NUMBER   = 9,
-    JSON_STATE_OTHER    = 10,
+    JSON_STATE_NULL,
+    JSON_STATE_ESC,
+    JSON_STATE_BODY,
+    JSON_STATE_COLON,
+    JSON_STATE_WAIT,
+    JSON_STATE_ARRAY,
+    JSON_STATE_OBJECT,
+    JSON_STATE_NAME,
+    JSON_STATE_STRING,
+    JSON_STATE_NUMBER,
+    JSON_STATE_OTHER,
 };
 
 struct json_transition {

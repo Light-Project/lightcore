@@ -13,17 +13,17 @@
 #define PASER_NODE_DEPTH    32
 
 enum xml_state {
-    XML_STATE_LABEL     = 0,
-    XML_STATE_NAME      = 1,
-    XML_STATE_ANAME     = 2,
-    XML_STATE_AVALUE    = 3,
-    XML_STATE_STRING    = 4,
-    XML_STATE_AWAIT     = 5,
-    XML_STATE_EQUAL     = 6,
-    XML_STATE_BODY      = 7,
-    XML_STATE_PARAPH    = 8,
-    XML_STATE_EXIT      = 9,
-    XML_STATE_IGNORE    = 10,
+    XML_STATE_LABEL,
+    XML_STATE_NAME,
+    XML_STATE_ANAME,
+    XML_STATE_AVALUE,
+    XML_STATE_STRING,
+    XML_STATE_AWAIT,
+    XML_STATE_EQUAL,
+    XML_STATE_BODY,
+    XML_STATE_PARAPH,
+    XML_STATE_EXIT,
+    XML_STATE_IGNORE,
 };
 
 struct xml_transition {
