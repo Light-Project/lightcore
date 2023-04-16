@@ -74,8 +74,8 @@
 )
 
 #define mult_frac(value, numer, denom) ({               \
-    typeof(x) __quot = (value) / (denom);               \
-    typeof(x) __rem = (value) % (denom);                \
+    typeof(value) __quot = (value) / (denom);           \
+    typeof(value) __rem = (value) % (denom);            \
     (__quot * (numer)) + ((__rem * (numer)) / (denom)); \
 })
 
@@ -105,6 +105,30 @@ static inline uint64_t mul_u64_u32_shr(uint64_t value, uint32_t mul, unsigned in
 
 #endif /* TYPE_HAS_INT128 */
 
+/**
+ * struct polynomial_entry - entry descriptor of a polynomial.
+ * @deg: degree of this term.
+ * @coef: multiplication factor of this term.
+ * @divider: distributed divider per each degree.
+ * @leftover: divider leftover.
+ */
+struct polynomial_entry {
+    unsigned int degree;
+    int32_t coef;
+    int32_t divider;
+    int32_t leftover;
+};
+
+/**
+ * struct polynomial - descriptor of a polynomial.
+ * @total: polynomial total data divider.
+ * @entry: polynomial terms.
+ */
+struct polynomial {
+    int32_t total;
+    struct polynomial_entry entry[];
+};
+
 static inline uint64_t mul_u32_u32(uint32_t a, uint32_t b)
 {
     return (uint64_t)a * b;
@@ -120,6 +144,7 @@ extern int32_t cos32(int angle);
 extern unsigned int atan2i(int x, int y);
 extern uint32_t bezier3(uint32_t time, uint32_t p0, uint32_t p1, uint32_t p2, uint32_t p3);
 extern state rational(unsigned int numer, unsigned int denomin, unsigned int maxnumer, unsigned int maxdenomin, unsigned int *bestnumer, unsigned int *bestdenomin);
+extern int32_t polynomial(const struct polynomial *poly, int32_t value);
 
 extern bool prime_check(unsigned long num);
 extern unsigned long prime_next(unsigned long num);

@@ -4,6 +4,7 @@ obj-y += bezier.o
 obj-y += cos.o
 obj-y += gcd.o
 obj-y += lcm.o
+obj-y += polynomial.o
 obj-y += map.o
 obj-y += pow.o
 obj-y += prime.o
