@@ -6,12 +6,12 @@
 #include <bitflags.h>
 
 enum fwnode_flags {
-    __FWNODE_IS_DTREE   = 0,
-    __FWNODE_IS_ACPI    = 1,
-};
+    __FWNODE_IS_DTREE = 0,
+    __FWNODE_IS_ACPI,
 
-#define FWNODE_IS_DTREE BIT(__FWNODE_IS_DTREE)
-#define FWNODE_IS_ACPI  BIT(__FWNODE_IS_ACPI)
+    FWNODE_IS_DTREE = BIT(__FWNODE_IS_DTREE),
+    FWNODE_IS_ACPI  = BIT(__FWNODE_IS_ACPI),
+};
 
 /**
  * struct fwnode - describe the a firmware node.

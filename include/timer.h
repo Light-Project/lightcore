@@ -11,10 +11,10 @@ typedef void (*timer_entry_t)(void *pdata);
 enum timer_flags {
     __TIMER_IRQ_SAFE = 0,
     __TIMER_PERIODIC,
-};
 
-#define TIMER_IRQ_SAFE      BIT(__TIMER_IRQ_SAFE)
-#define TIMER_PERIODIC      BIT(__TIMER_PERIODIC)
+    TIMER_IRQ_SAFE = BIT(__TIMER_IRQ_SAFE),
+    TIMER_PERIODIC = BIT(__TIMER_PERIODIC),
+};
 
 /**
  * struct timer - describe a timer node.

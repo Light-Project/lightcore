@@ -6,32 +6,30 @@
 #include <bits.h>
 
 enum gfp_flags {
-    __GFP_DMA               = 0,
-    __GFP_DMA32             = 1,
-    __GFP_HIGHMEM           = 2,
-    __GFP_MOVABLE           = 3,
-    __GFP_IO                = 4,
-    __GFP_FS                = 5,
-    __GFP_ZERO              = 6,
-    __GFP_NOFAIL            = 7,
-    __GFP_NORETRY           = 8,
-    __GFP_ATOMIC            = 9,
-    __GFP_HIGH              = 10,
-    __GFP_MEMALLOC          = 11,
-    __GFP_NOMEMALLOC        = 12,
-    __GFP_WRITE             = 13,
-    __GFP_NOWARN            = 14,
-    __GFP_RETRY_MAYFAIL     = 15,
-    __GFP_COMP              = 16,
-    __GFP_HARDWALL          = 17,
-    __GFP_THISNODE          = 18,
-    __GFP_ACCOUNT           = 19,
+    __GFP_DMA = 0,
+    __GFP_DMA32,
+    __GFP_HIGHMEM,
+    __GFP_MOVABLE,
+    __GFP_IO,
+    __GFP_FS,
+    __GFP_ZERO,
+    __GFP_NOFAIL,
+    __GFP_NORETRY,
+    __GFP_ATOMIC,
+    __GFP_HIGH,
+    __GFP_MEMALLOC,
+    __GFP_NOMEMALLOC,
+    __GFP_WRITE,
+    __GFP_NOWARN,
+    __GFP_RETRY_MAYFAIL,
+    __GFP_COMP,
+    __GFP_HARDWALL,
+    __GFP_THISNODE,
+    __GFP_ACCOUNT,
 };
 
 /**
  * Physical region bitmasks
- *
- *
  */
 #define GFP_DMA                 BIT(__GFP_DMA)
 #define GFP_DMA32               BIT(__GFP_DMA32)
@@ -41,8 +39,6 @@ enum gfp_flags {
 
 /**
  * Reclaim modifier bitmasks
- *
- *
  */
 #define GFP_IO                  BIT(__GFP_IO)
 #define GFP_FS                  BIT(__GFP_FS)
@@ -53,8 +49,6 @@ enum gfp_flags {
 
 /**
  * Watermark modifiers bitmasks
- *
- *
  */
 #define GFP_ATOMIC              BIT(__GFP_ATOMIC)
 #define GFP_HIGH                BIT(__GFP_HIGH)

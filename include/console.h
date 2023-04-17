@@ -6,18 +6,18 @@
 #include <bitflags.h>
 
 enum console_flags {
-    __CONSOLE_BOOT          = 0,
-    __CONSOLE_ENABLED       = 1,
-    __CONSOLE_CONSDEV       = 2,
-    __CONSOLE_BUFFER        = 3,
-    __CONSOLE_ANYTIME       = 4,
-};
+    __CONSOLE_BOOT = 0,
+    __CONSOLE_ENABLED,
+    __CONSOLE_CONSDEV,
+    __CONSOLE_BUFFER,
+    __CONSOLE_ANYTIME,
 
-#define CONSOLE_BOOT        BIT(__CONSOLE_BOOT)
-#define CONSOLE_ENABLED     BIT(__CONSOLE_ENABLED)
-#define CONSOLE_CONSDEV     BIT(__CONSOLE_CONSDEV)
-#define CONSOLE_BUFFER      BIT(__CONSOLE_BUFFER)
-#define CONSOLE_ANYTIME     BIT(__CONSOLE_ANYTIME)
+    CONSOLE_BOOT        = BIT(__CONSOLE_BOOT),
+    CONSOLE_ENABLED     = BIT(__CONSOLE_ENABLED),
+    CONSOLE_CONSDEV     = BIT(__CONSOLE_CONSDEV),
+    CONSOLE_BUFFER      = BIT(__CONSOLE_BUFFER),
+    CONSOLE_ANYTIME     = BIT(__CONSOLE_ANYTIME),
+};
 
 struct console {
     struct list_head list;

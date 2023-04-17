@@ -7,14 +7,14 @@
 #include <bitflags.h>
 
 enum xml_flags {
-    __XML_IS_OBJECT     = 0,
-    __XML_IS_ATTRIBUTE  = 1,
-    __XML_IS_STRING     = 2,
-};
+    __XML_IS_OBJECT = 0,
+    __XML_IS_ATTRIBUTE,
+    __XML_IS_STRING,
 
-#define XML_IS_OBJECT       BIT(__XML_IS_OBJECT)
-#define XML_IS_ATTRIBUTE    BIT(__XML_IS_ATTRIBUTE)
-#define XML_IS_STRING       BIT(__XML_IS_STRING)
+    XML_IS_OBJECT       = BIT(__XML_IS_OBJECT),
+    XML_IS_ATTRIBUTE    = BIT(__XML_IS_ATTRIBUTE),
+    XML_IS_STRING       = BIT(__XML_IS_STRING),
+};
 
 struct xml_node {
     struct xml_node *parent;

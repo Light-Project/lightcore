@@ -11,10 +11,10 @@ typedef void (*softirq_entry_t)(void *pdata);
 enum sofirq_flags {
     __SOFTIRQ_IRQ_SAFE = 0,
     __SOFTIRQ_PERIODIC,
-};
 
-#define SOFTIRQ_IRQ_SAFE    BIT(__SOFTIRQ_IRQ_SAFE)
-#define SOFTIRQ_PERIODIC    BIT(__SOFTIRQ_PERIODIC)
+    SOFTIRQ_IRQ_SAFE = BIT(__SOFTIRQ_IRQ_SAFE),
+    SOFTIRQ_PERIODIC = BIT(__SOFTIRQ_PERIODIC),
+};
 
 /**
  * struct softirq - describe a softirq node.

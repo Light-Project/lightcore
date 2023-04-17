@@ -10,10 +10,9 @@
 #define DEFAULT_RATELIMIT_BURST     10
 
 enum ratelimit_flags {
-    __RATELIMIT_MSGQUIET    = 0,
+    __RATELIMIT_MSGQUIET = 0,
+    RATELIMIT_MSGQUIET = BIT(__RATELIMIT_MSGQUIET),
 };
-
-#define RATELIMIT_MSGQUIET  BIT(__RATELIMIT_MSGQUIET)
 
 /**
  * struct ratelimit - describe ratelimit status.

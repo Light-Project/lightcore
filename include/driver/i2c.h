@@ -7,20 +7,20 @@
 #include <lightcore/i2c.h>
 
 enum i2c_device_flags {
-    __I2C_DEVICE_PEC        = 0, /* Use Packet Error Checking */
-    __I2C_DEVICE_TEN        = 1, /* Have a ten bit chip address */
-    __I2C_DEVICE_SLAVE      = 2, /* We are the slave  */
-    __I2C_DEVICE_NOTIFY     = 3, /* We want to use I2C host notify */
-    __I2C_DEVICE_WAKE       = 4,
-    __I2C_DEVICE_SCCB       = 5,
-};
+    __I2C_DEVICE_PEC = 0,   /* Use Packet Error Checking */
+    __I2C_DEVICE_TEN,       /* Have a ten bit chip address */
+    __I2C_DEVICE_SLAVE,     /* We are the slave  */
+    __I2C_DEVICE_NOTIFY,    /* We want to use I2C host notify */
+    __I2C_DEVICE_WAKE,
+    __I2C_DEVICE_SCCB,
 
-#define I2C_DEVICE_PEC      BIT(__I2C_DEVICE_PEC)
-#define I2C_DEVICE_TEN      BIT(__I2C_DEVICE_TEN)
-#define I2C_DEVICE_SLAVE    BIT(__I2C_DEVICE_SLAVE)
-#define I2C_DEVICE_NOTIFY   BIT(__I2C_DEVICE_NOTIFY)
-#define I2C_DEVICE_WAKE     BIT(__I2C_DEVICE_WAKE)
-#define I2C_DEVICE_SCCB     BIT(__I2C_DEVICE_SCCB)
+    I2C_DEVICE_PEC      = BIT(__I2C_DEVICE_PEC),
+    I2C_DEVICE_TEN      = BIT(__I2C_DEVICE_TEN),
+    I2C_DEVICE_SLAVE    = BIT(__I2C_DEVICE_SLAVE),
+    I2C_DEVICE_NOTIFY   = BIT(__I2C_DEVICE_NOTIFY),
+    I2C_DEVICE_WAKE     = BIT(__I2C_DEVICE_WAKE),
+    I2C_DEVICE_SCCB     = BIT(__I2C_DEVICE_SCCB),
+};
 
 enum i2c_speed_mode {
     I2C_SPEED_STANDARD      = 100000,

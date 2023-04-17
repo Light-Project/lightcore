@@ -7,22 +7,22 @@
 #include <bitflags.h>
 
 enum json_flags {
-    __JSON_IS_ARRAY     = 0,
-    __JSON_IS_OBJECT    = 1,
-    __JSON_IS_STRING    = 2,
-    __JSON_IS_NUMBER    = 3,
-    __JSON_IS_NULL      = 4,
-    __JSON_IS_TRUE      = 5,
-    __JSON_IS_FALSE     = 6,
-};
+    __JSON_IS_ARRAY = 0,
+    __JSON_IS_OBJECT,
+    __JSON_IS_STRING,
+    __JSON_IS_NUMBER,
+    __JSON_IS_NULL,
+    __JSON_IS_TRUE,
+    __JSON_IS_FALSE,
 
-#define JSON_IS_ARRAY   BIT(__JSON_IS_ARRAY)
-#define JSON_IS_OBJECT  BIT(__JSON_IS_OBJECT)
-#define JSON_IS_STRING  BIT(__JSON_IS_STRING)
-#define JSON_IS_NUMBER  BIT(__JSON_IS_NUMBER)
-#define JSON_IS_NULL    BIT(__JSON_IS_NULL)
-#define JSON_IS_TRUE    BIT(__JSON_IS_TRUE)
-#define JSON_IS_FALSE   BIT(__JSON_IS_FALSE)
+    JSON_IS_ARRAY   = BIT(__JSON_IS_ARRAY),
+    JSON_IS_OBJECT  = BIT(__JSON_IS_OBJECT),
+    JSON_IS_STRING  = BIT(__JSON_IS_STRING),
+    JSON_IS_NUMBER  = BIT(__JSON_IS_NUMBER),
+    JSON_IS_NULL    = BIT(__JSON_IS_NULL),
+    JSON_IS_TRUE    = BIT(__JSON_IS_TRUE),
+    JSON_IS_FALSE   = BIT(__JSON_IS_FALSE),
+};
 
 struct json_node {
     struct json_node *parent;
@@ -44,6 +44,7 @@ GENERIC_STRUCT_FLAG(json, struct json_node, flags, number, __JSON_IS_NUMBER)
 GENERIC_STRUCT_FLAG(json, struct json_node, flags, null, __JSON_IS_NULL)
 GENERIC_STRUCT_FLAG(json, struct json_node, flags, true, __JSON_IS_TRUE)
 GENERIC_STRUCT_FLAG(json, struct json_node, flags, false, __JSON_IS_FALSE)
+
 extern state json_parse(const char *buff, struct json_node **root, gfp_t gfp);
 extern int json_encode(struct json_node *root, char *buff, int size);
 extern void json_release(struct json_node *root);

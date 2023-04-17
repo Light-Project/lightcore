@@ -6,11 +6,11 @@
 #include <bits.h>
 
 enum gvm_flags {
-    __GVM_NOCACHE       = 0,
-    __GVM_WCOMBINED     = 1,
-    __GVM_WTHROUGH      = 2,
-    __GVM_WRPROTECT     = 3,
-    __GVM_NOEXECUTE     = 4,
+    __GVM_NOCACHE = 0,
+    __GVM_WCOMBINED,
+    __GVM_WTHROUGH,
+    __GVM_WRPROTECT,
+    __GVM_NOEXECUTE,
 };
 
 #define GVM_NOCACHE         BIT(__GVM_NOCACHE)

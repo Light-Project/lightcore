@@ -9,9 +9,8 @@
 
 enum ts_flags {
     __TS_IGNORECASE = 0,
+    TS_IGNORECASE = BIT(__TS_IGNORECASE),
 };
-
-#define TS_IGNORECASE BIT(__TS_IGNORECASE)
 
 /**
  * struct ts_state - search state.

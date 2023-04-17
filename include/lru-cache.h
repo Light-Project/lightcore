@@ -10,20 +10,22 @@ typedef struct lrc_node *(*lrc_alloc)(void *pdata);
 typedef void (*lrc_free)(struct lrc_node *node, void *pdata);
 
 enum lrc_obtain {
-    __LRC_CHANGE            = 0,
-    __LRC_UNCOMMITTED       = 1,
+    __LRC_CHANGE = 0,
+    __LRC_UNCOMMITTED,
+
+    LRC_CHANGE = BIT(__LRC_CHANGE),
+    LRC_UNCOMMITTED = BIT(__LRC_UNCOMMITTED),
 };
 
 enum lrc_flags {
-    __LRC_DIRTY             = 0,
-    __LRC_STARVING          = 1,
+    __LRC_DIRTY = 0,
+    __LRC_STARVING,
+
+    LRC_DIRTY = BIT(__LRC_DIRTY),
+    LRC_STARVING = BIT(__LRC_STARVING),
 };
 
-#define LRC_CHANGE          BIT(__LRC_CHANGE)
-#define LRC_UNCOMMITTED     BIT(__LRC_UNCOMMITTED)
-#define LRC_DIRTY           BIT(__LRC_DIRTY)
-#define LRC_STARVING        BIT(__LRC_STARVING)
-#define LRC_FREE_TAG        UINT_MAX
+#define LRC_FREE_TAG UINT_MAX
 
 /**
  * struct lrc_node - least recently used cache node.

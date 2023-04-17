@@ -9,16 +9,16 @@
 # include <panic.h>
 
 enum crash_flags {
-    __CRASH_FLAG_NCUT_HERE  = 0,
-    __CRASH_FLAG_WARNING    = 1,
-    __CRASH_FLAG_ONCE       = 2,
-    __CRASH_FLAG_DONE       = 3,
-};
+    __CRASH_FLAG_NCUT_HERE = 0,
+    __CRASH_FLAG_WARNING,
+    __CRASH_FLAG_ONCE,
+    __CRASH_FLAG_DONE,
 
-#define CRASH_FLAG_NCUT_HERE    BIT(__CRASH_FLAG_NCUT_HERE)
-#define CRASH_FLAG_WARNING      BIT(__CRASH_FLAG_WARNING)
-#define CRASH_FLAG_ONCE         BIT(__CRASH_FLAG_ONCE)
-#define CRASH_FLAG_DONE         BIT(__CRASH_FLAG_DONE)
+    CRASH_FLAG_NCUT_HERE    = BIT(__CRASH_FLAG_NCUT_HERE),
+    CRASH_FLAG_WARNING      = BIT(__CRASH_FLAG_WARNING),
+    CRASH_FLAG_ONCE         = BIT(__CRASH_FLAG_ONCE),
+    CRASH_FLAG_DONE         = BIT(__CRASH_FLAG_DONE),
+};
 
 struct crash_entry {
     uintptr_t addr;
