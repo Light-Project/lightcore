@@ -9,6 +9,7 @@ obj-y += mempool.o
 obj-$(CONFIG_MEMTEST) += memtest.o
 obj-y += model.o
 obj-y += page.o
+obj-y += pagewalk.o
 obj-y += pgalloc.o
 obj-y += region.o
 obj-y += utils.o

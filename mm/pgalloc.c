@@ -14,7 +14,7 @@ state pte_alloc(pmd_t *pmd, size_t addr)
         return -ENOMEM;
 
     spin_lock(&init_mm.pglock);
-    if (likely(!pmd_get_present(pmd))) {
+    if (likely(!pmd_present(pmd))) {
         pmd_populate(pmd, pte);
         pte = NULL;
     }
@@ -36,7 +36,7 @@ state pmd_alloc(pud_t *pud, size_t addr)
         return -ENOMEM;
 
     spin_lock(&init_mm.pglock);
-    if (likely(!pud_get_present(pud))) {
+    if (likely(!pud_present(pud))) {
         pud_populate(pud, pmd);
         pmd = NULL;
     }
@@ -59,7 +59,7 @@ state pud_alloc(p4d_t *p4d, size_t addr)
         return -ENOMEM;
 
     spin_lock(&init_mm.pglock);
-    if (likely(!pmd_get_present(p4d))) {
+    if (likely(!pmd_present(p4d))) {
         pud_populate(p4d, pud);
         pud = NULL;
     }
@@ -82,7 +82,7 @@ state p4d_alloc(pgd_t *pgd, size_t addr)
         return -ENOMEM;
 
     spin_lock(&init_mm.pglock);
-    if (likely(!pmd_get_present(pgd))) {
+    if (likely(!pmd_present(pgd))) {
         pud_populate(pgd, p4d);
         p4d = NULL;
     }

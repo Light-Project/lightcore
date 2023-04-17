@@ -19,24 +19,6 @@ static inline size_t p4d_bound_size(size_t addr, size_t size)
     return size;
 }
 
-#define pgd_get_present pgd_get_present
-static inline bool pgd_get_present(pgd_t *pgd)
-{
-    return true;
-}
-
-#define pgd_inval pgd_inval
-static inline bool pgd_inval(pgd_t *pgd)
-{
-    return false;
-}
-
-#define pgd_clear pgd_clear
-static inline void pgd_clear(pgd_t *pgd)
-{
-
-}
-
 #define p4d_offset p4d_offset
 static inline p4d_t *p4d_offset(pgd_t *pgd, size_t addr)
 {
@@ -52,13 +34,47 @@ static inline state pgalloc_p4d(pgd_t *pgd, size_t addr)
 #define pgfree_p4d pgfree_p4d
 static inline void pgfree_p4d(pgd_t *pgd, size_t addr)
 {
-
+    /* Nothing */
 }
 
 #define p4d_alloc p4d_alloc
 static inline state p4d_alloc(pgd_t *pgd, size_t addr)
 {
     return -ENOERR;
+}
+
+/**
+ * Typical architecture set definition.
+ */
+
+#define pgd_present pgd_present
+static inline bool pgd_present(pgd_t *pgd)
+{
+    return true;
+}
+
+#define pgd_inval pgd_inval
+static inline bool pgd_inval(pgd_t *pgd)
+{
+    return false;
+}
+
+#define pgd_clear pgd_clear
+static inline void pgd_clear(pgd_t *pgd)
+{
+    /* Nothing */
+}
+
+#define pgd_none pgd_none
+static inline bool pgd_none(pgd_t *pgd)
+{
+    return true;
+}
+
+#define pgd_get_huge pgd_get_huge
+static inline bool pgd_get_huge(pgd_t *pgd)
+{
+    return false;
 }
 
 #endif /* _ASM_GENERIC_PGTABLE_P4D_H_ */

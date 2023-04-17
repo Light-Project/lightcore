@@ -15,7 +15,7 @@
 
 static inline pte_t *vmap_pte_get(pmd_t *pmd, size_t addr, enum pgtbl_modified *mod)
 {
-    if (unlikely(!pmd_get_present(pmd))) {
+    if (unlikely(!pmd_present(pmd))) {
         if (unlikely(pte_alloc(pmd, addr)))
             return NULL;
     }
@@ -25,7 +25,7 @@ static inline pte_t *vmap_pte_get(pmd_t *pmd, size_t addr, enum pgtbl_modified *
 
 static inline pmd_t *vmap_pmd_get(pud_t *pud, size_t addr, enum pgtbl_modified *mod)
 {
-    if (unlikely(!pud_get_present(pud))) {
+    if (unlikely(!pud_present(pud))) {
         if (unlikely(pmd_alloc(pud, addr)))
             return NULL;
     }
@@ -35,7 +35,7 @@ static inline pmd_t *vmap_pmd_get(pud_t *pud, size_t addr, enum pgtbl_modified *
 
 static inline pud_t *vmap_pud_get(p4d_t *p4d, size_t addr, enum pgtbl_modified *mod)
 {
-    if (unlikely(!p4d_get_present(p4d))) {
+    if (unlikely(!p4d_present(p4d))) {
         if (unlikely(pud_alloc(p4d, addr)))
             return NULL;
     }
@@ -45,7 +45,7 @@ static inline pud_t *vmap_pud_get(p4d_t *p4d, size_t addr, enum pgtbl_modified *
 
 static inline p4d_t *vmap_p4d_get(pgd_t *pgd, size_t addr, enum pgtbl_modified *mod)
 {
-    if (unlikely(!pgd_get_present(pgd))) {
+    if (unlikely(!pgd_present(pgd))) {
         if (unlikely(p4d_alloc(pgd, addr)))
             return NULL;
     }
@@ -69,7 +69,7 @@ static bool vmap_huge_pmd(pmd_t *pmd, phys_addr_t phys, size_t addr, size_t size
     if (size != PMD_SIZE)
         return false;
 
-    if (pmd_get_present(pmd))
+    if (pmd_present(pmd))
         return false;
 
     return pmd_set_huge(pmd, phys, flags);
@@ -113,7 +113,7 @@ static bool vmap_huge_pud(pud_t *pud, phys_addr_t phys, size_t addr, size_t size
     if (size != PMD_SIZE)
         return false;
 
-    if (pud_get_present(pud))
+    if (pud_present(pud))
         return false;
 
     return pud_set_huge(pud, phys, flags);
@@ -157,7 +157,7 @@ static bool vmap_huge_p4d(p4d_t *p4d, phys_addr_t phys, size_t addr, size_t size
     if (size != PMD_SIZE)
         return false;
 
-    if (p4d_get_present(p4d))
+    if (p4d_present(p4d))
         return false;
 
     return p4d_set_huge(p4d, phys, flags);
@@ -201,7 +201,7 @@ static bool vmap_huge_pgd(pgd_t *pgd, phys_addr_t phys, size_t addr, size_t size
     if (size != PGDIR_SIZE)
         return false;
 
-    if (pgd_get_present(pgd))
+    if (pgd_present(pgd))
         return false;
 
     return pgd_set_huge(pgd, phys, flags);
@@ -244,7 +244,7 @@ static state vmap_pte_pages(pmd_t *pmd, struct page **pages, unsigned long *inde
         if (unlikely(!page))
             return -ENOMEM;
 
-        if (WARN_ON(pte_get_used(pte)))
+        if (WARN_ON(!pte_none(pte)))
             return -EBUSY;
 
         pte_set(pte, page_to_pa(page), flags);
@@ -359,7 +359,7 @@ static state vmap_pte_range(pmd_t *pmd, phys_addr_t phys, size_t addr, size_t si
         return -ENOMEM;
 
     for (; size; phys += PAGE_SIZE, addr += PAGE_SIZE, size -= PAGE_SIZE) {
-        if (WARN_ON(pte_get_used(pte)))
+        if (WARN_ON(!pte_none(pte)))
             return -EBUSY;
 
         pte_set(pte, phys, flags);

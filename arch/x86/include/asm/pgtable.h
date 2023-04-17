@@ -49,6 +49,12 @@ typedef struct pgd p4d_t;
 #define PAGE_KERNEL_LARGE       (__PP | __PW |    0 |    0 | __PA | __PD | __PE | __PG | __PN)
 #define PAGE_KERNEL_LARGE_EXC   (__PP | __PW |    0 |    0 | __PA | __PD | __PE | __PG |    0)
 
+#if defined(CONFIG_X86_64) || defined(CONFIG_X86_PAE)
+# define PAGE_ERRATUM_MASK (__PD | __PA)
+#else
+# define PAGE_ERRATUM_MASK 0
+#endif
+
 extern pgd_t page_dir[PTRS_PER_PGD];
 
 static inline void pte_clear(pte_t *pte)
@@ -56,14 +62,14 @@ static inline void pte_clear(pte_t *pte)
     pte->val = 0;
 }
 
-static inline bool pte_get_present(pte_t *pte)
+static inline bool pte_none(pte_t *pte)
 {
-    return pte->p || pte->g;
+    return !(pte->val & ~PAGE_ERRATUM_MASK);
 }
 
-static inline bool pte_get_used(pte_t *pte)
+static inline bool pte_present(pte_t *pte)
 {
-    return !!pte->val;
+    return pte->p || pte->g;
 }
 
 static inline bool pte_get_dirty(pte_t *pte)
@@ -142,14 +148,19 @@ static inline void name##_generic_clear(type *pgt)                              
     pgt->val = 0;                                                                   \
 }                                                                                   \
                                                                                     \
+static inline bool name##_generic_none(type *pgt)                                   \
+{                                                                                   \
+    return !(pgt->val & ~PAGE_ERRATUM_MASK);                                        \
+}                                                                                   \
+                                                                                    \
+static inline bool name##_generic_present(type *pgt)                                \
+{                                                                                   \
+    return pgt->p || pgt->g || pgt->ps;                                             \
+}                                                                                   \
+                                                                                    \
 static inline bool name##_generic_get_huge(type *pgt)                               \
 {                                                                                   \
     return pgt->ps;                                                                 \
-}                                                                                   \
-                                                                                    \
-static inline bool name##_generic_get_present(type *pgt)                            \
-{                                                                                   \
-    return pgt->p || pgt->g || pgt->ps;                                             \
 }                                                                                   \
                                                                                     \
 static inline bool name##_generic_get_dirty(type *pgt)                              \
@@ -186,12 +197,14 @@ X86_GENERIC_PGTABLE_OPS(pmd, pmd_t, pmdval_t, pte_t)
 #define pmd_pfn_mask        pmd_generic_pfn_mask
 #define pmd_flags_mask      pmd_generic_flags_mask
 #define pmd_flags           pmd_generic_flags
+
 #define pmd_address         pmd_generic_address
 #define pmd_populate        pmd_generic_populate
 #define pmd_inval           pmd_generic_inval
 #define pmd_clear           pmd_generic_clear
+#define pmd_none            pmd_generic_none
+#define pmd_present         pmd_generic_present
 #define pmd_get_huge        pmd_generic_get_huge
-#define pmd_get_present     pmd_generic_get_present
 #define pmd_get_dirty       pmd_generic_get_dirty
 #define pmd_set_dirty       pmd_generic_set_dirty
 #define pmd_get_accessed    pmd_generic_get_accessed
@@ -204,12 +217,14 @@ X86_GENERIC_PGTABLE_OPS(pud, pud_t, pudval_t, pmd_t)
 # define pud_pfn_mask       pud_generic_pfn_mask
 # define pud_flags_mask     pud_generic_flags_mask
 # define pud_flags          pud_generic_flags
+
 # define pud_address        pud_generic_address
 # define pud_populate       pud_generic_populate
 # define pud_inval          pud_generic_inval
 # define pud_clear          pud_generic_clear
+# define pud_none           pud_generic_none
+# define pud_present        pud_generic_present
 # define pud_get_huge       pud_generic_get_huge
-# define pud_get_present    pud_generic_get_present
 # define pud_get_dirty      pud_generic_get_dirty
 # define pud_set_dirty      pud_generic_set_dirty
 # define pud_get_accessed   pud_generic_get_accessed
@@ -223,12 +238,14 @@ X86_GENERIC_PGTABLE_OPS(p4d, p4d_t, p4dval_t, pud_t)
 # define p4d_pfn_mask       p4d_generic_pfn_mask
 # define p4d_flags_mask     p4d_generic_flags_mask
 # define p4d_flags          p4d_generic_flags
+
 # define p4d_address        p4d_generic_address
 # define p4d_populate       p4d_generic_populate
 # define p4d_inval          p4d_generic_inval
 # define p4d_clear          p4d_generic_clear
+# define p4d_none           p4d_generic_none
+# define p4d_present        p4d_generic_present
 # define p4d_get_huge       p4d_generic_get_huge
-# define p4d_get_present    p4d_generic_get_present
 # define p4d_get_dirty      p4d_generic_get_dirty
 # define p4d_set_dirty      p4d_generic_set_dirty
 # define p4d_get_accessed   p4d_generic_get_accessed
@@ -242,12 +259,14 @@ X86_GENERIC_PGTABLE_OPS(pgd, pgd_t, pgdval_t, p4d_t)
 # define pgd_pfn_mask       pgd_generic_pfn_mask
 # define pgd_flags_mask     pgd_generic_flags_mask
 # define pgd_flags          pgd_generic_flags
+
 # define pgd_address        pgd_generic_address
 # define pgd_populate       pgd_generic_populate
 # define pgd_inval          pgd_generic_inval
 # define pgd_clear          pgd_generic_clear
+# define pgd_none           pgd_generic_none
+# define pgd_present        pgd_generic_present
 # define pgd_get_huge       pgd_generic_get_huge
-# define pgd_get_present    pgd_generic_get_present
 # define pgd_get_dirty      pgd_generic_get_dirty
 # define pgd_set_dirty      pgd_generic_set_dirty
 # define pgd_get_accessed   pgd_generic_get_accessed

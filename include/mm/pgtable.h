@@ -123,7 +123,7 @@ static inline size_t pgd_bound_size(uintptr_t addr, size_t size)
 
 static inline bool pmd_none_clear_bad(pmd_t *pmd)
 {
-    if (!pmd_get_present(pmd))
+    if (!pmd_present(pmd))
         return true;
     if (unlikely(pmd_inval(pmd))) {
         pmd_clear(pmd);
@@ -134,7 +134,7 @@ static inline bool pmd_none_clear_bad(pmd_t *pmd)
 
 static inline bool pud_none_clear_bad(pud_t *pud)
 {
-    if (!pud_get_present(pud))
+    if (!pud_present(pud))
         return true;
     if (unlikely(pud_inval(pud))) {
         pud_clear(pud);
@@ -145,7 +145,7 @@ static inline bool pud_none_clear_bad(pud_t *pud)
 
 static inline bool p4d_none_clear_bad(p4d_t *p4d)
 {
-    if (!p4d_get_present(p4d))
+    if (!p4d_present(p4d))
         return true;
     if (unlikely(p4d_inval(p4d))) {
         p4d_clear(p4d);
@@ -156,7 +156,7 @@ static inline bool p4d_none_clear_bad(p4d_t *p4d)
 
 static inline bool pgd_none_clear_bad(pgd_t *pgd)
 {
-    if (!pgd_get_present(pgd))
+    if (!pgd_present(pgd))
         return true;
     if (unlikely(pgd_inval(pgd))) {
         pgd_clear(pgd);

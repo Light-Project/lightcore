@@ -15,7 +15,7 @@ typedef struct pgd pgd_t;
 
 #include <asm-generic/pgtable-nopmd.h>
 
-static inline bool pmd_get_present(pmd_t *pmd)
+static inline bool pmd_present(pmd_t *pmd)
 {
     return !!pmd->pte;
 }
