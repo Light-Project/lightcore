@@ -12,33 +12,15 @@ typedef p4d_t pud_t;
 #define PTRS_PER_PUD    1
 
 #define pud_bound_size pud_bound_size
-static inline size_t pud_bound_size(size_t addr, size_t size)
+static inline size_t pud_bound_size(uintptr_t addr, size_t size)
 {
     return size;
 }
 
 #define pud_offset pud_offset
-static inline pud_t *pud_offset(p4d_t *p4d, size_t addr)
+static inline pud_t *pud_offset(p4d_t *p4d, uintptr_t addr)
 {
     return (pud_t *)p4d;
-}
-
-#define pgalloc_pud pgalloc_pud
-static inline state pgalloc_pud(p4d_t *p4d, size_t addr)
-{
-    return -ENOERR;
-}
-
-#define pgfree_pud pgfree_pud
-static inline void pgfree_pud(p4d_t *p4d, size_t addr)
-{
-    /* Nothing */
-}
-
-#define pud_alloc pud_alloc
-static inline state pud_alloc(p4d_t *p4d, size_t addr)
-{
-    return -ENOERR;
 }
 
 /**

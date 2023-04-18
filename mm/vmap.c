@@ -13,40 +13,48 @@
 #include <crash.h>
 #include <export.h>
 
-static inline pte_t *vmap_pte_get(pmd_t *pmd, size_t addr, enum pgtbl_modified *mod)
+static __always_inline pte_t *
+vmap_pte_get(struct memory *mem, pmd_t *pmd, size_t addr,
+             enum pgtbl_modified *mod)
 {
     if (unlikely(!pmd_present(pmd))) {
-        if (unlikely(pte_alloc(pmd, addr)))
+        if (unlikely(pte_alloc(mem, pmd, addr)))
             return NULL;
     }
 
     return pte_offset(pmd, addr);
 }
 
-static inline pmd_t *vmap_pmd_get(pud_t *pud, size_t addr, enum pgtbl_modified *mod)
+static __always_inline pmd_t *
+vmap_pmd_get(struct memory *mem, pud_t *pud, size_t addr,
+             enum pgtbl_modified *mod)
 {
     if (unlikely(!pud_present(pud))) {
-        if (unlikely(pmd_alloc(pud, addr)))
+        if (unlikely(pmd_alloc(mem, pud, addr)))
             return NULL;
     }
 
     return pmd_offset(pud, addr);
 }
 
-static inline pud_t *vmap_pud_get(p4d_t *p4d, size_t addr, enum pgtbl_modified *mod)
+static __always_inline pud_t *
+vmap_pud_get(struct memory *mem, p4d_t *p4d, size_t addr,
+             enum pgtbl_modified *mod)
 {
     if (unlikely(!p4d_present(p4d))) {
-        if (unlikely(pud_alloc(p4d, addr)))
+        if (unlikely(pud_alloc(mem, p4d, addr)))
             return NULL;
     }
 
     return pud_offset(p4d, addr);
 }
 
-static inline p4d_t *vmap_p4d_get(pgd_t *pgd, size_t addr, enum pgtbl_modified *mod)
+static __always_inline p4d_t *
+vmap_p4d_get(struct memory *mem, pgd_t *pgd, size_t addr,
+             enum pgtbl_modified *mod)
 {
     if (unlikely(!pgd_present(pgd))) {
-        if (unlikely(p4d_alloc(pgd, addr)))
+        if (unlikely(p4d_alloc(mem, pgd, addr)))
             return NULL;
     }
 
@@ -229,13 +237,14 @@ static bool vunmap_huge_pgd(pgd_t *pgd)
 }
 #endif /* CONFIG_ARCH_HAS_HUGE_PGD */
 
-static state vmap_pte_pages(pmd_t *pmd, struct page **pages, unsigned long *index, size_t addr,
-                            size_t size, gvm_t flags, enum pgtbl_modified *mod)
+static __always_inline state
+vmap_pte_pages(struct memory *mem, pmd_t *pmd, struct page **pages, unsigned long *index,
+               size_t addr, size_t size, gvm_t flags, enum pgtbl_modified *mod)
 {
     struct page *page;
     pte_t *pte;
 
-    pte = vmap_pte_get(pmd, addr, mod);
+    pte = vmap_pte_get(mem, pmd, addr, mod);
     if (unlikely(!pte))
         return -ENOMEM;
 
@@ -255,23 +264,24 @@ static state vmap_pte_pages(pmd_t *pmd, struct page **pages, unsigned long *inde
     return -ENOERR;
 }
 
-static state vmap_pmd_pages(pud_t *pud, struct page **pages, unsigned long *index, size_t addr,
-                            size_t size, gvm_t flags, enum pgtbl_modified *mod, unsigned int pgshift)
+static __always_inline state
+vmap_pmd_pages(struct memory *mem, pud_t *pud, struct page **pages, unsigned long *index, size_t addr,
+               size_t size, gvm_t flags, enum pgtbl_modified *mod, unsigned int pgshift)
 {
     pmd_t *pmd;
     size_t bound;
-    state ret;
+    state retval;
 
-    pmd = vmap_pmd_get(pud, addr, mod);
+    pmd = vmap_pmd_get(mem, pud, addr, mod);
     if (unlikely(!pmd))
         return -ENOMEM;
 
     for (; size; addr += bound, size -= bound) {
         bound = pmd_bound_size(addr, size);
 
-        ret = vmap_pte_pages(pmd, pages, index, addr, bound, flags, mod);
-        if (unlikely(ret))
-            return ret;
+        retval = vmap_pte_pages(mem, pmd, pages, index, addr, bound, flags, mod);
+        if (unlikely(retval))
+            return retval;
 
         ++pmd;
     }
@@ -279,23 +289,24 @@ static state vmap_pmd_pages(pud_t *pud, struct page **pages, unsigned long *inde
     return -ENOERR;
 }
 
-static state vmap_pud_pages(p4d_t *p4d, struct page **pages, unsigned long *index, size_t addr,
-                            size_t size, gvm_t flags, enum pgtbl_modified *mod, unsigned int pgshift)
+static __always_inline state
+vmap_pud_pages(struct memory *mem, p4d_t *p4d, struct page **pages, unsigned long *index, size_t addr,
+               size_t size, gvm_t flags, enum pgtbl_modified *mod, unsigned int pgshift)
 {
     pud_t *pud;
     size_t bound;
-    state ret;
+    state retval;
 
-    pud = vmap_pud_get(p4d, addr, mod);
+    pud = vmap_pud_get(mem, p4d, addr, mod);
     if (unlikely(!pud))
         return -ENOMEM;
 
     for (; size; addr += bound, size -= bound) {
         bound = pud_bound_size(addr, size);
 
-        ret = vmap_pmd_pages(pud, pages, index, addr, bound, flags, mod, pgshift);
-        if (unlikely(ret))
-            return ret;
+        retval = vmap_pmd_pages(mem, pud, pages, index, addr, bound, flags, mod, pgshift);
+        if (unlikely(retval))
+            return retval;
 
         ++pud;
     }
@@ -303,23 +314,24 @@ static state vmap_pud_pages(p4d_t *p4d, struct page **pages, unsigned long *inde
     return -ENOERR;
 }
 
-static state vmap_p4d_pages(pgd_t *pgd, struct page **pages, unsigned long *index, size_t addr,
-                            size_t size, gvm_t flags, enum pgtbl_modified *mod, unsigned int pgshift)
+static __always_inline state
+vmap_p4d_pages(struct memory *mem, pgd_t *pgd, struct page **pages, unsigned long *index, size_t addr,
+               size_t size, gvm_t flags, enum pgtbl_modified *mod, unsigned int pgshift)
 {
     p4d_t *p4d;
     size_t bound;
-    state ret;
+    state retval;
 
-    p4d = vmap_p4d_get(pgd, addr, mod);
+    p4d = vmap_p4d_get(mem, pgd, addr, mod);
     if (unlikely(!p4d))
         return -ENOMEM;
 
     for (; size; addr += bound, size -= bound) {
         bound = p4d_bound_size(addr, size);
 
-        ret = vmap_pud_pages(p4d, pages, index, addr, bound, flags, mod, pgshift);
-        if (unlikely(ret))
-            return ret;
+        retval = vmap_pud_pages(mem, p4d, pages, index, addr, bound, flags, mod, pgshift);
+        if (unlikely(retval))
+            return retval;
 
         p4d++;
     }
@@ -327,21 +339,22 @@ static state vmap_p4d_pages(pgd_t *pgd, struct page **pages, unsigned long *inde
     return -ENOERR;
 }
 
-static state vmap_pgd_pages(struct memory *mm, struct page **pages, unsigned long *index, size_t addr,
-                            size_t size, gvm_t flags, enum pgtbl_modified *mod, unsigned int pgshift)
+static __always_inline state
+vmap_pgd_pages(struct memory *mem, struct page **pages, unsigned long *index, size_t addr,
+               size_t size, gvm_t flags, enum pgtbl_modified *mod, unsigned int pgshift)
 {
     pgd_t *pgd;
     size_t bound;
-    state ret;
+    state retval;
 
-    pgd = pgd_offset(mm->pgdir, addr);
+    pgd = pgd_offset(mem->pgdir, addr);
 
     for (; size; addr += bound, size -= bound) {
         bound = pgd_bound_size(addr, size);
 
-        ret = vmap_p4d_pages(pgd, pages, index, addr, bound, flags, mod, pgshift);
-        if (unlikely(ret))
-            return ret;
+        retval = vmap_p4d_pages(mem, pgd, pages, index, addr, bound, flags, mod, pgshift);
+        if (unlikely(retval))
+            return retval;
 
         pgd++;
     }
@@ -349,12 +362,13 @@ static state vmap_pgd_pages(struct memory *mm, struct page **pages, unsigned lon
     return -ENOERR;
 }
 
-static state vmap_pte_range(pmd_t *pmd, phys_addr_t phys, size_t addr, size_t size,
-                            gvm_t flags, enum pgtbl_modified *mod)
+static __always_inline state
+vmap_pte_range(struct memory *mem, pmd_t *pmd, phys_addr_t phys,
+               size_t addr, size_t size, gvm_t flags, enum pgtbl_modified *mod)
 {
     pte_t *pte;
 
-    pte = vmap_pte_get(pmd, addr, mod);
+    pte = vmap_pte_get(mem, pmd, addr, mod);
     if (unlikely(!pte))
         return -ENOMEM;
 
@@ -370,14 +384,15 @@ static state vmap_pte_range(pmd_t *pmd, phys_addr_t phys, size_t addr, size_t si
     return -ENOERR;
 }
 
-static state vmap_pmd_range(pud_t *pud, phys_addr_t phys, size_t addr, size_t size,
-                            gvm_t flags, enum pgtbl_modified *mod, unsigned int pgshift)
+static __always_inline state
+vmap_pmd_range(struct memory *mem, pud_t *pud, phys_addr_t phys, size_t addr,
+               size_t size, gvm_t flags, enum pgtbl_modified *mod, unsigned int pgshift)
 {
     pmd_t *pmd;
     size_t bound;
-    state ret;
+    state retval;
 
-    pmd = vmap_pmd_get(pud, addr, mod);
+    pmd = vmap_pmd_get(mem, pud, addr, mod);
     if (unlikely(!pmd))
         return -ENOMEM;
 
@@ -389,9 +404,9 @@ static state vmap_pmd_range(pud_t *pud, phys_addr_t phys, size_t addr, size_t si
             continue;
         }
 
-        ret = vmap_pte_range(pmd, phys, addr, bound, flags, mod);
-        if (unlikely(ret))
-            return ret;
+        retval = vmap_pte_range(mem, pmd, phys, addr, bound, flags, mod);
+        if (unlikely(retval))
+            return retval;
 
         ++pmd;
     }
@@ -399,14 +414,15 @@ static state vmap_pmd_range(pud_t *pud, phys_addr_t phys, size_t addr, size_t si
     return -ENOERR;
 }
 
-static state vmap_pud_range(p4d_t *p4d, phys_addr_t phys, size_t addr, size_t size,
-                            gvm_t flags, enum pgtbl_modified *mod, unsigned int pgshift)
+static __always_inline state
+vmap_pud_range(struct memory *mem, p4d_t *p4d, phys_addr_t phys, size_t addr,
+               size_t size, gvm_t flags, enum pgtbl_modified *mod, unsigned int pgshift)
 {
     pud_t *pud;
     size_t bound;
-    state ret;
+    state retval;
 
-    pud = vmap_pud_get(p4d, addr, mod);
+    pud = vmap_pud_get(mem, p4d, addr, mod);
     if (unlikely(!pud))
         return -ENOMEM;
 
@@ -418,9 +434,9 @@ static state vmap_pud_range(p4d_t *p4d, phys_addr_t phys, size_t addr, size_t si
             continue;
         }
 
-        ret = vmap_pmd_range(pud, phys, addr, bound, flags, mod, pgshift);
-        if (unlikely(ret))
-            return ret;
+        retval = vmap_pmd_range(mem, pud, phys, addr, bound, flags, mod, pgshift);
+        if (unlikely(retval))
+            return retval;
 
         ++pud;
     }
@@ -428,14 +444,15 @@ static state vmap_pud_range(p4d_t *p4d, phys_addr_t phys, size_t addr, size_t si
     return -ENOERR;
 }
 
-static state vmap_p4d_range(pgd_t *pgd, phys_addr_t phys, size_t addr, size_t size,
-                            gvm_t flags, enum pgtbl_modified *mod, unsigned int pgshift)
+static __always_inline state
+vmap_p4d_range(struct memory *mem, pgd_t *pgd, phys_addr_t phys, size_t addr,
+               size_t size, gvm_t flags, enum pgtbl_modified *mod, unsigned int pgshift)
 {
     p4d_t *p4d;
     size_t bound;
-    state ret;
+    state retval;
 
-    p4d = vmap_p4d_get(pgd, addr, mod);
+    p4d = vmap_p4d_get(mem, pgd, addr, mod);
     if (unlikely(!p4d))
         return -ENOMEM;
 
@@ -447,9 +464,9 @@ static state vmap_p4d_range(pgd_t *pgd, phys_addr_t phys, size_t addr, size_t si
             continue;
         }
 
-        ret = vmap_pud_range(p4d, phys, addr, bound, flags, mod, pgshift);
-        if (unlikely(ret))
-            return ret;
+        retval = vmap_pud_range(mem, p4d, phys, addr, bound, flags, mod, pgshift);
+        if (unlikely(retval))
+            return retval;
 
         p4d++;
     }
@@ -457,14 +474,15 @@ static state vmap_p4d_range(pgd_t *pgd, phys_addr_t phys, size_t addr, size_t si
     return -ENOERR;
 }
 
-static state vmap_pgd_range(struct memory *mm, phys_addr_t phys, size_t addr, size_t size,
-                            gvm_t flags, enum pgtbl_modified *mod, unsigned int pgshift)
+static __always_inline state
+vmap_pgd_range(struct memory *mem, phys_addr_t phys, size_t addr, size_t size,
+               gvm_t flags, enum pgtbl_modified *mod, unsigned int pgshift)
 {
     pgd_t *pgd;
     size_t bound;
-    state ret;
+    state retval;
 
-    pgd = pgd_offset(mm->pgdir, addr);
+    pgd = pgd_offset(mem->pgdir, addr);
 
     for (; size; phys += bound, addr += bound, size -= bound) {
         bound = pgd_bound_size(addr, size);
@@ -474,9 +492,9 @@ static state vmap_pgd_range(struct memory *mm, phys_addr_t phys, size_t addr, si
             continue;
         }
 
-        ret = vmap_p4d_range(pgd, phys, addr, bound, flags, mod, pgshift);
-        if (unlikely(ret))
-            return ret;
+        retval = vmap_p4d_range(mem, pgd, phys, addr, bound, flags, mod, pgshift);
+        if (unlikely(retval))
+            return retval;
 
         pgd++;
     }
@@ -484,7 +502,9 @@ static state vmap_pgd_range(struct memory *mm, phys_addr_t phys, size_t addr, si
     return -ENOERR;
 }
 
-static void vunmap_pte_range(pmd_t *pmd, size_t addr, size_t size, enum pgtbl_modified *mod)
+static __always_inline void
+vunmap_pte_range(struct memory *mem, pmd_t *pmd, size_t addr,
+                 size_t size, enum pgtbl_modified *mod)
 {
     pte_t *pte;
 
@@ -498,7 +518,9 @@ static void vunmap_pte_range(pmd_t *pmd, size_t addr, size_t size, enum pgtbl_mo
     *mod |= PGTBL_MODIFIED_PTE;
 }
 
-static void vunmap_pmd_range(pud_t *pud, size_t addr, size_t size, enum pgtbl_modified *mod)
+static __always_inline void
+vunmap_pmd_range(struct memory *mem, pud_t *pud, size_t addr,
+                 size_t size, enum pgtbl_modified *mod)
 {
     pmd_t *pmd;
     size_t bound;
@@ -516,12 +538,14 @@ static void vunmap_pmd_range(pud_t *pud, size_t addr, size_t size, enum pgtbl_mo
         if (cleared || pmd_none_clear_bad(pmd))
             continue;
 
-        vunmap_pte_range(pmd, addr, bound, mod);
+        vunmap_pte_range(mem, pmd, addr, bound, mod);
         ++pmd;
     }
 }
 
-static void vunmap_pud_range(p4d_t *p4d, size_t addr, size_t size, enum pgtbl_modified *mod)
+static __always_inline void
+vunmap_pud_range(struct memory *mem, p4d_t *p4d, size_t addr,
+                 size_t size, enum pgtbl_modified *mod)
 {
     pud_t *pud;
     size_t bound;
@@ -539,12 +563,14 @@ static void vunmap_pud_range(p4d_t *p4d, size_t addr, size_t size, enum pgtbl_mo
         if (cleared || pud_none_clear_bad(pud))
             continue;
 
-        vunmap_pmd_range(pud, addr, bound, mod);
+        vunmap_pmd_range(mem, pud, addr, bound, mod);
         ++pud;
     }
 }
 
-static void vunmap_p4d_range(pgd_t *pgd, size_t addr, size_t size, enum pgtbl_modified *mod)
+static __always_inline void
+vunmap_p4d_range(struct memory *mem, pgd_t *pgd, size_t addr,
+                 size_t size, enum pgtbl_modified *mod)
 {
     p4d_t *p4d;
     size_t bound;
@@ -562,18 +588,20 @@ static void vunmap_p4d_range(pgd_t *pgd, size_t addr, size_t size, enum pgtbl_mo
         if (cleared || p4d_none_clear_bad(p4d))
             continue;
 
-        vunmap_pud_range(p4d, addr, bound, mod);
+        vunmap_pud_range(mem, p4d, addr, bound, mod);
         ++p4d;
     }
 }
 
-static void vunmap_pgd_range(struct memory *mm, size_t addr, size_t size, enum pgtbl_modified *mod)
+static __always_inline void
+vunmap_pgd_range(struct memory *mem, size_t addr,
+                 size_t size, enum pgtbl_modified *mod)
 {
     pgd_t *pgd;
     size_t bound;
     bool cleared;
 
-    pgd = pgd_offset(mm->pgdir, addr);
+    pgd = pgd_offset(mem->pgdir, addr);
 
     for (; size; addr += bound, size -= bound) {
         bound = pgd_bound_size(addr, size);
@@ -585,36 +613,36 @@ static void vunmap_pgd_range(struct memory *mm, size_t addr, size_t size, enum p
         if (cleared || pgd_none_clear_bad(pgd))
             continue;
 
-        vunmap_p4d_range(pgd, addr, bound, mod);
+        vunmap_p4d_range(mem, pgd, addr, bound, mod);
         ++pgd;
     }
 }
 
-state vmap_range(struct memory *mm, phys_addr_t phys, size_t addr,
+state vmap_range(struct memory *mem, phys_addr_t phys, size_t addr,
                  size_t size, gvm_t flags, unsigned int pgshift)
 {
     enum pgtbl_modified mod;
-    state ret;
+    state retval;
 
-    ret = vmap_pgd_range(mm, phys, addr, size, flags, &mod, pgshift);
+    retval = vmap_pgd_range(mem, phys, addr, size, flags, &mod, pgshift);
     cache_flush_vmap();
 
-    return ret;
+    return retval;
 }
 EXPORT_SYMBOL(vmap_range);
 
-state vmap_pages(struct memory *mm, struct page **pages, size_t addr,
+state vmap_pages(struct memory *mem, struct page **pages, size_t addr,
                  size_t size, gvm_t flags, unsigned int pgshift)
 {
     enum pgtbl_modified mod;
     phys_addr_t phys, pgsize;
     unsigned long count, nr;
-    state ret;
+    state retval;
 
     if (pgshift <= PAGE_SHIFT) {
         unsigned long index = 0;
-        ret = vmap_pgd_pages(mm, pages, &index, addr, size, flags, &mod, pgshift);
-        if (ret)
+        retval = vmap_pgd_pages(mem, pages, &index, addr, size, flags, &mod, pgshift);
+        if (retval)
             goto error;
     } else {
         pgsize = 1UL << pgshift;
@@ -623,8 +651,8 @@ state vmap_pages(struct memory *mm, struct page **pages, size_t addr,
         for (count = 0; count < nr; ++count) {
             phys = page_to_pa(pages[count]);
 
-            ret = vmap_pgd_range(mm, phys, addr, pgsize, flags, &mod, pgshift);
-            if (ret)
+            retval = vmap_pgd_range(mem, phys, addr, pgsize, flags, &mod, pgshift);
+            if (retval)
                 goto error;
 
             addr += pgsize;
@@ -635,17 +663,17 @@ state vmap_pages(struct memory *mm, struct page **pages, size_t addr,
     return -ENOERR;
 
 error:
-    vunmap_range(mm, addr, size);
-    return ret;
+    vunmap_range(mem, addr, size);
+    return retval;
 }
 EXPORT_SYMBOL(vmap_pages);
 
-void vunmap_range(struct memory *mm, size_t addr, size_t size)
+void vunmap_range(struct memory *mem, size_t addr, size_t size)
 {
     enum pgtbl_modified mod;
 
     cache_flush_vunmap();
-    vunmap_pgd_range(mm, addr, size, &mod);
+    vunmap_pgd_range(mem, addr, size, &mod);
     tlb_inval_range(addr, size);
 }
 EXPORT_SYMBOL(vunmap_range);

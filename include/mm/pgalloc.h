@@ -7,71 +7,71 @@
 #include <asm/pgalloc.h>
 
 #ifndef pgalloc_pte
-static inline pte_t *pgalloc_pte(void)
+static inline pte_t *pgalloc_pte(struct memory *mem, uintptr_t addr)
 {
     return get_zeroed_page(GFP_KERNEL);
 }
 
-static inline void pgfree_pte(pte_t *pte)
+static inline void pgfree_pte(struct memory *mem, pte_t *pte)
 {
     free_page(pte);
 }
 #endif
 
 #ifndef pgalloc_pmd
-static inline pmd_t *pgalloc_pmd(void)
+static inline pmd_t *pgalloc_pmd(struct memory *mem, uintptr_t addr)
 {
     return get_zeroed_page(GFP_KERNEL);
 }
 
-static inline void pgfree_pmd(pmd_t *pmd)
+static inline void pgfree_pmd(struct memory *mem, pmd_t *pmd)
 {
     free_page(pmd);
 }
 #endif
 
 #ifndef pgalloc_pud
-static inline pud_t *pgalloc_pud(void)
+static inline pud_t *pgalloc_pud(struct memory *mem, uintptr_t addr)
 {
     return get_zeroed_page(GFP_KERNEL);
 }
 
-static inline void pgfree_pud(pud_t *pud)
+static inline void pgfree_pud(struct memory *mem, pud_t *pud)
 {
     free_page(pud);
 }
 #endif
 
 #ifndef pgalloc_p4d
-static inline p4d_t *pgalloc_p4d(void)
+static inline p4d_t *pgalloc_p4d(struct memory *mem, uintptr_t addr)
 {
     return get_zeroed_page(GFP_KERNEL);
 }
 
-static inline void pgfree_p4d(p4d_t *p4d)
+static inline void pgfree_p4d(struct memory *mem, p4d_t *p4d)
 {
     free_page(p4d);
 }
 #endif
 
 #ifndef pte_alloc
-extern state pte_alloc(pmd_t *pmd, size_t addr);
-extern void pte_free(pmd_t *pmd, size_t addr);
+extern state pte_alloc(struct memory *mem, pmd_t *pmd, uintptr_t addr);
+extern void pte_free(struct memory *mem, pmd_t *pmd, uintptr_t addr);
 #endif
 
 #ifndef pmd_alloc
-extern state pmd_alloc(pud_t *pud, size_t addr);
-extern void pmd_free(pud_t *pud, size_t addr);
+extern state pmd_alloc(struct memory *mem, pud_t *pud, uintptr_t addr);
+extern void pmd_free(struct memory *mem, pud_t *pud, uintptr_t addr);
 #endif
 
 #ifndef pud_alloc
-extern state pud_alloc(p4d_t *p4d, size_t addr);
-extern void pud_free(p4d_t *p4d, size_t addr);
+extern state pud_alloc(struct memory *mem, p4d_t *p4d, uintptr_t addr);
+extern void pud_free(struct memory *mem, p4d_t *p4d, uintptr_t addr);
 #endif
 
 #ifndef p4d_alloc
-extern state p4d_alloc(pgd_t *pgd, size_t addr);
-extern void p4d_free(pgd_t *pgd, size_t addr);
+extern state p4d_alloc(struct memory *mem, pgd_t *pgd, uintptr_t addr);
+extern void p4d_free(struct memory *mem, pgd_t *pgd, uintptr_t addr);
 #endif
 
 #endif /* _MM_PGTABLE_H_ */

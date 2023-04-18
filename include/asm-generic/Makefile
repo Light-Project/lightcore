@@ -11,7 +11,6 @@ mandatory-y += io.h
 mandatory-y += linkage.h
 mandatory-y += mmiowb.h
 mandatory-y += percpu.h
-mandatory-y += pgalloc.h
 mandatory-y += prefetch.h
 mandatory-y += rwonce.h
 mandatory-y += unaligned.h
