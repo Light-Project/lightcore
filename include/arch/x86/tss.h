@@ -40,7 +40,7 @@ struct tss_entry {
     uint16_t    iomap_base;
 } __packed;
 
-#else   /* !CONFIG_X86_64 */
+#else /* !CONFIG_X86_64 */
 
 struct tss_entry {
     uint32_t    res1;

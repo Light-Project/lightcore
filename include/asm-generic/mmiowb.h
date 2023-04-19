@@ -6,7 +6,7 @@
 
 #include <asm-generic/mmiowb_types.h>
 
-#else   /* CONFIG_MMIOWB */
+#else /* CONFIG_MMIOWB */
 
 #define mmiowb_set_pending()    do { } while (0)
 #define mmiowb_spin_lock()      do { } while (0)

@@ -44,7 +44,7 @@
 # define raw_write_unlock_irqrestore(lock, flags)   _raw_write_unlock_irqrestore(lock, flags)
 # define raw_write_trylock(lock)                    _raw_write_trylock(lock)
 
-#else   /* !CONFIG_INLINE_SPINLOCK */
+#else /* !CONFIG_INLINE_SPINLOCK */
 
 extern void raw_spin_lock                           (raw_spinlock_t *lock);
 extern void raw_spin_unlock                         (raw_spinlock_t *lock);
