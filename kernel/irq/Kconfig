@@ -1,4 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 config SOFTIRQ_LIMIT
-    int "Max Softirq Limit"
+    int "Max softirq limit"
+    default 256
+
+config IRQPOLL_CAPACITY
+    int "Max irqpoll capacity"
     default 256

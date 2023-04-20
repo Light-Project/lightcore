@@ -4,6 +4,11 @@
 
 #include <waitqueue.h>
 
+/**
+ * struct completion - maintain state for completion.
+ * @queue: waiting queue.
+ * @counter: number of waiters.
+ */
 struct completion {
     struct wait_queue_head queue;
     unsigned int counter;

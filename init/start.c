@@ -15,6 +15,7 @@
 #include <lru-cache.h>
 #include <task.h>
 #include <softirq.h>
+#include <irqpoll.h>
 #include <timer.h>
 #include <pid.h>
 #include <kcoro.h>
@@ -86,6 +87,7 @@ asmlinkage __visible __init __noreturn void kernel_start(void)
 
     softirq_init();
     timer_init();
+    irqpoll_setup();
     bootargs_init(boot_args);
 
     device_init();
