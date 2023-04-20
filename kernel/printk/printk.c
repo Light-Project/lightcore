@@ -105,6 +105,9 @@ int vprintk(const char *fmt, va_list args)
     int len;
 
     klevel = printk_level(fmt, &fmt);
+    if (klevel == KLEVEL_DEFAULT)
+        klevel = printk_default;
+
     if (klevel > printk_record)
         return 0;
 
