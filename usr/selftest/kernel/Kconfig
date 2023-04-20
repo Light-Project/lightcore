@@ -4,28 +4,32 @@ menuconfig SELFTEST_KERNEL
     default y
 if SELFTEST_KERNEL
 
+config SELFTEST_KERNEL_IRQPOLL
+    bool "irqpoll"
+    default y
+
 config SELFTEST_KERNEL_KCORO
-    bool "Random Unit Tests"
+    bool "kernel coroutine"
     default y
 
 config SELFTEST_KERNEL_PRANDOM
-    bool "Pseudo Random Unit Tests"
+    bool "pseudo random"
     default y
 
 config SELFTEST_KERNEL_RANDOM
-    bool "Random Test"
+    bool "random"
     default y
 
 config SELFTEST_KERNEL_SOFTIRQ
-    bool "Softirq Test"
+    bool "softirq"
     default y
 
 config SELFTEST_KERNEL_SYSCALL
-    bool "Syscall Test"
+    bool "syscall"
     default y
 
 config SELFTEST_KERNEL_TIMER
-    bool "Timer Test"
+    bool "timer"
     default y
 
 endif
