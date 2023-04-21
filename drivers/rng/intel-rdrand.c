@@ -13,6 +13,7 @@
 #include <printk.h>
 
 #define SANITY_CHECK_LOOPS 8
+#define SANITY_MIN_CHANGE 5
 
 static state rdrand_read(struct rng_device *rdev, unsigned long *data)
 {
@@ -26,18 +27,29 @@ static struct rng_ops rdrand_ops = {
 static state rdrand_probe(struct platform_device *pdev, const void *pdata)
 {
     struct rng_device *rdev;
-    unsigned long unused;
-    unsigned int count;
+    unsigned int count, changed = 0;
+    unsigned long value, prev;
+	bool failure = false;
 
     for (count = 0; count < SANITY_CHECK_LOOPS; ++count) {
-        if (!rand_get(&unused)) {
-            platform_err(pdev, "rdrand sanity check failed");
-            return -ENXIO;
+        if (!rand_get(&value)) {
+            failure = true;
         }
+        if (count && value != prev)
+            changed++;
+        prev = value;
+    }
+
+    if (unlikely(changed < SANITY_MIN_CHANGE))
+        failure = true;
+
+    if (unlikely(failure)) {
+        platform_err(pdev, "rdrand sanity check failed\n");
+        return -ENXIO;
     }
 
     rdev = platform_kzalloc(pdev, sizeof(*rdev), GFP_KERNEL);
-    if (!rdev)
+    if (unlikely(!rdev))
         return -ENOMEM;
 
     rdev->dev = &pdev->dev;
