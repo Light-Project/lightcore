@@ -13,10 +13,10 @@ struct median_node {
 
 struct median_state {
     unsigned int count;
-    unsigned int mask;
+    unsigned int length;
     struct heap_root minheap;
     struct heap_root maxheap;
-    struct median_node nodes[0];
+    struct median_node nodes[];
 };
 
 #define heap_to_median(ptr) \
