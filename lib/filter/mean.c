@@ -12,22 +12,34 @@
 
 int32_t mean_update(struct mean_state *state, int32_t value)
 {
-    unsigned int index = state->count & state->mask;
-    unsigned int length = state->mask + 1;
+    unsigned int count;
+    int32_t retval;
 
-    state->gross -= state->buffer[index];
+    count = state->count++;
+    if (state->count == state->length) {
+        state->count = 0;
+        state->btrace = true;
+    }
+
+    state->gross -= state->buffer[count];
     state->gross += value;
-    state->buffer[index] = value;
-    state->count++;
+    state->buffer[count] = value;
 
-    return state->gross / min(state->count, length);
+    if (state->btrace)
+        retval = DIV_ROUND_CLOSEST(state->gross, state->length);
+    else
+        retval = DIV_ROUND_CLOSEST(state->gross, state->count);
+
+    return retval;
 }
 EXPORT_SYMBOL(mean_update);
 
 void mean_clear(struct mean_state *state)
 {
-    state->gross = state->count = 0;
-    memset(state->buffer, 0, state->mask + 1);
+    state->gross = 0;
+    state->count = 0;
+    state->btrace = false;
+    memset(state->buffer, 0, sizeof(*state->buffer) * state->length);
 }
 EXPORT_SYMBOL(mean_clear);
 
@@ -35,15 +47,13 @@ struct mean_state *mean_alloc(unsigned int length, gfp_t flags)
 {
     struct mean_state *state;
 
-    length = roundup_power_of_2(length);
-    if (length < 2)
-        return NULL;
-
-    state = kzalloc(sizeof(*state) + sizeof(*state->buffer) * length, flags);
+    state = kmalloc(sizeof(*state) + sizeof(*state->buffer) * length, flags);
     if (unlikely(!state))
         return NULL;
 
-    state->mask = length - 1;
+    state->length = length;
+    mean_clear(state);
+
     return state;
 }
 EXPORT_SYMBOL(mean_alloc);

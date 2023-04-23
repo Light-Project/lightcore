@@ -8,9 +8,10 @@
 
 struct mean_state {
     unsigned int count;
-    unsigned int mask;
+    unsigned int length;
+    bool btrace;
     int64_t gross;
-    int32_t buffer[0];
+    int32_t buffer[];
 };
 
 extern int32_t mean_update(struct mean_state *state, int32_t value);
