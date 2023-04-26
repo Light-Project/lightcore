@@ -12,6 +12,7 @@
 static void usage(struct kshell_context *ctx)
 {
     kshell_puts(ctx, "usage: base64 [option] ...\n");
+    kshell_puts(ctx, "\t-e  encode data (default)\n");
     kshell_puts(ctx, "\t-d  decode data\n");
     kshell_puts(ctx, "\t-h  display this message\n");
 }
@@ -30,6 +31,10 @@ static state base64_main(struct kshell_context *ctx, int argc, char *argv[])
             break;
 
         switch (para[1]) {
+            case 'e':
+                decode = false;
+                break;
+
             case 'd':
                 decode = true;
                 break;
