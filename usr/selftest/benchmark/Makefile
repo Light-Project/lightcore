@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
+obj-$(CONFIG_SELFTEST_MARK_COMPOUND) += compound.o
 obj-$(CONFIG_SELFTEST_MARK_CRC4) += crc4.o
 obj-$(CONFIG_SELFTEST_MARK_CRC7) += crc7.o
 obj-$(CONFIG_SELFTEST_MARK_CRC8) += crc8.o

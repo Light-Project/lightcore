@@ -4,6 +4,10 @@ menuconfig SELFTEST_BENCHMARK
     default y
 if SELFTEST_BENCHMARK
 
+config SELFTEST_MARK_COMPOUND
+    bool "compound literals"
+    default y
+
 config SELFTEST_MARK_CRC4
     bool "crc4"
     default y
