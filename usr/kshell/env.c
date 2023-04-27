@@ -37,22 +37,19 @@ static state kshenv_setval(struct rb_root *head, const char *name,
     struct kshell_env *env;
 
     env = kshenv_find(head, name);
-    if (env && !overwrite)
-        return -ENOERR;
-    else if (env) {
-        rb_delete(head, &env->node);
-        kfree_const(env->value);
-        kfree_const(env->name);
-        kfree(env);
+    if (!env) {
+        env = kmalloc(sizeof(*env), GFP_KERNEL);
+        if (!env)
+            return -ENOMEM;
+
+        env->name = name;
+        rb_insert(head, &env->node, kshenv_rb_cmp);
     }
 
-    env = kmalloc(sizeof(*env), GFP_KERNEL);
-    if (!env)
-        return -ENOMEM;
+    else if (!overwrite)
+        return -EALREADY;
 
-    env->name = name;
     env->value = value;
-    rb_insert(head, &env->node, kshenv_rb_cmp);
 
     return -ENOERR;
 }
@@ -167,10 +164,8 @@ static state generic_putenv(struct rb_root *head, bool check, const char *string
         }
 
         retval = kshenv_setval(head, name, value, true);
-        if (retval) {
-            retval = -ENOMEM;
+        if (retval)
             goto failed;
-        }
 
         return -ENOERR;
     }
@@ -180,22 +175,69 @@ static state generic_putenv(struct rb_root *head, bool check, const char *string
         goto failed;
     }
 
-    value = kstrdup_const(string + namelen + 2, GFP_KERNEL);
-    if (!value) {
-        retval = -ENOMEM;
-        goto failed;
-    }
-
     switch (string[namelen]) {
-        case '?':
+        case '?': /* Assign only if it's doesn't have a value */
+            if (kshenv_find(head, name))
+                break;
+
+            value = kstrdup_const(string + namelen + 2, GFP_KERNEL);
+            if (!value) {
+                retval = -ENOMEM;
+                goto failed;
+            }
+
             retval = kshenv_setval(head, name, value, false);
             if (retval)
                 goto failed;
             break;
 
-        case ':':
+        case ':': /* Assign only if it's have a value */
             if (!kshenv_find(head, name))
                 break;
+
+            value = kstrdup_const(string + namelen + 2, GFP_KERNEL);
+            if (!value) {
+                retval = -ENOMEM;
+                goto failed;
+            }
+
+            retval = kshenv_setval(head, name, value, true);
+            if (retval)
+                goto failed;
+            break;
+
+        case '+': /* appending more text to value */
+            struct kshell_env *env;
+            size_t origin, append;
+            char *block;
+
+            env = kshenv_find(head, name);
+            if (!env) {
+                value = kstrdup_const(string + namelen + 2, GFP_KERNEL);
+                if (!value) {
+                    retval = -ENOMEM;
+                    goto failed;
+                }
+
+                retval = kshenv_setval(head, name, value, true);
+                if (retval)
+                    goto failed;
+                break;
+            }
+
+            origin = strlen(env->value);
+            append = strlen(string + namelen + 2);
+
+            value = block = kmalloc(origin + append + 1, GFP_KERNEL);
+            if (!value) {
+                retval = -ENOMEM;
+                goto failed;
+            }
+
+            memcpy(block, env->value, origin);
+            memcpy(block + origin, string + namelen + 2, append);
+            block[origin + append] = '\0';
+
             retval = kshenv_setval(head, name, value, true);
             if (retval)
                 goto failed;
@@ -344,7 +386,7 @@ EXPORT_SYMBOL(kshell_putenv);
 state kshell_unsetenv(struct kshell_context *ctx, const char *name)
 {
     return kshell_local_unset(ctx, name) &&
-           kshell_local_unset(ctx, name) ?
+           kshell_global_unset(ctx, name) ?
            -ENODATA : -ENOERR;
 }
 EXPORT_SYMBOL(kshell_unsetenv);
