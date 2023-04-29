@@ -37,19 +37,23 @@ static state kshenv_setval(struct rb_root *head, const char *name,
     struct kshell_env *env;
 
     env = kshenv_find(head, name);
-    if (!env) {
-        env = kmalloc(sizeof(*env), GFP_KERNEL);
-        if (!env)
-            return -ENOMEM;
+    if (env) {
+        if (!overwrite)
+            return -EALREADY;
 
-        env->name = name;
-        rb_insert(head, &env->node, kshenv_rb_cmp);
+        kfree_const(env->value);
+        env->value = value;
+
+        return -ENOERR;
     }
 
-    else if (!overwrite)
-        return -EALREADY;
+    env = kmalloc(sizeof(*env), GFP_KERNEL);
+    if (!env)
+        return -ENOMEM;
 
+    env->name = name;
     env->value = value;
+    rb_insert(head, &env->node, kshenv_rb_cmp);
 
     return -ENOERR;
 }
