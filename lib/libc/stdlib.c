@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include <kernel.h>
+#include <state.h>
 #include <ctype.h>
 #include <export.h>
 
@@ -113,56 +114,59 @@ EXPORT_SYMBOL(umaxntoa);
 #define GENERIC_STRNTOX_OPS(name, type, signed)                                 \
 type name(const char *nptr, char **endptr, unsigned int base, size_t length)    \
 {                                                                               \
+    unsigned int shift;                                                         \
     type total, value;                                                          \
-    char sign;                                                                  \
+    char sign, shsign;                                                          \
                                                                                 \
     if (!nptr || !*nptr)                                                        \
         return 0;                                                               \
                                                                                 \
-    while (isspace(*nptr) && length--)                                          \
-        ++nptr;                                                                 \
-                                                                                \
-    if (!length)                                                                \
-        return 0;                                                               \
-                                                                                \
-    sign = *nptr;                                                               \
-    if (signed && (sign == '-' || sign == '+')) {                               \
-        nptr++;                                                                 \
+    while (isspace(*nptr) && length) {                                          \
         if (!--length)                                                          \
             return 0;                                                           \
+        ++nptr;                                                                 \
+    }                                                                           \
+                                                                                \
+    if (signed) {                                                               \
+        sign = *nptr;                                                           \
+        if (sign == '-' || sign == '+') {                                       \
+            if (!--length)                                                      \
+                return 0;                                                       \
+            ++nptr;                                                             \
+        }                                                                       \
     }                                                                           \
                                                                                 \
     if (!base) {                                                                \
         if (nptr[0] == '0') {                                                   \
             if (length > 2 && tolower(nptr[1]) == 'x') {                        \
-                base  = 16;                                                     \
+                base = 16;                                                      \
                 nptr += 2;                                                      \
-                length  -= 2;                                                   \
+                length -= 2;                                                    \
             } else if (length > 2 && tolower(nptr[1]) == 'b') {                 \
-                base  = 2;                                                      \
+                base = 2;                                                       \
                 nptr += 2;                                                      \
-                length  -= 2;                                                   \
+                length -= 2;                                                    \
             } else if (length > 1) {                                            \
-                base  = 8;                                                      \
+                base = 8;                                                       \
                 nptr += 1;                                                      \
-                length  -= 1;                                                   \
+                length -= 1;                                                    \
             }                                                                   \
         } else                                                                  \
             base = 10;                                                          \
     } else if (nptr[0] == '0') {                                                \
         if (base == 16 && length > 2 && tolower(nptr[1]) == 'x') {              \
             nptr += 2;                                                          \
-            length  -= 2;                                                       \
+            length -= 2;                                                        \
         } else if (base == 2 && length > 2 && tolower(nptr[1]) == 'b') {        \
             nptr += 2;                                                          \
-            length  -= 2;                                                       \
+            length -= 2;                                                        \
         } else if (base == 8 && length > 1) {                                   \
             nptr += 1;                                                          \
-            length  -= 1;                                                       \
+            length -= 1;                                                        \
         }                                                                       \
     }                                                                           \
                                                                                 \
-    for (total = 0; *nptr && length--; nptr++) {                                \
+    for (total = 0; length && *nptr; --length, ++nptr) {                        \
         if (isdigit(*nptr))                                                     \
             value = *nptr - '0';                                                \
         else if (tolower(*nptr) >= 'a' && tolower(*nptr) <= 'f')                \
@@ -177,6 +181,30 @@ type name(const char *nptr, char **endptr, unsigned int base, size_t length)    
         total += value;                                                         \
     }                                                                           \
                                                                                 \
+    if (length && tolower(*nptr++) == 'e') {                                    \
+        if (!--length)                                                          \
+            goto finish;                                                        \
+                                                                                \
+        shsign = *nptr;                                                         \
+        if (shsign == '-' || shsign == '+') {                                   \
+            ++nptr;                                                             \
+            --length;                                                           \
+        }                                                                       \
+                                                                                \
+        for (shift = 0; length && isdigit(*nptr); --length, ++nptr) {           \
+            shift *= 10;                                                        \
+            shift += *nptr - '0';                                               \
+        }                                                                       \
+                                                                                \
+        while (shift--) {                                                       \
+            if (shsign == '-')                                                  \
+                total /= 10;                                                    \
+            else                                                                \
+                total *= 10;                                                    \
+        }                                                                       \
+    }                                                                           \
+                                                                                \
+finish:                                                                         \
     if (endptr)                                                                 \
         *endptr = (char *)nptr;                                                 \
                                                                                 \
