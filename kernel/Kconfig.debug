@@ -3,176 +3,176 @@ menu "Kernel Hacking"
 source "kernel/printk/Kconfig"
 
 config DEBUG_KERNEL
-    bool "Kernel debugging"
-    default y
+	bool "Kernel debugging"
+	default y
 
 config CONSTRUCTORS
-    bool
+	bool
 
 menuconfig KASAN
-    bool "Runtime Memory Monitor Support"
-    depends on DEBUG_KERNEL && ARCH_HAS_KASAN
+	bool "Runtime Memory Monitor Support"
+	depends on DEBUG_KERNEL && ARCH_HAS_KASAN
 if KASAN
 
 choice
-    prompt "KASAN Mode Select"
-    default KASAN_GENERIC
+	prompt "KASAN Mode Select"
+	default KASAN_GENERIC
 
 config KASAN_GENERIC
-    bool "Generic Mode"
-    select CONSTRUCTORS
+	bool "Generic Mode"
+	select CONSTRUCTORS
 
 endchoice # KASAN Mode Select
 
 config KASAN_SHADOW_OFFSET
-    hex "KASAN Shadow Offset"
+	hex "KASAN Shadow Offset"
 
 config KASAN_ALL
-    bool "Enable instrumentation for the entire kernel"
-    default y
+	bool "Enable instrumentation for the entire kernel"
+	default y
 
 endif # KASAN
 
 menuconfig UBSAN
-    bool "Undefined Behaviour Sanity Checker"
-    depends on DEBUG_KERNEL
-    default y
+	bool "Undefined Behaviour Sanity Checker"
+	depends on DEBUG_KERNEL
+	default y
 if UBSAN
 
 config UBSAN_SHIFT
-    bool "Perform checking for bit-shift overflows"
-    default UBSAN
-    depends on $(cc-option,-fsanitize=shift)
-    default y
+	bool "Perform checking for bit-shift overflows"
+	default UBSAN
+	depends on $(cc-option,-fsanitize=shift)
+	default y
 
 config UBSAN_DIV_ZERO
-    bool "Perform checking for integer divide-by-zero"
-    depends on $(cc-option,-fsanitize=integer-divide-by-zero)
-    default y
+	bool "Perform checking for integer divide-by-zero"
+	depends on $(cc-option,-fsanitize=integer-divide-by-zero)
+	default y
 
 config UBSAN_UNREACHABLE
-    bool "Perform checking for unreachable code"
-    depends on $(cc-option,-fsanitize=unreachable)
-    default y
+	bool "Perform checking for unreachable code"
+	depends on $(cc-option,-fsanitize=unreachable)
+	default y
 
 config UBSAN_BOOL
-    bool "Perform checking for non-boolean values used as boolean"
-    depends on $(cc-option,-fsanitize=bool)
-    default y
+	bool "Perform checking for non-boolean values used as boolean"
+	depends on $(cc-option,-fsanitize=bool)
+	default y
 
 config UBSAN_ENUM
-    bool "Perform checking for out of bounds enum values"
-    depends on $(cc-option,-fsanitize=enum)
-    default y
+	bool "Perform checking for out of bounds enum values"
+	depends on $(cc-option,-fsanitize=enum)
+	default y
 
 config UBSAN_ALIGNMENT
-    bool "Perform checking for misaligned pointer usage"
-    depends on $(cc-option,-fsanitize=alignment)
-    default y
+	bool "Perform checking for misaligned pointer usage"
+	depends on $(cc-option,-fsanitize=alignment)
+	default y
 
 config UBSAN_ALL
-    bool "Enable instrumentation for the entire kernel"
-    default y
+	bool "Enable instrumentation for the entire kernel"
+	default y
 
 endif # UBSAN
 
 menuconfig KGCOV
-    bool "Enable gcov-based kernel profiling"
-    depends on DEBUG_KERNEL
-    select CONSTRUCTORS
-    default y
+	bool "Enable gcov-based kernel profiling"
+	depends on DEBUG_KERNEL
+	select CONSTRUCTORS
+	default y
 if KGCOV
 
 config KGCOV_ALL
-    bool "Enable instrumentation for the entire kernel"
-    default y
+	bool "Enable instrumentation for the entire kernel"
+	default y
 
 endif # KGCOV
 
 menu "Device Driver Debugging"
-
-config DEBUG_DEVRES
-    bool "Managed device resources verbose debug messages"
-    depends on DEBUG_KERNEL
-    default y
 
 endmenu # Device Driver Debugging
 
 menu "Scheduler Debugging"
 
 config DEBUG_PREEMPT
-    bool "preemptible kernel"
-    depends on DEBUG_KERNEL && PREEMPTION
-    default y
+	bool "preemptible kernel"
+	depends on DEBUG_KERNEL && PREEMPTION
+	default y
 
 endmenu # Scheduler Debugging
 
 menu "Debug Lockups"
 
 config DEBUG_SPINLOCK
-    bool "Debug spinlock deadlock"
-    depends on DEBUG_KERNEL
-    default y
+	bool "Debug spinlock deadlock"
+	depends on DEBUG_KERNEL
+	default y
 
 endmenu # Debug Lockups
 
 menu "Memory Debugging"
 
 config DEBUG_SLOB
-    bool "Debug slob out of bounds"
-    depends on DEBUG_KERNEL && MM_SLOB
-    default y
+	bool "Debug slob out of bounds"
+	depends on DEBUG_KERNEL && MM_SLOB
+	default y
 
 config DEBUG_MEMBLOCK
-    bool "Debug memblock"
-    depends on DEBUG_KERNEL
-    default y
+	bool "Debug memblock"
+	depends on DEBUG_KERNEL
+	default y
 
 endmenu # Memory Debugging
 
 menu "Debugging data structures"
 
 config DEBUG_DATACHECK_BUG
-    bool "Trigger BUG when data corruption"
+	bool "Trigger BUG when data corruption"
 
 config DEBUG_LIST
-    bool "Debug list manipulation"
-    depends on DEBUG_KERNEL
-    default y
+	bool "Debug list manipulation"
+	depends on DEBUG_KERNEL
+	default y
 
 config DEBUG_HLIST
-    bool "Debug hash List manipulation"
-    depends on DEBUG_KERNEL
-    default y
+	bool "Debug hash List manipulation"
+	depends on DEBUG_KERNEL
+	default y
 
 config DEBUG_SLIST
-    bool "Debug single List manipulation"
-    depends on DEBUG_KERNEL
-    default y
+	bool "Debug single List manipulation"
+	depends on DEBUG_KERNEL
+	default y
 
 config DEBUG_ILIST
-    bool "Debug index List manipulation"
-    depends on DEBUG_KERNEL
-    default y
+	bool "Debug index List manipulation"
+	depends on DEBUG_KERNEL
+	default y
 
 config DEBUG_RBTREE
-    bool "Debug rbtree manipulation"
-    depends on DEBUG_KERNEL
-    default y
+	bool "Debug rbtree manipulation"
+	depends on DEBUG_KERNEL
+	default y
 
 config DEBUG_REFCOUNT
-    bool "Debug refcount saturation"
-    depends on DEBUG_KERNEL
-    default y
+	bool "Debug refcount saturation"
+	depends on DEBUG_KERNEL
+	default y
+
+config DEBUG_RESPOOL
+	bool "resources pool verbose debug messages"
+	depends on DEBUG_KERNEL
+	default y
 
 endmenu # Debug data structures
 
 config PANIC_TIMEOUT
-    int "panic timeout"
-    default 0
+	int "panic timeout"
+	default 0
 
 config PANIC_TIMESTEP
-    int "panic timestep"
-    default 200
+	int "panic timestep"
+	default 200
 
 endmenu # Kernel Hacking

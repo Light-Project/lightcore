@@ -21,7 +21,7 @@ state device_register(struct device *dev)
 {
     state retval;
 
-    list_head_init(&dev->devres);
+    respool_init(&dev->devres, dev->name);
 
     retval = bus_add_device(dev);
     if (retval)

@@ -12,7 +12,7 @@
 
 static void device_cleanup(struct device *dev)
 {
-    devres_release_all(dev);
+    respool_release_all(&dev->devres);
 	device_set_pdata(dev, NULL);
     dev->driver = NULL;
 }
@@ -100,7 +100,7 @@ static state driver_probe_device(struct driver *drv, struct device *dev)
         return -EBUSY;
     }
 
-    if (unlikely(!list_check_empty(&dev->devres))) {
+    if (unlikely(!respool_check_empty(&dev->devres))) {
         dev_crit(dev, "resources present before probing\n");
         return -EBUSY;
     }
@@ -113,7 +113,7 @@ static state driver_probe_device(struct driver *drv, struct device *dev)
     return -ENOERR;
 
 error_probe:
-    devres_release_all(dev);
+    respool_release_all(&dev->devres);
     return retval;
 }
 

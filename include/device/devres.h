@@ -6,24 +6,6 @@
 #include <mm/gfp.h>
 #include <resource.h>
 
-struct devres;
-typedef void (*devres_release_t)(struct device *dev, struct devres *res);
-typedef bool (*devres_find_t)(struct device *dev, struct devres *res, const void *data);
-
-struct devres {
-    const char *name;
-    struct list_head list;
-    devres_release_t release;
-};
-
-/* device resource manager */
-extern struct devres *devres_find(struct device *dev, devres_find_t find, const void *data);
-extern void devres_insert(struct device *dev, struct devres *res);
-extern void devres_remove(struct device *dev, struct devres *res);
-extern void devres_release(struct device *dev, struct devres *res);
-extern struct devres *devres_find_remove(struct device *dev, devres_find_t find, const void *data);
-extern struct devres *devres_find_release(struct device *dev, devres_find_t find, const void *data);
-extern void devres_release_all(struct device *dev);
 extern void __init devres_init(void);
 
 /* device resource alloc function */

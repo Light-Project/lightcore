@@ -3,154 +3,297 @@
  * Copyright(c) 2021 John Sanpe <sanpeqf@gmail.com>
  */
 
-#define MODULE_NAME "devres"
+#define MODULE_NAME "resnode-lib"
 #define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <device.h>
-#include <string.h>
+#include <kmalloc.h>
+#include <vmalloc.h>
+#include <ioremap.h>
+#include <irq.h>
 #include <export.h>
-#include <printk.h>
 
-#ifdef CONFIG_DEBUG_DEVRES
-# define devres_debug(dev, fmt, ...) dev_debug(dev, fmt, ##__VA_ARGS__)
-#else
-# define devres_debug(dev, fmt, ...) dev_none(dev, fmt, ##__VA_ARGS__)
-#endif
+static struct kcache *devres_ioremap_cache;
+static struct kcache *devres_irq_cache;
 
-static struct devres *find_unlock(struct device *dev, devres_find_t find, const void *data)
+struct devres_malloc {
+    struct resnode node;
+    size_t offset;
+};
+
+struct devres_ioremap {
+    struct resnode node;
+    void *block;
+};
+
+struct devres_irq {
+    struct resnode node;
+    irqnr_t vector;
+};
+
+#define devres_to_reslib(ptr, type) container_of(ptr, struct type, node)
+#define devres_to_malloc(ptr)       devres_to_reslib(ptr, devres_malloc)
+#define devres_to_ioremap(ptr)      devres_to_reslib(ptr, devres_ioremap)
+#define devres_to_irq(ptr)          devres_to_reslib(ptr, devres_irq)
+
+static void release_kmalloc(struct respool *pool, struct resnode *node)
 {
-    struct devres *walk, *match = NULL;
+    struct devres_malloc *dkma = devres_to_malloc(node);
+    void *block = (void *)dkma - dkma->offset;
+    kfree(block);
+}
 
-    list_for_each_entry(walk, &dev->devres, list) {
-        if (find(dev, walk, data)) {
-            match = walk;
-            break;
-        }
+static bool find_kmalloc(struct respool *pool, struct resnode *node, const void *data)
+{
+    struct devres_malloc *dkma = devres_to_malloc(node);
+    void *block = (void *)dkma - dkma->offset;
+
+    if (node->release != release_kmalloc)
+        return false;
+
+    return data == block;
+}
+
+void *dev_kmalloc_align(struct device *dev, size_t size, gfp_t flags, size_t align)
+{
+    struct devres_malloc *dkma;
+    void *block;
+
+    if (unlikely(!size))
+        return NULL;
+
+    size = align_high(size, MSIZE);
+    block = kmalloc_align(size + sizeof(*dkma), flags, align);
+    if (unlikely(!block))
+        return NULL;
+
+    dkma = block + size;
+    if (!(flags & GFP_ZERO))
+        memset(dkma, 0, sizeof(*dkma));
+
+    dkma->offset = size;
+    dkma->node.name = "kmalloc";
+    dkma->node.release = release_kmalloc;
+    respool_insert(&dev->devres, &dkma->node);
+
+    return block;
+}
+EXPORT_SYMBOL(dev_kmalloc_align);
+
+void *dev_kzalloc_align(struct device *dev, size_t size, gfp_t flags, size_t align)
+{
+    return dev_kmalloc_align(dev, size, flags | GFP_ZERO, align);
+}
+EXPORT_SYMBOL(dev_kzalloc_align);
+
+void *dev_kmalloc(struct device *dev, size_t size, gfp_t flags)
+{
+    return dev_kmalloc_align(dev, size, flags, 0);
+}
+EXPORT_SYMBOL(dev_kmalloc);
+
+void *dev_kzalloc(struct device *dev, size_t size, gfp_t flags)
+{
+    return dev_kmalloc_align(dev, size, flags | GFP_ZERO, 0);
+}
+EXPORT_SYMBOL(dev_kzalloc);
+
+void dev_kfree(struct device *dev, void *block)
+{
+    struct resnode *node;
+    node = respool_find_release(&dev->devres, find_kmalloc, block);
+    if (unlikely(!node))
+        dev_crit(dev, "illegal kfree %p\n", block);
+}
+EXPORT_SYMBOL(dev_kfree);
+
+static void release_vmalloc(struct respool *pool, struct resnode *node)
+{
+    struct devres_malloc *dvma = devres_to_malloc(node);
+    void *block = (void *)dvma - dvma->offset;
+    vfree(block);
+}
+
+static bool find_vmalloc(struct respool *pool, struct resnode *node, const void *data)
+{
+    struct devres_malloc *dvma = devres_to_malloc(node);
+    void *block = (void *)dvma - dvma->offset;
+
+    if (node->release != release_vmalloc)
+        return false;
+
+    return data == block;
+}
+
+void *dev_vmalloc(struct device *dev, size_t size)
+{
+    struct devres_malloc *dvma;
+    void *block;
+
+    if (unlikely(!size))
+        return NULL;
+
+    size = align_high(size, MSIZE);
+    block = vmalloc(size + sizeof(*dvma));
+    if (unlikely(!block))
+        return NULL;
+
+    dvma = block + size;
+    memset(dvma, 0, sizeof(*dvma));
+
+    dvma->offset = size;
+    dvma->node.name = "vmalloc";
+    dvma->node.release = release_vmalloc;
+    respool_insert(&dev->devres, &dvma->node);
+
+    return block;
+}
+EXPORT_SYMBOL(dev_vmalloc);
+
+void dev_vfree(struct device *dev, void *block)
+{
+    struct resnode *node;
+    node = respool_find_release(&dev->devres, find_vmalloc, block);
+    if (unlikely(!node))
+        dev_crit(dev, "illegal vfree %p\n", block);
+}
+EXPORT_SYMBOL(dev_vfree);
+
+static void release_ioremap(struct respool *pool, struct resnode *node)
+{
+    struct devres_ioremap *diomap = devres_to_ioremap(node);
+    iounmap(diomap->block);
+    kcache_free(devres_ioremap_cache, diomap);
+}
+
+static bool find_ioremap(struct respool *pool, struct resnode *node, const void *data)
+{
+    struct devres_ioremap *diomap = devres_to_ioremap(node);
+
+    if (node->release != release_ioremap)
+        return false;
+
+    return data == diomap->block;
+}
+
+void *dev_ioremap_node(struct device *dev, phys_addr_t addr, size_t size, gvm_t flags)
+{
+    struct devres_ioremap *diomap;
+    void *block;
+
+    diomap = kcache_zalloc(devres_ioremap_cache, GFP_KERNEL);
+    if (unlikely(!diomap))
+        return NULL;
+
+    block = ioremap_node(addr, size, flags);
+    if (unlikely(!block)) {
+        kfree(diomap);
+        return NULL;
     }
 
-    return match;
+    diomap->block = block;
+    diomap->node.name = "ioremap";
+    diomap->node.release = release_ioremap;
+    respool_insert(&dev->devres, &diomap->node);
+
+    return block;
 }
+EXPORT_SYMBOL(dev_ioremap_node);
 
-struct devres *devres_find(struct device *dev, devres_find_t find, const void *data)
+void *dev_ioremap_wc(struct device *dev, phys_addr_t pa, size_t size)
 {
-    struct devres *match;
-    irqflags_t irqflags;
-
-    spin_lock_irqsave(&dev->devres_lock, &irqflags);
-    match = find_unlock(dev, find, data);
-    spin_unlock_irqrestore(&dev->devres_lock, &irqflags);
-
-    return match;
+    return dev_ioremap_node(dev, pa, size, GVM_WCOMBINED);
 }
-EXPORT_SYMBOL(devres_find);
+EXPORT_SYMBOL(dev_ioremap_wc);
 
-void devres_insert(struct device *dev, struct devres *res)
+void *dev_ioremap_wt(struct device *dev, phys_addr_t pa, size_t size)
 {
-    irqflags_t irqflags;
-
-    spin_lock_irqsave(&dev->devres_lock, &irqflags);
-    list_add_prev(&dev->devres, &res->list);
-    spin_unlock_irqrestore(&dev->devres_lock, &irqflags);
-
-    devres_debug(dev, "insert %p '%s'\n", res, res->name);
+    return dev_ioremap_node(dev, pa, size, GVM_WTHROUGH);
 }
-EXPORT_SYMBOL(devres_insert);
+EXPORT_SYMBOL(dev_ioremap_wt);
 
-/**
- * devres_release - remove one resource from device.
- * @dev: device to release one.
- * @res: the release resource.
- */
-void devres_remove(struct device *dev, struct devres *res)
+void *dev_ioremap(struct device *dev, phys_addr_t pa, size_t size)
 {
-    irqflags_t irqflags;
-
-    spin_lock_irqsave(&dev->devres_lock, &irqflags);
-    list_del(&res->list);
-    spin_unlock_irqrestore(&dev->devres_lock, &irqflags);
-
-    devres_debug(dev, "remove %p '%s'\n", res, res->name);
+    return dev_ioremap_node(dev, pa, size, GVM_NOCACHE);
 }
-EXPORT_SYMBOL(devres_remove);
+EXPORT_SYMBOL(dev_ioremap);
 
-/**
- * devres_release - release one resource from device.
- * @dev: device to release one.
- * @res: the release resource.
- */
-void devres_release(struct device *dev, struct devres *res)
+void *dev_ioremap_resource(struct device *dev, struct resource *node)
 {
-    irqflags_t irqflags;
-
-    spin_lock_irqsave(&dev->devres_lock, &irqflags);
-    list_del(&res->list);
-    spin_unlock_irqrestore(&dev->devres_lock, &irqflags);
-
-    res->release(dev, res);
-    devres_debug(dev, "release %p '%s'\n", res, res->name);
-}
-EXPORT_SYMBOL(devres_release);
-
-struct devres *devres_find_remove(struct device *dev, devres_find_t find, const void *data)
-{
-    struct devres *match;
-    irqflags_t irqflags;
-
-    spin_lock_irqsave(&dev->devres_lock, &irqflags);
-    match = find_unlock(dev, find, data);
-    if (match)
-        list_del(&match->list);
-    spin_unlock_irqrestore(&dev->devres_lock, &irqflags);
-
-    if (match)
-        devres_debug(dev, "find-remove %p '%s'\n", match, match->name);
-    return match;
-}
-EXPORT_SYMBOL(devres_find_remove);
-
-struct devres *devres_find_release(struct device *dev, devres_find_t find, const void *data)
-{
-    struct devres *match;
-    irqflags_t irqflags;
-
-    spin_lock_irqsave(&dev->devres_lock, &irqflags);
-    match = find_unlock(dev, find, data);
-    if (match)
-        list_del(&match->list);
-    spin_unlock_irqrestore(&dev->devres_lock, &irqflags);
-
-    if (match) {
-        match->release(dev, match);
-        devres_debug(dev, "find-release %p '%s'\n", match, match->name);
+    if (!node || resource_type(node) != RESOURCE_MMIO) {
+        dev_crit(dev, "ioremap illegal resource");
+        return NULL;
     }
-    return match;
+    return dev_ioremap(dev, node->start, node->size);
 }
-EXPORT_SYMBOL(devres_find_release);
+EXPORT_SYMBOL(dev_ioremap_resource);
 
-/**
- * devres_release_all - release all resource on device.
- * @dev: device to release all.
- */
-void devres_release_all(struct device *dev)
+void dev_iounmap(struct device *dev, void *block)
 {
-    struct list_head head;
-    struct devres *first;
-    irqflags_t irqflags;
+    struct resnode *node;
+    node = respool_find_release(&dev->devres, find_ioremap, block);
+    if (unlikely(!node))
+        dev_crit(dev, "illegal iounmap %p\n", block);
+}
+EXPORT_SYMBOL(dev_iounmap);
 
-    spin_lock_irqsave(&dev->devres_lock, &irqflags);
-    if (!list_check_empty(&head)) {
-        spin_unlock_irqrestore(&dev->devres_lock, &irqflags);
-        return;
+static void release_irq(struct respool *pool, struct resnode *node)
+{
+    struct devres_irq *dirq = devres_to_irq(node);
+    irq_release(dirq->vector);
+    kcache_free(devres_irq_cache, dirq);
+}
+
+static bool find_irq(struct respool *pool, struct resnode *node, const void *data)
+{
+    struct devres_irq *dirq = devres_to_irq(node);
+
+    if (node->release != release_irq)
+        return false;
+
+    return (irqnr_t)data == dirq->vector;
+}
+
+state dev_irq_request(struct device *dev, irqnr_t vector, enum irq_flags flags,
+                      irq_handler_t handler, void *data, const char *name)
+{
+    struct devres_irq *dirq;
+    state retval;
+
+    dirq = kcache_zalloc(devres_irq_cache, GFP_KERNEL);
+    if (unlikely(!dirq))
+        return -ENOMEM;
+
+    retval = irq_request(vector, flags, handler, data, name);
+    if (unlikely(retval)) {
+        kcache_free(devres_irq_cache, dirq);
+        return retval;
     }
 
-    list_replace_init(&dev->devres, &head);
-    spin_unlock_irqrestore(&dev->devres_lock, &irqflags);
+    dirq->vector = vector;
+    dirq->node.name = "irq";
+    dirq->node.release = release_irq;
+    respool_insert(&dev->devres, &dirq->node);
 
-    while (!list_check_empty(&head)) {
-        first = list_first_entry(&head, struct devres, list);
-        first->release(dev, first);
-        list_del(&first->list);
-        devres_debug(dev, "release-all %p '%s'\n", first, first->name);
-    }
+    return retval;
 }
-EXPORT_SYMBOL(devres_release_all);
+EXPORT_SYMBOL(dev_irq_request);
+
+void dev_irq_release(struct device *dev, irqnr_t vector)
+{
+    struct resnode *node;
+    node = respool_find_release(&dev->devres, find_irq, (void *)vector);
+    if (unlikely(!node))
+        dev_crit(dev, "illegal irq release %lu\n", vector);
+}
+EXPORT_SYMBOL(dev_irq_release);
+
+void __init devres_init(void)
+{
+    devres_ioremap_cache = KCACHE_CREATE(
+        struct devres_ioremap, KCACHE_PANIC
+    );
+    devres_irq_cache = KCACHE_CREATE(
+        struct devres_irq, KCACHE_PANIC
+    );
+}

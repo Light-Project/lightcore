@@ -1,8 +1,13 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-obj-y += bus.o device.o driver.o
-obj-y += init.o devid.o
-obj-y += devres.o devres-lib.o
-obj-y += platform.o base.o fwnode.o
+obj-y += base.o
+obj-y += bus.o
+obj-y += device.o
+obj-y += devid.o
+obj-y += devres.o
+obj-y += driver.o
+obj-y += fwnode.o
+obj-y += init.o
+obj-$(CONFIG_ISA_BUS) += isa.o
+obj-y += platform.o
 obj-$(CONFIG_ACPI) += platform-acpi.o
 obj-$(CONFIG_DT) += platform-dt.o
-obj-$(CONFIG_ISA_BUS) += isa.o

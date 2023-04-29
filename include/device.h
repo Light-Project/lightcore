@@ -3,6 +3,7 @@
 #define _DEVICE_H_
 
 #include <kobject.h>
+#include <respool.h>
 #include <device/bus.h>
 #include <device/driver.h>
 #include <device/devinfo.h>
@@ -20,9 +21,7 @@ struct device {
 
     struct list_head bus_list;
     struct list_head driver_list;
-
-    spinlock_t devres_lock;
-    struct list_head devres;
+    struct respool devres;
 
     const char *name;
     struct kobject kobj;

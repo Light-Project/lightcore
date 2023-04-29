@@ -58,6 +58,7 @@ obj-y += ratelimit.o
 obj-$(CONFIG_DEBUG_RBTREE) += rbtree-debug.o
 obj-y += rbtree.o
 obj-$(CONFIG_DEBUG_REFCOUNT) += refcount.o
+obj-y += respool.o
 obj-y += segtree.o
 obj-y += skiplist.o
 obj-$(CONFIG_DEBUG_SLIST) += slist-debug.o
