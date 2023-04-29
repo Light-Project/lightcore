@@ -12,17 +12,17 @@ enum ctype_num {
     __CTYPE_HEXDG,
     __CTYPE_SPACE,
     __CTYPE_HDSPA,
-};
 
-#define CTYPE_UPPER (1UL << __CTYPE_UPPER)
-#define CTYPE_LOWER (1UL << __CTYPE_LOWER)
-#define CTYPE_CNTRL (1UL << __CTYPE_CNTRL)
-#define CTYPE_PUNCT (1UL << __CTYPE_PUNCT)
-#define CTYPE_BLANK (1UL << __CTYPE_BLANK)
-#define CTYPE_DIGIT (1UL << __CTYPE_DIGIT)
-#define CTYPE_HEXDG (1UL << __CTYPE_HEXDG)
-#define CTYPE_SPACE (1UL << __CTYPE_SPACE)
-#define CTYPE_HDSPA (1UL << __CTYPE_HDSPA)
+    CTYPE_UPPER = (1UL << __CTYPE_UPPER),
+    CTYPE_LOWER = (1UL << __CTYPE_LOWER),
+    CTYPE_CNTRL = (1UL << __CTYPE_CNTRL),
+    CTYPE_PUNCT = (1UL << __CTYPE_PUNCT),
+    CTYPE_BLANK = (1UL << __CTYPE_BLANK),
+    CTYPE_DIGIT = (1UL << __CTYPE_DIGIT),
+    CTYPE_HEXDG = (1UL << __CTYPE_HEXDG),
+    CTYPE_SPACE = (1UL << __CTYPE_SPACE),
+    CTYPE_HDSPA = (1UL << __CTYPE_HDSPA),
+};
 
 extern const unsigned short ctype_table[256];
 
