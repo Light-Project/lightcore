@@ -118,7 +118,7 @@ state kshell_system(struct kshell_context *ctx, const char *cmdline)
         return -EINVAL;
     }
 
-    BUG_ON(ctx->breakdown);
+    WARN_ON(ctx->breakdown);
     return do_system(ctx, cmdline);
 }
 EXPORT_SYMBOL(kshell_system);
@@ -169,7 +169,7 @@ state kshell_main(struct kshell_context *ctx, int argc, char *argv[])
         readline_free(rstate);
     }
 
-    BUG_ON(nctx.depth);
+    WARN_ON(nctx.depth);
     commands_release(&nctx);
 
     return retval;

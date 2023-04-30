@@ -3,7 +3,6 @@
  * Copyright(c) 2021 John Sanpe <sanpeqf@gmail.com>
  */
 
-#include "kshell.h"
 #include <ctype.h>
 #include <string.h>
 #include <kmalloc.h>
@@ -12,6 +11,9 @@
 #define PASER_TEXT_DEF  64
 #define PASER_VARG_DEF  32
 #define PASER_PIPE_DEF  64
+
+#include "kshell.h"
+#include "pipeline.c"
 
 struct paser_transition {
     unsigned int form;
@@ -150,7 +152,7 @@ static enum paser_state parser_state(enum paser_state state, char code, char *re
 
     if (major && major->depth) {
         *depth += major->depth;
-        BUG_ON(*depth < 0);
+        WARN_ON(*depth < 0);
     }
 
     if (!major || major->cross || (*depth && olddepth))
@@ -162,100 +164,6 @@ static enum paser_state parser_state(enum paser_state state, char code, char *re
         state = major->to;
 
     return state;
-}
-
-static void pipeline_write(const char *str, unsigned int len, void *data)
-{
-    struct kshell_context *ctx = data;
-    bool nrealloc = false;
-    void *nblock;
-
-    while (unlikely(ctx->pipepos + len >= ctx->pipesize)) {
-        ctx->pipesize *= 2;
-        nrealloc = true;
-    }
-
-    if (unlikely(nrealloc)) {
-        nblock = krealloc(ctx->pipeline, ctx->pipesize, GFP_KERNEL);
-        if (!nblock)
-            return;
-        ctx->pipeline = nblock;
-    }
-
-    strncpy(ctx->pipeline + ctx->pipepos, str, len);
-    ctx->pipepos += len;
-}
-
-static char *pseudo_pipeline(struct kshell_context *ctx, const char *cmdline,
-                             unsigned int *length)
-{
-    unsigned int opipesize, opipepos;
-    char *opipeline, *buffer;
-    kshell_write_t owrite;
-    void *odata;
-
-    buffer = kmalloc(PASER_PIPE_DEF, GFP_KERNEL);
-    if (!buffer)
-        return NULL;
-
-    opipesize = ctx->pipesize;
-    opipepos = ctx->pipepos;
-    opipeline = ctx->pipeline;
-    owrite = ctx->write;
-    odata = ctx->data;
-
-    ctx->pipesize = PASER_PIPE_DEF;
-    ctx->pipepos = 0;
-    ctx->pipeline = buffer;
-    ctx->write = pipeline_write;
-    ctx->data = ctx;
-
-    kshell_system(ctx, cmdline);
-    buffer = ctx->pipeline;
-    buffer[ctx->pipepos] = '\0';
-    *length = ctx->pipepos;
-
-    ctx->pipesize = opipesize;
-    ctx->pipepos = opipepos;
-    ctx->pipeline = opipeline;
-    ctx->write = owrite;
-    ctx->data = odata;
-
-    return buffer;
-}
-
-static inline bool isspilt(char ch)
-{
-    return ch == ' ' || ch == '\t' || ch == '\n';
-}
-
-static int pipeline_parser(char *buff, unsigned int *length)
-{
-    unsigned int walk;
-    int count;
-
-    for (walk = 0; isspilt(buff[walk]); ++walk);
-    memmove(buff, buff + walk, *length - walk);
-    *length -= walk;
-
-    if (!*length)
-        return 0;
-
-    for (count = walk = 0; walk < *length - 1; ++walk) {
-        if (isspilt(buff[walk])) {
-            if (!isspilt(buff[walk + 1]))
-                count++;
-            buff[walk] = '\0';
-        }
-    }
-
-    if (isspilt(buff[walk]))
-        buff[walk] = '\0';
-
-    while (!buff[walk--])
-        --*length;
-
-    return count;
 }
 
 #define PARSER_EXPANSION(texp, vexp) do {                       \
@@ -270,10 +178,9 @@ static int pipeline_parser(char *buff, unsigned int *length)
                                                                 \
     if (unlikely(flags)) {                                      \
         nblock = krealloc(tbuff, tsize + vsize, GFP_KERNEL);    \
-        if (!nblock) {                                          \
-            kfree(tbuff);                                       \
-            return -ENOMEM;                                     \
-        }                                                       \
+        if (unlikely(!nblock))                                  \
+            goto errmem;                                        \
+                                                                \
         tbuff = nblock;                                         \
         vbuff = nblock + tsize;                                 \
     }                                                           \
@@ -304,7 +211,7 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
 
     tbuff = kmalloc(tsize + vsize, GFP_KERNEL);
     vbuff = tbuff + tsize;
-    if (!tbuff)
+    if (unlikely(!tbuff))
         return -ENOMEM;
 
     for (walk = cmdline; *walk; cstate = nstate, ++walk) {
@@ -343,13 +250,16 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
             vbuff[vpos] = '\0';
             vpos = 0;
             var = pseudo_pipeline(ctx, vbuff, &count);
-            if (var) {
-                PARSER_EXP_TBUF(count);
-                strcpy(tbuff + tpos, var);
-                if (!is_qoutput(cstate))
-                    (*argc) += pipeline_parser(tbuff + tpos, &count);
-                tpos += count;
-            }
+            if (unlikely(!var))
+                goto errmem;
+
+            PARSER_EXP_TBUF(count);
+            strcpy(tbuff + tpos, var);
+            if (!is_qoutput(cstate))
+                (*argc) += pipeline_parser(tbuff + tpos, &count);
+
+            tpos += count;
+            kfree(var);
         }
 
         if (is_variable(nstate) || is_retvalue(nstate) || is_output(nstate)) {
@@ -406,7 +316,7 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
     /* Allocate an argv area */
     count = (*argc + 1) * sizeof(**argv);
     *argv = kmalloc(count + tpos, GFP_KERNEL);
-    if (!*argv)
+    if (unlikely(!*argv))
         goto errmem;
 
     /* Use unified memory to store parameters */
@@ -421,7 +331,7 @@ state kshell_parser(struct kshell_context *ctx, const char **pcmdline,
         vpos += strlen(vbuff + vpos);
     }
 
-    BUG_ON(count != *argc);
+    WARN_ON(count != *argc);
     (*argv)[count] = NULL;
     kfree(tbuff);
 
