@@ -99,7 +99,7 @@ static __init state do_one_initcall(initcall_entry_t *fn)
         return -EPERM;
 
     preempt = preempt_count();
-    msgbuff[0] = 0;
+    msgbuff[0] = '\0';
 
     pr_debug("starting %s\n", fn->name);
     for (count = 0; count <= initcall_time; ++count) {
@@ -119,12 +119,12 @@ static __init state do_one_initcall(initcall_entry_t *fn)
 
     if (preempt_count() != preempt) {
         raw_preempt_count_set(preempt);
-        sprintf(msgbuff, "preemption imbalance ");
+        strlcat(msgbuff, "preemption imbalance ", sizeof(msgbuff));
     }
 
     if (irq_local_disabled()) {
         irq_local_enable();
-        sprintf(msgbuff, "interrupt changed");
+        strlcat(msgbuff, "interrupt changed ", sizeof(msgbuff));
     }
 
     if (msgbuff[0]) {
