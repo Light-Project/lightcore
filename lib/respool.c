@@ -57,7 +57,7 @@ void respool_insert(struct respool *pool, struct resnode *res)
 EXPORT_SYMBOL(respool_insert);
 
 /**
- * respool_release - remove one resource from respool.
+ * respool_remove - remove one resource from respool.
  * @pool: respool to release one.
  * @res: the release resource.
  */
@@ -141,7 +141,7 @@ EXPORT_SYMBOL(respool_find_release);
 void respool_release_all(struct respool *pool)
 {
     struct list_head head;
-    struct resnode *first;
+    struct resnode *node;
     irqflags_t irqflags;
 
     spin_lock_irqsave(&pool->lock, &irqflags);
@@ -153,12 +153,10 @@ void respool_release_all(struct respool *pool)
     list_replace_init(&pool->node, &head);
     spin_unlock_irqrestore(&pool->lock, &irqflags);
 
-    while (!list_check_empty(&head)) {
-        first = list_first_entry(&head, struct resnode, list);
-        first->release(pool, first);
-        list_del(&first->list);
+    list_for_each_entry(node, &head, list) {
+        node->release(pool, node);
         respool_debug("%s: release-all %p '%s'\n",
-                      pool->name, first, first->name);
+                      pool->name, node, node->name);
     }
 }
 EXPORT_SYMBOL(respool_release_all);
