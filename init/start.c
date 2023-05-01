@@ -37,13 +37,6 @@
 #include <irqflags.h>
 #include <asm-generic/header.h>
 
-struct sched_task init_task = {
-    .stack = init_stack,
-    .namespace = &root_ns,
-    .sched_type = &idle_sched,
-    .flags = SCHED_TASK_KTHREAD,
-};
-
 static void __init command_setup(void)
 {
     const char *args = (void *)(size_t)boot_head.cmd;
@@ -54,7 +47,7 @@ static void __init command_setup(void)
 
 static noinline __noreturn void kernel_main(void)
 {
-    kernel_clone(0, user_init, NULL);
+    kernel_clone(0, kernel_init, NULL);
     kernel_clone(0, kthread_daemon, NULL);
     idle_task_entry();
 }

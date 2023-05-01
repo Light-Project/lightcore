@@ -49,6 +49,12 @@ err_task:
     return NULL;
 }
 
+static void task_free(struct sched_task *child)
+{
+    task_stack_free(child->stack);
+    sched_task_destroy(child);
+}
+
 static struct sched_task *task_copy(struct task_clone_args *args, struct pid *pid)
 {
     enum clone_flags flags = args->flags;
@@ -63,30 +69,31 @@ static struct sched_task *task_copy(struct task_clone_args *args, struct pid *pi
     if (unlikely(ret))
         goto err_sched_clone;
 
-    ret = copy_memory(args, child);
+    ret = task_copy_memory(args, child);
     if (unlikely(ret))
-        goto err_copy_mem;
+        goto err_sched_clone;
 
     ret = proc_thread_copy(args, child);
     if (unlikely(ret))
-        goto err_copy_proc;
+        goto err_sched_clone;
 
     if (pid != &init_task_pid) {
         pid = pid_alloc(child->namespace->pid, args->tid, args->tid_size);
         if (unlikely(IS_INVAL(pid))) {
             ret = PTR_INVAL(pid);
-            goto err_alloc_pid;
+            goto err_sched_clone;
         }
     }
 
+    child->pid_struct = pid;
+    child->parent = current;
+    list_add(&current->child, &child->sibling);
     child->start_time = timekeeping_get_time_ns();
 
     return child;
 
-err_alloc_pid:
-err_copy_proc:
-err_copy_mem:
 err_sched_clone:
+    task_free(child);
     return ERR_PTR(ret);
 }
 
@@ -100,6 +107,7 @@ pid_t task_clone(struct task_clone_args *args)
         return PTR_INVAL(child);
 
     sched_wake_up_new(child);
+    pid = pid_ns_nr(child->namespace->pid, child->pid_struct);
 
     return pid;
 }

@@ -34,7 +34,7 @@ void task_memory_free(struct memory *mem)
 }
 EXPORT_SYMBOL(task_memory_free);
 
-static state copy_memory(struct task_clone_args *args, struct sched_task *child)
+static state task_copy_memory(struct task_clone_args *args, struct sched_task *child)
 {
     enum clone_flags flags = args->flags;
     struct memory *mem, *omem;
