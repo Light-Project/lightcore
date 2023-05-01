@@ -58,7 +58,7 @@ static state kshenv_setval(struct rb_root *head, const char *name,
     return -ENOERR;
 }
 
-static size_t kshenv_checkname(const char *name)
+static size_t kshenv_namelen(const char *name)
 {
     size_t index;
 
@@ -74,7 +74,7 @@ static size_t kshenv_checkname(const char *name)
      * Variable name can only contain
      * alphanumeric characters and underscores.
      */
-    for (index = 0; name[index]; ++index) {
+    for (index = 1; name[index]; ++index) {
         if (!isalnum(name[index]) && name[index] != '_')
             break;
     }
@@ -97,15 +97,18 @@ static state generic_setenv(struct rb_root *head, bool check, const char *name,
                             const char *value, bool overwrite)
 {
     const char *nname, *nvalue;
-    state retval, namelen;
+    size_t namelen, checklen;
+    state retval;
 
+    namelen = strlen(name);
     if (check) {
-        namelen = kshenv_checkname(name);
-        if (!namelen)
-            return -EINVAL;
-        if (namelen != strlen(name))
+        checklen = kshenv_namelen(name);
+        if (namelen != checklen)
             return -EINVAL;
     }
+
+    if (!namelen)
+        return -EINVAL;
 
     nname = kstrdup_const(name, GFP_KERNEL);
     nvalue = kstrdup_const(value, GFP_KERNEL);
@@ -134,7 +137,7 @@ static state generic_putenv(struct rb_root *head, bool check, const char *string
     state retval;
 
     if (check)
-        namelen = kshenv_checkname(string);
+        namelen = kshenv_namelen(string);
     else {
         name = strchr(string, '=');
         if (name)
@@ -369,7 +372,7 @@ state kshell_putenv(struct kshell_context *ctx, const char *string)
     size_t namelen;
     state retval;
 
-    namelen = kshenv_checkname(string);
+    namelen = kshenv_namelen(string);
     if (!namelen)
         return -EINVAL;
 
