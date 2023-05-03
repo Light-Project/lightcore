@@ -39,18 +39,15 @@ static state panic_bootarg(char *args)
 }
 bootarg_initcall("panic_timeout", panic_bootarg);
 
-void __noreturn panic(const char *fmt, ...)
+void __noreturn __cold vpanic(const char *fmt, va_list args)
 {
     unsigned int count, state;
     char buff[512];
-    va_list args;
 
     irq_local_disable();
     preempt_disable();
 
-    va_start(args, fmt);
     vsnprintf(buff, sizeof(buff), fmt, args);
-    va_end(args);
 
     pr_emerg("Kernel Panic: %s\n", buff);
     notifier_spin_chain_call(&panic_notifier, NULL, -1, NULL);
@@ -71,5 +68,13 @@ void __noreturn panic(const char *fmt, ...)
     }
 
     kernel_reboot();
+}
+
+void __noreturn __cold panic(const char *fmt, ...)
+{
+    va_list args;
+
+    va_start(args, fmt);
+    vpanic(fmt, args);
 }
 EXPORT_SYMBOL(panic);
