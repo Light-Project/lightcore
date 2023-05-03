@@ -2,6 +2,15 @@
 #ifndef _MHELPER_H_
 #define _MHELPER_H_
 
+#define MMAP_SPLIT0(fn, ...)
+#define MMAP_SPLIT1(fn, arg, ...) fn(arg)
+#define MMAP_SPLIT2(fn, arg, ...) fn(arg), MMAP_ARG1(fn, ##__VA_ARGS__)
+#define MMAP_SPLIT3(fn, arg, ...) fn(arg), MMAP_ARG2(fn, ##__VA_ARGS__)
+#define MMAP_SPLIT4(fn, arg, ...) fn(arg), MMAP_ARG3(fn, ##__VA_ARGS__)
+#define MMAP_SPLIT5(fn, arg, ...) fn(arg), MMAP_ARG4(fn, ##__VA_ARGS__)
+#define MMAP_SPLIT6(fn, arg, ...) fn(arg), MMAP_ARG5(fn, ##__VA_ARGS__)
+#define MMAP_SPLITN(n, fn, ...) MMAP_ARG##n(fn, ##__VA_ARGS__)
+
 #define MMAP_ARG0(fn, ...)
 #define MMAP_ARG1(fn, type, arg, ...) fn(type, arg)
 #define MMAP_ARG2(fn, type, arg, ...) fn(type, arg), MMAP_ARG1(fn, ##__VA_ARGS__)
