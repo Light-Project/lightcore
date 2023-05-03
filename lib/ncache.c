@@ -6,6 +6,8 @@
 #include <ncache.h>
 #include <kmalloc.h>
 #include <crash.h>
+#include <panic.h>
+#include <printk.h>
 #include <export.h>
 
 static __always_inline void

@@ -7,6 +7,7 @@
 #include <once.h>
 #include <crash.h>
 #include <extable.h>
+#include <printk.h>
 
 static inline void
 extable_handler_generic(struct regs *regs, struct extable_entry *extable)

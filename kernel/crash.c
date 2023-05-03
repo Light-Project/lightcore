@@ -7,10 +7,34 @@
 #define pr_fmt(fmt) MODULE_NAME ": " fmt
 
 #include <crash.h>
+#include <panic.h>
 #include <sort.h>
 #include <bsearch.h>
 #include <sections.h>
 #include <printk.h>
+#include <export.h>
+
+int __cold crash_printk(const char *fmt, ...)
+{
+    va_list args;
+    int retval;
+
+    va_start(args, fmt);
+    retval = vprintk(fmt, args);
+    va_end(args);
+
+    return retval;
+}
+EXPORT_SYMBOL(crash_printk);
+
+void __cold __noreturn crash_panic(const char *fmt, ...)
+{
+    va_list args;
+
+    va_start(args, fmt);
+    vpanic(fmt, args);
+}
+EXPORT_SYMBOL(crash_panic);
 
 static long crash_table_search(const void *key, void *pdata)
 {

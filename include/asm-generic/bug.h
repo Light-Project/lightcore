@@ -5,8 +5,6 @@
 #ifndef __ASSEMBLY__
 # include <once.h>
 # include <bitflags.h>
-# include <printk.h>
-# include <panic.h>
 
 enum crash_flags {
     __CRASH_FLAG_NCUT_HERE = 0,
@@ -33,6 +31,9 @@ GENERIC_STRUCT_FLAG(crash, struct crash_entry, flags, ncut_here, __CRASH_FLAG_NC
 GENERIC_STRUCT_FLAG(crash, struct crash_entry, flags, warning, __CRASH_FLAG_WARNING);
 GENERIC_STRUCT_FLAG(crash, struct crash_entry, flags, once, __CRASH_FLAG_ONCE);
 GENERIC_STRUCT_FLAG(crash, struct crash_entry, flags, done, __CRASH_FLAG_DONE);
+
+extern __cold int crash_printk(const char *fmt, ...);
+extern __noreturn __cold void crash_panic(const char *fmt, ...);
 
 #ifndef CRASH_CUT_HERE
 # define CRASH_CUT_HERE "------------[ CUT HERE ]------------\n"

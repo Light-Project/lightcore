@@ -6,6 +6,7 @@
 #include <initcall.h>
 #include <kshell.h>
 #include <crash.h>
+#include <panic.h>
 
 static void usage(struct kshell_context *ctx)
 {
