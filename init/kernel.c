@@ -9,7 +9,7 @@
 #include <power.h>
 #include <kshell.h>
 #include <printk.h>
-#include <delay.h>
+#include <panic.h>
 
 static __initdata const char *init_argv[] = {
     NULL, "init", NULL
@@ -41,32 +41,20 @@ static __init void basic_init(void)
     initcalls();
 }
 
-static __noreturn void auto_reboot(void)
-{
-    unsigned int count;
-
-    pr_emerg("No init executable found, system will reset:\n");
-    for (count = 5; count; --count) {
-        pr_emerg("%d %.*s\n", count, count, "******");
-        mdelay(1000);
-    }
-
-    kernel_reboot();
-}
-
 int __noreturn kernel_init(void *arg)
 {
-    state ret;
+    state retval;
 
+    completion_wait(&kernel_complete);
     basic_init();
 
-    ret = mount_rootfs();
-    if (ret) {
+    retval = mount_rootfs();
+    if (retval) {
         init_run(CONFIG_DEFAULT_INIT);
         init_run("/bin/init");
         init_run("/sbin/init");
     }
 
     ksh_init();
-    auto_reboot();
+    panic("No working init found");
 }

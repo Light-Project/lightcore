@@ -37,6 +37,8 @@
 #include <irqflags.h>
 #include <asm-generic/header.h>
 
+DEFINE_COMPLETION(kernel_complete);
+
 static void __init command_setup(void)
 {
     const char *args = (void *)(size_t)boot_head.cmd;
@@ -49,6 +51,8 @@ static noinline __noreturn void kernel_main(void)
 {
     kernel_clone(0, kernel_init, NULL);
     kernel_clone(0, kthread_daemon, NULL);
+
+    complete_all(&kernel_complete);
     idle_task_entry();
 }
 

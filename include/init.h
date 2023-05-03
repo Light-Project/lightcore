@@ -3,9 +3,11 @@
 #define _INIT_H_
 
 #include <types.h>
+#include <completion.h>
 
 #define BOOT_PARAM_SIZE 512
 extern char boot_args[BOOT_PARAM_SIZE];
+extern struct completion kernel_complete;
 
 extern __init void initcalls(void);
 extern __init void ctors_init(void);
